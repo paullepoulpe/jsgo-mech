@@ -3,17 +3,17 @@
 package closure
 
 type Config struct {
-	languageMode_          *Config_LanguageMode
-	strictMode_            *Config_StrictMode
-	jsDocParsingMode_      *Config_JsDocParsing
-	runMode_               *Config_RunMode
-	annotations_           *JTMap[string, *Annotation_parsing]
+	languageMode_          Config_LanguageMode
+	strictMode_            Config_StrictMode
+	jsDocParsingMode_      Config_JsDocParsing
+	runMode_               Config_RunMode
+	annotations_           *JTMap[string, Annotation_parsing]
 	suppressionNames_      *JTSet[string]
 	closurePrimitiveNames_ *JTSet[string]
 	parseInlineSourceMaps_ bool
 }
 
-func (this *Config) init_Config(languageMode *Config_LanguageMode, strictMode *Config_StrictMode, jsDocParsingMode *Config_JsDocParsing, runMode *Config_RunMode, annotations *JTMap[string, *Annotation_parsing], suppressionNames *JTSet[string], closurePrimitiveNames *JTSet[string], parseInlineSourceMaps bool) {
+func (this *Config) init_Config(languageMode Config_LanguageMode, strictMode Config_StrictMode, jsDocParsingMode Config_JsDocParsing, runMode Config_RunMode, annotations *JTMap[string, Annotation_parsing], suppressionNames *JTSet[string], closurePrimitiveNames *JTSet[string], parseInlineSourceMaps bool) {
 	Objects_requireNonNull_T(languageMode, "languageMode")
 	Objects_requireNonNull_T(strictMode, "strictMode")
 	Objects_requireNonNull_T(jsDocParsingMode, "jsDocParsingMode")
@@ -31,7 +31,7 @@ func (this *Config) init_Config(languageMode *Config_LanguageMode, strictMode *C
 	this.parseInlineSourceMaps_ = parseInlineSourceMaps
 }
 
-func new_Config(languageMode *Config_LanguageMode, strictMode *Config_StrictMode, jsDocParsingMode *Config_JsDocParsing, runMode *Config_RunMode, annotations *JTMap[string, *Annotation_parsing], suppressionNames *JTSet[string], closurePrimitiveNames *JTSet[string], parseInlineSourceMaps bool) *Config {
+func new_Config(languageMode Config_LanguageMode, strictMode Config_StrictMode, jsDocParsingMode Config_JsDocParsing, runMode Config_RunMode, annotations *JTMap[string, Annotation_parsing], suppressionNames *JTSet[string], closurePrimitiveNames *JTSet[string], parseInlineSourceMaps bool) *Config {
 	this := &Config{}
 	this.init_Config(languageMode, strictMode, jsDocParsingMode, runMode, annotations, suppressionNames, closurePrimitiveNames, parseInlineSourceMaps)
 	return this
@@ -53,8 +53,8 @@ func Config_builder() *Config_Builder {
 	return new_Config_Builder_0().setLanguageMode(Config_LanguageMode_UNSUPPORTED).setStrictMode(Config_StrictMode_STRICT).setJsDocParsingMode(Config_JsDocParsing_TYPES_ONLY).setRunMode(Config_RunMode_STOP_AFTER_ERROR).setExtraAnnotationNames(ImmutableSet_as_Iterable(ImmutableSet_of())).setSuppressionNames(ImmutableSet_as_Iterable(ImmutableSet_of())).setClosurePrimitiveNames(ImmutableSet_as_Iterable(ImmutableSet_of())).setParseInlineSourceMaps(false)
 }
 
-func Config_buildAnnotations(allowlist IterableOf[string]) *JTMap[string, *Annotation_parsing] {
-	var annotationsBuilder *TMapBuilder[string, *Annotation_parsing] = newTMapBuilder_(jtc_string, tc_p_Annotation_parsing)
+func Config_buildAnnotations(allowlist IterableOf[string]) *JTMap[string, Annotation_parsing] {
+	var annotationsBuilder *TMapBuilder[string, Annotation_parsing] = newTMapBuilder_(jtc_string, tc_p_Annotation_parsing)
 	annotationsBuilder.putAll(Annotation_parsing_recognizedAnnotations.asMap())
 	it_1 := foreach_(allowlist)
 	for it_1.next() {
@@ -66,23 +66,23 @@ func Config_buildAnnotations(allowlist IterableOf[string]) *JTMap[string, *Annot
 	return annotationsBuilder.buildOrThrow()
 }
 
-func (this *Config) languageMode() *Config_LanguageMode {
+func (this *Config) languageMode() Config_LanguageMode {
 	return this.languageMode_
 }
 
-func (this *Config) strictMode() *Config_StrictMode {
+func (this *Config) strictMode() Config_StrictMode {
 	return this.strictMode_
 }
 
-func (this *Config) jsDocParsingMode() *Config_JsDocParsing {
+func (this *Config) jsDocParsingMode() Config_JsDocParsing {
 	return this.jsDocParsingMode_
 }
 
-func (this *Config) runMode() *Config_RunMode {
+func (this *Config) runMode() Config_RunMode {
 	return this.runMode_
 }
 
-func (this *Config) annotations() *JTMap[string, *Annotation_parsing] {
+func (this *Config) annotations() *JTMap[string, Annotation_parsing] {
 	return this.annotations_
 }
 
@@ -119,48 +119,59 @@ func (this *Config) hashCode() int32 {
 	return h
 }
 
-type Config_StrictMode struct {
-	Enum
+type Config_StrictMode uint8
+
+// Config_StrictMode_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var Config_StrictMode_enum_ = [2]Enum{
+	{self_: Config_StrictMode_STRICT, name_: "STRICT", ordinal_: 0},
+	{self_: Config_StrictMode_SLOPPY, name_: "SLOPPY", ordinal_: 1},
 }
 
-func (this *Config_StrictMode) up_Enum() *Enum {
-	if this == nil {
+func (this Config_StrictMode) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &Config_StrictMode_enum_[this-1]
 }
 
-func (this *Config_StrictMode) init_Config_StrictMode(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this Config_StrictMode) name() string { return Config_StrictMode_enum_[this-1].name_ }
+
+func (this Config_StrictMode) ordinal() int32 { return Config_StrictMode_enum_[this-1].ordinal_ }
+
+func (this Config_StrictMode) toString() string { return Config_StrictMode_enum_[this-1].name_ }
+
+func (this Config_StrictMode) compareTo(o any) int32 {
+	return Config_StrictMode_enum_[this-1].compareTo(o)
 }
 
-func new_Config_StrictMode(name_ string, ordinal_ int32) *Config_StrictMode {
-	this := &Config_StrictMode{}
-	this.self_ = this
-	this.init_Config_StrictMode(name_, ordinal_)
+func (this Config_StrictMode) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func (this *Config_StrictMode) isStrict() bool {
+func (this Config_StrictMode) isStrict() bool {
 	return (this == Config_StrictMode_STRICT)
 }
 
-func Config_StrictMode_values() []*Config_StrictMode {
-	return append([]*Config_StrictMode(nil), Config_StrictMode_values_...)
+func Config_StrictMode_values() []Config_StrictMode {
+	return append([]Config_StrictMode(nil), Config_StrictMode_values_...)
 }
 
-func Config_StrictMode_valueOf(name string) *Config_StrictMode {
+func Config_StrictMode_valueOf(name string) Config_StrictMode {
 	for _, v := range Config_StrictMode_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("StrictMode", name))
 }
 
-var Config_StrictMode_STRICT *Config_StrictMode
-var Config_StrictMode_SLOPPY *Config_StrictMode
-var Config_StrictMode_values_ []*Config_StrictMode
+const Config_StrictMode_STRICT Config_StrictMode = 1
+const Config_StrictMode_SLOPPY Config_StrictMode = 2
+
+var Config_StrictMode_values_ []Config_StrictMode
 
 var Config_StrictMode_clinit_done bool
 
@@ -169,86 +180,110 @@ func Config_StrictMode_clinit() {
 		return
 	}
 	Config_StrictMode_clinit_done = true
-	Config_StrictMode_STRICT = new_Config_StrictMode("STRICT", 0)
-	Config_StrictMode_SLOPPY = new_Config_StrictMode("SLOPPY", 1)
-	Config_StrictMode_values_ = []*Config_StrictMode{Config_StrictMode_STRICT, Config_StrictMode_SLOPPY}
+	Config_StrictMode_values_ = []Config_StrictMode{Config_StrictMode_STRICT, Config_StrictMode_SLOPPY}
 	registerEnum_("com.google.javascript.jscomp.parsing.Config.StrictMode", enumValues_(Config_StrictMode_values_))
 
 }
 
-type Config_LanguageMode struct {
-	Enum
-	featureSet *FeatureSet
+type Config_LanguageMode uint8
+
+// Config_LanguageMode_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var Config_LanguageMode_enum_ = [13]Enum{
+	{self_: Config_LanguageMode_ECMASCRIPT3, name_: "ECMASCRIPT3", ordinal_: 0},
+	{self_: Config_LanguageMode_ECMASCRIPT5, name_: "ECMASCRIPT5", ordinal_: 1},
+	{self_: Config_LanguageMode_ECMASCRIPT_2015, name_: "ECMASCRIPT_2015", ordinal_: 2},
+	{self_: Config_LanguageMode_ECMASCRIPT_2016, name_: "ECMASCRIPT_2016", ordinal_: 3},
+	{self_: Config_LanguageMode_ECMASCRIPT_2017, name_: "ECMASCRIPT_2017", ordinal_: 4},
+	{self_: Config_LanguageMode_ECMASCRIPT_2018, name_: "ECMASCRIPT_2018", ordinal_: 5},
+	{self_: Config_LanguageMode_ECMASCRIPT_2019, name_: "ECMASCRIPT_2019", ordinal_: 6},
+	{self_: Config_LanguageMode_ECMASCRIPT_2020, name_: "ECMASCRIPT_2020", ordinal_: 7},
+	{self_: Config_LanguageMode_ECMASCRIPT_2021, name_: "ECMASCRIPT_2021", ordinal_: 8},
+	{self_: Config_LanguageMode_ECMASCRIPT_2022, name_: "ECMASCRIPT_2022", ordinal_: 9},
+	{self_: Config_LanguageMode_ES_NEXT, name_: "ES_NEXT", ordinal_: 10},
+	{self_: Config_LanguageMode_UNSTABLE, name_: "UNSTABLE", ordinal_: 11},
+	{self_: Config_LanguageMode_UNSUPPORTED, name_: "UNSUPPORTED", ordinal_: 12},
 }
 
-func (this *Config_LanguageMode) up_Enum() *Enum {
-	if this == nil {
+var Config_LanguageMode_featureSet_ [13]*FeatureSet
+
+func (this Config_LanguageMode) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &Config_LanguageMode_enum_[this-1]
 }
 
-func (this *Config_LanguageMode) init_Config_LanguageMode(name_ string, ordinal_ int32, featureSet *FeatureSet) {
-	this.Enum.init_Enum(name_, ordinal_)
-	this.featureSet = featureSet
+func (this Config_LanguageMode) name() string { return Config_LanguageMode_enum_[this-1].name_ }
+
+func (this Config_LanguageMode) ordinal() int32 { return Config_LanguageMode_enum_[this-1].ordinal_ }
+
+func (this Config_LanguageMode) toString() string { return Config_LanguageMode_enum_[this-1].name_ }
+
+func (this Config_LanguageMode) compareTo(o any) int32 {
+	return Config_LanguageMode_enum_[this-1].compareTo(o)
 }
 
-func new_Config_LanguageMode(name_ string, ordinal_ int32, featureSet *FeatureSet) *Config_LanguageMode {
-	this := &Config_LanguageMode{}
-	this.self_ = this
-	this.init_Config_LanguageMode(name_, ordinal_, featureSet)
+func (this Config_LanguageMode) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func Config_LanguageMode_minimumRequiredFor(feature *FeatureSet_Feature) *Config_LanguageMode {
+func (this Config_LanguageMode) init_Config_LanguageMode(featureSet *FeatureSet) {
+	Config_LanguageMode_featureSet_[this-1] = featureSet
+}
+
+func Config_LanguageMode_minimumRequiredFor(feature FeatureSet_Feature) Config_LanguageMode {
 	for _, mode := range Config_LanguageMode_values() {
-		if mode.featureSet.has(feature) {
+		if Config_LanguageMode_featureSet_[mode-1].has(feature) {
 			return mode
 		}
 	}
 	panic(new_IllegalStateException_String(("No input language mode supports feature: " + jtostr_(feature))).self())
 }
 
-func Config_LanguageMode_minimumRequiredForSet(featureSet *FeatureSet) *Config_LanguageMode {
+func Config_LanguageMode_minimumRequiredForSet(featureSet *FeatureSet) Config_LanguageMode {
 	for _, mode := range Config_LanguageMode_values() {
-		if mode.featureSet.containsFeatureSet(featureSet) {
+		if Config_LanguageMode_featureSet_[mode-1].containsFeatureSet(featureSet) {
 			return mode
 		}
 	}
 	panic(new_IllegalStateException_String(("No input language mode supports feature set: " + jtostr_(featureSet))).self())
 }
 
-func Config_LanguageMode_latestEcmaScript() *Config_LanguageMode {
+func Config_LanguageMode_latestEcmaScript() Config_LanguageMode {
 	return Config_LanguageMode_ECMASCRIPT_2021
 }
 
-func Config_LanguageMode_values() []*Config_LanguageMode {
-	return append([]*Config_LanguageMode(nil), Config_LanguageMode_values_...)
+func Config_LanguageMode_values() []Config_LanguageMode {
+	return append([]Config_LanguageMode(nil), Config_LanguageMode_values_...)
 }
 
-func Config_LanguageMode_valueOf(name string) *Config_LanguageMode {
+func Config_LanguageMode_valueOf(name string) Config_LanguageMode {
 	for _, v := range Config_LanguageMode_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("LanguageMode", name))
 }
 
-var Config_LanguageMode_ECMASCRIPT3 *Config_LanguageMode
-var Config_LanguageMode_ECMASCRIPT5 *Config_LanguageMode
-var Config_LanguageMode_ECMASCRIPT_2015 *Config_LanguageMode
-var Config_LanguageMode_ECMASCRIPT_2016 *Config_LanguageMode
-var Config_LanguageMode_ECMASCRIPT_2017 *Config_LanguageMode
-var Config_LanguageMode_ECMASCRIPT_2018 *Config_LanguageMode
-var Config_LanguageMode_ECMASCRIPT_2019 *Config_LanguageMode
-var Config_LanguageMode_ECMASCRIPT_2020 *Config_LanguageMode
-var Config_LanguageMode_ECMASCRIPT_2021 *Config_LanguageMode
-var Config_LanguageMode_ECMASCRIPT_2022 *Config_LanguageMode
-var Config_LanguageMode_ES_NEXT *Config_LanguageMode
-var Config_LanguageMode_UNSTABLE *Config_LanguageMode
-var Config_LanguageMode_UNSUPPORTED *Config_LanguageMode
-var Config_LanguageMode_values_ []*Config_LanguageMode
+const Config_LanguageMode_ECMASCRIPT3 Config_LanguageMode = 1
+const Config_LanguageMode_ECMASCRIPT5 Config_LanguageMode = 2
+const Config_LanguageMode_ECMASCRIPT_2015 Config_LanguageMode = 3
+const Config_LanguageMode_ECMASCRIPT_2016 Config_LanguageMode = 4
+const Config_LanguageMode_ECMASCRIPT_2017 Config_LanguageMode = 5
+const Config_LanguageMode_ECMASCRIPT_2018 Config_LanguageMode = 6
+const Config_LanguageMode_ECMASCRIPT_2019 Config_LanguageMode = 7
+const Config_LanguageMode_ECMASCRIPT_2020 Config_LanguageMode = 8
+const Config_LanguageMode_ECMASCRIPT_2021 Config_LanguageMode = 9
+const Config_LanguageMode_ECMASCRIPT_2022 Config_LanguageMode = 10
+const Config_LanguageMode_ES_NEXT Config_LanguageMode = 11
+const Config_LanguageMode_UNSTABLE Config_LanguageMode = 12
+const Config_LanguageMode_UNSUPPORTED Config_LanguageMode = 13
+
+var Config_LanguageMode_values_ []Config_LanguageMode
 
 var Config_LanguageMode_clinit_done bool
 
@@ -257,73 +292,87 @@ func Config_LanguageMode_clinit() {
 		return
 	}
 	Config_LanguageMode_clinit_done = true
-	Config_LanguageMode_ECMASCRIPT3 = new_Config_LanguageMode("ECMASCRIPT3", 0, FeatureSet_ES3)
-	Config_LanguageMode_ECMASCRIPT5 = new_Config_LanguageMode("ECMASCRIPT5", 1, FeatureSet_ES5)
-	Config_LanguageMode_ECMASCRIPT_2015 = new_Config_LanguageMode("ECMASCRIPT_2015", 2, FeatureSet_ES2015_MODULES)
-	Config_LanguageMode_ECMASCRIPT_2016 = new_Config_LanguageMode("ECMASCRIPT_2016", 3, FeatureSet_ES2016_MODULES)
-	Config_LanguageMode_ECMASCRIPT_2017 = new_Config_LanguageMode("ECMASCRIPT_2017", 4, FeatureSet_ES2017_MODULES)
-	Config_LanguageMode_ECMASCRIPT_2018 = new_Config_LanguageMode("ECMASCRIPT_2018", 5, FeatureSet_ES2018_MODULES)
-	Config_LanguageMode_ECMASCRIPT_2019 = new_Config_LanguageMode("ECMASCRIPT_2019", 6, FeatureSet_ES2019_MODULES)
-	Config_LanguageMode_ECMASCRIPT_2020 = new_Config_LanguageMode("ECMASCRIPT_2020", 7, FeatureSet_ES2020_MODULES)
-	Config_LanguageMode_ECMASCRIPT_2021 = new_Config_LanguageMode("ECMASCRIPT_2021", 8, FeatureSet_ES2021_MODULES)
-	Config_LanguageMode_ECMASCRIPT_2022 = new_Config_LanguageMode("ECMASCRIPT_2022", 9, FeatureSet_ES2022_MODULES)
-	Config_LanguageMode_ES_NEXT = new_Config_LanguageMode("ES_NEXT", 10, FeatureSet_ES_NEXT)
-	Config_LanguageMode_UNSTABLE = new_Config_LanguageMode("UNSTABLE", 11, FeatureSet_ES_UNSTABLE)
-	Config_LanguageMode_UNSUPPORTED = new_Config_LanguageMode("UNSUPPORTED", 12, FeatureSet_ES_UNSUPPORTED)
-	Config_LanguageMode_values_ = []*Config_LanguageMode{Config_LanguageMode_ECMASCRIPT3, Config_LanguageMode_ECMASCRIPT5, Config_LanguageMode_ECMASCRIPT_2015, Config_LanguageMode_ECMASCRIPT_2016, Config_LanguageMode_ECMASCRIPT_2017, Config_LanguageMode_ECMASCRIPT_2018, Config_LanguageMode_ECMASCRIPT_2019, Config_LanguageMode_ECMASCRIPT_2020, Config_LanguageMode_ECMASCRIPT_2021, Config_LanguageMode_ECMASCRIPT_2022, Config_LanguageMode_ES_NEXT, Config_LanguageMode_UNSTABLE, Config_LanguageMode_UNSUPPORTED}
+	Config_LanguageMode_ECMASCRIPT3.init_Config_LanguageMode(FeatureSet_ES3)
+	Config_LanguageMode_ECMASCRIPT5.init_Config_LanguageMode(FeatureSet_ES5)
+	Config_LanguageMode_ECMASCRIPT_2015.init_Config_LanguageMode(FeatureSet_ES2015_MODULES)
+	Config_LanguageMode_ECMASCRIPT_2016.init_Config_LanguageMode(FeatureSet_ES2016_MODULES)
+	Config_LanguageMode_ECMASCRIPT_2017.init_Config_LanguageMode(FeatureSet_ES2017_MODULES)
+	Config_LanguageMode_ECMASCRIPT_2018.init_Config_LanguageMode(FeatureSet_ES2018_MODULES)
+	Config_LanguageMode_ECMASCRIPT_2019.init_Config_LanguageMode(FeatureSet_ES2019_MODULES)
+	Config_LanguageMode_ECMASCRIPT_2020.init_Config_LanguageMode(FeatureSet_ES2020_MODULES)
+	Config_LanguageMode_ECMASCRIPT_2021.init_Config_LanguageMode(FeatureSet_ES2021_MODULES)
+	Config_LanguageMode_ECMASCRIPT_2022.init_Config_LanguageMode(FeatureSet_ES2022_MODULES)
+	Config_LanguageMode_ES_NEXT.init_Config_LanguageMode(FeatureSet_ES_NEXT)
+	Config_LanguageMode_UNSTABLE.init_Config_LanguageMode(FeatureSet_ES_UNSTABLE)
+	Config_LanguageMode_UNSUPPORTED.init_Config_LanguageMode(FeatureSet_ES_UNSUPPORTED)
+	Config_LanguageMode_values_ = []Config_LanguageMode{Config_LanguageMode_ECMASCRIPT3, Config_LanguageMode_ECMASCRIPT5, Config_LanguageMode_ECMASCRIPT_2015, Config_LanguageMode_ECMASCRIPT_2016, Config_LanguageMode_ECMASCRIPT_2017, Config_LanguageMode_ECMASCRIPT_2018, Config_LanguageMode_ECMASCRIPT_2019, Config_LanguageMode_ECMASCRIPT_2020, Config_LanguageMode_ECMASCRIPT_2021, Config_LanguageMode_ECMASCRIPT_2022, Config_LanguageMode_ES_NEXT, Config_LanguageMode_UNSTABLE, Config_LanguageMode_UNSUPPORTED}
 	registerEnum_("com.google.javascript.jscomp.parsing.Config.LanguageMode", enumValues_(Config_LanguageMode_values_))
 
 }
 
-type Config_JsDocParsing struct {
-	Enum
+type Config_JsDocParsing uint8
+
+// Config_JsDocParsing_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var Config_JsDocParsing_enum_ = [5]Enum{
+	{self_: Config_JsDocParsing_TYPES_ONLY, name_: "TYPES_ONLY", ordinal_: 0},
+	{self_: Config_JsDocParsing_INCLUDE_DESCRIPTIONS_NO_WHITESPACE, name_: "INCLUDE_DESCRIPTIONS_NO_WHITESPACE", ordinal_: 1},
+	{self_: Config_JsDocParsing_INCLUDE_DESCRIPTIONS_WITH_WHITESPACE, name_: "INCLUDE_DESCRIPTIONS_WITH_WHITESPACE", ordinal_: 2},
+	{self_: Config_JsDocParsing_INCLUDE_ALL_COMMENTS, name_: "INCLUDE_ALL_COMMENTS", ordinal_: 3},
+	{self_: Config_JsDocParsing_LICENSE_COMMENTS_ONLY, name_: "LICENSE_COMMENTS_ONLY", ordinal_: 4},
 }
 
-func (this *Config_JsDocParsing) up_Enum() *Enum {
-	if this == nil {
+func (this Config_JsDocParsing) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &Config_JsDocParsing_enum_[this-1]
 }
 
-func (this *Config_JsDocParsing) init_Config_JsDocParsing(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this Config_JsDocParsing) name() string { return Config_JsDocParsing_enum_[this-1].name_ }
+
+func (this Config_JsDocParsing) ordinal() int32 { return Config_JsDocParsing_enum_[this-1].ordinal_ }
+
+func (this Config_JsDocParsing) toString() string { return Config_JsDocParsing_enum_[this-1].name_ }
+
+func (this Config_JsDocParsing) compareTo(o any) int32 {
+	return Config_JsDocParsing_enum_[this-1].compareTo(o)
 }
 
-func new_Config_JsDocParsing(name_ string, ordinal_ int32) *Config_JsDocParsing {
-	this := &Config_JsDocParsing{}
-	this.self_ = this
-	this.init_Config_JsDocParsing(name_, ordinal_)
+func (this Config_JsDocParsing) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func (this *Config_JsDocParsing) shouldParseDescriptions() bool {
+func (this Config_JsDocParsing) shouldParseDescriptions() bool {
 	return (this != Config_JsDocParsing_TYPES_ONLY)
 }
 
-func (this *Config_JsDocParsing) shouldPreserveWhitespace() bool {
+func (this Config_JsDocParsing) shouldPreserveWhitespace() bool {
 	return (((this == Config_JsDocParsing_INCLUDE_DESCRIPTIONS_WITH_WHITESPACE) || (this == Config_JsDocParsing_INCLUDE_ALL_COMMENTS)) || (this == Config_JsDocParsing_LICENSE_COMMENTS_ONLY))
 }
 
-func Config_JsDocParsing_values() []*Config_JsDocParsing {
-	return append([]*Config_JsDocParsing(nil), Config_JsDocParsing_values_...)
+func Config_JsDocParsing_values() []Config_JsDocParsing {
+	return append([]Config_JsDocParsing(nil), Config_JsDocParsing_values_...)
 }
 
-func Config_JsDocParsing_valueOf(name string) *Config_JsDocParsing {
+func Config_JsDocParsing_valueOf(name string) Config_JsDocParsing {
 	for _, v := range Config_JsDocParsing_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("JsDocParsing", name))
 }
 
-var Config_JsDocParsing_TYPES_ONLY *Config_JsDocParsing
-var Config_JsDocParsing_INCLUDE_DESCRIPTIONS_NO_WHITESPACE *Config_JsDocParsing
-var Config_JsDocParsing_INCLUDE_DESCRIPTIONS_WITH_WHITESPACE *Config_JsDocParsing
-var Config_JsDocParsing_INCLUDE_ALL_COMMENTS *Config_JsDocParsing
-var Config_JsDocParsing_LICENSE_COMMENTS_ONLY *Config_JsDocParsing
-var Config_JsDocParsing_values_ []*Config_JsDocParsing
+const Config_JsDocParsing_TYPES_ONLY Config_JsDocParsing = 1
+const Config_JsDocParsing_INCLUDE_DESCRIPTIONS_NO_WHITESPACE Config_JsDocParsing = 2
+const Config_JsDocParsing_INCLUDE_DESCRIPTIONS_WITH_WHITESPACE Config_JsDocParsing = 3
+const Config_JsDocParsing_INCLUDE_ALL_COMMENTS Config_JsDocParsing = 4
+const Config_JsDocParsing_LICENSE_COMMENTS_ONLY Config_JsDocParsing = 5
+
+var Config_JsDocParsing_values_ []Config_JsDocParsing
 
 var Config_JsDocParsing_clinit_done bool
 
@@ -332,54 +381,58 @@ func Config_JsDocParsing_clinit() {
 		return
 	}
 	Config_JsDocParsing_clinit_done = true
-	Config_JsDocParsing_TYPES_ONLY = new_Config_JsDocParsing("TYPES_ONLY", 0)
-	Config_JsDocParsing_INCLUDE_DESCRIPTIONS_NO_WHITESPACE = new_Config_JsDocParsing("INCLUDE_DESCRIPTIONS_NO_WHITESPACE", 1)
-	Config_JsDocParsing_INCLUDE_DESCRIPTIONS_WITH_WHITESPACE = new_Config_JsDocParsing("INCLUDE_DESCRIPTIONS_WITH_WHITESPACE", 2)
-	Config_JsDocParsing_INCLUDE_ALL_COMMENTS = new_Config_JsDocParsing("INCLUDE_ALL_COMMENTS", 3)
-	Config_JsDocParsing_LICENSE_COMMENTS_ONLY = new_Config_JsDocParsing("LICENSE_COMMENTS_ONLY", 4)
-	Config_JsDocParsing_values_ = []*Config_JsDocParsing{Config_JsDocParsing_TYPES_ONLY, Config_JsDocParsing_INCLUDE_DESCRIPTIONS_NO_WHITESPACE, Config_JsDocParsing_INCLUDE_DESCRIPTIONS_WITH_WHITESPACE, Config_JsDocParsing_INCLUDE_ALL_COMMENTS, Config_JsDocParsing_LICENSE_COMMENTS_ONLY}
+	Config_JsDocParsing_values_ = []Config_JsDocParsing{Config_JsDocParsing_TYPES_ONLY, Config_JsDocParsing_INCLUDE_DESCRIPTIONS_NO_WHITESPACE, Config_JsDocParsing_INCLUDE_DESCRIPTIONS_WITH_WHITESPACE, Config_JsDocParsing_INCLUDE_ALL_COMMENTS, Config_JsDocParsing_LICENSE_COMMENTS_ONLY}
 	registerEnum_("com.google.javascript.jscomp.parsing.Config.JsDocParsing", enumValues_(Config_JsDocParsing_values_))
 
 }
 
-type Config_RunMode struct {
-	Enum
+type Config_RunMode uint8
+
+// Config_RunMode_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var Config_RunMode_enum_ = [2]Enum{
+	{self_: Config_RunMode_STOP_AFTER_ERROR, name_: "STOP_AFTER_ERROR", ordinal_: 0},
+	{self_: Config_RunMode_KEEP_GOING, name_: "KEEP_GOING", ordinal_: 1},
 }
 
-func (this *Config_RunMode) up_Enum() *Enum {
-	if this == nil {
+func (this Config_RunMode) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &Config_RunMode_enum_[this-1]
 }
 
-func (this *Config_RunMode) init_Config_RunMode(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
-}
+func (this Config_RunMode) name() string { return Config_RunMode_enum_[this-1].name_ }
 
-func new_Config_RunMode(name_ string, ordinal_ int32) *Config_RunMode {
-	this := &Config_RunMode{}
-	this.self_ = this
-	this.init_Config_RunMode(name_, ordinal_)
+func (this Config_RunMode) ordinal() int32 { return Config_RunMode_enum_[this-1].ordinal_ }
+
+func (this Config_RunMode) toString() string { return Config_RunMode_enum_[this-1].name_ }
+
+func (this Config_RunMode) compareTo(o any) int32 { return Config_RunMode_enum_[this-1].compareTo(o) }
+
+func (this Config_RunMode) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func Config_RunMode_values() []*Config_RunMode {
-	return append([]*Config_RunMode(nil), Config_RunMode_values_...)
+func Config_RunMode_values() []Config_RunMode {
+	return append([]Config_RunMode(nil), Config_RunMode_values_...)
 }
 
-func Config_RunMode_valueOf(name string) *Config_RunMode {
+func Config_RunMode_valueOf(name string) Config_RunMode {
 	for _, v := range Config_RunMode_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("RunMode", name))
 }
 
-var Config_RunMode_STOP_AFTER_ERROR *Config_RunMode
-var Config_RunMode_KEEP_GOING *Config_RunMode
-var Config_RunMode_values_ []*Config_RunMode
+const Config_RunMode_STOP_AFTER_ERROR Config_RunMode = 1
+const Config_RunMode_KEEP_GOING Config_RunMode = 2
+
+var Config_RunMode_values_ []Config_RunMode
 
 var Config_RunMode_clinit_done bool
 
@@ -388,19 +441,17 @@ func Config_RunMode_clinit() {
 		return
 	}
 	Config_RunMode_clinit_done = true
-	Config_RunMode_STOP_AFTER_ERROR = new_Config_RunMode("STOP_AFTER_ERROR", 0)
-	Config_RunMode_KEEP_GOING = new_Config_RunMode("KEEP_GOING", 1)
-	Config_RunMode_values_ = []*Config_RunMode{Config_RunMode_STOP_AFTER_ERROR, Config_RunMode_KEEP_GOING}
+	Config_RunMode_values_ = []Config_RunMode{Config_RunMode_STOP_AFTER_ERROR, Config_RunMode_KEEP_GOING}
 	registerEnum_("com.google.javascript.jscomp.parsing.Config.RunMode", enumValues_(Config_RunMode_values_))
 
 }
 
 type Config_Builder struct {
-	languageMode_          *Config_LanguageMode
-	strictMode_            *Config_StrictMode
-	jsDocParsingMode_      *Config_JsDocParsing
-	runMode_               *Config_RunMode
-	annotations_           *JTMap[string, *Annotation_parsing]
+	languageMode_          Config_LanguageMode
+	strictMode_            Config_StrictMode
+	jsDocParsingMode_      Config_JsDocParsing
+	runMode_               Config_RunMode
+	annotations_           *JTMap[string, Annotation_parsing]
 	suppressionNames_      *JTSet[string]
 	closurePrimitiveNames_ *JTSet[string]
 	parseInlineSourceMaps_ bool
@@ -435,32 +486,32 @@ func new_Config_Builder_Config(source *Config) *Config_Builder {
 	return this
 }
 
-func (this *Config_Builder) setLanguageMode(mode *Config_LanguageMode) *Config_Builder {
-	if mode == nil {
+func (this *Config_Builder) setLanguageMode(mode Config_LanguageMode) *Config_Builder {
+	if mode == 0 {
 		panic(new_NullPointerException_String("Null languageMode").self())
 	}
 	this.languageMode_ = mode
 	return this
 }
 
-func (this *Config_Builder) setStrictMode(mode *Config_StrictMode) *Config_Builder {
-	if mode == nil {
+func (this *Config_Builder) setStrictMode(mode Config_StrictMode) *Config_Builder {
+	if mode == 0 {
 		panic(new_NullPointerException_String("Null strictMode").self())
 	}
 	this.strictMode_ = mode
 	return this
 }
 
-func (this *Config_Builder) setJsDocParsingMode(mode *Config_JsDocParsing) *Config_Builder {
-	if mode == nil {
+func (this *Config_Builder) setJsDocParsingMode(mode Config_JsDocParsing) *Config_Builder {
+	if mode == 0 {
 		panic(new_NullPointerException_String("Null jsDocParsingMode").self())
 	}
 	this.jsDocParsingMode_ = mode
 	return this
 }
 
-func (this *Config_Builder) setRunMode(mode *Config_RunMode) *Config_Builder {
-	if mode == nil {
+func (this *Config_Builder) setRunMode(mode Config_RunMode) *Config_Builder {
+	if mode == 0 {
 		panic(new_NullPointerException_String("Null runMode").self())
 	}
 	this.runMode_ = mode
@@ -488,18 +539,18 @@ func (this *Config_Builder) setExtraAnnotationNames(names IterableOf[string]) *C
 }
 
 func (this *Config_Builder) build() *Config {
-	if (((((((int32(this.set0) != 1) || (this.languageMode_ == nil)) || (this.strictMode_ == nil)) || (this.jsDocParsingMode_ == nil)) || (this.runMode_ == nil)) || (this.annotations_ == nil)) || (this.suppressionNames_ == nil)) || (this.closurePrimitiveNames_ == nil) {
+	if (((((((int32(this.set0) != 1) || (this.languageMode_ == 0)) || (this.strictMode_ == 0)) || (this.jsDocParsingMode_ == 0)) || (this.runMode_ == 0)) || (this.annotations_ == nil)) || (this.suppressionNames_ == nil)) || (this.closurePrimitiveNames_ == nil) {
 		var missing *StringBuilder = new_StringBuilder()
-		if this.languageMode_ == nil {
+		if this.languageMode_ == 0 {
 			missing.append(" languageMode")
 		}
-		if this.strictMode_ == nil {
+		if this.strictMode_ == 0 {
 			missing.append(" strictMode")
 		}
-		if this.jsDocParsingMode_ == nil {
+		if this.jsDocParsingMode_ == 0 {
 			missing.append(" jsDocParsingMode")
 		}
-		if this.runMode_ == nil {
+		if this.runMode_ == 0 {
 			missing.append(" runMode")
 		}
 		if this.annotations_ == nil {
@@ -519,7 +570,7 @@ func (this *Config_Builder) build() *Config {
 	return new_Config(this.languageMode_, this.strictMode_, this.jsDocParsingMode_, this.runMode_, this.annotations_, this.suppressionNames_, this.closurePrimitiveNames_, this.parseInlineSourceMaps_)
 }
 
-func (this *Config_Builder) setAnnotations(names *JTMap[string, *Annotation_parsing]) *Config_Builder {
+func (this *Config_Builder) setAnnotations(names *JTMap[string, Annotation_parsing]) *Config_Builder {
 	if names == nil {
 		panic(new_NullPointerException_String("Null annotations").self())
 	}

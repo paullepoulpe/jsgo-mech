@@ -58,10 +58,10 @@ func (this *MaybeReachingVariableUse) flowThrough_impl(n Node, input *MaybeReach
 }
 
 func (this *MaybeReachingVariableUse) hasExceptionHandler(cfgNode Node) bool {
-	var branchEdges ListOf[DiGraph_DiGraphEdge[Node, *ControlFlowGraph_Branch]] = this.getCfg().getOutEdges(cfgNode)
+	var branchEdges ListOf[DiGraph_DiGraphEdge[Node, ControlFlowGraph_Branch]] = this.getCfg().getOutEdges(cfgNode)
 	it_1 := foreach_(branchEdges)
 	for it_1.next() {
-		var edge DiGraph_DiGraphEdge[Node, *ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphEdge[Node, *ControlFlowGraph_Branch]](it_1.v)
+		var edge DiGraph_DiGraphEdge[Node, ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphEdge[Node, ControlFlowGraph_Branch]](it_1.v)
 		if edge.getValue() == ControlFlowGraph_Branch_ON_EX {
 			return true
 		}
@@ -192,7 +192,7 @@ func (this *MaybeReachingVariableUse) removeFromUseIfLocal(name string, use *May
 }
 
 func (this *MaybeReachingVariableUse) getUses(name string, defNode Node) IterableOf[Node] {
-	var n GraphNode[Node, *ControlFlowGraph_Branch] = cast_[GraphNode[Node, *ControlFlowGraph_Branch]](this.getCfg().getNode_Object_rDiGraphNode_rLinkedDiGraphNode(defNode).self())
+	var n GraphNode[Node, ControlFlowGraph_Branch] = cast_[GraphNode[Node, ControlFlowGraph_Branch]](this.getCfg().getNode_Object_rDiGraphNode_rLinkedDiGraphNode(defNode).self())
 	Preconditions_checkNotNull_T(n)
 	var state *DataFlowAnalysis_LinearFlowState = cast_[*DataFlowAnalysis_LinearFlowState](Annotatable_getAnnotation(Annotatable(n)))
 	return cast_[*MaybeReachingVariableUse_ReachingUses](state.getOut()).get(this.allVarsInFn.get(name))

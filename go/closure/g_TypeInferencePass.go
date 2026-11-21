@@ -9,7 +9,7 @@ type TypeInferencePass struct {
 	topScope                *TypedScope
 	scopeCreator            *TypedScopeCreator
 	assertionFunctionLookup *CodingConvention_AssertionFunctionLookup
-	stepCountHistogram      *JTMap[any, *SimpleMultiset[*Token_rhino]]
+	stepCountHistogram      *JTMap[any, *SimpleMultiset[Token_rhino]]
 }
 
 func (this *TypeInferencePass) init_TypeInferencePass(compiler *AbstractCompiler, reverseInterpreter ReverseAbstractInterpreter, scopeCreator *TypedScopeCreator) {
@@ -18,7 +18,7 @@ func (this *TypeInferencePass) init_TypeInferencePass(compiler *AbstractCompiler
 	this.reverseInterpreter = reverseInterpreter
 	this.scopeCreator = scopeCreator
 	this.assertionFunctionLookup = CodingConvention_AssertionFunctionLookup_of(compiler.getCodingConvention().getAssertionFunctions())
-	this.stepCountHistogram = func() *JTMap[any, *SimpleMultiset[*Token_rhino]] {
+	this.stepCountHistogram = func() *JTMap[any, *SimpleMultiset[Token_rhino]] {
 		if compiler.isDebugLoggingEnabled() {
 			return jnewTMap_(tc_Integer, tc_p_SimpleMultiset_p_Token_rhino_)
 		}
@@ -95,13 +95,13 @@ func (this *TypeInferencePass) inferScope(n Node, scope *TypedScope) {
 	if this.stepCountHistogram != nil {
 		it_1 := foreach_(cfg.getNodes())
 		for it_1.next() {
-			var node DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch]](it_1.v)
+			var node DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]](it_1.v)
 			if node == cfg.getImplicitReturn() {
 				continue
 			}
 			var state *DataFlowAnalysis_LinearFlowState = cast_[*DataFlowAnalysis_LinearFlowState](Annotatable_getAnnotation(Annotatable(node)))
-			this.stepCountHistogram.computeIfAbsent(int32(state.getStepCount()), Function[any, *SimpleMultiset[*Token_rhino]](func(k any) *SimpleMultiset[*Token_rhino] {
-				return SimpleMultiset_create[*Token_rhino]()
+			this.stepCountHistogram.computeIfAbsent(int32(state.getStepCount()), Function[any, *SimpleMultiset[Token_rhino]](func(k any) *SimpleMultiset[Token_rhino] {
+				return SimpleMultiset_create[Token_rhino]()
 			})).add(node.getValue().getToken())
 		}
 	}

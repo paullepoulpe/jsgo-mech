@@ -815,11 +815,11 @@ func to_Enum(v any) *Enum {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_Enum() *Enum }).as_Enum()
+	return v.(enumConst_).enum_()
 }
 
 func is_Enum(v any) bool {
-	_, ok := v.(interface{ as_Enum() *Enum })
+	_, ok := v.(enumConst_)
 	return ok
 }
 

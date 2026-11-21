@@ -11,7 +11,7 @@ type ScopedName struct {
 type ScopedName_I interface {
 	getName_impl() string
 	getScopeRoot_impl() Node
-	declarationType_impl() *Token_rhino
+	declarationType_impl() Token_rhino
 	getDeclaration_impl() StaticRef
 	getDeclaration_rAbstractVar_impl() *AbstractVar
 	getScope_impl() StaticScope
@@ -30,7 +30,7 @@ type ScopedName_I interface {
 // methods in ScopedName_I, so that the dispatchers of those classes call them through self_ without
 // an assertion. They are never run (a dispatcher's object is of a subclass of its class,
 // which has the method) and panic where the assertion would have (post-flip).
-func (this *ScopedName) declarationType_impl() *Token_rhino {
+func (this *ScopedName) declarationType_impl() Token_rhino {
 	panic("declarationType_impl called on a " + goTypeName_(this.self_))
 }
 func (this *ScopedName) getDeclaration_impl() StaticRef {

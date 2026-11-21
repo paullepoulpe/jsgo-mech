@@ -4,7 +4,7 @@ package closure
 
 type VariableDeclarationListTree struct {
 	ParseTree
-	declarationType_ *TokenType
+	declarationType_ TokenType
 	declarations     *JTList[*VariableDeclarationTree]
 }
 
@@ -15,13 +15,13 @@ func (this *VariableDeclarationListTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *VariableDeclarationListTree) init_VariableDeclarationListTree(location *SourceRange, declarationType *TokenType, declarations *JTList[*VariableDeclarationTree]) {
+func (this *VariableDeclarationListTree) init_VariableDeclarationListTree(location *SourceRange, declarationType TokenType, declarations *JTList[*VariableDeclarationTree]) {
 	this.ParseTree.init_ParseTree(ParseTreeType_VARIABLE_DECLARATION_LIST, location)
 	this.declarationType_ = declarationType
 	this.declarations = declarations
 }
 
-func new_VariableDeclarationListTree(location *SourceRange, declarationType *TokenType, declarations *JTList[*VariableDeclarationTree]) *VariableDeclarationListTree {
+func new_VariableDeclarationListTree(location *SourceRange, declarationType TokenType, declarations *JTList[*VariableDeclarationTree]) *VariableDeclarationListTree {
 	this := &VariableDeclarationListTree{}
 	this.self_ = this
 	this.init_VariableDeclarationListTree(location, declarationType, declarations)

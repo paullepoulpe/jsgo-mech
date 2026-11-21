@@ -6,7 +6,7 @@ type Scope struct {
 	AbstractScope
 	parent       *Scope
 	vars         MapOf[string, *Var]
-	implicitVars MapOf[*AbstractScope_ImplicitVar, *Var]
+	implicitVars MapOf[AbstractScope_ImplicitVar, *Var]
 	depth        int32
 }
 
@@ -95,8 +95,8 @@ func (this *Scope) declareImplicitGoogNamespaceIfAbsent(name string, definition 
 	return var_
 }
 
-func (this *Scope) makeImplicitVar_ImplicitVar_rVar(var_ *AbstractScope_ImplicitVar) *Var {
-	return new_Var(var_.nameField, 0, this, -1, nil, 0)
+func (this *Scope) makeImplicitVar_ImplicitVar_rVar(var_ AbstractScope_ImplicitVar) *Var {
+	return new_Var(AbstractScope_ImplicitVar_nameField_[var_-1], 0, this, -1, nil, 0)
 }
 
 func (this *Scope) contains(other *Scope) bool {
@@ -165,16 +165,16 @@ func (this *Scope) hasSlot_impl(name string) bool {
 	return false
 }
 
-func (this *Scope) getOwnImplicitSlot(name *AbstractScope_ImplicitVar) *Var {
+func (this *Scope) getOwnImplicitSlot(name AbstractScope_ImplicitVar) *Var {
 	if !this.hasOwnImplicitSlot(name) {
 		return nil
 	}
-	var emptySentinel *JTMap[*AbstractScope_ImplicitVar, *Var] = jtmapEmptyImm_(tc_p_AbstractScope_ImplicitVar, jtc_p_Var)
+	var emptySentinel *JTMap[AbstractScope_ImplicitVar, *Var] = jtmapEmptyImm_(tc_p_AbstractScope_ImplicitVar, jtc_p_Var)
 	if any(this.implicitVars) == any(emptySentinel.asMap()) {
 		this.implicitVars = Map(new_EnumMap(classOf_("com.google.javascript.jscomp.AbstractScope.ImplicitVar")))
 	}
 	return cast_[*Var](Map_computeIfAbsent(this.implicitVars, obj_(name), Function[any, any](func(p0 any) any {
-		return obj_(this.makeImplicitVar_ImplicitVar_rVar(cast_[*AbstractScope_ImplicitVar](p0)))
+		return obj_(this.makeImplicitVar_ImplicitVar_rVar(cast_[AbstractScope_ImplicitVar](p0)))
 	})))
 }
 
@@ -324,7 +324,7 @@ func (this *Scope) getParent_impl() *AbstractScope {
 	return this.getParent_rScope().up_AbstractScope()
 }
 
-func (this *Scope) makeImplicitVar_ImplicitVar_impl(p0 *AbstractScope_ImplicitVar) *AbstractVar {
+func (this *Scope) makeImplicitVar_ImplicitVar_impl(p0 AbstractScope_ImplicitVar) *AbstractVar {
 	return this.makeImplicitVar_ImplicitVar_rVar(p0).up_AbstractVar()
 }
 
@@ -458,7 +458,7 @@ func (this *Scope) getParent() *AbstractScope {
 }
 
 // makeImplicitVar_ImplicitVar: an object that is exactly a Scope calls its makeImplicitVar_ImplicitVar_impl directly (post-flip); others dispatch.
-func (this *Scope) makeImplicitVar_ImplicitVar(p0 *AbstractScope_ImplicitVar) *AbstractVar {
+func (this *Scope) makeImplicitVar_ImplicitVar(p0 AbstractScope_ImplicitVar) *AbstractVar {
 	if this.self_ == any(this) {
 		return this.makeImplicitVar_ImplicitVar_impl(p0)
 	}

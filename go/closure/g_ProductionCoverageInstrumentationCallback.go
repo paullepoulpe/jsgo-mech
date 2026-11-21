@@ -109,7 +109,7 @@ func (this *ProductionCoverageInstrumentationCallback) visit(traversal *NodeTrav
 	}
 }
 
-func (this *ProductionCoverageInstrumentationCallback) addInstrumentationNodeWithComma(originalNode Node, fileName string, functionName string, type_ *ProductionCoverageInstrumentationCallback_Type) {
+func (this *ProductionCoverageInstrumentationCallback) addInstrumentationNodeWithComma(originalNode Node, fileName string, functionName string, type_ ProductionCoverageInstrumentationCallback_Type) {
 	var cloneOfOriginal Node = originalNode.cloneTree()
 	var newInstrumentationNode Node = this.newInstrumentationNode(cloneOfOriginal, fileName, functionName, type_)
 	var childOfInstrumentationNode Node = newInstrumentationNode.removeFirstChild()
@@ -117,12 +117,12 @@ func (this *ProductionCoverageInstrumentationCallback) addInstrumentationNodeWit
 	originalNode.replaceWith(infusedExp)
 }
 
-func (this *ProductionCoverageInstrumentationCallback) instrumentBlockNode(block Node, fileName string, fnName string, type_ *ProductionCoverageInstrumentationCallback_Type) {
+func (this *ProductionCoverageInstrumentationCallback) instrumentBlockNode(block Node, fileName string, fnName string, type_ ProductionCoverageInstrumentationCallback_Type) {
 	block.addChildToFront(this.newInstrumentationNode(block, fileName, fnName, type_))
 	this.compiler_.reportChangeToEnclosingScope(block)
 }
 
-func (this *ProductionCoverageInstrumentationCallback) newInstrumentationNode(node Node, fileName string, fnName string, type_ *ProductionCoverageInstrumentationCallback_Type) Node {
+func (this *ProductionCoverageInstrumentationCallback) newInstrumentationNode(node Node, fileName string, fnName string, type_ ProductionCoverageInstrumentationCallback_Type) Node {
 	var lineNo int32 = node.getLineno()
 	var columnNo int32 = node.getCharno()
 	if node.isBlock() {
@@ -148,45 +148,63 @@ func (this *ProductionCoverageInstrumentationCallback) getInstrumentationMapping
 
 const ProductionCoverageInstrumentationCallback_ANONYMOUS_FUNCTION_NAME string = "<Anonymous>"
 
-type ProductionCoverageInstrumentationCallback_Type struct {
-	Enum
+type ProductionCoverageInstrumentationCallback_Type uint8
+
+// ProductionCoverageInstrumentationCallback_Type_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var ProductionCoverageInstrumentationCallback_Type_enum_ = [3]Enum{
+	{self_: ProductionCoverageInstrumentationCallback_Type_FUNCTION, name_: "FUNCTION", ordinal_: 0},
+	{self_: ProductionCoverageInstrumentationCallback_Type_BRANCH, name_: "BRANCH", ordinal_: 1},
+	{self_: ProductionCoverageInstrumentationCallback_Type_BRANCH_DEFAULT, name_: "BRANCH_DEFAULT", ordinal_: 2},
 }
 
-func (this *ProductionCoverageInstrumentationCallback_Type) up_Enum() *Enum {
-	if this == nil {
+func (this ProductionCoverageInstrumentationCallback_Type) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &ProductionCoverageInstrumentationCallback_Type_enum_[this-1]
 }
 
-func (this *ProductionCoverageInstrumentationCallback_Type) init_ProductionCoverageInstrumentationCallback_Type(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this ProductionCoverageInstrumentationCallback_Type) name() string {
+	return ProductionCoverageInstrumentationCallback_Type_enum_[this-1].name_
 }
 
-func new_ProductionCoverageInstrumentationCallback_Type(name_ string, ordinal_ int32) *ProductionCoverageInstrumentationCallback_Type {
-	this := &ProductionCoverageInstrumentationCallback_Type{}
-	this.self_ = this
-	this.init_ProductionCoverageInstrumentationCallback_Type(name_, ordinal_)
+func (this ProductionCoverageInstrumentationCallback_Type) ordinal() int32 {
+	return ProductionCoverageInstrumentationCallback_Type_enum_[this-1].ordinal_
+}
+
+func (this ProductionCoverageInstrumentationCallback_Type) toString() string {
+	return ProductionCoverageInstrumentationCallback_Type_enum_[this-1].name_
+}
+
+func (this ProductionCoverageInstrumentationCallback_Type) compareTo(o any) int32 {
+	return ProductionCoverageInstrumentationCallback_Type_enum_[this-1].compareTo(o)
+}
+
+func (this ProductionCoverageInstrumentationCallback_Type) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func ProductionCoverageInstrumentationCallback_Type_values() []*ProductionCoverageInstrumentationCallback_Type {
-	return append([]*ProductionCoverageInstrumentationCallback_Type(nil), ProductionCoverageInstrumentationCallback_Type_values_...)
+func ProductionCoverageInstrumentationCallback_Type_values() []ProductionCoverageInstrumentationCallback_Type {
+	return append([]ProductionCoverageInstrumentationCallback_Type(nil), ProductionCoverageInstrumentationCallback_Type_values_...)
 }
 
-func ProductionCoverageInstrumentationCallback_Type_valueOf(name string) *ProductionCoverageInstrumentationCallback_Type {
+func ProductionCoverageInstrumentationCallback_Type_valueOf(name string) ProductionCoverageInstrumentationCallback_Type {
 	for _, v := range ProductionCoverageInstrumentationCallback_Type_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Type", name))
 }
 
-var ProductionCoverageInstrumentationCallback_Type_FUNCTION *ProductionCoverageInstrumentationCallback_Type
-var ProductionCoverageInstrumentationCallback_Type_BRANCH *ProductionCoverageInstrumentationCallback_Type
-var ProductionCoverageInstrumentationCallback_Type_BRANCH_DEFAULT *ProductionCoverageInstrumentationCallback_Type
-var ProductionCoverageInstrumentationCallback_Type_values_ []*ProductionCoverageInstrumentationCallback_Type
+const ProductionCoverageInstrumentationCallback_Type_FUNCTION ProductionCoverageInstrumentationCallback_Type = 1
+const ProductionCoverageInstrumentationCallback_Type_BRANCH ProductionCoverageInstrumentationCallback_Type = 2
+const ProductionCoverageInstrumentationCallback_Type_BRANCH_DEFAULT ProductionCoverageInstrumentationCallback_Type = 3
+
+var ProductionCoverageInstrumentationCallback_Type_values_ []ProductionCoverageInstrumentationCallback_Type
 
 var ProductionCoverageInstrumentationCallback_Type_clinit_done bool
 
@@ -195,10 +213,7 @@ func ProductionCoverageInstrumentationCallback_Type_clinit() {
 		return
 	}
 	ProductionCoverageInstrumentationCallback_Type_clinit_done = true
-	ProductionCoverageInstrumentationCallback_Type_FUNCTION = new_ProductionCoverageInstrumentationCallback_Type("FUNCTION", 0)
-	ProductionCoverageInstrumentationCallback_Type_BRANCH = new_ProductionCoverageInstrumentationCallback_Type("BRANCH", 1)
-	ProductionCoverageInstrumentationCallback_Type_BRANCH_DEFAULT = new_ProductionCoverageInstrumentationCallback_Type("BRANCH_DEFAULT", 2)
-	ProductionCoverageInstrumentationCallback_Type_values_ = []*ProductionCoverageInstrumentationCallback_Type{ProductionCoverageInstrumentationCallback_Type_FUNCTION, ProductionCoverageInstrumentationCallback_Type_BRANCH, ProductionCoverageInstrumentationCallback_Type_BRANCH_DEFAULT}
+	ProductionCoverageInstrumentationCallback_Type_values_ = []ProductionCoverageInstrumentationCallback_Type{ProductionCoverageInstrumentationCallback_Type_FUNCTION, ProductionCoverageInstrumentationCallback_Type_BRANCH, ProductionCoverageInstrumentationCallback_Type_BRANCH_DEFAULT}
 	registerEnum_("com.google.javascript.jscomp.instrumentation.ProductionCoverageInstrumentationCallback.Type", enumValues_(ProductionCoverageInstrumentationCallback_Type_values_))
 
 }
@@ -225,7 +240,7 @@ func new_ProductionCoverageInstrumentationCallback_ParameterMapping() *Productio
 	return this
 }
 
-func (this *ProductionCoverageInstrumentationCallback_ParameterMapping) getEncodedParam(fileName string, functionName string, type_ *ProductionCoverageInstrumentationCallback_Type, lineNo int32, colNo int32) string {
+func (this *ProductionCoverageInstrumentationCallback_ParameterMapping) getEncodedParam(fileName string, functionName string, type_ ProductionCoverageInstrumentationCallback_Type, lineNo int32, colNo int32) string {
 	this.fileNameToIndex.putIfAbsent(fileName, int32(this.fileNameToIndex.size()))
 	this.functionNameToIndex.putIfAbsent(functionName, int32(this.functionNameToIndex.size()))
 	this.typeToIndex.putIfAbsent(type_.name(), int32(this.typeToIndex.size()))
