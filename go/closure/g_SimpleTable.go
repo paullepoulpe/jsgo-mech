@@ -81,7 +81,7 @@ func (this *SimpleTable[R, C, V]) rowKeySet() SetOf[R] {
 }
 
 func (this *SimpleTable[R, C, V]) values() IterableOf[V] {
-	return Iterables_unmodifiableIterable(Iterables_concat_Iterable(Iterables_transform(Iterable(this.rows.asMap().values()), Function_base[any, any](func(p0 any) any { return any(icast_Map(p0).values()) }))))
+	return Iterables_unmodifiableIterable(Iterables_concat_Iterable(Iterables_transform(Iterable(this.rows.asMap().values()), Function_base[any, any](func(p0 any) any { return icast_Map(p0).values() }))))
 }
 
 func (this *SimpleTable[R, C, V]) isEmpty() bool {

@@ -560,7 +560,7 @@ func (this *CompilerInput_JsAst) getAstRoot(compiler *AbstractCompiler) Node {
 	} else {
 		this.parse(compiler)
 	}
-	Preconditions_checkState((any(this.root.getStaticSourceFile()) == obj_(this.outer_.sourceFile)))
+	Preconditions_checkState((this.root.getStaticSourceFile() == obj_(this.outer_.sourceFile)))
 	this.root.setInputId(this.outer_.id)
 	this.outer_.sourceFile.clearCachedSource()
 	return this.root
