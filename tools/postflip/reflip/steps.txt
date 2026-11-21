@@ -678,3 +678,19 @@ f68d5564 run t covret && f
 # 461. postflip step (re-flip): etaconv, 741 func literals that only pass their parameter on are the function they call (tool 11c88e09)
 c0e9eb59 run t etaconv && f
 #: etaconv: 741 literals (563 tconv_ box/unbox, 178 elsewhere); left 135 other calls, 76 signatures that differ, 62 parameters used otherwise, 10 not functions of the package, 2 promoted methods. census.py's cast/box rows move by spelling only (reflip/fnvals.py counts the function values)
+# 462. postflip (runtime, re-flip): scopeVarsOf_[V], the scope's variable table generic in the variable type
+84fd3438 patch 462-84fd3438-rt.patch
+# 463. postflip (manual, re-flip): AbstractScope.vars spells the table's instantiation, scopeVarsOf_[*AbstractVar]
+48b1b012 patch 463-48b1b012-manual.patch
+# 464. postflip step (re-flip): fbound, AbstractScope / AbstractVar written out for Scope / Var and TypedScope / TypedVar; 268 casts and 48 assertions of S and V are the typed values (tool 6dfcbbe6)
+96047e68 run t fbound && f
+#: fbound: fields moved vars, implicitVars (AbstractScope), scope_ (AbstractVar); 58 methods written out per subclass, 6 split into <name>T_ + bridge; the base keeps getParent (bridged) and isGlobal for AbstractScope<?, ?> receivers; 212 cast_[T](x.m().self()) and 53 casts of T_ results are calls, 24 + 24 assertions dereferenced at once dropped, 2 iup_I, 1 up_B, 24 up_B() given to typed slots dropped, 3 up_B() added for erased slots, 3 super calls; left 9 assertions where the method called hands its receiver on first (getClosestHoistScope 5, getClosestCfgRootScope, getClosestContainerScope, getGlobalScope, getVar)
+# 465. postflip step (re-flip): jsdocprops, 80 reads of JSDocInfo's property bag are typed, the constants carry their T (tool 559568f0)
+9394ca60 run t jsdocprops && f
+#: jsdocprops: 23 constants Property<X> -> JSDocInfo_PropertyOf_[X], 12 constants of TypeProperty / TypeListProperty / TypeMapProperty / NodeMapProperty (valueT_ / getT_ on the class); 57 P.get(info), 19 Builder.getProp(P), 4 getPropWithDefault(P) cast to P's T are typed reads (4 of them iup_I); left 1 constant no read casts (ORIGINAL_COMMENT_POSITION, Property<Integer>), the bag's erased loops (asMap, toBuilder's clone, equality, isPropEmpty / addUnique of a Property<?>)
+# 466. postflip step (re-flip): jsdocprops re-run, the property helpers return null first and the subclasses use j2go's own casts (tool fc1d5137)
+cb1d01e7 run t jsdocprops && f
+#: jsdocprops: nothing new typed; g_0jsdocprops.go written again (PropertyOf_[T].valueT_ returns jnull_[T]() first; TypeProperty / TypeListProperty / TypeMapProperty / NodeMapProperty valueT_ = cast_[*JSTypeExpression] / to_ArrayList / cast_[*LinkedHashMap]); left 1 constant no read casts (ORIGINAL_COMMENT_POSITION)
+# 467. postflip step (re-flip): implsplit, 23 methods of named classes implementing erased library interfaces are their typed method and javac's bridge (tool df2b3b2a)
+8cb67888 run t implsplit && f
+#: implsplit: 23 methods split (compareTo 10, compare 6, apply 7) into <name>T_ + the erased bridge; 3 unboxedPred_[Node](x.apply) -> x.applyT_, 1 call on the class typed; left 12 methods not starting with their parameters' casts (Guava test -> apply, FunctionTypeBuilder validators), 1 class with subclasses (JSDocInfo.Property.compareTo); the bridges stay erased (the runtime calls them through the erased interface)
