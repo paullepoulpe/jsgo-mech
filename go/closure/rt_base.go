@@ -745,6 +745,32 @@ func (this Optional[T]) equals(o any) bool {
 
 func (this Optional[T]) hashCode() int32 { this.nn_(); return objhash_(this.content_()) }
 
+// optEquals_ is Object_equals(a.box_(), b.box_()), that is a.equals(b), for Optionals of a type
+// whose values Java's equals compares as Go's == does (a string, a boxed integer or boolean, an
+// enum constant, a node; tools/postflip/opteq): a null a throws NullPointerException as
+// Object_equals of nil does; a null b, or one present where a is not, is not equal; two present
+// values are compared.
+func optEquals_[T comparable](a, b Optional[T]) bool {
+	a.nn_()
+	return b.set && a.present == b.present && (!a.present || a.value == b.value)
+}
+
+// optEqualsNull_ is Objects.equals(a.box_(), b.box_()) for such Optionals: null equals only null.
+func optEqualsNull_[T comparable](a, b Optional[T]) bool {
+	if !a.set || !b.set {
+		return a.set == b.set
+	}
+	return a.present == b.present && (!a.present || a.value == b.value)
+}
+
+// optHash_ is Objects.hashCode(a.box_()): 0 for null, else a.hashCode().
+func optHash_[T any](a Optional[T]) int32 {
+	if !a.set {
+		return 0
+	}
+	return a.hashCode()
+}
+
 func (this Optional[T]) toString() string {
 	this.nn_()
 	if !this.present {
