@@ -521,7 +521,7 @@ func (this *CheckRequiresSorted_ImportStatement) upgrade(otherPrimitive CheckReq
 }
 
 func (this *CheckRequiresSorted_ImportStatement) formatWithoutDoc() string {
-	var sb *StringBuilder = new_StringBuilder()
+	var sb strBuilder_
 	if !this.isStandalone() {
 		sb.append("const ")
 	}
@@ -556,11 +556,11 @@ func (this *CheckRequiresSorted_ImportStatement) formatWithoutDoc() string {
 	sb.append("('")
 	sb.append(this.namespace())
 	sb.append("');")
-	return tostrR_(sb)
+	return sb.toString()
 }
 
 func (this *CheckRequiresSorted_ImportStatement) format() string {
-	var sb *StringBuilder = new_StringBuilder()
+	var sb strBuilder_
 	it_1 := this.nodes().each()
 	for it_1.next() {
 		var node Node = it_1.v
@@ -574,7 +574,7 @@ func (this *CheckRequiresSorted_ImportStatement) format() string {
 		}
 	}
 	sb.append(this.formatWithoutDoc())
-	return tostrR_(sb)
+	return sb.toString()
 }
 
 func (this *CheckRequiresSorted_ImportStatement) compareTo(other_ any) int32 {

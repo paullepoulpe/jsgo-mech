@@ -69,14 +69,14 @@ func (this *FileInstrumentationData) getBranchNode(lineNumber int32, branchNumbe
 }
 
 func FileInstrumentationData_getHexString(bitSet *BitSet) string {
-	var builder *StringBuilder = new_StringBuilder()
+	var builder strBuilder_
 	for _, byteEntry := range bitSet.toByteArray() {
 		var value int32 = Byte_toUnsignedInt(byteEntry)
 		var hexString string = Integer_toHexString(value)
 		hexString = Strings_padStart(hexString, 2, '0')
 		builder.append(hexString)
 	}
-	return tostrR_(builder)
+	return builder.toString()
 }
 
 func (this *FileInstrumentationData) getInstrumentedLinesAsHexString() string {
