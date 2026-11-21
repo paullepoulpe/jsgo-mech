@@ -69,10 +69,13 @@ func (this *PassFactory) validatePreconditions(options *CompilerOptions) {
 
 func PassFactory_createEmptyPass(name string) *PassFactory {
 	return PassFactory_builder().setName(name).setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(c *AbstractCompiler) CompilerPass {
-		return &CompilerPass_fn{func(externs Node, root Node) {
-		}}
+		return lambda_PassFactory_createEmptyPass_1_
 	})).build()
 }
+
+// lambda_PassFactory_createEmptyPass_1_ is a lambda of PassFactory_createEmptyPass that captures nothing (post-flip step lambdas).
+var lambda_PassFactory_createEmptyPass_1_ = &CompilerPass_fn{func(externs Node, root Node) {
+}}
 
 func (this *PassFactory) create(compiler *AbstractCompiler) CompilerPass {
 	return this.getInternalFactory().apply(compiler)
