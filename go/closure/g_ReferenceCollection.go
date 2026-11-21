@@ -133,7 +133,7 @@ func (this *ReferenceCollection) getInitializingReference() *Reference {
 }
 
 func (this *ReferenceCollection) areInSameFile(ref0 int32, ref1 int32) bool {
-	return (equals_(this.references.get(ref0).getInputId(), this.references.get(ref1).getInputId()))
+	return (objequalsBy_(this.references.get(ref0).getInputId(), obj_(this.references.get(ref1).getInputId()), (*InputId).equals))
 }
 
 func (this *ReferenceCollection) getInitializingReferenceForConstants() *Reference {
