@@ -2601,12 +2601,13 @@ func new_RegExpTree_Concatenation_1Simplifier(outer_ *RegExpTree_Concatenation, 
 }
 
 func (this *RegExpTree_Concatenation_1Simplifier) simplify(t *RegExpTree) {
-	if concatenation, ok := t.self().(*RegExpTree_Concatenation); ok {
+	switch concatenation := t.self().(type) {
+	case *RegExpTree_Concatenation:
 		for child := range concatenation.elements_.All() {
 			this.simplify(child)
 		}
-	} else if _, ok2 := t.self().(*RegExpTree_Empty); ok2 {
-	} else {
+	case *RegExpTree_Empty:
+	default:
 		var lastIndex int32 = (this.simplified.size() - 1)
 		if lastIndex >= 0 {
 			var pairwise *RegExpTree = this.simplifyPairwise(this.simplified.get(lastIndex), t)
