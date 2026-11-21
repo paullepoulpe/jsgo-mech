@@ -1100,7 +1100,13 @@ func handle(e ast.Expr) {
 					return
 				}
 				if nm == "sliceImm_" && i == 1 {
-					// a slice of the immutable list (step native -kind list): the slice itself
+					// a slice of the immutable list (step native -kind list): the slice itself,
+					// if its elements are the list's (an ImmutableListOf[any] copied into a
+					// []*T stays a list: sliceImm_ unboxes every element).
+					if !sameElem(typeOf(x.Args[0]), typeOf(e)) {
+						bad("copied into a slice of another element type (sliceImm_)")
+						return
+					}
 					edit(src, x, func() string { return rw.Render(e) })
 					return
 				}
@@ -2944,6 +2950,24 @@ func decideImm() {
 		}
 		c.tc = immConv(c)
 	}
+}
+
+// sameElem reports whether conv, a *tconv_[T], converts the elements list, an
+// ImmutableListOf[E], is declared with: T is E.
+func sameElem(conv, list types.Type) bool {
+	p, ok := types.Unalias(conv).(*types.Pointer)
+	if !ok {
+		return false
+	}
+	n, ok := types.Unalias(p.Elem()).(*types.Named)
+	if !ok || n.Obj().Name() != "tconv_" || n.TypeArgs().Len() != 1 {
+		return false
+	}
+	al, ok := list.(*types.Alias)
+	if !ok || al.Obj().Name() != "ImmutableListOf" || al.TypeArgs().Len() != 1 {
+		return false
+	}
+	return types.Identical(n.TypeArgs().At(0), al.TypeArgs().At(0))
 }
 
 var immConvs = map[string]string{}
