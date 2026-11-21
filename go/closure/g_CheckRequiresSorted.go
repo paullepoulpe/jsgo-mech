@@ -115,7 +115,7 @@ func (this *CheckRequiresSorted) checkCanonical(t *NodeTraversal) {
 	var canonicalImports *JTList[*CheckRequiresSorted_ImportStatement] = CheckRequiresSorted_canonicalizeImports(this.importsByNamespace)
 	if !equalsVia_(this.originalImports.asList(), canonicalImports.asList()) {
 		this.needsFixField = true
-		this.replacement_ = Optional_of[string](JString_join_s("\n", Iterables_transform(Iterable(canonicalImports.asList()), Function_base[any, any](func(p0 any) any { return strobj_(cast_[*CheckRequiresSorted_ImportStatement](p0).format()) }))))
+		this.replacement_ = Optional_of[string](JString_join_s("\n", Iterables_transform(Iterable(canonicalImports.asList()), Function_base[any, any](func(p0 any) any { return strobj_(p0.(*CheckRequiresSorted_ImportStatement).format()) }))))
 		if this.mode_ == CheckRequiresSorted_Mode_COLLECT_AND_REPORT {
 			t.report(this.firstNode, CheckRequiresSorted_REQUIRES_NOT_SORTED, []string{this.replacement_.orElse("null")})
 		}
@@ -131,7 +131,7 @@ func CheckRequiresSorted_canonicalizeImports(importsByNamespace *SimpleListMulti
 			strongestPrimitive = CheckRequiresSorted_ImportPrimitive_stronger(strongestPrimitive, i.primitive())
 		}
 		var hasAliasing bool = false
-		for stmt := range elemsAs_[*CheckRequiresSorted_ImportStatement](Iterables_filter(Iterable(allImports), Predicate_base[any](func(p0 any) bool { return cast_[*CheckRequiresSorted_ImportStatement](p0).isAliasing() }))) {
+		for stmt := range elemsAs_[*CheckRequiresSorted_ImportStatement](Iterables_filter(Iterable(allImports), Predicate_base[any](func(p0 any) bool { return p0.(*CheckRequiresSorted_ImportStatement).isAliasing() }))) {
 			canonicalImports.add(stmt.upgrade(strongestPrimitive))
 			hasAliasing = true
 		}

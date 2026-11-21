@@ -38,7 +38,7 @@ func (this *SimpleListMultimap[K, V]) immutableCopy() *SimpleListMultimap[K, V] 
 	it_1 := this.map__.eachEntry()
 	for it_1.next() {
 		var e *TEntry[K, List] = it_1.entry()
-		copy_.map__.put(e.getKey(), icast_List(new_ArrayList_Collection(Collection(e.getValue())).self()))
+		copy_.map__.put(e.getKey(), new_ArrayList_Collection(Collection(e.getValue())).self().(List))
 	}
 	copy_.frozen = true
 	return copy_
@@ -150,7 +150,7 @@ func (this *SimpleListMultimap[K, V]) isEmpty() bool {
 }
 
 func (this *SimpleListMultimap[K, V]) equals(o any) bool {
-	return (is_SimpleListMultimap(o) && equalsDyn_(this.map__.asMap(), icast_SimpleCollection(o).untypedMap()))
+	return (is_SimpleListMultimap(o) && equalsDyn_(this.map__.asMap(), o.(SimpleCollection).untypedMap()))
 }
 
 func (this *SimpleListMultimap[K, V]) hashCode() int32 {

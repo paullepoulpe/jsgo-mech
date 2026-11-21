@@ -664,7 +664,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) getModule() *Module {
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) build() {
 	this.initializeModuleScope(this.currentScope.getRootNode())
-	NodeTraversal_builder().setCompiler(this.outer_.compiler_).setCallback(icast_NodeTraversal_Callback(this.self())).setScopeCreator(ScopeCreator_ASSERT_NO_SCOPES_CREATED).traverseAtScope(this.currentScope.up_AbstractScope())
+	NodeTraversal_builder().setCompiler(this.outer_.compiler_).setCallback(this.self().(NodeTraversal_Callback)).setScopeCreator(ScopeCreator_ASSERT_NO_SCOPES_CREATED).traverseAtScope(this.currentScope.up_AbstractScope())
 	this.finishDeclaringGoogModule()
 }
 
@@ -776,9 +776,9 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) visit(t *NodeTraversal, n No
 		this.visitPostorder(t, n, parent)
 	}
 	if !isScopeRoot && this.deferredActions.containsKey(n) {
-		Iterable_forEach(Iterable(this.deferredActions.removeAll(n)), Consumer[any](func(p0 any) { icast_Runnable(p0).run() }))
+		Iterable_forEach(Iterable(this.deferredActions.removeAll(n)), Consumer[any](func(p0 any) { p0.(Runnable).run() }))
 	} else if isScopeRoot && !this.deferredActions.isEmpty() {
-		Iterable_forEach(Iterable(this.deferredActions.values()), Consumer[any](func(p0 any) { icast_Runnable(p0).run() }))
+		Iterable_forEach(Iterable(this.deferredActions.values()), Consumer[any](func(p0 any) { p0.(Runnable).run() }))
 	}
 }
 

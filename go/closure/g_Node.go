@@ -255,7 +255,7 @@ func (this Node) getNonJSDocCommentString() string {
 	if this.getProp(Node_Prop_NON_JSDOC_COMMENT) == nil {
 		return ""
 	}
-	return cast_[*NonJSDocComment](this.getProp(Node_Prop_NON_JSDOC_COMMENT)).getCommentString()
+	return this.getProp(Node_Prop_NON_JSDOC_COMMENT).(*NonJSDocComment).getCommentString()
 }
 
 func (this Node) getNonJSDocComment() *NonJSDocComment {
@@ -266,7 +266,7 @@ func (this Node) getTrailingNonJSDocCommentString() string {
 	if this.getProp(Node_Prop_TRAILING_NON_JSDOC_COMMENT) == nil {
 		return ""
 	}
-	return cast_[*NonJSDocComment](this.getProp(Node_Prop_TRAILING_NON_JSDOC_COMMENT)).getCommentString()
+	return this.getProp(Node_Prop_TRAILING_NON_JSDOC_COMMENT).(*NonJSDocComment).getCommentString()
 }
 
 func (this Node) getTrailingNonJSDocComment() *NonJSDocComment {

@@ -54,7 +54,7 @@ func (this *InvocationTemplateTypeMatcher) match() *JTMap[*TemplateType, *JSType
 		if !calleeParameters.hasNext() {
 			return this.copyMatchedTypes()
 		}
-		this.matchTemplateTypesRecursive(cast_[*FunctionType_Parameter](calleeParameters.next()).getJSType(), this.registry.getNativeType(JSTypeNative_I_TEMPLATE_ARRAY_TYPE))
+		this.matchTemplateTypesRecursive(calleeParameters.next().(*FunctionType_Parameter).getJSType(), this.registry.getNativeType(JSTypeNative_I_TEMPLATE_ARRAY_TYPE))
 		this.matchTemplateTypesFromNodes(Iterables_skip(Iterable(this.calleeType.getParameters().asList()), 1), NodeUtil_getInvocationArgsAsIterable(this.invocation))
 	} else if this.invocation.hasMoreThanOneChild() {
 		this.matchTemplateTypesFromNodes(Iterable(this.calleeType.getParameters().asList()), NodeUtil_getInvocationArgsAsIterable(this.invocation))
@@ -143,10 +143,10 @@ func (this *InvocationTemplateTypeMatcher) matchTemplateTypesFromNodesIterator(d
 func (this *InvocationTemplateTypeMatcher) matchTemplateTypesFromParameters(declParams IteratorOf[*FunctionType_Parameter], callParams IteratorOf[*FunctionType_Parameter]) {
 	for declParams.hasNext() && callParams.hasNext() {
 		var declParam *FunctionType_Parameter = cast_[*FunctionType_Parameter](declParams.next())
-		this.matchTemplateTypesRecursive(declParam.getJSType(), cast_[*FunctionType_Parameter](callParams.next()).getJSType())
+		this.matchTemplateTypesRecursive(declParam.getJSType(), callParams.next().(*FunctionType_Parameter).getJSType())
 		if declParam.isVariadic() {
 			for callParams.hasNext() {
-				this.matchTemplateTypesRecursive(declParam.getJSType(), cast_[*FunctionType_Parameter](callParams.next()).getJSType())
+				this.matchTemplateTypesRecursive(declParam.getJSType(), callParams.next().(*FunctionType_Parameter).getJSType())
 			}
 		}
 	}

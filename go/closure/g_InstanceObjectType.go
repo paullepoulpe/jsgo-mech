@@ -45,7 +45,7 @@ func new_InstanceObjectType(builder *InstanceObjectType_Builder) *InstanceObject
 }
 
 func InstanceObjectType_builderForCtor(ctor *FunctionType) *InstanceObjectType_Builder {
-	return cast_[*InstanceObjectType_Builder](cast_[*InstanceObjectType_Builder](cast_[*InstanceObjectType_Builder](cast_[*InstanceObjectType_Builder](cast_[*InstanceObjectType_Builder](cast_[*InstanceObjectType_Builder](new_InstanceObjectType_Builder(ctor.registry).setName(ctor.getReferenceName()).self()).setImplicitPrototype(nil).self()).setNative(ctor.isNativeObjectType()).self()).setAnonymous(ctor.isAnonymous()).self()).setTemplateTypeMap(ctor.getTemplateTypeMap()).self()).setTemplateParamCount(ctor.getTemplateParamCount()).self()).setConstructor(ctor)
+	return cast_[*InstanceObjectType_Builder](cast_[*InstanceObjectType_Builder](cast_[*InstanceObjectType_Builder](cast_[*InstanceObjectType_Builder](new_InstanceObjectType_Builder(ctor.registry).setName(ctor.getReferenceName()).self().(*InstanceObjectType_Builder).setImplicitPrototype(nil).self()).setNative(ctor.isNativeObjectType()).self()).setAnonymous(ctor.isAnonymous()).self()).setTemplateTypeMap(ctor.getTemplateTypeMap()).self()).setTemplateParamCount(ctor.getTemplateParamCount()).self().(*InstanceObjectType_Builder).setConstructor(ctor)
 }
 
 func (this *InstanceObjectType) getTypeClass_impl() JSTypeClass {

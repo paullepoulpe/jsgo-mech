@@ -614,7 +614,7 @@ func CommandLineRunner_findJsFiles_Collection_boolean(patterns CollectionOf[stri
 			}
 		}
 	}
-	return Outcome_base_ok_Object[List](icast_List(new_ArrayList_Collection(allJsInputs.asMap().values()).self()))
+	return Outcome_base_ok_Object[List](new_ArrayList_Collection(allJsInputs.asMap().values()).self().(List))
 }
 
 func CommandLineRunner_matchPaths(pattern string, allJsInputs *JTMap[string, string], excludes *JTSet[string]) *Outcome_base[any] {

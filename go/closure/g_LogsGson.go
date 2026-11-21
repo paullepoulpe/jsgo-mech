@@ -40,9 +40,9 @@ func LogsGson_write(out *SimpleJsonWriter, value any) {
 		}() {
 			out.rawValue(Optional_of[string](LogsGson_toJson(able.toLogsGson())))
 		} else if (is_SimpleListMultimap(value) || is_SimpleSetMultimap(value)) || is_SimpleBiMap(value) {
-			out.rawValue(Optional_of[string](LogsGson_toJson(icast_SimpleCollection(value).untypedMap())))
+			out.rawValue(Optional_of[string](LogsGson_toJson(value.(SimpleCollection).untypedMap())))
 		} else if _, ok6 := value.(interface{ isa_SimpleMultiset_() }); ok6 {
-			out.rawValue(Optional_of[string](LogsGson_toJson(obj_(ImmutableList_copyOf_Iterable(icast_Iterable(value))))))
+			out.rawValue(Optional_of[string](LogsGson_toJson(obj_(ImmutableList_copyOf_Iterable(value.(Iterable))))))
 		} else {
 			var map_ Map
 			_ = map_
