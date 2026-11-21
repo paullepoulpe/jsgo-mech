@@ -298,12 +298,12 @@ func (this *J2clClinitPrunerPass_LookAheadRedundantClinitPruner) getCallOrNewNod
 		return 0
 	}
 	return func() Node {
-		switch n.getToken() {
-		case Token_rhino_EXPR_RESULT, Token_rhino_RETURN:
+		switch n.ns_().token {
+		case tokOrd1_EXPR_RESULT, tokOrd1_RETURN:
 			return this.getCallOrNewNode(n.getFirstChild())
-		case Token_rhino_CALL, Token_rhino_NEW:
+		case tokOrd1_CALL, tokOrd1_NEW:
 			return n
-		case Token_rhino_CONST, Token_rhino_LET, Token_rhino_VAR:
+		case tokOrd1_CONST, tokOrd1_LET, tokOrd1_VAR:
 			return func() Node {
 				if n.hasOneChild() {
 					return this.getCallOrNewNode(n.getFirstFirstChild())

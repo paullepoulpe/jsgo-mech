@@ -129,12 +129,12 @@ func (this *CheckNullabilityModifiers) visitTypeExpression_3(expr *JSTypeExpress
 		var parent Node = node.getParent()
 		var isPrimitiveOrLiteral bool = ((CheckNullabilityModifiers_isPrimitiveType(node) || CheckNullabilityModifiers_isFunctionLiteral(node)) || CheckNullabilityModifiers_isRecordLiteral(node))
 		var isReference bool = CheckNullabilityModifiers_isReferenceType(node)
-		var hasBang bool = ((parent != 0) && (parent.getToken() == Token_rhino_BANG))
-		var hasQmark bool = ((parent != 0) && (parent.getToken() == Token_rhino_QMARK))
+		var hasBang bool = ((parent != 0) && (parent.ns_().token == tokOrd1_BANG))
+		var hasQmark bool = ((parent != 0) && (parent.ns_().token == tokOrd1_QMARK))
 		var hasNonArtificialBang bool = (hasBang && !(hasArtificialTopLevelBang && (parent == root)))
 		var isNewOrThis bool = ((parent != 0) && (parent.isNew() || parent.isThis()))
 		var isTypeOfType bool = ((parent != 0) && parent.isTypeOf())
-		var isAppliedToRValue bool = ((node == root) || ((parent != 0) && (parent.getToken() == Token_rhino_PIPE)))
+		var isAppliedToRValue bool = ((node == root) || ((parent != 0) && (parent.ns_().token == tokOrd1_PIPE)))
 		if (((isReference && !hasBang) && !hasQmark) && !isNewOrThis) && !isTypeOfType {
 			if (isAppliedToRValue && (rValue != 0)) && rValue.isNull() {
 				this.nullMissingCandidates.add(node)
@@ -160,7 +160,7 @@ func CheckNullabilityModifiers_isFunctionLiteral(node Node) bool {
 }
 
 func CheckNullabilityModifiers_isRecordLiteral(node Node) bool {
-	return (node.getToken() == Token_rhino_LC)
+	return (node.ns_().token == tokOrd1_LC)
 }
 
 func CheckNullabilityModifiers_getReportedTypeName(node Node) string {

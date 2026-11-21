@@ -80,8 +80,8 @@ func (this *ReplaceStrings) process_2(externs Node, root Node) {
 }
 
 func (this *ReplaceStrings) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_NEW, Token_rhino_CALL, Token_rhino_TAGGED_TEMPLATELIT:
+	switch n.ns_().token {
+	case tokOrd1_NEW, tokOrd1_CALL, tokOrd1_TAGGED_TEMPLATELIT:
 		var calledFn Node = n.getFirstChild()
 		var name string = calledFn.getOriginalQualifiedName()
 		if !String_isEmpty(name) {
@@ -143,12 +143,12 @@ func (this *ReplaceStrings) replaceExpression(t *NodeTraversal, expr Node) Node 
 	var replacement Node
 	var key Optional[string] = Optional_empty[string]()
 	var replacementString string
-	switch expr.getToken() {
-	case Token_rhino_STRINGLIT:
+	switch expr.ns_().token {
+	case tokOrd1_STRINGLIT:
 		key = Optional_of[string](expr.getString())
 		replacementString = this.getReplacement(key.orElse(nullstr_))
 		replacement = IR_string(replacementString)
-	case Token_rhino_TEMPLATELIT, Token_rhino_ADD, Token_rhino_NAME:
+	case tokOrd1_TEMPLATELIT, tokOrd1_ADD, tokOrd1_NAME:
 		var keyBuilder *StringBuilder = new_StringBuilder()
 		var keyNode Node = IR_string("")
 		replacement = this.buildReplacement(t, expr, keyNode, keyBuilder)
@@ -197,10 +197,10 @@ func (this *ReplaceStrings) buildReplacement(t *NodeTraversal, expr Node, prefix
 		{
 			var child Node = expr.getFirstChild()
 			for ; child != 0; child = child.getNext() {
-				switch child.getToken() {
-				case Token_rhino_TEMPLATELIT_STRING:
+				switch child.ns_().token {
+				case tokOrd1_TEMPLATELIT_STRING:
 					keyBuilder.append(child.getCookedString().orElse("null"))
-				case Token_rhino_TEMPLATELIT_SUB:
+				case tokOrd1_TEMPLATELIT_SUB:
 					prefix = this.buildReplacement(t, child.getFirstChild(), prefix, keyBuilder)
 				default:
 					panic(new_IllegalStateException_String(("Unexpected TEMPLATELIT child: " + tostrH_(child))).self())

@@ -72,8 +72,8 @@ func (this *DevirtualizeMethods) isPrototypeOrStaticMethodDefinition(node Node) 
 		return false
 	}
 	return func() bool {
-		switch node.getToken() {
-		case Token_rhino_MEMBER_FUNCTION_DEF:
+		switch node.ns_().token {
+		case tokOrd1_MEMBER_FUNCTION_DEF:
 			if NodeUtil_isEs6ConstructorMemberFunctionDef(node) {
 				return false
 			}
@@ -81,7 +81,7 @@ func (this *DevirtualizeMethods) isPrototypeOrStaticMethodDefinition(node Node) 
 				return DevirtualizeMethods_isPrototypeObjectLit(parent)
 			}
 			return true
-		case Token_rhino_GETPROP:
+		case tokOrd1_GETPROP:
 			if (!node.isFirstChildOf(parent) || !NodeUtil_isExprAssign(grandparent)) || !parent.getLastChild().isFunction() {
 				return false
 			}
@@ -92,7 +92,7 @@ func (this *DevirtualizeMethods) isPrototypeOrStaticMethodDefinition(node Node) 
 				return true
 			}
 			return false
-		case Token_rhino_STRING_KEY:
+		case tokOrd1_STRING_KEY:
 			Preconditions_checkArgument_boolean_Object_H(parent.isObjectLit(), parent)
 			return (DevirtualizeMethods_isPrototypeObjectLit(parent) && node.getFirstChild().isFunction())
 		default:
@@ -163,8 +163,8 @@ func (this *DevirtualizeMethods) allEligibleCallSites(callSites CollectionT[Node
 }
 
 func (this *DevirtualizeMethods) isEligibleDefinitionSite(name string, definitionSite Node) bool {
-	switch definitionSite.getToken() {
-	case Token_rhino_GETPROP, Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_STRING_KEY, Token_rhino_MEMBER_FIELD_DEF:
+	switch definitionSite.ns_().token {
+	case tokOrd1_GETPROP, tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_STRING_KEY, tokOrd1_MEMBER_FIELD_DEF:
 	default:
 		panic(new_IllegalArgumentException_String(definitionSite.toString()).self())
 	}
@@ -259,12 +259,12 @@ func (this *DevirtualizeMethods) rewriteDefinition(definitionSite Node, newMetho
 	var function Node
 	var subtreeToRemove Node
 	var nameSource Node
-	switch definitionSite.getToken() {
-	case Token_rhino_GETPROP:
+	switch definitionSite.ns_().token {
+	case tokOrd1_GETPROP:
 		function = definitionSite.getParent().getLastChild()
 		nameSource = definitionSite
 		subtreeToRemove = NodeUtil_getEnclosingStatement(definitionSite)
-	case Token_rhino_STRING_KEY, Token_rhino_MEMBER_FUNCTION_DEF:
+	case tokOrd1_STRING_KEY, tokOrd1_MEMBER_FUNCTION_DEF:
 		function = definitionSite.getLastChild()
 		nameSource = definitionSite
 		subtreeToRemove = definitionSite

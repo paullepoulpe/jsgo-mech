@@ -51,12 +51,12 @@ func (this *CheckMissingRequires) shouldTraverse_4_impl(t *NodeTraversal, n Node
 
 func (this *CheckMissingRequires) isInGlobalControlFlowScope(n Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_SCRIPT, Token_rhino_ROOT:
+		switch n.ns_().token {
+		case tokOrd1_SCRIPT, tokOrd1_ROOT:
 			return true
-		case Token_rhino_MODULE_BODY, Token_rhino_BLOCK:
+		case tokOrd1_MODULE_BODY, tokOrd1_BLOCK:
 			return false
-		case Token_rhino_FUNCTION:
+		case tokOrd1_FUNCTION:
 			if this.controlFlowScopeDepth > 0 {
 				return false
 			}

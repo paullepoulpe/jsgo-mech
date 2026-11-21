@@ -65,8 +65,8 @@ func (this *ProcessConstJsdocCallback) visit_impl(t *NodeTraversal, n Node, pare
 		}
 	case Token_rhino_EXPR_RESULT:
 		var expr Node = n.getFirstChild()
-		switch expr.getToken() {
-		case Token_rhino_CALL:
+		switch expr.ns_().token {
+		case tokOrd1_CALL:
 			var callee Node = expr.getFirstChild()
 			if ProcessConstJsdocCallback_GOOG_PROVIDE.matches(callee) {
 				this.currentFile.markProvided(expr.getLastChild().getString())
@@ -75,11 +75,11 @@ func (this *ProcessConstJsdocCallback) visit_impl(t *NodeTraversal, n Node, pare
 			} else if ProcessConstJsdocCallback_GOOG_DEFINE.matches(callee) {
 				this.currentFile.recordDefine(expr)
 			}
-		case Token_rhino_ASSIGN:
+		case tokOrd1_ASSIGN:
 			this.recordDeclaration(t, expr.getFirstChild(), expr.getLastChild())
-		case Token_rhino_GETPROP:
+		case tokOrd1_GETPROP:
 			this.currentFile.recordNameDeclaration(expr)
-		case Token_rhino_GETELEM:
+		case tokOrd1_GETELEM:
 		default:
 			panic(new_IllegalArgumentException_String(("Unexpected declaration: " + tostrH_(expr))).self())
 		}

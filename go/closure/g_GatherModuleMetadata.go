@@ -216,19 +216,19 @@ func new_GatherModuleMetadata_Finder(outer_ *GatherModuleMetadata) *GatherModule
 }
 
 func (this *GatherModuleMetadata_Finder) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
-	switch n.getToken() {
-	case Token_rhino_SCRIPT:
+	switch n.ns_().token {
+	case tokOrd1_SCRIPT:
 		this.enterModule(t, n, t.getInput().getPath())
-	case Token_rhino_IMPORT, Token_rhino_EXPORT:
+	case tokOrd1_IMPORT, tokOrd1_EXPORT:
 		this.visitImportOrExport(t, n)
-	case Token_rhino_CALL:
+	case tokOrd1_CALL:
 		if n.isCall() && GatherModuleMetadata_GOOG_LOADMODULE.matches(n.getFirstChild()) {
 			this.outer_.loadModuleCall = n
 			this.enterModule(t, n, nil)
 		}
-	case Token_rhino_MODULE_BODY:
+	case tokOrd1_MODULE_BODY:
 		this.outer_.currentModule.hasModuleBody = true
-	case Token_rhino_DYNAMIC_IMPORT:
+	case tokOrd1_DYNAMIC_IMPORT:
 		this.visitDynamicImport(n)
 	default:
 	}
@@ -285,12 +285,12 @@ func (this *GatherModuleMetadata_Finder) visit(t *NodeTraversal, n Node, parent 
 			return
 		}
 	}
-	switch n.getToken() {
-	case Token_rhino_SCRIPT:
+	switch n.ns_().token {
+	case tokOrd1_SCRIPT:
 		this.leaveModule()
-	case Token_rhino_NAME:
+	case tokOrd1_NAME:
 		this.visitName(t, n)
-	case Token_rhino_CALL:
+	case tokOrd1_CALL:
 		if this.outer_.loadModuleCall == n {
 			this.leaveModule()
 			this.outer_.loadModuleCall = 0

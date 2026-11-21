@@ -26,14 +26,14 @@ func (this *Es6RewriteArrowFunction) process_2(externs Node, root Node) {
 }
 
 func (this *Es6RewriteArrowFunction) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
-	switch n.getToken() {
-	case Token_rhino_SCRIPT:
+	switch n.ns_().token {
+	case tokOrd1_SCRIPT:
 		this.contextStack.push(this.contextForScript(n, t.getInput()))
-	case Token_rhino_FUNCTION:
+	case tokOrd1_FUNCTION:
 		if !n.isArrowFunction() {
 			this.contextStack.push(this.contextForFunction(n, t.getInput()))
 		}
-	case Token_rhino_SUPER:
+	case tokOrd1_SUPER:
 		var context *ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext = Preconditions_checkNotNull_T(this.contextStack.peek())
 		if (context.isConstructor_ && parent.isCall()) && (parent.getFirstChild() == n) {
 			context.lastSuperStatement = this.getEnclosingStatement(parent, context.scopeBody)

@@ -34,20 +34,20 @@ func new_CheckEs6ModuleFileStructure(compiler *AbstractCompiler) *CheckEs6Module
 
 func (this *CheckEs6ModuleFileStructure) shouldTraverse_impl(t *NodeTraversal, n Node, parent Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_ROOT:
+		switch n.ns_().token {
+		case tokOrd1_ROOT:
 			return true
-		case Token_rhino_SCRIPT:
+		case tokOrd1_SCRIPT:
 			return n.getBooleanProp(Node_ES6_MODULE)
-		case Token_rhino_MODULE_BODY:
+		case tokOrd1_MODULE_BODY:
 			this.orderedStatements.clear()
 			return true
-		case Token_rhino_IMPORT:
+		case tokOrd1_IMPORT:
 			this.visitImport(t, n)
 			return false
-		case Token_rhino_EXPR_RESULT:
+		case tokOrd1_EXPR_RESULT:
 			return this.visitExprResult(t, n, parent)
-		case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST:
+		case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST:
 			return this.visitDeclaration(t, n, parent)
 		default:
 			if (parent != 0) && parent.isModuleBody() {

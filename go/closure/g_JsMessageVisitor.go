@@ -72,8 +72,8 @@ func (this *JsMessageVisitor) checkMessageInitialization(traversal *NodeTraversa
 	var possiblyObfuscatedMessageKey string
 	var msgNode Node
 	var jsDocInfo *JSDocInfo
-	switch node.getToken() {
-	case Token_rhino_NAME:
+	switch node.ns_().token {
+	case tokOrd1_NAME:
 		if (parent == 0) || !NodeUtil_isNameDeclaration(parent) {
 			return
 		}
@@ -81,7 +81,7 @@ func (this *JsMessageVisitor) checkMessageInitialization(traversal *NodeTraversa
 		originalMessageKey = node.getOriginalName()
 		msgNode = node.getFirstChild()
 		jsDocInfo = parent.getJSDocInfo()
-	case Token_rhino_ASSIGN:
+	case tokOrd1_ASSIGN:
 		var getProp Node = node.getFirstChild()
 		if !getProp.isGetProp() {
 			return
@@ -90,7 +90,7 @@ func (this *JsMessageVisitor) checkMessageInitialization(traversal *NodeTraversa
 		originalMessageKey = getProp.getOriginalName()
 		msgNode = node.getLastChild()
 		jsDocInfo = node.getJSDocInfo()
-	case Token_rhino_STRING_KEY:
+	case tokOrd1_STRING_KEY:
 		if (node.isQuotedStringKey() || !node.hasChildren()) || parent.isObjectPattern() {
 			return
 		}
@@ -99,7 +99,7 @@ func (this *JsMessageVisitor) checkMessageInitialization(traversal *NodeTraversa
 		originalMessageKey = node.getOriginalName()
 		msgNode = node.getFirstChild()
 		jsDocInfo = node.getJSDocInfo()
-	case Token_rhino_MEMBER_FIELD_DEF:
+	case tokOrd1_MEMBER_FIELD_DEF:
 		possiblyObfuscatedMessageKey = node.getString()
 		originalMessageKey = node.getOriginalName()
 		msgNode = node.getFirstChild()
@@ -324,16 +324,16 @@ func (this *JsMessageVisitor) checkIfMessageDuplicated(msgName string, msgNode N
 }
 
 func JsMessageVisitor_extractStringFromStringExprNode(node Node) *Outcome_base[string] {
-	switch node.getToken() {
-	case Token_rhino_STRINGLIT:
+	switch node.ns_().token {
+	case tokOrd1_STRINGLIT:
 		return Outcome_base_ok_Object[string](node.getString())
-	case Token_rhino_TEMPLATELIT:
+	case tokOrd1_TEMPLATELIT:
 		if node.hasOneChild() {
 			return Outcome_base_ok_Object[string](node.getFirstChild().getCookedString().orElseThrow())
 		} else {
 			return Outcome_base_err[string](new_JsMessageVisitor_MalformedException("Template literals with substitutions are not allowed.", node).up_Throwable())
 		}
-	case Token_rhino_ADD:
+	case tokOrd1_ADD:
 		var sb *StringBuilder = new_StringBuilder()
 		{
 			var child Node = node.getFirstChild()
