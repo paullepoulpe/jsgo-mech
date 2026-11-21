@@ -803,17 +803,7 @@ func (this *ReplaceMessages_FullReplacementPass) processFullReplacement(fullRepl
 	}
 }
 
-type ReplaceMessages_PlaceholderNodeProvider interface {
-	get(string) Node
-}
-
-type ReplaceMessages_PlaceholderNodeProvider_fn struct {
-	f func(string) Node
-}
-
-func (this *ReplaceMessages_PlaceholderNodeProvider_fn) get(p0 string) Node {
-	return this.f(p0)
-}
+type ReplaceMessages_PlaceholderNodeProvider = *funcObj_[func(string) Node]
 
 type ReplaceMessages_MsgOptions struct {
 	isIcuTemplate_        bool

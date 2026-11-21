@@ -376,9 +376,7 @@ type BlockingQueue interface {
 	Queue
 }
 
-type BooleanSupplier interface {
-	getAsBoolean() bool
-}
+type BooleanSupplier = *funcObj_[func() bool]
 
 type ByteOutput struct {
 }
@@ -2830,12 +2828,4 @@ type IntUnaryOperator_fn struct {
 
 func (this *IntUnaryOperator_fn) applyAsInt(p0 int32) int32 {
 	return this.f(p0)
-}
-
-type BooleanSupplier_fn struct {
-	f func() bool
-}
-
-func (this *BooleanSupplier_fn) getAsBoolean() bool {
-	return this.f()
 }
