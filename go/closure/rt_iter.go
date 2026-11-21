@@ -183,3 +183,16 @@ func (it *immCursor_) next() any {
 
 // remove throws UnsupportedOperationException, as an immutable collection's iterator does.
 func (it *immCursor_) remove() { throwUOE_() }
+
+// slicePtrElemsBy_ is elemsBy_ over the list p points to (a pointer to a slice seen as an
+// erased List): each element boxed, then converted by f, reading the slice anew at every
+// step as the list's iterator did.
+func slicePtrElemsBy_[T, U any](c *tconv_[T], p *[]T, f func(any) U) iter.Seq[U] {
+	return func(yield func(U) bool) {
+		for i := 0; i < len(*p); i++ {
+			if !yield(f(c.box((*p)[i]))) {
+				return
+			}
+		}
+	}
+}
