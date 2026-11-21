@@ -383,11 +383,11 @@ func (this *PotentialDeclaration_NameDeclaration) breakDownDestructure_impl(comp
 	}
 	var definitionNode Node = rootTarget.getGrandparent()
 	var prev Node = 0
-	var lhsNodes ArrayListOf[Node] = new_ArrayList_0()
-	NodeUtil_visitLhsNodesInNode(rootTarget.getParent(), Consumer[Node](func(p0 Node) { lhsNodes.add(p0.box_()) }))
-	it_1 := foreach_(lhsNodes.self())
+	var lhsNodes *TList[Node] = newTList_(tc_Node)
+	NodeUtil_visitLhsNodesInNode(rootTarget.getParent(), Consumer[Node](func(p0 Node) { lhsNodes.add(p0) }))
+	it_1 := lhsNodes.each()
 	for it_1.next() {
-		var n Node = Node_of_(it_1.v)
+		var n Node = it_1.v
 		n.detach()
 		var temp Node = IR_var_Node(n)
 		if prev == 0 {
