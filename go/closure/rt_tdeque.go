@@ -8,6 +8,10 @@ package closure
 
 type TDeque[T any] struct {
 	TList[T]
+	// push writes into room in front of items (as ArrayDeque in rt_coll.go does): buf is the
+	// array push made and off the position of items[0] in it, while items is still in it.
+	buf   []T
+	off   int
 	dview *tdequeFace_[T]
 }
 
@@ -40,7 +44,30 @@ func tdequeCopy_[T any](c *tconv_[T], from *TDeque[T]) *TDeque[T] {
 }
 
 // push is push and addFirst: v is the new head.
-func (d *TDeque[T]) push(v T) { d.insert(0, v) }
+func (d *TDeque[T]) push(v T) {
+	n := len(d.items)
+	switch {
+	case n == 0 && cap(d.buf) > 1:
+		// An empty deque takes the middle of its array again.
+		d.off = cap(d.buf) / 2
+		d.buf[d.off] = v
+		d.items = d.buf[d.off : d.off+1]
+	case n > 0 && d.off > 0 && d.off+n <= len(d.buf) && &d.buf[d.off] == &d.items[0]:
+		// items is buf[off:]: room in front.
+		d.off--
+		d.buf[d.off] = v
+		d.items = d.buf[d.off : d.off+n+1]
+	default:
+		// Rebuild with as much room in front as there are elements (at least 4).
+		room := max(n, 4)
+		nb := make([]T, room+n, room+2*n+4)
+		copy(nb[room:], d.items)
+		clear(d.items)
+		nb[room-1] = v
+		d.buf, d.off = nb[:cap(nb)], room-1
+		d.items = nb[room-1 : room+n]
+	}
+}
 
 // poll is poll and pollFirst: the head, removed; null when the deque is empty.
 func (d *TDeque[T]) poll() T {
@@ -51,6 +78,7 @@ func (d *TDeque[T]) poll() T {
 	var z T
 	d.items[0] = z
 	d.items = d.items[1:]
+	d.off++
 	return v
 }
 
