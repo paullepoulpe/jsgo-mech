@@ -17,7 +17,7 @@ func (this *OptChainCallExpressionTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *OptChainCallExpressionTree) init_OptChainCallExpressionTree(location *SourceRange, operand *ParseTree, arguments *ArgumentListTree, isStartOfOptionalChain bool, hasTrailingComma bool) {
+func (this *OptChainCallExpressionTree) init_OptChainCallExpressionTree(location SourceRange, operand *ParseTree, arguments *ArgumentListTree, isStartOfOptionalChain bool, hasTrailingComma bool) {
 	this.ParseTree.init_ParseTree(ParseTreeType_OPT_CHAIN_CALL_EXPRESSION, location)
 	this.operand = operand
 	this.arguments = arguments
@@ -25,7 +25,7 @@ func (this *OptChainCallExpressionTree) init_OptChainCallExpressionTree(location
 	this.hasTrailingComma_ = hasTrailingComma
 }
 
-func new_OptChainCallExpressionTree(location *SourceRange, operand *ParseTree, arguments *ArgumentListTree, isStartOfOptionalChain bool, hasTrailingComma bool) *OptChainCallExpressionTree {
+func new_OptChainCallExpressionTree(location SourceRange, operand *ParseTree, arguments *ArgumentListTree, isStartOfOptionalChain bool, hasTrailingComma bool) *OptChainCallExpressionTree {
 	this := &OptChainCallExpressionTree{}
 	this.self_ = this
 	this.init_OptChainCallExpressionTree(location, operand, arguments, isStartOfOptionalChain, hasTrailingComma)

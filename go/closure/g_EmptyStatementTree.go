@@ -13,11 +13,11 @@ func (this *EmptyStatementTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *EmptyStatementTree) init_EmptyStatementTree(location *SourceRange) {
+func (this *EmptyStatementTree) init_EmptyStatementTree(location SourceRange) {
 	this.ParseTree.init_ParseTree(ParseTreeType_EMPTY_STATEMENT, location)
 }
 
-func new_EmptyStatementTree(location *SourceRange) *EmptyStatementTree {
+func new_EmptyStatementTree(location SourceRange) *EmptyStatementTree {
 	this := &EmptyStatementTree{}
 	this.self_ = this
 	this.init_EmptyStatementTree(location)

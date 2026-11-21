@@ -10,13 +10,13 @@ func (this *InvalidatingTypes) init_InvalidatingTypes(typeToLocation *SimpleSetM
 	this.typeToLocation = typeToLocation
 }
 
-func new_InvalidatingTypes(typeToLocation *SimpleSetMultimap[*JSType, Node]) *InvalidatingTypes {
-	this := &InvalidatingTypes{}
+func new_InvalidatingTypes(typeToLocation *SimpleSetMultimap[*JSType, Node]) InvalidatingTypes {
+	this := InvalidatingTypes{}
 	this.init_InvalidatingTypes(typeToLocation)
 	return this
 }
 
-func (this *InvalidatingTypes) isInvalidating(type_ *JSType) bool {
+func (this InvalidatingTypes) isInvalidating(type_ *JSType) bool {
 	if ((type_ == nil) || type_.isUnknownType()) || type_.isEmptyType() {
 		return true
 	}
@@ -43,7 +43,7 @@ func (this *InvalidatingTypes) isInvalidating(type_ *JSType) bool {
 	return (this.typeToLocation.containsKey(objType.up_JSType()) || InvalidatingTypes_isAmbiguousOrStructuralType(objType))
 }
 
-func (this *InvalidatingTypes) getMismatchLocations() *SimpleSetMultimap[*JSType, Node] {
+func (this InvalidatingTypes) getMismatchLocations() *SimpleSetMultimap[*JSType, Node] {
 	return this.typeToLocation
 }
 
@@ -100,7 +100,7 @@ func new_InvalidatingTypes_Builder(registry *JSTypeRegistry) *InvalidatingTypes_
 	return this
 }
 
-func (this *InvalidatingTypes_Builder) build() *InvalidatingTypes {
+func (this *InvalidatingTypes_Builder) build() InvalidatingTypes {
 	for t := range InvalidatingTypes_ALWAYS_INVALIDATING_TYPES.All() {
 		this.typeToLocation.put(this.registry.getNativeType(t), InvalidatingTypes_ALWAYS_INVALIDATING_LOCATION)
 	}

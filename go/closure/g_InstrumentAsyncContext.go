@@ -8,7 +8,7 @@ type InstrumentAsyncContext struct {
 	start_                RuntimeJsLibManager_JsLibField
 	compiler_             *AbstractCompiler
 	astFactory_           *AstFactory
-	uniqueIdSupplier      *UniqueIdSupplier
+	uniqueIdSupplier      UniqueIdSupplier
 	tryFunctionStack      *[]Node
 	needsInstrumentation  *TMap[Node, *InstrumentAsyncContext_FunctionContext]
 	alreadyInstrumented   map[Node]struct{}

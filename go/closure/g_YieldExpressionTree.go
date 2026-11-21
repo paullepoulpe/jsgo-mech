@@ -15,13 +15,13 @@ func (this *YieldExpressionTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *YieldExpressionTree) init_YieldExpressionTree(location *SourceRange, isYieldAll bool, expression *ParseTree) {
+func (this *YieldExpressionTree) init_YieldExpressionTree(location SourceRange, isYieldAll bool, expression *ParseTree) {
 	this.ParseTree.init_ParseTree(ParseTreeType_YIELD_EXPRESSION, location)
 	this.isYieldAll_ = isYieldAll
 	this.expression = expression
 }
 
-func new_YieldExpressionTree(location *SourceRange, isYieldAll bool, expression *ParseTree) *YieldExpressionTree {
+func new_YieldExpressionTree(location SourceRange, isYieldAll bool, expression *ParseTree) *YieldExpressionTree {
 	this := &YieldExpressionTree{}
 	this.self_ = this
 	this.init_YieldExpressionTree(location, isYieldAll, expression)
