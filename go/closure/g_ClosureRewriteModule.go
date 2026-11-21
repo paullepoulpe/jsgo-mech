@@ -1785,6 +1785,7 @@ func (this *ClosureRewriteModule_ReplaceJsDocRefs) visit(typeRefNode Node) {
 func (this *ClosureRewriteModule_ReplaceJsDocRefs) rewriteIfClosureNamespaceRef(typeName string, typeRefNode Node) {
 	var prefixTypeName string = typeName
 	var suffix string = ""
+	typeNameU16 := utf16Of_(typeName)
 	for {
 		var binaryNamespaceIfModule Optional[string] = this.outer_.rewriteState.getBinaryNamespace(prefixTypeName)
 		if this.outer_.legacyScriptNamespacesAndPrefixes.contains(prefixTypeName) && binaryNamespaceIfModule.isEmpty() {
@@ -1796,7 +1797,7 @@ func (this *ClosureRewriteModule_ReplaceJsDocRefs) rewriteIfClosureNamespaceRef(
 		}
 		if JString_contains_s(prefixTypeName, ".") {
 			prefixTypeName = cutBytes_(prefixTypeName, 0, int32(strings.LastIndexByte(prefixTypeName, '.')))
-			suffix = String_substring_int(typeName, String_length(prefixTypeName))
+			suffix = typeNameU16.substring_int(String_length(prefixTypeName))
 		} else {
 			break
 		}

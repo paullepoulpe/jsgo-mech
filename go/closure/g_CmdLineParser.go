@@ -138,18 +138,19 @@ func CmdLineParser_createDefaultValuePart(option *CmdLineParser_Option) string {
 
 func CmdLineParser_wrapLines(line string, maxLength int32) *JTList[string] {
 	var rv *JTList[string] = jnewTList_(jtc_string)
+	var restOfLineU16 utf16_
 	for _, restOfLine := range CmdLineParser_NEWLINE_PATTERN.split(line) {
-		for String_length(restOfLine) > maxLength {
+		for restOfLineU16.of(restOfLine).length() > maxLength {
 			var lineLength int32
-			var candidate string = String_substring(restOfLine, 0, maxLength)
+			var candidate string = restOfLineU16.of(restOfLine).substring(0, maxLength)
 			var sp int32 = String_lastIndexOf(candidate, 32)
 			if sp > ((maxLength * 3) / 5) {
 				lineLength = sp
 			} else {
 				lineLength = maxLength
 			}
-			rv.add(String_substring(restOfLine, 0, lineLength))
-			restOfLine = strings.Trim(String_substring_int(restOfLine, lineLength), javaSpace_)
+			rv.add(restOfLineU16.of(restOfLine).substring(0, lineLength))
+			restOfLine = strings.Trim(restOfLineU16.of(restOfLine).substring_int(lineLength), javaSpace_)
 		}
 		rv.add(restOfLine)
 	}
@@ -660,9 +661,10 @@ func (this *CmdLineParser_CmdLineImpl) getParameterOrNull(idx int32) Optional[st
 
 func (this *CmdLineParser_CmdLineImpl) splitToken() {
 	if (this.pos < int32(len(this.args))) && (this.pos >= 0) {
-		var idx int32 = String_indexOf_String(this.args[this.pos], "=")
+		var argsU16 utf16_
+		var idx int32 = argsU16.of(this.args[this.pos]).indexOf_String("=")
 		if idx > 0 {
-			this.args[this.pos] = String_substring_int(this.args[this.pos], (idx + 1))
+			this.args[this.pos] = argsU16.of(this.args[this.pos]).substring_int((idx + 1))
 		}
 	}
 }

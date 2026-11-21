@@ -2011,11 +2011,12 @@ func (this *Compiler) toSource_4(cb *Compiler_CodeBuilder, licenseTracker CodePr
 			this.sourceMap_.setStartingPosition(cb.getLineIndex(), cb.getColumnIndex())
 		}
 		cb.append(code)
-		var length int32 = String_length(code)
-		var lastChar uint16 = String_charAt(code, (length - 1))
+		codeU16 := utf16Of_(code)
+		var length int32 = codeU16.length()
+		var lastChar uint16 = codeU16.charAt((length - 1))
 		var secondLastChar uint16 = func() uint16 {
 			if length >= 2 {
-				return String_charAt(code, (length - 2))
+				return codeU16.charAt((length - 2))
 			}
 			return 0x0000
 		}()
@@ -2922,9 +2923,10 @@ func Compiler_toVariableMapEntries(map_ *VariableMap) *JTList[*VariableMapEntryP
 
 func Compiler_fromProtoList(protos ListOf[FeatureProto]) *FeatureSet {
 	var features *JTSet[FeatureSet_Feature] = jnewTSet_(jtc_p_FeatureSet_Feature)
+	var nameU16 utf16_
 	for p := range elemsAs_[FeatureProto](protos) {
 		if p != FeatureProto_FEATURE_UNKNOWN {
-			var name string = String_substring_int(p.name(), int32(len("FEATURE_")))
+			var name string = nameU16.of(p.name()).substring_int(int32(len("FEATURE_")))
 			for _, feature := range FeatureSet_Feature_values() {
 				if feature.name() == name {
 					features.add(feature)
@@ -3691,8 +3693,9 @@ func (this *Compiler_CodeBuilder) append(str string) *Compiler_CodeBuilder {
 	this.sb.append(str)
 	var index int32 = -1
 	var lastIndex int32 = index
+	strU16 := utf16Of_(str)
 	for {
-		index = String_indexOf_int_int(str, 10, (index + 1))
+		index = strU16.indexOf_int_int(10, (index + 1))
 		if index < 0 {
 			break
 		}
@@ -3700,9 +3703,9 @@ func (this *Compiler_CodeBuilder) append(str string) *Compiler_CodeBuilder {
 		lastIndex = index
 	}
 	if lastIndex == -1 {
-		this.colCount += String_length(str)
+		this.colCount += strU16.length()
 	} else {
-		this.colCount = (String_length(str) - (lastIndex + 1))
+		this.colCount = (strU16.length() - (lastIndex + 1))
 	}
 	return this
 }

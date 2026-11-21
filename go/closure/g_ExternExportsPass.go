@@ -534,6 +534,7 @@ func new_ExternExportsPass_PropertyExport(outer_ *ExternExportsPass, exportPath 
 
 func (this *ExternExportsPass_PropertyExport) getExportedPath_impl() string {
 	it_1 := foreach_(Lists_reverse(ExternExportsPass_computePathPrefixes(this.exportPath).asList()))
+	exportPathU16 := utf16Of_(this.exportPath)
 	for it_1.next() {
 		var currentPath string = str_(it_1.v)
 		if len(currentPath) == 0 {
@@ -543,7 +544,7 @@ func (this *ExternExportsPass_PropertyExport) getExportedPath_impl() string {
 		if mappedPath.isEmpty() {
 			continue
 		}
-		mappedPath = Optional_of[string]((sstr_(mappedPath.get()) + sstr_(String_substring_int(this.exportPath, String_length(currentPath)))))
+		mappedPath = Optional_of[string]((sstr_(mappedPath.get()) + sstr_(exportPathU16.substring_int(String_length(currentPath)))))
 		return ExternExportsPass_Q_NAME_JOINER.join_Object_Object_ObjectArr(strobj_(mappedPath.get()), strobj_(this.symbolName), []any{})
 	}
 	return ExternExportsPass_Q_NAME_JOINER.join_Object_Object_ObjectArr(strobj_(this.exportPath), strobj_(this.symbolName), []any{})
