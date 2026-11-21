@@ -770,3 +770,37 @@ ad8c897b patch 492-ad8c897b-rt.patch
 265af42f patch 496-265af42f-rt.patch
 # 497. postflip (runtime, re-flip): protobuf fields are stored typed, in one struct per message written by tools/protogen, instead of boxed in a []any
 7be430ed patch 497-7be430ed-rt.patch
+# 510. postflip (runtime, re-flip): an erased immutable collection keeps what only multisets, sorted sets with a comparator, enum sets and asList() of a set use in a record of its own (80 bytes instead of 192)
+d791dde5 patch 510-d791dde5-rt.patch
+# 511. postflip (runtime, re-flip): helpers for a typed collection that goes through its erased form and straight back, with a test against the conversions they stand for
+68513bc0 patch 511-68513bc0-rt.patch
+# 512. postflip step (re-flip): trips, 88 round trips of a typed collection through its erased form become typed helper calls (tool a9769ba0, runtime 68513bc0)
+#: trips: 88 round trips through an erased collection rewritten; files changed: 47 (10 tsetAddAllOf_, 5 tsetAddList_, 13 tsetAddSet_, 7 immCopySlice_, 1 sliceSkip_ of splitStrs_, 15 tlistImmCopy_, 8 sliceAddSlice_, 1 sliceAddList_, 1 immCopyArr_, 5 tlistSlice_, 20 splitStrs_, 2 tsetCopy_; left 1 array boxed by a function literal)
+e9d53d6c run t trips && f
+# 513. postflip (runtime, re-flip): a Splitter makes the slice of its pieces once, at its final size
+4071b655 patch 513-4071b655-rt.patch
+# 530. postflip (manual, re-flip): a node's JSType is kept in the table of distinct values as the *JSType, so getJSType is one type comparison
+ec365959 patch 530-ec365959-manual.patch
+ec365959 patch 530-ec365959-rt.patch
+# 531. postflip (runtime, re-flip): buildLastT_ on every protobuf builder, a build that turns the builder's allocation into the message
+313c74a6 patch 531-313c74a6-rt.patch
+# 532. postflip step (re-flip): pblast, 29 last builds of a protobuf builder are buildLastT_() (tool 7db1e46c, runtime 313c74a6)
+e7442814 run t pblast && f
+#: pblast: 29 last builds of a protobuf builder are buildLastT_(): 20 of a fresh builder expression, 9 of an owned local variable in a return (117 generated builder methods checked to keep no reference, 6 parameters borrowed); left 8 buildT_() calls; 0 already buildLastT_(). f (gofmt of go1.27.3) also realigns g_0names.go, which the tree before was not formatted by.
+# 533. postflip (runtime, re-flip): the protobuf writer tests a field's presence in line and writes a repeated message field in its own loop
+2a0d8fa6 patch 533-2a0d8fa6-rt.patch
+# 534. postflip (manual, re-flip): expectWellFormedTemplatizedType makes its verifier only for a node that has a type
+#= 43f5a0f0 not taken (thirteenth session): a one-off hand edit of pass code, measured and gated on its branch; to come back as a tool or not at all
+#- 43f5a0f0 patch 534-43f5a0f0-manual.patch
+# 535. postflip (runtime, re-flip): the shared property lists of nodes have a direct-mapped front, so reading a node's list is a comparison, not a map lookup
+036df818 patch 535-036df818-rt.patch
+# 520. postflip (runtime, re-flip): a key without equals/hashCode is hashed by its address
+67684f20 patch 520-67684f20-rt.patch
+# 521. postflip (runtime, re-flip): an erased lookup of an object by identity asks its type's questions once
+fb7f9349 patch 521-fb7f9349-rt.patch
+# 522. postflip (manual, re-flip): SourceFile.setCodeAndDoBookkeeping counts lines on the view it has
+#= f9699ae5 not taken (thirteenth session): a one-off hand edit of pass code, measured and gated on its branch; to come back as a tool or not at all
+#- f9699ae5 patch 522-f9699ae5-manual.patch
+# 523. postflip (manual, re-flip): a token's SourceRange and its two SourcePositions are one allocation
+#= 444eac19 not taken (thirteenth session): a one-off hand edit of pass code, measured and gated on its branch; to come back as a tool or not at all
+#- 444eac19 patch 523-444eac19-manual.patch
