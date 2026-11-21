@@ -290,7 +290,7 @@ func (this *UnionType) appendTo_impl(sb *TypeStringBuilder) {
 	sb.append(")")
 }
 
-func (this *UnionType) getRestrictedTypeGivenOutcome_impl(outcome *Outcome_rhino) *JSType {
+func (this *UnionType) getRestrictedTypeGivenOutcome_impl(outcome Outcome_rhino) *JSType {
 	return JSTypeIterations_mapTypes(Function[*JSType, *JSType](func(t *JSType) *JSType {
 		return t.getRestrictedTypeGivenOutcome(outcome)
 	}), this)
@@ -832,7 +832,7 @@ func (this *UnionType) appendTo(p0 *TypeStringBuilder) {
 }
 
 // getRestrictedTypeGivenOutcome: an object that is exactly a UnionType calls its getRestrictedTypeGivenOutcome_impl directly (post-flip); others dispatch.
-func (this *UnionType) getRestrictedTypeGivenOutcome(p0 *Outcome_rhino) *JSType {
+func (this *UnionType) getRestrictedTypeGivenOutcome(p0 Outcome_rhino) *JSType {
 	if p, _ := this.self_.(*UnionType); p == this {
 		return this.getRestrictedTypeGivenOutcome_impl(p0)
 	}
