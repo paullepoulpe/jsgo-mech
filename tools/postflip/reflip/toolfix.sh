@@ -2604,3 +2604,229 @@ reflip_edit tools/postflip/trips/main.go reflip38 <<'E38'
 			os.Exit(1)
 		}
 E38
+# 39. (sixth flip) optstr: the one map that holds Optional<String> objects for erased code (ContextualRenamer.declarations, an
+#    erased LinkedHashMap whose toString prints them; fix 15) is written by rule "typed library interfaces" behind its typed
+#    interface: the field is MapT[string, Optional[string]], assigned mapAs_(tc_string, tc_Optional_string_, Map(new_LinkedHashMap()))
+#    (the wrapper of rt_lg.go over the same erased map, with the package's conversion of its values), written with
+#    m.put_t(k, o) and read as before under Map_un_(m) (Map_containsKey_s, optOf_[string](Map_getOrDefault_s(Map_un_(m), k,
+#    o.box_()))) and lgBox_(m) (the toString helper). The proof knew the alias MapOf[string, Optional[string]] and failed on 8
+#    obligations, so step 553 rewrote nothing (1,378 type spellings, 3,429 calls on the fifth flip). The same rule read at the
+#    new notation: the map is kept when it is that field, its one assignment is the wrapper of a new LinkedHashMap / HashMap,
+#    and its uses are those reads and m.put_t(k, o) as a statement (the old value it returns, null for a new key, is not
+#    used; o is an Optional<String> of the program, never null by the tool's other proofs, as o.box_() was in Map_put_s).
+#    What is kept as it is, Optional[string] spelled: the field's type, and the declaration of a conversion
+#    *tconv_[Optional[string]] whose every use is the value conversion of such a wrapper (its box and unbox are the Optional
+#    object's, also for the null a get of an absent key gives). At m.put_t(k, o) the value, a string after the step, is the
+#    Optional again: optOf_[string](optstrBox_(o)), the Optional of the object erased code sees for o (optstrBox_ and optOf_
+#    are inverse on non-null Optionals: rt_optstr.go). Everything else is the tool's.
+reflip_edit tools/postflip/optstr/proof.go reflip39 <<'E39'
+	} else if !ok || n.Obj().Name() != "MapOf" {
+		return false
+	}
+	for _, id := range rw.UsesOf[v] {
+		sel, ok := rw.Parent[id].(*ast.SelectorExpr)
+		if !ok {
+			return false
+		}
+		switch p := rw.Up(sel).(type) {
+=====
+	} else if ok && n.Obj().Name() == "MapT" && n.TypeArgs().Len() == 2 && isOptStr(n.TypeArgs().At(1)) { // reflip39: the map behind its typed interface
+	} else if !ok || n.Obj().Name() != "MapOf" {
+		return false
+	}
+	for _, id := range rw.UsesOf[v] {
+		sel, ok := rw.Parent[id].(*ast.SelectorExpr)
+		if !ok {
+			return false
+		}
+		up := rw.Up(sel)
+		if c, ok := up.(*ast.CallExpr); ok && len(c.Args) == 1 && rw.Unparen(c.Args[0]) == ast.Expr(sel) { // reflip39: Map_un_(m), lgBox_(m): the erased map
+			if name, _ := rw.CallName(c); name == "Map_un_" || name == "lgBox_" {
+				up = rw.Up(c)
+			}
+		}
+		if ps, ok := up.(*ast.SelectorExpr); ok { // reflip39: m.put_t(k, o) as a statement, o an Optional<String>
+			c, isCall := rw.Up(ps).(*ast.CallExpr)
+			if !isCall || c.Fun != ast.Expr(ps) || ps.Sel.Name != "put_t" || len(c.Args) != 2 || !isOptStr(rw.Info.TypeOf(c.Args[1])) {
+				return false
+			}
+			if _, isStmt := rw.Up(c).(*ast.ExprStmt); !isStmt {
+				return false
+			}
+			continue
+		}
+		switch p := up.(type) {
+-----
+			rhs := p.Rhs[0]
+			if c, ok := rw.Unparen(rhs).(*ast.CallExpr); ok && len(c.Args) == 1 { // reflip15: Map(new_LinkedHashMap())
+=====
+			rhs := p.Rhs[0]
+			if c, ok := rw.Unparen(rhs).(*ast.CallExpr); ok && len(c.Args) == 3 { // reflip39: mapAs_(kc, vc, Map(new_LinkedHashMap()))
+				if name, _ := rw.CallName(c); name == "mapAs_" {
+					rhs = c.Args[2]
+				}
+			}
+			if c, ok := rw.Unparen(rhs).(*ast.CallExpr); ok && len(c.Args) == 1 { // reflip15: Map(new_LinkedHashMap())
+-----
+	sel, ok := g.Args[0].(*ast.SelectorExpr)
+	if !ok {
+		return "map not a field"
+	}
+=====
+	a0 := rw.Unparen(g.Args[0])
+	if c, isC := a0.(*ast.CallExpr); isC && len(c.Args) == 1 { // reflip39: Map_un_(m)
+		if name, _ := rw.CallName(c); name == "Map_un_" {
+			a0 = rw.Unparen(c.Args[0])
+		}
+	}
+	sel, ok := a0.(*ast.SelectorExpr)
+	if !ok {
+		return "map not a field"
+	}
+-----
+			} else {
+				fail(id, "package variable holding Optionals in a container")
+			}
+=====
+			} else if reflip39Conv(v) {
+				proved["conversion of a kept map's values (the Optional objects erased code sees)"]++
+			} else {
+				fail(id, "package variable holding Optionals in a container")
+			}
+-----
+			case "MapOf":
+				// the kept map: checked with its field
+=====
+			case "MapOf":
+				// the kept map: checked with its field
+			case "MapT", "mapAs_", "tconv_": // reflip39: the kept map's typed interface, its wrapper, its value conversion
+				if !reflip39In(id) {
+					fail(id, "generic code instantiated with Optional[string] ("+id.Name+")")
+				}
++++++
+
+// reflip39Conv: v is a conversion *tconv_[Optional[string]] of the package whose every use is the
+// value conversion of a kept map's wrapper, mapAs_(kc, v, ..) assigned to the kept field.
+func reflip39Conv(v *types.Var) bool {
+	p, ok := types.Unalias(v.Type()).(*types.Pointer)
+	if !ok {
+		return false
+	}
+	n, ok := types.Unalias(p.Elem()).(*types.Named)
+	if !ok || n.Obj().Name() != "tconv_" || n.TypeArgs().Len() != 1 || !isOptStr(n.TypeArgs().At(0)) || len(rw.UsesOf[v]) == 0 {
+		return false
+	}
+	for _, id := range rw.UsesOf[v] {
+		c, ok := rw.Up(id).(*ast.CallExpr)
+		if !ok || len(c.Args) != 3 || rw.Unparen(c.Args[1]) != ast.Expr(id) {
+			return false
+		}
+		if name, _ := rw.CallName(c); name != "mapAs_" {
+			return false
+		}
+		as, ok := rw.Up(c).(*ast.AssignStmt)
+		if !ok || len(as.Lhs) != 1 {
+			return false
+		}
+		sel, ok := as.Lhs[0].(*ast.SelectorExpr)
+		if !ok {
+			return false
+		}
+		f, _ := rw.Info.Uses[sel.Sel].(*types.Var)
+		if f == nil || !isMapKept(f) {
+			return false
+		}
+	}
+	return true
+}
+
+// reflip39In: id is in the declaration of a kept map field (its type), in the assignment of
+// its wrapper, or in the declaration of its value conversion.
+func reflip39In(id *ast.Ident) bool {
+	for n := ast.Node(id); n != nil; n = rw.Parent[n] {
+		switch x := n.(type) {
+		case *ast.Field:
+			for _, nm := range x.Names {
+				if v, ok := rw.Info.Defs[nm].(*types.Var); ok && v.IsField() && isMapKept(v) {
+					return true
+				}
+			}
+			return false
+		case *ast.AssignStmt:
+			if len(x.Lhs) == 1 {
+				if sel, ok := x.Lhs[0].(*ast.SelectorExpr); ok {
+					if v, ok := rw.Info.Uses[sel.Sel].(*types.Var); ok && v.IsField() && isMapKept(v) {
+						return true
+					}
+				}
+			}
+			return false
+		case *ast.ValueSpec:
+			for _, nm := range x.Names {
+				if v, ok := rw.Info.Defs[nm].(*types.Var); ok && reflip39Conv(v) {
+					return true
+				}
+			}
+			return false
+		case *ast.FuncDecl:
+			return false
+		}
+	}
+	return false
+}
+
+// reflip39Put: c is m.put_t(k, o) of a kept map field m.
+func reflip39Put(c *ast.CallExpr) bool {
+	ps, ok := c.Fun.(*ast.SelectorExpr)
+	if !ok || ps.Sel.Name != "put_t" || len(c.Args) != 2 {
+		return false
+	}
+	sel, ok := rw.Unparen(ps.X).(*ast.SelectorExpr)
+	if !ok {
+		return false
+	}
+	v, _ := rw.Info.Uses[sel.Sel].(*types.Var)
+	return v != nil && v.IsField() && isMapKept(v)
+}
+E39
+reflip_edit tools/postflip/optstr/rewrite.go reflip39 <<'E39b'
+					} else if !declaredInGenerated(s.Obj()) {
+						fail(x, "runtime method returning Optional<String> ("+sel.Sel.Name+")")
+=====
+					} else if !declaredInGenerated(s.Obj()) && !reflip39Put(x) { // reflip39
+						fail(x, "runtime method returning Optional<String> ("+sel.Sel.Name+")")
+-----
+	inner := map[ast.Node]bool{} // calls a rewrite of their `!` replaces
+=====
+	// reflip39: the declaration of a kept map's value conversion keeps its spellings; a value put
+	// through the kept map's typed interface is the Optional of the object erased code sees
+	for id, o := range rw.Info.Defs {
+		if v, ok := o.(*types.Var); ok && v.Parent() == rw.Pkg.Scope() && reflip39Conv(v) {
+			if vs, ok := rw.Parent[id].(*ast.ValueSpec); ok {
+				ast.Inspect(vs, func(n ast.Node) bool {
+					if n != nil {
+						skip[n] = true
+					}
+					return true
+				})
+				left["type spellings kept: the value conversion of an erased map holding Optional objects"] = append(left["type spellings kept: the value conversion of an erased map holding Optional objects"], rw.Fset.Position(id.Pos()).String())
+			}
+		}
+	}
+	for _, f := range rw.Files {
+		if !generated(f) {
+			continue
+		}
+		ast.Inspect(f, func(n ast.Node) bool {
+			if c, ok := n.(*ast.CallExpr); ok && reflip39Put(c) {
+				c := c
+				done["m.put_t(k, o) of the kept map -> m.put_t(k, optOf_[string](optstrBox_(o)))"]++
+				rw.Rewrite[c] = func() string {
+					return rw.Render(c.Fun) + "(" + rw.Render(c.Args[0]) + ", optOf_[string](optstrBox_(" + rw.Render(c.Args[1]) + ")))"
+				}
+			}
+			return true
+		})
+	}
+	inner := map[ast.Node]bool{} // calls a rewrite of their `!` replaces
+E39b
