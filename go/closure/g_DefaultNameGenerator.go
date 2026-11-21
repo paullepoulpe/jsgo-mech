@@ -151,12 +151,12 @@ func (this *DefaultNameGenerator) checkPrefix(prefix string) {
 			}
 			panic(new_IllegalArgumentException_String(("prefix must start with one of: " + sstr_(Arrays_toString(chars)))).self())
 		}
-		for pos := int32(1); pos < String_length(prefix); pos++ {
+		for _, u_ := range stringUnitsFrom_(prefix, int32(1)) {
 			var chars []uint16 = make([]uint16, int32(len(this.nonFirstChars)))
 			for i := int32(0); i < int32(len(chars)); i++ {
 				chars[i] = this.nonFirstChars[i].name_
 			}
-			if !DefaultNameGenerator_contains(this.nonFirstChars, String_charAt(prefix, pos)) {
+			if !DefaultNameGenerator_contains(this.nonFirstChars, u_) {
 				panic(new_IllegalArgumentException_String(("prefix has invalid characters, must be one of: " + sstr_(Arrays_toString(chars)))).self())
 			}
 		}
