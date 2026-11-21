@@ -233,7 +233,18 @@ func (m *TMap[K, V]) clear() {
 }
 
 // computeIfAbsent is Map.computeIfAbsent with an erased function.
-func (m *TMap[K, V]) computeIfAbsent(k K, f Function_e) V { return m.computeIfAbsent_f(k, f.apply) }
+func (m *TMap[K, V]) computeIfAbsent(k K, f Function_e) V {
+	if i := m.find(k); i >= 0 && !m.vc.isNull(m.vals[i]) {
+		return m.vals[i]
+	}
+	r := f.apply(m.kc.box(k))
+	if r == nil {
+		return m.vc.null
+	}
+	v := m.vc.unbox(r)
+	m.put(k, v)
+	return v
+}
 
 // computeIfAbsent_f is computeIfAbsent with the function as a Go func value, which the caller's
 // closure can stay on the stack for (post-flip step funcparams calls it for lambdas).
