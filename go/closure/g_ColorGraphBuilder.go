@@ -60,7 +60,8 @@ func (this *ColorGraphBuilder) connectUnionWithAncestors(unionNode *LinkedDirect
 		graphNodesBuilder.add(this.nodeFactory.createNode(element))
 	}
 	var graphNodes *JTSet[*ColorGraphNode] = graphNodesBuilder.build()
-	for lca := range elemsAs_[*ColorGraphNode](obj_(this.lcaFinder.findAll(graphNodes.asSet()))) {
+	for _, el := range immElems_(this.lcaFinder.findAll(graphNodes.asSet())) {
+		lca := cast_[*ColorGraphNode](el)
 		nn_ := this.colorHoldsInstanceGraph.getNode_Object_rDiGraphNode_rLinkedDiGraphNode(lca)
 		if nn_ == nil {
 			panic(new_NullPointerException_0().self())

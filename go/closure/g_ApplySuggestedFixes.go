@@ -102,7 +102,8 @@ func ApplySuggestedFixes_applyCodeReplacements(replacements CollectionOf[*CodeRe
 	}
 	var sb *StringBuilder = new_StringBuilder()
 	var lastIndex int32 = 0
-	for replacement := range elemsAs_[*CodeReplacement](obj_(sortedReplacements)) {
+	for _, el := range immElems_(sortedReplacements) {
+		replacement := cast_[*CodeReplacement](el)
 		Appendable_append_s_int_int(sb, code, lastIndex, replacement.getStartPosition())
 		sb.append(replacement.getNewContent())
 		lastIndex = replacement.getEndPosition()
@@ -115,9 +116,8 @@ func ApplySuggestedFixes_applyCodeReplacements(replacements CollectionOf[*CodeRe
 
 func ApplySuggestedFixes_containsOverlaps(replacements ImmutableSortedSetOf[*CodeReplacement]) bool {
 	var start int32 = -1
-	it_1 := foreach_(obj_(replacements))
-	for it_1.next() {
-		var replacement *CodeReplacement = cast_[*CodeReplacement](it_1.v)
+	for _, el_1 := range immElems_(replacements) {
+		var replacement *CodeReplacement = cast_[*CodeReplacement](el_1)
 		if replacement.getStartPosition() < start {
 			return true
 		}

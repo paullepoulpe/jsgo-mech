@@ -101,7 +101,8 @@ func JSChunkGraph_makeWeakChunk(chunksInDepOrder ListOf[*JSChunk]) ListOf[*JSChu
 		var misplacedStrongFiles *JTList[string] = jnewTList_(jtc_string)
 		for chunk := range elemsAs_[*JSChunk](chunksInDepOrder) {
 			var isWeakChunk bool = (chunk.getName() == JSChunk_WEAK_CHUNK_NAME)
-			for input := range elemsAs_[*CompilerInput](obj_(chunk.getInputs())) {
+			for _, el := range immElems_(chunk.getInputs()) {
+				input := cast_[*CompilerInput](el)
 				if isWeakChunk && !input.getSourceFile().isWeak() {
 					misplacedStrongFiles.add(input.getSourceFile().getName())
 				} else if !isWeakChunk && input.getSourceFile().isWeak() {
@@ -222,7 +223,8 @@ func (this *JSChunkGraph) toJson() *SimpleJsonValue {
 		}
 		var inputs *SimpleJsonValue = SimpleJsonValue_newArray()
 		node.members().put("inputs", inputs)
-		for input := range elemsAs_[*CompilerInput](obj_(chunk.getInputs())) {
+		for _, el := range immElems_(chunk.getInputs()) {
+			input := cast_[*CompilerInput](el)
 			inputs.elements().add(SimpleJsonValue_ofString(input.getSourceFile().getName()))
 		}
 		chunks.elements().add(node)
@@ -336,7 +338,8 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 	it_1 := originalInputs.each()
 	for it_1.next() {
 		var input *CompilerInput = it_1.v
-		for provide := range elemsBy_(obj_(input.getKnownProvides()), str_) {
+		for _, el := range immElems_(input.getKnownProvides()) {
+			provide := str_(el)
 			inputsByProvide.computeIfAbsent(provide, Function[string, Set](func(k string) Set {
 				return Set(new_LinkedHashSet())
 			}))
@@ -455,7 +458,8 @@ func (this *JSChunkGraph) getDepthFirstDependenciesOf(rootInput *CompilerInput, 
 	if !unreachedInputs.remove(rootInput) {
 		return orderedInputs
 	}
-	for importedNamespace := range elemsBy_(obj_(rootInput.getRequiredSymbols()), str_) {
+	for _, el := range immElems_(rootInput.getRequiredSymbols()) {
+		importedNamespace := str_(el)
 		if inputsByProvide.containsKey(importedNamespace) {
 			for input := range elemsAs_[*CompilerInput](inputsByProvide.get(importedNamespace)) {
 				if unreachedInputs.contains(input) {
@@ -477,7 +481,8 @@ func (this *JSChunkGraph) createEntryPointInputs(compiler *AbstractCompiler, dep
 			entryPointInputs.add(baseJs)
 		}
 		if !dependencyOptions.shouldDropMoochers() {
-			for entryPointInput := range elemsAs_[*CompilerInput](obj_(sorter.getInputsWithoutProvides())) {
+			for _, el := range immElems_(sorter.getInputsWithoutProvides()) {
+				entryPointInput := cast_[*CompilerInput](el)
 				if entryPointInput.getSourceFile().isWeak() {
 					compiler.report(JSError_make_DiagnosticType_StringArr(JSChunkGraph_IMPLICIT_WEAK_ENTRY_POINT_ERROR, []string{entryPointInput.getSourceFile().getName()}))
 				} else {
