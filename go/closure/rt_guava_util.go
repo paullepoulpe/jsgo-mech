@@ -300,6 +300,9 @@ type Sets_SetView struct {
 	AbstractSet
 	it  func() Iterator
 	has func(any) bool
+	// hasStr is has of a String that is not null, without boxing it (Collection_contains_s);
+	// nil when the view has none.
+	hasStr func(string) bool
 }
 
 func newSetView_(it func() Iterator, has func(any) bool) *Sets_SetView {
@@ -323,7 +326,7 @@ func (this *Sets_SetView) size() int32 {
 func (this *Sets_SetView) immutableCopy() *ImmutableSet { return immSet_(this.toArray_0()) }
 
 func Sets_union(p0 Set, p1 Set) *Sets_SetView {
-	return newSetView_(
+	v := newSetView_(
 		func() Iterator {
 			return flatIter_([]any{0, 1}, func(k any) Iterator {
 				if k == 0 {
@@ -333,18 +336,24 @@ func Sets_union(p0 Set, p1 Set) *Sets_SetView {
 			})
 		},
 		func(v any) bool { return p0.contains(v) || p1.contains(v) })
+	v.hasStr = func(k string) bool { return Collection_contains_s(p0, k) || Collection_contains_s(p1, k) }
+	return v
 }
 
 func Sets_intersection(p0 Set, p1 Set) *Sets_SetView {
-	return newSetView_(
+	v := newSetView_(
 		func() Iterator { return filterIter_(p0.iterator(), p1.contains) },
 		func(v any) bool { return p0.contains(v) && p1.contains(v) })
+	v.hasStr = func(k string) bool { return Collection_contains_s(p0, k) && Collection_contains_s(p1, k) }
+	return v
 }
 
 func Sets_difference(p0 Set, p1 Set) *Sets_SetView {
-	return newSetView_(
+	v := newSetView_(
 		func() Iterator { return filterIter_(p0.iterator(), func(v any) bool { return !p1.contains(v) }) },
 		func(v any) bool { return p0.contains(v) && !p1.contains(v) })
+	v.hasStr = func(k string) bool { return Collection_contains_s(p0, k) && !Collection_contains_s(p1, k) }
+	return v
 }
 
 // Sets.immutableEnumSet: iterates in the constants' declaration order.
