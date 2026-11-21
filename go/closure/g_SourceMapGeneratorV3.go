@@ -404,17 +404,7 @@ func (this *SourceMapGeneratorV3) getNameId(symbolName string) int32 {
 
 const SourceMapGeneratorV3_UNMAPPED int32 = -1
 
-type SourceMapGeneratorV3_ExtensionMergeAction interface {
-	merge(string, any, any) any
-}
-
-type SourceMapGeneratorV3_ExtensionMergeAction_fn struct {
-	f func(string, any, any) any
-}
-
-func (this *SourceMapGeneratorV3_ExtensionMergeAction_fn) merge(p0 string, p1 any, p2 any) any {
-	return this.f(p0, p1, p2)
-}
+type SourceMapGeneratorV3_ExtensionMergeAction = *funcObj_[func(string, any, any) any]
 
 type SourceMapGeneratorV3_ConsumerEntryVisitor struct {
 	outer_ *SourceMapGeneratorV3

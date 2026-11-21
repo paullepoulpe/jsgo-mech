@@ -11,7 +11,7 @@ func (this *Xid) init_Xid_0() {
 }
 
 // lambda_Xid_init_Xid_0_1_ is a lambda of Xid_init_Xid_0 that captures nothing (post-flip step lambdas).
-var lambda_Xid_init_Xid_0_1_ = &Xid_HashFunction_fn{func(p0 string) int32 { return utf16Hash_(p0) }}
+var lambda_Xid_init_Xid_0_1_ = newFuncObj_(func(p0 string) int32 { return utf16Hash_(p0) })
 
 func new_Xid_0() *Xid {
 	this := &Xid{}
@@ -34,7 +34,7 @@ func (this *Xid) get(key string) string {
 }
 
 func (this *Xid) getAsInt(key string) int32 {
-	return this.hasher.hashCode(key)
+	return this.hasher.call(key)
 }
 
 func Xid_toString(i int32) string {
@@ -70,14 +70,4 @@ func Xid_clinit() {
 
 }
 
-type Xid_HashFunction interface {
-	hashCode(string) int32
-}
-
-type Xid_HashFunction_fn struct {
-	f func(string) int32
-}
-
-func (this *Xid_HashFunction_fn) hashCode(p0 string) int32 {
-	return this.f(p0)
-}
+type Xid_HashFunction = *funcObj_[func(string) int32]
