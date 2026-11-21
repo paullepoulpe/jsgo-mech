@@ -432,7 +432,7 @@ func (this *TypeInference) traverse(n Node, scope FlowScope) FlowScope {
 	default:
 		panic(new_IllegalStateException_String(("Type inference doesn't know to handle token " + jtostr_(n.getToken()))))
 	}
-	if (isTypeable && (n.getJSType() == nil)) && !TypeInference_TOKENS_ALLOWING_NULL_TYPES.Has(n.getToken()) {
+	if (isTypeable && (n.getJSType() == nil)) && !TypeInference_TOKENS_ALLOWING_NULL_TYPES_has_(n.getToken()) {
 		panic(new_IllegalStateException_String(("Failed to infer JSType for " + tostrH_(n))))
 	}
 	return scope
