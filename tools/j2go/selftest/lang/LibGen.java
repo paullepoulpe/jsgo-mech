@@ -407,9 +407,14 @@ public class LibGen {
       case 0:
         return new LinkedHashMap<>();
       case 1:
-        return ImmutableMap.of("b", 2, "a", 1);
-      case 2:
-        return new TreeMap<>(ImmutableMap.of("z", 26, "b", 2, "m", 13));
+        return ImmutableMap.<String, Integer>builder().put("b", 2).put("a", 1).buildOrThrow();
+      case 2: {
+        Map<String, Integer> t = new TreeMap<>();
+        t.put("z", 26);
+        t.put("b", 2);
+        t.put("m", 13);
+        return t;
+      }
       case 3:
         return ImmutableMap.of();
       case 4:
@@ -612,8 +617,13 @@ public class LibGen {
         return ImmutableSet.copyOf(Arrays.asList("c", "b", "c"));
       case 3:
         return ImmutableSet.of();
-      case 4:
-        return new TreeSet<>(Arrays.asList("z", "b", "m"));
+      case 4: {
+        Set<String> t = new TreeSet<>();
+        t.add("z");
+        t.add("b");
+        t.add("m");
+        return t;
+      }
       case 5:
         return Sets.newLinkedHashSetWithExpectedSize(4);
       default:

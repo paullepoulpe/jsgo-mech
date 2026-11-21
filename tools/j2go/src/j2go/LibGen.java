@@ -72,7 +72,11 @@ final class LibGen {
   /** Whether root method r of one of the interfaces has its typed signature on a typed receiver. */
   boolean typedMethod(ExecutableElement r) {
     Set<String> ms = TYPED_METHODS.get(cx.ownerOf(r).getQualifiedName().toString());
-    return ms == null || ms.contains(r.getSimpleName() + "/" + r.getParameters().size());
+    if (ms != null && !ms.contains(r.getSimpleName() + "/" + r.getParameters().size())) return false;
+    // (a result that is an interface of a kind which is off: the runtime's typed method gives the
+    // typed interface, which the translation does not name, so the erased method serves the call)
+    TypeMirror rt = r.getReturnType();
+    return ms == null || rt.getKind() != TypeKind.DECLARED || kindOf(Ctx.typeElement(rt)) == null || isLib(Ctx.typeElement(rt));
   }
 
   /**
@@ -269,6 +273,12 @@ final class LibGen {
       all &= unbounded(a);
     }
     return all ? "every type argument is the wildcard `?`" : null;
+  }
+
+  /** Whether every type argument of d is the wildcard `?`: a cast to such a type claims nothing about the elements. */
+  boolean allUnbounded(DeclaredType d) {
+    for (TypeMirror a : d.getTypeArguments()) if (!unbounded(a)) return false;
+    return true;
   }
 
   /** Whether type argument a is the wildcard `?`, as written or captured (the type of an expression). */
@@ -584,7 +594,7 @@ final class LibGen {
         concrete(t, target, "cast to");
         TypeMirror from = trees.getTypeMirror(new TreePath(getCurrentPath(), t.getExpression()));
         if (target != null && from != null && target.getKind() == TypeKind.DECLARED && isLib(Ctx.typeElement(target)) && is(cx.erase(target))
-            && from.getKind() != TypeKind.NULL && !cx.types.isSubtype(from, target) && !uncheckedOk.contains(where())) {
+            && !allUnbounded((DeclaredType) target) && from.getKind() != TypeKind.NULL && !cx.types.isSubtype(from, target) && !uncheckedOk.contains(where())) {
           // an unchecked cast: the object may be a collection of other elements (a typed collection
           // made for another place, which refuses an element that Java's would take)
           refuse(t, "unchecked cast in " + where() + " (not in tools/j2go/unchecked-casts.txt)");
