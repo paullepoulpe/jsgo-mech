@@ -1,0 +1,93 @@
+diff --git a/go/closure/rt_base_test.go b/go/closure/rt_base_test.go
+index fbfced2d..27710fd9 100644
+--- a/go/closure/rt_base_test.go
++++ b/go/closure/rt_base_test.go
+@@ -142,7 +142,7 @@ func TestBaseMatcher(t *testing.T) {
+ 	}
+ }
+ 
+-// TestStringUnits checks stringUnits_ against String_length and String_charAt, on short and long
++// TestStringUnits checks stringUnits_ and stringUnitsFrom_ against String_length and String_charAt, on short and long
+ // strings with surrogate pairs, lone surrogates and bytes that are not UTF-8, and asciiCharAt_
+ // against String_charAt.
+ func TestStringUnits(t *testing.T) {
+@@ -177,6 +177,22 @@ func TestStringUnits(t *testing.T) {
+ 				break
+ 			}
+ 		}
++		// stringUnitsFrom_ from every start, a low surrogate half and the end included
++		for from := int32(0); from <= next+1; from++ {
++			k := from
++			for i, c := range stringUnitsFrom_(s, from) {
++				if i != k || c != String_charAt(s, i) {
++					t.Fatalf("%q from %d: unit %d is %#x, charAt %#x", s, from, i, c, String_charAt(s, i))
++				}
++				k++
++			}
++			if k != max(from, next) {
++				t.Fatalf("%q from %d: stopped at %d of %d units", s, from, k, next)
++			}
++			if from == 20 && next > 40 {
++				from = next - 3 // a long string: its end
++			}
++		}
+ 	}
+ 	const hex = "0123456789abcdef"
+ 	for i := int32(0); i < 16; i++ {
+diff --git a/go/closure/rt_string.go b/go/closure/rt_string.go
+index 369d1d3a..9428b8b8 100644
+--- a/go/closure/rt_string.go
++++ b/go/closure/rt_string.go
+@@ -260,6 +260,52 @@ func stringUnits_(s string) iter.Seq2[int32, uint16] {
+ 	}
+ }
+ 
++// stringUnitsFrom_ is stringUnits_(s) from unit from (>= 0) on: Java's
++// for (int i = from; i < s.length(); i++) { ... s.charAt(i) ... } (post-flip step strunits).
++func stringUnitsFrom_(s string, from int32) iter.Seq2[int32, uint16] {
++	return func(yield func(int32, uint16) bool) {
++		if from < 0 {
++			String_charAt(s, from) // throws; the step only starts loops at an index >= 0
++		}
++		if from >= String_length(s) {
++			return
++		}
++		off, low := locate_(s, from)
++		i := from
++		if low {
++			// unit from is the second half of a surrogate pair
++			cp, size := decode_(s, off)
++			if !yield(i, uint16(0xDC00+(cp-0x10000)&0x3FF)) {
++				return
++			}
++			i++
++			off += size
++		}
++		for ; off < len(s); i++ {
++			if b := s[off]; b < 0x80 {
++				if !yield(i, uint16(b)) {
++					return
++				}
++				off++
++				continue
++			}
++			cp, size := decode_(s, off)
++			off += size
++			if cp >= 0x10000 {
++				cp -= 0x10000
++				if !yield(i, uint16(0xD800+cp>>10)) {
++					return
++				}
++				i++
++				cp = 0xDC00 + cp&0x3FF
++			}
++			if !yield(i, uint16(cp)) {
++				return
++			}
++		}
++	}
++}
++
+ // asciiCharAt_ is String_charAt of a string that is all ASCII (post-flip steps strunits and
+ // strnative): unit i is byte i. An index outside the string throws what String_charAt throws.
+ func asciiCharAt_(s string, i int32) uint16 {
