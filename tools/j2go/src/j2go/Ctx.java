@@ -224,6 +224,9 @@ final class Ctx {
   /** Rule "function types": library functional interfaces as Go func types. */
   final FnTypes fn = new FnTypes(this);
 
+  /** Rule "typed library interfaces": library collection interfaces with their typed methods. */
+  final LibGen lg = new LibGen(this);
+
   boolean isValueLib(TypeElement te) {
     return te != null && valueLibs.contains(te);
   }
@@ -492,18 +495,30 @@ final class Ctx {
   }
 
   /**
-   * Library methods that make a list for their caller alone, each with the runtime function
-   * that makes the typed list instead (its arguments: the conversion, the receiver, the
-   * method's arguments) and the list's element type: Splitter.splitToList is splitToListT_.
+   * Library methods that make a collection for their caller alone, each with the runtime
+   * function that makes the typed collection instead (its arguments: the conversions, the
+   * receiver of an instance method, the method's arguments), the kind of the collection, and
+   * its element type where the method fixes it (else null: any type arguments):
+   * Splitter.splitToList is splitToListT_. The static ones (rule "typed library interfaces",
+   * piece `makers`; J2GO_NOLIBGEN=makers is the translation without them) are Guava's
+   * constructors with an expected size, which are the runtime's typed constructors.
    */
   static final Map<String, String[]> TYPED_MAKERS = Map.of(
-      "com.google.common.base.Splitter.splitToList", new String[] {"splitToListT_", "java.lang.String"});
+      "com.google.common.base.Splitter.splitToList", new String[] {"splitToListT_", "list", "java.lang.String"},
+      "com.google.common.collect.Maps.newLinkedHashMapWithExpectedSize", new String[] {"newTMapN_", "map", null},
+      "com.google.common.collect.Maps.newHashMapWithExpectedSize", new String[] {"newTMapN_", "map", null},
+      "com.google.common.collect.Sets.newLinkedHashSetWithExpectedSize", new String[] {"newTSetN_", "set", null},
+      "com.google.common.collect.Sets.newHashSetWithExpectedSize", new String[] {"newTSetN_", "set", null},
+      "com.google.common.collect.Lists.newArrayListWithCapacity", new String[] {"newTListN_", "list", null},
+      "com.google.common.collect.Lists.newArrayListWithExpectedSize", new String[] {"newTListN_", "list", null});
 
   /** The entry of TYPED_MAKERS for method m where it makes a collection for kind k with type arguments args; else null. */
   String[] typedMaker(Element m, CollKind k, List<TypeMirror> args) {
-    if (!(m instanceof ExecutableElement me) || !k.name.equals("list") || args.size() != 1 || "1".equals(System.getenv("J2GO_COLLS_NOMAKERS"))) return null;
+    if (!(m instanceof ExecutableElement me) || "1".equals(System.getenv("J2GO_COLLS_NOMAKERS"))) return null;
     String[] tm = TYPED_MAKERS.get(((TypeElement) me.getEnclosingElement()).getQualifiedName() + "." + me.getSimpleName());
-    return tm != null && types.isSameType(args.get(0), elems.getTypeElement(tm[1]).asType()) ? tm : null;
+    if (tm == null || !k.name.equals(tm[1])) return null;
+    if (tm[2] == null) return LibGen.on("makers") ? tm : null;
+    return args.size() == 1 && types.isSameType(args.get(0), elems.getTypeElement(tm[2]).asType()) ? tm : null;
   }
 
   /** The kind of typed collection that type t (TList<X>, TSet<X>) is, or null. */
@@ -597,6 +612,12 @@ final class Ctx {
     // a function: held as it is; it cannot be compared (FnTypes refuses one as a key)
     if (fn.isLib(ae)) return compared ? null : erase(a);
     if (!((DeclaredType) a).getTypeArguments().isEmpty() || !ae.getTypeParameters().isEmpty()) {
+      // an interface of rule "typed library interfaces": an element is held at the typed
+      // interface (piece `elems`; J2GO_NOLIBGEN=elems: erased, as before)
+      if (lg.isLib(ae)) return compared ? null : LibGen.on("elems") ? erase(a) : types.erasure(a);
+      // a collection class whose places hold a typed interface (LibGen.cls): as that interface
+      // (elems off: erased; a class of LibGen.CONCRETE as the erased interface, since a collection made for a typed place of it is no object of the class)
+      if (lg.isCls(a)) return compared ? null : LibGen.on("elems") ? erase(a) : lg.concrete(a) ? types.erasure(erase(a)) : types.erasure(a);
       if (!simple || typedClasses.contains(ae) && !isSource(ae)) return null;
       if (isSource(ae)) {
         // a generic class of the program: the Go type it has (an instantiation of a Go generic
@@ -606,6 +627,8 @@ final class Ctx {
       }
       // a library type: erased whatever its type arguments are
       if (compared) return null;
+      // (asked while a type is being decided, LibGen.cls: no Go type may be named yet)
+      if (lg.deciding > 0) return null;
       if (!goType(a).equals(goType(types.erasure(a)))) return null;
       return types.erasure(a);
     }
@@ -1516,6 +1539,13 @@ final class Ctx {
       default:
         // a library functional interface: at the type arguments its Go func type has (FnTypes.norm)
         if (fn.is(t)) return fn.norm(t);
+        // a library collection interface of rule "typed library interfaces": typed, or its erasure (LibGen.erase)
+        if (t.getKind() == TypeKind.DECLARED && lg.isLib(typeElement(t))) return lg.erase(t);
+        // a collection class at the typed interface of its collection interface (LibGen.cls)
+        if (t.getKind() == TypeKind.DECLARED) {
+          TypeMirror c = lg.cls(t);
+          if (c != null) return c;
+        }
         // the types the Go code keeps: type variables of typed classes, their parameterized types
         if (typedVar(t) || typedDecl(t)) return t;
         if (t.getKind() == TypeKind.ARRAY) {
@@ -1583,7 +1613,9 @@ final class Ctx {
       case CLS:
         if (isValueLibType(t)) return className(typeElement(t)) + (typedDecl(t) ? typeArgsOf(t) : rawArgs(typeElement(t)));
         return typedDecl(t) ? "*" + className(typeElement(t)) + typeArgsOf(t) : ref(typeElement(t));
-      case IFACE: return typedDecl(t) ? className(typeElement(t)) + typeArgsOf(t) : className(typeElement(t));
+      case IFACE:
+        if (lg.is(t)) return lg.typedName(typeElement(t)) + typeArgsOf(t);
+        return typedDecl(t) ? className(typeElement(t)) + typeArgsOf(t) : className(typeElement(t));
       case TVAR: return tvName(t);
       case VOID: return "";
       default: return "any";
@@ -1601,6 +1633,11 @@ final class Ctx {
   String declType(TypeMirror t) {
     String g = goType(t);
     if (t == null || t.getKind() != TypeKind.DECLARED) return g;
+    if (lg.isLib(typeElement(t))) {
+      if (lg.is(erase(t))) return g;
+      lg.note("declarations of the erased interface (written by the translator: bridges, runtime signatures)", String.valueOf(t));
+    }
+    if (lg.is(erase(t))) return g;
     List<? extends TypeMirror> args = ((DeclaredType) t).getTypeArguments();
     TypeElement te = typeElement(erase(t));
     K k = kind(erase(t));
@@ -1707,6 +1744,11 @@ final class Ctx {
     // A typed collection meets every other type as Java's List or Set, through its erased view
     // (the one object that erased code sees); nothing but a typed collection of the same type
     // becomes one.
+    if (isTypedColl(from) && lg.is(to)) {
+      // (a typed collection is an Iterable of its elements itself)
+      String r = lg.fromTypedColl(code, from, to);
+      if (r != null) return r;
+    }
     if (isTypedColl(from)) {
       if (isTypedColl(to)) throw new IllegalStateException("typed collections of two types: " + gf + " to " + gt);
       // a place of Guava's immutable class: the immutable collection's erased twin (rt_timm.go)
@@ -1714,7 +1756,8 @@ final class Ctx {
       // a place of type SortedSet / NavigableSet: the sorted collection's erased view
       if (to.getKind() == TypeKind.DECLARED && typedColl(from).sortedType(typeElement(to))) return code + ".asSorted()";
       if (typedColl(from).view == null) throw new IllegalStateException("a typed builder (" + gf + ") reaches a place of type " + gt);
-      return coerce(code + "." + typedColl(from).view + "()", typedView(from), to);
+      // (the view is the object erased code knows: its type is the erased interface)
+      return coerce(code + "." + typedColl(from).view + "()", types.erasure(typedView(from)), to);
     }
     if (isTypedColl(to)) {
       // An immutable collection that erased code made (an expression of the static type
@@ -1722,6 +1765,8 @@ final class Ctx {
       CollKind ck = typedColl(to);
       if (ck.immClass == null) throw new IllegalStateException("a value of type " + from + " cannot become the typed collection " + gt);
       TypeMirror ic = types.erasure(elems.getTypeElement(ck.immClass).asType());
+      // (from a place of the immutable class that holds the typed interface, LibGen.cls: the typed collection whose view the value is)
+      if (lg.is(from)) return "t" + ck.name + "OfT_(" + tconvsOf(to) + ", " + code + ")";
       return "t" + ck.name + "Imm_(" + tconvsOf(to) + ", " + coerce(code, from, ic) + ")";
     }
     // A value library class: between two instantiations the content is converted; from an
@@ -1731,6 +1776,11 @@ final class Ctx {
       String fn = "opt" + (className(typeElement(to)).equals("Optional") ? "" : className(typeElement(to)));
       if (isValueLibType(from) && typeElement(from).equals(typeElement(to))) return fn + "As_" + ta + "(" + code + ")";
       return fn + "Of_" + ta + "(" + coerce(code, from, object) + ")";
+    }
+    // A typed library interface: an erased value through xAs_, to erased code the object it knows (LibGen).
+    if (lg.is(from) || lg.is(to)) {
+      String r = lg.coerce(code, from, to);
+      if (r != null) return r;
     }
     // A function: another instantiation through a closure, an object through its method value,
     // Object through the box of its instantiation at `any` (FnTypes).
@@ -1905,7 +1955,11 @@ final class Ctx {
     if (found.getReturnType().getKind() == TypeKind.TYPEVAR) return false;
     TypeMirror a = types.erasure(m.getReturnType()), b = types.erasure(found.getReturnType());
     if (a.getKind() != TypeKind.DECLARED || b.getKind() != TypeKind.DECLARED) return false;
-    if (types.isSameType(a, b)) return false;
+    if (types.isSameType(a, b)) {
+      // rule "typed library interfaces", piece `cov`: the same library interface at a narrower
+      // element type (`Iterable<Var>` under `Iterable<? extends AbstractVar>`), in a class
+      return !owner.getKind().isInterface() && isSource(ownerOf(found)) && lg.narrows(m.getReturnType(), found.getReturnType());
+    }
     if (!owner.getKind().isInterface()) return true;
     Boolean ok = ifaceCovOk.get(m);
     if (ok == null) {
@@ -2063,6 +2117,11 @@ final class Ctx {
     ExecutableElement r = root(m);
     // (a functional interface without a site: at Object, the method a class of the runtime has)
     if (fn.isLib(ownerOf(r))) return groupParams(m, fn.raw(ownerOf(r).asType()));
+    if (lg.isLib(ownerOf(r))) {
+      List<TypeMirror> out = new ArrayList<>();
+      for (VariableElement p : r.getParameters()) out.add(lg.erasedOf(vtype(p), ownerOf(r)));
+      return out;
+    }
     List<TypeMirror> out = new ArrayList<>();
     for (VariableElement p : r.getParameters()) out.add(erase(vtype(p)));
     return out;
@@ -2070,6 +2129,7 @@ final class Ctx {
 
   TypeMirror groupReturn(ExecutableElement m) {
     if (fn.isLib(ownerOf(root(m)))) return groupReturn(m, fn.raw(ownerOf(root(m)).asType()));
+    if (lg.isLib(ownerOf(root(m)))) return lg.erasedOf(rtype(root(m)), ownerOf(root(m)));
     return erase(rtype(root(m)));
   }
 
@@ -2079,6 +2139,7 @@ final class Ctx {
    * (PMap.get(K) through a PMap<String, V> is get(string)); otherwise null (the erased signature).
    */
   boolean groupAt(ExecutableElement m, TypeMirror site) {
+    if (site != null && lg.isLib(ownerOf(root(m)))) return lg.typedAt(m, site);
     // (a class of the runtime that implements a functional interface has the erased method)
     if (site != null && fn.isLib(ownerOf(root(m))) && fn.erasedAt(erase(site), ownerOf(root(m)))) return false;
     return site != null && typedClasses.contains(ownerOf(root(m)));
@@ -2416,7 +2477,10 @@ final class Ctx {
       // (that group may be a narrowing one itself, not named yet)
       ExecutableElement pr = root(covFrom.get(r));
       if (!methodNames.containsKey(pr) && covFrom.containsKey(pr)) methodNames.put(pr, nameRoot(pr, null));
-      return methodName(pr) + "_r" + typeToken(types.erasure(r.getReturnType()));
+      String tok = typeToken(types.erasure(r.getReturnType()));
+      // (the same library interface at a narrower element type: named after the elements too)
+      if (types.isSameType(types.erasure(r.getReturnType()), types.erasure(covFrom.get(r).getReturnType()))) tok += lg.argTokens(r.getReturnType());
+      return methodName(pr) + "_r" + tok;
     }
     if (conflict == null) return base;
     boolean arityUnique = true;

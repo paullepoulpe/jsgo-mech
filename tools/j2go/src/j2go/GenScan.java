@@ -416,7 +416,10 @@ final class GenScan {
     List<? extends TypeMirror> da = decl.getTypeArguments();
     boolean wild = false;
     for (TypeMirror a : da) wild |= a.getKind() == TypeKind.WILDCARD;
-    if (!wild || !cx.isSource(te) || (te.getNestingKind() != NestingKind.TOP_LEVEL && !te.getModifiers().contains(Modifier.STATIC) && !te.getKind().isInterface())) return;
+    // (piece `cov` of rule "typed library interfaces": a local of a typed library interface too,
+    // `List<? extends DiGraphNode<N, E>> next = graph.getDirectedSuccNodes(n)` with the narrowed result)
+    boolean lib = !cx.isSource(te) && LibGen.kindOf(te) != null && LibGen.on(LibGen.kindOf(te)) && LibGen.on("cov");
+    if (!wild || !cx.isSource(te) && !lib || (te.getNestingKind() != NestingKind.TOP_LEVEL && !te.getModifiers().contains(Modifier.STATIC) && !te.getKind().isInterface())) return;
     if (!(viewOf(src, te, 0) instanceof DeclaredType view) || view.getTypeArguments().size() != da.size()) return;
     TypeMirror[] args = new TypeMirror[da.size()];
     boolean any = false;

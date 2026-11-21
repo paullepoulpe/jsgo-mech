@@ -210,6 +210,10 @@ func (m *TMap[K, V]) remove(k K) V {
 }
 
 func (m *TMap[K, V]) delAt(i int) {
+	if m.imm != nil && m.imm != sortedMapMark_ {
+		// (through a view of an immutable map that typed code holds: valuesT)
+		panic(frozen_{})
+	}
 	if m.idx != nil {
 		delete(m.idx, m.keys[i])
 	}
@@ -590,9 +594,7 @@ func (m *TMap[K, V]) out(i int, mode int8) any {
 		return m.vc.box(m.vals[i])
 	}
 	// one object: the view holds the entry it shows
-	v := &tentryView_[K, V]{own: TEntry[K, V]{m: m, i: int32(i), k: m.keys[i], v: m.vals[i]}}
-	v.e = &v.own
-	return v
+	return m.entryAt(i)
 }
 
 func (m *TMap[K, V]) step(i int, mode int8) (any, int) {

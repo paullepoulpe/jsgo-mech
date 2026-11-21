@@ -179,6 +179,17 @@ type Predicate_base[T any] = Predicate[T]
   (`Comparator_comparingInt[*Node](..)`, `Predicates_alwaysTrue[Node]()`); the default methods
   of `Comparator` are methods of the func type.
 
+Records with function components: the `equals`, `hashCode` and `toString` that the translator
+generates for a record go over every component, so a record with a functional component
+(`PassFactory`, `CheckAccessControls.PropertyReference`, `ChangeVerifier.EqualsResult`) compares
+functions although no source line does. This is accepted, not refused: two components are equal
+when they are the same closure (`fnSame_`: a Go func value is one pointer to its closure, and
+the pointers are compared), which is what Java's reference comparison of the two lambda objects
+gives as long as the value is passed around at one type. A function that went through a
+converting closure (another instantiation, an erased collection) is another closure, as a
+re-evaluated lambda expression is another object in Java. `rt_fn_test.go` has a test that fails
+if a func value stops being one pointer (`TestFnValueIsOnePointer`).
+
 A Go func value has no identity and no `equals`. The translator stops, naming each place
 (`function types: refused: File.java:12: ...`), when the program compares two functional values
 with `==`, tests or casts one (`instanceof`, a cast of or to one that is not an upcast), calls
@@ -198,6 +209,221 @@ Not in the rule: `Comparable` (still `any`; a class's `compareTo` keeps the eras
 its bridge), the functional interfaces without type parameters (`Runnable`, `BooleanSupplier`:
 their adapters `Runnable_fn` have the Java types already), and the program's own functional
 interfaces (`CompilerPass`, `NodeUtil.Visitor`: adapters `I_fn`).
+
+**Typed library interfaces** (`LibGen`; `J2GO_NOLIBGEN=iter` turns the kind off, `all` every
+kind and piece; `J2GO_LIBGEN=1` reports what the rule converts, `=2` by type). A place whose Java type is
+`Iterator<X>` or `Iterable<X>` (kind `iter`) holds the typed interface of the runtime
+(`rt_lg.go`): the erased interface plus the methods that give elements, at their Java type and
+under the name with the suffix `_t`, as a class file has a method and its bridge.
+
+```go
+type IteratorT[T any] interface { Iterator; next_t() T }
+type IterableT[T any] interface { Iterable; iterator_t() IteratorT[T] }
+
+var parameters IteratorT[*FunctionType_Parameter] = functionType.getParameters().iterator_t()
+parameter = parameters.next_t()                       // was cast_[*FunctionType_Parameter](parameters.next())
+it_1 := eachOf_(scope.getVarIterable())               // for (Var v : ...): it_1.v is a *Var
+```
+
+- A wildcard is its bound; `Iterable<?>` and `Iterable<Object>` are `IterableT[any]`. The
+  erased interface (`Iterable`, without type arguments) is what the runtime's own functions and
+  collections take and give (`LibGen.rt`): the signature of a library method is erased as before.
+- Every typed value is a value of the erased interface too, the same object, so it goes to
+  erased code as it is; where it may be a wrapper or a typed collection the object that erased
+  code knows is taken out first (`Iterable_un_`; `lgBox_` for `Object`, `==`, `instanceof`,
+  `equals`), so identity and the runtime's own type tests see what they saw before.
+- An erased value becomes a typed one through `iterableAs_(tc_X, v)` / `iteratorAs_`: `v` itself
+  where its object has the typed methods at that type, else a wrapper that unboxes each
+  element as the erased code cast it after the call. Nothing is checked before an element is
+  read, as with an unchecked cast in Java. Two instantiations (`Iterable<Dog>` for `Iterable<?
+  extends Animal>`) meet the same way.
+- Native objects, which need no wrapper: the typed collections (`*TList[T]`, `*TSet[T]`,
+  `*TDeque[T]` are `IterableT[T]` themselves, `l.asIterable()`; their iterators are
+  `IteratorT[T]`), their erased views, the typed list of an immutable list, and a class of the
+  program that names the interface among its interfaces and has no subclass: it has the method
+  with its Java types (`next_t() Node`) and the bridge with the erased name and signature. Any
+  other class of the program (one with subclasses, one under a library class such as
+  `AbstractIterator`, one that gets the interface through an interface of the program) keeps
+  the erased method and is wrapped where a typed value is wanted.
+- A for-each loop over a typed Iterable runs on the typed cursor `eachOf_` (over a typed list
+  it reads the slice in place); over the result of an erased method it is the erased loop as
+  before, not a wrapper.
+- A raw use of one of the interfaces is refused (`typed library interfaces: refused: ...`); the
+  tree has none.
+
+The collection kinds (`coll`: `java.util.Collection`; `list`: `java.util.List`; `set`:
+`java.util.Set`) have the same form. A place of type `Collection<X>` / `List<X>` / `Set<X>` that
+rule "typed collections" does not make a concrete typed collection holds `CollectionT[X]` /
+`ListT[X]` / `SetT[X]`:
+
+```go
+type CollectionT[T any] interface { Collection; iterator_t() IteratorT[T] }
+type ListT[T any] interface { List; iterator_t() IteratorT[T]; get_t(i int32) T }
+type SetT[T any] interface { Set; iterator_t() IteratorT[T] }
+```
+
+- Which methods have a typed form is a table (`LibGen.TYPED_METHODS`: `List.get`); every other
+  method of the interface is the erased one that the typed interface embeds, with the runtime's
+  signature (`l.add(obj)`, `l.addAll(Collection_un_(c))`), so the coverage can grow method by
+  method without touching the places.
+- A typed collection of rule "typed collections" enters as its view, which is part of it and
+  has the typed methods: `l.asListT()`, `s.asSetT()`, `l.asCollT()` (a list, a set, a deque). The view serves
+  an immutable typed collection too; erased code and `Object` get the object they knew
+  (`List_un_`, `lgBox_`: the view of a collection that can change, the twin of an immutable one).
+- **Typed by place** (piece `place`): an expression that makes a new collection for a place of a
+  typed interface with the collection's own element type is the runtime's typed collection:
+  `new ArrayList<>(..)`, `ImmutableList.of(..)`, `ImmutableList.copyOf(..)`, the runtime's
+  constructors (`Ctx.TYPED_MAKERS`) are `newTList_(tc_X).asListT()`,
+  `immutableListOf_[X](tc_X, a, b).asCollT()`... For a place of an erased type (`Object`, a
+  parameter of a runtime function) the expression makes the erased collection as before, which
+  is the cheapest form for erased readers.
+- Piece `views`: `values()` of a typed map is `m.valuesT()`, the map itself as
+  `CollectionT[V]` (no object, no box; also of an immutable map), `keySet()` is `m.keySetT()`
+  (`SetT[K]`, the same way), and `keySet()` / `values()`
+  of the erased view of a typed map are native Iterables. `Collections.unmodifiableX(x)` where a
+  typed interface is wanted is `x` at that type (the runtime's is its argument).
+- Piece `makers`: Guava's constructors with an expected size are the runtime's typed
+  constructors where their value enters a typed declaration.
+- Piece `cov`: an override in a class whose result is the same interface at a narrower element
+  type (`Iterable<Var>` under `Iterable<? extends AbstractVar>`) is a method group of its own,
+  as rule "covariant overrides" makes for class results (`getVarIterable_rIterableOf_Var`): a
+  caller that has the narrowing class reads the elements at their type and no wrapper is made;
+  the bridge of the wider group converts.
+- Variance: a `List<? extends X>` or `List<?>` place stays the erased `List`
+  (`LibGen.wildErased`). A list of a narrower element type enters such a place (the graph
+  classes' `List<LinkedDiGraphEdge>` where `List<? extends DiGraphEdge>` is declared); as a
+  typed List of the wider type it would be a second object per list, which was measured as one
+  allocation per call of the graph nodes' `getInEdges` / `getOutEdges`. Erased, the list enters
+  as it is and the reader casts each element. A local of such a type that is assigned once
+  takes the type of its initializer (`GenScan.tryRefine`, as for the program's own generic
+  types), so `List<? extends DiGraphNode<N, E>> next = graph.getDirectedSuccNodes(n)` is the
+  typed list of the narrowing override. `Collection<? extends X>` and `Iterable<? extends X>`
+  are typed at X (a narrower collection enters through a wrapper).
+- A call whose result enters a place of type `Object` (`one.equals(list.get(0))`,
+  `String.valueOf(it.next())`) is the erased method: javac casts the result to the element type
+  only where that type is wanted, so an element of another class that unchecked code put there
+  passes, as in Java.
+- Anything else of the static type of the erased interface (a declaration of the class
+  `ArrayList<X>`, the result of a runtime function, an element of a collection of collections)
+  enters through `listAs_(tc_X, v)` / `collectionAs_`: `v` itself where its object is native,
+  the view of the typed list of an erased immutable list, else a wrapper (one allocation).
+  `J2GO_LIBGEN=1` counts these sites, `=2` lists them by type.
+
+Kind `map` (`java.util.Map`, `java.util.Map.Entry`):
+
+```go
+type MapT[K any, V any] interface {
+	Map
+	get_t(k any) V; keySet_t() SetT[K]; values_t() CollectionT[V]; entrySet_t() SetT[Map_EntryT[K, V]]
+}
+type Map_EntryT[K any, V any] interface { Map_Entry; getKey_t() K; getValue_t() V }
+```
+
+- A typed map enters as its view (`m.asMapT()`; also an immutable or sorted one), an erased map
+  through `mapAs_(tc_K, tc_V, v)`, an entry through `map_EntryAs_`. `new LinkedHashMap<>()`,
+  `ImmutableMap.of(..)` made for a `MapT` place are the typed map (piece `place`).
+  `entrySet()` of a typed map is `m.entrySetT()`; its entries are the objects the erased view
+  gives (one per entry, as in Java), which have the typed methods.
+- A lookup by a String key stays the runtime's helper on the erased object
+  (`Map_get_s(Map_un_(m), k)`: no box for the key); the helpers and `instanceof` see the object
+  erased code knows, never a wrapper.
+- The variable of a for-each loop over the entries of an erased map holds the erased entry (a
+  typed one would be a wrapper per entry).
+- Piece `elems`: a collection that is an element, key or value of a typed collection is held at
+  its typed interface: `Map<K, List<X>>` is `*TMap[K, ListT[X]]`, and `computeIfAbsent(k, x ->
+  new ArrayList<>())` makes the typed list (before: the erased `List`, a cast at every read).
+- Piece `wide`: a place whose type arguments are all the wildcard `?` (`Iterable<?>`, `Map<?,
+  ?>`), or one of whose type arguments is an erased type variable (`<V> void f(Map<V, X> m)`),
+  stays the erased interface: collections of every element type enter it, and each would need a
+  wrapper. (`Collection<Object>` and `? extends V` at V = Object stay typed at `any`: that is
+  also what a member of a Go generic class has at that instantiation.)
+
+- Piece `nncoll`: `checkNotNull(x)` / `requireNonNull(x)` of a typed collection is the typed
+  check of the collection itself (`Preconditions_checkNotNull_T(x)`: a pointer test). As an
+  `Object` it was the collection's erased view, which for an immutable collection is its twin,
+  made and boxed for the check alone.
+- Piece `readers`: a variable or field holding a typed list, set or map that is an argument of
+  a library method which only reads it (`LibGen.READERS`, a list of 12: `Iterables.getLast`,
+  the message arguments of `Preconditions.checkArgument` / `checkState`, `Collection.addAll` /
+  `containsAll` / `removeAll`, `Map.putAll` ...) is given as the collection's view
+  (`x.asListT()`), which is part of it; as any other erased argument an immutable typed
+  collection is its twin, made with every element boxed for that one read.
+
+- Piece `cls`: a place whose type is one of the collection classes that the typed collections
+  stand for, with type arguments (`LibGen.CLASSES`: `ArrayList`, `LinkedHashSet`, `HashSet`,
+  `LinkedHashMap`, `HashMap`, `ImmutableList`, `ImmutableSet`, `ImmutableCollection`,
+  `ImmutableMap`), and that rule "typed collections" does not make a concrete typed collection
+  (a method of a record, a lambda, a result read through a type variable), holds the typed
+  interface of the class's collection interface: `ImmutableList<X>` and `ArrayList<X>` are
+  `ListT[X]`, `ImmutableMap<K, V>` is `MapT[K, V]`, `ImmutableCollection<X>` is
+  `CollectionT[X]`. What is made for the place is typed by it as for the interface
+  (`ImmutableList.of(..)`, `new ArrayList<>()`, a typed builder's `build()`: the typed
+  collection's view), so a typed immutable list is no longer turned into its erased twin for
+  such a result and found again by the caller.
+  - Only where the typed family can hold the elements (`Ctx.typedArgs`): `ImmutableMap<Object,
+    X>`, `ArrayList<LocalClass>`, `ImmutableList<String[]>`, a key with type arguments, an erased
+    type variable or a wildcard keep the class (`*ImmutableList`), because everything entering
+    would need a wrapper. A wide use of a class of `LibGen.CONCRETE` (`ArrayList<?>`) is the
+    erased interface (`List`): a list made for a typed place of the class is no `*ArrayList`.
+  - The signatures of the runtime keep the class (`LibGen.rt`); an object of the class enters
+    through `listAs_` (the view of the typed collection of an erased immutable one).
+  - A method that only the class has is called on the object erased code knows:
+    `names.reverse()` is `cast_[*ImmutableList](lgBox_(names)).reverse()` (the twin). A method
+    of another interface (`SequencedCollection.getFirst`) gets the object as any erased
+    parameter does. Of the methods that a class of `CONCRETE` declares itself only those of
+    `LibGen.OWN` (`ArrayList.trimToSize`), which the view has too, are translated, through the
+    interface of that one method; any other is refused.
+  - A value of such a place entering a declaration of rule "typed collections" is the typed
+    collection whose view it is (`tlistOfT_`, `tsetOfT_`, `tmapOfT_`), without the twin.
+  - A cast to the class is the cast to the class first (`ClassCastException` as in Java), then
+    the place's type.
+  - A new collection of a class of `CONCRETE` whose own type is such a place, entering an
+    `Object` or an erased type variable (`return new LinkedHashMap<>(arg)` where the group's
+    result is a type variable; `ArrayList::new` for a `Supplier<T>` at `T` = `List<X>` or
+    `ArrayList<X>`), is made typed by its own type: the place of the class that reads it back
+    gets a native value, not a wrapper per read. (An immutable one stays erased there: for
+    `Object` it would be its twin.)
+  - An erased `LinkedHashMap` that typed code reads (made where its key and value types are
+    erased type variables, as the maps of `JSDocInfo`'s properties) keeps the wrapper made for
+    it, and the wrapper its typed key set and values (`mapAs_`, `rt_lg.go`): one wrapper per
+    map, not one per read.
+- Piece `meth`: the methods that take an element at its type have a typed form too
+  (`LibGen.TYPED_METHODS2`: `Collection.add` is `add_t(x T) bool`, `List.set` / `remove(int)`,
+  `Map.put` / `remove`, `Map.Entry.setValue`): no box of a String or of a value of a type
+  parameter for the argument, no cast of the result. Methods whose parameters are all `Object`
+  (`contains`, `containsKey`, `remove(Object)`, `indexOf`) have nothing to type and stay the
+  erased ones (a String key goes through the helpers `Map_get_s`...). `J2GO_LIBGEN=1` counts
+  the erased methods still called on a typed receiver, and those of them that box an argument
+  or give an element as `Object`.
+
+Refused (`typed library interfaces: refused: File.java:line: ...`, nothing is written):
+
+- a raw use of one of the interfaces;
+- an unchecked cast to a use of one of them (`(List<String>) object`, `(Map<String, X>)
+  mapOfOther`), unless the method it is in is listed in `tools/j2go/unchecked-casts.txt` (2
+  methods of the tree, each read; `J2GO_UNCHECKED_CASTS=file:file` names other lists, as the
+  self-test does). A collection made for a typed place holds its elements at their Go type and
+  refuses an element of another type when it is added, where Java's erased collection takes
+  it and fails at a later read; an unchecked cast is where such an element could come from.
+  A cast to `List<?>` claims nothing and passes;
+- `instanceof` of, or a cast to, one of the collection classes that the typed collections stand
+  for (`ArrayList`, `HashSet`, `LinkedHashSet`, `HashMap`, `LinkedHashMap`, `TreeSet`, `TreeMap`,
+  `ArrayDeque`: `LibGen.CONCRETE`): a collection made for a typed place is the typed
+  collection's view, no object of that class. The tree has none. (The immutable classes are
+  not refused: erased code sees an immutable typed collection as its twin, Guava's object.)
+
+- a method that a class of `LibGen.CONCRETE` declares itself (no method of an interface or of
+  `Object`: `ArrayList.ensureCapacity`), called on a receiver of the class with type arguments,
+  unless `LibGen.OWN` lists it (piece `cls`; the tree has none).
+
+`tools/j2go/selftest/refused/RefusedLib.java` has one use of each kind (7); the self-test
+fails unless the translator refuses exactly those and writes nothing.
+
+Each kind and piece is a switch: `J2GO_NOLIBGEN=iter,coll,list,set,map,makers,views,place,cov,elems,wide,nncoll,readers,cls,meth`
+(`all`: every one). A translation with any of them off is built with `-tags j2go_nolibgen`
+(`tools/prune/verify.sh` and the self-test do that when `J2GO_NOLIBGEN` is set): the erased
+factories that only such a translation names are in `go/closure/rt_lg_erased.go`, outside the
+default build, as `rt_fn_erased.go` is for rule "function types".
 
 **`java.util.Optional` is a value.** The runtime's `Optional[T]` (`rt_base.go`) is a generic
 struct, not a heap object: `Optional<X>` is `Optional[X]`, its content held as an `X`, and

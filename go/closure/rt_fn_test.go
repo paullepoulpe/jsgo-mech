@@ -2,7 +2,10 @@
 
 package closure
 
-import "testing"
+import (
+	"testing"
+	"unsafe"
+)
 
 // A function as an Object: nil for null, one box per closure, unboxed only at its own type.
 func TestFnBox(t *testing.T) {
@@ -133,5 +136,37 @@ func TestFnTypedMapOfFunctions(t *testing.T) {
 	}
 	if e := SourceCodeEscapers_javascriptEscaper().asFunction(); e("a'b") == "a'b" || e.apply("ab") != "ab" {
 		t.Fatal("Escaper.asFunction")
+	}
+}
+
+// fnBox_, fnSame_ and fnHash_ rest on a func value being one pointer, to its closure. If a
+// toolchain represents func values otherwise, this fails before anything else does.
+func TestFnValueIsOnePointer(t *testing.T) {
+	var f Supplier[any]
+	if unsafe.Sizeof(f) != unsafe.Sizeof(uintptr(0)) {
+		t.Fatalf("a func value is %d bytes, not one pointer", unsafe.Sizeof(f))
+	}
+	if *(*unsafe.Pointer)(unsafe.Pointer(&f)) != nil {
+		t.Fatal("a nil func value is not the nil pointer")
+	}
+	// a func value in an interface is stored as the pointer itself (pointer-shaped): the
+	// interface's data word is the func value
+	n := 0
+	f = func() any { n++; return n }
+	var x any = f
+	type eface struct{ typ, data unsafe.Pointer }
+	if (*eface)(unsafe.Pointer(&x)).data != *(*unsafe.Pointer)(unsafe.Pointer(&f)) {
+		t.Fatal("a func value in an interface is not its pointer")
+	}
+	// the pointer is the closure: a func value rebuilt from it calls the same closure, and two
+	// closures of one func literal have different pointers
+	var g Supplier[any]
+	*(*unsafe.Pointer)(unsafe.Pointer(&g)) = *(*unsafe.Pointer)(unsafe.Pointer(&f))
+	if g() != 1 || f() != 2 || n != 2 {
+		t.Fatal("a func value rebuilt from its pointer is not the same closure")
+	}
+	mk := func(k int) Supplier[any] { return func() any { return k } }
+	if fnSame_(mk(1), mk(2)) {
+		t.Fatal("two closures have one pointer")
 	}
 }

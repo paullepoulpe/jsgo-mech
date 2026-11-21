@@ -9,6 +9,7 @@ package closure
 import (
 	"sort"
 	"strings"
+	"sync/atomic"
 )
 
 // ---- iteration helpers
@@ -272,13 +273,6 @@ type ArrayList struct {
 
 func (this *ArrayList) as_ArrayList() *ArrayList { return this }
 
-func to_ArrayList(v any) *ArrayList {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_ArrayList() *ArrayList }).as_ArrayList()
-}
-
 func (this *ArrayList) self() any {
 	if this == nil {
 		return nil
@@ -294,12 +288,6 @@ func (this *ArrayList) init_ArrayList_Collection(c Collection) {
 
 func new_ArrayList_0() *ArrayList {
 	this := &ArrayList{}
-	this.self_ = this
-	return this
-}
-
-func new_ArrayList_int(n int32) *ArrayList {
-	this := &ArrayList{items: make([]any, 0, n)}
 	this.self_ = this
 	return this
 }
@@ -523,8 +511,6 @@ func new_ArrayDeque() *ArrayDeque {
 	return this
 }
 
-func new_ArrayDeque_int(n int32) *ArrayDeque { return new_ArrayDeque() }
-
 func new_ArrayDeque_Collection(c Collection) *ArrayDeque {
 	this := new_ArrayDeque()
 	this.addAll(c)
@@ -570,9 +556,6 @@ func (this *ArrayDeque) descendingIterator() Iterator {
 	return &sliceIter_{items: &rev}
 }
 
-func SequencedCollection_addFirst(c SequencedCollection, v any) {
-	c.(interface{ add_int_Object(int32, any) }).add_int_Object(0, v)
-}
 func SequencedCollection_addLast(c SequencedCollection, v any) { c.add(v) }
 func SequencedCollection_getFirst(c SequencedCollection) any {
 	it := c.iterator()
@@ -594,15 +577,6 @@ func SequencedCollection_getLast(c SequencedCollection) any {
 		panic(new_NoSuchElementException_0().self())
 	}
 	return s[len(s)-1]
-}
-func SequencedCollection_removeFirst(c SequencedCollection) any {
-	v := SequencedCollection_getFirst(c)
-	if l, ok := c.(interface{ remove(int32) any }); ok {
-		l.remove(0)
-	} else {
-		c.remove_Object(v)
-	}
-	return v
 }
 func SequencedCollection_removeLast(c SequencedCollection) any {
 	v := SequencedCollection_getLast(c)
@@ -1143,7 +1117,8 @@ func (it *hiter_) remove() {
 // ---- LinkedHashMap (and HashMap, ConcurrentHashMap, IdentityHashMap)
 
 type LinkedHashMap struct {
-	t htable_
+	t      htable_
+	typed_ atomic.Pointer[any] // the wrapper that typed code reads the map through, once made (mapAs_)
 }
 
 func new_LinkedHashMap() *LinkedHashMap { return &LinkedHashMap{} }
@@ -1492,12 +1467,8 @@ func Collections_nCopies(n int32, v any) List {
 	return listOf_(items)
 }
 
-// The unmodifiable views are the collections themselves: nothing checks that
-// they are not written through.
-func Collections_unmodifiableCollection(c Collection) Collection { return c }
-func Collections_unmodifiableList(l List) List                   { return l }
-func Collections_unmodifiableMap(m Map) Map                      { return m }
-func Collections_unmodifiableSet(s Set) Set                      { return s }
+func Collections_unmodifiableList(l List) List { return l }
+func Collections_unmodifiableMap(m Map) Map    { return m }
 
 // ---- String keys without a box
 //

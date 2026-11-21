@@ -161,6 +161,10 @@ final class Conv {
     if (!isNonNullCheck(e)) return null;
     TypeMirror at = cx.erase(arg);
     Ctx.K k = cx.kind(at);
+    // (a typed collection: the check of the collection itself, a pointer; as an Object it would be
+    // its erased view, which for an immutable collection is its twin, made and boxed for the
+    // check alone. Piece `nncoll` of rule "typed library interfaces"; J2GO_NOLIBGEN=nncoll: as before.)
+    if (cx.isTypedColl(at) && LibGen.on("nncoll") && cx.typedColl(at).builds == null && cx.goType(at).startsWith("*")) return at;
     if (k != Ctx.K.CLS && k != Ctx.K.IFACE && k != Ctx.K.STR || cx.isTypedColl(at) || cx.isValueLibType(at) || cx.fn.is(cx.erase(at))) return null;
     return at;
   }
@@ -286,7 +290,7 @@ final class Conv {
   String objHelper(TypeMirror t0) {
     if (!TYPEDOBJ || t0 == null) return null;
     TypeMirror t = cx.erase(t0);
-    if (cx.isTypedColl(t) || cx.isValueLibType(t) || cx.fn.is(t)) return null;
+    if (cx.isTypedColl(t) || cx.isValueLibType(t) || cx.fn.is(t) || cx.lg.is(t)) return null;
     switch (cx.kind(t)) {
       case IFACE:
         return "";

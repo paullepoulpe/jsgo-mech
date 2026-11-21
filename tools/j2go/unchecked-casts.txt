@@ -1,0 +1,11 @@
+# Methods ("Outer.Inner.method") whose unchecked casts to a typed library interface (rule "typed
+# library interfaces", tools/j2go/src/j2go/LibGen.java) were read and are safe: the object that is
+# cast was made as a collection of the type it is cast to, or is only read at a supertype of its
+# elements. Any other unchecked cast to such an interface stops the translation: a collection
+# made for a typed place refuses an element of another type when it is added, where Java's
+# erased collection takes it and fails later, at a read.
+
+# refsForNode (an Object) is null, a Ref, or the LinkedHashMap<Node, Ref> made in putRef
+GlobalNamespace.Name.castRefsForNodeMap
+# Map<String, ? extends JSType> read as Map<String, JSType>: read only (entrySet, getKey, getValue)
+JSTypeRegistry.createRecordType

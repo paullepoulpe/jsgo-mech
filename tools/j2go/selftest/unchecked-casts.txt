@@ -1,0 +1,17 @@
+# The self-test's unchecked casts (tools/j2go/unchecked-casts.txt): lang/LibGen.java casts erased
+# collections of other elements on purpose, to show that nothing is checked before a read.
+LibGen.failures
+LibGen.lists
+LibGen.sets
+LibGen.maps
+LibGen.last
+LibGen.identity
+LibGen.prop
+LibGen.propOr
+# older self-tests: an Object that was made as a collection of that type is cast back, or a
+# typed list is written through an unchecked alias on purpose
+Colls.addErased
+Colls.fields
+Colls.sets
+Colls.maps
+Imm.split

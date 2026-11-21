@@ -191,6 +191,15 @@ abstract class ExprEmitter extends Base {
       if (made != null) return made;
       if (strip(t) instanceof MethodInvocationTree mi && Ctx.isUnmodifiable(elemOf(mi.getMethodSelect()), mi)) return exprAs(mi.getArguments().get(0), target);
     }
+    if (cx.lg.is(target)) {
+      String made = lgMade(strip(t), target);
+      if (made != null) return made;
+    }
+    if (cx.lg.is(target) && strip(t) instanceof MethodInvocationTree mi && cx.lg.passes(elemOf(mi.getMethodSelect()), mi)) {
+      // Collections.unmodifiableCollection(x) and its like where a typed interface is wanted: the
+      // runtime's is its argument, so the value is x at that type (no detour through the erased form)
+      return exprAs(mi.getArguments().get(0), target);
+    }
     Ctx.K kt = cx.kind(target);
     if (kt == Ctx.K.PRIM && target.getKind() != TypeKind.BOOLEAN && isNumericLiteral(t)) {
       TypeMirror ft = cx.unboxed(from);
@@ -221,10 +230,31 @@ abstract class ExprEmitter extends Base {
       }
     }
     if (from == null) return expr(t);
+    if (strip(t) instanceof NewClassTree nc && cx.lg.isCls(from) && chainBuilder(strip(t)) == null) {
+      if (cx.kind(target) == Ctx.K.ANY && cx.lg.concrete(from)) {
+        // a new collection of a class whose places hold the typed interface, entering an Object
+        // or an erased type variable (the result of `T clone(T)`, a Supplier<T>): typed by its own
+        // type, so that the place of the class that reads it back gets a native value
+        String made = lgMade(nc, cx.erase(from));
+        if (made != null) {
+          cx.lg.note("new collections of a class entering an Object, made typed", String.valueOf(from));
+          return cx.coerce(made, cx.erase(from), target);
+        }
+      }
+      return cx.coerce(newClass(nc), cx.lg.made(from), target);
+    }
+    if (strip(t) instanceof TypeCastTree tc && cx.lg.isCls(from) && !cx.lg.isCls(typeOf(tc.getExpression()))) {
+      // a cast to a collection class: the cast to the class (which fails as Java's does), then the place's type
+      TypeMirror cl = cx.lg.made(from);
+      return cx.coerce(exprAs(tc.getExpression(), cl), cl, target);
+    }
     if (strip(t) instanceof MethodInvocationTree mi && cx.kind(target) != Ctx.K.PRIM && cx.kind(from) != Ctx.K.PRIM) {
       // Convert the call's declared result straight to the wanted type, without a detour through the
       // (possibly narrower) static type of the call expression.
+      // (a result that goes to an Object: javac casts nothing there, so the erased method gives it)
+      if (cx.kind(target) == Ctx.K.ANY) lgWantErased = mi;
       CallResult r = invocation(mi);
+      lgWantErased = null;
       if (r.type.getKind() != TypeKind.VOID) {
         // An array keeps its element representation ([]string is not []any), so a T[] result must
         // become its static array type before it is put into an Object.
@@ -241,6 +271,31 @@ abstract class ExprEmitter extends Base {
       return conditional(c, target);
     }
     return cx.coerce(expr(t), from, target);
+  }
+
+  /**
+   * Rule "typed library interfaces", piece `place` (J2GO_NOLIBGEN=place is the translation
+   * without it): a collection is made typed by the place it enters. Expression t that makes a
+   * new collection (`new ArrayList<>(..)`, `ImmutableList.of(..)`, `ImmutableList.copyOf(..)`,
+   * a runtime constructor of Ctx.TYPED_MAKERS) for a place of typed interface type target with
+   * the collection's own element type is the runtime's typed collection, which enters as its
+   * view (native: no wrapper, the elements as they are); null for any other expression, which
+   * enters through Ctx.coerce. A place of an erased type (Object, a library parameter) gets the
+   * erased collection as before.
+   */
+  String lgMade(ExpressionTree t, TypeMirror target) {
+    if (!LibGen.on("place") || !(t instanceof NewClassTree) && !(t instanceof MethodInvocationTree)) return null;
+    TypeMirror from = typeOf(t);
+    if (from == null || from.getKind() != TypeKind.DECLARED) return null;
+    Ctx.CollKind k = cx.collKindOf(from);
+    if (k == null || k.builds != null || k == cx.entryKind) return null;
+    List<TypeMirror> args = cx.typedArgs(k, from);
+    if (args == null) return null;
+    TypeMirror stub = cx.typedOf(k, args);
+    String probe = cx.lg.fromTypedColl("x", stub, target);
+    if (probe == null) return null;
+    String made = newTyped(t, stub);
+    return made == null ? null : cx.lg.fromTypedColl(made, stub, target);
   }
 
   /**
@@ -299,10 +354,16 @@ abstract class ExprEmitter extends Base {
       return fn + ")";
     }
     String[] maker = cx.typedMaker(m, ck, new ArrayList<>(((DeclaredType) target).getTypeArguments()));
+    if (maker != null && m.getModifiers().contains(Modifier.STATIC)) {
+      // a library function that makes a collection for its caller: the runtime's typed constructor
+      StringBuilder sb = new StringBuilder(maker[0] + "(" + tc);
+      for (int i = 0; i < as.size(); i++) sb.append(", ").append(exprAs(as.get(i), cx.lg.rt(m.getParameters().get(i).asType())));
+      return sb.append(")").toString();
+    }
     if (maker != null && mi.getMethodSelect() instanceof MemberSelectTree ms && !m.getModifiers().contains(Modifier.STATIC)) {
       // a library method that makes a list for its caller: the runtime's typed twin
       StringBuilder sb = new StringBuilder(maker[0] + "(" + tc + ", " + exprAs(ms.getExpression(), cx.ownerOf(m).asType()));
-      for (int i = 0; i < as.size(); i++) sb.append(", ").append(exprAs(as.get(i), cx.erase(m.getParameters().get(i).asType())));
+      for (int i = 0; i < as.size(); i++) sb.append(", ").append(exprAs(as.get(i), cx.lg.rt(m.getParameters().get(i).asType())));
       return sb.append(")").toString();
     }
     if (ck.name.equals("set") && m.getSimpleName().contentEquals("keySet") && as.isEmpty() && mi.getMethodSelect() instanceof MemberSelectTree ms) {
@@ -322,7 +383,8 @@ abstract class ExprEmitter extends Base {
     if (m.getSimpleName().contentEquals("copyOf") && as.size() == 1) {
       // copyOf: of a typed collection of the same type (an immutable one is itself), of an
       // array of the elements, or of a collection as erased code sees it
-      TypeMirror at = typeOf(as.get(0)), pt = cx.erase(m.getParameters().get(0).asType());
+      // (the parameter as the runtime's function declares it: the erased interface, LibGen.rt)
+      TypeMirror at = typeOf(as.get(0)), pt = cx.lg.rt(m.getParameters().get(0).asType());
       if (cx.isTypedColl(at) && cx.goType(at).equals(cx.goType(target))) return "immutable" + cap + "CopyOfT_(" + tc + ", " + expr(as.get(0)) + ")";
       if (pt.getKind() == TypeKind.ARRAY) {
         TypeMirror et = cx.erase(at);
@@ -378,7 +440,10 @@ abstract class ExprEmitter extends Base {
       }
       case NEW_CLASS: {
         String chain = chainBuilder(t);
-        return chain != null ? chain : newClass((NewClassTree) t);
+        if (chain != null) return chain;
+        // (a collection class whose place holds the typed interface, LibGen.cls: the new object enters it)
+        TypeMirror nt = typeOf(t);
+        return cx.lg.isCls(nt) ? cx.coerce(newClass((NewClassTree) t), cx.lg.made(nt), nt) : newClass((NewClassTree) t);
       }
       case NEW_ARRAY:
         return newArray((NewArrayTree) t, (ArrayType) cx.erase(typeOf(t)));
@@ -405,6 +470,7 @@ abstract class ExprEmitter extends Base {
         if (cv != null && to.getKind().isPrimitive()) {
           return cv instanceof Character ch ? charLit(ch) : cv.toString();
         }
+        if (cx.lg.isCls(to) && !cx.lg.isCls(typeOf(c.getExpression()))) return exprAs(t, to);
         return exprAs(c.getExpression(), to);
       }
       case LAMBDA_EXPRESSION:
@@ -938,6 +1004,8 @@ abstract class ExprEmitter extends Base {
     }
     if (cx.isValueLibType(cx.erase(tl)) || cx.isValueLibType(cx.erase(tr))) throw unsupported(t, "identity of a value library class (" + tl + " " + op + " " + tr + ")");
     if (cx.fn.is(cx.erase(tl)) || cx.fn.is(cx.erase(tr))) throw unsupported(t, "identity of a functional value (" + tl + " " + op + " " + tr + ")");
+    // rule "typed library interfaces": the objects that erased code knows are compared
+    if (cx.lg.is(cx.erase(tl)) || cx.lg.is(cx.erase(tr))) return "(" + asAny(l) + " " + op + " " + asAny(r) + ")";
     if (kl == kr && cx.goType(tl).equals(cx.goType(tr))) {
       return "(" + expr(l) + " " + op + " " + expr(r) + ")";
     }
@@ -968,7 +1036,9 @@ abstract class ExprEmitter extends Base {
         if (cx.isLeaf(te)) return "is_[" + cx.goType(target) + "](" + anyCode + ")";
         return "is_" + cx.className(te) + "(" + anyCode + ")";
       }
-      case IFACE: case ARR: return "is_[" + cx.goType(target) + "](" + anyCode + ")";
+      case IFACE: case ARR:
+        // (a typed library interface: the test is of the erased interface, which every object of it has)
+        return "is_[" + cx.goType(cx.lg.is(target) ? cx.types.erasure(target) : target) + "](" + anyCode + ")";
       case ANY: {
         String qn = Ctx.typeElement(target).getQualifiedName().toString();
         TypeMirror u = cx.unboxed(target);
@@ -1198,7 +1268,9 @@ abstract class ExprEmitter extends Base {
 
   List<TypeMirror> ownParams(ExecutableElement e) {
     List<TypeMirror> out = new ArrayList<>();
-    for (VariableElement p : e.getParameters()) out.add(cx.erase(cx.vtype(p)));
+    boolean lib = !cx.isSource(cx.ownerOf(e)) && (!cx.typedClasses.contains(cx.ownerOf(e)) || cx.lg.isLib(cx.ownerOf(e)));
+    // (a library method: its signature as the runtime declares it, LibGen.rt)
+    for (VariableElement p : e.getParameters()) out.add(lib ? cx.lg.rt(cx.vtype(p)) : cx.erase(cx.vtype(p)));
     return out;
   }
 
@@ -1222,7 +1294,7 @@ abstract class ExprEmitter extends Base {
     if (isStatic) {
       touch(owner);
       List<TypeMirror> params = ownParams(e);
-      TypeMirror ret = cx.erase(cx.rtype(e));
+      TypeMirror ret = src ? cx.erase(cx.rtype(e)) : cx.lg.rt(cx.rtype(e));
       String name = cx.staticMethodName(e);
       if (!src) noteMethod("func " + name, e, params, ret, "static");
       if (!src) {
@@ -1292,6 +1364,14 @@ abstract class ExprEmitter extends Base {
       return new CallResult(name + "(" + argList(e, params, args) + ")", ret);
     }
     if (recv == null) recv = implicitRecv(owner);
+    if (!src && !superCall && cx.lg.isCls(recv.type) && !cx.lg.served(e, recv.type)) {
+      // a method of the collection class itself (ImmutableList.reverse): on the object erased code knows
+      cx.lg.note("methods of a collection class called on the erased object", cx.ownerOf(cx.root(e)).getQualifiedName() + "." + e.getSimpleName());
+      TypeMirror cl = cx.lg.made(recv.type);
+      String own = cx.lg.own(e, recv.type);
+      // (a method of a class that the typed collections stand for: through the interface of the method, LibGen.OWN)
+      recv = new Recv(own != null ? "cast_[" + own + "](" + cx.coerce(recv.code, recv.type, objectType()) + ")" : cx.coerce(recv.code, recv.type, cl), cl);
+    }
     if (cx.isTypedColl(recv.type) && !superCall) {
       // A typed collection: its typed method, or the method of List or Set on its erased view.
       List<TypeMirror> ats = new ArrayList<>();
@@ -1303,6 +1383,11 @@ abstract class ExprEmitter extends Base {
         src = false;
       } else {
         Ctx.CollKind rk = cx.typedColl(recv.type);
+        LibGen.View vt = cx.lg.mapView(rk, recv.type, e, args.size());
+        if (vt != null) {
+          // values() / keySet() of a typed map where Collection / Set is a typed interface: the map's typed view (piece `views`)
+          return new CallResult(atomOrParen(recv.code) + "." + vt.method() + "()", vt.type());
+        }
         if (owner.getQualifiedName().contentEquals(String.valueOf(rk.sortedClass))) {
           // a method that javac finds in TreeSet / TreeMap: the method of the interface it implements
           e = cx.root(e);
@@ -1334,19 +1419,22 @@ abstract class ExprEmitter extends Base {
     TypeElement ro = cx.ownerOf(re);
     if (!src && !superCall) {
       String sk = stringKeyHelper(re, recv, args);
+      // (a typed method that takes the String at its type serves the call: piece `meth`)
+      if (sk != null && cx.lg.typedAt(e, recv.type) && cx.kind(cx.groupParams(e, recv.type).get(0)) == Ctx.K.STR) sk = null;
       if (sk != null) {
         // Performance rule: a String key or element reaches the collection unboxed (rt_coll.go,
         // "String keys without a box").
         Ctx.K rk = cx.kind(recv.type);
         StringBuilder sb = new StringBuilder(sk).append("(")
-            .append(rk == Ctx.K.CLS || rk == Ctx.K.IFACE ? recv.code : cx.coerce(recv.code, recv.type, ro.asType()))
+            // (a value of a typed library interface: the object erased code knows, which the helper tells by its type)
+            .append((rk == Ctx.K.CLS || rk == Ctx.K.IFACE) && !cx.lg.is(cx.erase(recv.type)) ? recv.code : cx.coerce(recv.code, recv.type, cx.types.erasure(ro.asType())))
             .append(", ").append(args.get(0).as(stringType()));
         for (int i = 1; i < args.size(); i++) {
-          TypeMirror pt = cx.erase(re.getParameters().get(i).asType());
+          TypeMirror pt = cx.lg.rt(re.getParameters().get(i).asType());
           String a = args.get(i).as(pt);
           sb.append(", ").append(cx.goType(pt).equals("any") ? Conv.implicit(a) : a);
         }
-        return new CallResult(sb.append(")").toString(), cx.erase(re.getReturnType()));
+        return new CallResult(sb.append(")").toString(), cx.lg.rt(re.getReturnType()));
       }
     }
     if (!src && ok != Ctx.K.STR && re != e && !superCall
@@ -1378,7 +1466,7 @@ abstract class ExprEmitter extends Base {
     if (!src && (ok == Ctx.K.STR || ok == Ctx.K.ANY || owner.getKind().isInterface() && e.isDefault() && !cx.fn.isLib(owner))) {
       // Static-style helper taking the receiver first.
       List<TypeMirror> params = ownParams(e);
-      TypeMirror ret = cx.erase(e.getReturnType());
+      TypeMirror ret = cx.lg.rt(e.getReturnType());
       String name = cx.staticMethodName(e);
       String r = cx.coerce(recv.code, recv.type, owner.asType());
       if (ok == Ctx.K.ANY && cx.conv.anyParams(name)) r = Conv.implicit(r);
@@ -1397,8 +1485,48 @@ abstract class ExprEmitter extends Base {
     TypeMirror site = superCall ? cc().te.asType() : recv != null ? recv.type : null;
     List<TypeMirror> params = cx.groupParams(e, site);
     TypeMirror ret = cx.groupReturn(e, site);
+    if (!src && !cx.groupAt(e, site)) {
+      // a method of an erased library type: its signature as the runtime declares it
+      params = new ArrayList<>(params);
+      params.replaceAll(cx.lg::rt);
+      ret = cx.lg.rt(ret);
+    }
     String name = cx.methodName(e);
-    if (!src) noteMethod("method " + cx.className(cx.ownerOf(cx.root(e))) + "." + name, cx.root(e), params, ret, "method");
+    boolean lgTyped = cx.lg.typedAt(e, site);
+    if (lgTyped && lgErasedNow && cx.lg.renamed(cx.root(e)) && cx.kind(cx.lg.rt(cx.groupReturn(e))) == Ctx.K.ANY) {
+      // the result enters an Object: the erased method, whose result is that Object
+      lgTyped = false;
+      params = new ArrayList<>(cx.groupParams(e));
+      params.replaceAll(cx.lg::rt);
+      ret = cx.lg.rt(cx.groupReturn(e));
+    }
+    lgErasedNow = false;
+    if (LibGen.REPORT && !src && !lgTyped && site != null && cx.lg.isLib(ro) && cx.lg.typedView(site, ro) != null) {
+      // report: an erased method of a typed interface on a typed receiver, and what it boxes or casts
+      StringBuilder what = new StringBuilder();
+      for (int i = 0; i < args.size() && i < params.size(); i++) {
+        if (cx.kind(params.get(i)) != Ctx.K.ANY || args.get(i).type == null) continue;
+        Ctx.K ak = cx.kind(args.get(i).type);
+        TypeElement ae = ak == Ctx.K.CLS ? Ctx.typeElement(cx.erase(args.get(i).type)) : null;
+        String b = ak == Ctx.K.STR ? "String" : ak == Ctx.K.TVAR ? "type parameter" : ae != null && cx.isHandle(ae) ? "handle" : null;
+        if (b != null) what.append(" boxes a ").append(b);
+      }
+      if (re.getReturnType().getKind() == TypeKind.TYPEVAR) what.append(" gives an element as Object");
+      cx.lg.note("erased methods on a typed receiver" + (what.length() == 0 ? " (no box, no element result)" : " that box or give an element as Object"), ro.getSimpleName() + "." + name + "/" + args.size() + ":" + what);
+    }
+    if (lgTyped) {
+      // rule "typed library interfaces": the typed method (next_t), declared by the runtime
+      name = cx.lg.methodName(e, site);
+      if (!cx.lg.nativeKind(cx.ownerOf(cx.root(e)))) {
+        // (a collection kind: the erased interface, which the runtime's own code calls, keeps the erased method)
+        List<TypeMirror> ep = new ArrayList<>(cx.groupParams(e));
+        ep.replaceAll(cx.lg::rt);
+        noteMethod("method " + cx.className(cx.ownerOf(cx.root(e))) + "." + cx.methodName(e), cx.root(e), ep, cx.lg.rt(cx.groupReturn(e)), "method");
+      }
+    } else if (recv != null && cx.isTypedColl(recv.type) && cx.lg.is(ret) && name.equals("iterator")) {
+      // the iterator of a typed collection, at its element type
+      name = "iterator_t";
+    } else if (!src) noteMethod("method " + cx.className(cx.ownerOf(cx.root(e))) + "." + name, cx.root(e), params, ret, "method");
     String strVariant = null;
     if (!src && !superCall && recv != null) {
       List<TypeMirror> sp = new ArrayList<>(params);
@@ -1549,7 +1677,8 @@ abstract class ExprEmitter extends Base {
    */
   String stringKeyHelper(ExecutableElement re, Recv recv, List<Arg> args) {
     if (args.isEmpty() || args.size() != re.getParameters().size() || cx.kind(args.get(0).type) != Ctx.K.STR) return null;
-    TypeMirror p0 = cx.erase(re.getParameters().get(0).asType());
+    // (the parameter as the runtime declares it: the type parameter of a typed library interface is Object there)
+    TypeMirror p0 = cx.lg.rt(re.getParameters().get(0).asType());
     if (cx.kind(p0) != Ctx.K.ANY || p0.getKind() != TypeKind.DECLARED) return null;
     String owner = cx.ownerOf(re).getQualifiedName().toString(), name = re.getSimpleName().toString();
     if (owner.equals("java.util.Map")) {
@@ -1573,7 +1702,26 @@ abstract class ExprEmitter extends Base {
     return null;
   }
 
+  /**
+   * Rule "typed library interfaces": the call whose result enters a place of type Object (set by
+   * exprAs), and whether the call being translated is that one. Java casts the result of
+   * `list.get(i)` to the element type only where that type is wanted, so such a call is the
+   * erased method: an element of another class, which unchecked code put there, passes.
+   */
+  MethodInvocationTree lgWantErased;
+  boolean lgErasedNow;
+
   CallResult invocation(MethodInvocationTree t) {
+    boolean lgEr = t == lgWantErased;
+    lgWantErased = null;
+    try {
+      return invocation(t, lgEr);
+    } finally {
+      lgErasedNow = false;
+    }
+  }
+
+  CallResult invocation(MethodInvocationTree t, boolean lgEr) {
     ExpressionTree sel = t.getMethodSelect();
     Element el = elemOf(t);
     if (!(el instanceof ExecutableElement)) el = elemOf(sel);
@@ -1608,13 +1756,44 @@ abstract class ExprEmitter extends Base {
       String rcode = expr(q);
       curInst = typeOf(sel) instanceof ExecutableType et ? et : null;
       retOverride = e.getModifiers().contains(Modifier.STATIC) && !cx.isTypedColl(cx.refinedTrees.get(t)) ? cx.refinedTrees.get(t) : null;
+      lgErasedNow = lgEr;
       return special(e, new Recv(rcode, qt), as);
     }
     return special(e, null, as);
   }
 
   /** Calls with a direct Go spelling. */
+  /**
+   * Rule "typed library interfaces", piece `readers` (J2GO_NOLIBGEN=readers is the translation
+   * without it): an argument of a library method that only reads it (LibGen.READERS: from which
+   * argument on) and that is a variable or field holding a typed list, set or map is given as the
+   * typed collection's view (asListT ..), which is part of it. As any other erased argument it
+   * is what erased code knows the collection as, and for an immutable collection that is its
+   * twin, made with every element boxed for this one read.
+   */
+  List<Arg> lgReaders(ExecutableElement e, List<Arg> as) {
+    if (!LibGen.on("readers") || cx.isSource(cx.ownerOf(e))) return as;
+    ExecutableElement r = cx.root(e);
+    Integer from = LibGen.READERS.get(cx.ownerOf(r).getQualifiedName() + "." + r.getSimpleName());
+    if (from == null) return as;
+    List<Arg> out = null;
+    for (int i = from; i < as.size(); i++) {
+      Arg a = as.get(i);
+      if (a.tree == null || !(strip(a.tree) instanceof IdentifierTree) && !(strip(a.tree) instanceof MemberSelectTree) || a.type == null) continue;
+      TypeMirror at = cx.erase(a.type);
+      Ctx.CollKind k = cx.typedColl(at);
+      if (k == null || k.builds != null || k == cx.entryKind) continue;
+      String view = k.name.equals("list") ? ".asListT()" : k.name.equals("set") ? ".asSetT()" : k.name.equals("map") ? ".asMapT()" : null;
+      if (view == null) continue;
+      if (out == null) out = new ArrayList<>(as);
+      out.set(i, new Arg(atomOrParen(expr(a.tree)) + view, cx.types.erasure(cx.typedView(at))));
+      cx.lg.note("typed collections given to a reading library method as their view", String.valueOf(r));
+    }
+    return out == null ? as : out;
+  }
+
   CallResult special(ExecutableElement e, Recv recv, List<Arg> as) {
+    as = lgReaders(e, as);
     TypeElement owner = cx.ownerOf(e);
     String qn = owner.getQualifiedName() + "#" + e.getSimpleName();
     if (recv != null && as.size() == 1 && cx.kind(as.get(0).type) == Ctx.K.STR && cx.kind(recv.type) == Ctx.K.STR) {
@@ -1643,7 +1822,7 @@ abstract class ExprEmitter extends Base {
 
   String newClass(NewClassTree t) {
     Element el = elemOf(t);
-    TypeMirror ty = cx.erase(typeOf(t));
+    TypeMirror ty = cx.lg.made(typeOf(t));
     TypeElement te = Ctx.typeElement(ty);
     ExecutableElement ctor = (ExecutableElement) el;
     if (t.getClassBody() != null) {
@@ -1810,6 +1989,8 @@ abstract class ExprEmitter extends Base {
   /** The lambda as a value of its own type, or (rule "function types") of function type target. */
   String lambda(LambdaExpressionTree t, TypeMirror target) {
     TypeMirror ft = target != null ? target : cx.erase(typeOf(t));
+    // rule "typed library interfaces": the erased adapter object, then as the typed interface
+    if (cx.lg.is(ft)) return cx.coerce(lambda(t, cx.types.erasure(ft)), cx.types.erasure(ft), ft);
     TypeElement fi = Ctx.typeElement(ft);
     ExecutableElement m = fi == null ? null : cx.functionalMethod(fi);
     if (m == null) throw unsupported(t, "lambda target " + ft);
@@ -1882,6 +2063,7 @@ abstract class ExprEmitter extends Base {
   String memberRef(MemberReferenceTree t, TypeMirror target) {
     TypeMirror ft = typeOf(t);
     TypeMirror eft = target != null ? target : cx.erase(ft);
+    if (cx.lg.is(eft)) return cx.coerce(memberRef(t, cx.types.erasure(eft)), cx.types.erasure(eft), eft);
     TypeElement fi = Ctx.typeElement(eft);
     ExecutableElement m = fi == null ? null : cx.functionalMethod(fi);
     if (m == null) throw unsupported(t, "method reference target " + ft);
@@ -1927,6 +2109,28 @@ abstract class ExprEmitter extends Base {
         String name = cx.ctorName(ctor, "new_");
         if (!cx.isSource(te)) noteMethod("func " + name, ctor, cp, te.asType(), "constructor");
         TypeMirror made = te.asType();
+        TypeMirror wantC = null;
+        try {
+          wantC = ((ExecutableType) cx.types.asMemberOf((DeclaredType) ft, m)).getReturnType();
+        } catch (RuntimeException ex) {
+          wantC = null;
+        }
+        String typedNew = null;
+        if (as.isEmpty() && wantC != null && wantC.getKind() == TypeKind.DECLARED && cx.lg.is(cx.erase(wantC)) && cx.lg.concrete(te.asType()) && LibGen.on("place") && LibGen.on("cls")) {
+          // ArrayList::new where the function gives a typed interface (List<X>, or a class whose
+          // places hold one): the typed collection, as `new ArrayList<>()` is there
+          Ctx.CollKind k = cx.collKindOf(te.asType());
+          List<TypeMirror> targs = k == null ? null : cx.typedArgs(k, wantC);
+          String fn = k == null ? null : k.made.get(te.getQualifiedName().toString());
+          if (targs != null && fn != null) {
+            TypeMirror stub = cx.typedOf(k, targs);
+            typedNew = cx.lg.fromTypedColl("newT" + fn + "_(" + cx.tconvsOf(stub) + ")", stub, cx.erase(wantC));
+          }
+        }
+        if (typedNew != null) {
+          cx.lg.note("new collections of a class entering an Object, made typed", String.valueOf(wantC));
+          r = new CallResult(typedNew, wantC);
+        } else {
         if (cx.typedClasses.contains(te)) {
           // C::new for a typed class: C at the type arguments the functional method returns
           TypeMirror want = ((ExecutableType) cx.types.asMemberOf((DeclaredType) ft, m)).getReturnType();
@@ -1941,6 +2145,7 @@ abstract class ExprEmitter extends Base {
         String al = argList(ctor, cp, as);
         if (!al.isEmpty()) pre.add(al);
         r = new CallResult(name + "(" + String.join(", ", pre) + ")", made);
+        }
       }
     } else {
       ExecutableElement e = (ExecutableElement) el;

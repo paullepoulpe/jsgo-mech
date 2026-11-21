@@ -280,6 +280,15 @@ public final class Main {
     cx.findComparable(units);
     cx.registerValueLibs();
     cx.fn.register();
+    cx.lg.register();
+    // (J2GO_UNCHECKED_CASTS: the lists of methods whose unchecked casts were read, separated by ':')
+    String uc = System.getenv("J2GO_UNCHECKED_CASTS") != null ? System.getenv("J2GO_UNCHECKED_CASTS") : "tools/j2go/unchecked-casts.txt";
+    for (String f : uc.split(":")) if (new java.io.File(f).exists()) cx.lg.readUncheckedOk(f);
+    for (CompilationUnitTree cu : units) cx.lg.check(trees, cu);
+    if (!cx.lg.refusals.isEmpty()) {
+      for (String r : cx.lg.refusals) System.err.println("typed library interfaces: refused: " + r);
+      System.exit(1);
+    }
     if (FnTypes.ON) {
       cx.fn.findKeyed(cx.source);
       for (CompilationUnitTree cu : units) cx.fn.check(trees, cu);
@@ -290,8 +299,9 @@ public final class Main {
       }
     }
     cx.registerTypedColls();
+    Colls colls = null;
     if (System.getenv("J2GO_ERASED") == null) {
-      Colls colls = new Colls(cx, trees);
+      colls = new Colls(cx, trees);
       for (CompilationUnitTree cu : units) colls.groups(cu);
       for (CompilationUnitTree cu : units) colls.candidates(cu);
       for (CompilationUnitTree cu : units) colls.flows(cu);
@@ -307,6 +317,13 @@ public final class Main {
       ValueScan.report(cx);
     }
     cx.analyzeMethods();
+    // Report only (J2GO_COLLMAP=dir): every declaration of a collection type and every expression
+    // that makes an erased collection, with what keeps it erased (docs/libgen/COLLECTIONS-PLAN.md).
+    if (System.getenv("J2GO_COLLMAP") != null && colls != null) {
+      CollMap cm = new CollMap(cx, trees, colls);
+      for (CompilationUnitTree cu : units) cm.scan(cu);
+      cm.write(Path.of(System.getenv("J2GO_COLLMAP")));
+    }
     Files.createDirectories(out);
     try (var old = Files.list(out)) {
       for (Path p : (Iterable<Path>) old::iterator) {
@@ -365,6 +382,7 @@ public final class Main {
     cx.conv.strSeqReport();
     cx.conv.boxReport();
     cx.fn.report();
+    cx.lg.report();
     for (String d : cx.tconvs.values()) cb.append("\n").append(d);
     if (!cx.collKinds.isEmpty() && !"1".equals(System.getenv("J2GO_NOCOMPARABLE"))) {
       // The classes whose Go == is Java's equals (Ctx.goEquals): a typed set or map whose element
