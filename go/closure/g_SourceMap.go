@@ -339,17 +339,7 @@ func (this *SourceMap_PrefixLocationMapping) toString() string {
 }
 
 func (this *SourceMap_PrefixLocationMapping) equals(other any) bool {
-	var prefixLocationMapping *SourceMap_PrefixLocationMapping
-	_ = prefixLocationMapping
-	if func() bool {
-		v_ := other
-		p, ok := v_.(*SourceMap_PrefixLocationMapping)
-		if !ok {
-			return false
-		}
-		prefixLocationMapping = p
-		return true
-	}() {
+	if prefixLocationMapping, ok := other.(*SourceMap_PrefixLocationMapping); ok {
 		return ((prefixLocationMapping.prefix_ == this.prefix_) && (prefixLocationMapping.replacement_ == this.replacement_))
 	} else {
 		return false

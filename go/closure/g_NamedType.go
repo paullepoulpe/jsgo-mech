@@ -269,17 +269,7 @@ func (this *NamedType) handleTypeCycle(reporter ErrorReporter_rhino) {
 
 func (this *NamedType) checkEnumElementCycle(reporter ErrorReporter_rhino) {
 	var referencedType *JSType = this.getReferencedType()
-	var enumElementType *EnumElementType
-	_ = enumElementType
-	if func() bool {
-		v_ := referencedType.self()
-		p, ok := v_.(*EnumElementType)
-		if !ok {
-			return false
-		}
-		enumElementType = p
-		return true
-	}() && (this.up_JSType() == enumElementType.getPrimitiveType()) {
+	if enumElementType, ok := referencedType.self().(*EnumElementType); ok && (this.up_JSType() == enumElementType.getPrimitiveType()) {
 		this.handleTypeCycle(reporter)
 	}
 }
