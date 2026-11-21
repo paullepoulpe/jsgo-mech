@@ -41,18 +41,6 @@ func (this ErrorFormat) self() any {
 
 func (this ErrorFormat) as_ErrorFormat() ErrorFormat { return this }
 
-func to_ErrorFormat(v any) ErrorFormat {
-	if v == nil {
-		return 0
-	}
-	return v.(interface{ as_ErrorFormat() ErrorFormat }).as_ErrorFormat()
-}
-
-func is_ErrorFormat(v any) bool {
-	_, ok := v.(interface{ as_ErrorFormat() ErrorFormat })
-	return ok
-}
-
 func (this ErrorFormat) toFormatter(source SourceExcerptProvider, colorize bool) MessageFormatter {
 	switch this {
 	case ErrorFormat_SINGLELINE:

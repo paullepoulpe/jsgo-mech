@@ -19,29 +19,6 @@ func (this *ThreadSafeDelegatingErrorManager) as_ThreadSafeDelegatingErrorManage
 	return this
 }
 
-func to_ThreadSafeDelegatingErrorManager(v any) *ThreadSafeDelegatingErrorManager {
-	switch p := v.(type) {
-	case *ThreadSafeDelegatingErrorManager:
-		return p
-	case *ConformanceAllowlister_1:
-		return p.as_ThreadSafeDelegatingErrorManager()
-	case *VerifyingErrorManager:
-		return p.as_ThreadSafeDelegatingErrorManager()
-	case nil:
-		return nil
-	}
-	return v.(interface {
-		as_ThreadSafeDelegatingErrorManager() *ThreadSafeDelegatingErrorManager
-	}).as_ThreadSafeDelegatingErrorManager()
-}
-
-func is_ThreadSafeDelegatingErrorManager(v any) bool {
-	_, ok := v.(interface {
-		as_ThreadSafeDelegatingErrorManager() *ThreadSafeDelegatingErrorManager
-	})
-	return ok
-}
-
 func (this *ThreadSafeDelegatingErrorManager) self() any {
 	if this == nil {
 		return nil

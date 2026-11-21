@@ -27,11 +27,6 @@ type DataFlowAnalysis_vt_[N comparable, L interface {
 
 func (this *DataFlowAnalysis[N, L]) isa_DataFlowAnalysis_() {}
 
-func is_DataFlowAnalysis(v any) bool {
-	_, ok := v.(interface{ isa_DataFlowAnalysis_() })
-	return ok
-}
-
 func (this *DataFlowAnalysis[N, L]) as_DataFlowAnalysis() *DataFlowAnalysis[N, L] { return this }
 
 func (this *DataFlowAnalysis[N, L]) as_DataFlowAnalysis_() any { return this }
@@ -338,11 +333,6 @@ type DataFlowAnalysis_UniqueQueue[T comparable] struct {
 }
 
 func (this *DataFlowAnalysis_UniqueQueue[T]) isa_DataFlowAnalysis_UniqueQueue_() {}
-
-func is_DataFlowAnalysis_UniqueQueue(v any) bool {
-	_, ok := v.(interface{ isa_DataFlowAnalysis_UniqueQueue_() })
-	return ok
-}
 
 func (this *DataFlowAnalysis_UniqueQueue[T]) finit_DataFlowAnalysis_UniqueQueue() {
 	this.seenSet = jnewTSet_(tceT_[T]())

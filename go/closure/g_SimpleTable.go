@@ -8,11 +8,6 @@ type SimpleTable[R comparable, C comparable, V comparable] struct {
 
 func (this *SimpleTable[R, C, V]) isa_SimpleTable_() {}
 
-func is_SimpleTable(v any) bool {
-	_, ok := v.(interface{ isa_SimpleTable_() })
-	return ok
-}
-
 func (this *SimpleTable[R, C, V]) finit_SimpleTable() {
 	this.rows = jnewTMap_(tceT_[R](), tc_Map)
 }

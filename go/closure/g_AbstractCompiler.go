@@ -14,21 +14,6 @@ type AbstractCompiler_I interface {
 
 func (this *AbstractCompiler) as_AbstractCompiler() *AbstractCompiler { return this }
 
-func to_AbstractCompiler(v any) *AbstractCompiler {
-	switch p := v.(type) {
-	case *Compiler:
-		return p.as_AbstractCompiler()
-	case nil:
-		return nil
-	}
-	return v.(interface{ as_AbstractCompiler() *AbstractCompiler }).as_AbstractCompiler()
-}
-
-func is_AbstractCompiler(v any) bool {
-	_, ok := v.(interface{ as_AbstractCompiler() *AbstractCompiler })
-	return ok
-}
-
 func (this *AbstractCompiler) self() any {
 	if this == nil {
 		return nil
