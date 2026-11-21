@@ -83,10 +83,10 @@ func (this *TypeStringBuilder) breakLineAndIndent() *TypeStringBuilder {
 	return this
 }
 
-func (this *TypeStringBuilder) indent(cb Runnable) *TypeStringBuilder {
+func (this *TypeStringBuilder) indent(cb func()) *TypeStringBuilder {
 	var lastIndent string = this.indentation
 	this.indentation = (sstr_(lastIndent) + "  ")
-	cb.run()
+	cb()
 	this.indentation = lastIndent
 	return this
 }
