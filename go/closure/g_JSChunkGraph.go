@@ -608,12 +608,14 @@ func new_JSChunkGraph_InverseDepthComparator() *JSChunkGraph_InverseDepthCompara
 	return this
 }
 
-func (this *JSChunkGraph_InverseDepthComparator) compare(m1_ any, m2_ any) int32 {
-	var m1 *JSChunk = cast_[*JSChunk](m1_)
-	_ = m1
-	var m2 *JSChunk = cast_[*JSChunk](m2_)
-	_ = m2
+// compareT_ is compare with the parameter types the class declares (implsplit).
+func (this *JSChunkGraph_InverseDepthComparator) compareT_(m1 *JSChunk, m2 *JSChunk) int32 {
 	return JSChunkGraph_depthCompare(m2, m1)
+}
+
+// compare is the bridge of the interface's erased signature (javac's): it casts its arguments and calls compareT_.
+func (this *JSChunkGraph_InverseDepthComparator) compare(m1_ any, m2_ any) int32 {
+	return this.compareT_(cast_[*JSChunk](m1_), cast_[*JSChunk](m2_))
 }
 
 var JSChunkGraph_InverseDepthComparator_INSTANCE *JSChunkGraph_InverseDepthComparator

@@ -237,15 +237,19 @@ func (this *DefaultNameGenerator_CharPriority) clone_rCharPriority() *DefaultNam
 	return result
 }
 
-func (this *DefaultNameGenerator_CharPriority) compareTo(other_ any) int32 {
-	var other *DefaultNameGenerator_CharPriority = cast_[*DefaultNameGenerator_CharPriority](other_)
-	_ = other
+// compareToT_ is compareTo with the parameter types the class declares (implsplit).
+func (this *DefaultNameGenerator_CharPriority) compareToT_(other *DefaultNameGenerator_CharPriority) int32 {
 	var result int32 = (other.occurrence - this.occurrence)
 	if result != 0 {
 		return result
 	}
 	result = (this.order - other.order)
 	return result
+}
+
+// compareTo is the bridge of the interface's erased signature (javac's): it casts its arguments and calls compareToT_.
+func (this *DefaultNameGenerator_CharPriority) compareTo(other_ any) int32 {
+	return this.compareToT_(cast_[*DefaultNameGenerator_CharPriority](other_))
 }
 
 func (this *DefaultNameGenerator_CharPriority) clone() any {
