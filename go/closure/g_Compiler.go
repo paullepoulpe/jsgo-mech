@@ -1390,7 +1390,7 @@ func (this *Compiler) clearTypedScopeCreator_impl() {
 
 func (this *Compiler) ensureDefaultPassConfig() *DefaultPassConfig {
 	var passes *PassConfig = this.getPassConfig().getBasePassConfig()
-	if !is_[*DefaultPassConfig](passes.self()) {
+	if _, ok := passes.self().(*DefaultPassConfig); !ok {
 		panic(new_IllegalStateException_String(objstr_("PassConfigs must eventually delegate to the DefaultPassConfig")).self())
 	}
 	return cast_[*DefaultPassConfig](passes.self())
