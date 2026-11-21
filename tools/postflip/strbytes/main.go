@@ -733,18 +733,19 @@ type frame struct {
 }
 
 type an struct {
-	fd    *ast.FuncDecl
-	s     *types.Var
-	iv    map[*types.Var]bool
-	cv    map[*types.Var]bool
-	zero  *types.Var
-	end   *types.Var
-	sites map[*ast.CallExpr]*site
-	ctls  []*ctl
-	frams []*frame
-	scan  map[ast.Node]*types.Var // scan loops and their index variable
-	scanW map[ast.Node]string     // why a loop is not a scan loop
-	useIV bool
+	fd      *ast.FuncDecl
+	s       *types.Var
+	iv      map[*types.Var]bool
+	cv      map[*types.Var]bool
+	zero    *types.Var
+	end     *types.Var
+	sites   map[*ast.CallExpr]*site
+	ctls    []*ctl
+	frams   []*frame
+	scan    map[ast.Node]*types.Var // scan loops and their index variable
+	scanW   map[ast.Node]string     // why a loop is not a scan loop
+	useIV   bool
+	opt     bool // s is an Optional<String> variable and the string its get()
 	ivBad   string
 	ivBadAt ast.Node
 	scanCV  *types.Var // while walking the condition of a scan loop: its index variable
@@ -767,7 +768,7 @@ var posOps = map[string]bool{
 // opOn returns the String_ op of e when it is a call on s.
 func (a *an) opOn(e ast.Expr) (string, *ast.CallExpr) {
 	name, c := callName(e)
-	if !stringOps[name] || len(c.Args) == 0 || identVar(c.Args[0]) != a.s {
+	if !stringOps[name] || len(c.Args) == 0 || !a.isS(c.Args[0]) {
 		return "", nil
 	}
 	return name, c
@@ -965,20 +966,59 @@ func function(fd *ast.FuncDecl, f *ast.File) {
 				seen[v] = true
 				strs = append(strs, v)
 			}
+			if v := optGet(c.Args[0]); v != nil && !seen[v] {
+				seen[v] = true
+				optVars[v] = true
+				strs = append(strs, v)
+			}
 		}
 		return true
 	})
 	for _, s := range strs {
-		if !isType(s.Type(), types.String) || !(isLocal(s, fd) || isParam(s, fd)) {
+		opt := optVars[s]
+		if (!opt && !isType(s.Type(), types.String)) || !(isLocal(s, fd) || isParam(s, fd)) {
 			continue
 		}
-		a := &an{fd: fd, s: s}
+		a := &an{fd: fd, s: s, opt: opt}
 		if why := a.stable(); why != "" {
 			a.leaveAll("the string variable " + why)
 			continue
 		}
 		a.run()
 	}
+}
+
+// optVars are the Optional<String> variables whose get() is analysed as the string: an
+// Optional is an immutable value, so o.get() is the same string (or throws the same
+// NoSuchElementException) at every call while o is not assigned; the calls stay as they are.
+var optVars = map[*types.Var]bool{}
+
+// optGet returns o when e is o.get() of an Optional<String> variable o.
+func optGet(e ast.Expr) *types.Var {
+	c, ok := rw.Unparen(e).(*ast.CallExpr)
+	if !ok || len(c.Args) != 0 {
+		return nil
+	}
+	sel, ok := c.Fun.(*ast.SelectorExpr)
+	if !ok || sel.Sel.Name != "get" || !isType(rw.Info.Types[c].Type, types.String) {
+		return nil
+	}
+	v := identVar(sel.X)
+	if v == nil {
+		return nil
+	}
+	if n, ok := types.Unalias(v.Type()).(*types.Named); !ok || n.Obj().Name() != "Optional" {
+		return nil
+	}
+	return v
+}
+
+// isS reports whether e is the string analysed: the variable, or o.get().
+func (a *an) isS(e ast.Expr) bool {
+	if a.opt {
+		return optGet(e) == a.s
+	}
+	return identVar(e) == a.s
 }
 
 func asExpr(n ast.Node) ast.Expr {
