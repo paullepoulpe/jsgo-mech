@@ -7,6 +7,7 @@ type CodeReplacement struct {
 	getSortKey_       string
 	getStartPosition_ int32
 	getLength_        int32
+	hashMemo_         int32 // hashCode, once computed, when it is not 0 (post-flip step hashmemo)
 }
 
 func (this *CodeReplacement) zero_CodeReplacement() {
@@ -79,6 +80,16 @@ func (this *CodeReplacement) equals(p0 any) bool {
 }
 
 func (this *CodeReplacement) hashCode() int32 {
+	if h := this.hashMemo_; h != 0 {
+		return h
+	}
+	h := this.hashCodeOnce_()
+	this.hashMemo_ = h
+	return h
+}
+
+// hashCodeOnce_ computes hashCode: a function of data that is final in the object (post-flip step hashmemo).
+func (this *CodeReplacement) hashCodeOnce_() int32 {
 	var h int32
 	h = h*31 + this.getStartPosition_
 	h = h*31 + this.getLength_

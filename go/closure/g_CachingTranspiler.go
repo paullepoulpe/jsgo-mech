@@ -43,8 +43,9 @@ func (this *CachingTranspiler) runtime() string {
 }
 
 type CachingTranspiler_Key struct {
-	path_ string
-	code_ string
+	path_     string
+	code_     string
+	hashMemo_ int32 // hashCode, once computed, when it is not 0 (post-flip step hashmemo)
 }
 
 func (this *CachingTranspiler_Key) zero_CachingTranspiler_Key() {
@@ -70,6 +71,16 @@ func (this *CachingTranspiler_Key) equals(other any) bool {
 }
 
 func (this *CachingTranspiler_Key) hashCode() int32 {
+	if h := this.hashMemo_; h != 0 {
+		return h
+	}
+	h := this.hashCodeOnce_()
+	this.hashMemo_ = h
+	return h
+}
+
+// hashCodeOnce_ computes hashCode: a function of data that is final in the object (post-flip step hashmemo).
+func (this *CachingTranspiler_Key) hashCodeOnce_() int32 {
 	return hashOf_(objhashStr_(this.path_), objhashStr_(this.code_))
 }
 
