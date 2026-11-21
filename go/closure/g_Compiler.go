@@ -178,7 +178,7 @@ func Compiler_createFromErrorManager(errorManager ErrorManager) *Compiler {
 
 func (this *Compiler) setErrorManager(errorManager ErrorManager) {
 	Preconditions_checkNotNull_Object_Object_T(errorManager, "the error manager cannot be null")
-	this.errorManager = icast_ErrorManager(new_ThreadSafeDelegatingErrorManager(errorManager).self())
+	this.errorManager = new_ThreadSafeDelegatingErrorManager(errorManager)
 }
 
 func (this *Compiler) createMessageFormatter() MessageFormatter {
@@ -211,7 +211,7 @@ func (this *Compiler) initOptions(options *CompilerOptions) {
 		} else {
 			var builder *TSetBuilder[SortingErrorManager_ErrorReportGenerator] = newTSetBuilder_(tce_SortingErrorManager_ErrorReportGenerator)
 			builder.add(SortingErrorManager_ErrorReportGenerator(new_PrintStreamErrorReportGenerator(this.createMessageFormatter(), this.outStream, options.getSummaryDetailLevel()))).addAll(options.getExtraReportGenerators().asIterable())
-			this.setErrorManager(icast_ErrorManager(new_SortingErrorManager(builder.build()).self()))
+			this.setErrorManager(new_SortingErrorManager(builder.build()))
 		}
 	}
 	if options.getSkipNonTranspilationPasses() {
@@ -234,7 +234,7 @@ func (this *Compiler) initOptions(options *CompilerOptions) {
 		options.setUseTypesForOptimization(false)
 	}
 	if options.assumeForwardDeclaredForMissingTypes() {
-		this.forwardDeclaredTypes = setAs_(jtc_string, icast_Set(obj_(new_Compiler_1(this))))
+		this.forwardDeclaredTypes = setAs_(jtc_string, Set(new_Compiler_1(this)))
 	}
 	this.initWarningsGuard(options.getWarningsGuard())
 	if this.isDebugLoggingEnabled() {
@@ -3091,7 +3091,7 @@ func (this *Compiler) saveState() []int8 {
 		var stateProto *JSCompilerStateProto = cast_[*JSCompilerStateProto](this.getCompilerStateProtoBuilder().build())
 		this.stopTracer(tracer, "serializeCompilerState")
 		tracer = this.newTracer("serializeTypedAst")
-		var typedAstList ListT[[]int8] = listAs_(tc___int8, icast_List(new_ArrayList_0().self()))
+		var typedAstList ListT[[]int8] = listAs_(tc___int8, List(new_ArrayList_0()))
 		SerializeTypedAstPass_createFromConsumer(this.up_AbstractCompiler(), Consumer[[]int8](func(p0 []int8) { typedAstList.add_t(p0) }), SerializationOptions_builder().setRuntimeLibraries(jtlistEmptyImm_(jtc_string)).setIncludeDebugInfo(this.getOptions().shouldSerializeExtraDebugInfo()).build()).process_2(this.externsRoot, this.jsRoot)
 		this.stopTracer(tracer, "serializeTypedAst")
 		var typedAsts []int8 = cast_[[]int8](Iterables_getOnlyElement(Iterable(List_un_(typedAstList))))

@@ -27,7 +27,7 @@ func (this *PerformanceTrackerCodeSizeEstimator) init_PerformanceTrackerCodeSize
 	this.finit_PerformanceTrackerCodeSizeEstimator()
 	this.trackGzSize = trackGzSize
 	if trackGzSize {
-		this.output = listAs_(tc___int8, icast_List(new_ArrayList_0().self()))
+		this.output = listAs_(tc___int8, List(new_ArrayList_0()))
 	} else {
 		this.output = nil
 	}
