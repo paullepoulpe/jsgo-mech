@@ -29,6 +29,34 @@ func (this *TreeMap) search(k any) (int, bool) {
 	return i, i < len(this.entries) && this.compare(this.entries[i].key, k) == 0
 }
 
+// strKeyed reports whether a string key can be looked up without boxing it: the map orders its
+// keys naturally and they are strings (naturally ordered keys are all of one class).
+func (this *TreeMap) strKeyed() bool {
+	if this == nil || this.cmp != nil {
+		return false
+	}
+	if len(this.entries) == 0 {
+		return true
+	}
+	_, ok := this.entries[0].key.(string)
+	return ok
+}
+
+// search_s is search for a string key of a strKeyed map (String.compareTo order).
+func (this *TreeMap) search_s(k string) (int, bool) {
+	e := this.entries
+	lo, hi := 0, len(e)
+	for lo < hi {
+		m := int(uint(lo+hi) >> 1)
+		if String_compareTo(e[m].key.(string), k) < 0 {
+			lo = m + 1
+		} else {
+			hi = m
+		}
+	}
+	return lo, lo < len(e) && e[lo].key.(string) == k
+}
+
 func (this *TreeMap) size() int32   { return int32(len(this.entries)) }
 func (this *TreeMap) isEmpty() bool { return len(this.entries) == 0 }
 func (this *TreeMap) clear()        { this.entries = nil }
