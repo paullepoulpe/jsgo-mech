@@ -188,6 +188,40 @@ Each changes the tree from its step on (425 at the earliest), so it needs a repl
   the unattended replay (comment lines only; the replay does not read them).
 - gate.sh's header prints GATE FAILED for a post-flip tree (the j2go self-test line), as before.
 
+## The first complete pass and its gate: FAILED, one tool hole (toolfix 32)
+
+The list first replayed to the end in $B/wt/replay5 (270 commits, tip 1d20bbf3, go/ tree c6ec0c7e;
+tag flip5-pass1 marks an earlier state of that worktree). Its gate ($B/gate.sh tree5a flip5a,
+log $B/logs/gate-flip5a.log): runtime tests ok, but checks, bundle, downlevel and advanced all
+DIFF: the compiler failed at start with "interface conversion: interface {} is string, not
+*closure.CompilerInput" in CommandLineConfig's initializer. Cause: step 336 (colls, immlist kind)
+made the parameter of the translator's upcast helper ImmutableList_as_List a slot and typed the
+class of everything passed through it as lists of *CompilerInput (35 constructors, lists of
+strings and Nodes among them); the type check of the replay cannot see it (cast_ of an `any`).
+toolfix 32 fixes the tool (helper signatures are fixed); with it the immlist kind reports what
+the fourth flip's did (6 constructors in typed classes, 3 declarations typed, 1 class). The fix
+applies to every colls run from step 3 on, so the whole list is replayed again.
+
+THE CENSUS AND THE COUNTS OF "COVERAGE THAT THE CENSUS DOES NOT COUNT" ABOVE ARE OF THAT FIRST
+PASS (tree c6ec0c7e) AND MUST BE TAKEN AGAIN on the tree of the replay with toolfix 32.
+
 ## Where this stands
 
-(filled in at the end)
+(see the end of the file; filled in at the end of the work)
+
+### State at the time of writing (update or delete when the work goes on)
+
+- Overlay main-r12-flip5 is committed with toolfix 28-32, the regenerated patches and the `#=5`
+  notes for every dropped or adapted step.
+- Running: `bash tools/postflip/reflip/replay5.sh replay5c` (a full replay from the base 4b50a363
+  into $B/wt/replay5c, log $B/logs/replay5c.log, driver output $B/logs/replay5c.out). If it
+  stops, fix as before and rerun the same command (it resumes).
+- Then: (1) gate the tip: `$B/mkwt.sh <name> <tip> <branch>`, `$B/gate.sh <name> <label>`: wanted
+  `ok jsgomech/closure` and four MATCH. Run the gate while no replay runs: two compiles of
+  go/closure at once do not fit in this host's memory (the first gate took an hour that way).
+  (2) a second replay from the base in a fresh worktree (`replay5.sh replay5b` after
+  `git -C $B/wt/replay5b reset --hard 4b50a363`: that worktree holds a stale partial replay made
+  before toolfix 32), `REPLAY DONE`, and `git rev-parse HEAD:go` equal in both. (3) census.py on
+  the tip against inb-selfgen, and the counts of the open-items table, again. (4) the `#=5` notes
+  for the steps of the table "run and find nothing" are not in steps.txt yet.
+- $B/wt/replay5 (first pass, without toolfix 32) and $B/wt/replay5x (scratch) are not results.
