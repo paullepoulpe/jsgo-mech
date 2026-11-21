@@ -25,4 +25,3 @@ func new_AwaitExpressionTree(location *SourceRange, expression *ParseTree) *Awai
 	this.init_AwaitExpressionTree(location, expression)
 	return this
 }
-

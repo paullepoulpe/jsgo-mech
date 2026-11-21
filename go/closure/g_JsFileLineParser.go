@@ -3,12 +3,12 @@
 package closure
 
 type JsFileLineParser struct {
-	self_ any
-	valueMatcher *Matcher_re2j
-	errorManager ErrorManager
-	filePath Optional[string]
-	lineNum int32
-	shortcutMode bool
+	self_          any
+	valueMatcher   *Matcher_re2j
+	errorManager   ErrorManager
+	filePath       Optional[string]
+	lineNum        int32
+	shortcutMode   bool
 	parseSucceeded bool
 }
 
@@ -55,14 +55,14 @@ func (this *JsFileLineParser) didParseSucceed() bool {
 func (this *JsFileLineParser) doParse(filePath string, fileContents string) {
 	this.filePath = Optional_of[string](filePath)
 	this.parseSucceeded = true
-	var lines *TList[string] = TextFiles_splitLines(fileContents)
+	var lines *JTList[string] = TextFiles_splitLines(fileContents)
 	var lineIndex int32 = 0
 	var line Optional[string] = Optional_empty[string]()
 	this.lineNum = 0
 	var inMultilineComment bool = false
 	var inJsDocComment bool = false
 	for {
-		if (lineIndex == lines.size()) {
+		if lineIndex == lines.size() {
 			break
 		}
 		line = Optional_ofNullable[string](lines.get(lineIndex))
@@ -72,7 +72,7 @@ func (this *JsFileLineParser) doParse(filePath string, fileContents string) {
 		var revisedJsDocCommentLine Optional[string] = Optional_of[string]("")
 		if inMultilineComment {
 			var endOfComment int32 = String_indexOf_String(revisedLine.get(), "*/")
-			if (endOfComment != -1) {
+			if endOfComment != -1 {
 				if inJsDocComment {
 					revisedJsDocCommentLine = Optional_of[string](String_substring(revisedLine.get(), 0, (endOfComment + 2)))
 					inJsDocComment = false
@@ -90,21 +90,21 @@ func (this *JsFileLineParser) doParse(filePath string, fileContents string) {
 			for {
 				var startOfLineComment int32 = String_indexOf_String(revisedLine.get(), "//")
 				var startOfMultilineComment int32 = String_indexOf_String(revisedLine.get(), "/*")
-				if ((startOfLineComment != -1) && ((startOfMultilineComment == -1) || (startOfLineComment < startOfMultilineComment))) {
+				if (startOfLineComment != -1) && ((startOfMultilineComment == -1) || (startOfLineComment < startOfMultilineComment)) {
 					revisedLine = Optional_of[string](String_substring(revisedLine.get(), 0, startOfLineComment))
 					break
-				} else if (startOfMultilineComment != -1) {
+				} else if startOfMultilineComment != -1 {
 					if this.isCommentQuoted(revisedLine.get(), startOfMultilineComment, '\'') {
 						break
 					}
 					if this.isCommentQuoted(revisedLine.get(), startOfMultilineComment, '"') {
 						break
 					}
-					if (startOfMultilineComment == String_indexOf_String(revisedLine.get(), "/**")) {
+					if startOfMultilineComment == String_indexOf_String(revisedLine.get(), "/**") {
 						inJsDocComment = true
 					}
 					var endOfMultilineComment int32 = String_indexOf_String_int(revisedLine.get(), "*/", (startOfMultilineComment + 2))
-					if (endOfMultilineComment == -1) {
+					if endOfMultilineComment == -1 {
 						if inJsDocComment {
 							revisedJsDocCommentLine = Optional_of[string](String_substring_int(revisedLine.get(), startOfMultilineComment))
 						}
@@ -114,12 +114,12 @@ func (this *JsFileLineParser) doParse(filePath string, fileContents string) {
 					} else {
 						if inJsDocComment {
 							var jsDocComment string = String_substring(revisedLine.get(), startOfMultilineComment, (endOfMultilineComment + 2))
-							if (!this.parseJsDocCommentLine(jsDocComment) && this.shortcutMode) {
+							if !this.parseJsDocCommentLine(jsDocComment) && this.shortcutMode {
 								break
 							}
 							inJsDocComment = false
 						}
-						revisedLine = Optional_of[string]((sstr_(String_substring(revisedLine.get(), 0, startOfMultilineComment)) + sstr_(String_substring_int(revisedLine.get(), (endOfMultilineComment + 2)))))
+						revisedLine = Optional_of[string]((sstr_(String_substring(revisedLine.get(), 0, startOfMultilineComment)) + sstr_(String_substring_int(revisedLine.get(), (endOfMultilineComment+2)))))
 					}
 				} else {
 					break
@@ -127,7 +127,7 @@ func (this *JsFileLineParser) doParse(filePath string, fileContents string) {
 			}
 		}
 		if !String_isEmpty(revisedJsDocCommentLine.get()) {
-			if (!this.parseJsDocCommentLine(revisedJsDocCommentLine.get()) && this.shortcutMode) {
+			if !this.parseJsDocCommentLine(revisedJsDocCommentLine.get()) && this.shortcutMode {
 				break
 			}
 		}
@@ -135,9 +135,19 @@ func (this *JsFileLineParser) doParse(filePath string, fileContents string) {
 			var keepGoing *Outcome_base[any] = this.parseLine(revisedLine.get())
 			if keepGoing.isErr() {
 				var e *JsFileLineParser_ParseException = cast_[*JsFileLineParser_ParseException](keepGoing.error().self())
-				this.errorManager.report_2(func() *CheckLevel { if e.isFatal() { return CheckLevel_ERROR }; return CheckLevel_WARNING }(), JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_of[string](filePath), this.lineNum, 0, func() *DiagnosticType { if e.isFatal() { return JsFileLineParser_PARSE_ERROR }; return JsFileLineParser_PARSE_WARNING }(), []string{e.getMessage(), line.orElse("null")}))
+				this.errorManager.report_2(func() *CheckLevel {
+					if e.isFatal() {
+						return CheckLevel_ERROR
+					}
+					return CheckLevel_WARNING
+				}(), JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_of[string](filePath), this.lineNum, 0, func() *DiagnosticType {
+					if e.isFatal() {
+						return JsFileLineParser_PARSE_ERROR
+					}
+					return JsFileLineParser_PARSE_WARNING
+				}(), []string{e.getMessage(), line.orElse("null")}))
 				this.parseSucceeded = (this.parseSucceeded && !e.isFatal())
-			} else if (!unbox_[bool](keepGoing.get()) && this.shortcutMode) {
+			} else if !unbox_[bool](keepGoing.get()) && this.shortcutMode {
 				break
 			}
 		}
@@ -151,18 +161,18 @@ func (this *JsFileLineParser) reportReadError(filePath string) {
 
 func (this *JsFileLineParser) isCommentQuoted(line string, startOfMultilineComment int32, quoteChar uint16) bool {
 	var startQuoteIndex int32 = String_indexOf(line, int32(quoteChar))
-	for ((startQuoteIndex != -1) && (startQuoteIndex < startOfMultilineComment)) {
+	for (startQuoteIndex != -1) && (startQuoteIndex < startOfMultilineComment) {
 		var closingQuoteIndex int32 = String_indexOf_int_int(line, int32(quoteChar), (startQuoteIndex + 1))
-		if (closingQuoteIndex == -1) {
+		if closingQuoteIndex == -1 {
 			return false
 		}
 		for this.isEscaped(line, closingQuoteIndex) {
 			closingQuoteIndex = String_indexOf_int_int(line, int32(quoteChar), (closingQuoteIndex + 1))
-			if (closingQuoteIndex == -1) {
+			if closingQuoteIndex == -1 {
 				return false
 			}
 		}
-		if (closingQuoteIndex > startOfMultilineComment) {
+		if closingQuoteIndex > startOfMultilineComment {
 			return true
 		}
 		startQuoteIndex = String_indexOf_int_int(line, int32(quoteChar), (closingQuoteIndex + 1))
@@ -173,7 +183,7 @@ func (this *JsFileLineParser) isCommentQuoted(line string, startOfMultilineComme
 func (this *JsFileLineParser) isEscaped(line string, closingQuoteIndex int32) bool {
 	var escapeCharCount int32 = 0
 	var index int32 = (closingQuoteIndex - 1)
-	for (String_charAt(line, index) == '\\') {
+	for String_charAt(line, index) == '\\' {
 		index--
 		escapeCharCount++
 	}
@@ -189,14 +199,19 @@ func (this *JsFileLineParser) parseJsString(jsStringLiteral string) *Outcome_bas
 	if !this.valueMatcher.matches() {
 		return Outcome_base_err[string](new_JsFileLineParser_ParseException("Syntax error in JS String literal", true).up_Throwable())
 	}
-	return Outcome_base_ok_Object[string](func() string { if Optional_ofNullable[string](this.valueMatcher.group(1)).isPresent() { return this.valueMatcher.group(1) }; return this.valueMatcher.group(2) }())
+	return Outcome_base_ok_Object[string](func() string {
+		if Optional_ofNullable[string](this.valueMatcher.group(1)).isPresent() {
+			return this.valueMatcher.group(1)
+		}
+		return this.valueMatcher.group(2)
+	}())
 }
 
 func (this *JsFileLineParser) parseJsStringArray(input string) *Outcome_base[ListT[string]] {
-	var results *TList[string] = newTList_(tc_string)
+	var results *JTList[string] = jnewTList_(jtc_string)
 	var indexStart int32 = String_indexOf(input, 91)
 	var indexEnd int32 = String_lastIndexOf(input, 93)
-	if ((indexStart == -1) || (indexEnd == -1)) {
+	if (indexStart == -1) || (indexEnd == -1) {
 		return Outcome_base_err[ListT[string]](new_JsFileLineParser_ParseException("Syntax error when parsing JS array", true).up_Throwable())
 	}
 	var innerValues string = String_substring(input, (indexStart + 1), indexEnd)
@@ -206,11 +221,16 @@ func (this *JsFileLineParser) parseJsStringArray(input string) *Outcome_base[Lis
 			if !this.valueMatcher.lookingAt() {
 				return Outcome_base_err[ListT[string]](new_JsFileLineParser_ParseException("Syntax error in JS String literal", true).up_Throwable())
 			}
-			results.add(func() string { if Optional_ofNullable[string](this.valueMatcher.group(1)).isPresent() { return this.valueMatcher.group(1) }; return this.valueMatcher.group(2) }())
-			if (this.valueMatcher.end() == String_length(innerValues)) {
+			results.add(func() string {
+				if Optional_ofNullable[string](this.valueMatcher.group(1)).isPresent() {
+					return this.valueMatcher.group(1)
+				}
+				return this.valueMatcher.group(2)
+			}())
+			if this.valueMatcher.end() == String_length(innerValues) {
 				break
 			}
-			if (String_charAt(innerValues, this.valueMatcher.end()) != ',') {
+			if String_charAt(innerValues, this.valueMatcher.end()) != ',' {
 				return Outcome_base_err[ListT[string]](new_JsFileLineParser_ParseException("Missing comma in string array", true).up_Throwable())
 			}
 			innerValues = String_substring_int(innerValues, (this.valueMatcher.end() + 1))
@@ -223,12 +243,12 @@ func (this *JsFileLineParser) parseJsStringArray(input string) *Outcome_base[Lis
 func (this *JsFileLineParser) parseJsStringMap(input string) *Outcome_base[MapT[string, string]] {
 	input = CharMatcher_whitespace().trimFrom(strobj_(input))
 	var checked *Outcome_base[any]
-	checked = JsFileLineParser_check(((!String_isEmpty(input) && (String_charAt(input, 0) == '{')) && (String_charAt(input, (String_length(input) - 1)) == '}')), "Syntax error when parsing JS object")
+	checked = JsFileLineParser_check(((!String_isEmpty(input) && (String_charAt(input, 0) == '{')) && (String_charAt(input, (String_length(input)-1)) == '}')), "Syntax error when parsing JS object")
 	if checked.isErr() {
 		return Outcome_base_err[MapT[string, string]](checked.error())
 	}
 	input = String_trim(String_substring(input, 1, (String_length(input) - 1)))
-	var results *TMap[string, string] = newTMap_(tc_string, tc_string)
+	var results *JTMap[string, string] = jnewTMap_(jtc_string, jtc_string)
 	var done bool = String_isEmpty(input)
 	this.valueMatcher.reset_s(input)
 	for !done {
@@ -236,7 +256,12 @@ func (this *JsFileLineParser) parseJsStringMap(input string) *Outcome_base[MapT[
 		if checked.isErr() {
 			return Outcome_base_err[MapT[string, string]](checked.error())
 		}
-		var key string = func() string { if Optional_ofNullable[string](this.valueMatcher.group(1)).isPresent() { return this.valueMatcher.group(1) }; return this.valueMatcher.group(2) }()
+		var key string = func() string {
+			if Optional_ofNullable[string](this.valueMatcher.group(1)).isPresent() {
+				return this.valueMatcher.group(1)
+			}
+			return this.valueMatcher.group(2)
+		}()
 		checked = JsFileLineParser_check((this.valueMatcher.end() != String_length(input)), "Missing value in JS object literal")
 		if checked.isErr() {
 			return Outcome_base_err[MapT[string, string]](checked.error())
@@ -251,9 +276,14 @@ func (this *JsFileLineParser) parseJsStringMap(input string) *Outcome_base[MapT[
 		if checked.isErr() {
 			return Outcome_base_err[MapT[string, string]](checked.error())
 		}
-		var val string = func() string { if Optional_ofNullable[string](this.valueMatcher.group(1)).isPresent() { return this.valueMatcher.group(1) }; return this.valueMatcher.group(2) }()
+		var val string = func() string {
+			if Optional_ofNullable[string](this.valueMatcher.group(1)).isPresent() {
+				return this.valueMatcher.group(1)
+			}
+			return this.valueMatcher.group(2)
+		}()
 		results.put(key, val)
-		if (this.valueMatcher.end() != String_length(input)) {
+		if this.valueMatcher.end() != String_length(input) {
 			checked = JsFileLineParser_check((String_charAt(input, this.valueMatcher.end()) == ','), "Missing comma in JS object literal")
 			if checked.isErr() {
 				return Outcome_base_err[MapT[string, string]](checked.error())
@@ -275,7 +305,9 @@ func JsFileLineParser_check(condition bool, message string) *Outcome_base[any] {
 }
 
 func (this *JsFileLineParser) parseLine(p0 string) *Outcome_base[any] {
-	return this.self_.(interface{ parseLine_impl(string) *Outcome_base[any] }).parseLine_impl(p0)
+	return this.self_.(interface {
+		parseLine_impl(string) *Outcome_base[any]
+	}).parseLine_impl(p0)
 }
 
 func (this *JsFileLineParser) parseJsDocCommentLine(p0 string) bool {
@@ -328,4 +360,3 @@ func (this *JsFileLineParser_ParseException) isFatal() bool {
 }
 
 const JsFileLineParser_ParseException_serialVersionUID int64 = 1
-

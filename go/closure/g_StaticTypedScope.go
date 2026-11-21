@@ -13,14 +13,13 @@ type StaticTypedScope interface {
 
 func StaticTypedScope_lookupQualifiedName_default(this StaticTypedScope, qname *QualifiedName) *JSType {
 	var slot StaticTypedSlot = this.getSlot_String_rStaticTypedSlot(qname.join().get())
-	if ((slot != nil) && !slot.isTypeInferred()) {
+	if (slot != nil) && !slot.isTypeInferred() {
 		return slot.getType()
 	} else if !qname.isSimple() {
 		var type_ *JSType = this.lookupQualifiedName(qname.getOwner())
-		if ((type_ != nil) && !type_.isUnknownType()) {
+		if (type_ != nil) && !type_.isUnknownType() {
 			return type_.findPropertyType(qname.getComponent())
 		}
 	}
 	return nil
 }
-

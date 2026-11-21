@@ -5,12 +5,12 @@ package closure
 type RewriteGlobalDeclarationsForTryCatchWrapping struct {
 	compiler_ *AbstractCompiler
 	functions *SimpleListMultimap[*JSChunk, Node]
-	classes *TList[Node]
+	classes   *JTList[Node]
 }
 
 func (this *RewriteGlobalDeclarationsForTryCatchWrapping) finit_RewriteGlobalDeclarationsForTryCatchWrapping() {
 	this.functions = SimpleListMultimap_create[*JSChunk, Node]()
-	this.classes = newTList_(tc_Node)
+	this.classes = jnewTList_(jtc_Node)
 }
 
 func (this *RewriteGlobalDeclarationsForTryCatchWrapping) init_RewriteGlobalDeclarationsForTryCatchWrapping(compiler *AbstractCompiler) {
@@ -26,13 +26,13 @@ func new_RewriteGlobalDeclarationsForTryCatchWrapping(compiler *AbstractCompiler
 
 func (this *RewriteGlobalDeclarationsForTryCatchWrapping) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(this))
-	it_1 := eachOf_(this.functions.asMap().entrySet_t())
+	it_1 := jeachOf_(this.functions.asMap().entrySet_t())
 	for it_1.next() {
 		var entry Map_EntryT[*JSChunk, ListT[Node]] = it_1.v
 		var addingRoot Node = this.compiler_.getNodeForCodeInsertion(entry.getKey_t())
-		var fnNodes ListT[Node] = listAs_(tc_Node, Lists_reverse(List_un_(entry.getValue_t())))
+		var fnNodes ListT[Node] = listAs_(jtc_Node, Lists_reverse(List_un_(entry.getValue_t())))
 		if !fnNodes.isEmpty() {
-			it_3 := eachOf_(fnNodes)
+			it_3 := jeachOf_(fnNodes)
 			for it_3.next() {
 				var n Node = it_3.v
 				var parent Node = n.getParent()
@@ -65,7 +65,7 @@ func (this *RewriteGlobalDeclarationsForTryCatchWrapping) shouldTraverse(t *Node
 }
 
 func (this *RewriteGlobalDeclarationsForTryCatchWrapping) visit(t *NodeTraversal, n Node, parent Node) {
-	if ((parent == 0) || !parent.isScript()) {
+	if (parent == 0) || !parent.isScript() {
 		return
 	}
 	if NodeUtil_isFunctionDeclaration(n) {
@@ -74,9 +74,8 @@ func (this *RewriteGlobalDeclarationsForTryCatchWrapping) visit(t *NodeTraversal
 	if NodeUtil_isClassDeclaration(n) {
 		this.classes.add(n)
 	}
-	if (n.isConst() || n.isLet()) {
+	if n.isConst() || n.isLet() {
 		n.setToken(Token_rhino_VAR)
 		this.compiler_.reportChangeToEnclosingScope(n)
 	}
 }
-

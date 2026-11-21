@@ -3,24 +3,24 @@
 package closure
 
 type ControlFlowAnalysis struct {
-	compiler_ *AbstractCompiler
-	cfg *ControlFlowGraph[Node]
-	astPosition *LinkedIdentityHashMap[Node, any]
-	priorityComparator Comparator[DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch]]
-	exceptionHandler *TDeque[Node]
-	finallyMap *SimpleSetMultimap[Node, Node]
-	astPositionCounter int32
-	priorityCounter int32
-	root Node
+	compiler_               *AbstractCompiler
+	cfg                     *ControlFlowGraph[Node]
+	astPosition             *LinkedIdentityHashMap[Node, any]
+	priorityComparator      Comparator[DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch]]
+	exceptionHandler        *TDeque[Node]
+	finallyMap              *SimpleSetMultimap[Node, Node]
+	astPositionCounter      int32
+	priorityCounter         int32
+	root                    Node
 	shouldTraverseFunctions bool
-	edgeAnnotations bool
+	edgeAnnotations         bool
 }
 
 func (this *ControlFlowAnalysis) finit_ControlFlowAnalysis() {
 	this.priorityComparator = Comparator_comparingInt[DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch]](ToIntFunction[DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch]](func(digraphNode DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch]) int32 {
 		return unbox_[int32](Preconditions_checkNotNull_Object_Object(this.astPosition.get(digraphNode.getValue()), digraphNode.getValue().box_()))
 	}))
-	this.exceptionHandler = newTDeque_(tc_Node)
+	this.exceptionHandler = newTDeque_(jtc_Node)
 	this.finallyMap = SimpleSetMultimap_createInsertionOrdered[Node, Node]()
 }
 
@@ -58,17 +58,17 @@ func (this *ControlFlowAnalysis) computeCfg(root Node) {
 	var entry DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch] = this.cfg.getEntry()
 	this.prioritizeFromEntryNode(entry)
 	if this.shouldTraverseFunctions {
-		it_1 := eachOf_(this.cfg.getNodes_rCollectionOf_DiGraphNode_rCollectionOf_LinkedDiGraphNode())
+		it_1 := jeachOf_(this.cfg.getNodes_rCollectionOf_DiGraphNode_rCollectionOf_LinkedDiGraphNode())
 		for it_1.next() {
 			var candidate DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch]](it_1.v.self())
 			var value Node = candidate.getValue()
-			if ((value != 0) && value.isFunction()) {
+			if (value != 0) && value.isFunction() {
 				this.prioritizeFromEntryNode(candidate)
 			}
 		}
 	}
 	this.astPosition = nil
-	it_3 := eachOf_(this.cfg.getNodes_rCollectionOf_DiGraphNode_rCollectionOf_LinkedDiGraphNode())
+	it_3 := jeachOf_(this.cfg.getNodes_rCollectionOf_DiGraphNode_rCollectionOf_LinkedDiGraphNode())
 	for it_3.next() {
 		var candidate DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch]](it_3.v.self())
 		if !candidate.hasPriority() {
@@ -81,7 +81,15 @@ func (this *ControlFlowAnalysis) computeCfg(root Node) {
 }
 
 func (this *ControlFlowAnalysis) prioritizeFromEntryNode(entry DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch]) {
-	var worklist PriorityQueueOf[DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch]] = new_PriorityQueue_int_Comparator(10, func() Comparator[any] { f_ := this.priorityComparator; if f_ == nil { return nil }; return func(p0 any, p1 any) int32 { return f_(cast_[DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch]](p0), cast_[DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch]](p1)) } }())
+	var worklist PriorityQueueOf[DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch]] = new_PriorityQueue_int_Comparator(10, func() Comparator[any] {
+		f_ := this.priorityComparator
+		if f_ == nil {
+			return nil
+		}
+		return func(p0 any, p1 any) int32 {
+			return f_(cast_[DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch]](p0), cast_[DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch]](p1))
+		}
+	}())
 	worklist.add(entry)
 	for !worklist.isEmpty() {
 		var current DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch]](worklist.remove_0())
@@ -107,7 +115,7 @@ func (this *ControlFlowAnalysis) shouldTraverse(nodeTraversal *NodeTraversal, n 
 func (this *ControlFlowAnalysis) shouldTraverseIntoChildren(n Node, parent Node) bool {
 	switch n.getToken() {
 	case Token_rhino_FUNCTION:
-		if (this.shouldTraverseFunctions || (n == this.cfg.getEntry().getValue())) {
+		if this.shouldTraverseFunctions || (n == this.cfg.getEntry().getValue()) {
 			this.exceptionHandler.push(n)
 			return true
 		}
@@ -117,7 +125,7 @@ func (this *ControlFlowAnalysis) shouldTraverseIntoChildren(n Node, parent Node)
 		return true
 	default:
 	}
-	if (parent != 0) {
+	if parent != 0 {
 		switch parent.getToken() {
 		case Token_rhino_FOR, Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF:
 			var shouldTraverseForChild bool = (n == parent.getLastChild())
@@ -137,13 +145,13 @@ func (this *ControlFlowAnalysis) shouldTraverseIntoChildren(n Node, parent Node)
 		case Token_rhino_COMPUTED_PROP, Token_rhino_CONTINUE, Token_rhino_BREAK, Token_rhino_EXPR_RESULT, Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST, Token_rhino_EXPORT, Token_rhino_IMPORT, Token_rhino_RETURN, Token_rhino_THROW, Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_MEMBER_FIELD_DEF, Token_rhino_COMPUTED_FIELD_DEF:
 			return false
 		case Token_rhino_TRY:
-			if ((!NodeUtil_hasFinally(parent) && (n == NodeUtil_getCatchBlock(parent))) || NodeUtil_isTryFinallyNode(parent, n)) {
+			if (!NodeUtil_hasFinally(parent) && (n == NodeUtil_getCatchBlock(parent))) || NodeUtil_isTryFinallyNode(parent, n) {
 				Preconditions_checkState((this.exceptionHandler.peek() == parent))
 				this.exceptionHandler.pop()
 			}
 		default:
 		}
-		if ((parent.hasParent() && parent.getParent().isArrowFunction()) && !parent.isBlock()) {
+		if (parent.hasParent() && parent.getParent().isArrowFunction()) && !parent.isBlock() {
 			return false
 		}
 	}
@@ -198,7 +206,7 @@ func (this *ControlFlowAnalysis) handleIf(node Node) {
 	var thenBlock Node = node.getSecondChild()
 	var elseBlock Node = thenBlock.getNext()
 	this.createEdge(node, ControlFlowGraph_Branch_ON_TRUE, ControlFlowAnalysis_computeFallThrough(thenBlock))
-	if (elseBlock == 0) {
+	if elseBlock == 0 {
 		this.createEdge(node, ControlFlowGraph_Branch_ON_FALSE, ControlFlowAnalysis_computeFollowNode_Node_ControlFlowAnalysis(node, this))
 	} else {
 		this.createEdge(node, ControlFlowGraph_Branch_ON_FALSE, ControlFlowAnalysis_computeFallThrough(elseBlock))
@@ -232,7 +240,7 @@ func (this *ControlFlowAnalysis) handleEnhancedFor(forNode Node) {
 	this.createEdge(collection, ControlFlowGraph_Branch_UNCOND, forNode)
 	this.createEdge(forNode, ControlFlowGraph_Branch_ON_TRUE, ControlFlowAnalysis_computeFallThrough(body))
 	this.createEdge(forNode, ControlFlowGraph_Branch_ON_FALSE, ControlFlowAnalysis_computeFollowNode_Node_ControlFlowAnalysis(forNode, this))
-	if (forNode.isForOf() || forNode.isForAwaitOf()) {
+	if forNode.isForOf() || forNode.isForAwaitOf() {
 		this.connectToPossibleExceptionHandlerUnconditionally(forNode)
 	} else {
 		this.connectToPossibleExceptionHandler(forNode, collection)
@@ -246,7 +254,7 @@ func (this *ControlFlowAnalysis) handleFor(forNode Node) {
 	var body Node = iter.getNext()
 	this.createEdge(init_, ControlFlowGraph_Branch_UNCOND, forNode)
 	this.createEdge(forNode, ControlFlowGraph_Branch_ON_TRUE, ControlFlowAnalysis_computeFallThrough(body))
-	if (!cond.isEmpty() && !cond.isTrue()) {
+	if !cond.isEmpty() && !cond.isTrue() {
 		this.createEdge(forNode, ControlFlowGraph_Branch_ON_FALSE, ControlFlowAnalysis_computeFollowNode_Node_ControlFlowAnalysis(forNode, this))
 	}
 	this.createEdge(iter, ControlFlowGraph_Branch_UNCOND, forNode)
@@ -259,7 +267,7 @@ func (this *ControlFlowAnalysis) handleSwitch(node Node) {
 	var switchBody Node = node.getLastChild()
 	this.createEdge(node, ControlFlowGraph_Branch_UNCOND, switchBody)
 	var next Node = ControlFlowAnalysis_getNextSiblingOfType(switchBody.getFirstChild(), []*Token_rhino{Token_rhino_CASE, Token_rhino_EMPTY})
-	if (next != 0) {
+	if next != 0 {
 		this.createEdge(switchBody, ControlFlowGraph_Branch_UNCOND, next)
 	} else {
 		if switchBody.hasChildren() {
@@ -274,13 +282,13 @@ func (this *ControlFlowAnalysis) handleSwitch(node Node) {
 func (this *ControlFlowAnalysis) handleCase(caseNode Node) {
 	this.createEdge(caseNode, ControlFlowGraph_Branch_ON_TRUE, caseNode.getSecondChild())
 	var next Node = ControlFlowAnalysis_getNextSiblingOfType(caseNode.getNext(), []*Token_rhino{Token_rhino_CASE})
-	if (next != 0) {
+	if next != 0 {
 		Preconditions_checkState(next.isCase())
 		this.createEdge(caseNode, ControlFlowGraph_Branch_ON_FALSE, next)
 	} else {
 		var switchBody Node = caseNode.getParent()
 		var deflt Node = ControlFlowAnalysis_getNextSiblingOfType(switchBody.getFirstChild(), []*Token_rhino{Token_rhino_DEFAULT_CASE})
-		if (deflt != 0) {
+		if deflt != 0 {
 			this.createEdge(caseNode, ControlFlowGraph_Branch_ON_FALSE, deflt)
 		} else {
 			this.createEdge(caseNode, ControlFlowGraph_Branch_ON_FALSE, ControlFlowAnalysis_computeFollowNode_Node_ControlFlowAnalysis(caseNode, this))
@@ -300,27 +308,27 @@ func (this *ControlFlowAnalysis) handleWith(node Node) {
 
 func (this *ControlFlowAnalysis) handleStmtList(node Node) {
 	var parent Node = node.getParent()
-	if (((node.isBlock() && parent.isTry()) && (NodeUtil_getCatchBlock(parent) == node)) && !NodeUtil_hasCatchHandler(node)) {
+	if ((node.isBlock() && parent.isTry()) && (NodeUtil_getCatchBlock(parent) == node)) && !NodeUtil_hasCatchHandler(node) {
 		return
 	}
 	var child Node = node.getFirstChild()
-	for ((child != 0) && child.isFunction()) {
+	for (child != 0) && child.isFunction() {
 		child = child.getNext()
 	}
-	if (child != 0) {
+	if child != 0 {
 		this.createEdge(node, ControlFlowGraph_Branch_UNCOND, ControlFlowAnalysis_computeFallThrough(child))
 	} else {
 		this.createEdge(node, ControlFlowGraph_Branch_UNCOND, ControlFlowAnalysis_computeFollowNode_Node_ControlFlowAnalysis(node, this))
 	}
-	if (parent != 0) {
+	if parent != 0 {
 		switch parent.getToken() {
 		case Token_rhino_DEFAULT_CASE, Token_rhino_CASE, Token_rhino_TRY:
 		case Token_rhino_ROOT:
-			if (node.isRoot() && (node.getNext() != 0)) {
+			if node.isRoot() && (node.getNext() != 0) {
 				this.createEdge(node, ControlFlowGraph_Branch_UNCOND, node.getNext())
 			}
 		default:
-			if (node.isBlock() && node.isSyntheticBlock()) {
+			if node.isBlock() && node.isSyntheticBlock() {
 				this.createEdge(node, ControlFlowGraph_Branch_SYN_BLOCK, ControlFlowAnalysis_computeFollowNode_Node_ControlFlowAnalysis(node, this))
 			}
 		}
@@ -373,15 +381,15 @@ func (this *ControlFlowAnalysis) handleBreak(node Node) {
 			if !(!ControlFlowAnalysis_isBreakTarget(cur, label)) {
 				break
 			}
-			if ((cur.isTry() && NodeUtil_hasFinally(cur)) && (cur.getLastChild() != previous)) {
-				if (lastJump == node) {
+			if (cur.isTry() && NodeUtil_hasFinally(cur)) && (cur.getLastChild() != previous) {
+				if lastJump == node {
 					this.createEdge(lastJump, ControlFlowGraph_Branch_UNCOND, ControlFlowAnalysis_computeFallThrough(cur.getLastChild()))
 				} else {
 					this.finallyMap.put(lastJump, ControlFlowAnalysis_computeFallThrough(cur.getLastChild()))
 				}
 				lastJump = cur
 			}
-			if (parent == 0) {
+			if parent == 0 {
 				if this.compiler_.getOptions().canContinueAfterErrors() {
 					return
 				} else {
@@ -391,7 +399,7 @@ func (this *ControlFlowAnalysis) handleBreak(node Node) {
 			previous = cur
 		}
 	}
-	if (lastJump == node) {
+	if lastJump == node {
 		this.createEdge(lastJump, ControlFlowGraph_Branch_UNCOND, ControlFlowAnalysis_computeFollowNode_Node_ControlFlowAnalysis(cur, this))
 	} else {
 		this.finallyMap.put(lastJump, ControlFlowAnalysis_computeFollowNode_Node_ControlFlowAnalysis(cur, this))
@@ -410,8 +418,8 @@ func (this *ControlFlowAnalysis) handleContinue(node Node) {
 		cur = node
 		lastJump = node
 		for ; !ControlFlowAnalysis_isContinueTarget(cur, label); cur = cur.getParent() {
-			if ((cur.isTry() && NodeUtil_hasFinally(cur)) && (cur.getLastChild() != previous)) {
-				if (lastJump == node) {
+			if (cur.isTry() && NodeUtil_hasFinally(cur)) && (cur.getLastChild() != previous) {
+				if lastJump == node {
 					this.createEdge(lastJump, ControlFlowGraph_Branch_UNCOND, cur.getLastChild())
 				} else {
 					this.finallyMap.put(lastJump, ControlFlowAnalysis_computeFallThrough(cur.getLastChild()))
@@ -426,7 +434,7 @@ func (this *ControlFlowAnalysis) handleContinue(node Node) {
 	if cur.isVanillaFor() {
 		iter = cur.getChildAtIndex(2)
 	}
-	if (lastJump == node) {
+	if lastJump == node {
 		this.createEdge(node, ControlFlowGraph_Branch_UNCOND, iter)
 	} else {
 		this.finallyMap.put(lastJump, iter)
@@ -442,7 +450,7 @@ func (this *ControlFlowAnalysis) handleReturn(node Node) {
 			break
 		}
 		if NodeUtil_hasFinally(curHandler) {
-			if (lastJump == 0) {
+			if lastJump == 0 {
 				this.createEdge(node, ControlFlowGraph_Branch_UNCOND, curHandler.getLastChild())
 			} else {
 				this.finallyMap.put(lastJump, ControlFlowAnalysis_computeFallThrough(curHandler.getLastChild()))
@@ -453,7 +461,7 @@ func (this *ControlFlowAnalysis) handleReturn(node Node) {
 	if node.hasChildren() {
 		this.connectToPossibleExceptionHandler(node, node.getFirstChild())
 	}
-	if (lastJump == 0) {
+	if lastJump == 0 {
 		this.createEdge(node, ControlFlowGraph_Branch_UNCOND, 0)
 	} else {
 		this.finallyMap.put(lastJump, 0)
@@ -475,14 +483,14 @@ func ControlFlowAnalysis_computeFollowNode_Node(node Node) Node {
 
 func ControlFlowAnalysis_computeFollowNode_Node_Node_ControlFlowAnalysis(fromNode Node, node Node, cfa *ControlFlowAnalysis) Node {
 	var parent Node = node.getParent()
-	if (((parent == 0) || parent.isFunction()) || ((cfa != nil) && (node == cfa.root))) {
+	if ((parent == 0) || parent.isFunction()) || ((cfa != nil) && (node == cfa.root)) {
 		return 0
 	}
 	switch parent.getToken() {
 	case Token_rhino_IF:
 		return ControlFlowAnalysis_computeFollowNode_Node_Node_ControlFlowAnalysis(fromNode, parent, cfa)
 	case Token_rhino_CASE, Token_rhino_DEFAULT_CASE:
-		if (parent.getNext() != 0) {
+		if parent.getNext() != 0 {
 			if parent.getNext().isCase() {
 				return parent.getNext().getSecondChild()
 			} else if parent.getNext().isDefaultCase() {
@@ -498,21 +506,21 @@ func ControlFlowAnalysis_computeFollowNode_Node_Node_ControlFlowAnalysis(fromNod
 	case Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF, Token_rhino_WHILE, Token_rhino_DO:
 		return parent
 	case Token_rhino_TRY:
-		if (parent.getFirstChild() == node) {
+		if parent.getFirstChild() == node {
 			if NodeUtil_hasFinally(parent) {
 				return ControlFlowAnalysis_computeFallThrough(parent.getLastChild())
 			} else {
 				return ControlFlowAnalysis_computeFollowNode_Node_Node_ControlFlowAnalysis(fromNode, parent, cfa)
 			}
-		} else if (NodeUtil_getCatchBlock(parent) == node) {
+		} else if NodeUtil_getCatchBlock(parent) == node {
 			if NodeUtil_hasFinally(parent) {
 				return ControlFlowAnalysis_computeFallThrough(node.getNext())
 			} else {
 				return ControlFlowAnalysis_computeFollowNode_Node_Node_ControlFlowAnalysis(fromNode, parent, cfa)
 			}
-		} else if (parent.getLastChild() == node) {
-			if (cfa != nil) {
-				it_2 := eachOf_(cfa.finallyMap.get(parent))
+		} else if parent.getLastChild() == node {
+			if cfa != nil {
+				it_2 := jeachOf_(cfa.finallyMap.get(parent))
 				for it_2.next() {
 					var finallyNode Node = it_2.v
 					cfa.createEdge(fromNode, ControlFlowGraph_Branch_ON_EX, finallyNode)
@@ -524,10 +532,10 @@ func ControlFlowAnalysis_computeFollowNode_Node_Node_ControlFlowAnalysis(fromNod
 	default:
 	}
 	var nextSibling Node = node.getNext()
-	for ((nextSibling != 0) && nextSibling.isFunction()) {
+	for (nextSibling != 0) && nextSibling.isFunction() {
 		nextSibling = nextSibling.getNext()
 	}
-	if (nextSibling != 0) {
+	if nextSibling != 0 {
 		return ControlFlowAnalysis_computeFallThrough(nextSibling)
 	} else {
 		return ControlFlowAnalysis_computeFollowNode_Node_Node_ControlFlowAnalysis(fromNode, parent, cfa)
@@ -580,21 +588,21 @@ func (this *ControlFlowAnalysis) connectToPossibleExceptionHandlerUnconditionall
 		it_3 := foreach_(obj_(lastJump.getAncestors()))
 		for it_3.next() {
 			var ancestor Node = Node_of_(it_3.v)
-			if (ancestor == handler) {
+			if ancestor == handler {
 				break
-			} else if (ancestor == catchBlock) {
+			} else if ancestor == catchBlock {
 				lastJumpInCatchBlock = true
 				break
 			}
 		}
-		if (!NodeUtil_hasCatchHandler(catchBlock) || lastJumpInCatchBlock) {
-			if (lastJump == cfgNode) {
+		if !NodeUtil_hasCatchHandler(catchBlock) || lastJumpInCatchBlock {
+			if lastJump == cfgNode {
 				this.createEdge(cfgNode, ControlFlowGraph_Branch_ON_EX, handler.getLastChild())
 			} else {
 				this.finallyMap.put(lastJump, handler.getLastChild())
 			}
 		} else {
-			if (lastJump == cfgNode) {
+			if lastJump == cfgNode {
 				this.createEdge(cfgNode, ControlFlowGraph_Branch_ON_EX, catchBlock)
 				return
 			} else {
@@ -608,9 +616,9 @@ func (this *ControlFlowAnalysis) connectToPossibleExceptionHandlerUnconditionall
 func ControlFlowAnalysis_getNextSiblingOfType(first Node, types []*Token_rhino) Node {
 	{
 		var c Node = first
-		for ; (c != 0); c = c.getNext() {
+		for ; c != 0; c = c.getNext() {
 			for _, type_ := range types {
-				if (c.getToken() == type_) {
+				if c.getToken() == type_ {
 					return c
 				}
 			}
@@ -632,7 +640,7 @@ func ControlFlowAnalysis_matchLabel(target Node, label Optional[string]) bool {
 		return true
 	}
 	for target.isLabel() {
-		if (target.getFirstChild().getString() == label.get()) {
+		if target.getFirstChild().getString() == label.get() {
 			return true
 		}
 		target = target.getParent()
@@ -650,8 +658,8 @@ func ControlFlowAnalysis_mayThrowException(n Node) bool {
 	}
 	{
 		var c Node = n.getFirstChild()
-		for ; (c != 0); c = c.getNext() {
-			if (!ControlFlowGraph_isEnteringNewCfgNode(c) && ControlFlowAnalysis_mayThrowException(c)) {
+		for ; c != 0; c = c.getNext() {
+			if !ControlFlowGraph_isEnteringNewCfgNode(c) && ControlFlowAnalysis_mayThrowException(c) {
 				return true
 			}
 		}
@@ -676,9 +684,9 @@ func ControlFlowAnalysis_isBreakStructure(n Node, labeled bool) bool {
 func ControlFlowAnalysis_getExceptionHandler(n Node) Node {
 	{
 		var cur Node = n
-		for ; (!cur.isScript() && !cur.isFunction()); cur = cur.getParent() {
+		for ; !cur.isScript() && !cur.isFunction(); cur = cur.getParent() {
 			var catchNode Node = ControlFlowAnalysis_getCatchHandlerForBlock(cur)
-			if (catchNode != 0) {
+			if catchNode != 0 {
 				return catchNode
 			}
 		}
@@ -687,10 +695,10 @@ func ControlFlowAnalysis_getExceptionHandler(n Node) Node {
 }
 
 func ControlFlowAnalysis_getCatchHandlerForBlock(block Node) Node {
-	if ((block.isBlock() && block.getParent().isTry()) && (block.getParent().getFirstChild() == block)) {
+	if (block.isBlock() && block.getParent().isTry()) && (block.getParent().getFirstChild() == block) {
 		{
 			var s Node = block.getNext()
-			for ; (s != 0); s = s.getNext() {
+			for ; s != 0; s = s.getNext() {
 				if NodeUtil_hasCatchHandler(s) {
 					return s.getFirstChild()
 				}
@@ -701,10 +709,10 @@ func ControlFlowAnalysis_getCatchHandlerForBlock(block Node) Node {
 }
 
 type ControlFlowAnalysis_Builder struct {
-	compiler_ *AbstractCompiler
-	cfgRoot Node
+	compiler_               *AbstractCompiler
+	cfgRoot                 Node
 	shouldTraverseFunctions bool
-	edgeAnnotations bool
+	edgeAnnotations         bool
 }
 
 func (this *ControlFlowAnalysis_Builder) finit_ControlFlowAnalysis_Builder() {
@@ -797,6 +805,10 @@ func new_ControlFlowAnalysis_AstControlFlowGraph(entry Node, edgeAnnotations boo
 }
 
 func (this *ControlFlowAnalysis_AstControlFlowGraph) getOptionalNodeComparator_impl(isForward bool) Comparator[DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch]] {
-	return func() Comparator[DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch]] { if isForward { return Comparator_comparingInt[DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch]](ToIntFunction[DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch]](func(p0 DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch]) int32 { return p0.getPriority() })) }; return Comparator_comparingInt[DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch]](ToIntFunction[DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch]](func(p0 DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch]) int32 { return p0.getPriority() })).reversed() }()
+	return func() Comparator[DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch]] {
+		if isForward {
+			return Comparator_comparingInt[DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch]](ToIntFunction[DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch]](func(p0 DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch]) int32 { return p0.getPriority() }))
+		}
+		return Comparator_comparingInt[DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch]](ToIntFunction[DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch]](func(p0 DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch]) int32 { return p0.getPriority() })).reversed()
+	}()
 }
-

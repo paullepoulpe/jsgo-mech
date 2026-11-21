@@ -16,13 +16,13 @@ func new_ApplySuggestedFixes() *ApplySuggestedFixes {
 }
 
 func ApplySuggestedFixes_applySuggestedFixesToFiles(fixes IterableT[*SuggestedFix]) *Outcome_base[any] {
-	var filenames *TSet[string] = newTSet_(tc_string)
-	it_1 := eachOf_(fixes)
+	var filenames *JTSet[string] = jnewTSet_(jtc_string)
+	it_1 := jeachOf_(fixes)
 	for it_1.next() {
 		var fix *SuggestedFix = it_1.v
 		filenames.asSetT().addAll(Collection(Set_un_(fix.getReplacements().keySet())))
 	}
-	var filenameToCodeMap *TMap[string, string] = newTMap_(tc_string, tc_string)
+	var filenameToCodeMap *JTMap[string, string] = jnewTMap_(jtc_string, jtc_string)
 	it_3 := filenames.each()
 	for it_3.next() {
 		var filename string = it_3.v
@@ -32,7 +32,7 @@ func ApplySuggestedFixes_applySuggestedFixesToFiles(fixes IterableT[*SuggestedFi
 		}
 		filenameToCodeMap.put(filename, code.get())
 	}
-	var newCode *TMap[string, string] = ApplySuggestedFixes_applySuggestedFixesToCode(fixes, filenameToCodeMap)
+	var newCode *JTMap[string, string] = ApplySuggestedFixes_applySuggestedFixesToCode(fixes, filenameToCodeMap)
 	it_5 := newCode.eachEntry()
 	for it_5.next() {
 		var entry *TEntry[string, string] = it_5.entry()
@@ -44,50 +44,50 @@ func ApplySuggestedFixes_applySuggestedFixesToFiles(fixes IterableT[*SuggestedFi
 	return Outcome_base_ok_0()
 }
 
-func ApplySuggestedFixes_applyAllSuggestedFixChoicesToCode(fixChoices IterableT[*SuggestedFix], fileNameToCodeMap *TMap[string, string]) *TList[MapT[string, string]] {
+func ApplySuggestedFixes_applyAllSuggestedFixChoicesToCode(fixChoices IterableT[*SuggestedFix], fileNameToCodeMap *JTMap[string, string]) *JTList[MapT[string, string]] {
 	if Iterables_isEmpty(Iterable_un_(fixChoices)) {
-		return immutableListOf_[MapT[string, string]](tc_MapT_string__string_, tmapEmptyImm_(tc_string, tc_string).asMapT())
+		return jimmutableListOf_[MapT[string, string]](tc_MapT_string__string_, jtmapEmptyImm_(jtc_string, jtc_string).asMapT())
 	}
 	var alternativeCount int32 = cast_[*SuggestedFix](Iterables_getFirst(Iterable_un_(fixChoices), nil)).getAlternatives().size()
 	Preconditions_checkArgument_boolean_Object(ApplySuggestedFixes_allHaveAlternativeCount(fixChoices, alternativeCount), "All SuggestedFixAlternatives must offer an equal number of choices for this utility to make sense")
 	var result *TListBuilder[MapT[string, string]] = newTListBuilder_(tc_MapT_string__string_)
-	for i := int32(0); (i < alternativeCount); i++ {
+	for i := int32(0); i < alternativeCount; i++ {
 		result.add(ApplySuggestedFixes_applySuggestedFixChoicesToCode(fixChoices, i, fileNameToCodeMap).asMapT())
 	}
 	return result.build()
 }
 
 func ApplySuggestedFixes_allHaveAlternativeCount(fixChoices IterableT[*SuggestedFix], alternativeCount int32) bool {
-	it_1 := eachOf_(fixChoices)
+	it_1 := jeachOf_(fixChoices)
 	for it_1.next() {
 		var f *SuggestedFix = it_1.v
-		if (f.getAlternatives().size() != alternativeCount) {
+		if f.getAlternatives().size() != alternativeCount {
 			return false
 		}
 	}
 	return true
 }
 
-func ApplySuggestedFixes_applySuggestedFixChoicesToCode(fixChoices IterableT[*SuggestedFix], choiceIndex int32, fileNameToCodeMap *TMap[string, string]) *TMap[string, string] {
-	var chosenFixesBuilder *TListBuilder[*SuggestedFix] = newTListBuilder_(tc_p_SuggestedFix)
-	it_1 := eachOf_(fixChoices)
+func ApplySuggestedFixes_applySuggestedFixChoicesToCode(fixChoices IterableT[*SuggestedFix], choiceIndex int32, fileNameToCodeMap *JTMap[string, string]) *JTMap[string, string] {
+	var chosenFixesBuilder *TListBuilder[*SuggestedFix] = newTListBuilder_(jtc_p_SuggestedFix)
+	it_1 := jeachOf_(fixChoices)
 	for it_1.next() {
 		var choices *SuggestedFix = it_1.v
 		chosenFixesBuilder.add(choices.getAlternatives().get(choiceIndex))
 	}
-	var chosenFixes *TList[*SuggestedFix] = chosenFixesBuilder.build()
+	var chosenFixes *JTList[*SuggestedFix] = chosenFixesBuilder.build()
 	return ApplySuggestedFixes_applySuggestedFixesToCode(chosenFixes.asIterable(), fileNameToCodeMap)
 }
 
-func ApplySuggestedFixes_applySuggestedFixesToCode(fixes IterableT[*SuggestedFix], filenameToCodeMap *TMap[string, string]) *TMap[string, string] {
+func ApplySuggestedFixes_applySuggestedFixesToCode(fixes IterableT[*SuggestedFix], filenameToCodeMap *JTMap[string, string]) *JTMap[string, string] {
 	var map_ *ApplySuggestedFixes_ReplacementMap = new_ApplySuggestedFixes_ReplacementMap()
-	it_1 := eachOf_(fixes)
+	it_1 := jeachOf_(fixes)
 	for it_1.next() {
 		var fix *SuggestedFix = it_1.v
 		map_.putIfNoOverlap(fix)
 	}
-	var newCodeMap *TMapBuilder[string, string] = newTMapBuilder_(tc_string, tc_string)
-	it_3 := eachOf_(map_.entrySet())
+	var newCodeMap *TMapBuilder[string, string] = newTMapBuilder_(jtc_string, jtc_string)
+	it_3 := jeachOf_(map_.entrySet())
 	for it_3.next() {
 		var entry Map_EntryT[string, SetT[*CodeReplacement]] = it_3.v
 		var filename string = entry.getKey_t()
@@ -113,7 +113,7 @@ func ApplySuggestedFixes_applyCodeReplacements(replacements CollectionT[*CodeRep
 		sb.append(replacement.getNewContent())
 		lastIndex = replacement.getEndPosition()
 	}
-	if (lastIndex <= String_length(code)) {
+	if lastIndex <= String_length(code) {
 		Appendable_append_s_int_int(sb, code, lastIndex, String_length(code))
 	}
 	return tostrR_(sb)
@@ -124,7 +124,7 @@ func ApplySuggestedFixes_containsOverlaps(replacements ImmutableSortedSetOf[*Cod
 	it_1 := foreach_(obj_(replacements))
 	for it_1.next() {
 		var replacement *CodeReplacement = cast_[*CodeReplacement](it_1.v)
-		if (replacement.getStartPosition() < start) {
+		if replacement.getStartPosition() < start {
 			return true
 		}
 		start = replacement.getEndPosition()
@@ -170,7 +170,7 @@ func (this *ApplySuggestedFixes_ReplacementMap) putIfNoOverlap(fix *SuggestedFix
 }
 
 func (this *ApplySuggestedFixes_ReplacementMap) canPut(fix *SuggestedFix) bool {
-	it_1 := eachOf_(fix.getReplacements().keySet())
+	it_1 := jeachOf_(fix.getReplacements().keySet())
 	for it_1.next() {
 		var filename string = it_1.v
 		var replacements ImmutableSortedSetOf[*CodeReplacement] = ImmutableSortedSet_naturalOrder().addAll(Iterable(Set_un_(this.map__.get(filename)))).addAll(Iterable(Set_un_(fix.getReplacements().get(filename)))).build()
@@ -184,4 +184,3 @@ func (this *ApplySuggestedFixes_ReplacementMap) canPut(fix *SuggestedFix) bool {
 func (this *ApplySuggestedFixes_ReplacementMap) entrySet() SetT[Map_EntryT[string, SetT[*CodeReplacement]]] {
 	return this.map__.asMap().entrySet_t()
 }
-

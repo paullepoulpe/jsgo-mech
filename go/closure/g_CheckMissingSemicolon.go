@@ -31,13 +31,13 @@ func (this *CheckMissingSemicolon) process_2(externs Node, root Node) {
 }
 
 func (this *CheckMissingSemicolon) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	if ((!n.isScript() && NodeUtil_isStatement(n)) && this.shouldHaveSemicolon(n)) {
+	if (!n.isScript() && NodeUtil_isStatement(n)) && this.shouldHaveSemicolon(n) {
 		this.checkSemicolon(t, n)
 	}
 }
 
 func (this *CheckMissingSemicolon) shouldHaveSemicolon(statement Node) bool {
-	if (((((statement.isFunction() || statement.isClass()) || statement.isBlock()) || statement.isLabelName()) || statement.isModuleBody()) || (NodeUtil_isControlStructure(statement) && !statement.isDo())) {
+	if ((((statement.isFunction() || statement.isClass()) || statement.isBlock()) || statement.isLabelName()) || statement.isModuleBody()) || (NodeUtil_isControlStructure(statement) && !statement.isDo()) {
 		return false
 	}
 	if statement.isExport() {
@@ -50,14 +50,21 @@ func (this *CheckMissingSemicolon) checkSemicolon(t *NodeTraversal, n Node) {
 	var staticSourceFile StaticSourceFile = n.getStaticSourceFile()
 	var sourceFile *SourceFile_jscomp
 	_ = sourceFile
-	if func() bool { v_ := any(staticSourceFile); if !is_[*SourceFile_jscomp](v_) { return false }; sourceFile = cast_[*SourceFile_jscomp](v_); return true }() {
+	if func() bool {
+		v_ := any(staticSourceFile)
+		if !is_[*SourceFile_jscomp](v_) {
+			return false
+		}
+		sourceFile = cast_[*SourceFile_jscomp](v_)
+		return true
+	}() {
 		var codeRes *Outcome_base[string] = sourceFile.readCode()
 		if codeRes.isErr() {
 			return
 		}
 		var code string = codeRes.get()
 		var length int32 = n.getLength()
-		if (length == 0) {
+		if length == 0 {
 			return
 		}
 		var position int32 = ((n.getSourceOffset() + length) - 1)
@@ -80,4 +87,3 @@ func CheckMissingSemicolon_clinit() {
 	CheckMissingSemicolon_MISSING_SEMICOLON = DiagnosticType_disabled("JSC_MISSING_SEMICOLON", "Missing semicolon")
 
 }
-

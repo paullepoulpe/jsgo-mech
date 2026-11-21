@@ -39,4 +39,3 @@ func (this *NodeMetadata) getCompiler() *AbstractCompiler {
 func (this *NodeMetadata) getTraversal() *NodeTraversal {
 	return this.traversal
 }
-

@@ -3,8 +3,8 @@
 package closure
 
 type LinkedIdentityHashMap[K comparable, V comparable] struct {
-	innerMap IdentityHashMapOf[K, *LinkedIdentityHashMap_Entry[K, V]]
-	iterationOrder *TList[*LinkedIdentityHashMap_Entry[K, V]]
+	innerMap       IdentityHashMapOf[K, *LinkedIdentityHashMap_Entry[K, V]]
+	iterationOrder *JTList[*LinkedIdentityHashMap_Entry[K, V]]
 }
 
 func (this *LinkedIdentityHashMap[K, V]) isa_LinkedIdentityHashMap_() {}
@@ -16,7 +16,7 @@ func is_LinkedIdentityHashMap(v any) bool {
 
 func (this *LinkedIdentityHashMap[K, V]) finit_LinkedIdentityHashMap() {
 	this.innerMap = new_IdentityHashMap()
-	this.iterationOrder = newTList_(tc_p_LinkedIdentityHashMap_Entry_K__V_[K, V]())
+	this.iterationOrder = jnewTList_(tc_p_LinkedIdentityHashMap_Entry_K__V_[K, V]())
 }
 
 func (this *LinkedIdentityHashMap[K, V]) init_LinkedIdentityHashMap() {
@@ -31,16 +31,21 @@ func new_LinkedIdentityHashMap[K comparable, V comparable]() *LinkedIdentityHash
 
 func (this *LinkedIdentityHashMap[K, V]) get(key K) V {
 	var entry *LinkedIdentityHashMap_Entry[K, V] = cast_[*LinkedIdentityHashMap_Entry[K, V]](this.innerMap.get(boxT_(key)))
-	return func() V { if (entry == nil) { return null_[V]() }; return entry.value_ }()
+	return func() V {
+		if entry == nil {
+			return jnull_[V]()
+		}
+		return entry.value_
+	}()
 }
 
 func (this *LinkedIdentityHashMap[K, V]) put(key K, value V) V {
 	var entry *LinkedIdentityHashMap_Entry[K, V] = cast_[*LinkedIdentityHashMap_Entry[K, V]](this.innerMap.get(boxT_(key)))
-	if (entry == nil) {
+	if entry == nil {
 		entry = new_LinkedIdentityHashMap_Entry[K, V](key, value)
 		this.innerMap.put(boxT_(key), obj_(entry))
 		this.iterationOrder.add(entry)
-		return null_[V]()
+		return jnull_[V]()
 	} else {
 		var oldValue V = entry.value_
 		entry.value_ = value
@@ -51,7 +56,7 @@ func (this *LinkedIdentityHashMap[K, V]) put(key K, value V) V {
 
 func (this *LinkedIdentityHashMap[K, V]) computeIfAbsent(key K, fn Function[K, V]) V {
 	var oldValue V = this.get(key)
-	if !isnull_(oldValue) {
+	if !jisnull_(oldValue) {
 		return oldValue
 	}
 	var newValue V = fn.apply(key)
@@ -61,7 +66,7 @@ func (this *LinkedIdentityHashMap[K, V]) computeIfAbsent(key K, fn Function[K, V
 
 func (this *LinkedIdentityHashMap[K, V]) merge(key K, value V, fn BiFunction[V, V, V]) V {
 	var oldValue V = this.get(key)
-	if isnull_(oldValue) {
+	if jisnull_(oldValue) {
 		this.put(key, value)
 		return value
 	}
@@ -79,7 +84,7 @@ func (this *LinkedIdentityHashMap[K, V]) forEach(fn BiConsumer[K, V]) {
 }
 
 type LinkedIdentityHashMap_Entry[K comparable, V comparable] struct {
-	key_ K
+	key_   K
 	value_ V
 }
 
@@ -91,8 +96,8 @@ func is_LinkedIdentityHashMap_Entry(v any) bool {
 }
 
 func (this *LinkedIdentityHashMap_Entry[K, V]) zero_LinkedIdentityHashMap_Entry() {
-	this.key_ = null_[K]()
-	this.value_ = null_[V]()
+	this.key_ = jnull_[K]()
+	this.value_ = jnull_[V]()
 }
 
 func (this *LinkedIdentityHashMap_Entry[K, V]) init_LinkedIdentityHashMap_Entry(key K, value V) {
@@ -106,4 +111,3 @@ func new_LinkedIdentityHashMap_Entry[K comparable, V comparable](key K, value V)
 	this.init_LinkedIdentityHashMap_Entry(key, value)
 	return this
 }
-

@@ -4,7 +4,7 @@ package closure
 
 type CheckGoogModuleTypeScriptName struct {
 	compiler_ *AbstractCompiler
-	finished bool
+	finished  bool
 }
 
 func (this *CheckGoogModuleTypeScriptName) finit_CheckGoogModuleTypeScriptName() {
@@ -40,13 +40,13 @@ func (this *CheckGoogModuleTypeScriptName) visit(t *NodeTraversal, n Node, paren
 func (this *CheckGoogModuleTypeScriptName) checkGoogModuleNamespace(t *NodeTraversal, n Node) {
 	var originalNamespace Optional[string] = Optional_of[string](n.getFirstChild().getSecondChild().getString())
 	var sourceName Optional[string] = t.getSourceName()
-	if (originalNamespace.isEmpty() || sourceName.isEmpty()) {
+	if originalNamespace.isEmpty() || sourceName.isEmpty() {
 		return
 	}
 	var google3Index int32 = String_indexOf_String(sourceName.get(), "google3")
-	if (google3Index == -1) {
+	if google3Index == -1 {
 		sourceName = Optional_of[string](("google3/" + sstr_(sourceName.get())))
-	} else if (google3Index != 0) {
+	} else if google3Index != 0 {
 		sourceName = Optional_of[string](String_substring_int(sourceName.get(), google3Index))
 	}
 	var replacementNamespace string = String_substring(String_replace_char_char(sourceName.get(), '/', '.'), 0, (String_length(sourceName.get()) - String_length(".js")))
@@ -63,7 +63,7 @@ func (this *CheckGoogModuleTypeScriptName) checkGoogModuleNamespace(t *NodeTrave
 }
 
 var CheckGoogModuleTypeScriptName_MODULE_NAMESPACE_MISMATCHES_TYPESCRIPT_NAMESPACE *DiagnosticType
-var CheckGoogModuleTypeScriptName_allowedDirectories *TSet[string]
+var CheckGoogModuleTypeScriptName_allowedDirectories *JTSet[string]
 
 var CheckGoogModuleTypeScriptName_clinit_done bool
 
@@ -73,7 +73,7 @@ func CheckGoogModuleTypeScriptName_clinit() {
 	}
 	CheckGoogModuleTypeScriptName_clinit_done = true
 	CheckGoogModuleTypeScriptName_MODULE_NAMESPACE_MISMATCHES_TYPESCRIPT_NAMESPACE = DiagnosticType_disabled("JSC_MODULE_NAMESPACE_MISMATCHES_TYPESCRIPT_NAMESPACE", "goog.module namespace does not match the future TypeScript namespace, which is generated from the file path. The correct namespace is: \"{0}\"")
-	CheckGoogModuleTypeScriptName_allowedDirectories = newTSet_(tc_string)
+	CheckGoogModuleTypeScriptName_allowedDirectories = jnewTSet_(jtc_string)
 	{
 		CheckGoogModuleTypeScriptName_allowedDirectories.add("google3/gws/")
 		CheckGoogModuleTypeScriptName_allowedDirectories.add("google3/java/com/google/gws/")
@@ -81,4 +81,3 @@ func CheckGoogModuleTypeScriptName_clinit() {
 	}
 
 }
-

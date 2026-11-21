@@ -7,4 +7,3 @@ type MessageBundle interface {
 	getMessage(string) *JsMessage
 	getAllMessages() IterableT[*JsMessage]
 }
-

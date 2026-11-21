@@ -228,4 +228,3 @@ func JSTypeNative_clinit() {
 	registerEnum_("com.google.javascript.rhino.jstype.JSTypeNative", enumValues_(JSTypeNative_values_))
 
 }
-

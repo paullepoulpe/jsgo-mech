@@ -3,12 +3,12 @@
 package closure
 
 type PolymerPassFindExterns struct {
-	polymerElementProps *TListBuilder[Node]
+	polymerElementProps   *TListBuilder[Node]
 	polymerElementExterns Node
 }
 
 func (this *PolymerPassFindExterns) init_PolymerPassFindExterns() {
-	this.polymerElementProps = newTListBuilder_(tc_Node)
+	this.polymerElementProps = newTListBuilder_(jtc_Node)
 }
 
 func new_PolymerPassFindExterns() *PolymerPassFindExterns {
@@ -29,7 +29,7 @@ func (this *PolymerPassFindExterns) visit(t *NodeTraversal, n Node, parent Node)
 	}
 }
 
-func (this *PolymerPassFindExterns) getPolymerElementProps() *TList[Node] {
+func (this *PolymerPassFindExterns) getPolymerElementProps() *JTList[Node] {
 	return this.polymerElementProps.build()
 }
 
@@ -46,4 +46,3 @@ func PolymerPassFindExterns_isPolymerElementPropExpr(value Node) bool {
 }
 
 const PolymerPassFindExterns_POLYMER_ELEMENT_NAME string = "PolymerElement"
-

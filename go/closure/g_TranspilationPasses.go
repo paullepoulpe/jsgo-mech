@@ -51,12 +51,12 @@ func TranspilationPasses_addTranspilationPasses(passes *PassListBuilder, options
 	if options.getInstrumentAsyncContext() {
 		passes.maybeAdd(TranspilationPasses_instrumentAsyncContext)
 	}
-	if (options.needsTranspilationOf(FeatureSet_Feature_FOR_AWAIT_OF) || options.needsTranspilationOf(FeatureSet_Feature_ASYNC_GENERATORS)) {
+	if options.needsTranspilationOf(FeatureSet_Feature_FOR_AWAIT_OF) || options.needsTranspilationOf(FeatureSet_Feature_ASYNC_GENERATORS) {
 		passes.maybeAdd(TranspilationPasses_rewriteAsyncIteration)
 	}
-	if (options.needsTranspilationOf(FeatureSet_Feature_OBJECT_LITERALS_WITH_SPREAD) || options.needsTranspilationOf(FeatureSet_Feature_OBJECT_PATTERN_REST)) {
+	if options.needsTranspilationOf(FeatureSet_Feature_OBJECT_LITERALS_WITH_SPREAD) || options.needsTranspilationOf(FeatureSet_Feature_OBJECT_PATTERN_REST) {
 		passes.maybeAdd(TranspilationPasses_rewriteObjectSpread)
-		if (!options.needsTranspilationOf(FeatureSet_Feature_OBJECT_DESTRUCTURING) && options.needsTranspilationOf(FeatureSet_Feature_OBJECT_PATTERN_REST)) {
+		if !options.needsTranspilationOf(FeatureSet_Feature_OBJECT_DESTRUCTURING) && options.needsTranspilationOf(FeatureSet_Feature_OBJECT_PATTERN_REST) {
 			passes.maybeAdd(TranspilationPasses_getEs6RewriteDestructuring(Es6RewriteDestructuring_ObjectDestructuringRewriteMode_REWRITE_OBJECT_REST))
 		}
 	}
@@ -124,7 +124,7 @@ func TranspilationPasses_processTranspile(compiler *AbstractCompiler, combinedRo
 	}
 	{
 		var singleRoot Node = combinedRoot.getFirstChild()
-		for ; (singleRoot != 0); singleRoot = singleRoot.getNext() {
+		for ; singleRoot != 0; singleRoot = singleRoot.getNext() {
 			Preconditions_checkState(singleRoot.isScript())
 			if TranspilationPasses_doesScriptHaveAnyOfTheseFeatures(singleRoot, featuresToRunFor) {
 				for _, callback := range callbacks {
@@ -151,7 +151,7 @@ func TranspilationPasses_maybeMarkFeaturesAsTranspiledAway(compiler *AbstractCom
 func TranspilationPasses_postTranspileCheckUnsupportedFeaturesRemoved(compiler *AbstractCompiler) {
 	var outputFeatures *FeatureSet = compiler.getOptions().getOutputFeatureSet()
 	var currentFeatures *FeatureSet = compiler.getAllowableFeatures()
-	if (compiler.getOptions().getChunkOutputType() == CompilerOptions_ChunkOutputType_ES_MODULES) {
+	if compiler.getOptions().getChunkOutputType() == CompilerOptions_ChunkOutputType_ES_MODULES {
 		currentFeatures = currentFeatures.without_2(FeatureSet_Feature_MODULES, []*FeatureSet_Feature{}).without_2(FeatureSet_Feature_IMPORT_META, []*FeatureSet_Feature{}).without_2(FeatureSet_Feature_DYNAMIC_IMPORT, []*FeatureSet_Feature{})
 	}
 	if outputFeatures.getFeatures().isEmpty() {
@@ -190,7 +190,7 @@ func TranspilationPasses_createUnifiedFeatureRemovalPass(passName string, option
 	if options.needsTranspilationOf(FeatureSet_Feature_NUMERIC_SEPARATOR) {
 		featuresToMarkRemoved = featuresToMarkRemoved.with(FeatureSet_Feature_NUMERIC_SEPARATOR)
 	}
-	if (options.getChunkOutputType() != CompilerOptions_ChunkOutputType_ES_MODULES) {
+	if options.getChunkOutputType() != CompilerOptions_ChunkOutputType_ES_MODULES {
 		featuresToMarkRemoved = featuresToMarkRemoved.with(FeatureSet_Feature_MODULES)
 		featuresToMarkRemoved = featuresToMarkRemoved.with(FeatureSet_Feature_IMPORT_META)
 		featuresToMarkRemoved = featuresToMarkRemoved.with(FeatureSet_Feature_DYNAMIC_IMPORT)
@@ -239,7 +239,7 @@ func TranspilationPasses_clinit() {
 	}
 	TranspilationPasses_clinit_done = true
 	TranspilationPasses_peepholeTranspilationsPasses = PassFactory_builder().setName("peepholeTranspilationsPasses").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(compiler *AbstractCompiler) CompilerPass {
-		var peepholeTranspilations *TList[*AbstractPeepholeTranspilation] = newTList_(tc_p_AbstractPeepholeTranspilation)
+		var peepholeTranspilations *JTList[*AbstractPeepholeTranspilation] = jnewTList_(jtc_p_AbstractPeepholeTranspilation)
 		peepholeTranspilations.add(new_ReportUntranspilableFeatures(compiler, compiler.getOptions().getBrowserFeaturesetYearObject(), compiler.getOptions().getOutputFeatureSet()).up_AbstractPeepholeTranspilation())
 		if compiler.getOptions().needsTranspilationOf(FeatureSet_Feature_OPTIONAL_CATCH_BINDING) {
 			peepholeTranspilations.add(new_RewriteCatchWithNoBinding(compiler).up_AbstractPeepholeTranspilation())
@@ -253,10 +253,16 @@ func TranspilationPasses_clinit() {
 		return PeepholeTranspilationsPass_as_CompilerPass(PeepholeTranspilationsPass_create(compiler, peepholeTranspilations))
 		panic("unreachable")
 	})).build()
-	TranspilationPasses_es6RewriteModuleToCjs = PassFactory_builder().setName("es6RewriteModuleToCjs").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(p0 *AbstractCompiler) CompilerPass { return CompilerPass(new_Es6RewriteModulesToCommonJsModules(p0)) })).build()
+	TranspilationPasses_es6RewriteModuleToCjs = PassFactory_builder().setName("es6RewriteModuleToCjs").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(p0 *AbstractCompiler) CompilerPass {
+		return CompilerPass(new_Es6RewriteModulesToCommonJsModules(p0))
+	})).build()
 	TranspilationPasses_es6RelativizeImportPaths = PassFactory_builder().setName("es6RelativizeImportPaths").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(p0 *AbstractCompiler) CompilerPass { return CompilerPass(new_Es6RelativizeImportPaths(p0)) })).build()
-	TranspilationPasses_rewriteAsyncFunctions = PassFactory_builder().setName("rewriteAsyncFunctions").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(p0 *AbstractCompiler) CompilerPass { return RewriteAsyncFunctions_as_CompilerPass(RewriteAsyncFunctions_create(p0)) })).build()
-	TranspilationPasses_rewriteAsyncIteration = PassFactory_builder().setName("rewriteAsyncIteration").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(p0 *AbstractCompiler) CompilerPass { return RewriteAsyncIteration_as_CompilerPass(RewriteAsyncIteration_create(p0)) })).build()
+	TranspilationPasses_rewriteAsyncFunctions = PassFactory_builder().setName("rewriteAsyncFunctions").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(p0 *AbstractCompiler) CompilerPass {
+		return RewriteAsyncFunctions_as_CompilerPass(RewriteAsyncFunctions_create(p0))
+	})).build()
+	TranspilationPasses_rewriteAsyncIteration = PassFactory_builder().setName("rewriteAsyncIteration").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(p0 *AbstractCompiler) CompilerPass {
+		return RewriteAsyncIteration_as_CompilerPass(RewriteAsyncIteration_create(p0))
+	})).build()
 	TranspilationPasses_rewriteObjectSpread = PassFactory_builder().setName("rewriteObjectSpread").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(p0 *AbstractCompiler) CompilerPass { return CompilerPass(new_RewriteObjectSpread(p0)) })).build()
 	TranspilationPasses_rewriteExponentialOperator = PassFactory_builder().setName("rewriteExponentialOperator").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(p0 *AbstractCompiler) CompilerPass { return CompilerPass(new_Es7RewriteExponentialOperator(p0)) })).build()
 	TranspilationPasses_es6NormalizeClasses = PassFactory_builder().setName(PassNames_ES6_NORMALIZE_CLASSES).setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(p0 *AbstractCompiler) CompilerPass { return CompilerPass(new_Es6NormalizeClasses(p0)) })).build()
@@ -271,17 +277,24 @@ func TranspilationPasses_clinit() {
 		return CompilerPass(new_InstrumentAsyncContext(compiler, compiler.getOptions().getOutputFeatureSet().contains(FeatureSet_Feature_ASYNC_FUNCTIONS)))
 	})).build()
 	TranspilationPasses_es6ConvertSuper = PassFactory_builder().setName("es6ConvertSuper").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(p0 *AbstractCompiler) CompilerPass { return CompilerPass(new_Es6ConvertSuper(p0)) })).build()
-	TranspilationPasses_injectTranspilationRuntimeLibraries = PassFactory_builder().setName("es6InjectRuntimeLibraries").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(p0 *AbstractCompiler) CompilerPass { return CompilerPass(new_InjectTranspilationRuntimeLibraries_AbstractCompiler(p0)) })).build()
+	TranspilationPasses_injectTranspilationRuntimeLibraries = PassFactory_builder().setName("es6InjectRuntimeLibraries").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(p0 *AbstractCompiler) CompilerPass {
+		return CompilerPass(new_InjectTranspilationRuntimeLibraries_AbstractCompiler(p0))
+	})).build()
 	TranspilationPasses_es6RewriteRestParameters = PassFactory_builder().setName("es6RewriteRestParameters").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(p0 *AbstractCompiler) CompilerPass { return CompilerPass(new_Es6RewriteRestParameters(p0)) })).build()
 	TranspilationPasses_es6RewriteSpreadExpressions = PassFactory_builder().setName("es6RewriteSpreadExpressions").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(p0 *AbstractCompiler) CompilerPass { return CompilerPass(new_Es6RewriteSpreadExpressions(p0)) })).build()
 	TranspilationPasses_lateConvertEs6ToEs3 = PassFactory_builder().setName("lateConvertEs6").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(p0 *AbstractCompiler) CompilerPass { return CompilerPass(new_LateEs6ToEs3Converter(p0)) })).build()
 	TranspilationPasses_es6ForOf = PassFactory_builder().setName("es6ForOf").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(p0 *AbstractCompiler) CompilerPass { return CompilerPass(new_Es6ForOfConverter(p0)) })).build()
-	TranspilationPasses_rewriteBlockScopedFunctionDeclaration = PassFactory_builder().setName("Es6RewriteBlockScopedFunctionDeclaration").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(p0 *AbstractCompiler) CompilerPass { return CompilerPass(new_Es6RewriteBlockScopedFunctionDeclaration(p0)) })).build()
+	TranspilationPasses_rewriteBlockScopedFunctionDeclaration = PassFactory_builder().setName("Es6RewriteBlockScopedFunctionDeclaration").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(p0 *AbstractCompiler) CompilerPass {
+		return CompilerPass(new_Es6RewriteBlockScopedFunctionDeclaration(p0))
+	})).build()
 	TranspilationPasses_rewriteBlockScopedDeclaration = PassFactory_builder().setName("Es6RewriteBlockScopedDeclaration").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(p0 *AbstractCompiler) CompilerPass { return CompilerPass(new_Es6RewriteBlockScopedDeclaration(p0)) })).build()
 	TranspilationPasses_rewriteGenerators = PassFactory_builder().setName("rewriteGenerators").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(p0 *AbstractCompiler) CompilerPass { return CompilerPass(new_Es6RewriteGenerators(p0)) })).build()
-	TranspilationPasses_rewriteLogicalAssignmentOperatorsPass = PassFactory_builder().setName("rewriteLogicalAssignmentOperatorsPass").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(p0 *AbstractCompiler) CompilerPass { return CompilerPass(new_RewriteLogicalAssignmentOperatorsPass(p0)) })).build()
-	TranspilationPasses_rewriteOptionalChainingOperator = PassFactory_builder().setName("rewriteOptionalChainingOperator").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(p0 *AbstractCompiler) CompilerPass { return CompilerPass(new_RewriteOptionalChainingOperator_AbstractCompiler(p0)) })).build()
+	TranspilationPasses_rewriteLogicalAssignmentOperatorsPass = PassFactory_builder().setName("rewriteLogicalAssignmentOperatorsPass").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(p0 *AbstractCompiler) CompilerPass {
+		return CompilerPass(new_RewriteLogicalAssignmentOperatorsPass(p0))
+	})).build()
+	TranspilationPasses_rewriteOptionalChainingOperator = PassFactory_builder().setName("rewriteOptionalChainingOperator").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(p0 *AbstractCompiler) CompilerPass {
+		return CompilerPass(new_RewriteOptionalChainingOperator_AbstractCompiler(p0))
+	})).build()
 	TranspilationPasses_rewriteNullishCoalesceOperator = PassFactory_builder().setName("rewriteNullishCoalesceOperator").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(p0 *AbstractCompiler) CompilerPass { return CompilerPass(new_RewriteNullishCoalesceOperator(p0)) })).build()
 
 }
-

@@ -3,14 +3,14 @@
 package closure
 
 type TypeValidator struct {
-	compiler_ *AbstractCompiler
-	typeRegistry *JSTypeRegistry
+	compiler_               *AbstractCompiler
+	typeRegistry            *JSTypeRegistry
 	allBitwisableValueTypes *JSType
-	nullOrUndefined *JSType
-	promiseOfUnknownType *JSType
+	nullOrUndefined         *JSType
+	promiseOfUnknownType    *JSType
 	iterableOrAsyncIterable *JSType
-	subtypingMode *JSType_SubtypingMode
-	mismatches *TypeMismatch_Accumulator
+	subtypingMode           *JSType_SubtypingMode
+	mismatches              *TypeMismatch_Accumulator
 }
 
 func (this *TypeValidator) finit_TypeValidator() {
@@ -35,11 +35,11 @@ func new_TypeValidator(compiler *AbstractCompiler) *TypeValidator {
 }
 
 func TypeValidator_getInstanceOfCtor(t *JSType) *ObjectType {
-	if (t == nil) {
+	if t == nil {
 		return nil
 	}
 	var ctor *FunctionType = JSType_toMaybeFunctionType(t.dereference().up_JSType())
-	if ((ctor != nil) && ctor.isConstructor()) {
+	if (ctor != nil) && ctor.isConstructor() {
 		return ctor.getInstanceType()
 	}
 	return nil
@@ -73,7 +73,7 @@ func (this *TypeValidator) expectActualObject(n Node, type_ *JSType, msg string)
 
 func (this *TypeValidator) expectAnyObject(n Node, type_ *JSType, msg string) {
 	var anyObjectType *JSType = this.getNativeType(JSTypeNative_NO_OBJECT_TYPE)
-	if (!anyObjectType.isSubtypeOf(type_) && !type_.isEmptyType()) {
+	if !anyObjectType.isSubtypeOf(type_) && !type_.isEmptyType() {
 		this.mismatchJSType(n, msg, type_, anyObjectType)
 	}
 }
@@ -83,14 +83,24 @@ func (this *TypeValidator) expectAutoboxesToIterable(n Node, type_ *JSType, msg 
 		it_1 := type_.toMaybeUnionType().getAlternates().each()
 		for it_1.next() {
 			var alt *JSType = it_1.v
-			alt = func() *JSType { if alt.isBoxableScalar() { return alt.autoboxesTo() }; return alt }()
+			alt = func() *JSType {
+				if alt.isBoxableScalar() {
+					return alt.autoboxesTo()
+				}
+				return alt
+			}()
 			if !alt.isSubtypeOf(this.getNativeType(JSTypeNative_ITERABLE_TYPE)) {
 				this.mismatch(n, msg, type_, JSTypeNative_ITERABLE_TYPE)
 				return false
 			}
 		}
 	} else {
-		var autoboxedType *JSType = func() *JSType { if type_.isBoxableScalar() { return type_.autoboxesTo() }; return type_ }()
+		var autoboxedType *JSType = func() *JSType {
+			if type_.isBoxableScalar() {
+				return type_.autoboxesTo()
+			}
+			return type_
+		}()
 		if !autoboxedType.isSubtypeOf(this.getNativeType(JSTypeNative_ITERABLE_TYPE)) {
 			this.mismatch(n, msg, type_, JSTypeNative_ITERABLE_TYPE)
 			return false
@@ -155,13 +165,13 @@ func (this *TypeValidator) expectNumberStrict(n Node, type_ *JSType, msg string)
 }
 
 func (this *TypeValidator) expectMatchingTypesStrict(n Node, left *JSType, right *JSType, msg string) {
-	if (!left.isSubtypeOf(right) && !right.isSubtypeOf(left)) {
+	if !left.isSubtypeOf(right) && !right.isSubtypeOf(left) {
 		this.registerMismatchAndReport_7(n, TypeValidator_INVALID_OPERAND_TYPE, msg, right, left, nil, nil)
 	}
 }
 
 func (this *TypeValidator) expectBitwiseable(n Node, type_ *JSType, msg string) {
-	if (!type_.matchesNumberContext() && !type_.isSubtypeOf(this.allBitwisableValueTypes)) {
+	if !type_.matchesNumberContext() && !type_.isSubtypeOf(this.allBitwisableValueTypes) {
 		this.mismatchJSType(n, msg, type_, this.allBitwisableValueTypes)
 	} else {
 		this.expectNumberStrict(n, type_, msg)
@@ -169,20 +179,20 @@ func (this *TypeValidator) expectBitwiseable(n Node, type_ *JSType, msg string) 
 }
 
 func (this *TypeValidator) expectNumberOrSymbol(n Node, type_ *JSType, msg string) {
-	if (!type_.matchesNumberContext() && !type_.matchesSymbolContext()) {
+	if !type_.matchesNumberContext() && !type_.matchesSymbolContext() {
 		this.mismatch(n, msg, type_, JSTypeNative_NUMBER_SYMBOL)
 	}
 }
 
 func (this *TypeValidator) expectStringOrSymbol(n Node, type_ *JSType, msg string) {
-	if (!type_.matchesStringContext() && !type_.matchesSymbolContext()) {
+	if !type_.matchesStringContext() && !type_.matchesSymbolContext() {
 		this.mismatch(n, msg, type_, JSTypeNative_STRING_SYMBOL)
 	}
 }
 
 func (this *TypeValidator) expectUnknownOrComparable(n Node, type_ *JSType, msg string) {
-	if (!type_.isSubtypeOf(this.getNativeType(JSTypeNative_BIGINT_NUMBER_STRING)) && !type_.isSubtypeOf(this.getNativeType(JSTypeNative_BIGINT_NUMBER_STRING_OBJECT))) {
-		if (type_.matchesNumberContext() || type_.matchesStringContext()) {
+	if !type_.isSubtypeOf(this.getNativeType(JSTypeNative_BIGINT_NUMBER_STRING)) && !type_.isSubtypeOf(this.getNativeType(JSTypeNative_BIGINT_NUMBER_STRING_OBJECT)) {
+		if type_.matchesNumberContext() || type_.matchesStringContext() {
 			this.registerMismatchAndReport_7(n, TypeValidator_INVALID_OPERAND_TYPE, msg, type_, this.getNativeType(JSTypeNative_BIGINT_NUMBER_STRING), nil, nil)
 		} else {
 			this.mismatch(n, msg, type_, JSTypeNative_BIGINT_NUMBER_STRING)
@@ -191,7 +201,7 @@ func (this *TypeValidator) expectUnknownOrComparable(n Node, type_ *JSType, msg 
 }
 
 func (this *TypeValidator) expectStringOrNumberOrSymbol(n Node, type_ *JSType, msg string) {
-	if ((!type_.matchesNumberContext() && !type_.matchesStringContext()) && !type_.matchesSymbolContext()) {
+	if (!type_.matchesNumberContext() && !type_.matchesStringContext()) && !type_.matchesSymbolContext() {
 		this.mismatch(n, msg, type_, JSTypeNative_NUMBER_STRING_SYMBOL)
 	} else {
 		this.expectStringOrNumberOrSymbolStrict(n, type_, msg)
@@ -205,7 +215,7 @@ func (this *TypeValidator) expectStringOrNumberOrSymbolStrict(n Node, type_ *JST
 }
 
 func (this *TypeValidator) expectBigIntOrNumber(n Node, type_ *JSType, msg string) {
-	if (!type_.isSubtypeOf(this.getNativeType(JSTypeNative_BIGINT_NUMBER)) && !type_.isSubtypeOf(this.getNativeType(JSTypeNative_BIGINT_NUMBER_OBJECT))) {
+	if !type_.isSubtypeOf(this.getNativeType(JSTypeNative_BIGINT_NUMBER)) && !type_.isSubtypeOf(this.getNativeType(JSTypeNative_BIGINT_NUMBER_OBJECT)) {
 		if type_.matchesNumberContext() {
 			this.registerMismatchAndReport_7(n, TypeValidator_INVALID_OPERAND_TYPE, msg, type_, this.getNativeType(JSTypeNative_BIGINT_NUMBER), nil, nil)
 		} else {
@@ -215,8 +225,8 @@ func (this *TypeValidator) expectBigIntOrNumber(n Node, type_ *JSType, msg strin
 }
 
 func (this *TypeValidator) expectNotNullOrUndefined(t *NodeTraversal, n Node, type_ *JSType, msg string, expectedType *JSType) bool {
-	if (((!type_.isNoType() && !type_.isUnknownType()) && type_.isSubtypeOf(this.nullOrUndefined)) && !TypeValidator_containsForwardDeclaredUnresolvedName(type_)) {
-		if ((n.isGetProp() && !t.inGlobalScope()) && type_.isNullType()) {
+	if ((!type_.isNoType() && !type_.isUnknownType()) && type_.isSubtypeOf(this.nullOrUndefined)) && !TypeValidator_containsForwardDeclaredUnresolvedName(type_) {
+		if (n.isGetProp() && !t.inGlobalScope()) && type_.isNullType() {
 			return true
 		}
 		this.mismatchJSType(n, msg, type_, expectedType)
@@ -246,7 +256,12 @@ func (this *TypeValidator) expectSwitchMatchesCase(n Node, switchType *JSType, c
 
 func (this *TypeValidator) expectIndexMatch(n Node, objType *JSType, indexType *JSType) {
 	Preconditions_checkState_boolean_Object_H((((n.isGetElem() || n.isOptChainGetElem()) || n.isComputedProp()) || n.isComputedFieldDef()), n)
-	var indexNode Node = func() Node { if n.isGetElem() { return n.getLastChild() }; return n.getFirstChild() }()
+	var indexNode Node = func() Node {
+		if n.isGetElem() {
+			return n.getLastChild()
+		}
+		return n.getFirstChild()
+	}()
 	if indexType.isSymbolValueType() {
 		return
 	}
@@ -255,10 +270,10 @@ func (this *TypeValidator) expectIndexMatch(n Node, objType *JSType, indexType *
 		return
 	}
 	var dereferenced *ObjectType = objType.dereference()
-	if ((dereferenced != nil) && dereferenced.getTemplateTypeMap().hasTemplateKey(this.typeRegistry.getObjectIndexKey())) {
+	if (dereferenced != nil) && dereferenced.getTemplateTypeMap().hasTemplateKey(this.typeRegistry.getObjectIndexKey()) {
 		var templateType *JSType = dereferenced.getTemplateTypeMap().getResolvedTemplateType(this.typeRegistry.getObjectIndexKey())
 		this.expectCanAssignTo(indexNode, indexType, templateType, "restricted index type")
-	} else if ((dereferenced != nil) && dereferenced.isArrayType()) {
+	} else if (dereferenced != nil) && dereferenced.isArrayType() {
 		this.expectNumberOrSymbol(indexNode, indexType, "array access")
 	} else if objType.isStruct() {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(indexNode, TypeValidator_ILLEGAL_PROPERTY_ACCESS, []string{"'[]'", "struct"}))
@@ -287,17 +302,17 @@ func (this *TypeValidator) expectCanAssignToPropertyOf(n Node, rightType *JSType
 func (this *TypeValidator) expectCanAssignToPropertyOf_6(n Node, rightType *JSType, leftType *JSType, ownerType *JSType, typeNameSupplier Supplier_base[string], propName Optional[string]) bool {
 	if leftType.isTemplateType() {
 		var left *TemplateType = leftType.toMaybeTemplateType()
-		if ((rightType.containsReferenceAncestor(left.up_JSType()) || rightType.isUnknownType()) || left.isUnknownType()) {
+		if (rightType.containsReferenceAncestor(left.up_JSType()) || rightType.isUnknownType()) || left.isUnknownType() {
 			return true
 		} else {
-			this.registerMismatchAndReport_7(n, TypeValidator_TYPE_MISMATCH_WARNING, ("assignment to property " + sstr_(propName.orElse("null")) + " of " + sstr_(typeNameSupplier.get())), rightType, leftType, newTSet_(tc_string), newTSet_(tc_string))
+			this.registerMismatchAndReport_7(n, TypeValidator_TYPE_MISMATCH_WARNING, ("assignment to property " + sstr_(propName.orElse("null")) + " of " + sstr_(typeNameSupplier.get())), rightType, leftType, jnewTSet_(jtc_string), jnewTSet_(jtc_string))
 			return false
 		}
 	}
-	if (!leftType.isNoType() && !rightType.isSubtypeOf(leftType)) {
+	if !leftType.isNoType() && !rightType.isSubtypeOf(leftType) {
 		if ownerType.isFunctionPrototypeType() {
 			var ownerFn *FunctionType = ownerType.toObjectType().getOwnerFunction()
-			if ((ownerFn.isInterface() && rightType.isFunctionType()) && leftType.isFunctionType()) {
+			if (ownerFn.isInterface() && rightType.isFunctionType()) && leftType.isFunctionType() {
 				return true
 			}
 		}
@@ -310,10 +325,10 @@ func (this *TypeValidator) expectCanAssignToPropertyOf_6(n Node, rightType *JSTy
 func (this *TypeValidator) expectCanAssignTo(n Node, rightType *JSType, leftType *JSType, msg string) bool {
 	if leftType.isTemplateType() {
 		var left *TemplateType = leftType.toMaybeTemplateType()
-		if ((rightType.containsReferenceAncestor(left.up_JSType()) || rightType.isUnknownType()) || left.isUnknownType()) {
+		if (rightType.containsReferenceAncestor(left.up_JSType()) || rightType.isUnknownType()) || left.isUnknownType() {
 			return true
 		} else {
-			this.registerMismatchAndReport_7(n, TypeValidator_TYPE_MISMATCH_WARNING, msg, rightType, leftType, newTSet_(tc_string), newTSet_(tc_string))
+			this.registerMismatchAndReport_7(n, TypeValidator_TYPE_MISMATCH_WARNING, msg, rightType, leftType, jnewTSet_(jtc_string), jnewTSet_(jtc_string))
 			return false
 		}
 	}
@@ -333,11 +348,16 @@ func (this *TypeValidator) expectArgumentMatchesParameter(n Node, argType *JSTyp
 func (this *TypeValidator) expectSuperType(n Node, superObject *ObjectType, subObject *ObjectType) {
 	var subCtor *FunctionType = subObject.getConstructor()
 	var implicitProto *ObjectType = subObject.getImplicitPrototype()
-	var declaredSuper *ObjectType = func() *ObjectType { if (implicitProto == nil) { return nil }; return implicitProto.getImplicitPrototype() }()
-	if ((declaredSuper != nil) && declaredSuper.isTemplatizedType()) {
+	var declaredSuper *ObjectType = func() *ObjectType {
+		if implicitProto == nil {
+			return nil
+		}
+		return implicitProto.getImplicitPrototype()
+	}()
+	if (declaredSuper != nil) && declaredSuper.isTemplatizedType() {
 		declaredSuper = declaredSuper.toMaybeTemplatizedType().getReferencedType()
 	}
-	if (((declaredSuper != nil) && !is_[*UnknownType](superObject.self())) && !declaredSuper.equals(superObject.self())) {
+	if ((declaredSuper != nil) && !is_[*UnknownType](superObject.self())) && !declaredSuper.equals(superObject.self()) {
 		if declaredSuper.equals(this.getNativeType(JSTypeNative_OBJECT_TYPE).self()) {
 			this.registerMismatchAndReport(superObject.up_JSType(), declaredSuper.up_JSType(), JSError_make_Node_DiagnosticType_StringArr(n, TypeValidator_MISSING_EXTENDS_TAG_WARNING, []string{subObject.toString()}))
 		} else {
@@ -350,16 +370,16 @@ func (this *TypeValidator) expectSuperType(n Node, superObject *ObjectType, subO
 }
 
 func (this *TypeValidator) expectExtends(n Node, subCtor *FunctionType, astSuperCtor *FunctionType) {
-	if ((astSuperCtor == nil) || (!astSuperCtor.isConstructor() && !astSuperCtor.isInterface())) {
+	if (astSuperCtor == nil) || (!astSuperCtor.isConstructor() && !astSuperCtor.isInterface()) {
 		return
 	}
-	if (astSuperCtor.isConstructor() != subCtor.isConstructor()) {
+	if astSuperCtor.isConstructor() != subCtor.isConstructor() {
 		return
 	}
 	var astSuperInstance *ObjectType = astSuperCtor.getInstanceType()
 	if subCtor.isConstructor() {
 		var registeredSuperCtor *FunctionType = subCtor.getSuperClassConstructor()
-		if (registeredSuperCtor != nil) {
+		if registeredSuperCtor != nil {
 			var registeredSuperInstance *ObjectType = registeredSuperCtor.getInstanceType()
 			if !astSuperInstance.equals(registeredSuperInstance.self()) {
 				this.mismatchJSType(n, "mismatch in declaration of superclass type", astSuperInstance.up_JSType(), registeredSuperInstance.up_JSType())
@@ -389,8 +409,8 @@ func (this *TypeValidator) expectCanCast(n Node, targetType *JSType, sourceType 
 func (this *TypeValidator) expectUndeclaredVariable(sourceName Optional[string], input *CompilerInput, n Node, parent Node, var_ *TypedVar, variableName string, newType *JSType) *TypedVar {
 	var newVar *TypedVar = var_
 	var varType *JSType = var_.getType()
-	if ((((varType != nil) && (varType != this.typeRegistry.getNativeType(JSTypeNative_UNKNOWN_TYPE))) && (newType != nil)) && (newType != this.typeRegistry.getNativeType(JSTypeNative_UNKNOWN_TYPE))) {
-		if (var_.getInput() == nil) {
+	if (((varType != nil) && (varType != this.typeRegistry.getNativeType(JSTypeNative_UNKNOWN_TYPE))) && (newType != nil)) && (newType != this.typeRegistry.getNativeType(JSTypeNative_UNKNOWN_TYPE)) {
+		if var_.getInput() == nil {
 			var s *TypedScope = var_.getScope_rAbstractScope_rTypedScope()
 			s.undeclare(var_)
 			newVar = s.declare(variableName, n, varType, input, false)
@@ -421,7 +441,7 @@ func (this *TypeValidator) expectUndeclaredVariable(sourceName Optional[string],
 
 func (this *TypeValidator) expectAllInterfaceProperties(n Node, type_ *FunctionType) {
 	var instance *ObjectType = type_.getInstanceType()
-	it_1 := eachOf_(type_.getAllImplementedInterfaces())
+	it_1 := jeachOf_(type_.getAllImplementedInterfaces())
 	for it_1.next() {
 		var implemented *ObjectType = it_1.v
 		this.expectInterfaceProperties(n, instance, implemented)
@@ -439,7 +459,7 @@ func (this *TypeValidator) expectInterfaceProperties(n Node, instance *ObjectTyp
 		var prop Property_Key = it_1.v
 		this.expectInterfaceProperty(n, instance, ancestorInterface, prop)
 	}
-	if (ancestorInterface.getImplicitPrototype() != nil) {
+	if ancestorInterface.getImplicitPrototype() != nil {
 		it_3 := ancestorInterface.getImplicitPrototype().getOwnPropertyKeys().each()
 		for it_3.next() {
 			var prop Property_Key = it_3.v
@@ -450,8 +470,8 @@ func (this *TypeValidator) expectInterfaceProperties(n Node, instance *ObjectTyp
 
 func (this *TypeValidator) expectInterfaceProperty(n Node, instance *ObjectType, implementedInterface *ObjectType, propName Property_Key) {
 	var propSlot *Property_OwnedProperty = instance.findClosestDefinition(propName)
-	if ((propSlot == nil) || (!instance.getConstructor().isInterface() && propSlot.isOwnedByInterface())) {
-		if (instance.getConstructor().isAbstract() || instance.getConstructor().isInterface()) {
+	if (propSlot == nil) || (!instance.getConstructor().isInterface() && propSlot.isOwnedByInterface()) {
+		if instance.getConstructor().isAbstract() || instance.getConstructor().isInterface() {
 			return
 		}
 		if implementedInterface.getPropertyTypeKey(propName).isVoidable() {
@@ -460,12 +480,22 @@ func (this *TypeValidator) expectInterfaceProperty(n Node, instance *ObjectType,
 		this.registerMismatchAndReport(instance.up_JSType(), implementedInterface.up_JSType(), JSError_make_Node_DiagnosticType_StringArr(n, TypeValidator_INTERFACE_METHOD_NOT_IMPLEMENTED, []string{propName.humanReadableName(), implementedInterface.getReferenceName().orElse("null"), instance.toString()}))
 	} else {
 		var local bool = propSlot.getOwnerInstanceType().equals(instance.self())
-		if (!local && instance.getConstructor().isInterface()) {
+		if !local && instance.getConstructor().isInterface() {
 			return
 		}
 		var prop *Property = propSlot.getValue()
-		var propNode Node = func() Node { if (prop.getDeclaration_rStaticTypedRef_rProperty() == nil) { return 0 }; return prop.getDeclaration_rStaticTypedRef_rProperty().getNode() }()
-		propNode = func() Node { if (propNode == 0) { return n }; return propNode }()
+		var propNode Node = func() Node {
+			if prop.getDeclaration_rStaticTypedRef_rProperty() == nil {
+				return 0
+			}
+			return prop.getDeclaration_rStaticTypedRef_rProperty().getNode()
+		}()
+		propNode = func() Node {
+			if propNode == 0 {
+				return n
+			}
+			return propNode
+		}()
 		this.checkPropertyType(propNode, instance.up_JSType(), implementedInterface, propName, prop.getType())
 	}
 }
@@ -473,30 +503,35 @@ func (this *TypeValidator) expectInterfaceProperty(n Node, instance *ObjectType,
 func (this *TypeValidator) checkPropertyType(n Node, instance *JSType, parent *ObjectType, propertyName Property_Key, found *JSType) {
 	var required *JSType = parent.getPropertyTypeKey(propertyName)
 	var typeMap *TemplateTypeMap = instance.getTemplateTypeMap()
-	if (!typeMap.isEmpty() && required.hasAnyTemplateTypes()) {
+	if !typeMap.isEmpty() && required.hasAnyTemplateTypes() {
 		required = to_JSType(required.visit(TemplateTypeReplacer_as_Visitor(TemplateTypeReplacer_forPartialReplacement(this.typeRegistry, typeMap))))
 	}
 	if found.isSubtypeOf_2(required, this.subtypingMode) {
 		return
 	}
-	var err *JSError = JSError_make_Node_DiagnosticType_StringArr(n, func() *DiagnosticType { if parent.getConstructor().isInterface() { return TypeValidator_HIDDEN_INTERFACE_PROPERTY_MISMATCH }; return TypeValidator_HIDDEN_SUPERCLASS_PROPERTY_MISMATCH }(), []string{propertyName.humanReadableName(), parent.getReferenceName().orElse("null"), required.toString(), found.toString(), instance.toString()})
+	var err *JSError = JSError_make_Node_DiagnosticType_StringArr(n, func() *DiagnosticType {
+		if parent.getConstructor().isInterface() {
+			return TypeValidator_HIDDEN_INTERFACE_PROPERTY_MISMATCH
+		}
+		return TypeValidator_HIDDEN_SUPERCLASS_PROPERTY_MISMATCH
+	}(), []string{propertyName.humanReadableName(), parent.getReferenceName().orElse("null"), required.toString(), found.toString(), instance.toString()})
 	this.registerMismatchAndReport(found, required, err)
 }
 
 func (this *TypeValidator) expectAbstractMethodsImplemented(n Node, ctorType *FunctionType) {
 	Preconditions_checkArgument(ctorType.isConstructor())
-	var abstractMethodSuperTypeMap *TMap[Property_Key, *ObjectType] = newTMap_(tce_Property_Key, tc_p_ObjectType)
+	var abstractMethodSuperTypeMap *JTMap[Property_Key, *ObjectType] = jnewTMap_(tce_Property_Key, jtc_p_ObjectType)
 	var currSuperCtor *FunctionType = ctorType.getSuperClassConstructor()
-	if ((currSuperCtor == nil) || !currSuperCtor.isAbstract()) {
+	if (currSuperCtor == nil) || !currSuperCtor.isAbstract() {
 		return
 	}
-	for ((currSuperCtor != nil) && currSuperCtor.isAbstract()) {
+	for (currSuperCtor != nil) && currSuperCtor.isAbstract() {
 		var superType *ObjectType = currSuperCtor.getInstanceType()
 		it_2 := currSuperCtor.getPrototype().getOwnPropertyKeys().each()
 		for it_2.next() {
 			var prop Property_Key = it_2.v
 			var maybeAbstractMethod *FunctionType = superType.findPropertyTypeKey(prop).toMaybeFunctionType()
-			if (((maybeAbstractMethod != nil) && maybeAbstractMethod.isAbstract()) && !abstractMethodSuperTypeMap.containsKey(prop)) {
+			if ((maybeAbstractMethod != nil) && maybeAbstractMethod.isAbstract()) && !abstractMethodSuperTypeMap.containsKey(prop) {
 				abstractMethodSuperTypeMap.put(prop, superType)
 			}
 		}
@@ -509,7 +544,7 @@ func (this *TypeValidator) expectAbstractMethodsImplemented(n Node, ctorType *Fu
 		var method Property_Key = entry.getKey()
 		var superType *ObjectType = entry.getValue()
 		var abstractMethod *FunctionType = instance.findPropertyTypeKey(method).toMaybeFunctionType()
-		if ((abstractMethod == nil) || abstractMethod.isAbstract()) {
+		if (abstractMethod == nil) || abstractMethod.isAbstract() {
 			this.registerMismatchAndReport(instance.up_JSType(), superType.up_JSType(), JSError_make_Node_DiagnosticType_StringArr(n, TypeValidator_ABSTRACT_METHOD_NOT_IMPLEMENTED, []string{method.humanReadableName(), superType.toString(), instance.toString()}))
 		}
 	}
@@ -521,8 +556,8 @@ func (this *TypeValidator) mismatch(n Node, msg string, found *JSType, required 
 
 func (this *TypeValidator) mismatchJSType(n Node, msg string, found *JSType, required *JSType) {
 	if !found.isSubtypeOf_2(required, this.subtypingMode) {
-		var missing *TSet[string] = nil
-		var mismatch *TSet[string] = nil
+		var missing *JTSet[string] = nil
+		var mismatch *JTSet[string] = nil
 		var structuralType *JSType = nil
 		if required.isStructuralType() {
 			structuralType = required
@@ -532,18 +567,18 @@ func (this *TypeValidator) mismatchJSType(n Node, msg string, found *JSType, req
 				structuralType = restrictedType
 			}
 		}
-		if (structuralType != nil) {
-			missing = newTSortedSet_(tc_string)
-			mismatch = newTSortedSet_(tc_string)
+		if structuralType != nil {
+			missing = newTSortedSet_(jtc_string)
+			mismatch = newTSortedSet_(jtc_string)
 			var requiredObject *ObjectType = structuralType.toMaybeObjectType()
 			var foundObject *ObjectType = found.toMaybeObjectType()
-			if ((requiredObject != nil) && (foundObject != nil)) {
+			if (requiredObject != nil) && (foundObject != nil) {
 				it_1 := foreach_(obj_(requiredObject.getPropertyNames()))
 				for it_1.next() {
 					var property string = str_(it_1.v)
 					var propRequired *JSType = requiredObject.getPropertyType(property)
 					var hasProperty bool = foundObject.hasProperty(property)
-					if (!propRequired.isExplicitlyVoidable() || hasProperty) {
+					if !propRequired.isExplicitlyVoidable() || hasProperty {
 						if hasProperty {
 							if !foundObject.getPropertyType(property).isSubtypeOf_2(propRequired, this.subtypingMode) {
 								mismatch.add(property)
@@ -559,7 +594,7 @@ func (this *TypeValidator) mismatchJSType(n Node, msg string, found *JSType, req
 	}
 }
 
-func (this *TypeValidator) registerMismatchAndReport_7(n Node, diagnostic *DiagnosticType, msg string, found *JSType, required *JSType, missing *TSet[string], mismatch *TSet[string]) {
+func (this *TypeValidator) registerMismatchAndReport_7(n Node, diagnostic *DiagnosticType, msg string, found *JSType, required *JSType, missing *JTSet[string], mismatch *JTSet[string]) {
 	var foundRequiredFormatted string = TypeValidator_formatFoundRequired(msg, found, required, missing, mismatch)
 	var err *JSError = JSError_make_Node_DiagnosticType_StringArr(n, diagnostic, []string{foundRequiredFormatted})
 	this.registerMismatchAndReport(found, required, err)
@@ -574,14 +609,14 @@ func TypeValidator_formatNodeLocation(node Node) string {
 	return String_format("%s:%s:%s", []any{strobj_(node.getSourceFileName()), int32(node.getLineno()), int32(node.getCharno())})
 }
 
-func TypeValidator_formatFoundRequired(description string, found *JSType, required *JSType, missing *TSet[string], mismatch *TSet[string]) string {
+func TypeValidator_formatFoundRequired(description string, found *JSType, required *JSType, missing *JTSet[string], mismatch *JTSet[string]) string {
 	var foundStr string = found.toString()
 	var requiredStr string = required.toString()
-	if (foundStr == requiredStr) {
+	if foundStr == requiredStr {
 		foundStr = found.toAnnotationString(JSType_Nullability_IMPLICIT)
 		requiredStr = required.toAnnotationString(JSType_Nullability_IMPLICIT)
 	}
-	if (foundStr == requiredStr) {
+	if foundStr == requiredStr {
 		if found.isEnumElementType() {
 			foundStr = (sstr_(foundStr) + " (enum definition: " + sstr_(TypeValidator_formatNodeLocation(found.toMaybeEnumElementType().getEnumType().getSource())) + ")")
 		}
@@ -591,13 +626,13 @@ func TypeValidator_formatFoundRequired(description string, found *JSType, requir
 	}
 	var missingStr string = ""
 	var mismatchStr string = ""
-	if ((missing != nil) && !missing.isEmpty()) {
+	if (missing != nil) && !missing.isEmpty() {
 		missingStr = Joiner_on(",").join(Iterable(missing.asSet()))
 	}
-	if ((mismatch != nil) && !mismatch.isEmpty()) {
+	if (mismatch != nil) && !mismatch.isEmpty() {
 		mismatchStr = Joiner_on(",").join(Iterable(mismatch.asSet()))
 	}
-	if ((String_length(missingStr) > 0) || (String_length(mismatchStr) > 0)) {
+	if (String_length(missingStr) > 0) || (String_length(mismatchStr) > 0) {
 		return Platform_formatMessage(TypeValidator_FOUND_REQUIRED_MISSING, []string{description, foundStr, requiredStr, missingStr, mismatchStr})
 	} else {
 		return Platform_formatMessage(TypeValidator_FOUND_REQUIRED, []string{description, foundStr, requiredStr})
@@ -620,13 +655,14 @@ func TypeValidator_hasDuplicateDeclarationSuppression(compiler *AbstractCompiler
 
 func (this *TypeValidator) expectWellFormedTemplatizedType(n Node) {
 	var verifier *TypeValidator_WellFormedTemplatizedTypeVerifier = new_TypeValidator_WellFormedTemplatizedTypeVerifier(this, n)
-	if (n.getJSType() != nil) {
+	if n.getJSType() != nil {
 		n.getJSType().visit(TypeValidator_WellFormedTemplatizedTypeVerifier_as_Visitor(verifier))
 	}
 }
 
 const TypeValidator_FOUND_REQUIRED string = "{0}\nfound   : {1}\nrequired: {2}"
 const TypeValidator_FOUND_REQUIRED_MISSING string = "{0}\nfound   : {1}\nrequired: {2}\nmissing : [{3}]\nmismatch: [{4}]"
+
 var TypeValidator_INVALID_CAST *DiagnosticType
 var TypeValidator_TYPE_MISMATCH_WARNING *DiagnosticType
 var TypeValidator_INVALID_ASYNC_RETURN_TYPE *DiagnosticType
@@ -669,7 +705,7 @@ func TypeValidator_clinit() {
 type TypeValidator_WellFormedTemplatizedTypeVerifier struct {
 	Visitor_WithDefaultCase[any]
 	outer_ *TypeValidator
-	node_ Node
+	node_  Node
 }
 
 func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) up_Visitor_WithDefaultCase() *Visitor_WithDefaultCase[any] {
@@ -717,9 +753,9 @@ func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseNamedType_impl(
 }
 
 func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseUnionType_impl(type_ *UnionType) any {
-	var alternates *TList[*JSType] = type_.getAlternates()
+	var alternates *JTList[*JSType] = type_.getAlternates()
 	var alternateCount int32 = alternates.size()
-	for i := int32(0); (i < alternateCount); i++ {
+	for i := int32(0); i < alternateCount; i++ {
 		var alternative *JSType = alternates.get(i)
 		if !unbox_[bool](alternative.visit(Visitor(this))) {
 			return bool(false)
@@ -729,10 +765,10 @@ func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseUnionType_impl(
 }
 
 func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseTemplatizedType_impl(type_ *TemplatizedType) any {
-	var referencedTemplates *TList[*TemplateType] = type_.getReferencedType().getTemplateTypeMap().getTemplateKeys()
-	for i := int32(0); (i < type_.getTemplateTypes().size()); i++ {
+	var referencedTemplates *JTList[*TemplateType] = type_.getReferencedType().getTemplateTypeMap().getTemplateKeys()
+	for i := int32(0); i < type_.getTemplateTypes().size(); i++ {
 		var assignedType *JSType = type_.getTemplateTypes().get(i)
-		if (i < referencedTemplates.size()) {
+		if i < referencedTemplates.size() {
 			var templateType *TemplateType = referencedTemplates.get(i)
 			if !assignedType.isSubtype(templateType.getBound()) {
 				this.outer_.registerMismatchAndReport(assignedType, templateType.getBound(), JSError_make_Node_DiagnosticType_StringArr(this.node_, RhinoErrorReporter_BOUNDED_GENERIC_TYPE_ERROR, []string{assignedType.toString(), templateType.getReferenceName().orElse("null"), templateType.getBound().toString()}))
@@ -746,4 +782,3 @@ func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseTemplatizedType
 func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseTemplateType_impl(templateType *TemplateType) any {
 	return bool((!templateType.containsCycle() && unbox_[bool](templateType.getBound().visit(Visitor(this)))))
 }
-

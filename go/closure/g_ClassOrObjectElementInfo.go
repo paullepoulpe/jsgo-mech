@@ -3,11 +3,11 @@
 package closure
 
 type ClassOrObjectElementInfo struct {
-	start_ *SourcePosition_util
-	name_ *IdentifierToken
-	nameExpr *ParseTree
+	start_        *SourcePosition_util
+	name_         *IdentifierToken
+	nameExpr      *ParseTree
 	isClassMember bool
-	isStatic bool
+	isStatic      bool
 }
 
 func (this *ClassOrObjectElementInfo) init_ClassOrObjectElementInfo(start *SourcePosition_util, isClassMember bool, isStatic bool) {
@@ -55,4 +55,3 @@ func (this *ClassOrObjectElementInfo) hasNameExpr() bool {
 func (this *ClassOrObjectElementInfo) getNameExpr() *ParseTree {
 	return Preconditions_checkNotNull_T(this.nameExpr)
 }
-

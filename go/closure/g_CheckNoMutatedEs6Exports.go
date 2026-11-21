@@ -3,14 +3,14 @@
 package closure
 
 type CheckNoMutatedEs6Exports struct {
-	compiler_ *AbstractCompiler
-	mutatedNames *SimpleSetMultimap[string, Node]
-	exportedLocalNames *TSet[string]
+	compiler_          *AbstractCompiler
+	mutatedNames       *SimpleSetMultimap[string, Node]
+	exportedLocalNames *JTSet[string]
 }
 
 func (this *CheckNoMutatedEs6Exports) finit_CheckNoMutatedEs6Exports() {
 	this.mutatedNames = SimpleSetMultimap_create[string, Node]()
-	this.exportedLocalNames = newTSet_(tc_string)
+	this.exportedLocalNames = jnewTSet_(jtc_string)
 }
 
 func (this *CheckNoMutatedEs6Exports) init_CheckNoMutatedEs6Exports(compiler *AbstractCompiler) {
@@ -25,11 +25,11 @@ func new_CheckNoMutatedEs6Exports(compiler *AbstractCompiler) *CheckNoMutatedEs6
 }
 
 func (this *CheckNoMutatedEs6Exports) checkNoMutations() {
-	var mutatedExports SetT[string] = setAs_(tc_string, Sets_SetView_as_Set(Sets_intersection(Set_un_(this.mutatedNames.keySet()), this.exportedLocalNames.asSet())))
-	it_1 := eachOf_(mutatedExports)
+	var mutatedExports SetT[string] = setAs_(jtc_string, Sets_SetView_as_Set(Sets_intersection(Set_un_(this.mutatedNames.keySet()), this.exportedLocalNames.asSet())))
+	it_1 := jeachOf_(mutatedExports)
 	for it_1.next() {
 		var mutatedExport string = it_1.v
-		it_3 := eachOf_(this.mutatedNames.get(mutatedExport))
+		it_3 := jeachOf_(this.mutatedNames.get(mutatedExport))
 		for it_3.next() {
 			var mutation Node = it_3.v
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(mutation, CheckNoMutatedEs6Exports_MUTATED_EXPORT, []string{mutatedExport}))
@@ -64,15 +64,15 @@ func (this *CheckNoMutatedEs6Exports) shouldTraverse(t *NodeTraversal, n Node, p
 }
 
 func (this *CheckNoMutatedEs6Exports) visitExport(export Node) {
-	if (export.hasOneChild() && export.getFirstChild().isExportSpecs()) {
+	if export.hasOneChild() && export.getFirstChild().isExportSpecs() {
 		{
 			var exportSpec Node = export.getFirstFirstChild()
-			for ; (exportSpec != 0); exportSpec = exportSpec.getNext() {
+			for ; exportSpec != 0; exportSpec = exportSpec.getNext() {
 				Preconditions_checkState(exportSpec.hasTwoChildren())
 				this.exportedLocalNames.add(exportSpec.getFirstChild().getString())
 			}
 		}
-	} else if (export.hasOneChild() && !export.getBooleanProp(Node_EXPORT_ALL_FROM)) {
+	} else if export.hasOneChild() && !export.getBooleanProp(Node_EXPORT_ALL_FROM) {
 		var declaration Node = export.getFirstChild()
 		if NodeUtil_isNameDeclaration(declaration) {
 			NodeUtil_visitLhsNodesInNode(declaration, Consumer[Node](func(lhs Node) {
@@ -80,11 +80,11 @@ func (this *CheckNoMutatedEs6Exports) visitExport(export Node) {
 				this.exportedLocalNames.add(lhs.getString())
 			}))
 		} else if export.getBooleanProp(Node_EXPORT_DEFAULT) {
-			if (!declaration.isClass() && !declaration.isFunction()) {
+			if !declaration.isClass() && !declaration.isFunction() {
 				return
 			}
 			var nameNode Node = declaration.getFirstChild()
-			if (!nameNode.isEmpty() && !String_isEmpty(nameNode.getString())) {
+			if !nameNode.isEmpty() && !String_isEmpty(nameNode.getString()) {
 				this.exportedLocalNames.add(nameNode.getString())
 			}
 		} else {
@@ -97,9 +97,9 @@ func (this *CheckNoMutatedEs6Exports) visitExport(export Node) {
 
 func (this *CheckNoMutatedEs6Exports) visitName(t *NodeTraversal, name Node) {
 	var scope *Scope = t.getScope()
-	if (NodeUtil_isLValue(name) && !scope.getClosestHoistScope_rScope().isModuleScope()) {
+	if NodeUtil_isLValue(name) && !scope.getClosestHoistScope_rScope().isModuleScope() {
 		var var_ *Var = scope.getVar_String_rVar(name.getString())
-		if ((var_ != nil) && var_.getScope_rAbstractScope_rScope().isModuleScope()) {
+		if (var_ != nil) && var_.getScope_rAbstractScope_rScope().isModuleScope() {
 			this.mutatedNames.put(name.getString(), name)
 		}
 	}
@@ -121,4 +121,3 @@ func CheckNoMutatedEs6Exports_clinit() {
 	CheckNoMutatedEs6Exports_MUTATED_EXPORT = DiagnosticType_warning("JSC_MUTATED_EXPORT", "The name \"{0}\" is exported and should not be mutated outside of module initialization. Mutable exports are generally difficult to reason about. You can work around this by exporting getter/setter functions, or an object with mutable properties instead.")
 
 }
-

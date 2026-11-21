@@ -3,7 +3,7 @@
 package closure
 
 type FilePosition struct {
-	line_ int32
+	line_   int32
 	column_ int32
 }
 
@@ -29,4 +29,3 @@ func (this *FilePosition) getColumn() int32 {
 func (this *FilePosition) toString() string {
 	return tostrR_(MoreObjects_toStringHelper(this).add_String_int("line", this.line_).add_String_int("column", this.column_))
 }
-

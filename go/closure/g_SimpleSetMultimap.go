@@ -3,10 +3,10 @@
 package closure
 
 type SimpleSetMultimap[K comparable, V comparable] struct {
-	map__ MapT[K, SetT[V]]
-	entryOrder *TSet[*SimpleSetMultimap_Entry]
-	sorted bool
-	frozen bool
+	map__      MapT[K, SetT[V]]
+	entryOrder *JTSet[*SimpleSetMultimap_Entry]
+	sorted     bool
+	frozen     bool
 }
 
 func (this *SimpleSetMultimap[K, V]) isa_SimpleSetMultimap_() {}
@@ -22,9 +22,19 @@ func (this *SimpleSetMultimap[K, V]) finit_SimpleSetMultimap() {
 
 func (this *SimpleSetMultimap[K, V]) init_SimpleSetMultimap(sorted bool, insertionOrdered bool) {
 	this.finit_SimpleSetMultimap()
-	this.map__ = func() MapT[K, SetT[V]] { if sorted { return newTSortedMap_(tceT_[K](), tc_SetT_V_[V]()).asMapT() }; return newTMap_(tceT_[K](), tc_SetT_V_[V]()).asMapT() }()
+	this.map__ = func() MapT[K, SetT[V]] {
+		if sorted {
+			return newTSortedMap_(tceT_[K](), tc_SetT_V_[V]()).asMapT()
+		}
+		return jnewTMap_(tceT_[K](), tc_SetT_V_[V]()).asMapT()
+	}()
 	this.sorted = sorted
-	this.entryOrder = func() *TSet[*SimpleSetMultimap_Entry] { if insertionOrdered { return newTSet_(tce_p_SimpleSetMultimap_Entry) }; return nil }()
+	this.entryOrder = func() *JTSet[*SimpleSetMultimap_Entry] {
+		if insertionOrdered {
+			return jnewTSet_(tce_p_SimpleSetMultimap_Entry)
+		}
+		return nil
+	}()
 }
 
 func new_SimpleSetMultimap[K comparable, V comparable](sorted bool, insertionOrdered bool) *SimpleSetMultimap[K, V] {
@@ -47,10 +57,10 @@ func SimpleSetMultimap_createSorted[K comparable, V comparable]() *SimpleSetMult
 
 func (this *SimpleSetMultimap[K, V]) immutableCopy() *SimpleSetMultimap[K, V] {
 	var copy_ *SimpleSetMultimap[K, V] = new_SimpleSetMultimap[K, V](false, false)
-	it_1 := eachOf_(this.map__.entrySet_t())
+	it_1 := jeachOf_(this.map__.entrySet_t())
 	for it_1.next() {
 		var e Map_EntryT[K, SetT[V]] = it_1.v
-		copy_.map__.put_t(e.getKey_t(), tsetFrom_(tceT_[V](), Collection(Set_un_(e.getValue_t()))).asSetT())
+		copy_.map__.put_t(e.getKey_t(), jtsetFrom_(tceT_[V](), Collection(Set_un_(e.getValue_t()))).asSetT())
 	}
 	copy_.frozen = true
 	return copy_
@@ -58,10 +68,10 @@ func (this *SimpleSetMultimap[K, V]) immutableCopy() *SimpleSetMultimap[K, V] {
 
 func (this *SimpleSetMultimap[K, V]) inverse() *SimpleSetMultimap[V, K] {
 	var inverse *SimpleSetMultimap[V, K] = new_SimpleSetMultimap[V, K](false, false)
-	it_1 := eachOf_(this.map__.entrySet_t())
+	it_1 := jeachOf_(this.map__.entrySet_t())
 	for it_1.next() {
 		var e Map_EntryT[K, SetT[V]] = it_1.v
-		it_3 := eachOf_(e.getValue_t())
+		it_3 := jeachOf_(e.getValue_t())
 		for it_3.next() {
 			var value V = it_3.v
 			inverse.put(value, e.getKey_t())
@@ -74,21 +84,26 @@ func (this *SimpleSetMultimap[K, V]) inverse() *SimpleSetMultimap[V, K] {
 func (this *SimpleSetMultimap[K, V]) put(key K, value V) bool {
 	Preconditions_checkState_boolean_Object(!this.frozen, "immutable")
 	var values SetT[V] = this.map__.get_t(boxT_(key))
-	if (values == nil) {
-		values = func() SetT[V] { if this.sorted { return newTSortedSet_(tceT_[V]()).asSetT() }; return newTSet_(tceT_[V]()).asSetT() }()
+	if values == nil {
+		values = func() SetT[V] {
+			if this.sorted {
+				return newTSortedSet_(tceT_[V]()).asSetT()
+			}
+			return jnewTSet_(tceT_[V]()).asSetT()
+		}()
 		values.add_t(value)
 		this.map__.put_t(key, values)
 	} else if !values.add_t(value) {
 		return false
 	}
-	if (this.entryOrder != nil) {
+	if this.entryOrder != nil {
 		this.entryOrder.add(new_SimpleSetMultimap_Entry(boxT_(key), boxT_(value)))
 	}
 	return true
 }
 
 func (this *SimpleSetMultimap[K, V]) putAll_2(key K, values IterableT[V]) {
-	it_1 := eachOf_(values)
+	it_1 := jeachOf_(values)
 	for it_1.next() {
 		var value V = it_1.v
 		this.put(key, value)
@@ -96,24 +111,29 @@ func (this *SimpleSetMultimap[K, V]) putAll_2(key K, values IterableT[V]) {
 }
 
 func SimpleSetMultimap_putAll_SimpleSetMultimap[K comparable, V comparable, K2 comparable, V2 comparable](this *SimpleSetMultimap[K, V], other *SimpleSetMultimap[K2, V2]) {
-	if (other.entryOrder != nil) {
+	if other.entryOrder != nil {
 		it_1 := other.entryOrder.each()
 		for it_1.next() {
 			var e *SimpleSetMultimap_Entry = it_1.v
-			this.put(unboxT_[K](e.key()), unboxT_[V](e.value()))
+			this.put(junboxT_[K](e.key()), junboxT_[V](e.value()))
 		}
 	} else {
-		it_3 := eachOf_(other.map__.entrySet_t())
+		it_3 := jeachOf_(other.map__.entrySet_t())
 		for it_3.next() {
 			var e Map_EntryT[K2, SetT[V2]] = it_3.v
-			this.putAll_2(unboxT_[K](boxT_(e.getKey_t())), iterableAs_(tcT_[V](), Iterable(Set_un_(e.getValue_t()))))
+			this.putAll_2(junboxT_[K](boxT_(e.getKey_t())), iterableAs_(tcT_[V](), Iterable(Set_un_(e.getValue_t()))))
 		}
 	}
 }
 
 func (this *SimpleSetMultimap[K, V]) get(key K) SetT[V] {
 	var values SetT[V] = this.map__.get_t(boxT_(key))
-	return func() SetT[V] { if (values == nil) { return tsetEmptyImm_(tceT_[V]()).asSetT() }; return values }()
+	return func() SetT[V] {
+		if values == nil {
+			return jtsetEmptyImm_(tceT_[V]()).asSetT()
+		}
+		return values
+	}()
 }
 
 func (this *SimpleSetMultimap[K, V]) containsKey(key K) bool {
@@ -128,11 +148,11 @@ func (this *SimpleSetMultimap[K, V]) containsEntry(key K, value V) bool {
 func (this *SimpleSetMultimap[K, V]) removeAll(key K) SetT[V] {
 	Preconditions_checkState_boolean_Object(!this.frozen, "immutable")
 	var values SetT[V] = this.map__.remove_t(boxT_(key))
-	if (values == nil) {
-		return tsetEmptyImm_(tceT_[V]()).asSetT()
+	if values == nil {
+		return jtsetEmptyImm_(tceT_[V]()).asSetT()
 	}
-	if (this.entryOrder != nil) {
-		it_1 := eachOf_(values)
+	if this.entryOrder != nil {
+		it_1 := jeachOf_(values)
 		for it_1.next() {
 			var value V = it_1.v
 			this.entryOrder.remove(new_SimpleSetMultimap_Entry(boxT_(key), boxT_(value)))
@@ -144,7 +164,7 @@ func (this *SimpleSetMultimap[K, V]) removeAll(key K) SetT[V] {
 func (this *SimpleSetMultimap[K, V]) clear() {
 	Preconditions_checkState_boolean_Object(!this.frozen, "immutable")
 	this.map__.clear()
-	if (this.entryOrder != nil) {
+	if this.entryOrder != nil {
 		this.entryOrder.clear()
 	}
 }
@@ -167,7 +187,7 @@ func (this *SimpleSetMultimap[K, V]) untypedMap() MapOf[any, any] {
 
 func (this *SimpleSetMultimap[K, V]) size() int32 {
 	var size int32 = 0
-	it_1 := eachOf_(this.map__.values_t())
+	it_1 := jeachOf_(this.map__.values_t())
 	for it_1.next() {
 		var values SetT[V] = it_1.v
 		size += values.size()
@@ -192,7 +212,7 @@ func (this *SimpleSetMultimap[K, V]) toString() string {
 }
 
 type SimpleSetMultimap_Entry struct {
-	key_ any
+	key_   any
 	value_ any
 }
 
@@ -235,12 +255,13 @@ func (this *SimpleSetMultimap_Entry) toString() string {
 }
 
 type SimpleSetMultimap_1InsertionOrderedValuesIterator[K comparable, V comparable] struct {
-	outer_ *SimpleSetMultimap[K, V]
+	outer_  *SimpleSetMultimap[K, V]
 	entries IteratorT[*SimpleSetMultimap_Entry]
-	last *SimpleSetMultimap_Entry
+	last    *SimpleSetMultimap_Entry
 }
 
-func (this *SimpleSetMultimap_1InsertionOrderedValuesIterator[K, V]) isa_SimpleSetMultimap_1InsertionOrderedValuesIterator_() {}
+func (this *SimpleSetMultimap_1InsertionOrderedValuesIterator[K, V]) isa_SimpleSetMultimap_1InsertionOrderedValuesIterator_() {
+}
 
 func is_SimpleSetMultimap_1InsertionOrderedValuesIterator(v any) bool {
 	_, ok := v.(interface{ isa_SimpleSetMultimap_1InsertionOrderedValuesIterator_() })
@@ -314,10 +335,14 @@ func new_SimpleSetMultimap_1[K comparable, V comparable](outer_ *SimpleSetMultim
 }
 
 func (this *SimpleSetMultimap_1[K, V]) iterator() Iterator {
-	return func() Iterator { if (this.outer_.entryOrder != nil) { return icast_Iterator(obj_(new_SimpleSetMultimap_1InsertionOrderedValuesIterator[K, V](this.outer_))) }; return Iterator_un_(iterableAs_(tcT_[V](), Iterables_unmodifiableIterable(Iterables_concat_Iterable(Iterable(Collection_un_(this.outer_.map__.values_t()))))).iterator_t()) }()
+	return func() Iterator {
+		if this.outer_.entryOrder != nil {
+			return icast_Iterator(obj_(new_SimpleSetMultimap_1InsertionOrderedValuesIterator[K, V](this.outer_)))
+		}
+		return Iterator_un_(iterableAs_(tcT_[V](), Iterables_unmodifiableIterable(Iterables_concat_Iterable(Iterable(Collection_un_(this.outer_.map__.values_t()))))).iterator_t())
+	}()
 }
 
 func (this *SimpleSetMultimap_1[K, V]) size() int32 {
 	return this.outer_.size()
 }
-

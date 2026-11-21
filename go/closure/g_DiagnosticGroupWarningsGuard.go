@@ -4,7 +4,7 @@ package closure
 
 type DiagnosticGroupWarningsGuard struct {
 	WarningsGuard
-	group *DiagnosticGroup
+	group      *DiagnosticGroup
 	levelField *CheckLevel
 }
 
@@ -29,19 +29,34 @@ func new_DiagnosticGroupWarningsGuard(group *DiagnosticGroup, level *CheckLevel)
 }
 
 func (this *DiagnosticGroupWarningsGuard) level_impl(error_ *JSError) *CheckLevel {
-	return func() *CheckLevel { if this.group.matches(error_) { return this.levelField }; return nil }()
+	return func() *CheckLevel {
+		if this.group.matches(error_) {
+			return this.levelField
+		}
+		return nil
+	}()
 }
 
 func (this *DiagnosticGroupWarningsGuard) mustRunChecks_impl(otherGroup *DiagnosticGroup) *Tri {
 	if this.levelField.isOn() {
-		return func() *Tri { if this.groupMatchesAny(otherGroup.getTypes()) { return Tri_TRUE }; return Tri_UNKNOWN }()
+		return func() *Tri {
+			if this.groupMatchesAny(otherGroup.getTypes()) {
+				return Tri_TRUE
+			}
+			return Tri_UNKNOWN
+		}()
 	} else {
-		return func() *Tri { if this.groupMatchesAll(otherGroup.getTypes()) { return Tri_FALSE }; return Tri_UNKNOWN }()
+		return func() *Tri {
+			if this.groupMatchesAll(otherGroup.getTypes()) {
+				return Tri_FALSE
+			}
+			return Tri_UNKNOWN
+		}()
 	}
 	panic("unreachable")
 }
 
-func (this *DiagnosticGroupWarningsGuard) groupMatchesAny(types *TSet[*DiagnosticType]) bool {
+func (this *DiagnosticGroupWarningsGuard) groupMatchesAny(types *JTSet[*DiagnosticType]) bool {
 	it_1 := types.each()
 	for it_1.next() {
 		var type_ *DiagnosticType = it_1.v
@@ -52,7 +67,7 @@ func (this *DiagnosticGroupWarningsGuard) groupMatchesAny(types *TSet[*Diagnosti
 	return false
 }
 
-func (this *DiagnosticGroupWarningsGuard) groupMatchesAll(types *TSet[*DiagnosticType]) bool {
+func (this *DiagnosticGroupWarningsGuard) groupMatchesAll(types *JTSet[*DiagnosticType]) bool {
 	it_1 := types.each()
 	for it_1.next() {
 		var type_ *DiagnosticType = it_1.v
@@ -64,8 +79,7 @@ func (this *DiagnosticGroupWarningsGuard) groupMatchesAll(types *TSet[*Diagnosti
 }
 
 func (this *DiagnosticGroupWarningsGuard) toString() string {
-	return (tostr_(this.group) + "(" + tostr_(this.levelField) + ")")
+	return (jtostr_(this.group) + "(" + jtostr_(this.levelField) + ")")
 }
 
 const DiagnosticGroupWarningsGuard_serialVersionUID int64 = 1
-

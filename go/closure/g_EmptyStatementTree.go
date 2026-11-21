@@ -23,4 +23,3 @@ func new_EmptyStatementTree(location *SourceRange) *EmptyStatementTree {
 	this.init_EmptyStatementTree(location)
 	return this
 }
-

@@ -3,7 +3,7 @@
 package closure
 
 type PrebuildAst struct {
-	compiler_ *AbstractCompiler
+	compiler_          *AbstractCompiler
 	numParallelThreads int32
 }
 
@@ -27,8 +27,8 @@ func (this *PrebuildAst) prebuild(allInputs IterableT[*CompilerInput]) {
 	}}
 	var poolExecutor *ThreadPoolExecutor = new_ThreadPoolExecutor_int_int_long_TimeUnit_BlockingQueue_ThreadFactory(this.numParallelThreads, this.numParallelThreads, int64(int32(2147483647)), TimeUnit_SECONDS, BlockingQueue(new_LinkedBlockingQueue()), threadFactory)
 	var executorService ListeningExecutorService = MoreExecutors_listeningDecorator(icast_ExecutorService(poolExecutor.self()))
-	var futureList *TList[ListenableFuture] = newTListN_(tc_ListenableFuture, Iterables_size(Iterable_un_(allInputs)))
-	it_1 := eachOf_(allInputs)
+	var futureList *JTList[ListenableFuture] = jnewTListN_(tc_ListenableFuture, Iterables_size(Iterable_un_(allInputs)))
+	it_1 := jeachOf_(allInputs)
 	for it_1.next() {
 		var input *CompilerInput = it_1.v
 		futureList.add(icast_ListenableFuture(executorService.submit(Callable[any](func() any {
@@ -52,4 +52,3 @@ func (this *PrebuildAst) prebuild(allInputs IterableT[*CompilerInput]) {
 		return 0
 	}()
 }
-

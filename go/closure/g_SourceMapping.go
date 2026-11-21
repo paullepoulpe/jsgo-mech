@@ -13,4 +13,3 @@ type SourceMapping_fn struct {
 func (this *SourceMapping_fn) getMappingForLine(p0 int32, p1 int32) *Mapping_OriginalMapping {
 	return this.f(p0, p1)
 }
-

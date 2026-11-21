@@ -4,8 +4,8 @@ package closure
 
 type NewExpressionTree struct {
 	ParseTree
-	operand *ParseTree
-	arguments *ArgumentListTree
+	operand           *ParseTree
+	arguments         *ArgumentListTree
 	hasTrailingComma_ bool
 }
 
@@ -29,4 +29,3 @@ func new_NewExpressionTree(location *SourceRange, operand *ParseTree, arguments 
 	this.init_NewExpressionTree(location, operand, arguments, hasTrailingComma)
 	return this
 }
-

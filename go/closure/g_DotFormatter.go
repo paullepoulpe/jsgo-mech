@@ -3,15 +3,15 @@
 package closure
 
 type DotFormatter struct {
-	assignments *TMap[Node, any]
-	builder Appendable
-	cfg *ControlFlowGraph[Node]
-	keyCount int32
+	assignments      *JTMap[Node, any]
+	builder          Appendable
+	cfg              *ControlFlowGraph[Node]
+	keyCount         int32
 	printAnnotations bool
 }
 
 func (this *DotFormatter) finit_DotFormatter() {
-	this.assignments = newTMap_(tc_Node, tc_Integer)
+	this.assignments = jnewTMap_(jtc_Node, tc_Integer)
 	this.keyCount = 0
 }
 
@@ -57,27 +57,52 @@ func DotFormatter_toDot_Node_ControlFlowGraph(n Node, inCFG *ControlFlowGraph[No
 
 func DotFormatter_toDot_GraphvizGraph(graph GraphvizGraph) string {
 	var builder *StringBuilder = new_StringBuilder()
-	builder.append(func() string { if graph.isDirected() { return "digraph" }; return "graph" }())
+	builder.append(func() string {
+		if graph.isDirected() {
+			return "digraph"
+		}
+		return "graph"
+	}())
 	builder.append(DotFormatter_INDENT)
 	builder.append(graph.getName())
 	builder.append(" {\n")
 	builder.append(DotFormatter_INDENT)
 	builder.append("node [color=lightblue2, style=filled];\n")
-	var edgeSymbol string = func() string { if graph.isDirected() { return DotFormatter_ARROW }; return DotFormatter_LINE }()
-	var nodes *TList[GraphvizGraph_GraphvizNode] = graph.getGraphvizNodes()
+	var edgeSymbol string = func() string {
+		if graph.isDirected() {
+			return DotFormatter_ARROW
+		}
+		return DotFormatter_LINE
+	}()
+	var nodes *JTList[GraphvizGraph_GraphvizNode] = graph.getGraphvizNodes()
 	var nodeNames []string = newstrarr_(nodes.size())
-	for i := int32(0); (i < int32(len(nodeNames))); i++ {
+	for i := int32(0); i < int32(len(nodeNames)); i++ {
 		var gNode GraphvizGraph_GraphvizNode = nodes.get(i)
 		nodeNames[i] = (sstr_(gNode.getId()) + " [label=\"" + sstr_(gNode.getLabel()) + "\" color=\"" + sstr_(gNode.getColor()) + "\"]")
 	}
-	func() { arr_2 := nodeNames; tmp_3 := arrmap_(arr_2, func(v_ string) any { return strobj_(v_) }); Arrays_sort(tmp_3); for i_ := range tmp_3 { arr_2[i_] = str_(tmp_3[i_]) } }()
+	func() {
+		arr_2 := nodeNames
+		tmp_3 := arrmap_(arr_2, func(v_ string) any { return strobj_(v_) })
+		Arrays_sort(tmp_3)
+		for i_ := range tmp_3 {
+			arr_2[i_] = str_(tmp_3[i_])
+		}
+	}()
 	for _, nodeName := range nodeNames {
 		builder.append(DotFormatter_INDENT)
 		builder.append(nodeName)
 		builder.append(";\n")
 	}
-	var edges *TList[GraphvizGraph_GraphvizEdge] = graph.getGraphvizEdges()
-	List_sort(List_un_(edges.asListT()), func() Comparator[any] { f_ := Comparator_comparing[GraphvizGraph_GraphvizEdge, string](Function[GraphvizGraph_GraphvizEdge, string](func(p0 GraphvizGraph_GraphvizEdge) string { return p0.getNode1Id() })).thenComparing(Function[GraphvizGraph_GraphvizEdge, any](func(p0 GraphvizGraph_GraphvizEdge) any { return strobj_(p0.getNode2Id()) })); if f_ == nil { return nil }; return func(p0 any, p1 any) int32 { return f_(icast_GraphvizGraph_GraphvizEdge(p0), icast_GraphvizGraph_GraphvizEdge(p1)) } }())
+	var edges *JTList[GraphvizGraph_GraphvizEdge] = graph.getGraphvizEdges()
+	List_sort(List_un_(edges.asListT()), func() Comparator[any] {
+		f_ := Comparator_comparing[GraphvizGraph_GraphvizEdge, string](Function[GraphvizGraph_GraphvizEdge, string](func(p0 GraphvizGraph_GraphvizEdge) string { return p0.getNode1Id() })).thenComparing(Function[GraphvizGraph_GraphvizEdge, any](func(p0 GraphvizGraph_GraphvizEdge) any { return strobj_(p0.getNode2Id()) }))
+		if f_ == nil {
+			return nil
+		}
+		return func(p0 any, p1 any) int32 {
+			return f_(icast_GraphvizGraph_GraphvizEdge(p0), icast_GraphvizGraph_GraphvizEdge(p1))
+		}
+	}())
 	it_5 := edges.each()
 	for it_5.next() {
 		var edge GraphvizGraph_GraphvizEdge = it_5.v
@@ -105,7 +130,7 @@ func (this *DotFormatter) traverseNodes(parent Node) {
 	var keyParent int32 = this.key(parent)
 	{
 		var child Node = parent.getFirstChild()
-		for ; (child != 0); child = child.getNext() {
+		for ; child != 0; child = child.getNext() {
 			var keyChild int32 = this.key(child)
 			Appendable_append_s(this.builder, DotFormatter_INDENT)
 			Appendable_append_s(this.builder, DotFormatter_formatNodeName(int32(keyParent)))
@@ -115,14 +140,14 @@ func (this *DotFormatter) traverseNodes(parent Node) {
 			this.traverseNodes(child)
 		}
 	}
-	if ((this.cfg != nil) && this.cfg.hasNode(parent)) {
+	if (this.cfg != nil) && this.cfg.hasNode(parent) {
 		var outEdges ListT[*LinkedDirectedGraph_LinkedDiGraphEdge[Node, *ControlFlowGraph_Branch]] = this.cfg.getOutEdges_Object_rListOf_LinkedDiGraphEdge(parent)
 		var edgeList []string = newstrarr_(outEdges.size())
-		for i := int32(0); (i < int32(len(edgeList))); i++ {
+		for i := int32(0); i < int32(len(edgeList)); i++ {
 			var edge DiGraph_DiGraphEdge[Node, *ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphEdge[Node, *ControlFlowGraph_Branch]](outEdges.get_t(i).self())
 			var succ DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch] = edge.getDestination()
 			var toNode Optional[string] = Optional_empty[string]()
-			if (succ == this.cfg.getImplicitReturn()) {
+			if succ == this.cfg.getImplicitReturn() {
 				toNode = Optional_of[string]("RETURN")
 			} else {
 				var keySucc int32 = this.key(succ.getValue())
@@ -130,7 +155,14 @@ func (this *DotFormatter) traverseNodes(parent Node) {
 			}
 			edgeList[i] = (sstr_(DotFormatter_formatNodeName(int32(keyParent))) + sstr_(DotFormatter_ARROW) + sstr_(toNode.orElse("null")) + " [label=\"" + objstr_(obj_(edge.getValue())) + "\", fontcolor=\"red\", weight=0.01, color=\"red\"];\n")
 		}
-		func() { arr_3 := edgeList; tmp_4 := arrmap_(arr_3, func(v_ string) any { return strobj_(v_) }); Arrays_sort(tmp_4); for i_ := range tmp_4 { arr_3[i_] = str_(tmp_4[i_]) } }()
+		func() {
+			arr_3 := edgeList
+			tmp_4 := arrmap_(arr_3, func(v_ string) any { return strobj_(v_) })
+			Arrays_sort(tmp_4)
+			for i_ := range tmp_4 {
+				arr_3[i_] = str_(tmp_4[i_])
+			}
+		}()
 		for _, element := range edgeList {
 			Appendable_append_s(this.builder, DotFormatter_INDENT)
 			Appendable_append_s(this.builder, element)
@@ -140,7 +172,7 @@ func (this *DotFormatter) traverseNodes(parent Node) {
 
 func (this *DotFormatter) key(n Node) int32 {
 	var key any = this.assignments.get(n)
-	if (key == nil) {
+	if key == nil {
 		key = any(int32(this.keyCount))
 		this.keyCount++
 		this.assignments.put(n, key)
@@ -148,23 +180,23 @@ func (this *DotFormatter) key(n Node) int32 {
 		Appendable_append_s(this.builder, DotFormatter_formatNodeName(key))
 		Appendable_append_s(this.builder, " [label=\"")
 		Appendable_append_s(this.builder, tostrR_(n.getToken()))
-		if ((((n.isName() || n.isStringLit()) || n.isGetProp()) || n.isImportStar()) || n.isStringKey()) {
+		if (((n.isName() || n.isStringLit()) || n.isGetProp()) || n.isImportStar()) || n.isStringKey() {
 			Appendable_append_s(this.builder, DotFormatter_getNodeLabel(n))
 		}
 		var type_ *JSType = n.getJSType()
-		if (type_ != nil) {
+		if type_ != nil {
 			Appendable_append_s(this.builder, " : ")
 			Appendable_append_s(this.builder, type_.toString())
 		}
-		if ((this.printAnnotations && (this.cfg != nil)) && this.cfg.hasNode(n)) {
+		if (this.printAnnotations && (this.cfg != nil)) && this.cfg.hasNode(n) {
 			var annotation any = any(Annotatable_getAnnotation(icast_Annotatable(this.cfg.getNode_Object_rDiGraphNode_rLinkedDiGraphNode(n).self())))
-			if (annotation != nil) {
+			if annotation != nil {
 				Appendable_append_s(this.builder, "\\n")
 				Appendable_append_s(this.builder, Object_toString(annotation))
 			}
 		}
 		Appendable_append_s(this.builder, "\"")
-		if (n.getJSDocInfo() != nil) {
+		if n.getJSDocInfo() != nil {
 			Appendable_append_s(this.builder, " color=\"green\"")
 		}
 		Appendable_append_s(this.builder, "];\n")
@@ -174,7 +206,7 @@ func (this *DotFormatter) key(n Node) int32 {
 
 func DotFormatter_getNodeLabel(n Node) string {
 	var content string = n.getString()
-	if (String_length(content) > DotFormatter_MAX_LABEL_NAME_LENGTH) {
+	if String_length(content) > DotFormatter_MAX_LABEL_NAME_LENGTH {
 		content = String_substring(content, 0, DotFormatter_MAX_LABEL_NAME_LENGTH)
 	}
 	if !String_isEmpty(content) {
@@ -201,4 +233,3 @@ const DotFormatter_INDENT string = "  "
 const DotFormatter_ARROW string = " -> "
 const DotFormatter_LINE string = " -- "
 const DotFormatter_MAX_LABEL_NAME_LENGTH int32 = 10
-

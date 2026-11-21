@@ -47,4 +47,3 @@ func MalformedTypedAstException_checkWellFormed_boolean_String_Object(condition 
 		panic(obj_(new_MalformedTypedAstException_Object(strobj_(message))))
 	}
 }
-

@@ -4,7 +4,7 @@ package closure
 
 type DevirtualizeMethods struct {
 	compiler_ *AbstractCompiler
-	refMap *OptimizeCalls_ReferenceMap
+	refMap    *OptimizeCalls_ReferenceMap
 }
 
 func (this *DevirtualizeMethods) init_DevirtualizeMethods(compiler *AbstractCompiler) {
@@ -20,7 +20,7 @@ func new_DevirtualizeMethods(compiler *AbstractCompiler) *DevirtualizeMethods {
 func (this *DevirtualizeMethods) process_3(externs Node, root Node, refMap *OptimizeCalls_ReferenceMap) {
 	Preconditions_checkState_boolean_Object((this.refMap == nil), "`process` should only be called once.")
 	this.refMap = refMap
-	it_1 := eachOf_(refMap.getPropReferences())
+	it_1 := jeachOf_(refMap.getPropReferences())
 	for it_1.next() {
 		var referenceGroup Map_EntryT[string, ListT[Node]] = it_1.v
 		this.processReferenceList(referenceGroup.getKey_t(), referenceGroup.getValue_t())
@@ -33,15 +33,15 @@ func (this *DevirtualizeMethods) processReferenceList(name string, sites ListT[N
 		return
 	}
 	var canonicalDefinitionSite Node = Node_of_(Iterables_get(Iterable(Set_un_(functionsBySite.keySet())), 0))
-	var callSitesBuilder *TListBuilder[Node] = newTListBuilder_(tc_Node)
-	it_1 := eachOf_(sites)
+	var callSitesBuilder *TListBuilder[Node] = newTListBuilder_(jtc_Node)
+	it_1 := jeachOf_(sites)
 	for it_1.next() {
 		var s Node = it_1.v
 		if !functionsBySite.containsKey(s) {
 			callSitesBuilder.add(s)
 		}
 	}
-	var callSites *TList[Node] = callSitesBuilder.build()
+	var callSites *JTList[Node] = callSitesBuilder.build()
 	if callSites.isEmpty() {
 		return
 	}
@@ -68,7 +68,7 @@ func (this *DevirtualizeMethods) processReferenceList(name string, sites ListT[N
 func (this *DevirtualizeMethods) isPrototypeOrStaticMethodDefinition(node Node) bool {
 	var parent Node = node.getParent()
 	var grandparent Node = node.getGrandparent()
-	if ((parent == 0) || (grandparent == 0)) {
+	if (parent == 0) || (grandparent == 0) {
 		return false
 	}
 	return func() bool {
@@ -82,7 +82,7 @@ func (this *DevirtualizeMethods) isPrototypeOrStaticMethodDefinition(node Node) 
 			}
 			return true
 		case Token_rhino_GETPROP:
-			if ((!node.isFirstChildOf(parent) || !NodeUtil_isExprAssign(grandparent)) || !parent.getLastChild().isFunction()) {
+			if (!node.isFirstChildOf(parent) || !NodeUtil_isExprAssign(grandparent)) || !parent.getLastChild().isFunction() {
 				return false
 			}
 			if NodeUtil_isPrototypeProperty(node) {
@@ -114,14 +114,14 @@ func (this *DevirtualizeMethods) isDefinitelyCtorOrInterface(receiver Node) bool
 		return false
 	}
 	var var_ *Var = this.refMap.getGlobalScope().getVar_String_rVar(qname)
-	if (var_ == nil) {
+	if var_ == nil {
 		return false
 	}
 	if var_.isClass() {
 		return true
 	}
 	var jsdoc *JSDocInfo = var_.getJSDocInfo()
-	if (jsdoc == nil) {
+	if jsdoc == nil {
 		return false
 	} else if jsdoc.isConstructorOrInterface() {
 		return true
@@ -130,7 +130,7 @@ func (this *DevirtualizeMethods) isDefinitelyCtorOrInterface(receiver Node) bool
 }
 
 func (this *DevirtualizeMethods) allEligibleDefinitionSites(name string, definitionSites CollectionT[Node]) bool {
-	it_1 := eachOf_(definitionSites)
+	it_1 := jeachOf_(definitionSites)
 	for it_1.next() {
 		var s Node = it_1.v
 		if !this.isEligibleDefinitionSite(name, s) {
@@ -141,7 +141,7 @@ func (this *DevirtualizeMethods) allEligibleDefinitionSites(name string, definit
 }
 
 func (this *DevirtualizeMethods) allEligibleDefinitionFunctions(definitionFunctions CollectionT[Node]) bool {
-	it_1 := eachOf_(definitionFunctions)
+	it_1 := jeachOf_(definitionFunctions)
 	for it_1.next() {
 		var f Node = it_1.v
 		if !this.isEligibleDefinitionFunction(f) {
@@ -152,7 +152,7 @@ func (this *DevirtualizeMethods) allEligibleDefinitionFunctions(definitionFuncti
 }
 
 func (this *DevirtualizeMethods) allEligibleCallSites(callSites CollectionT[Node], definitionSite Node) bool {
-	it_1 := eachOf_(callSites)
+	it_1 := jeachOf_(callSites)
 	for it_1.next() {
 		var c Node = it_1.v
 		if !this.isEligibleCallSite(c, definitionSite) {
@@ -185,11 +185,11 @@ func (this *DevirtualizeMethods) isEligibleDefinitionFunction(definitionFunction
 	}
 	{
 		var ancestor Node = definitionFunction.getParent()
-		for ; (ancestor != 0); ancestor = ancestor.getParent() {
+		for ; ancestor != 0; ancestor = ancestor.getParent() {
 			if DevirtualizeMethods_isScopingOrBranchingConstruct(ancestor) {
 				return false
 			}
-			if (ancestor.isClass() && DevirtualizeMethods_localNameIsDeclaredByClass(ancestor)) {
+			if ancestor.isClass() && DevirtualizeMethods_localNameIsDeclaredByClass(ancestor) {
 				return false
 			}
 		}
@@ -205,14 +205,14 @@ func (this *DevirtualizeMethods) isEligibleDefinitionFunction(definitionFunction
 
 func (this *DevirtualizeMethods) isEligibleCallSite(access Node, definitionSite Node) bool {
 	var invocation Node = access.getParent()
-	if (!NodeUtil_isInvocationTarget(access) || !invocation.isCall()) {
+	if !NodeUtil_isInvocationTarget(access) || !invocation.isCall() {
 		return false
 	}
 	var chunkGraph *JSChunkGraph = this.compiler_.getChunkGraph()
 	var definitionChunk *JSChunk = this.chunkForNode(definitionSite)
 	var callChunk *JSChunk = this.chunkForNode(access)
-	if (definitionChunk == callChunk) {
-	} else if (callChunk == nil) {
+	if definitionChunk == callChunk {
+	} else if callChunk == nil {
 		return false
 	} else if !chunkGraph.dependsOn(callChunk, definitionChunk) {
 		return false
@@ -226,7 +226,7 @@ func (this *DevirtualizeMethods) allDefinitionsEquivalent(definitions Collection
 	}
 	var definition Node = Node_of_(Iterables_get(Iterable(Collection_un_(definitions)), 0))
 	Preconditions_checkArgument_boolean_Object_H(definition.isFunction(), definition)
-	it_1 := eachOf_(definitions)
+	it_1 := jeachOf_(definitions)
 	for it_1.next() {
 		var d Node = it_1.v
 		if !this.compiler_.areNodesEqualForInlining(d, definition) {
@@ -293,12 +293,12 @@ func (this *DevirtualizeMethods) rewriteDefinition(definitionSite Node, newMetho
 }
 
 func (this *DevirtualizeMethods) replaceReferencesToThis(node Node, name string) {
-	if (((node.isFunction() && !node.isArrowFunction()) || node.isMemberFieldDef()) || NodeUtil_isClassStaticBlock(node)) {
+	if ((node.isFunction() && !node.isArrowFunction()) || node.isMemberFieldDef()) || NodeUtil_isClassStaticBlock(node) {
 		return
 	}
 	if node.isComputedFieldDef() {
 		var key Node = node.getFirstChild()
-		if (key != 0) {
+		if key != 0 {
 			if key.isThis() {
 				var newName Node = IR_name(name).srcref(key).copyTypeFrom(key)
 				key.replaceWith(newName)
@@ -311,7 +311,7 @@ func (this *DevirtualizeMethods) replaceReferencesToThis(node Node, name string)
 	}
 	{
 		var child Node = node.getFirstChild()
-		for (child != 0) {
+		for child != 0 {
 			var next Node = child.getNext()
 			if child.isThis() {
 				var newName Node = IR_name(name).srcref(child).copyTypeFrom(child)
@@ -348,4 +348,3 @@ func DevirtualizeMethods_localNameIsDeclaredByClass(clazz Node) bool {
 	}
 	return true
 }
-

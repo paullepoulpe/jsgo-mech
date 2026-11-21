@@ -1117,8 +1117,8 @@ func (it *hiter_) remove() {
 // ---- LinkedHashMap (and HashMap, ConcurrentHashMap, IdentityHashMap)
 
 type LinkedHashMap struct {
-	t      htable_
-	typed_ atomic.Pointer[any] // the wrapper that typed code reads the map through, once made (mapAs_)
+	t       htable_
+	jtyped_ atomic.Pointer[any] // the wrapper that typed code reads the map through, once made (mapAs_)
 }
 
 func new_LinkedHashMap() *LinkedHashMap { return &LinkedHashMap{} }

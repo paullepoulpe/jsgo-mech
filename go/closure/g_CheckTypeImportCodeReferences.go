@@ -35,15 +35,20 @@ func (this *CheckTypeImportCodeReferences) visit_impl(t *NodeTraversal, n Node, 
 		return
 	}
 	var var_ *Var = t.getScope().getVar_String_rVar(n.getString())
-	if (var_ == nil) {
+	if var_ == nil {
 		return
 	}
 	var declNameNode Node = var_.getNameNode()
-	if (((declNameNode == 0) || (declNameNode == n)) || !NodeUtil_isDeclarationLValue(declNameNode)) {
+	if ((declNameNode == 0) || (declNameNode == n)) || !NodeUtil_isDeclarationLValue(declNameNode) {
 		return
 	}
-	var decl Node = func() Node { if declNameNode.getParent().isStringKey() { return declNameNode.getGrandparent().getGrandparent() }; return declNameNode.getParent() }()
-	if (((!NodeUtil_isNameDeclaration(decl) || !decl.hasOneChild()) || !decl.getFirstChild().hasChildren()) || !decl.getFirstChild().getLastChild().isCall()) {
+	var decl Node = func() Node {
+		if declNameNode.getParent().isStringKey() {
+			return declNameNode.getGrandparent().getGrandparent()
+		}
+		return declNameNode.getParent()
+	}()
+	if ((!NodeUtil_isNameDeclaration(decl) || !decl.hasOneChild()) || !decl.getFirstChild().hasChildren()) || !decl.getFirstChild().getLastChild().isCall() {
 		return
 	}
 	var callNode Node = decl.getFirstChild().getLastChild()
@@ -67,4 +72,3 @@ func CheckTypeImportCodeReferences_clinit() {
 	CheckTypeImportCodeReferences_GOOG_REQUIRE_TYPE = IR_getprop_Node_String(IR_name("goog"), "requireType")
 
 }
-

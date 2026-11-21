@@ -38,11 +38,11 @@ func (this *RecordType) init_RecordType(registry *JSTypeRegistry, properties Map
 	this.finit_RecordType()
 	this.setPrettyPrint(true)
 	this.declared = declared
-	it_1 := eachOf_(properties.keySet_t())
+	it_1 := jeachOf_(properties.keySet_t())
 	for it_1.next() {
 		var property string = it_1.v
 		var prop *RecordTypeBuilder_RecordProperty = cast_[*RecordTypeBuilder_RecordProperty](Map_get_s(Map_un_(properties), property))
-		if (prop == nil) {
+		if prop == nil {
 			panic(new_IllegalStateException_String("RecordProperty associated with a property should not be null!").self())
 		}
 		if declared {
@@ -87,7 +87,7 @@ func (this *RecordType) getGreatestSubtypeHelper(that *JSType) *JSType {
 		var builder *RecordTypeBuilder = new_RecordTypeBuilder(this.registry)
 		builder.setSynthesized(true)
 		var noType *JSType = this.registry.getNativeObjectType(JSTypeNative_NO_TYPE).up_JSType()
-		it_1 := eachOf_(this.getOwnPropertyNames())
+		it_1 := jeachOf_(this.getOwnPropertyNames())
 		for it_1.next() {
 			var property string = it_1.v
 			var thisPropertyType *JSType = this.getPropertyType(property)
@@ -103,7 +103,7 @@ func (this *RecordType) getGreatestSubtypeHelper(that *JSType) *JSType {
 			}
 			builder.addProperty(property, propType, this.getPropertyNode(property))
 		}
-		it_3 := eachOf_(thatRecord.getOwnPropertyNames())
+		it_3 := jeachOf_(thatRecord.getOwnPropertyNames())
 		for it_3.next() {
 			var property string = it_3.v
 			if !this.hasProperty(property) {
@@ -115,16 +115,16 @@ func (this *RecordType) getGreatestSubtypeHelper(that *JSType) *JSType {
 	var greatestSubtype *JSType = this.registry.getNativeType(JSTypeNative_NO_OBJECT_TYPE)
 	var thatRestrictedToObj *JSType = this.registry.getNativeType(JSTypeNative_OBJECT_TYPE).getGreatestSubtype(that)
 	if !thatRestrictedToObj.isEmptyType() {
-		it_5 := eachOf_(this.getOwnPropertyNames())
+		it_5 := jeachOf_(this.getOwnPropertyNames())
 		for it_5.next() {
 			var propName string = it_5.v
 			var propType *JSType = this.getPropertyType(propName)
 			var builder *UnionType_Builder = UnionType_builder(this.registry)
-			it_7 := eachOf_(this.registry.getEachReferenceTypeWithProperty(propName))
+			it_7 := jeachOf_(this.registry.getEachReferenceTypeWithProperty(propName))
 			for it_7.next() {
 				var alt *ObjectType = it_7.v
 				var altPropType *JSType = alt.getPropertyType(propName)
-				if ((((altPropType != nil) && !alt.equals(obj_(this))) && alt.isSubtypeOf(that)) && altPropType.isSubtypeOf(propType)) {
+				if (((altPropType != nil) && !alt.equals(obj_(this))) && alt.isSubtypeOf(that)) && altPropType.isSubtypeOf(propType) {
 					builder.addAlternate(alt.up_JSType())
 				}
 			}
@@ -154,4 +154,3 @@ func RecordType_clinit() {
 	RecordType_TYPE_CLASS_FIELD = JSTypeClass_RECORD
 
 }
-

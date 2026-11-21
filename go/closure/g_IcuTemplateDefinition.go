@@ -7,4 +7,3 @@ type IcuTemplateDefinition interface {
 	getMessageNode() Node
 	getTemplateTextNode() Node
 }
-

@@ -3,17 +3,17 @@
 package closure
 
 type RewriteAsyncFunctions struct {
-	namespace_ StaticScope
+	namespace_   StaticScope
 	contextStack *TDeque[*RewriteAsyncFunctions_LexicalContext]
-	compiler_ *AbstractCompiler
-	astFactory_ *AstFactory
+	compiler_    *AbstractCompiler
+	astFactory_  *AstFactory
 }
 
 func (this *RewriteAsyncFunctions) init_RewriteAsyncFunctions(compiler *AbstractCompiler, astFactory *AstFactory, namespace StaticScope) {
 	this.compiler_ = Preconditions_checkNotNull_T(compiler)
 	this.astFactory_ = Preconditions_checkNotNull_T(astFactory)
 	this.namespace_ = Preconditions_checkNotNull_T(namespace)
-	this.contextStack = newTDeque_(tc_p_RewriteAsyncFunctions_LexicalContext)
+	this.contextStack = newTDeque_(jtc_p_RewriteAsyncFunctions_LexicalContext)
 }
 
 func new_RewriteAsyncFunctions(compiler *AbstractCompiler, astFactory *AstFactory, namespace StaticScope) *RewriteAsyncFunctions {
@@ -34,14 +34,14 @@ func (this *RewriteAsyncFunctions) process_2(externs Node, root Node) {
 }
 
 func (this *RewriteAsyncFunctions) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
-	if (parent == 0) {
+	if parent == 0 {
 		Preconditions_checkState(this.contextStack.isEmpty())
 		var uniqueId string = this.compiler_.getUniqueIdSupplier().getUniqueId(t.getInput())
 		this.contextStack.push(new_RewriteAsyncFunctions_RootContext(this, n, uniqueId).up_RewriteAsyncFunctions_LexicalContext())
 	} else {
 		var parentContext *RewriteAsyncFunctions_LexicalContext = this.contextStack.peek()
 		var nodeContext *RewriteAsyncFunctions_LexicalContext = parentContext.getContextForNode(t, n)
-		if (nodeContext != parentContext) {
+		if nodeContext != parentContext {
 			this.contextStack.push(nodeContext)
 		}
 	}
@@ -51,7 +51,7 @@ func (this *RewriteAsyncFunctions) shouldTraverse(t *NodeTraversal, n Node, pare
 func (this *RewriteAsyncFunctions) visit(t *NodeTraversal, n Node, parent Node) {
 	var context *RewriteAsyncFunctions_LexicalContext = this.contextStack.peek()
 	context.visit(t, n)
-	if (context.getContextRootNode() == n) {
+	if context.getContextRootNode() == n {
 		this.contextStack.pop()
 	}
 }
@@ -81,7 +81,7 @@ func (this *RewriteAsyncFunctions) convertAsyncFunction(t *NodeTraversal, functi
 		newBody.addChildToBack(this.astFactory_.createSingleConstNameDeclaration((sstr_(RewriteAsyncFunctions_ASYNC_NEW_TARGET) + sstr_(functionContext.asyncThisAndArgumentsContext.uniqueId)), this.astFactory_.createNewTarget(functionContext.typeOfNewTarget)))
 		NodeUtil_addFeatureToScript(t.getCurrentScript(), FeatureSet_Feature_CONST_DECLARATIONS, this.compiler_)
 	}
-	it_1 := eachOf_(functionContext.superPropertyWrappers.asCollection())
+	it_1 := jeachOf_(functionContext.superPropertyWrappers.asCollection())
 	for it_1.next() {
 		var superPropertyWrapperInfo *RewriteAsyncFunctions_SuperPropertyWrapperInfo = it_1.v
 		var arrowFunction Node = functionContext.createWrapperArrowFunction(superPropertyWrapperInfo)
@@ -107,6 +107,7 @@ const RewriteAsyncFunctions_ASYNC_ARGUMENTS string = "$jscomp$async$arguments$"
 const RewriteAsyncFunctions_ASYNC_THIS string = "$jscomp$async$this$"
 const RewriteAsyncFunctions_ASYNC_NEW_TARGET string = "$jscomp$async$new$target$"
 const RewriteAsyncFunctions_ASYNC_SUPER_PROP_GETTER_PREFIX string = "$jscomp$async$super$get$"
+
 var RewriteAsyncFunctions_transpiledFeatures *FeatureSet
 
 var RewriteAsyncFunctions_clinit_done bool
@@ -121,9 +122,9 @@ func RewriteAsyncFunctions_clinit() {
 }
 
 type RewriteAsyncFunctions_SuperPropertyWrapperInfo struct {
-	outer_ *RewriteAsyncFunctions
-	wrapperFunctionName string
-	wrapperFunctionReturnType AstFactory_Type
+	outer_                          *RewriteAsyncFunctions
+	wrapperFunctionName             string
+	wrapperFunctionReturnType       AstFactory_Type
 	firstInstanceOfSuperDotProperty Node
 }
 
@@ -158,12 +159,12 @@ func (this *RewriteAsyncFunctions_SuperPropertyWrapperInfo) createWrapperFunctio
 }
 
 type RewriteAsyncFunctions_SuperPropertyWrappers struct {
-	outer_ *RewriteAsyncFunctions
-	propertyNameToTypeMap *TMap[string, *RewriteAsyncFunctions_SuperPropertyWrapperInfo]
+	outer_                *RewriteAsyncFunctions
+	propertyNameToTypeMap *JTMap[string, *RewriteAsyncFunctions_SuperPropertyWrapperInfo]
 }
 
 func (this *RewriteAsyncFunctions_SuperPropertyWrappers) finit_RewriteAsyncFunctions_SuperPropertyWrappers() {
-	this.propertyNameToTypeMap = newTMap_(tc_string, tc_p_RewriteAsyncFunctions_SuperPropertyWrapperInfo)
+	this.propertyNameToTypeMap = jnewTMap_(jtc_string, jtc_p_RewriteAsyncFunctions_SuperPropertyWrapperInfo)
 }
 
 func (this *RewriteAsyncFunctions_SuperPropertyWrappers) init_RewriteAsyncFunctions_SuperPropertyWrappers() {
@@ -207,22 +208,28 @@ func (this *RewriteAsyncFunctions_SuperPropertyWrappers) asCollection() Collecti
 }
 
 type RewriteAsyncFunctions_LexicalContext struct {
-	self_ any
-	uniqueId string
+	self_           any
+	uniqueId        string
 	contextRootNode Node
 }
 
-func (this *RewriteAsyncFunctions_LexicalContext) as_RewriteAsyncFunctions_LexicalContext() *RewriteAsyncFunctions_LexicalContext { return this }
+func (this *RewriteAsyncFunctions_LexicalContext) as_RewriteAsyncFunctions_LexicalContext() *RewriteAsyncFunctions_LexicalContext {
+	return this
+}
 
 func to_RewriteAsyncFunctions_LexicalContext(v any) *RewriteAsyncFunctions_LexicalContext {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_RewriteAsyncFunctions_LexicalContext() *RewriteAsyncFunctions_LexicalContext }).as_RewriteAsyncFunctions_LexicalContext()
+	return v.(interface {
+		as_RewriteAsyncFunctions_LexicalContext() *RewriteAsyncFunctions_LexicalContext
+	}).as_RewriteAsyncFunctions_LexicalContext()
 }
 
 func is_RewriteAsyncFunctions_LexicalContext(v any) bool {
-	_, ok := v.(interface{ as_RewriteAsyncFunctions_LexicalContext() *RewriteAsyncFunctions_LexicalContext })
+	_, ok := v.(interface {
+		as_RewriteAsyncFunctions_LexicalContext() *RewriteAsyncFunctions_LexicalContext
+	})
 	return ok
 }
 
@@ -247,7 +254,9 @@ func (this *RewriteAsyncFunctions_LexicalContext) getContextRootNode() Node {
 }
 
 func (this *RewriteAsyncFunctions_LexicalContext) getContextForNode(p0 *NodeTraversal, p1 Node) *RewriteAsyncFunctions_LexicalContext {
-	return this.self_.(interface{ getContextForNode_impl(*NodeTraversal, Node) *RewriteAsyncFunctions_LexicalContext }).getContextForNode_impl(p0, p1)
+	return this.self_.(interface {
+		getContextForNode_impl(*NodeTraversal, Node) *RewriteAsyncFunctions_LexicalContext
+	}).getContextForNode_impl(p0, p1)
 }
 
 func (this *RewriteAsyncFunctions_LexicalContext) visit(p0 *NodeTraversal, p1 Node) {
@@ -299,7 +308,7 @@ func (this *RewriteAsyncFunctions_RootContext) visit_impl(t *NodeTraversal, n No
 
 type RewriteAsyncFunctions_ParameterListContext struct {
 	RewriteAsyncFunctions_LexicalContext
-	outer_ *RewriteAsyncFunctions
+	outer_          *RewriteAsyncFunctions
 	functionContext *RewriteAsyncFunctions_FunctionContext
 }
 
@@ -340,23 +349,28 @@ func (this *RewriteAsyncFunctions_ParameterListContext) getContextForNode_impl(t
 
 func (this *RewriteAsyncFunctions_ParameterListContext) getAsyncContextForParameterList() *RewriteAsyncFunctions_FunctionContext {
 	var asyncContext *RewriteAsyncFunctions_FunctionContext = this.functionContext.asyncThisAndArgumentsContext
-	return func() *RewriteAsyncFunctions_FunctionContext { if (asyncContext == this.functionContext) { return nil }; return asyncContext }()
+	return func() *RewriteAsyncFunctions_FunctionContext {
+		if asyncContext == this.functionContext {
+			return nil
+		}
+		return asyncContext
+	}()
 }
 
 func (this *RewriteAsyncFunctions_ParameterListContext) visit_impl(t *NodeTraversal, n Node) {
-	if (this.getAsyncContextForParameterList() != nil) {
+	if this.getAsyncContextForParameterList() != nil {
 		this.functionContext.visit(t, n)
 	}
 }
 
 type RewriteAsyncFunctions_FunctionContext struct {
 	RewriteAsyncFunctions_LexicalContext
-	outer_ *RewriteAsyncFunctions
-	asyncThisAndArgumentsContext *RewriteAsyncFunctions_FunctionContext
-	superPropertyWrappers *RewriteAsyncFunctions_SuperPropertyWrappers
-	typeOfThis AstFactory_Type
-	typeOfNewTarget AstFactory_Type
-	mustAddAsyncThisVariable bool
+	outer_                        *RewriteAsyncFunctions
+	asyncThisAndArgumentsContext  *RewriteAsyncFunctions_FunctionContext
+	superPropertyWrappers         *RewriteAsyncFunctions_SuperPropertyWrappers
+	typeOfThis                    AstFactory_Type
+	typeOfNewTarget               AstFactory_Type
+	mustAddAsyncThisVariable      bool
 	mustAddAsyncArgumentsVariable bool
 	mustAddAsyncNewTargetVariable bool
 }
@@ -404,7 +418,12 @@ func (this *RewriteAsyncFunctions_FunctionContext) init_RewriteAsyncFunctions_Fu
 	Preconditions_checkState_boolean_Object_H(contextRootNode.isFunction(), contextRootNode)
 	if contextRootNode.isAsyncFunction() {
 		if contextRootNode.isArrowFunction() {
-			this.asyncThisAndArgumentsContext = func() *RewriteAsyncFunctions_FunctionContext { if (outerAsyncContext == nil) { return this }; return outerAsyncContext }()
+			this.asyncThisAndArgumentsContext = func() *RewriteAsyncFunctions_FunctionContext {
+				if outerAsyncContext == nil {
+					return this
+				}
+				return outerAsyncContext
+			}()
 		} else {
 			this.asyncThisAndArgumentsContext = this
 		}
@@ -427,7 +446,7 @@ func new_RewriteAsyncFunctions_FunctionContext_FunctionContext_Node_String(outer
 }
 
 func (this *RewriteAsyncFunctions_FunctionContext) getContextForNode_impl(t *NodeTraversal, n Node) *RewriteAsyncFunctions_LexicalContext {
-	if (n == this.contextRootNode) {
+	if n == this.contextRootNode {
 		return this.up_RewriteAsyncFunctions_LexicalContext()
 	} else if n.isFunction() {
 		var uniqueId string = this.outer_.compiler_.getUniqueIdSupplier().getUniqueId(t.getInput())
@@ -475,9 +494,9 @@ func (this *RewriteAsyncFunctions_FunctionContext) createWrapperArrowFunction(wr
 }
 
 func (this *RewriteAsyncFunctions_FunctionContext) visit_impl(t *NodeTraversal, n Node) {
-	if ((this.contextRootNode == n) && this.contextRootNode.isAsyncFunction()) {
+	if (this.contextRootNode == n) && this.contextRootNode.isAsyncFunction() {
 		this.outer_.convertAsyncFunction(t, this)
-	} else if (this.asyncThisAndArgumentsContext != nil) {
+	} else if this.asyncThisAndArgumentsContext != nil {
 		switch n.getToken() {
 		case Token_rhino_NAME:
 			if n.matchesName("arguments") {
@@ -506,12 +525,12 @@ func (this *RewriteAsyncFunctions_FunctionContext) visit_impl(t *NodeTraversal, 
 				var superPropertyWrapperInfo *RewriteAsyncFunctions_SuperPropertyWrapperInfo = this.asyncThisAndArgumentsContext.getOrCreateSuperPropertyWrapperInfo(superDotProperty)
 				var getPropReplacement Node = superPropertyWrapperInfo.createWrapperFunctionCallNode()
 				var grandparent Node = superDotProperty.getParent()
-				if (grandparent.isCall() && (grandparent.getFirstChild() == superDotProperty)) {
+				if grandparent.isCall() && (grandparent.getFirstChild() == superDotProperty) {
 					getPropReplacement = this.outer_.astFactory_.createGetPropWithUnknownType(getPropReplacement, "call")
 					var thisAlias Node = this.outer_.astFactory_.createThisAliasReferenceForEs6Class((sstr_(RewriteAsyncFunctions_ASYNC_THIS) + sstr_(this.asyncThisAndArgumentsContext.uniqueId)), NodeUtil_getEnclosingClass(this.asyncThisAndArgumentsContext.getContextRootNode())).srcref(superDotProperty)
 					thisAlias.insertAfter(superDotProperty)
 					this.asyncThisAndArgumentsContext.recordAsyncThisReplacementWasDone(AstFactory_type_Node(thisAlias))
-				} else if (grandparent.isTaggedTemplateLit() && (grandparent.getFirstChild() == superDotProperty)) {
+				} else if grandparent.isTaggedTemplateLit() && (grandparent.getFirstChild() == superDotProperty) {
 					var thisAlias Node = this.outer_.astFactory_.createThisAliasReferenceForEs6Class((sstr_(RewriteAsyncFunctions_ASYNC_THIS) + sstr_(this.asyncThisAndArgumentsContext.uniqueId)), NodeUtil_getEnclosingClass(this.asyncThisAndArgumentsContext.getContextRootNode())).srcref(superDotProperty)
 					this.asyncThisAndArgumentsContext.recordAsyncThisReplacementWasDone(AstFactory_type_Node(thisAlias))
 					getPropReplacement = this.outer_.astFactory_.createCallWithUnknownType(this.outer_.astFactory_.createGetPropWithUnknownType(getPropReplacement, "bind"), []Node{thisAlias})
@@ -527,4 +546,3 @@ func (this *RewriteAsyncFunctions_FunctionContext) visit_impl(t *NodeTraversal, 
 		}
 	}
 }
-

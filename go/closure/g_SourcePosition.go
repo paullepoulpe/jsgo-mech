@@ -3,9 +3,9 @@
 package closure
 
 type SourcePosition_util struct {
-	source *SourceFile_parser
-	offset int32
-	line_ int32
+	source  *SourceFile_parser
+	offset  int32
+	line_   int32
 	column_ int32
 }
 
@@ -31,9 +31,8 @@ func (this *SourcePosition_util) toString() string {
 }
 
 func (this *SourcePosition_util) shortSourceName() string {
-	if (this.source == nil) {
+	if this.source == nil {
 		return ""
 	}
 	return str_(Iterables_getLast(Splitter_on('/').split_s(this.source.name_)))
 }
-

@@ -3,23 +3,23 @@
 package closure
 
 type ColorGraphNodeFactory struct {
-	typeIndex *TMap[*Color, *ColorGraphNode]
-	registry *ColorRegistry
+	typeIndex *JTMap[*Color, *ColorGraphNode]
+	registry  *ColorRegistry
 }
 
-func (this *ColorGraphNodeFactory) init_ColorGraphNodeFactory(initialTypeIndex *TMap[*Color, *ColorGraphNode], registry *ColorRegistry) {
+func (this *ColorGraphNodeFactory) init_ColorGraphNodeFactory(initialTypeIndex *JTMap[*Color, *ColorGraphNode], registry *ColorRegistry) {
 	this.typeIndex = initialTypeIndex
 	this.registry = registry
 }
 
-func new_ColorGraphNodeFactory(initialTypeIndex *TMap[*Color, *ColorGraphNode], registry *ColorRegistry) *ColorGraphNodeFactory {
+func new_ColorGraphNodeFactory(initialTypeIndex *JTMap[*Color, *ColorGraphNode], registry *ColorRegistry) *ColorGraphNodeFactory {
 	this := &ColorGraphNodeFactory{}
 	this.init_ColorGraphNodeFactory(initialTypeIndex, registry)
 	return this
 }
 
 func ColorGraphNodeFactory_createFactory(colorRegistry *ColorRegistry) *ColorGraphNodeFactory {
-	var typeIndex *TMap[*Color, *ColorGraphNode] = newTMap_(tce_p_Color, tc_p_ColorGraphNode)
+	var typeIndex *JTMap[*Color, *ColorGraphNode] = jnewTMap_(tce_p_Color, jtc_p_ColorGraphNode)
 	var unknownColorNode *ColorGraphNode = ColorGraphNode_create(StandardColors_UNKNOWN, 0)
 	typeIndex.put(StandardColors_UNKNOWN, unknownColorNode)
 	return new_ColorGraphNodeFactory(typeIndex, colorRegistry)
@@ -30,8 +30,8 @@ func (this *ColorGraphNodeFactory) createNode(color *Color) *ColorGraphNode {
 	return this.typeIndex.computeIfAbsent(key, Function[*Color, *ColorGraphNode](func(p0 *Color) *ColorGraphNode { return this.newColorGraphNode(p0) }))
 }
 
-func (this *ColorGraphNodeFactory) getAllKnownTypes() *TSet[*ColorGraphNode] {
-	return immutableSetCopyOf_(tc_p_ColorGraphNode, Collection_un_(this.typeIndex.valuesT()))
+func (this *ColorGraphNodeFactory) getAllKnownTypes() *JTSet[*ColorGraphNode] {
+	return jimmutableSetCopyOf_(jtc_p_ColorGraphNode, Collection_un_(this.typeIndex.valuesT()))
 }
 
 func (this *ColorGraphNodeFactory) newColorGraphNode(key *Color) *ColorGraphNode {
@@ -39,7 +39,7 @@ func (this *ColorGraphNodeFactory) newColorGraphNode(key *Color) *ColorGraphNode
 	return ColorGraphNode_create(key, id)
 }
 
-func (this *ColorGraphNodeFactory) simplifyColors(types *TSet[*Color]) *TSet[*Color] {
+func (this *ColorGraphNodeFactory) simplifyColors(types *JTSet[*Color]) *JTSet[*Color] {
 	var result *TSetBuilder[*Color] = newTSetBuilder_(tce_p_Color)
 	it_1 := types.each()
 	for it_1.next() {
@@ -50,13 +50,18 @@ func (this *ColorGraphNodeFactory) simplifyColors(types *TSet[*Color]) *TSet[*Co
 }
 
 func (this *ColorGraphNodeFactory) simplifyColor(type_ *Color) *Color {
-	if (type_ == nil) {
+	if type_ == nil {
 		return StandardColors_UNKNOWN
 	}
 	if type_.isUnion() {
 		type_ = type_.subtractNullOrVoid()
-		return func() *Color { if type_.isUnion() { return Color_createUnion(this.simplifyColors(type_.getUnionElements())) }; return this.simplifyColor(type_) }()
-	} else if (type_.getBoxId() != nil) {
+		return func() *Color {
+			if type_.isUnion() {
+				return Color_createUnion(this.simplifyColors(type_.getUnionElements()))
+			}
+			return this.simplifyColor(type_)
+		}()
+	} else if type_.getBoxId() != nil {
 		return this.registry.get(type_.getBoxId())
 	} else if type_.equals(obj_(StandardColors_NULL_OR_VOID)) {
 		return StandardColors_UNKNOWN
@@ -65,4 +70,3 @@ func (this *ColorGraphNodeFactory) simplifyColor(type_ *Color) *Color {
 	}
 	panic("unreachable")
 }
-

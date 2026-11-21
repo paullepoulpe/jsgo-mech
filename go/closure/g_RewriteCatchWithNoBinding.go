@@ -4,8 +4,8 @@ package closure
 
 type RewriteCatchWithNoBinding struct {
 	AbstractPeepholeTranspilation
-	compiler_ *AbstractCompiler
-	astFactory_ *AstFactory
+	compiler_        *AbstractCompiler
+	astFactory_      *AstFactory
 	uniqueIdSupplier *UniqueIdSupplier
 }
 
@@ -35,7 +35,7 @@ func (this *RewriteCatchWithNoBinding) getTranspiledAwayFeatures_impl() *Feature
 }
 
 func (this *RewriteCatchWithNoBinding) transpileSubtree_impl(n Node) Node {
-	if (!n.isCatch() || !n.getFirstChild().isEmpty()) {
+	if !n.isCatch() || !n.getFirstChild().isEmpty() {
 		return n
 	}
 	var name Node = this.astFactory_.createNameWithUnknownType((sstr_(RewriteCatchWithNoBinding_BINDING_NAME) + sstr_(this.uniqueIdSupplier.getUniqueId(this.compiler_.getInput(NodeUtil_getInputId(n))))))
@@ -45,4 +45,3 @@ func (this *RewriteCatchWithNoBinding) transpileSubtree_impl(n Node) Node {
 }
 
 const RewriteCatchWithNoBinding_BINDING_NAME string = "$jscomp$unused$catch$"
-

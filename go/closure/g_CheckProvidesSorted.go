@@ -3,17 +3,17 @@
 package closure
 
 type CheckProvidesSorted struct {
-	mode_ *CheckProvidesSorted_Mode
-	originalProvides *TList[string]
-	replacement_ Optional[string]
-	firstNode Node
-	lastNode Node
-	finished bool
-	needsFixField bool
+	mode_            *CheckProvidesSorted_Mode
+	originalProvides *JTList[string]
+	replacement_     Optional[string]
+	firstNode        Node
+	lastNode         Node
+	finished         bool
+	needsFixField    bool
 }
 
 func (this *CheckProvidesSorted) finit_CheckProvidesSorted() {
-	this.originalProvides = newTList_(tc_string)
+	this.originalProvides = jnewTList_(jtc_string)
 	this.firstNode = 0
 	this.lastNode = 0
 	this.finished = false
@@ -57,9 +57,9 @@ func (this *CheckProvidesSorted) visit(t *NodeTraversal, n Node, parent Node) {
 		this.checkCanonical(t)
 		return
 	}
-	if (NodeUtil_isGoogProvideCall(n) && CheckProvidesSorted_areProvideArgumentsValid(n.getFirstChild())) {
+	if NodeUtil_isGoogProvideCall(n) && CheckProvidesSorted_areProvideArgumentsValid(n.getFirstChild()) {
 		this.originalProvides.add(CheckProvidesSorted_getNamespace(n))
-		if (this.firstNode == 0) {
+		if this.firstNode == 0 {
 			this.lastNode = n
 			this.firstNode = n
 		} else {
@@ -87,13 +87,13 @@ func CheckProvidesSorted_formatProvide(namespace string) string {
 }
 
 func (this *CheckProvidesSorted) checkCanonical(t *NodeTraversal) {
-	var sortedProvides *TList[string] = tlistCopy_(tc_string, this.originalProvides)
+	var sortedProvides *JTList[string] = tlistCopy_(jtc_string, this.originalProvides)
 	Collections_sort(sortedProvides.asList())
-	var canonicalProvides *TList[string] = immutableListCopyOf_(tc_string, Collection(new_LinkedHashSet_Collection(Collection(sortedProvides.asList()))))
+	var canonicalProvides *JTList[string] = jimmutableListCopyOf_(jtc_string, Collection(new_LinkedHashSet_Collection(Collection(sortedProvides.asList()))))
 	if !Object_equals(lgBox_(this.originalProvides.asListT()), canonicalProvides.asList()) {
 		this.needsFixField = true
-		this.replacement_ = Optional_of[string](String_join_s("\n", Iterables_transform(Iterable(canonicalProvides.asList()), Function_base[any, any](func(p0 any) any { return strobj_(CheckProvidesSorted_formatProvide(str_(p0))) }))))
-		if (this.mode_ == CheckProvidesSorted_Mode_COLLECT_AND_REPORT) {
+		this.replacement_ = Optional_of[string](JString_join_s("\n", Iterables_transform(Iterable(canonicalProvides.asList()), Function_base[any, any](func(p0 any) any { return strobj_(CheckProvidesSorted_formatProvide(str_(p0))) }))))
+		if this.mode_ == CheckProvidesSorted_Mode_COLLECT_AND_REPORT {
 			t.report(this.firstNode, CheckProvidesSorted_PROVIDES_NOT_SORTED, []string{this.replacement_.orElse("null")})
 		}
 	}
@@ -164,4 +164,3 @@ func CheckProvidesSorted_Mode_clinit() {
 	registerEnum_("com.google.javascript.jscomp.lint.CheckProvidesSorted.Mode", enumValues_(CheckProvidesSorted_Mode_values_))
 
 }
-

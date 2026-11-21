@@ -49,13 +49,13 @@ func JvmMetrics_maybeWriteJvmMetrics(out *Output, options Optional[string]) {
 }
 
 func JvmMetrics_writeMetrics(out *Output, type_ string, verbose bool, pretty bool) {
-	if ((type_ == "gc") || String_equalsIgnoreCase(type_, "all")) {
+	if (type_ == "gc") || String_equalsIgnoreCase(type_, "all") {
 		JvmMetrics_writeGarbageCollectionStats(out, verbose, pretty)
 	}
-	if ((type_ == "mem") || String_equalsIgnoreCase(type_, "all")) {
+	if (type_ == "mem") || String_equalsIgnoreCase(type_, "all") {
 		JvmMetrics_writeMemoryMetrics(out, verbose, pretty)
 	}
-	if ((type_ == "jit") || String_equalsIgnoreCase(type_, "all")) {
+	if (type_ == "jit") || String_equalsIgnoreCase(type_, "all") {
 		JvmMetrics_writeJitMetrics(out, verbose, pretty)
 	}
 }
@@ -113,7 +113,7 @@ func JvmMetrics_writeMemoryMetrics(out *Output, verbose bool, pretty bool) {
 	}
 	if verbose {
 		var mpBeans ListT[MemoryPoolMXBean] = listAs_(tc_MemoryPoolMXBean, ManagementFactory_getMemoryPoolMXBeans())
-		it_1 := eachOf_(mpBeans)
+		it_1 := jeachOf_(mpBeans)
 		for it_1.next() {
 			var mpBean MemoryPoolMXBean = it_1.v
 			var currentUsage *MemoryUsage = mpBean.getUsage()
@@ -130,7 +130,7 @@ func JvmMetrics_writeMemoryMetrics(out *Output, verbose bool, pretty bool) {
 		var current int64 = 0
 		var peak int64 = 0
 		var mpBeans ListT[MemoryPoolMXBean] = listAs_(tc_MemoryPoolMXBean, ManagementFactory_getMemoryPoolMXBeans())
-		it_3 := eachOf_(mpBeans)
+		it_3 := jeachOf_(mpBeans)
 		for it_3.next() {
 			var mpBean MemoryPoolMXBean = it_3.v
 			var currentUsage *MemoryUsage = mpBean.getUsage()
@@ -155,7 +155,7 @@ func JvmMetrics_writeGarbageCollectionStats(out *Output, verbose bool, pretty bo
 	if verbose {
 		if pretty {
 			out.println("\nGarbage collection stats")
-			it_1 := eachOf_(gcBeans)
+			it_1 := jeachOf_(gcBeans)
 			for it_1.next() {
 				var gcBean GarbageCollectorMXBean = it_1.v
 				out.println(("\tCollector " + sstr_(gcBean.getName())))
@@ -163,7 +163,7 @@ func JvmMetrics_writeGarbageCollectionStats(out *Output, verbose bool, pretty bo
 				out.print(String_format("\t\tcollection time    : %d ms\n", []any{int64(gcBean.getCollectionTime())}))
 			}
 		} else {
-			it_3 := eachOf_(gcBeans)
+			it_3 := jeachOf_(gcBeans)
 			for it_3.next() {
 				var gcBean GarbageCollectorMXBean = it_3.v
 				var name string = JvmMetrics_normalizeName(gcBean.getName())
@@ -175,7 +175,7 @@ func JvmMetrics_writeGarbageCollectionStats(out *Output, verbose bool, pretty bo
 		var collectionCount int64 = 0
 		var collectionTime int64 = 0
 		var collectorCount int32 = gcBeans.size()
-		it_5 := eachOf_(gcBeans)
+		it_5 := jeachOf_(gcBeans)
 		for it_5.next() {
 			var gcBean GarbageCollectorMXBean = it_5.v
 			collectionCount += gcBean.getCollectionCount()
@@ -201,18 +201,18 @@ func JvmMetrics_normalizeName(name string) string {
 func JvmMetrics_normalizeTabularColonPos(string_ string) string {
 	var sb *StringBuilder = new_StringBuilder_String(string_)
 	var index int32 = sb.indexOf(":")
-	for ; (index < JvmMetrics_TABULAR_COLON_POS); index++ {
+	for ; index < JvmMetrics_TABULAR_COLON_POS; index++ {
 		sb.insert(index, ' ')
 	}
 	return tostrR_(sb)
 }
 
 func JvmMetrics_formatBytes(numBytes int64) string {
-	if (numBytes < JvmMetrics_ONE_KILO_BYTE) {
+	if numBytes < JvmMetrics_ONE_KILO_BYTE {
 		return String_format("%d B", []any{int64(numBytes)})
-	} else if (numBytes < JvmMetrics_ONE_MEGA_BYTE) {
+	} else if numBytes < JvmMetrics_ONE_MEGA_BYTE {
 		return String_format("%d KB", []any{int64((numBytes / JvmMetrics_ONE_KILO_BYTE))})
-	} else if (numBytes < JvmMetrics_ONE_GIGA_BYTE) {
+	} else if numBytes < JvmMetrics_ONE_GIGA_BYTE {
 		return String_format("%d MB", []any{int64((numBytes / JvmMetrics_ONE_MEGA_BYTE))})
 	} else {
 		return String_format("%d GB", []any{int64((numBytes / JvmMetrics_ONE_GIGA_BYTE))})
@@ -224,4 +224,3 @@ const JvmMetrics_TABULAR_COLON_POS int32 = 40
 const JvmMetrics_ONE_KILO_BYTE int64 = 1024
 const JvmMetrics_ONE_MEGA_BYTE int64 = 1048576
 const JvmMetrics_ONE_GIGA_BYTE int64 = 1073741824
-

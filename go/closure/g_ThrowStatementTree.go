@@ -25,4 +25,3 @@ func new_ThrowStatementTree(location *SourceRange, value *ParseTree) *ThrowState
 	this.init_ThrowStatementTree(location, value)
 	return this
 }
-

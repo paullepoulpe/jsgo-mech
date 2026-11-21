@@ -4,11 +4,11 @@ package closure
 
 type TypeTransformationParser struct {
 	typeTransformationString string
-	sourceFile StaticSourceFile
-	errorReporter ErrorReporter_rhino
-	typeTransformationAst Node
-	templateLineno int32
-	templateCharno int32
+	sourceFile               StaticSourceFile
+	errorReporter            ErrorReporter_rhino
+	typeTransformationAst    Node
+	templateLineno           int32
+	templateCharno           int32
 }
 
 func (this *TypeTransformationParser) zero_TypeTransformationParser() {
@@ -44,7 +44,7 @@ func (this *TypeTransformationParser) nameToKeyword(s string) *TypeTransformatio
 
 func (this *TypeTransformationParser) isValidKeyword(name string) bool {
 	for _, k := range TypeTransformationParser_Keywords_values() {
-		if (k.nameField == name) {
+		if k.nameField == name {
 			return true
 		}
 	}
@@ -138,11 +138,11 @@ func (this *TypeTransformationParser) warnInvalidInside(msg string) {
 
 func (this *TypeTransformationParser) checkParameterCount(expr Node, keyword *TypeTransformationParser_Keywords) bool {
 	var paramCount int32 = this.getCallParamCount(expr)
-	if (paramCount < keyword.minParamCount) {
+	if paramCount < keyword.minParamCount {
 		this.warnMissingParam(keyword.nameField)
 		return false
 	}
-	if (paramCount > keyword.maxParamCount) {
+	if paramCount > keyword.maxParamCount {
 		this.warnExtraParam(keyword.nameField)
 		return false
 	}
@@ -153,7 +153,7 @@ func (this *TypeTransformationParser) parseTypeTransformation() bool {
 	var config *Config = Config_builder().setLanguageMode(Config_LanguageMode_ES_NEXT).setStrictMode(Config_StrictMode_SLOPPY).build()
 	var result *ParserRunner_ParseResult = ParserRunner_parse(this.sourceFile, this.typeTransformationString, config, this.errorReporter)
 	var ast Node = result.ast
-	if ((((ast == 0) || !ast.isScript()) || !ast.hasChildren()) || !ast.getFirstChild().isExprResult()) {
+	if (((ast == 0) || !ast.isScript()) || !ast.hasChildren()) || !ast.getFirstChild().isExprResult() {
 		this.warnInvalidExpression("type transformation")
 		return false
 	}
@@ -171,7 +171,7 @@ func (this *TypeTransformationParser) fixTTLNodeLineNoCharNoAndLength(expr Node)
 	expr.setLength(TypeTransformationParser_TTL_NODE_LENGTH)
 	{
 		var child Node = expr.getFirstChild()
-		for ; (child != 0); child = child.getNext() {
+		for ; child != 0; child = child.getNext() {
 			this.fixTTLNodeLineNoCharNoAndLength(child)
 		}
 	}
@@ -183,12 +183,12 @@ func (this *TypeTransformationParser) validTemplateTypeExpression(expr Node) boo
 	}
 	var paramCount int32 = this.getCallParamCount(expr)
 	var firstParam Node = this.getCallArgument(expr, 0)
-	if (!this.isTypeVar(firstParam) && !this.isTypeName(firstParam)) {
+	if !this.isTypeVar(firstParam) && !this.isTypeName(firstParam) {
 		this.warnInvalid("type name or type variable")
 		this.warnInvalidInside("template type operation")
 		return false
 	}
-	for i := int32(1); (i < paramCount); i++ {
+	for i := int32(1); i < paramCount; i++ {
 		if !this.validTypeTransformationExpression(this.getCallArgument(expr, i)) {
 			this.warnInvalidInside("template type operation")
 			return false
@@ -202,7 +202,7 @@ func (this *TypeTransformationParser) validUnionTypeExpression(expr Node) bool {
 		return false
 	}
 	var paramCount int32 = this.getCallParamCount(expr)
-	for i := int32(0); (i < paramCount); i++ {
+	for i := int32(0); i < paramCount; i++ {
 		if !this.validTypeTransformationExpression(this.getCallArgument(expr, i)) {
 			this.warnInvalidInside("union type")
 			return false
@@ -248,7 +248,7 @@ func (this *TypeTransformationParser) validTemplateTypeOfExpression(expr Node) b
 		return false
 	}
 	var index float64 = this.getCallArgument(expr, 1).getDouble()
-	if (Double_isNaN(index) || !JSCompDoubles_isExactInt32(index)) {
+	if Double_isNaN(index) || !JSCompDoubles_isExactInt32(index) {
 		this.warnInvalid("index")
 		this.warnInvalidInside(TypeTransformationParser_Keywords_TEMPLATETYPEOF.nameField)
 		return false
@@ -260,7 +260,7 @@ func (this *TypeTransformationParser) validRecordParam(expr Node) bool {
 	if expr.isObjectLit() {
 		{
 			var prop Node = expr.getFirstChild()
-			for ; (prop != 0); prop = prop.getNext() {
+			for ; prop != 0; prop = prop.getNext() {
 				if prop.isShorthandProperty() {
 					this.warnInvalid("property, missing type")
 					return false
@@ -279,7 +279,7 @@ func (this *TypeTransformationParser) validRecordTypeExpression(expr Node) bool 
 	if !this.checkParameterCount(expr, TypeTransformationParser_Keywords_RECORD) {
 		return false
 	}
-	for i := int32(0); (i < this.getCallParamCount(expr)); i++ {
+	for i := int32(0); i < this.getCallParamCount(expr); i++ {
 		if !this.validRecordParam(this.getCallArgument(expr, i)) {
 			this.warnInvalidInside(TypeTransformationParser_Keywords_RECORD.nameField)
 			return false
@@ -335,7 +335,7 @@ func (this *TypeTransformationParser) validTypeExpression(expr Node) bool {
 }
 
 func (this *TypeTransformationParser) validTypePredicate(expr Node, paramCount int32) bool {
-	for i := int32(0); (i < paramCount); i++ {
+	for i := int32(0); i < paramCount; i++ {
 		if !this.validTypeTransformationExpression(this.getCallArgument(expr, i)) {
 			this.warnInvalidInside("boolean")
 			return false
@@ -345,7 +345,7 @@ func (this *TypeTransformationParser) validTypePredicate(expr Node, paramCount i
 }
 
 func (this *TypeTransformationParser) isValidStringParam(expr Node) bool {
-	if (!expr.isName() && !expr.isStringLit()) {
+	if !expr.isName() && !expr.isStringLit() {
 		this.warnInvalid("string")
 		return false
 	}
@@ -357,7 +357,7 @@ func (this *TypeTransformationParser) isValidStringParam(expr Node) bool {
 }
 
 func (this *TypeTransformationParser) validStringPredicate(expr Node, paramCount int32) bool {
-	for i := int32(0); (i < paramCount); i++ {
+	for i := int32(0); i < paramCount; i++ {
 		if !this.isValidStringParam(this.getCallArgument(expr, i)) {
 			this.warnInvalidInside("boolean")
 			return false
@@ -375,7 +375,7 @@ func (this *TypeTransformationParser) validTypevarParam(expr Node) bool {
 }
 
 func (this *TypeTransformationParser) validTypevarPredicate(expr Node, paramCount int32) bool {
-	for i := int32(0); (i < paramCount); i++ {
+	for i := int32(0); i < paramCount; i++ {
 		if !this.validTypevarParam(this.getCallArgument(expr, i)) {
 			this.warnInvalidInside("boolean")
 			return false
@@ -463,12 +463,12 @@ func (this *TypeTransformationParser) validMapunionExpression(expr Node) bool {
 	}
 	var mapFn Node = this.getCallArgument(expr, 1)
 	var mapFnParamCount int32 = this.getFunctionParamCount(mapFn)
-	if (mapFnParamCount < 1) {
+	if mapFnParamCount < 1 {
 		this.warnMissingParam("map function")
 		this.warnInvalidInside(TypeTransformationParser_Keywords_MAPUNION.nameField)
 		return false
 	}
-	if (mapFnParamCount > 1) {
+	if mapFnParamCount > 1 {
 		this.warnExtraParam("map function")
 		this.warnInvalidInside(TypeTransformationParser_Keywords_MAPUNION.nameField)
 		return false
@@ -496,12 +496,12 @@ func (this *TypeTransformationParser) validMaprecordExpression(expr Node) bool {
 	}
 	var mapFn Node = this.getCallArgument(expr, 1)
 	var mapFnParamCount int32 = this.getFunctionParamCount(mapFn)
-	if (mapFnParamCount < 2) {
+	if mapFnParamCount < 2 {
 		this.warnMissingParam("map function")
 		this.warnInvalidInside(TypeTransformationParser_Keywords_MAPRECORD.nameField)
 		return false
 	}
-	if (mapFnParamCount > 2) {
+	if mapFnParamCount > 2 {
 		this.warnExtraParam("map function")
 		this.warnInvalidInside(TypeTransformationParser_Keywords_MAPRECORD.nameField)
 		return false
@@ -600,7 +600,7 @@ func (this *TypeTransformationParser) validTypeTransformationExpression(expr Nod
 		this.warnInvalidExpression("type transformation")
 		return false
 	}
-	if (this.isTypeVar(expr) || this.isTypeName(expr)) {
+	if this.isTypeVar(expr) || this.isTypeName(expr) {
 		return true
 	}
 	var name string = this.getCallName(expr)
@@ -623,6 +623,7 @@ func (this *TypeTransformationParser) validTypeTransformationExpression(expr Nod
 }
 
 const TypeTransformationParser_VAR_ARGS int32 = 2147483647
+
 var TypeTransformationParser_TTL_NODE_LENGTH int32
 
 var TypeTransformationParser_clinit_done bool
@@ -697,8 +698,8 @@ func TypeTransformationParser_OperationKind_clinit() {
 
 type TypeTransformationParser_Keywords struct {
 	Enum
-	nameField string
-	kind_ *TypeTransformationParser_OperationKind
+	nameField     string
+	kind_         *TypeTransformationParser_OperationKind
 	minParamCount int32
 	maxParamCount int32
 }
@@ -804,4 +805,3 @@ func TypeTransformationParser_Keywords_clinit() {
 	registerEnum_("com.google.javascript.jscomp.parsing.TypeTransformationParser.Keywords", enumValues_(TypeTransformationParser_Keywords_values_))
 
 }
-

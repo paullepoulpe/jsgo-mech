@@ -3,7 +3,7 @@
 package closure
 
 type SynthesizeExplicitConstructors struct {
-	compiler_ *AbstractCompiler
+	compiler_   *AbstractCompiler
 	astFactory_ *AstFactory
 }
 
@@ -20,7 +20,7 @@ func new_SynthesizeExplicitConstructors(compiler *AbstractCompiler) *SynthesizeE
 
 func (this *SynthesizeExplicitConstructors) synthesizeClassConstructorIfMissing(t *NodeTraversal, classNode Node) {
 	Preconditions_checkArgument(classNode.isClass())
-	if (NodeUtil_getEs6ClassConstructorMemberFunctionDef(classNode) == 0) {
+	if NodeUtil_getEs6ClassConstructorMemberFunctionDef(classNode) == 0 {
 		this.addSyntheticConstructor(t, classNode)
 	}
 }
@@ -36,7 +36,7 @@ func (this *SynthesizeExplicitConstructors) addSyntheticConstructor(t *NodeTrave
 	} else {
 		Preconditions_checkState_boolean_String_Object_H(superClass.isQualifiedName(), "Expected Es6NormalizeClasses to make all extends clauses into qualified names, found %s", superClass)
 		var body Node = IR_block_0()
-		if (!classNode.isFromExterns() && !this.isInterface(classNode)) {
+		if !classNode.isFromExterns() && !this.isInterface(classNode) {
 			var exprResult Node = IR_exprResult(this.astFactory_.createConstructorCall(AstFactory_type_Node(classNode), this.astFactory_.createSuper(AstFactory_type_Node(superClass)), []Node{IR_iterSpread(this.astFactory_.createArgumentsReference())}))
 			body.addChildToFront(exprResult)
 			NodeUtil_addFeatureToScript(t.getCurrentScript(), FeatureSet_Feature_SUPER, this.compiler_)
@@ -57,4 +57,3 @@ func (this *SynthesizeExplicitConstructors) isInterface(classNode Node) bool {
 	var classJsDocInfo *JSDocInfo = NodeUtil_getBestJSDocInfo(classNode)
 	return ((classJsDocInfo != nil) && classJsDocInfo.isInterface())
 }
-

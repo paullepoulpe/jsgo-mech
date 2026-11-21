@@ -3,7 +3,7 @@
 package closure
 
 type CheckGlobalThis struct {
-	compiler_ *AbstractCompiler
+	compiler_      *AbstractCompiler
 	assignLhsChild Node
 }
 
@@ -28,16 +28,16 @@ func (this *CheckGlobalThis) shouldTraverse(t *NodeTraversal, n Node, parent Nod
 			return true
 		}
 		var jsDoc *JSDocInfo = NodeUtil_getBestJSDocInfo(n)
-		if ((jsDoc != nil) && (((jsDoc.isConstructor() || jsDoc.isInterface()) || jsDoc.hasThisType()) || jsDoc.isOverride())) {
+		if (jsDoc != nil) && (((jsDoc.isConstructor() || jsDoc.isInterface()) || jsDoc.hasThisType()) || jsDoc.isOverride()) {
 			return false
 		}
-		if (jsDoc != nil) {
+		if jsDoc != nil {
 			var functionType *JSTypeExpression = jsDoc.getType()
-			if (functionType != nil) {
+			if functionType != nil {
 				var functionNode Node = functionType.getRoot()
-				if ((functionNode != 0) && functionNode.isFunction()) {
+				if (functionNode != 0) && functionNode.isFunction() {
 					var thisNode Node = functionNode.getFirstChild()
-					if ((thisNode != 0) && thisNode.isThis()) {
+					if (thisNode != 0) && thisNode.isThis() {
 						return false
 					}
 				}
@@ -50,7 +50,7 @@ func (this *CheckGlobalThis) shouldTraverse(t *NodeTraversal, n Node, parent Nod
 		var grandparent Node = parent.getParent()
 		if NodeUtil_mayBeObjectLitKey(parent) {
 			var maybeLends *JSDocInfo = grandparent.getJSDocInfo()
-			if (((maybeLends != nil) && maybeLends.hasLendsName()) && String_endsWith(maybeLends.getLendsName().getRoot().getString(), ".prototype")) {
+			if ((maybeLends != nil) && maybeLends.hasLendsName()) && String_endsWith(maybeLends.getLendsName().getRoot().getString(), ".prototype") {
 				return false
 			}
 		}
@@ -58,22 +58,22 @@ func (this *CheckGlobalThis) shouldTraverse(t *NodeTraversal, n Node, parent Nod
 	if NodeUtil_isClassStaticBlock(n) {
 		return false
 	}
-	if ((n.isMemberFieldDef() || n.isComputedFieldDef()) && n.getParent().isClassMembers()) {
+	if (n.isMemberFieldDef() || n.isComputedFieldDef()) && n.getParent().isClassMembers() {
 		return false
 	}
-	if ((parent != 0) && parent.isAssign()) {
+	if (parent != 0) && parent.isAssign() {
 		var lhs Node = parent.getFirstChild()
-		if (n == lhs) {
-			if (this.assignLhsChild == 0) {
+		if n == lhs {
+			if this.assignLhsChild == 0 {
 				this.assignLhsChild = lhs
 			}
 		} else {
 			if NodeUtil_isNormalGet(lhs) {
-				if (lhs.isGetProp() && (lhs.getString() == "prototype")) {
+				if lhs.isGetProp() && (lhs.getString() == "prototype") {
 					return false
 				}
 				var llhs Node = lhs.getFirstChild()
-				if (llhs.isGetProp() && (llhs.getString() == "prototype")) {
+				if llhs.isGetProp() && (llhs.getString() == "prototype") {
 					return false
 				}
 			}
@@ -83,17 +83,17 @@ func (this *CheckGlobalThis) shouldTraverse(t *NodeTraversal, n Node, parent Nod
 }
 
 func (this *CheckGlobalThis) visit(unused *NodeTraversal, n Node, parent Node) {
-	if (n.isThis() && this.shouldReportThis(n)) {
+	if n.isThis() && this.shouldReportThis(n) {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, CheckGlobalThis_GLOBAL_THIS, []string{}))
 	}
-	if (n == this.assignLhsChild) {
+	if n == this.assignLhsChild {
 		this.assignLhsChild = 0
 	}
 }
 
 func (this *CheckGlobalThis) shouldReportThis(n Node) bool {
 	var parent Node = n.getParent()
-	if (this.assignLhsChild != 0) {
+	if this.assignLhsChild != 0 {
 		return true
 	}
 	return ((parent != 0) && NodeUtil_isNormalGet(parent))
@@ -111,4 +111,3 @@ func CheckGlobalThis_clinit() {
 	CheckGlobalThis_GLOBAL_THIS = DiagnosticType_warning("JSC_USED_GLOBAL_THIS", "dangerous use of the global 'this' object")
 
 }
-

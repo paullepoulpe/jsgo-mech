@@ -3,24 +3,24 @@
 package closure
 
 type TemplateAstMatcher struct {
-	topScope *TypedScope
-	typeRegistry *JSTypeRegistry
-	templateParams *TList[string]
-	paramNodeMatches *TList[Node]
-	templateLocals *TList[string]
-	localVarMatches *TList[string]
-	stringLiteralMatches *TMap[string, Node]
+	topScope             *TypedScope
+	typeRegistry         *JSTypeRegistry
+	templateParams       *JTList[string]
+	paramNodeMatches     *JTList[Node]
+	templateLocals       *JTList[string]
+	localVarMatches      *JTList[string]
+	stringLiteralMatches *JTMap[string, Node]
 	typeMatchingStrategy *TypeMatchingStrategy
-	templateStart Node
-	isLooseMatchField bool
+	templateStart        Node
+	isLooseMatchField    bool
 }
 
 func (this *TemplateAstMatcher) finit_TemplateAstMatcher() {
-	this.templateParams = newTList_(tc_string)
-	this.paramNodeMatches = newTList_(tc_Node)
-	this.templateLocals = newTList_(tc_string)
-	this.localVarMatches = newTList_(tc_string)
-	this.stringLiteralMatches = newTMap_(tc_string, tc_Node)
+	this.templateParams = jnewTList_(jtc_string)
+	this.paramNodeMatches = jnewTList_(jtc_Node)
+	this.templateLocals = jnewTList_(jtc_string)
+	this.localVarMatches = jnewTList_(jtc_string)
+	this.stringLiteralMatches = jnewTMap_(jtc_string, jtc_Node)
 	this.isLooseMatchField = false
 }
 
@@ -41,7 +41,7 @@ func new_TemplateAstMatcher(compiler *AbstractCompiler, templateFunctionNode Nod
 
 func (this *TemplateAstMatcher) matches(n Node) bool {
 	if this.matchesTemplateShape(this.templateStart, n) {
-		if (this.paramNodeMatches.isEmpty() && this.localVarMatches.isEmpty()) {
+		if this.paramNodeMatches.isEmpty() && this.localVarMatches.isEmpty() {
 			return true
 		}
 		this.reset()
@@ -54,13 +54,13 @@ func (this *TemplateAstMatcher) isLooseMatch() bool {
 	return this.isLooseMatchField
 }
 
-func (this *TemplateAstMatcher) getTemplateNodeToMatchMap() *TMap[string, Node] {
-	var map_ *TMap[string, Node] = tmapCopy_(tc_string, tc_Node, this.stringLiteralMatches)
-	for i := int32(0); (i < this.templateParams.size()); i++ {
+func (this *TemplateAstMatcher) getTemplateNodeToMatchMap() *JTMap[string, Node] {
+	var map_ *JTMap[string, Node] = tmapCopy_(jtc_string, jtc_Node, this.stringLiteralMatches)
+	for i := int32(0); i < this.templateParams.size(); i++ {
 		var name string = this.templateParams.get(i)
 		map_.put(name, this.paramNodeMatches.get(i))
 	}
-	for i := int32(0); (i < this.templateLocals.size()); i++ {
+	for i := int32(0); i < this.templateLocals.size(); i++ {
 		var name string = this.templateLocals.get(i)
 		map_.put(name, IR_name(this.localVarMatches.get(i)))
 	}
@@ -72,24 +72,24 @@ func (this *TemplateAstMatcher) initTemplate(templateFunctionNode Node) Node {
 	this.prepTemplatePlaceholders(prepped)
 	var body Node = prepped.getLastChild()
 	var startNode Node
-	if (body.hasOneChild() && body.getFirstChild().isExprResult()) {
+	if body.hasOneChild() && body.getFirstChild().isExprResult() {
 		startNode = body.getFirstFirstChild()
 	} else {
 		startNode = body.getFirstChild()
 	}
-	for i := int32(0); (i < this.templateLocals.size()); i++ {
+	for i := int32(0); i < this.templateLocals.size(); i++ {
 		this.localVarMatches.add(nullstr_)
 	}
-	for i := int32(0); (i < this.templateParams.size()); i++ {
+	for i := int32(0); i < this.templateParams.size(); i++ {
 		this.paramNodeMatches.add(0)
 	}
 	return startNode
 }
 
 func (this *TemplateAstMatcher) prepTemplatePlaceholders(fn Node) {
-	var locals *TList[string] = this.templateLocals
-	var params *TList[string] = this.templateParams
-	var paramTypes *TMap[string, *JSType] = newTMap_(tc_string, tc_p_JSType)
+	var locals *JTList[string] = this.templateLocals
+	var params *JTList[string] = this.templateParams
+	var paramTypes *JTMap[string, *JSType] = jnewTMap_(jtc_string, jtc_p_JSType)
 	var fnName string = fn.getFirstChild().getString()
 	fn.getFirstChild().setString("")
 	var templateParametersNode Node = fn.getSecondChild()
@@ -99,7 +99,7 @@ func (this *TemplateAstMatcher) prepTemplatePlaceholders(fn Node) {
 	}
 	{
 		var paramNode Node = templateParametersNode.getFirstChild()
-		for ; (paramNode != 0); paramNode = paramNode.getNext() {
+		for ; paramNode != 0; paramNode = paramNode.getNext() {
 			var name string = paramNode.getString()
 			var expression *JSTypeExpression = info.getParameterType(Optional_of[string](name))
 			Preconditions_checkNotNull_Object_String_Object_Object_T(expression, "Missing JSDoc for parameter %s of template function %s", name, fnName)
@@ -124,7 +124,7 @@ func (this *TemplateAstMatcher) traverse(n Node, callback TemplateAstMatcher_Vis
 	var next Node = 0
 	{
 		var c Node = n.getFirstChild()
-		for ; (c != 0); c = next {
+		for ; c != 0; c = next {
 			next = c.getNext()
 			this.traverse(c, callback)
 		}
@@ -135,7 +135,7 @@ func (this *TemplateAstMatcher) traverse(n Node, callback TemplateAstMatcher_Vis
 func (this *TemplateAstMatcher) reset() {
 	this.isLooseMatchField = false
 	Collections_fill(this.localVarMatches.asList(), nil)
-	for i := int32(0); (i < this.paramNodeMatches.size()); i++ {
+	for i := int32(0); i < this.paramNodeMatches.size(); i++ {
 		this.paramNodeMatches.set(i, 0)
 	}
 }
@@ -173,8 +173,8 @@ func (this *TemplateAstMatcher) createTemplateLocalNameNode(index int32) Node {
 }
 
 func (this *TemplateAstMatcher) matchesTemplateShape(template Node, ast Node) bool {
-	for (template != 0) {
-		if ((ast == 0) || !this.matchesNodeShape(template, ast)) {
+	for template != 0 {
+		if (ast == 0) || !this.matchesNodeShape(template, ast) {
 			return false
 		}
 		template = template.getNext()
@@ -193,7 +193,7 @@ func (this *TemplateAstMatcher) matchesNodeShape(template Node, ast Node) bool {
 	} else if this.isTemplateParameterStringLiteralNode(template) {
 		return NodeUtil_isSomeCompileTimeConstStringValue(ast)
 	} else if template.isCall() {
-		if (((ast == 0) || !ast.isCall()) || !ast.hasXChildren(template.getChildCount())) {
+		if ((ast == 0) || !ast.isCall()) || !ast.hasXChildren(template.getChildCount()) {
 			return false
 		}
 	} else if !template.isEquivalentToShallow(ast) {
@@ -201,7 +201,7 @@ func (this *TemplateAstMatcher) matchesNodeShape(template Node, ast Node) bool {
 	}
 	var templateChild Node = template.getFirstChild()
 	var astChild Node = ast.getFirstChild()
-	for (templateChild != 0) {
+	for templateChild != 0 {
 		if !this.matchesNodeShape(templateChild, astChild) {
 			return false
 		}
@@ -212,8 +212,8 @@ func (this *TemplateAstMatcher) matchesNodeShape(template Node, ast Node) bool {
 }
 
 func (this *TemplateAstMatcher) matchesTemplate(template Node, ast Node) bool {
-	for (template != 0) {
-		if ((ast == 0) || !this.matchesNode(template, ast)) {
+	for template != 0 {
+		if (ast == 0) || !this.matchesNode(template, ast) {
 			return false
 		}
 		template = template.getNext()
@@ -226,7 +226,7 @@ func (this *TemplateAstMatcher) matchesNode(template Node, ast Node) bool {
 	if this.isTemplateParameterNode(template) {
 		var paramIndex int32 = f2i_[int32](float64(template.getDouble()))
 		var previousMatch Node = this.paramNodeMatches.get(paramIndex)
-		if (previousMatch != 0) {
+		if previousMatch != 0 {
 			return ast.isEquivalentTo(previousMatch)
 		}
 		var templateType *JSType = template.getJSType()
@@ -237,7 +237,7 @@ func (this *TemplateAstMatcher) matchesNode(template Node, ast Node) bool {
 		var matchResult *TypeMatchingStrategy_MatchResult = this.typeMatchingStrategy.match(templateType, ast.getJSType())
 		this.isLooseMatchField = matchResult.isLooseMatch()
 		var isMatch bool = matchResult.isMatch()
-		if (isMatch && (previousMatch == 0)) {
+		if isMatch && (previousMatch == 0) {
 			this.paramNodeMatches.set(paramIndex, ast)
 		}
 		return isMatch
@@ -248,13 +248,18 @@ func (this *TemplateAstMatcher) matchesNode(template Node, ast Node) bool {
 			return (ast.getString() == this.localVarMatches.get(paramIndex))
 		} else {
 			var originalName string = ast.getOriginalName()
-			var name string = func() string { if !String_isEmpty(originalName) { return originalName }; return ast.getString() }()
+			var name string = func() string {
+				if !String_isEmpty(originalName) {
+					return originalName
+				}
+				return ast.getString()
+			}()
 			this.localVarMatches.set(paramIndex, name)
 		}
 	} else if this.isTemplateParameterStringLiteralNode(template) {
 		var paramIndex int32 = f2i_[int32](float64(template.getDouble()))
 		var previousMatch Node = this.paramNodeMatches.get(paramIndex)
-		if (previousMatch != 0) {
+		if previousMatch != 0 {
 			return ast.isEquivalentTo(previousMatch)
 		}
 		if NodeUtil_isSomeCompileTimeConstStringValue(ast) {
@@ -265,7 +270,7 @@ func (this *TemplateAstMatcher) matchesNode(template Node, ast Node) bool {
 	}
 	var templateChild Node = template.getFirstChild()
 	var astChild Node = ast.getFirstChild()
-	for (templateChild != 0) {
+	for templateChild != 0 {
 		if !this.matchesNode(templateChild, astChild) {
 			return false
 		}
@@ -276,11 +281,11 @@ func (this *TemplateAstMatcher) matchesNode(template Node, ast Node) bool {
 }
 
 func (this *TemplateAstMatcher) isUnresolvedType(type_ *JSType) bool {
-	if (type_.isNoResolvedType() || (type_.isNamedType() && type_.isUnknownType())) {
+	if type_.isNoResolvedType() || (type_.isNamedType() && type_.isUnknownType()) {
 		return true
 	}
 	if type_.isUnionType() {
-		it_1 := eachOf_(type_.getUnionMembers())
+		it_1 := jeachOf_(type_.getUnionMembers())
 		for it_1.next() {
 			var alternate *JSType = it_1.v
 			if this.isUnresolvedType(alternate) {
@@ -321,17 +326,17 @@ func (this *TemplateAstMatcher_Visitor_fn) visit(p0 Node) {
 }
 
 type TemplateAstMatcher_1 struct {
-	outer_ *TemplateAstMatcher
-	cap_locals *TList[string]
-	cap_params *TList[string]
-	cap_paramTypes *TMap[string, *JSType]
+	outer_         *TemplateAstMatcher
+	cap_locals     *JTList[string]
+	cap_params     *JTList[string]
+	cap_paramTypes *JTMap[string, *JSType]
 }
 
 func (this *TemplateAstMatcher_1) init_TemplateAstMatcher_1() {
 
 }
 
-func new_TemplateAstMatcher_1(outer_ *TemplateAstMatcher, cap_locals *TList[string], cap_params *TList[string], cap_paramTypes *TMap[string, *JSType]) *TemplateAstMatcher_1 {
+func new_TemplateAstMatcher_1(outer_ *TemplateAstMatcher, cap_locals *JTList[string], cap_params *JTList[string], cap_paramTypes *JTMap[string, *JSType]) *TemplateAstMatcher_1 {
 	this := &TemplateAstMatcher_1{}
 	this.outer_ = outer_
 	this.cap_locals = cap_locals
@@ -345,7 +350,7 @@ func (this *TemplateAstMatcher_1) visit(n Node) {
 	if n.isName() {
 		var parent Node = n.getParent()
 		var name string = n.getString()
-		if ((!String_isEmpty(name) && parent.isVar()) && !Collection_contains_s(Collection(List_un_(this.cap_locals.asListT())), name)) {
+		if (!String_isEmpty(name) && parent.isVar()) && !Collection_contains_s(Collection(List_un_(this.cap_locals.asListT())), name) {
 			this.cap_locals.add(n.getString())
 		}
 		if Collection_contains_s(Collection(List_un_(this.cap_params.asListT())), name) {
@@ -357,4 +362,3 @@ func (this *TemplateAstMatcher_1) visit(n Node) {
 		}
 	}
 }
-

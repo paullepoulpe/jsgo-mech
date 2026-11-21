@@ -15,14 +15,14 @@ func new_IdMappingUtil() *IdMappingUtil {
 	return this
 }
 
-func IdMappingUtil_generateSerializedIdMappings(idGeneratorMaps *TMap[string, MapT[string, string]]) string {
+func IdMappingUtil_generateSerializedIdMappings(idGeneratorMaps *JTMap[string, MapT[string, string]]) string {
 	var sb *StringBuilder = new_StringBuilder()
 	it_1 := idGeneratorMaps.eachEntry()
 	for it_1.next() {
 		var replacements *TEntry[string, MapT[string, string]] = it_1.entry()
 		if !replacements.getValue().isEmpty() {
 			cast_[*StringBuilder](cast_[*StringBuilder](cast_[*StringBuilder](sb.append_char('[')).append(replacements.getKey()).append_char(']')).append_char(IdMappingUtil_NEW_LINE)).append_char(IdMappingUtil_NEW_LINE)
-			it_3 := eachOf_(replacements.getValue().entrySet_t())
+			it_3 := jeachOf_(replacements.getValue().entrySet_t())
 			for it_3.next() {
 				var replacement Map_EntryT[string, string] = it_3.v
 				cast_[*StringBuilder](sb.append(replacement.getKey_t()).append_char(':')).append(replacement.getValue_t()).append_char(IdMappingUtil_NEW_LINE)
@@ -33,8 +33,8 @@ func IdMappingUtil_generateSerializedIdMappings(idGeneratorMaps *TMap[string, Ma
 	return tostrR_(sb)
 }
 
-func IdMappingUtil_parseSectionOfBytes(idMappings []int8, sectionFilter string) *TMap[string, string] {
-	var mapBuilder *TMapBuilder[string, string] = newTMapBuilder_(tc_string, tc_string)
+func IdMappingUtil_parseSectionOfBytes(idMappings []int8, sectionFilter string) *JTMap[string, string] {
+	var mapBuilder *TMapBuilder[string, string] = newTMapBuilder_(jtc_string, jtc_string)
 	var mr *IdMappingUtil_MappingReader = new_IdMappingUtil_MappingReader(Io_utf8String(idMappings))
 	var inSection bool = false
 	for mr.next() {
@@ -42,7 +42,7 @@ func IdMappingUtil_parseSectionOfBytes(idMappings []int8, sectionFilter string) 
 			if inSection {
 				break
 			}
-			if (mr.getSection().get() == sectionFilter) {
+			if mr.getSection().get() == sectionFilter {
 				inSection = true
 			}
 		} else if inSection {
@@ -52,11 +52,11 @@ func IdMappingUtil_parseSectionOfBytes(idMappings []int8, sectionFilter string) 
 	return mapBuilder.buildKeepingLast()
 }
 
-func IdMappingUtil_parseSerializedIdMappingsText(idMappings string) *TMap[string, *SimpleBiMap[string, string]] {
-	var resultMap *TMap[string, *SimpleBiMap[string, string]] = newTMap_(tc_string, tc_p_SimpleBiMap_string__string_)
+func IdMappingUtil_parseSerializedIdMappingsText(idMappings string) *JTMap[string, *SimpleBiMap[string, string]] {
+	var resultMap *JTMap[string, *SimpleBiMap[string, string]] = jnewTMap_(jtc_string, tc_p_SimpleBiMap_string__string_)
 	var mr *IdMappingUtil_MappingReader = new_IdMappingUtil_MappingReader(idMappings)
 	var currentSectionMap *SimpleBiMap[string, string] = nil
-	var sectionNames *TSet[string] = newTSet_(tc_string)
+	var sectionNames *JTSet[string] = jnewTSet_(jtc_string)
 	for mr.next() {
 		if mr.isSection() {
 			var sectionName Optional[string] = mr.getSection()
@@ -66,7 +66,7 @@ func IdMappingUtil_parseSerializedIdMappingsText(idMappings string) *TMap[string
 			currentSectionMap = SimpleBiMap_create[string, string]()
 			resultMap.put(sectionName.orElse(nullstr_), currentSectionMap)
 		} else {
-			if (currentSectionMap == nil) {
+			if currentSectionMap == nil {
 				panic(new_IllegalArgumentException_String("Mapping entry outside of section").self())
 			}
 			currentSectionMap.put(mr.getKey().orElse(nullstr_), mr.getValue().orElse(nullstr_))
@@ -75,9 +75,9 @@ func IdMappingUtil_parseSerializedIdMappingsText(idMappings string) *TMap[string
 	return resultMap
 }
 
-func IdMappingUtil_parseSerializedIdMappings(idMappings string) *TMap[string, *SimpleBiMap[string, string]] {
+func IdMappingUtil_parseSerializedIdMappings(idMappings string) *JTMap[string, *SimpleBiMap[string, string]] {
 	if Strings_isNullOrEmpty(idMappings) {
-		return tmapEmptyImm_(tc_string, tc_p_SimpleBiMap_string__string_)
+		return jtmapEmptyImm_(jtc_string, tc_p_SimpleBiMap_string__string_)
 	}
 	return IdMappingUtil_parseSerializedIdMappingsText(idMappings)
 }
@@ -85,12 +85,12 @@ func IdMappingUtil_parseSerializedIdMappings(idMappings string) *TMap[string, *S
 const IdMappingUtil_NEW_LINE uint16 = '\n'
 
 type IdMappingUtil_MappingReader struct {
-	lines *TList[string]
+	lines          *JTList[string]
 	currentSection Optional[string]
-	currentKey Optional[string]
-	currentValue Optional[string]
-	nextLine int32
-	lineIndex int32
+	currentKey     Optional[string]
+	currentValue   Optional[string]
+	nextLine       int32
+	lineIndex      int32
 }
 
 func (this *IdMappingUtil_MappingReader) finit_IdMappingUtil_MappingReader() {
@@ -115,7 +115,7 @@ func new_IdMappingUtil_MappingReader(text string) *IdMappingUtil_MappingReader {
 func (this *IdMappingUtil_MappingReader) next() bool {
 	var line string
 	for {
-		if (this.nextLine == this.lines.size()) {
+		if this.nextLine == this.lines.size() {
 			break
 		}
 		line = this.lines.get(this.nextLine)
@@ -124,14 +124,14 @@ func (this *IdMappingUtil_MappingReader) next() bool {
 		if String_isEmpty(line) {
 			continue
 		}
-		if (String_charAt(line, 0) == '[') {
+		if String_charAt(line, 0) == '[' {
 			this.currentSection = Optional_of[string](String_substring(line, 1, (String_length(line) - 1)))
 			this.currentKey = Optional_empty[string]()
 			this.currentValue = Optional_empty[string]()
 			return true
 		} else {
 			var split int32 = String_indexOf(line, 58)
-			if (split != -1) {
+			if split != -1 {
 				this.currentKey = Optional_of[string](String_substring(line, 0, split))
 				this.currentValue = Optional_of[string](String_substring_int(line, (split + 1)))
 				return true
@@ -162,4 +162,3 @@ func (this *IdMappingUtil_MappingReader) getValue() Optional[string] {
 func (this *IdMappingUtil_MappingReader) getLineIndex() int32 {
 	return this.lineIndex
 }
-

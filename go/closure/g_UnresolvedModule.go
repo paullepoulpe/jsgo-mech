@@ -36,7 +36,7 @@ func (this *UnresolvedModule) resolve(moduleRequestResolver ModuleRequestResolve
 }
 
 func (this *UnresolvedModule) resolveExport_impl(moduleRequestResolver ModuleRequestResolver, exportName Optional[string]) *ResolveExportResult {
-	return this.resolveExport_5(moduleRequestResolver, Optional_empty[string](), exportName, newTSet_(tce_p_ExportTrace), newTSet_(tce_p_UnresolvedModule))
+	return this.resolveExport_5(moduleRequestResolver, Optional_empty[string](), exportName, jnewTSet_(tce_p_ExportTrace), jnewTSet_(tce_p_UnresolvedModule))
 }
 
 func (this *UnresolvedModule) equals(other any) bool {
@@ -48,30 +48,41 @@ func (this *UnresolvedModule) hashCode() int32 {
 }
 
 func (this *UnresolvedModule) resolveExport(p0 ModuleRequestResolver, p1 Optional[string]) *ResolveExportResult {
-	return this.self_.(interface{ resolveExport_impl(ModuleRequestResolver, Optional[string]) *ResolveExportResult }).resolveExport_impl(p0, p1)
+	return this.self_.(interface {
+		resolveExport_impl(ModuleRequestResolver, Optional[string]) *ResolveExportResult
+	}).resolveExport_impl(p0, p1)
 }
 
-func (this *UnresolvedModule) resolveExport_5(p0 ModuleRequestResolver, p1 Optional[string], p2 Optional[string], p3 *TSet[*ExportTrace], p4 *TSet[*UnresolvedModule]) *ResolveExportResult {
-	return this.self_.(interface{ resolveExport_5_impl(ModuleRequestResolver, Optional[string], Optional[string], *TSet[*ExportTrace], *TSet[*UnresolvedModule]) *ResolveExportResult }).resolveExport_5_impl(p0, p1, p2, p3, p4)
+func (this *UnresolvedModule) resolveExport_5(p0 ModuleRequestResolver, p1 Optional[string], p2 Optional[string], p3 *JTSet[*ExportTrace], p4 *JTSet[*UnresolvedModule]) *ResolveExportResult {
+	return this.self_.(interface {
+		resolveExport_5_impl(ModuleRequestResolver, Optional[string], Optional[string], *JTSet[*ExportTrace], *JTSet[*UnresolvedModule]) *ResolveExportResult
+	}).resolveExport_5_impl(p0, p1, p2, p3, p4)
 }
 
 func (this *UnresolvedModule) resolve_2(p0 ModuleRequestResolver, p1 Optional[string]) *Module {
-	return this.self_.(interface{ resolve_2_impl(ModuleRequestResolver, Optional[string]) *Module }).resolve_2_impl(p0, p1)
+	return this.self_.(interface {
+		resolve_2_impl(ModuleRequestResolver, Optional[string]) *Module
+	}).resolve_2_impl(p0, p1)
 }
 
 func (this *UnresolvedModule) metadata() *ModuleMetadataMap_ModuleMetadata {
-	return this.self_.(interface{ metadata_impl() *ModuleMetadataMap_ModuleMetadata }).metadata_impl()
+	return this.self_.(interface {
+		metadata_impl() *ModuleMetadataMap_ModuleMetadata
+	}).metadata_impl()
 }
 
-func (this *UnresolvedModule) getExportedNames(p0 ModuleRequestResolver) *TSet[string] {
-	return this.self_.(interface{ getExportedNames_impl(ModuleRequestResolver) *TSet[string] }).getExportedNames_impl(p0)
+func (this *UnresolvedModule) getExportedNames(p0 ModuleRequestResolver) *JTSet[string] {
+	return this.self_.(interface {
+		getExportedNames_impl(ModuleRequestResolver) *JTSet[string]
+	}).getExportedNames_impl(p0)
 }
 
-func (this *UnresolvedModule) getExportedNames_2(p0 ModuleRequestResolver, p1 *TSet[*UnresolvedModule]) *TSet[string] {
-	return this.self_.(interface{ getExportedNames_2_impl(ModuleRequestResolver, *TSet[*UnresolvedModule]) *TSet[string] }).getExportedNames_2_impl(p0, p1)
+func (this *UnresolvedModule) getExportedNames_2(p0 ModuleRequestResolver, p1 *JTSet[*UnresolvedModule]) *JTSet[string] {
+	return this.self_.(interface {
+		getExportedNames_2_impl(ModuleRequestResolver, *JTSet[*UnresolvedModule]) *JTSet[string]
+	}).getExportedNames_2_impl(p0, p1)
 }
 
 func (this *UnresolvedModule) reset() {
 	this.self_.(interface{ reset_impl() }).reset_impl()
 }
-

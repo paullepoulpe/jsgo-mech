@@ -4,8 +4,8 @@ package closure
 
 type DeclaredGlobalExternsOnWindow struct {
 	NodeTraversal_AbstractShallowStatementCallback
-	compiler_ *AbstractCompiler
-	nodes_ *TSet[Node]
+	compiler_       *AbstractCompiler
+	nodes_          *JTSet[Node]
 	windowInExterns bool
 }
 
@@ -17,7 +17,7 @@ func (this *DeclaredGlobalExternsOnWindow) up_NodeTraversal_AbstractShallowState
 }
 
 func (this *DeclaredGlobalExternsOnWindow) finit_DeclaredGlobalExternsOnWindow() {
-	this.nodes_ = newTSet_(tc_Node)
+	this.nodes_ = jnewTSet_(jtc_Node)
 	this.windowInExterns = false
 }
 
@@ -53,12 +53,17 @@ func (this *DeclaredGlobalExternsOnWindow) addWindowProperties() {
 func DeclaredGlobalExternsOnWindow_addExtern(node Node, defineOnWindow bool) {
 	var name string = node.getString()
 	var oldJSDocInfo *JSDocInfo = NodeUtil_getBestJSDocInfo(node)
-	var globalRef Node = func() Node { if defineOnWindow { return IR_name(DeclaredGlobalExternsOnWindow_WINDOW_NAME) }; return IR_thisNode() }()
+	var globalRef Node = func() Node {
+		if defineOnWindow {
+			return IR_name(DeclaredGlobalExternsOnWindow_WINDOW_NAME)
+		}
+		return IR_thisNode()
+	}()
 	var getprop Node = IR_getprop_Node_String(globalRef, name)
 	var newNode Node = getprop
-	if (oldJSDocInfo != nil) {
+	if oldJSDocInfo != nil {
 		var builder *JSDocInfo_Builder
-		if (oldJSDocInfo.isConstructorOrInterface() || oldJSDocInfo.hasEnumParameterType()) {
+		if oldJSDocInfo.isConstructorOrInterface() || oldJSDocInfo.hasEnumParameterType() {
 			var nameNode Node = IR_name(name)
 			newNode = IR_assign(getprop, nameNode)
 			builder = JSDocInfo_builder()
@@ -79,13 +84,13 @@ func DeclaredGlobalExternsOnWindow_addExtern(node Node, defineOnWindow bool) {
 				newNode = IR_assign(getprop, IR_name(name))
 			} else {
 				var rhs Node = NodeUtil_getRValueOfLValue(node)
-				if ((oldJSDocInfo.hasConstAnnotation() && (rhs != 0)) && rhs.isQualifiedName()) {
+				if (oldJSDocInfo.hasConstAnnotation() && (rhs != 0)) && rhs.isQualifiedName() {
 					newNode = IR_assign(getprop, rhs.cloneTree())
 				}
 			}
 			builder = JSDocInfo_Builder_copyFrom(oldJSDocInfo)
 		}
-		builder.recordSuppressions(immutableSetOf_[string](tc_string, "const", "duplicate"))
+		builder.recordSuppressions(jimmutableSetOf_[string](jtc_string, "const", "duplicate"))
 		var jsDocInfo *JSDocInfo = builder.build()
 		newNode.setJSDocInfo(jsDocInfo)
 	}
@@ -101,8 +106,8 @@ func (this *DeclaredGlobalExternsOnWindow) visit_impl(t *NodeTraversal, n Node, 
 	} else if n.isVar() {
 		{
 			var c Node = n.getFirstChild()
-			for ; (c != 0); c = c.getNext() {
-				if (c.getString() == DeclaredGlobalExternsOnWindow_WINDOW_NAME) {
+			for ; c != 0; c = c.getNext() {
+				if c.getString() == DeclaredGlobalExternsOnWindow_WINDOW_NAME {
 					this.windowInExterns = true
 					continue
 				}
@@ -115,4 +120,3 @@ func (this *DeclaredGlobalExternsOnWindow) visit_impl(t *NodeTraversal, n Node, 
 }
 
 const DeclaredGlobalExternsOnWindow_WINDOW_NAME string = "window"
-

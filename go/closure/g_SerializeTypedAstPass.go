@@ -3,8 +3,8 @@
 package closure
 
 type SerializeTypedAstPass struct {
-	compiler_ *AbstractCompiler
-	consumer Consumer[*TypedAst]
+	compiler_            *AbstractCompiler
+	consumer             Consumer[*TypedAst]
 	serializationOptions *SerializationOptions
 }
 
@@ -43,4 +43,3 @@ func (this *SerializeTypedAstPass) process_2(externs Node, root Node) {
 	var ast *TypedAst = serializer.serializeRoots(externs, root)
 	this.consumer.accept(ast)
 }
-

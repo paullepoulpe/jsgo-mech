@@ -47,7 +47,7 @@ func (this *VoidType) testForEquality_impl(that *JSType) *Tri {
 	if eqR_(Tri_UNKNOWN, this.ValueType.testForEquality_impl(that)) {
 		return Tri_UNKNOWN
 	}
-	if (that.isSubtypeOf(this.up_JSType()) || that.isSubtypeOf(this.getNativeType(JSTypeNative_NULL_TYPE))) {
+	if that.isSubtypeOf(this.up_JSType()) || that.isSubtypeOf(this.getNativeType(JSTypeNative_NULL_TYPE)) {
 		return Tri_TRUE
 	}
 	return Tri_FALSE
@@ -88,4 +88,3 @@ func (this *VoidType) getPossibleToBooleanOutcomes_impl() *BooleanLiteralSet {
 func (this *VoidType) visitUntyped_impl(visitor Visitor) any {
 	return visitor.caseVoidType()
 }
-

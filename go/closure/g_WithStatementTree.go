@@ -5,7 +5,7 @@ package closure
 type WithStatementTree struct {
 	ParseTree
 	expression *ParseTree
-	body *ParseTree
+	body       *ParseTree
 }
 
 func (this *WithStatementTree) up_ParseTree() *ParseTree {
@@ -27,4 +27,3 @@ func new_WithStatementTree(location *SourceRange, expression *ParseTree, body *P
 	this.init_WithStatementTree(location, expression, body)
 	return this
 }
-

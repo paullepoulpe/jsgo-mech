@@ -3,11 +3,11 @@
 package closure
 
 type CrossChunkMethodMotion struct {
-	compiler_ *AbstractCompiler
-	idGenerator_ *IdGenerator
-	analyzer *AnalyzePrototypeProperties
-	chunkGraph *JSChunkGraph
-	astFactory_ *AstFactory
+	compiler_       *AbstractCompiler
+	idGenerator_    *IdGenerator
+	analyzer        *AnalyzePrototypeProperties
+	chunkGraph      *JSChunkGraph
+	astFactory_     *AstFactory
 	noStubFunctions bool
 }
 
@@ -27,7 +27,7 @@ func new_CrossChunkMethodMotion(compiler *AbstractCompiler, idGenerator *IdGener
 }
 
 func (this *CrossChunkMethodMotion) process_2(externRoot Node, root Node) {
-	if (this.chunkGraph.getChunkCount() > 1) {
+	if this.chunkGraph.getChunkCount() > 1 {
 		this.analyzer.process_2(externRoot, root)
 		this.moveMethods(this.analyzer.getAllNameInfo())
 	}
@@ -35,7 +35,7 @@ func (this *CrossChunkMethodMotion) process_2(externRoot Node, root Node) {
 
 func (this *CrossChunkMethodMotion) moveMethods(allNameInfo CollectionT[*AnalyzePrototypeProperties_NameInfo]) {
 	var hasStubDeclaration bool = this.idGenerator_.hasGeneratedAnyIds()
-	it_1 := eachOf_(allNameInfo)
+	it_1 := jeachOf_(allNameInfo)
 	for it_1.next() {
 		var nameInfo *AnalyzePrototypeProperties_NameInfo = it_1.v
 		if !nameInfo.isReferenced() {
@@ -45,7 +45,7 @@ func (this *CrossChunkMethodMotion) moveMethods(allNameInfo CollectionT[*Analyze
 			continue
 		}
 		var deepestCommonChunkRef *JSChunk = nameInfo.getDeepestCommonChunkRef()
-		if (deepestCommonChunkRef == nil) {
+		if deepestCommonChunkRef == nil {
 			this.compiler_.report(JSError_make_DiagnosticType_StringArr(CrossChunkMethodMotion_NULL_COMMON_CHUNK_ERROR, []string{}))
 			continue
 		}
@@ -54,18 +54,32 @@ func (this *CrossChunkMethodMotion) moveMethods(allNameInfo CollectionT[*Analyze
 			var symbol AnalyzePrototypeProperties_Symbol = declarations.next_t()
 			var prototypeProperty AnalyzePrototypeProperties_PrototypeProperty
 			_ = prototypeProperty
-			if func() bool { v_ := any(symbol); if !is_[AnalyzePrototypeProperties_PrototypeProperty](v_) { return false }; prototypeProperty = icast_AnalyzePrototypeProperties_PrototypeProperty(v_); return true }() {
+			if func() bool {
+				v_ := any(symbol)
+				if !is_[AnalyzePrototypeProperties_PrototypeProperty](v_) {
+					return false
+				}
+				prototypeProperty = icast_AnalyzePrototypeProperties_PrototypeProperty(v_)
+				return true
+			}() {
 				this.tryToMovePrototypeMethod(nameInfo, deepestCommonChunkRef, prototypeProperty)
 			} else {
 				var classMemberFunction *AnalyzePrototypeProperties_ClassMemberFunction
 				_ = classMemberFunction
-				if func() bool { v_ := any(symbol); if !is_[*AnalyzePrototypeProperties_ClassMemberFunction](v_) { return false }; classMemberFunction = cast_[*AnalyzePrototypeProperties_ClassMemberFunction](v_); return true }() {
+				if func() bool {
+					v_ := any(symbol)
+					if !is_[*AnalyzePrototypeProperties_ClassMemberFunction](v_) {
+						return false
+					}
+					classMemberFunction = cast_[*AnalyzePrototypeProperties_ClassMemberFunction](v_)
+					return true
+				}() {
 					this.tryToMoveMemberFunction(nameInfo, deepestCommonChunkRef, classMemberFunction)
 				}
 			}
 		}
 	}
-	if ((!this.noStubFunctions && !hasStubDeclaration) && this.idGenerator_.hasGeneratedAnyIds()) {
+	if (!this.noStubFunctions && !hasStubDeclaration) && this.idGenerator_.hasGeneratedAnyIds() {
 		var declarations Node = this.compiler_.parseSyntheticCode("chunk_method_stubbing", CrossChunkMethodMotion_STUB_DECLARATIONS)
 		NodeUtil_markNewScopesChanged(declarations, this.compiler_)
 		var firstScript Node = this.compiler_.getNodeForCodeInsertion(nil)
@@ -75,7 +89,7 @@ func (this *CrossChunkMethodMotion) moveMethods(allNameInfo CollectionT[*Analyze
 }
 
 func (this *CrossChunkMethodMotion) tryToMovePrototypeMethod(nameInfo *AnalyzePrototypeProperties_NameInfo, deepestCommonChunkRef *JSChunk, prop AnalyzePrototypeProperties_PrototypeProperty) {
-	if ((prop.getRootVar() == nil) || !prop.getRootVar().isGlobal()) {
+	if (prop.getRootVar() == nil) || !prop.getRootVar().isGlobal() {
 		return
 	}
 	if nameInfo.referencesSuper() {
@@ -83,7 +97,7 @@ func (this *CrossChunkMethodMotion) tryToMovePrototypeMethod(nameInfo *AnalyzePr
 	}
 	var value Node = prop.getValue()
 	var valueParent Node = value.getParent()
-	if ((!value.isFunction() || valueParent.isGetterDef()) || valueParent.isSetterDef()) {
+	if (!value.isFunction() || valueParent.isGetterDef()) || valueParent.isSetterDef() {
 		return
 	}
 	if this.chunkGraph.dependsOn(deepestCommonChunkRef, prop.getChunk()) {
@@ -204,7 +218,7 @@ func (this *CrossChunkMethodMotion) createUnstubCall(functionNode Node, stubId i
 
 func (this *CrossChunkMethodMotion) tryToMoveMemberFunction(nameInfo *AnalyzePrototypeProperties_NameInfo, deepestCommonChunkRef *JSChunk, classMemberFunction *AnalyzePrototypeProperties_ClassMemberFunction) {
 	var rootVar *Var = classMemberFunction.getRootVar()
-	if ((rootVar == nil) || !rootVar.isGlobal()) {
+	if (rootVar == nil) || !rootVar.isGlobal() {
 		return
 	}
 	var definitionNode Node = classMemberFunction.getDefinitionNode()
@@ -282,8 +296,15 @@ func CrossChunkMethodMotion_hasUnmovableRedeclaration(nameInfo *AnalyzePrototype
 		var symbol AnalyzePrototypeProperties_Symbol = it_1.v
 		var otherProp AnalyzePrototypeProperties_Property
 		_ = otherProp
-		if func() bool { v_ := any(symbol); if !is_[AnalyzePrototypeProperties_Property](v_) { return false }; otherProp = icast_AnalyzePrototypeProperties_Property(v_); return true }() {
-			if (((prop != otherProp) && (prop.getRootVar() == otherProp.getRootVar())) && (prop.getChunk() != otherProp.getChunk())) {
+		if func() bool {
+			v_ := any(symbol)
+			if !is_[AnalyzePrototypeProperties_Property](v_) {
+				return false
+			}
+			otherProp = icast_AnalyzePrototypeProperties_Property(v_)
+			return true
+		}() {
+			if ((prop != otherProp) && (prop.getRootVar() == otherProp.getRootVar())) && (prop.getChunk() != otherProp.getChunk()) {
 				return true
 			}
 		}
@@ -292,6 +313,7 @@ func CrossChunkMethodMotion_hasUnmovableRedeclaration(nameInfo *AnalyzePrototype
 }
 
 var CrossChunkMethodMotion_NULL_COMMON_CHUNK_ERROR *DiagnosticType
+
 const CrossChunkMethodMotion_STUB_METHOD_NAME string = "JSCompiler_stubMethod"
 const CrossChunkMethodMotion_UNSTUB_METHOD_NAME string = "JSCompiler_unstubMethod"
 const CrossChunkMethodMotion_STUB_DECLARATIONS string = "var JSCompiler_stubMap = [];function JSCompiler_stubMethod(JSCompiler_stubMethod_id) {  return function() {    return JSCompiler_stubMap[JSCompiler_stubMethod_id].apply(        this, arguments);  };}function JSCompiler_unstubMethod(    JSCompiler_unstubMethod_id, JSCompiler_unstubMethod_body) {  return JSCompiler_stubMap[JSCompiler_unstubMethod_id] =       JSCompiler_unstubMethod_body;}"
@@ -306,4 +328,3 @@ func CrossChunkMethodMotion_clinit() {
 	CrossChunkMethodMotion_NULL_COMMON_CHUNK_ERROR = DiagnosticType_error("JSC_INTERNAL_ERROR_CHUNK_DEPEND", "null deepest common chunk")
 
 }
-

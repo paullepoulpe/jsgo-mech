@@ -3,16 +3,16 @@
 package closure
 
 type Export struct {
-	modulePath_ *ModuleLoader_ModulePath
-	moduleMetadata_ *ModuleMetadataMap_ModuleMetadata
-	exportName_ Optional[string]
-	moduleRequest_ Optional[string]
-	importName_ Optional[string]
-	localName_ Optional[string]
+	modulePath_       *ModuleLoader_ModulePath
+	moduleMetadata_   *ModuleMetadataMap_ModuleMetadata
+	exportName_       Optional[string]
+	moduleRequest_    Optional[string]
+	importName_       Optional[string]
+	localName_        Optional[string]
 	closureNamespace_ Optional[string]
-	exportNode_ Node
-	nameNode_ Node
-	mutated_ bool
+	exportNode_       Node
+	nameNode_         Node
+	mutated_          bool
 }
 
 func (this *Export) init_Export(exportName Optional[string], moduleRequest Optional[string], importName Optional[string], localName Optional[string], modulePath *ModuleLoader_ModulePath, exportNode Node, nameNode Node, moduleMetadata *ModuleMetadataMap_ModuleMetadata, closureNamespace Optional[string], mutated bool) {
@@ -111,7 +111,7 @@ func (this *Export) hashCode() int32 {
 }
 
 func (this *Export) toString() string {
-	return "Export[" + "exportName=" + objstr_(this.exportName_.box_()) + ", moduleRequest=" + objstr_(this.moduleRequest_.box_()) + ", importName=" + objstr_(this.importName_.box_()) + ", localName=" + objstr_(this.localName_.box_()) + ", modulePath=" + tostr_(this.modulePath_) + ", exportNode=" + tostrH_(this.exportNode_) + ", nameNode=" + tostrH_(this.nameNode_) + ", moduleMetadata=" + tostr_(this.moduleMetadata_) + ", closureNamespace=" + objstr_(this.closureNamespace_.box_()) + ", mutated=" + boolstr_(this.mutated_) + "]"
+	return "Export[" + "exportName=" + objstr_(this.exportName_.box_()) + ", moduleRequest=" + objstr_(this.moduleRequest_.box_()) + ", importName=" + objstr_(this.importName_.box_()) + ", localName=" + objstr_(this.localName_.box_()) + ", modulePath=" + jtostr_(this.modulePath_) + ", exportNode=" + tostrH_(this.exportNode_) + ", nameNode=" + tostrH_(this.nameNode_) + ", moduleMetadata=" + jtostr_(this.moduleMetadata_) + ", closureNamespace=" + objstr_(this.closureNamespace_.box_()) + ", mutated=" + boolstr_(this.mutated_) + "]"
 }
 
 const Export_DEFAULT_EXPORT_NAME string = "*default*"
@@ -119,17 +119,17 @@ const Export_DEFAULT string = "default"
 const Export_NAMESPACE string = "*exports*"
 
 type Export_Builder struct {
-	modulePathField *ModuleLoader_ModulePath
-	moduleMetadataField *ModuleMetadataMap_ModuleMetadata
-	exportNameField Optional[string]
-	moduleRequestField Optional[string]
-	importNameField Optional[string]
-	localNameField Optional[string]
+	modulePathField       *ModuleLoader_ModulePath
+	moduleMetadataField   *ModuleMetadataMap_ModuleMetadata
+	exportNameField       Optional[string]
+	moduleRequestField    Optional[string]
+	importNameField       Optional[string]
+	localNameField        Optional[string]
 	closureNamespaceField Optional[string]
-	exportNodeField Node
-	nameNodeField Node
-	mutatedField bool
-	set0 int8
+	exportNodeField       Node
+	nameNodeField         Node
+	mutatedField          bool
+	set0                  int8
 }
 
 func (this *Export_Builder) finit_Export_Builder() {
@@ -207,7 +207,7 @@ func (this *Export_Builder) nameNode(value Node) *Export_Builder {
 }
 
 func (this *Export_Builder) moduleMetadata(value *ModuleMetadataMap_ModuleMetadata) *Export_Builder {
-	if (value == nil) {
+	if value == nil {
 		panic(new_NullPointerException_String("Null moduleMetadata").self())
 	}
 	this.moduleMetadataField = value
@@ -226,15 +226,15 @@ func (this *Export_Builder) mutated(value bool) *Export_Builder {
 }
 
 func (this *Export_Builder) autoBuild() *Export {
-	if ((int32(this.set0) != 1) || (this.moduleMetadataField == nil)) {
+	if (int32(this.set0) != 1) || (this.moduleMetadataField == nil) {
 		var missing *StringBuilder = new_StringBuilder()
-		if (this.moduleMetadataField == nil) {
+		if this.moduleMetadataField == nil {
 			missing.append(" moduleMetadata")
 		}
-		if ((int32(this.set0) & 1) == 0) {
+		if (int32(this.set0) & 1) == 0 {
 			missing.append(" mutated")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + tostr_(missing))).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + jtostr_(missing))).self())
 	}
 	return new_Export(this.exportNameField, this.moduleRequestField, this.importNameField, this.localNameField, this.modulePathField, this.exportNodeField, this.nameNodeField, this.moduleMetadataField, this.closureNamespaceField, this.mutatedField)
 }
@@ -276,4 +276,3 @@ func Export_Builder_validateOtherModule(e *Export) {
 	Preconditions_checkState(e.importName().isEmpty())
 	Preconditions_checkState((e.nameNode() == 0))
 }
-

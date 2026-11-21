@@ -3,21 +3,27 @@
 package closure
 
 type ThreadSafeDelegatingErrorManager struct {
-	self_ any
+	self_     any
 	delegated ErrorManager
 }
 
-func (this *ThreadSafeDelegatingErrorManager) as_ThreadSafeDelegatingErrorManager() *ThreadSafeDelegatingErrorManager { return this }
+func (this *ThreadSafeDelegatingErrorManager) as_ThreadSafeDelegatingErrorManager() *ThreadSafeDelegatingErrorManager {
+	return this
+}
 
 func to_ThreadSafeDelegatingErrorManager(v any) *ThreadSafeDelegatingErrorManager {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_ThreadSafeDelegatingErrorManager() *ThreadSafeDelegatingErrorManager }).as_ThreadSafeDelegatingErrorManager()
+	return v.(interface {
+		as_ThreadSafeDelegatingErrorManager() *ThreadSafeDelegatingErrorManager
+	}).as_ThreadSafeDelegatingErrorManager()
 }
 
 func is_ThreadSafeDelegatingErrorManager(v any) bool {
-	_, ok := v.(interface{ as_ThreadSafeDelegatingErrorManager() *ThreadSafeDelegatingErrorManager })
+	_, ok := v.(interface {
+		as_ThreadSafeDelegatingErrorManager() *ThreadSafeDelegatingErrorManager
+	})
 	return ok
 }
 
@@ -59,11 +65,11 @@ func (this *ThreadSafeDelegatingErrorManager) getWarningCount() int32 {
 	return this.delegated.getWarningCount()
 }
 
-func (this *ThreadSafeDelegatingErrorManager) getErrors() *TList[*JSError] {
+func (this *ThreadSafeDelegatingErrorManager) getErrors() *JTList[*JSError] {
 	return this.delegated.getErrors()
 }
 
-func (this *ThreadSafeDelegatingErrorManager) getWarnings() *TList[*JSError] {
+func (this *ThreadSafeDelegatingErrorManager) getWarnings() *JTList[*JSError] {
 	return this.delegated.getWarnings()
 }
 
@@ -80,7 +86,9 @@ func (this *ThreadSafeDelegatingErrorManager) shouldReportConformanceViolation_i
 }
 
 func (this *ThreadSafeDelegatingErrorManager) shouldReportConformanceViolation(p0 *Requirement, p1 *Optional_base, p2 *JSError, p3 *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior, p4 bool) bool {
-	return this.self_.(interface{ shouldReportConformanceViolation_impl(*Requirement, *Optional_base, *JSError, *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior, bool) bool }).shouldReportConformanceViolation_impl(p0, p1, p2, p3, p4)
+	return this.self_.(interface {
+		shouldReportConformanceViolation_impl(*Requirement, *Optional_base, *JSError, *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior, bool) bool
+	}).shouldReportConformanceViolation_impl(p0, p1, p2, p3, p4)
 }
 
 func (this *ThreadSafeDelegatingErrorManager) report_2(p0 *CheckLevel, p1 *JSError) {
@@ -90,4 +98,3 @@ func (this *ThreadSafeDelegatingErrorManager) report_2(p0 *CheckLevel, p1 *JSErr
 func (this *ThreadSafeDelegatingErrorManager) generateReport() {
 	this.self_.(interface{ generateReport_impl() }).generateReport_impl()
 }
-

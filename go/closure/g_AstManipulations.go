@@ -38,4 +38,3 @@ func AstManipulations_fuseExpressions(exp1 Node, exp2 Node) Node {
 	}
 	panic("unreachable")
 }
-

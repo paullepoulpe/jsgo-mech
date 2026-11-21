@@ -3,8 +3,8 @@
 package closure
 
 type SimpleBiMap[K comparable, V comparable] struct {
-	forward *TMap[K, V]
-	backward *TMap[V, K]
+	forward  *JTMap[K, V]
+	backward *JTMap[V, K]
 }
 
 func (this *SimpleBiMap[K, V]) isa_SimpleBiMap_() {}
@@ -15,8 +15,8 @@ func is_SimpleBiMap(v any) bool {
 }
 
 func (this *SimpleBiMap[K, V]) finit_SimpleBiMap() {
-	this.forward = newTMap_(tceT_[K](), tcT_[V]())
-	this.backward = newTMap_(tceT_[V](), tcT_[K]())
+	this.forward = jnewTMap_(tceT_[K](), tcT_[V]())
+	this.backward = jnewTMap_(tceT_[V](), tcT_[K]())
 }
 
 func (this *SimpleBiMap[K, V]) init_SimpleBiMap() {
@@ -35,7 +35,7 @@ func SimpleBiMap_create[K comparable, V comparable]() *SimpleBiMap[K, V] {
 
 func SimpleBiMap_copyOf[K comparable, V comparable](map_ MapT[K, V]) *SimpleBiMap[K, V] {
 	var copy_ *SimpleBiMap[K, V] = new_SimpleBiMap[K, V]()
-	it_1 := eachOf_(map_.entrySet_t())
+	it_1 := jeachOf_(map_.entrySet_t())
 	for it_1.next() {
 		var e Map_EntryT[K, V] = it_1.v
 		copy_.put(e.getKey_t(), e.getValue_t())
@@ -46,7 +46,7 @@ func SimpleBiMap_copyOf[K comparable, V comparable](map_ MapT[K, V]) *SimpleBiMa
 func (this *SimpleBiMap[K, V]) put(key K, value V) V {
 	var hadKey bool = this.forward.containsKey(key)
 	var oldValue V = this.forward.get(key)
-	if (hadKey && Objects_equals(boxT_(oldValue), boxT_(value))) {
+	if hadKey && Objects_equals(boxT_(oldValue), boxT_(value)) {
 		return oldValue
 	}
 	Preconditions_checkArgument_boolean_String_Object(!this.backward.containsKey(value), "value already present: %s", boxT_(value))
@@ -92,4 +92,3 @@ func (this *SimpleBiMap[K, V]) inverse() MapT[V, K] {
 func (this *SimpleBiMap[K, V]) toString() string {
 	return Object_toString(lgBox_(this.forward.asMapT()))
 }
-

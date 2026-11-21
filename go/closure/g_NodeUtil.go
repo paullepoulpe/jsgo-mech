@@ -53,12 +53,12 @@ func NodeUtil_getBooleanValue(n Node) *Tri {
 			}()
 		case Token_rhino_BITNOT, Token_rhino_POS, Token_rhino_NEG:
 			var doubleVal any = NodeUtil_getNumberValue(n)
-			if (doubleVal != nil) {
+			if doubleVal != nil {
 				var isFalsey bool = (Double_isNaN_0(doubleVal) || JSCompDoubles_isEitherZero(unbox_[float64](doubleVal)))
 				return Tri_forBoolean(!isFalsey)
 			}
 			var bigintVal *BigInteger = NodeUtil_getBigIntValue(n)
-			if (bigintVal != nil) {
+			if bigintVal != nil {
 				var isFalsey bool = equalsRR_(bigintVal, BigInteger_ZERO)
 				return Tri_forBoolean(!isFalsey)
 			}
@@ -84,7 +84,7 @@ func NodeUtil_getBooleanValue(n Node) *Tri {
 		case Token_rhino_COALESCE, Token_rhino_ASSIGN_COALESCE:
 			var lhs *Tri = NodeUtil_getBooleanValue(n.getFirstChild())
 			var rhs *Tri = NodeUtil_getBooleanValue(n.getLastChild())
-			if (eqR_(lhs, Tri_TRUE) || eqR_(lhs, rhs)) {
+			if eqR_(lhs, Tri_TRUE) || eqR_(lhs, rhs) {
 				return lhs
 			} else {
 				return Tri_UNKNOWN
@@ -105,7 +105,7 @@ func NodeUtil_getStringValue(n Node) Optional[string] {
 			var string_ *StringBuilder = new_StringBuilder()
 			{
 				var child Node = n.getFirstChild()
-				for ; (child != 0); child = child.getNext() {
+				for ; child != 0; child = child.getNext() {
 					var expression Node = child
 					if child.isTemplateLitSub() {
 						expression = child.getFirstChild()
@@ -122,13 +122,13 @@ func NodeUtil_getStringValue(n Node) Optional[string] {
 			return n.getCookedString()
 		case Token_rhino_NAME:
 			var name string = n.getString()
-			if ((("undefined" == name) || ("Infinity" == name)) || ("NaN" == name)) {
+			if (("undefined" == name) || ("Infinity" == name)) || ("NaN" == name) {
 				return Optional_of[string](name)
 			}
 			return Optional_empty[string]()
 		case Token_rhino_NEG, Token_rhino_NUMBER:
 			var value any = NodeUtil_getNumberValue(n)
-			if (value != nil) {
+			if value != nil {
 				return Optional_of[string](DToA_numberToString(Double_doubleValue(value)))
 			}
 			return Optional_empty[string]()
@@ -144,14 +144,24 @@ func NodeUtil_getStringValue(n Node) Optional[string] {
 			return Optional_of[string]("undefined")
 		case Token_rhino_NOT:
 			var child *Tri = NodeUtil_getBooleanValue(n.getFirstChild())
-			if (child != Tri_UNKNOWN) {
-				return func() Optional[string] { if child.toBoolean(true) { return Optional_of[string]("false") }; return Optional_of[string]("true") }()
+			if child != Tri_UNKNOWN {
+				return func() Optional[string] {
+					if child.toBoolean(true) {
+						return Optional_of[string]("false")
+					}
+					return Optional_of[string]("true")
+				}()
 			}
 			return Optional_empty[string]()
 		case Token_rhino_ARRAYLIT:
 			return NodeUtil_arrayToString(n)
 		case Token_rhino_OBJECTLIT:
-			return func() Optional[string] { if n.hasChildren() { return Optional_empty[string]() }; return Optional_of[string]("[object Object]") }()
+			return func() Optional[string] {
+				if n.hasChildren() {
+					return Optional_empty[string]()
+				}
+				return Optional_of[string]("[object Object]")
+			}()
 		default:
 			return Optional_empty[string]()
 		}
@@ -160,7 +170,12 @@ func NodeUtil_getStringValue(n Node) Optional[string] {
 }
 
 func NodeUtil_getArrayElementStringValue(n Node) Optional[string] {
-	return func() Optional[string] { if (NodeUtil_isNullOrUndefined(n) || n.isEmpty()) { return Optional_of[string]("") }; return NodeUtil_getStringValue(n) }()
+	return func() Optional[string] {
+		if NodeUtil_isNullOrUndefined(n) || n.isEmpty() {
+			return Optional_of[string]("")
+		}
+		return NodeUtil_getStringValue(n)
+	}()
 }
 
 func NodeUtil_arrayToString(literal Node) Optional[string] {
@@ -168,12 +183,12 @@ func NodeUtil_arrayToString(literal Node) Optional[string] {
 	var result *StringBuilder = new_StringBuilder()
 	{
 		var n Node = first
-		for ; (n != 0); n = n.getNext() {
+		for ; n != 0; n = n.getNext() {
 			var childValue Optional[string] = NodeUtil_getArrayElementStringValue(n)
 			if childValue.isEmpty() {
 				return Optional_empty[string]()
 			}
-			if (n != first) {
+			if n != first {
 				result.append_char(',')
 			}
 			result.append(childValue.get())
@@ -205,7 +220,12 @@ func NodeUtil_doGetNumberValue(n Node, numberConversions bool) any {
 		return func() any {
 			switch n.getString() {
 			case "undefined":
-				return func() any { if numberConversions { return any(float64(nan_)) }; return nil }()
+				return func() any {
+					if numberConversions {
+						return any(float64(nan_))
+					}
+					return nil
+				}()
 			case "NaN":
 				return float64(nan_)
 			case "Infinity":
@@ -219,10 +239,20 @@ func NodeUtil_doGetNumberValue(n Node, numberConversions bool) any {
 		return NodeUtil_doGetNumberValue(n.getOnlyChild(), numberConversions)
 	case Token_rhino_NEG:
 		var val any = NodeUtil_doGetNumberValue(n.getOnlyChild(), numberConversions)
-		return func() any { if (val == nil) { return nil }; return any(float64((-unbox_[float64](val)))) }()
+		return func() any {
+			if val == nil {
+				return nil
+			}
+			return any(float64((-unbox_[float64](val))))
+		}()
 	case Token_rhino_BITNOT:
 		var val any = NodeUtil_doGetNumberValue(n.getOnlyChild(), numberConversions)
-		return func() any { if (val == nil) { return nil }; return any(float64(float64((^JSCompDoubles_ecmascriptToInt32(unbox_[float64](val)))))) }()
+		return func() any {
+			if val == nil {
+				return nil
+			}
+			return any(float64(float64((^JSCompDoubles_ecmascriptToInt32(unbox_[float64](val))))))
+		}()
 	case Token_rhino_FALSE, Token_rhino_NOT, Token_rhino_NULL, Token_rhino_TRUE:
 		if !numberConversions {
 			return nil
@@ -257,68 +287,73 @@ func NodeUtil_doGetNumberValue(n Node, numberConversions bool) any {
 			return nil
 		}
 		var value Optional[string] = NodeUtil_getStringValue(n)
-		return func() any { if value.isPresent() { return NodeUtil_getStringNumberValue(value.get()) }; return nil }()
+		return func() any {
+			if value.isPresent() {
+				return NodeUtil_getStringNumberValue(value.get())
+			}
+			return nil
+		}()
 	default:
 	}
 	return nil
 }
 
 func NodeUtil_getStringNumberValue(rawJsString string) any {
-	if String_contains_s(rawJsString, "\x0b") {
+	if JString_contains_s(rawJsString, "\x0b") {
 		return nil
 	}
 	var s string = NodeUtil_trimJsWhiteSpace(rawJsString)
 	if String_isEmpty(s) {
 		return float64(0.0)
 	}
-	if ((String_length(s) >= 2) && (String_charAt(s, 0) == '0')) {
+	if (String_length(s) >= 2) && (String_charAt(s, 0) == '0') {
 		var radix int32 = 0
 		var prefix uint16 = String_charAt(s, 1)
-		if ((prefix == 'x') || (prefix == 'X')) {
+		if (prefix == 'x') || (prefix == 'X') {
 			radix = 16
-		} else if ((prefix == 'b') || (prefix == 'B')) {
+		} else if (prefix == 'b') || (prefix == 'B') {
 			radix = 2
-		} else if ((prefix == 'o') || (prefix == 'O')) {
+		} else if (prefix == 'o') || (prefix == 'O') {
 			radix = 8
 		}
-		if (radix != 0) {
+		if radix != 0 {
 			var digits string = String_substring_int(s, 2)
 			if String_isEmpty(digits) {
 				return float64(nan_)
 			}
-			for i := int32(0); (i < String_length(digits)); i++ {
+			for i := int32(0); i < String_length(digits); i++ {
 				if !NodeUtil_isValidDigit(String_charAt(digits, i), radix) {
 					return float64(nan_)
 				}
 			}
-			if (String_length(digits) <= 14) {
+			if String_length(digits) <= 14 {
 				return float64(float64(Long_parseLong(digits, radix)))
 			} else {
 				return float64(new_BigInteger(digits, radix).doubleValue())
 			}
 		}
 	}
-	if ((((String_length(s) > 3) && ((String_charAt(s, 0) == '-') || (String_charAt(s, 0) == '+'))) && (String_charAt(s, 1) == '0')) && ((String_charAt(s, 2) == 'x') || (String_charAt(s, 2) == 'X'))) {
+	if (((String_length(s) > 3) && ((String_charAt(s, 0) == '-') || (String_charAt(s, 0) == '+'))) && (String_charAt(s, 1) == '0')) && ((String_charAt(s, 2) == 'x') || (String_charAt(s, 2) == 'X')) {
 		return nil
 	}
-	if (((s == "infinity") || (s == "-infinity")) || (s == "+infinity")) {
+	if ((s == "infinity") || (s == "-infinity")) || (s == "+infinity") {
 		return nil
 	}
-	if ((s == "Infinity") || (s == "+Infinity")) {
+	if (s == "Infinity") || (s == "+Infinity") {
 		return float64(posinf_)
 	}
-	if (s == "-Infinity") {
+	if s == "-Infinity" {
 		return float64(neginf_)
 	}
-	for i := int32(0); (i < String_length(s)); i++ {
+	for i := int32(0); i < String_length(s); i++ {
 		var c uint16 = String_charAt(s, i)
-		if (((((((48 <= int32(c)) && (int32(c) <= 57)) || (c == '.')) || (c == 'e')) || (c == 'E')) || (c == '+')) || (c == '-')) {
+		if ((((((48 <= int32(c)) && (int32(c) <= 57)) || (c == '.')) || (c == 'e')) || (c == 'E')) || (c == '+')) || (c == '-') {
 			continue
 		}
 		return float64(nan_)
 	}
 	var value any = Doubles_tryParse(s)
-	if (value == nil) {
+	if value == nil {
 		return float64(nan_)
 	}
 	return value
@@ -345,7 +380,12 @@ func NodeUtil_getBigIntValue(n Node) *BigInteger {
 		switch n.getToken() {
 		case Token_rhino_NUMBER:
 			var val float64 = n.getDouble()
-			return func() *BigInteger { if (JSCompDoubles_isAtLeastIntegerPrecision(val) && JSCompDoubles_isExactInt64(val)) { return BigInteger_valueOf(f2i_[int64](float64(val))) }; return nil }()
+			return func() *BigInteger {
+				if JSCompDoubles_isAtLeastIntegerPrecision(val) && JSCompDoubles_isExactInt64(val) {
+					return BigInteger_valueOf(f2i_[int64](float64(val)))
+				}
+				return nil
+			}()
 		case Token_rhino_BIGINT:
 			return n.getBigInt()
 		case Token_rhino_FALSE, Token_rhino_NOT, Token_rhino_TRUE:
@@ -370,13 +410,28 @@ func NodeUtil_getBigIntValue(n Node) *BigInteger {
 			return NodeUtil_getStringBigIntValue(n.getString())
 		case Token_rhino_NEG:
 			var result *BigInteger = NodeUtil_getBigIntValue(n.getOnlyChild())
-			return func() *BigInteger { if (result == nil) { return nil }; return result.negate() }()
+			return func() *BigInteger {
+				if result == nil {
+					return nil
+				}
+				return result.negate()
+			}()
 		case Token_rhino_BITNOT:
 			var result *BigInteger = NodeUtil_getBigIntValue(n.getOnlyChild())
-			return func() *BigInteger { if (result == nil) { return nil }; return result.not() }()
+			return func() *BigInteger {
+				if result == nil {
+					return nil
+				}
+				return result.not()
+			}()
 		case Token_rhino_ARRAYLIT, Token_rhino_OBJECTLIT:
 			var value Optional[string] = NodeUtil_getStringValue(n)
-			return func() *BigInteger { if value.isPresent() { return NodeUtil_getStringBigIntValue(value.get()) }; return nil }()
+			return func() *BigInteger {
+				if value.isPresent() {
+					return NodeUtil_getStringBigIntValue(value.get())
+				}
+				return nil
+			}()
 		case Token_rhino_VOID, Token_rhino_NAME, Token_rhino_NULL:
 			return nil
 		default:
@@ -387,14 +442,14 @@ func NodeUtil_getBigIntValue(n Node) *BigInteger {
 }
 
 func NodeUtil_getStringBigIntValue(rawJsString string) *BigInteger {
-	if String_contains_s(rawJsString, "\x0b") {
+	if JString_contains_s(rawJsString, "\x0b") {
 		return nil
 	}
 	var s string = NodeUtil_trimJsWhiteSpace(rawJsString)
 	if String_isEmpty(s) {
 		return BigInteger_ZERO
 	}
-	if ((String_length(s) > 2) && (String_charAt(s, 0) == '0')) {
+	if (String_length(s) > 2) && (String_charAt(s, 0) == '0') {
 		var radix int32 = func() int32 {
 			switch String_charAt(s, 1) {
 			case 'x', 'X':
@@ -408,7 +463,7 @@ func NodeUtil_getStringBigIntValue(rawJsString string) *BigInteger {
 			}
 			panic("unreachable")
 		}()
-		if (radix != 0) {
+		if radix != 0 {
 			if !NodeUtil_isParsableBigInteger(String_substring_int(s, 2), radix) {
 				return nil
 			}
@@ -422,12 +477,17 @@ func NodeUtil_getStringBigIntValue(rawJsString string) *BigInteger {
 }
 
 func NodeUtil_isParsableBigInteger(s string, radix int32) bool {
-	var start int32 = func() int32 { if (!String_isEmpty(s) && ((String_charAt(s, 0) == '-') || (String_charAt(s, 0) == '+'))) { return 1 }; return 0 }()
-	if (start == String_length(s)) {
+	var start int32 = func() int32 {
+		if !String_isEmpty(s) && ((String_charAt(s, 0) == '-') || (String_charAt(s, 0) == '+')) {
+			return 1
+		}
+		return 0
+	}()
+	if start == String_length(s) {
 		return false
 	}
-	for i := int32(start); (i < String_length(s)); i++ {
-		if (Character_digit(String_charAt(s, i), radix) < 0) {
+	for i := int32(start); i < String_length(s); i++ {
+		if Character_digit(String_charAt(s, i), radix) < 0 {
 			return false
 		}
 	}
@@ -437,10 +497,10 @@ func NodeUtil_isParsableBigInteger(s string, radix int32) bool {
 func NodeUtil_trimJsWhiteSpace(s string) string {
 	var start int32 = 0
 	var end int32 = String_length(s)
-	for ((end > 0) && (TokenUtil_isStrWhiteSpaceChar(int32(String_charAt(s, (end - 1)))) == Tri_TRUE)) {
+	for (end > 0) && (TokenUtil_isStrWhiteSpaceChar(int32(String_charAt(s, (end-1)))) == Tri_TRUE) {
 		end--
 	}
-	for ((start < end) && (TokenUtil_isStrWhiteSpaceChar(int32(String_charAt(s, start))) == Tri_TRUE)) {
+	for (start < end) && (TokenUtil_isStrWhiteSpaceChar(int32(String_charAt(s, start))) == Tri_TRUE) {
 		start++
 	}
 	return String_substring(s, start, end)
@@ -448,7 +508,12 @@ func NodeUtil_trimJsWhiteSpace(s string) string {
 
 func NodeUtil_getName(n Node) string {
 	var nameNode Node = NodeUtil_getNameNode(n)
-	return func() string { if (nameNode == 0) { return "" }; return nameNode.getQualifiedName() }()
+	return func() string {
+		if nameNode == 0 {
+			return ""
+		}
+		return nameNode.getQualifiedName()
+	}()
 }
 
 func NodeUtil_getNameNode(n Node) Node {
@@ -460,10 +525,20 @@ func NodeUtil_getNameNode(n Node) Node {
 			return parent
 		case Token_rhino_ASSIGN:
 			var firstChild Node = parent.getFirstChild()
-			return func() Node { if firstChild.isQualifiedName() { return firstChild }; return 0 }()
+			return func() Node {
+				if firstChild.isQualifiedName() {
+					return firstChild
+				}
+				return 0
+			}()
 		default:
 			var funNameNode Node = n.getFirstChild()
-			return func() Node { if (funNameNode.isEmpty() || String_isEmpty(funNameNode.getString())) { return 0 }; return funNameNode }()
+			return func() Node {
+				if funNameNode.isEmpty() || String_isEmpty(funNameNode.getString()) {
+					return 0
+				}
+				return funNameNode
+			}()
 		}
 		panic("unreachable")
 	}()
@@ -472,7 +547,12 @@ func NodeUtil_getNameNode(n Node) Node {
 func NodeUtil_removeName(n Node) {
 	Preconditions_checkState((n.isFunction() || n.isClass()))
 	var originalName Node = n.getFirstChild()
-	var emptyName Node = func() Node { if n.isFunction() { return IR_name("") }; return IR_empty() }()
+	var emptyName Node = func() Node {
+		if n.isFunction() {
+			return IR_name("")
+		}
+		return IR_empty()
+	}()
 	originalName.replaceWith(emptyName.srcref(originalName))
 }
 
@@ -508,7 +588,7 @@ func NodeUtil_getEs6ClassConstructorMemberFunctionDef(classNode Node) Node {
 	var classMembers Node = Preconditions_checkNotNull_Object_Object_T(classNode.getLastChild(), classNode.box_())
 	{
 		var memberFunctionDef Node = classMembers.getFirstChild()
-		for ; (memberFunctionDef != 0); memberFunctionDef = memberFunctionDef.getNext() {
+		for ; memberFunctionDef != 0; memberFunctionDef = memberFunctionDef.getNext() {
 			if NodeUtil_isEs6ConstructorMemberFunctionDef(memberFunctionDef) {
 				return memberFunctionDef
 			}
@@ -520,8 +600,8 @@ func NodeUtil_getEs6ClassConstructorMemberFunctionDef(classNode Node) Node {
 func NodeUtil_hasInstanceElements(classNode Node) bool {
 	{
 		var member Node = NodeUtil_getClassMembers(classNode).getFirstChild()
-		for ; (member != 0); member = member.getNext() {
-			if (!member.isStaticMember() && ((member.isMemberFieldDef() || member.isComputedFieldDef()) || member.isPrivateIdentifier())) {
+		for ; member != 0; member = member.getNext() {
+			if !member.isStaticMember() && ((member.isMemberFieldDef() || member.isComputedFieldDef()) || member.isPrivateIdentifier()) {
 				return true
 			}
 		}
@@ -542,7 +622,7 @@ func NodeUtil_isImmutableValue(n Node) bool {
 		case Token_rhino_TEMPLATELIT:
 			{
 				var child Node = n.getFirstChild()
-				for ; (child != 0); child = child.getNext() {
+				for ; child != 0; child = child.getNext() {
 					if child.isTemplateLitSub() {
 						if !NodeUtil_isImmutableValue(child.getFirstChild()) {
 							return false
@@ -561,7 +641,7 @@ func NodeUtil_isImmutableValue(n Node) bool {
 }
 
 func NodeUtil_isNumericLiteral(n Node) bool {
-	if (n == 0) {
+	if n == 0 {
 		return false
 	}
 	return (n.isNumber() || (((n.isNeg() || n.isPos()) && n.hasOneChild()) && n.getFirstChild().isNumber()))
@@ -620,7 +700,7 @@ func NodeUtil_getInverseOperator(type_ *Token_rhino) *Token_rhino {
 		case Token_rhino_LE:
 			return Token_rhino_GE
 		default:
-			panic(new_IllegalArgumentException_String(("Unexpected token: " + tostr_(type_))).self())
+			panic(new_IllegalArgumentException_String(("Unexpected token: " + jtostr_(type_))).self())
 		}
 		panic("unreachable")
 	}()
@@ -634,8 +714,8 @@ func NodeUtil_isLiteralValue(n Node, includeFunctions bool) bool {
 		case Token_rhino_ARRAYLIT:
 			{
 				var child Node = n.getFirstChild()
-				for ; (child != 0); child = child.getNext() {
-					if (!child.isEmpty() && !NodeUtil_isLiteralValue(child, includeFunctions)) {
+				for ; child != 0; child = child.getNext() {
+					if !child.isEmpty() && !NodeUtil_isLiteralValue(child, includeFunctions) {
 						return false
 					}
 				}
@@ -644,7 +724,7 @@ func NodeUtil_isLiteralValue(n Node, includeFunctions bool) bool {
 		case Token_rhino_REGEXP:
 			{
 				var child Node = n.getFirstChild()
-				for ; (child != 0); child = child.getNext() {
+				for ; child != 0; child = child.getNext() {
 					if !NodeUtil_isLiteralValue(child, includeFunctions) {
 						return false
 					}
@@ -654,14 +734,14 @@ func NodeUtil_isLiteralValue(n Node, includeFunctions bool) bool {
 		case Token_rhino_OBJECTLIT:
 			{
 				var child Node = n.getFirstChild()
-				for ; (child != 0); child = child.getNext() {
+				for ; child != 0; child = child.getNext() {
 					switch child.getToken() {
 					case Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF:
 						if !includeFunctions {
 							return false
 						}
 					case Token_rhino_COMPUTED_PROP:
-						if (!NodeUtil_isLiteralValue(child.getFirstChild(), includeFunctions) || !NodeUtil_isLiteralValue(child.getLastChild(), includeFunctions)) {
+						if !NodeUtil_isLiteralValue(child.getFirstChild(), includeFunctions) || !NodeUtil_isLiteralValue(child.getLastChild(), includeFunctions) {
 							return false
 						}
 					case Token_rhino_OBJECT_SPREAD:
@@ -683,7 +763,7 @@ func NodeUtil_isLiteralValue(n Node, includeFunctions bool) bool {
 		case Token_rhino_TEMPLATELIT:
 			{
 				var child Node = n.getFirstChild()
-				for ; (child != 0); child = child.getNext() {
+				for ; child != 0; child = child.getNext() {
 					if child.isTemplateLitSub() {
 						if !NodeUtil_isLiteralValue(child.getFirstChild(), includeFunctions) {
 							return false
@@ -709,14 +789,14 @@ func NodeUtil_findClosureUnawareScriptRoot(script Node) Node {
 func NodeUtil_getInsertionPointAfterAllInnerFunctionDeclarations(block Node) Node {
 	Preconditions_checkState(block.isBlock())
 	var current Node = block.getFirstChild()
-	for ((current != 0) && NodeUtil_isFunctionDeclaration(current)) {
+	for (current != 0) && NodeUtil_isFunctionDeclaration(current) {
 		current = current.getNext()
 	}
 	return current
 }
 
 func NodeUtil_isSomeCompileTimeConstStringValue(node Node) bool {
-	if (node.isStringLit() || (node.isTemplateLit() && node.hasOneChild())) {
+	if node.isStringLit() || (node.isTemplateLit() && node.hasOneChild()) {
 		return true
 	} else if node.isAdd() {
 		Preconditions_checkState_boolean_Object_H(node.hasTwoChildren(), node)
@@ -737,7 +817,7 @@ func NodeUtil_isEmptyBlock(block Node) bool {
 	}
 	{
 		var n Node = block.getFirstChild()
-		for ; (n != 0); n = n.getNext() {
+		for ; n != 0; n = n.getNext() {
 			if !n.isEmpty() {
 				return false
 			}
@@ -812,11 +892,11 @@ func NodeUtil_isSimpleOperatorType(type_ *Token_rhino) bool {
 
 func NodeUtil_isNamespaceDecl(n Node) bool {
 	var jsdoc *JSDocInfo = NodeUtil_getBestJSDocInfo(n)
-	if (((jsdoc != nil) && !jsdoc.getTypeNodes().isEmpty()) && !jsdoc.hasTypedefType()) {
+	if ((jsdoc != nil) && !jsdoc.getTypeNodes().isEmpty()) && !jsdoc.hasTypedefType() {
 		return false
 	}
 	var isMarkedConst bool = (n.getParent().isConst() || ((jsdoc != nil) && jsdoc.isConstant()))
-	if (!n.isFromExterns() && !isMarkedConst) {
+	if !n.isFromExterns() && !isMarkedConst {
 		return false
 	}
 	var qnameNode Node
@@ -826,14 +906,14 @@ func NodeUtil_isNamespaceDecl(n Node) bool {
 		initializer = n.getFirstChild()
 	} else if n.isExprResult() {
 		var expr Node = n.getFirstChild()
-		if (!expr.isAssign() || !expr.getFirstChild().isGetProp()) {
+		if !expr.isAssign() || !expr.getFirstChild().isGetProp() {
 			return false
 		}
 		qnameNode = expr.getFirstChild()
 		initializer = expr.getLastChild()
 	} else if n.isGetProp() {
 		var parent Node = n.getParent()
-		if (!parent.isAssign() || !parent.getParent().isExprResult()) {
+		if !parent.isAssign() || !parent.getParent().isExprResult() {
 			return false
 		}
 		qnameNode = n
@@ -841,7 +921,7 @@ func NodeUtil_isNamespaceDecl(n Node) bool {
 	} else {
 		return false
 	}
-	if ((initializer == 0) || (qnameNode == 0)) {
+	if (initializer == 0) || (qnameNode == 0) {
 		return false
 	}
 	if initializer.isObjectLit() {
@@ -911,7 +991,7 @@ func NodeUtil_newHasLocalResult(n Node) bool {
 func NodeUtil_allArgsUnescapedLocal(callOrNew Node) bool {
 	{
 		var arg Node = callOrNew.getSecondChild()
-		for ; (arg != 0); arg = arg.getNext() {
+		for ; arg != 0; arg = arg.getNext() {
 			if !NodeUtil_evaluatesToLocalValue(arg) {
 				return false
 			}
@@ -924,7 +1004,7 @@ func NodeUtil_canBeSideEffected_Node(n Node) bool {
 	return NodeUtil_canBeSideEffected_Node_Set_Scope(n, NodeUtil_KNOWN_CONSTANTS, nil)
 }
 
-func NodeUtil_canBeSideEffected_Node_Set_Scope(n Node, knownConstants *TSet[string], scope *Scope) bool {
+func NodeUtil_canBeSideEffected_Node_Set_Scope(n Node, knownConstants *JTSet[string], scope *Scope) bool {
 	switch n.getToken() {
 	case Token_rhino_YIELD, Token_rhino_CALL, Token_rhino_OPTCHAIN_CALL, Token_rhino_NEW, Token_rhino_TAGGED_TEMPLATELIT, Token_rhino_AWAIT, Token_rhino_DYNAMIC_IMPORT:
 		return true
@@ -941,7 +1021,7 @@ func NodeUtil_canBeSideEffected_Node_Set_Scope(n Node, knownConstants *TSet[stri
 	}
 	{
 		var c Node = n.getFirstChild()
-		for ; (c != 0); c = c.getNext() {
+		for ; c != 0; c = c.getNext() {
 			if NodeUtil_canBeSideEffected_Node_Set_Scope(c, knownConstants, scope) {
 				return true
 			}
@@ -1001,7 +1081,7 @@ func NodeUtil_precedence(type_ *Token_rhino) int32 {
 			return 22
 		default:
 			Preconditions_checkArgument((type_ != Token_rhino_TEMPLATELIT_STRING))
-			panic(new_IllegalStateException_String(("Unknown precedence for " + tostr_(type_))).self())
+			panic(new_IllegalStateException_String(("Unknown precedence for " + jtostr_(type_))).self())
 		}
 		panic("unreachable")
 	}()
@@ -1037,18 +1117,18 @@ func NodeUtil_getKnownValueType(n Node) *NodeUtil_ValueType {
 		return NodeUtil_and(NodeUtil_getKnownValueType(n.getSecondChild()), NodeUtil_getKnownValueType(n.getLastChild()))
 	case Token_rhino_ADD:
 		var last *NodeUtil_ValueType = NodeUtil_getKnownValueType(n.getLastChild())
-		if (last == NodeUtil_ValueType_STRING) {
+		if last == NodeUtil_ValueType_STRING {
 			return NodeUtil_ValueType_STRING
 		}
 		var first *NodeUtil_ValueType = NodeUtil_getKnownValueType(n.getFirstChild())
-		if (first == NodeUtil_ValueType_STRING) {
+		if first == NodeUtil_ValueType_STRING {
 			return NodeUtil_ValueType_STRING
 		}
-		if ((first == NodeUtil_ValueType_OBJECT) || (last == NodeUtil_ValueType_OBJECT)) {
+		if (first == NodeUtil_ValueType_OBJECT) || (last == NodeUtil_ValueType_OBJECT) {
 			return NodeUtil_ValueType_UNDETERMINED
 		}
-		if (!NodeUtil_mayBeStringValueType(first) && !NodeUtil_mayBeStringValueType(last)) {
-			if ((first == NodeUtil_ValueType_BIGINT) || (last == NodeUtil_ValueType_BIGINT)) {
+		if !NodeUtil_mayBeStringValueType(first) && !NodeUtil_mayBeStringValueType(last) {
+			if (first == NodeUtil_ValueType_BIGINT) || (last == NodeUtil_ValueType_BIGINT) {
 				return NodeUtil_ValueType_BIGINT
 			} else {
 				return NodeUtil_ValueType_NUMBER
@@ -1057,24 +1137,24 @@ func NodeUtil_getKnownValueType(n Node) *NodeUtil_ValueType {
 		return NodeUtil_ValueType_UNDETERMINED
 	case Token_rhino_ASSIGN_ADD:
 		var last *NodeUtil_ValueType = NodeUtil_getKnownValueType(n.getLastChild())
-		if (last == NodeUtil_ValueType_STRING) {
+		if last == NodeUtil_ValueType_STRING {
 			return NodeUtil_ValueType_STRING
 		}
 		return NodeUtil_ValueType_UNDETERMINED
 	case Token_rhino_NAME:
 		var name string = n.getString()
-		if (name == "undefined") {
+		if name == "undefined" {
 			return NodeUtil_ValueType_VOID
 		}
-		if (name == "NaN") {
+		if name == "NaN" {
 			return NodeUtil_ValueType_NUMBER
 		}
-		if (name == "Infinity") {
+		if name == "Infinity" {
 			return NodeUtil_ValueType_NUMBER
 		}
 		return NodeUtil_ValueType_UNDETERMINED
 	case Token_rhino_ASSIGN_BITOR, Token_rhino_ASSIGN_BITXOR, Token_rhino_ASSIGN_BITAND, Token_rhino_ASSIGN_LSH, Token_rhino_ASSIGN_RSH, Token_rhino_ASSIGN_URSH, Token_rhino_ASSIGN_SUB, Token_rhino_ASSIGN_MUL, Token_rhino_ASSIGN_EXPONENT, Token_rhino_ASSIGN_DIV, Token_rhino_ASSIGN_MOD:
-		if (NodeUtil_getKnownValueType(n.getLastChild()) == NodeUtil_ValueType_BIGINT) {
+		if NodeUtil_getKnownValueType(n.getLastChild()) == NodeUtil_ValueType_BIGINT {
 			return NodeUtil_ValueType_BIGINT
 		} else {
 			return NodeUtil_ValueType_NUMBER
@@ -1084,13 +1164,13 @@ func NodeUtil_getKnownValueType(n Node) *NodeUtil_ValueType {
 	case Token_rhino_BITOR, Token_rhino_BITXOR, Token_rhino_BITAND, Token_rhino_LSH, Token_rhino_RSH, Token_rhino_SUB, Token_rhino_MUL, Token_rhino_MOD, Token_rhino_DIV, Token_rhino_EXPONENT:
 		var first *NodeUtil_ValueType = NodeUtil_getKnownValueType(n.getFirstChild())
 		var last *NodeUtil_ValueType = NodeUtil_getKnownValueType(n.getLastChild())
-		if ((first == NodeUtil_ValueType_BIGINT) || (last == NodeUtil_ValueType_BIGINT)) {
+		if (first == NodeUtil_ValueType_BIGINT) || (last == NodeUtil_ValueType_BIGINT) {
 			return NodeUtil_ValueType_BIGINT
 		} else {
 			return NodeUtil_ValueType_NUMBER
 		}
 	case Token_rhino_BITNOT, Token_rhino_NEG:
-		if (NodeUtil_getKnownValueType(n.getOnlyChild()) == NodeUtil_ValueType_BIGINT) {
+		if NodeUtil_getKnownValueType(n.getOnlyChild()) == NodeUtil_ValueType_BIGINT {
 			return NodeUtil_ValueType_BIGINT
 		} else {
 			return NodeUtil_ValueType_NUMBER
@@ -1117,7 +1197,12 @@ func NodeUtil_getKnownValueType(n Node) *NodeUtil_ValueType {
 }
 
 func NodeUtil_and(a *NodeUtil_ValueType, b *NodeUtil_ValueType) *NodeUtil_ValueType {
-	return func() *NodeUtil_ValueType { if (a == b) { return a }; return NodeUtil_ValueType_UNDETERMINED }()
+	return func() *NodeUtil_ValueType {
+		if a == b {
+			return a
+		}
+		return NodeUtil_ValueType_UNDETERMINED
+	}()
 }
 
 func NodeUtil_isNumericResult(n Node) bool {
@@ -1147,18 +1232,18 @@ func NodeUtil_mayBeString_Node(n Node) bool {
 func NodeUtil_mayBeString_Node_boolean(n Node, useType bool) bool {
 	if useType {
 		var color *Color = n.getColor()
-		if (color != nil) {
+		if color != nil {
 			if color.equals(obj_(StandardColors_STRING)) {
 				return true
-			} else if (((color.equals(obj_(StandardColors_NUMBER)) || color.equals(obj_(StandardColors_BIGINT))) || color.equals(obj_(StandardColors_BOOLEAN))) || color.equals(obj_(StandardColors_NULL_OR_VOID))) {
+			} else if ((color.equals(obj_(StandardColors_NUMBER)) || color.equals(obj_(StandardColors_BIGINT))) || color.equals(obj_(StandardColors_BOOLEAN))) || color.equals(obj_(StandardColors_NULL_OR_VOID)) {
 				return false
 			}
 		}
 		var type_ *JSType = n.getJSType()
-		if (type_ != nil) {
+		if type_ != nil {
 			if type_.isStringValueType() {
 				return true
-			} else if ((((type_.isNumberValueType() || type_.isBigIntValueType()) || type_.isBooleanValueType()) || type_.isNullType()) || type_.isVoidType()) {
+			} else if (((type_.isNumberValueType() || type_.isBigIntValueType()) || type_.isBooleanValueType()) || type_.isNullType()) || type_.isVoidType() {
 				return false
 			}
 		}
@@ -1342,7 +1427,7 @@ func NodeUtil_getEnclosingStatement(n Node) Node {
 
 func NodeUtil_getEnclosingNode(n Node, pred Predicate_base[Node]) Node {
 	var curr Node = n
-	for ((curr != 0) && !pred.apply(curr)) {
+	for (curr != 0) && !pred.apply(curr) {
 		curr = curr.getParent()
 	}
 	return curr
@@ -1352,10 +1437,10 @@ func NodeUtil_getFirstPropMatchingKey(n Node, keyName string) Node {
 	Preconditions_checkState((n.isObjectLit() || n.isClassMembers()))
 	{
 		var keyNode Node = n.getFirstChild()
-		for ; (keyNode != 0); keyNode = keyNode.getNext() {
-			if ((keyNode.isStringKey() || keyNode.isMemberFunctionDef()) && (keyNode.getString() == keyName)) {
+		for ; keyNode != 0; keyNode = keyNode.getNext() {
+			if (keyNode.isStringKey() || keyNode.isMemberFunctionDef()) && (keyNode.getString() == keyName) {
 				return keyNode.getFirstChild()
-			} else if ((keyNode.isComputedProp() && keyNode.getFirstChild().isStringLit()) && (keyNode.getFirstChild().getString() == keyName)) {
+			} else if (keyNode.isComputedProp() && keyNode.getFirstChild().isStringLit()) && (keyNode.getFirstChild().getString() == keyName) {
 				return keyNode.getLastChild()
 			}
 		}
@@ -1367,8 +1452,8 @@ func NodeUtil_getFirstGetterMatchingKey(n Node, keyName string) Node {
 	Preconditions_checkState_boolean_Object_H((n.isClassMembers() || n.isObjectLit()), n)
 	{
 		var keyNode Node = n.getFirstChild()
-		for ; (keyNode != 0); keyNode = keyNode.getNext() {
-			if (keyNode.isGetterDef() && (keyNode.getString() == keyName)) {
+		for ; keyNode != 0; keyNode = keyNode.getNext() {
+			if keyNode.isGetterDef() && (keyNode.getString() == keyName) {
 				return keyNode
 			}
 		}
@@ -1392,7 +1477,7 @@ func NodeUtil_referencesEnclosingReceiver(n Node) bool {
 
 func NodeUtil_referencesSuper(n Node) bool {
 	var curr Node = n.getFirstChild()
-	for (curr != 0) {
+	for curr != 0 {
 		if NodeUtil_has(curr, Predicate_base[Node](func(p0 Node) bool { return p0.isSuper() }), Predicate_base[Node](func(node Node) bool {
 			return !node.isClass()
 		})) {
@@ -1460,7 +1545,7 @@ func NodeUtil_isEndOfOptChainSegment(n Node) bool {
 		return false
 	} else {
 		var parent Node = n.getParent()
-		if (((parent != 0) && n.isFirstChildOf(parent)) && NodeUtil_isOptChainNode(parent)) {
+		if ((parent != 0) && n.isFirstChildOf(parent)) && NodeUtil_isOptChainNode(parent) {
 			return parent.isOptionalChainStart()
 		} else {
 			return true
@@ -1476,9 +1561,9 @@ func NodeUtil_convertToNonOptionalChainSegment(endOfOptChainSegment Node) {
 
 func NodeUtil_convertToNonOptionalChainSegmentDownTo(endOfOptChainSegment Node, stopNode Node) {
 	Preconditions_checkArgument_boolean_Object_H(NodeUtil_isEndOfOptChainSegment(endOfOptChainSegment), endOfOptChainSegment)
-	var segmentNodes *TDeque[Node] = newTDeque_(tc_Node)
+	var segmentNodes *TDeque[Node] = newTDeque_(jtc_Node)
 	var segmentNode Node = endOfOptChainSegment
-	for ((segmentNode != 0) && !equalsRRH_(segmentNode, stopNode)) {
+	for (segmentNode != 0) && !equalsRRH_(segmentNode, stopNode) {
 		if NodeUtil_isOptChainNode(segmentNode) {
 			segmentNodes.add(segmentNode)
 		}
@@ -1502,7 +1587,7 @@ func NodeUtil_getNonOptChainToken(optChainToken *Token_rhino) *Token_rhino {
 		case Token_rhino_OPTCHAIN_GETPROP:
 			return Token_rhino_GETPROP
 		default:
-			panic(new_IllegalStateException_String(("Should be an OPTCHAIN token: " + tostr_(optChainToken))).self())
+			panic(new_IllegalStateException_String(("Should be an OPTCHAIN token: " + jtostr_(optChainToken))).self())
 		}
 		panic("unreachable")
 	}()
@@ -1532,7 +1617,7 @@ func NodeUtil_isDestructuringDeclaration(n Node) bool {
 	if NodeUtil_isNameDeclaration(n) {
 		{
 			var c Node = n.getFirstChild()
-			for ; (c != 0); c = c.getNext() {
+			for ; c != 0; c = c.getNext() {
 				if c.isDestructuringLhs() {
 					return true
 				}
@@ -1547,7 +1632,7 @@ func NodeUtil_getAssignedValue(n Node) Node {
 	var parent Node = n.getParent()
 	if NodeUtil_isNameDeclaration(parent) {
 		return n.getFirstChild()
-	} else if (parent.isAssign() && (parent.getFirstChild() == n)) {
+	} else if parent.isAssign() && (parent.getFirstChild() == n) {
 		return n.getNext()
 	} else {
 		return 0
@@ -1675,7 +1760,7 @@ func NodeUtil_createsBlockScope(n Node) bool {
 		switch n.getToken() {
 		case Token_rhino_BLOCK:
 			var parent Node = n.getParent()
-			if (((parent != 0) && (parent.isBlock() || parent.isScript())) && n.isSyntheticBlock()) {
+			if ((parent != 0) && (parent.isBlock() || parent.isScript())) && n.isSyntheticBlock() {
 				return false
 			}
 			return (((parent != 0) && !NodeUtil_isSwitchCase(parent)) && !parent.isCatch())
@@ -1727,7 +1812,7 @@ func NodeUtil_isReferenceName(n Node) bool {
 func NodeUtil_isNonlocalModuleExportName(n Node) bool {
 	Preconditions_checkArgument_boolean_Object_H(n.isName(), n)
 	var parent Node = n.getParent()
-	if (parent.isImportSpec() && n.isFirstChildOf(parent)) {
+	if parent.isImportSpec() && n.isFirstChildOf(parent) {
 		return true
 	} else if parent.isExportSpec() {
 		if n.isFirstChildOf(parent) {
@@ -1797,16 +1882,16 @@ func NodeUtil_removeChild(parent Node, node Node) {
 		node.detachChildren()
 	} else if node.isBlock() {
 		node.detachChildren()
-	} else if ((NodeUtil_isStatementBlock(parent) || NodeUtil_isSwitchCase(node)) || node.isMemberFunctionDef()) {
+	} else if (NodeUtil_isStatementBlock(parent) || NodeUtil_isSwitchCase(node)) || node.isMemberFunctionDef() {
 		node.detach()
-	} else if (NodeUtil_isNameDeclaration(parent) || parent.isExprResult()) {
+	} else if NodeUtil_isNameDeclaration(parent) || parent.isExprResult() {
 		if parent.hasMoreThanOneChild() {
 			node.detach()
 		} else {
 			node.detach()
 			NodeUtil_removeChild(parent.getParent(), parent)
 		}
-	} else if (parent.isLabel() && (node == parent.getLastChild())) {
+	} else if parent.isLabel() && (node == parent.getLastChild()) {
 		node.detach()
 		NodeUtil_removeChild(parent.getParent(), parent)
 	} else if parent.isVanillaFor() {
@@ -1814,7 +1899,7 @@ func NodeUtil_removeChild(parent Node, node Node) {
 	} else if parent.isObjectPattern() {
 		node.detach()
 	} else if parent.isArrayPattern() {
-		if (node == parent.getLastChild()) {
+		if node == parent.getLastChild() {
 			node.detach()
 		} else {
 			node.replaceWith(IR_empty())
@@ -1829,7 +1914,7 @@ func NodeUtil_removeChild(parent Node, node Node) {
 	} else if parent.isParamList() {
 		node.detach()
 	} else if parent.isImport() {
-		if (node == parent.getFirstChild()) {
+		if node == parent.getFirstChild() {
 			node.replaceWith(IR_empty())
 		} else {
 			panic(new_IllegalStateException_String(("Invalid attempt to remove: " + tostrH_(node) + " from " + tostrH_(parent))).self())
@@ -1845,10 +1930,10 @@ func NodeUtil_replaceDeclarationChild(declChild Node, newStatement Node) {
 	var decl Node = declChild.getParent()
 	if decl.hasOneChild() {
 		decl.replaceWith(newStatement)
-	} else if (declChild.getNext() == 0) {
+	} else if declChild.getNext() == 0 {
 		declChild.detach()
 		newStatement.insertAfter(decl)
-	} else if (declChild.getPrevious() == 0) {
+	} else if declChild.getPrevious() == 0 {
 		declChild.detach()
 		newStatement.insertBefore(decl)
 	} else {
@@ -1857,7 +1942,7 @@ func NodeUtil_replaceDeclarationChild(declChild Node, newStatement Node) {
 		{
 			var after Node = declChild.getNext()
 			var next Node
-			for ; (after != 0); after = next {
+			for ; after != 0; after = next {
 				next = after.getNext()
 				newDecl.addChildToBack(after.detach())
 			}
@@ -1879,7 +1964,7 @@ func NodeUtil_tryMergeBlock(block Node, ignoreBlockScopedDeclarations bool) bool
 	Preconditions_checkState(block.isBlock())
 	var parent Node = block.getParent()
 	var canMerge bool = (ignoreBlockScopedDeclarations || NodeUtil_canMergeBlock(block))
-	if (NodeUtil_isStatementBlock(parent) && canMerge) {
+	if NodeUtil_isStatementBlock(parent) && canMerge {
 		var previous Node = block
 		for block.hasChildren() {
 			var child Node = block.removeFirstChild()
@@ -1897,8 +1982,8 @@ func NodeUtil_tryMergeBlock(block Node, ignoreBlockScopedDeclarations bool) bool
 func NodeUtil_canMergeBlock(block Node) bool {
 	{
 		var c Node = block.getFirstChild()
-		L_1:
-		for ; (c != 0); c = c.getNext() {
+	L_1:
+		for ; c != 0; c = c.getNext() {
 			switch c.getToken() {
 			case Token_rhino_LABEL:
 				if NodeUtil_canMergeBlock(c) {
@@ -1928,7 +2013,7 @@ func NodeUtil_getFunctionBody(fn Node) Node {
 func NodeUtil_getCallTargetResolvingIndirectCalls(call Node) Node {
 	Preconditions_checkArgument_boolean_String_Object_H(((call.isCall() || call.isNew()) || call.isTaggedTemplateLit()), "must be call, new or tagged-template-literal expression, got %s", call)
 	var target Node = call.getFirstChild()
-	if (target.isComma() && target.getSecondChild().isQualifiedName()) {
+	if target.isComma() && target.getSecondChild().isQualifiedName() {
 		return target.getSecondChild()
 	}
 	return target
@@ -1939,13 +2024,13 @@ func NodeUtil_isDeclaration(n Node) bool {
 }
 
 func NodeUtil_isNamedExportsLiteral(objectLiteral Node) bool {
-	if (!objectLiteral.isObjectLit() || !objectLiteral.hasChildren()) {
+	if !objectLiteral.isObjectLit() || !objectLiteral.hasChildren() {
 		return false
 	}
 	{
 		var key Node = objectLiteral.getFirstChild()
-		for ; (key != 0); key = key.getNext() {
-			if (!key.isStringKey() || key.isQuotedStringKey()) {
+		for ; key != 0; key = key.getNext() {
+			if !key.isStringKey() || key.isQuotedStringKey() {
 				return false
 			}
 			if !key.getFirstChild().isName() {
@@ -1997,7 +2082,7 @@ func NodeUtil_isBlockScopedFunctionDeclaration(n Node) bool {
 		return false
 	}
 	var current Node = n.getParent()
-	for (current != 0) {
+	for current != 0 {
 		switch current.getToken() {
 		case Token_rhino_BLOCK:
 			return !current.getParent().isFunction()
@@ -2021,7 +2106,7 @@ func NodeUtil_isClassStaticBlock(n Node) bool {
 
 func NodeUtil_isNonStaticClassFieldInitializer(n Node) bool {
 	var parent Node = n.getParent()
-	if (parent.isMemberFieldDef() || (parent.isComputedFieldDef() && (n == parent.getSecondChild()))) {
+	if parent.isMemberFieldDef() || (parent.isComputedFieldDef() && (n == parent.getSecondChild())) {
 		return !parent.isStaticMember()
 	}
 	return false
@@ -2056,7 +2141,7 @@ func NodeUtil_isNamedClass(n Node) bool {
 }
 
 func NodeUtil_isBleedingFunctionName(n Node) bool {
-	if (!n.isName() || String_isEmpty(n.getString())) {
+	if !n.isName() || String_isEmpty(n.getString()) {
 		return false
 	}
 	var parent Node = n.getParent()
@@ -2076,7 +2161,7 @@ func NodeUtil_doesFunctionReferenceOwnArgumentsObject(fn Node) bool {
 }
 
 func NodeUtil_referencesArgumentsHelper(node Node) bool {
-	if (node.isName() && (node.getString() == "arguments")) {
+	if node.isName() && (node.getString() == "arguments") {
 		return true
 	}
 	if NodeUtil_isNonArrowFunction(node) {
@@ -2084,7 +2169,7 @@ func NodeUtil_referencesArgumentsHelper(node Node) bool {
 	}
 	{
 		var c Node = node.getFirstChild()
-		for ; (c != 0); c = c.getNext() {
+		for ; c != 0; c = c.getNext() {
 			if NodeUtil_referencesArgumentsHelper(c) {
 				return true
 			}
@@ -2094,13 +2179,13 @@ func NodeUtil_referencesArgumentsHelper(node Node) bool {
 }
 
 func NodeUtil_isObjectCallMethod(callNode Node, methodName string) bool {
-	if (callNode.isCall() || callNode.isOptChainCall()) {
+	if callNode.isCall() || callNode.isOptChainCall() {
 		var callee Node = callNode.getFirstChild()
 		if NodeUtil_isNormalOrOptChainGetProp(callee) {
 			return (callee.getString() == methodName)
 		} else if NodeUtil_isNormalOrOptChainGet(callee) {
 			var last Node = callee.getLastChild()
-			if ((last != 0) && last.isStringLit()) {
+			if (last != 0) && last.isStringLit() {
 				var propName string = last.getString()
 				return (propName == methodName)
 			}
@@ -2128,7 +2213,7 @@ func NodeUtil_isLValue(n Node) bool {
 		return false
 	}
 	var parent Node = n.getParent()
-	if (parent == 0) {
+	if parent == 0 {
 		return false
 	}
 	return func() bool {
@@ -2169,7 +2254,7 @@ func NodeUtil_isDeclarationLValue(n Node) bool {
 			return true
 		case Token_rhino_STRING_KEY, Token_rhino_OBJECT_PATTERN, Token_rhino_ARRAY_PATTERN, Token_rhino_COMPUTED_PROP, Token_rhino_DEFAULT_VALUE, Token_rhino_ITER_REST, Token_rhino_OBJECT_REST:
 			var rootTargetParent Node = NodeUtil_getRootTarget(n).getParent()
-			if (rootTargetParent.isRest() || rootTargetParent.isDefaultValue()) {
+			if rootTargetParent.isRest() || rootTargetParent.isDefaultValue() {
 				return rootTargetParent.getParent().isParamList()
 			} else if rootTargetParent.isDestructuringLhs() {
 				return NodeUtil_isNameDeclaration(rootTargetParent.getParent())
@@ -2195,13 +2280,13 @@ func NodeUtil_isImportedName(n Node) bool {
 func NodeUtil_getDeclaringParent(targetNode Node) Node {
 	var rootTarget Node = NodeUtil_getRootTarget(targetNode)
 	var parent Node = rootTarget.getParent()
-	if (parent.isRest() || parent.isDefaultValue()) {
+	if parent.isRest() || parent.isDefaultValue() {
 		parent = parent.getParent()
 		Preconditions_checkState_boolean_Object_H(parent.isParamList(), parent)
 	} else if parent.isDestructuringLhs() {
 		parent = parent.getParent()
 		Preconditions_checkState_boolean_Object_H(NodeUtil_isNameDeclaration(parent), parent)
-	} else if (parent.isClass() || parent.isFunction()) {
+	} else if parent.isClass() || parent.isFunction() {
 		Preconditions_checkState_boolean_Object_H((targetNode == parent.getFirstChild()), targetNode)
 	} else if parent.isImportSpec() {
 		Preconditions_checkState_boolean_Object_H((targetNode == parent.getSecondChild()), targetNode)
@@ -2217,7 +2302,7 @@ func NodeUtil_getRootTarget(targetNode Node) Node {
 	var enclosingTarget Node = targetNode
 	{
 		var nextTarget Node = NodeUtil_getEnclosingTarget(enclosingTarget)
-		for ; (nextTarget != 0); nextTarget = NodeUtil_getEnclosingTarget(enclosingTarget) {
+		for ; nextTarget != 0; nextTarget = NodeUtil_getEnclosingTarget(enclosingTarget) {
 			enclosingTarget = nextTarget
 		}
 	}
@@ -2228,7 +2313,7 @@ func NodeUtil_getEnclosingTarget(targetNode Node) Node {
 	Preconditions_checkState_boolean_Object_H(Preconditions_checkNotNull_T(targetNode).isValidAssignmentTarget(), targetNode)
 	var parent Node = Preconditions_checkNotNull_Object_Object_T(targetNode.getParent(), targetNode.box_())
 	var targetIsFirstChild bool = (parent.getFirstChild() == targetNode)
-	if (parent.isDefaultValue() || parent.isRest()) {
+	if parent.isDefaultValue() || parent.isRest() {
 		Preconditions_checkState_boolean_Object_H(targetIsFirstChild, parent)
 		targetNode = parent
 		parent = Preconditions_checkNotNull_T(targetNode.getParent())
@@ -2325,7 +2410,7 @@ func NodeUtil_isObjectLitKey(node Node) bool {
 
 func NodeUtil_getObjectOrClassLitKeyName(key Node) Optional[string] {
 	var keyNode Node = NodeUtil_getObjectOrClassLitKeyNode(key)
-	if (keyNode != 0) {
+	if keyNode != 0 {
 		return Optional_of[string](keyNode.getString())
 	}
 	panic(new_IllegalStateException_String(("Unexpected node type: " + tostrH_(key))).self())
@@ -2336,7 +2421,12 @@ func NodeUtil_getObjectOrClassLitKeyNode(key Node) Node {
 	case Token_rhino_STRING_KEY, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF, Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_MEMBER_FIELD_DEF:
 		return key
 	case Token_rhino_COMPUTED_PROP, Token_rhino_COMPUTED_FIELD_DEF:
-		return func() Node { if key.getFirstChild().isStringLit() { return key.getFirstChild() }; return 0 }()
+		return func() Node {
+			if key.getFirstChild().isStringLit() {
+				return key.getFirstChild()
+			}
+			return 0
+		}()
 	default:
 	}
 	panic(new_IllegalStateException_String(("Unexpected node type: " + tostrH_(key))).self())
@@ -2459,7 +2549,7 @@ func NodeUtil_opToStr(operator *Token_rhino) Optional[string] {
 func NodeUtil_opToStrNoFail(operator *Token_rhino) string {
 	var res Optional[string] = NodeUtil_opToStr(operator)
 	if res.isEmpty() {
-		panic(new_Error_String(("Unknown op " + tostr_(operator))).self())
+		panic(new_Error_String(("Unknown op " + jtostr_(operator))).self())
 	}
 	return res.get()
 }
@@ -2473,7 +2563,7 @@ func NodeUtil_redeclareVarsInsideBranch(branch Node) {
 		return
 	}
 	var parent Node = NodeUtil_getAddingRoot(branch)
-	it_1 := eachOf_(vars)
+	it_1 := jeachOf_(vars)
 	for it_1.next() {
 		var nameNode Node = it_1.v
 		var var_ Node = IR_var_Node(IR_name(nameNode.getString()).srcref(nameNode)).srcref(nameNode)
@@ -2506,10 +2596,10 @@ func NodeUtil_copyNameAnnotations(source Node, destination Node) {
 func NodeUtil_getAddingRoot(n Node) Node {
 	var addingRoot Node = 0
 	var ancestor Node = n
-	crawl_ancestors_:
+crawl_ancestors_:
 	for {
 		ancestor = ancestor.getParent()
-		if (ancestor == 0) {
+		if ancestor == 0 {
 			break
 		}
 		switch ancestor.getToken() {
@@ -2529,7 +2619,7 @@ func NodeUtil_getAddingRoot(n Node) Node {
 }
 
 func NodeUtil_newDeclaration(lhs Node, rhs Node, declarationType *Token_rhino) Node {
-	if (rhs == 0) {
+	if rhs == 0 {
 		return IR_declaration_Node_Token(lhs, declarationType)
 	}
 	return IR_declaration_Node_Node_Token(lhs, rhs, declarationType)
@@ -2541,22 +2631,22 @@ func NodeUtil_newQName_AbstractCompiler_String(compiler *AbstractCompiler, name 
 
 func NodeUtil_newQNameCodingConvention_CodingConvention_String(convention CodingConvention, name string) Node {
 	var endPos int32 = String_indexOf(name, 46)
-	if (endPos == -1) {
+	if endPos == -1 {
 		endPos = String_length(name)
 	}
 	var qname Node
 	var nodeName string = String_substring(name, 0, endPos)
-	if ("this" == nodeName) {
+	if "this" == nodeName {
 		qname = IR_thisNode()
-	} else if ("super" == nodeName) {
+	} else if "super" == nodeName {
 		qname = IR_superNode()
 	} else {
 		qname = NodeUtil_newName_CodingConvention_String(convention, nodeName)
 	}
 	qname.setLength(endPos)
-	for startPos := int32((endPos + 1)); (endPos < String_length(name)); startPos = (endPos + 1) {
+	for startPos := int32((endPos + 1)); endPos < String_length(name); startPos = (endPos + 1) {
 		endPos = String_indexOf_int_int(name, 46, startPos)
-		if (endPos == -1) {
+		if endPos == -1 {
 			endPos = String_length(name)
 		}
 		var part string = String_substring(name, startPos, endPos)
@@ -2585,9 +2675,14 @@ func NodeUtil_newQNameCodingConvention_CodingConvention_String_Node_String(conve
 func NodeUtil_getDeclarationFromName(nameNode Node, value Node, type_ *Token_rhino, info *JSDocInfo) Node {
 	var result Node
 	if nameNode.isName() {
-		result = func() Node { if (value == 0) { return IR_declaration_Node_Token(nameNode, type_) }; return IR_declaration_Node_Node_Token(nameNode, value, type_) }()
+		result = func() Node {
+			if value == 0 {
+				return IR_declaration_Node_Token(nameNode, type_)
+			}
+			return IR_declaration_Node_Node_Token(nameNode, value, type_)
+		}()
 		result.setJSDocInfo(info)
-	} else if (value != 0) {
+	} else if value != 0 {
 		result = IR_exprResult(IR_assign(nameNode, value))
 		result.getFirstChild().setJSDocInfo(info)
 	} else {
@@ -2631,7 +2726,7 @@ func NodeUtil_getRootOfQualifiedName(qName Node) Node {
 	{
 		var current Node = qName
 		for ; true; current = current.getFirstChild() {
-			if ((current.isName() || current.isThis()) || current.isSuper()) {
+			if (current.isName() || current.isThis()) || current.isSuper() {
 				return current
 			}
 			Preconditions_checkState_boolean_String_Object_H(current.isGetProp(), "Not a getprop node:  (%s)", current)
@@ -2642,7 +2737,7 @@ func NodeUtil_getRootOfQualifiedName(qName Node) Node {
 
 func NodeUtil_getRootOfQualifiedNameString(qName string) string {
 	var dot int32 = String_indexOf(qName, 46)
-	if (dot == -1) {
+	if dot == -1 {
 		return qName
 	}
 	return String_substring(qName, 0, dot)
@@ -2677,9 +2772,9 @@ func NodeUtil_newNameCodingConvention_CodingConvention_String_Node_String(conven
 
 func NodeUtil_isLatin(s string) bool {
 	var len_ int32 = String_length(s)
-	for index := int32(0); (index < len_); index++ {
+	for index := int32(0); index < len_; index++ {
 		var c uint16 = String_charAt(s, index)
-		if (int32(c) > int32(NodeUtil_LARGEST_BASIC_LATIN)) {
+		if int32(c) > int32(NodeUtil_LARGEST_BASIC_LATIN) {
 			return false
 		}
 	}
@@ -2695,10 +2790,10 @@ func NodeUtil_isValidQualifiedNameLanguageMode(mode *CompilerOptions_LanguageMod
 }
 
 func NodeUtil_isValidQualifiedName(mode *FeatureSet, name string) bool {
-	if (String_endsWith(name, ".") || String_startsWith(name, ".")) {
+	if String_endsWith(name, ".") || String_startsWith(name, ".") {
 		return false
 	}
-	var parts *TList[string] = splitToListT_(tc_string, Splitter_on('.'), strobj_(name))
+	var parts *JTList[string] = splitToListT_(jtc_string, Splitter_on('.'), strobj_(name))
 	it_1 := parts.each()
 	for it_1.next() {
 		var part string = it_1.v
@@ -2733,7 +2828,7 @@ func NodeUtil_getLhsNodesHelper(n Node, consumer Consumer[Node]) {
 	case Token_rhino_VAR, Token_rhino_CONST, Token_rhino_LET, Token_rhino_OBJECT_PATTERN, Token_rhino_ARRAY_PATTERN, Token_rhino_PARAM_LIST, Token_rhino_IMPORT_SPECS:
 		{
 			var child Node = n.getFirstChild()
-			for ; (child != 0); child = child.getNext() {
+			for ; child != 0; child = child.getNext() {
 				NodeUtil_getLhsNodesHelper(child, consumer)
 			}
 		}
@@ -2769,7 +2864,7 @@ func NodeUtil_visitLhsNodesInDestructuringPattern(destructuringPattern Node, con
 }
 
 func NodeUtil_isObjectDefinePropertiesDefinition(n Node) bool {
-	if (!n.isCall() || !n.hasXChildren(3)) {
+	if !n.isCall() || !n.hasXChildren(3) {
 		return false
 	}
 	var getprop Node = n.getFirstChild()
@@ -2780,7 +2875,7 @@ func NodeUtil_isObjectDefinePropertiesDefinition(n Node) bool {
 }
 
 func NodeUtil_isObjectCreateWithPropertiesDefinition(n Node) bool {
-	if (!n.isCall() || !n.hasXChildren(3)) {
+	if !n.isCall() || !n.hasXChildren(3) {
 		return false
 	}
 	var getprop Node = n.getFirstChild()
@@ -2802,7 +2897,7 @@ func NodeUtil_isKnownGlobalObjectReference(n Node) bool {
 }
 
 func NodeUtil_isObjectDefinePropertyDefinition(n Node) bool {
-	if (!n.isCall() || !n.hasXChildren(4)) {
+	if !n.isCall() || !n.hasXChildren(4) {
 		return false
 	}
 	var getprop Node = n.getFirstChild()
@@ -2814,11 +2909,11 @@ func NodeUtil_isObjectDefinePropertyDefinition(n Node) bool {
 
 func NodeUtil_getObjectDefinedPropertiesKeys(definePropertiesCall Node) IterableT[Node] {
 	Preconditions_checkArgument(NodeUtil_isObjectDefinePropertiesDefinition(definePropertiesCall))
-	var properties *TList[Node] = newTList_(tc_Node)
+	var properties *JTList[Node] = jnewTList_(jtc_Node)
 	var objectLiteral Node = definePropertiesCall.getLastChild()
 	{
 		var key Node = objectLiteral.getFirstChild()
-		for ; (key != 0); key = key.getNext() {
+		for ; key != 0; key = key.getNext() {
 			if !key.isStringKey() {
 				continue
 			}
@@ -2870,7 +2965,12 @@ func NodeUtil_isPropertyTest(compiler *AbstractCompiler, propAccess Node) bool {
 		case Token_rhino_INSTANCEOF, Token_rhino_TYPEOF, Token_rhino_AND, Token_rhino_OR, Token_rhino_COALESCE, Token_rhino_OPTCHAIN_GETPROP:
 			return true
 		case Token_rhino_NE, Token_rhino_SHNE:
-			var other Node = func() Node { if (parent.getFirstChild() == propAccess) { return parent.getSecondChild() }; return parent.getFirstChild() }()
+			var other Node = func() Node {
+				if parent.getFirstChild() == propAccess {
+					return parent.getSecondChild()
+				}
+				return parent.getFirstChild()
+			}()
 			return (NodeUtil_isUndefined(other) || (parent.isNE() && other.isNull()))
 		case Token_rhino_OPTCHAIN_CALL, Token_rhino_OPTCHAIN_GETELEM, Token_rhino_HOOK:
 			return (parent.getFirstChild() == propAccess)
@@ -2890,7 +2990,12 @@ func NodeUtil_isPropertyAbsenceTest(propAccess Node) bool {
 	return func() bool {
 		switch parent.getToken() {
 		case Token_rhino_EQ, Token_rhino_SHEQ:
-			var other Node = func() Node { if (parent.getFirstChild() == propAccess) { return parent.getSecondChild() }; return parent.getFirstChild() }()
+			var other Node = func() Node {
+				if parent.getFirstChild() == propAccess {
+					return parent.getSecondChild()
+				}
+				return parent.getFirstChild()
+			}()
 			return (NodeUtil_isUndefined(other) || (parent.isEQ() && other.isNull()))
 		default:
 			return false
@@ -2903,11 +3008,11 @@ func NodeUtil_getPrototypeClassName(qName Node) Node {
 	if !qName.isGetProp() {
 		return 0
 	}
-	if (qName.getString() == "prototype") {
+	if qName.getString() == "prototype" {
 		return qName.getFirstChild()
 	}
 	var recv Node = qName.getFirstChild()
-	if (recv.isGetProp() && (recv.getString() == "prototype")) {
+	if recv.isGetProp() && (recv.getString() == "prototype") {
 		return recv.getFirstChild()
 	}
 	return 0
@@ -2922,7 +3027,7 @@ func NodeUtil_getPrototypePropertyName(qName Node) string {
 
 func NodeUtil_newUndefinedNode(srcReferenceNode Node) Node {
 	var node Node = IR_voidNode(IR_number(0))
-	if (srcReferenceNode != 0) {
+	if srcReferenceNode != 0 {
 		node.srcrefTree(srcReferenceNode)
 	}
 	return node
@@ -2930,7 +3035,7 @@ func NodeUtil_newUndefinedNode(srcReferenceNode Node) Node {
 
 func NodeUtil_newVarNode(name string, value Node) Node {
 	var lhs Node = IR_name(name)
-	if (value != 0) {
+	if value != 0 {
 		lhs.srcref(value)
 	}
 	return NodeUtil_newVarNodeNode(lhs, value)
@@ -2942,7 +3047,7 @@ func NodeUtil_newVarNodeNode(lhs Node, value Node) Node {
 		return IR_var_Node(new_Node_Token_Node_Node(Token_rhino_DESTRUCTURING_LHS, lhs, value).srcref(lhs)).srcref(lhs)
 	} else {
 		Preconditions_checkState((lhs.isName() && !lhs.hasChildren()))
-		if (value != 0) {
+		if value != 0 {
 			lhs.addChildToBack(value)
 		}
 		return IR_var_Node(lhs).srcref(lhs)
@@ -2959,11 +3064,23 @@ func NodeUtil_isShallowStatementTree(n Node) bool {
 }
 
 func NodeUtil_getNodeTypeReferenceCount(node Node, type_ *Token_rhino, traverseChildrenPred Predicate_base[Node]) int32 {
-	return NodeUtil_getCount(node, func() Predicate_base[Node] { v_ := new_NodeUtil_MatchNodeType(type_); if v_ == nil { return nil }; return v_.apply }(), traverseChildrenPred)
+	return NodeUtil_getCount(node, func() Predicate_base[Node] {
+		v_ := new_NodeUtil_MatchNodeType(type_)
+		if v_ == nil {
+			return nil
+		}
+		return v_.apply
+	}(), traverseChildrenPred)
 }
 
 func NodeUtil_isNameReferenced_Node_String_Predicate(node Node, name string, traverseChildrenPred Predicate_base[Node]) bool {
-	return NodeUtil_has(node, func() Predicate_base[Node] { v_ := new_NodeUtil_MatchNameNode(name); if v_ == nil { return nil }; return v_.apply }(), traverseChildrenPred)
+	return NodeUtil_has(node, func() Predicate_base[Node] {
+		v_ := new_NodeUtil_MatchNameNode(name)
+		if v_ == nil {
+			return nil
+		}
+		return v_.apply
+	}(), traverseChildrenPred)
 }
 
 func NodeUtil_isNameReferenced_Node_String(node Node, name string) bool {
@@ -2971,7 +3088,13 @@ func NodeUtil_isNameReferenced_Node_String(node Node, name string) bool {
 }
 
 func NodeUtil_getNameReferenceCount(node Node, name string) int32 {
-	return NodeUtil_getCount(node, func() Predicate_base[Node] { v_ := new_NodeUtil_MatchNameNode(name); if v_ == nil { return nil }; return v_.apply }(), Predicates_alwaysTrue[Node]())
+	return NodeUtil_getCount(node, func() Predicate_base[Node] {
+		v_ := new_NodeUtil_MatchNameNode(name)
+		if v_ == nil {
+			return nil
+		}
+		return v_.apply
+	}(), Predicates_alwaysTrue[Node]())
 }
 
 func NodeUtil_has(node Node, pred Predicate_base[Node], traverseChildrenPred Predicate_base[Node]) bool {
@@ -2983,7 +3106,7 @@ func NodeUtil_has(node Node, pred Predicate_base[Node], traverseChildrenPred Pre
 	}
 	{
 		var c Node = node.getFirstChild()
-		for ; (c != 0); c = c.getNext() {
+		for ; c != 0; c = c.getNext() {
 			if NodeUtil_has(c, pred, traverseChildrenPred) {
 				return true
 			}
@@ -3001,9 +3124,9 @@ func NodeUtil_findPreorder(node Node, pred Predicate_base[Node], traverseChildre
 	}
 	{
 		var c Node = node.getFirstChild()
-		for ; (c != 0); c = c.getNext() {
+		for ; c != 0; c = c.getNext() {
 			var result Node = NodeUtil_findPreorder(c, pred, traverseChildrenPred)
-			if (result != 0) {
+			if result != 0 {
 				return result
 			}
 		}
@@ -3019,7 +3142,7 @@ func NodeUtil_getCount(n Node, pred Predicate_base[Node], traverseChildrenPred P
 	if traverseChildrenPred.apply(n) {
 		{
 			var c Node = n.getFirstChild()
-			for ; (c != 0); c = c.getNext() {
+			for ; c != 0; c = c.getNext() {
 				total += NodeUtil_getCount(c, pred, traverseChildrenPred)
 			}
 		}
@@ -3036,7 +3159,7 @@ func NodeUtil_visitPreOrder_Node_Visitor_Predicate(node Node, visitor NodeUtil_V
 	if traverseChildrenPred.apply(node) {
 		{
 			var c Node = node.getFirstChild()
-			for ; (c != 0); c = c.getNext() {
+			for ; c != 0; c = c.getNext() {
 				NodeUtil_visitPreOrder_Node_Visitor_Predicate(c, visitor, traverseChildrenPred)
 			}
 		}
@@ -3051,7 +3174,7 @@ func NodeUtil_visitPostOrder_Node_Visitor_Predicate(node Node, visitor NodeUtil_
 	if traverseChildrenPred.apply(node) {
 		{
 			var c Node = node.getFirstChild()
-			for (c != 0) {
+			for c != 0 {
 				var next Node = c.getNext()
 				NodeUtil_visitPostOrder_Node_Visitor_Predicate(c, visitor, traverseChildrenPred)
 				c = next
@@ -3062,7 +3185,7 @@ func NodeUtil_visitPostOrder_Node_Visitor_Predicate(node Node, visitor NodeUtil_
 }
 
 func NodeUtil_preOrderIterable_Node_Predicate(root Node, travserseNodePredicate Predicate_base[Node]) IterableT[Node] {
-	return iterableAs_(tc_Node, &Iterable_fn{func() Iterator {
+	return iterableAs_(jtc_Node, &Iterable_fn{func() Iterator {
 		return Iterator(new_NodeUtil_PreOrderIterator(root, travserseNodePredicate))
 	}})
 }
@@ -3101,7 +3224,7 @@ func NodeUtil_hasNonSimpleParameters(fnNode Node) bool {
 	var paramList Node = NodeUtil_getFunctionParameters(fnNode)
 	{
 		var param Node = paramList.getFirstChild()
-		for ; (param != 0); param = param.getNext() {
+		for ; param != 0; param = param.getNext() {
 			if !param.isName() {
 				return true
 			}
@@ -3115,7 +3238,7 @@ func NodeUtil_functionParametersMayHaveSideEffects(fnNode Node, astAnalyzer *Ast
 	var paramList Node = NodeUtil_getFunctionParameters(fnNode)
 	{
 		var param Node = paramList.getFirstChild()
-		for ; (param != 0); param = param.getNext() {
+		for ; param != 0; param = param.getNext() {
 			if param.isName() {
 				continue
 			}
@@ -3146,7 +3269,7 @@ func NodeUtil_isConstantVar(node Node, scope *Scope) bool {
 	if NodeUtil_isConstantName(node) {
 		return true
 	}
-	if (!node.isName() || (scope == nil)) {
+	if !node.isName() || (scope == nil) {
 		return false
 	}
 	var var_ *Var = scope.getVar_String_rVar(node.getString())
@@ -3169,14 +3292,14 @@ func NodeUtil_isConstantByConvention(convention CodingConvention, node Node) boo
 }
 
 func NodeUtil_isConstantDeclaration(info *JSDocInfo, node Node) bool {
-	if (((((NodeUtil_isObjectLitKey(node) || (node.getParent().isAssign() && node.isFirstChildOf(node.getParent()))) || (node.getParent().isExprResult() && NodeUtil_isNormalGet(node))) || node.isMemberFieldDef()) || node.isComputedFieldDef()) || node.isComputedProp()) {
+	if ((((NodeUtil_isObjectLitKey(node) || (node.getParent().isAssign() && node.isFirstChildOf(node.getParent()))) || (node.getParent().isExprResult() && NodeUtil_isNormalGet(node))) || node.isMemberFieldDef()) || node.isComputedFieldDef()) || node.isComputedProp() {
 		return ((info != nil) && info.isConstant())
 	}
 	Preconditions_checkArgument_boolean_Object_H(node.isName(), node)
 	var declaringParent Node = NodeUtil_getDeclaringParent(node)
 	if declaringParent.isConst() {
 		return true
-	} else if ((info != nil) && info.isConstant()) {
+	} else if (info != nil) && info.isConstant() {
 		return true
 	}
 	return node.isInferredConstantVar()
@@ -3186,12 +3309,12 @@ func NodeUtil_functionHasInlineJsdocs(fn Node) bool {
 	if !fn.isFunction() {
 		return false
 	}
-	if (fn.getFirstChild().getJSDocInfo() != nil) {
+	if fn.getFirstChild().getJSDocInfo() != nil {
 		return true
 	}
 	var param Node = fn.getSecondChild().getFirstChild()
-	for (param != 0) {
-		if (param.getJSDocInfo() != nil) {
+	for param != 0 {
+		if param.getJSDocInfo() != nil {
 			return true
 		}
 		param = param.getNext()
@@ -3201,7 +3324,7 @@ func NodeUtil_functionHasInlineJsdocs(fn Node) bool {
 
 func NodeUtil_getSourceName(n Node) string {
 	var sourceName string = ""
-	for (String_isEmpty(sourceName) && (n != 0)) {
+	for String_isEmpty(sourceName) && (n != 0) {
 		sourceName = n.getSourceFileName()
 		n = n.getParent()
 	}
@@ -3210,7 +3333,7 @@ func NodeUtil_getSourceName(n Node) string {
 
 func NodeUtil_getSourceFile(n Node) StaticSourceFile {
 	var sourceName StaticSourceFile = nil
-	for ((sourceName == nil) && (n != 0)) {
+	for (sourceName == nil) && (n != 0) {
 		sourceName = n.getStaticSourceFile()
 		n = n.getParent()
 	}
@@ -3218,10 +3341,15 @@ func NodeUtil_getSourceFile(n Node) StaticSourceFile {
 }
 
 func NodeUtil_getInputId(n Node) *InputId {
-	for ((n != 0) && !n.isScript()) {
+	for (n != 0) && !n.isScript() {
 		n = n.getParent()
 	}
-	return func() *InputId { if ((n != 0) && n.isScript()) { return n.getInputId() }; return nil }()
+	return func() *InputId {
+		if (n != 0) && n.isScript() {
+			return n.getInputId()
+		}
+		return nil
+	}()
 }
 
 func NodeUtil_newCallNode(callTarget Node, parameters []Node) Node {
@@ -3271,7 +3399,7 @@ func NodeUtil_evaluatesToLocalValue(value Node) bool {
 			if NodeUtil_isLogicalAssignmentOp(value) {
 				return false
 			}
-			if ((NodeUtil_isAssignmentOp(value) || NodeUtil_isSimpleOperator(value)) || NodeUtil_isImmutableValue(value)) {
+			if (NodeUtil_isAssignmentOp(value) || NodeUtil_isSimpleOperator(value)) || NodeUtil_isImmutableValue(value) {
 				return true
 			}
 			panic(new_IllegalStateException_String(("Unexpected expression node: " + tostrH_(value) + "\n parent:" + tostrH_(value.getParent()))).self())
@@ -3305,7 +3433,7 @@ func NodeUtil_isDefinedValue(value Node) bool {
 			var name string = value.getString()
 			return (("Infinity" == name) || ("NaN" == name))
 		default:
-			if (NodeUtil_isAssignmentOp(value) || NodeUtil_isSimpleOperator(value)) {
+			if NodeUtil_isAssignmentOp(value) || NodeUtil_isSimpleOperator(value) {
 				return true
 			}
 			panic(new_IllegalStateException_String(("Unexpected expression node: " + tostrH_(value) + "\n parent:" + tostrH_(value.getParent()))).self())
@@ -3316,7 +3444,7 @@ func NodeUtil_isDefinedValue(value Node) bool {
 
 func NodeUtil_getNthSibling(first Node, index int32) Node {
 	var sibling Node = first
-	for ((index != 0) && (sibling != 0)) {
+	for (index != 0) && (sibling != 0) {
 		sibling = sibling.getNext()
 		index--
 	}
@@ -3367,16 +3495,16 @@ func NodeUtil_isToStringMethodCall(call Node) bool {
 func NodeUtil_getDeclaredTypeExpression(declaration Node) *JSTypeExpression {
 	Preconditions_checkArgument((declaration.isName() || declaration.isStringKey()))
 	var nameJsdoc *JSDocInfo = NodeUtil_getBestJSDocInfo(declaration)
-	if (nameJsdoc != nil) {
+	if nameJsdoc != nil {
 		return nameJsdoc.getType()
 	}
 	var parent Node = declaration.getParent()
-	if (parent.isRest() || parent.isDefaultValue()) {
+	if parent.isRest() || parent.isDefaultValue() {
 		parent = parent.getParent()
 	}
 	if parent.isParamList() {
 		var functionJsdoc *JSDocInfo = NodeUtil_getBestJSDocInfo(parent.getParent())
-		if (functionJsdoc != nil) {
+		if functionJsdoc != nil {
 			return functionJsdoc.getParameterType(Optional_of[string](declaration.getString()))
 		}
 	}
@@ -3385,7 +3513,12 @@ func NodeUtil_getDeclaredTypeExpression(declaration Node) *JSTypeExpression {
 
 func NodeUtil_getBestJSDocInfo(n Node) *JSDocInfo {
 	var jsdocNode Node = NodeUtil_getBestJSDocInfoNode(n)
-	return func() *JSDocInfo { if (jsdocNode == 0) { return nil }; return jsdocNode.getJSDocInfo() }()
+	return func() *JSDocInfo {
+		if jsdocNode == 0 {
+			return nil
+		}
+		return jsdocNode.getJSDocInfo()
+	}()
 }
 
 func NodeUtil_getBestJsDocInfoNodeStrict(n Node) Node {
@@ -3441,22 +3574,22 @@ func NodeUtil_getBestJsDocInfoNodeInternal(n Node) Node {
 		return NodeUtil_getBestJSDocInfoNode(n.getFirstChild())
 	}
 	var info *JSDocInfo = n.getJSDocInfo()
-	if (info == nil) {
+	if info == nil {
 		var parent Node = n.getParent()
-		if ((parent == 0) || n.isExprResult()) {
+		if (parent == 0) || n.isExprResult() {
 			return 0
 		}
-		if (((((parent.isName() || parent.isExport()) || parent.isVar()) || parent.isLet()) || parent.isConst()) || parent.isDeclare()) {
+		if ((((parent.isName() || parent.isExport()) || parent.isVar()) || parent.isLet()) || parent.isConst()) || parent.isDeclare() {
 			return NodeUtil_getBestJSDocInfoNode(parent)
 		} else if parent.isAssign() {
 			return NodeUtil_getBestJSDocInfoNode(parent)
-		} else if (NodeUtil_mayBeObjectLitKey(parent) || parent.isComputedProp()) {
+		} else if NodeUtil_mayBeObjectLitKey(parent) || parent.isComputedProp() {
 			return parent
-		} else if ((parent.isFunction() || parent.isClass()) && (n == parent.getFirstChild())) {
+		} else if (parent.isFunction() || parent.isClass()) && (n == parent.getFirstChild()) {
 			return NodeUtil_getBestJSDocInfoNode(parent)
-		} else if (NodeUtil_isNameDeclaration(parent) && parent.hasOneChild()) {
+		} else if NodeUtil_isNameDeclaration(parent) && parent.hasOneChild() {
 			return parent
-		} else if ((((parent.isHook() && (parent.getFirstChild() != n)) || parent.isOr()) || parent.isAnd()) || (parent.isComma() && (parent.getFirstChild() != n))) {
+		} else if (((parent.isHook() && (parent.getFirstChild() != n)) || parent.isOr()) || parent.isAnd()) || (parent.isComma() && (parent.getFirstChild() != n)) {
 			return NodeUtil_getBestJSDocInfoNode(parent)
 		}
 	}
@@ -3465,7 +3598,7 @@ func NodeUtil_getBestJsDocInfoNodeInternal(n Node) Node {
 
 func NodeUtil_getBestLValue(n Node) Node {
 	var parent Node = n.getParent()
-	if (NodeUtil_isFunctionDeclaration(n) || NodeUtil_isClassDeclaration(n)) {
+	if NodeUtil_isFunctionDeclaration(n) || NodeUtil_isClassDeclaration(n) {
 		return n.getFirstChild()
 	} else if n.isClassMembers() {
 		return NodeUtil_getBestLValue(parent)
@@ -3473,9 +3606,9 @@ func NodeUtil_getBestLValue(n Node) Node {
 		return parent
 	} else if parent.isAssign() {
 		return parent.getFirstChild()
-	} else if (NodeUtil_mayBeObjectLitKey(parent) || parent.isComputedProp()) {
+	} else if NodeUtil_mayBeObjectLitKey(parent) || parent.isComputedProp() {
 		return parent
-	} else if ((((parent.isHook() && (parent.getFirstChild() != n)) || parent.isOr()) || parent.isAnd()) || (parent.isComma() && (parent.getFirstChild() != n))) {
+	} else if (((parent.isHook() && (parent.getFirstChild() != n)) || parent.isOr()) || parent.isAnd()) || (parent.isComma() && (parent.getFirstChild() != n)) {
 		return NodeUtil_getBestLValue(parent)
 	} else if parent.isCast() {
 		return NodeUtil_getBestLValue(parent)
@@ -3504,10 +3637,10 @@ func NodeUtil_getRValueOfLValue(n Node) Node {
 }
 
 func NodeUtil_getBestLValueOwner(lValue Node) Node {
-	if ((lValue == 0) || (lValue.getParent() == 0)) {
+	if (lValue == 0) || (lValue.getParent() == 0) {
 		return 0
 	}
-	if (NodeUtil_mayBeObjectLitKey(lValue) || lValue.isComputedProp()) {
+	if NodeUtil_mayBeObjectLitKey(lValue) || lValue.isComputedProp() {
 		return NodeUtil_getBestLValue(lValue.getParent())
 	} else if NodeUtil_isNormalGet(lValue) {
 		return lValue.getFirstChild()
@@ -3516,25 +3649,35 @@ func NodeUtil_getBestLValueOwner(lValue Node) Node {
 }
 
 func NodeUtil_getBestLValueName(lValue Node) Optional[string] {
-	if ((lValue == 0) || (lValue.getParent() == 0)) {
+	if (lValue == 0) || (lValue.getParent() == 0) {
 		return Optional_empty[string]()
 	}
-	if (lValue.getParent().isClassMembers() && !lValue.isComputedProp()) {
+	if lValue.getParent().isClassMembers() && !lValue.isComputedProp() {
 		var className string = NodeUtil_getName(lValue.getGrandparent())
 		if String_isEmpty(className) {
 			return Optional_empty[string]()
 		}
 		var methodName string = lValue.getString()
-		var maybePrototype string = func() string { if lValue.isStaticMember() { return "." }; return ".prototype." }()
+		var maybePrototype string = func() string {
+			if lValue.isStaticMember() {
+				return "."
+			}
+			return ".prototype."
+		}()
 		return Optional_of[string]((sstr_(className) + sstr_(maybePrototype) + sstr_(methodName)))
 	}
 	if NodeUtil_mayBeObjectLitKey(lValue) {
 		var owner Node = NodeUtil_getBestLValue(lValue.getParent())
-		if (owner != 0) {
+		if owner != 0 {
 			var ownerName Optional[string] = NodeUtil_getBestLValueName(owner)
 			if ownerName.isPresent() {
 				var key Optional[string] = NodeUtil_getObjectOrClassLitKeyName(lValue)
-				return func() Optional[string] { if TokenStream_isJSIdentifier(key.get()) { return Optional_of[string]((sstr_(ownerName.get()) + "." + sstr_(key.orElse("null")))) }; return Optional_empty[string]() }()
+				return func() Optional[string] {
+					if TokenStream_isJSIdentifier(key.get()) {
+						return Optional_of[string]((sstr_(ownerName.get()) + "." + sstr_(key.orElse("null"))))
+					}
+					return Optional_empty[string]()
+				}()
 			}
 		}
 		return Optional_empty[string]()
@@ -3545,7 +3688,7 @@ func NodeUtil_getBestLValueName(lValue Node) Optional[string] {
 }
 
 func NodeUtil_getBestLValueRoot(lValue Node) Node {
-	if (lValue == 0) {
+	if lValue == 0 {
 		return 0
 	}
 	return func() Node {
@@ -3574,9 +3717,9 @@ func NodeUtil_isExpressionResultUsed(expr Node) bool {
 		return ((expr == parent.getFirstChild()) || NodeUtil_isExpressionResultUsed(parent))
 	case Token_rhino_COMMA:
 		var grandparent Node = parent.getParent()
-		if ((((grandparent.isCall() || grandparent.isTaggedTemplateLit()) && (parent == grandparent.getFirstChild())) && (expr == parent.getFirstChild())) && parent.hasTwoChildren()) {
+		if (((grandparent.isCall() || grandparent.isTaggedTemplateLit()) && (parent == grandparent.getFirstChild())) && (expr == parent.getFirstChild())) && parent.hasTwoChildren() {
 			var calledFn Node = parent.getLastChild()
-			if (calledFn.isName() && calledFn.matchesName("eval")) {
+			if calledFn.isName() && calledFn.matchesName("eval") {
 				return true
 			}
 			if NodeUtil_isNormalOrOptChainGet(calledFn) {
@@ -3594,7 +3737,7 @@ func NodeUtil_isExpressionResultUsed(expr Node) bool {
 func NodeUtil_isExecutedExactlyOnce(n Node) bool {
 	{
 		var hasNode bool = true
-		inspect_:
+	inspect_:
 		for first_1 := true; ; {
 			if !first_1 {
 				n = n.getParent()
@@ -3607,23 +3750,23 @@ func NodeUtil_isExecutedExactlyOnce(n Node) bool {
 			var parent Node = n.getParent()
 			switch parent.getToken() {
 			case Token_rhino_IF, Token_rhino_HOOK, Token_rhino_AND, Token_rhino_OR, Token_rhino_COALESCE, Token_rhino_ASSIGN_OR, Token_rhino_ASSIGN_AND, Token_rhino_ASSIGN_COALESCE, Token_rhino_OPTCHAIN_GETELEM, Token_rhino_OPTCHAIN_CALL, Token_rhino_DEFAULT_VALUE:
-				if (parent.getFirstChild() != n) {
+				if parent.getFirstChild() != n {
 					return false
 				}
 				continue inspect_
 			case Token_rhino_FOR, Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF:
 				if NodeUtil_isEnhancedFor(parent) {
-					if (parent.getSecondChild() != n) {
+					if parent.getSecondChild() != n {
 						return false
 					}
 				} else {
-					if (parent.getFirstChild() != n) {
+					if parent.getFirstChild() != n {
 						return false
 					}
 				}
 				continue inspect_
 			case Token_rhino_TRY:
-				if (!NodeUtil_hasFinally(parent) || (parent.getLastChild() != n)) {
+				if !NodeUtil_hasFinally(parent) || (parent.getLastChild() != n) {
 					return false
 				}
 				continue inspect_
@@ -3639,7 +3782,12 @@ func NodeUtil_isExecutedExactlyOnce(n Node) bool {
 }
 
 func NodeUtil_booleanNode(value bool) Node {
-	return func() Node { if value { return IR_trueNode() }; return IR_falseNode() }()
+	return func() Node {
+		if value {
+			return IR_trueNode()
+		}
+		return IR_falseNode()
+	}()
 }
 
 func NodeUtil_numberNode(value float64, srcref Node) Node {
@@ -3658,7 +3806,7 @@ func NodeUtil_numberNode(value float64, srcref Node) Node {
 			result = IR_neg(result)
 		}
 	}
-	if (srcref != 0) {
+	if srcref != 0 {
 		result.srcrefTree(srcref)
 	}
 	return result
@@ -3682,7 +3830,7 @@ func NodeUtil_countAstSize(n Node) int32 {
 	var count int32 = 1
 	{
 		var c Node = n.getFirstChild()
-		for ; (c != 0); c = c.getNext() {
+		for ; c != 0; c = c.getNext() {
 			count += NodeUtil_countAstSize(c)
 		}
 	}
@@ -3763,11 +3911,16 @@ func NodeUtil_isModuleScopeRoot(n Node) bool {
 }
 
 func NodeUtil_isGoogModuleExportsReference(scope *Scope, possibleName Node) bool {
-	if (!possibleName.isName() || !(possibleName.getString() == "exports")) {
+	if !possibleName.isName() || !(possibleName.getString() == "exports") {
 		return false
 	}
 	var var_ *Var = scope.getVar_String_rVar(possibleName.getString())
-	var scopeRoot Node = func() Node { if (var_ != nil) { return var_.getScopeRoot() }; return 0 }()
+	var scopeRoot Node = func() Node {
+		if var_ != nil {
+			return var_.getScopeRoot()
+		}
+		return 0
+	}()
 	return ((scopeRoot != 0) && (scopeRoot.isModuleBody() || (scopeRoot.isFunction() && NodeUtil_isBundledGoogModuleScopeRoot(NodeUtil_getFunctionBody(scopeRoot)))))
 }
 
@@ -3779,15 +3932,15 @@ func NodeUtil_isBundledGoogModuleCall(n Node) bool {
 }
 
 func NodeUtil_isBundledGoogModuleScopeRoot(n Node) bool {
-	if ((!n.isBlock() || !n.hasChildren()) || !NodeUtil_isGoogModuleCall(n.getFirstChild())) {
+	if (!n.isBlock() || !n.hasChildren()) || !NodeUtil_isGoogModuleCall(n.getFirstChild()) {
 		return false
 	}
 	var function Node = n.getParent()
-	if ((((function == 0) || !function.isFunction()) || !NodeUtil_getFunctionParameters(function).hasOneChild()) || !NodeUtil_getFunctionParameters(function).getFirstChild().matchesName("exports")) {
+	if (((function == 0) || !function.isFunction()) || !NodeUtil_getFunctionParameters(function).hasOneChild()) || !NodeUtil_getFunctionParameters(function).getFirstChild().matchesName("exports") {
 		return false
 	}
 	var call Node = function.getParent()
-	if ((!call.isCall() || !call.hasTwoChildren()) || !NodeUtil_GOOG_LOADMODULE.matches(call.getFirstChild())) {
+	if (!call.isCall() || !call.hasTwoChildren()) || !NodeUtil_GOOG_LOADMODULE.matches(call.getFirstChild()) {
 		return false
 	}
 	return (call.getParent().isExprResult() && call.getGrandparent().isScript())
@@ -3822,7 +3975,7 @@ func NodeUtil_isLegacyGoogModuleFile(n Node) bool {
 }
 
 func NodeUtil_isConstructor(fnNode Node) bool {
-	if ((fnNode == 0) || !fnNode.isFunction()) {
+	if (fnNode == 0) || !fnNode.isFunction() {
 		return false
 	}
 	var type_ *JSType = fnNode.getJSType()
@@ -3850,7 +4003,7 @@ func NodeUtil_isGetterOrSetter(propNode Node) bool {
 	if NodeUtil_isGetOrSetKey(propNode) {
 		return true
 	}
-	if (!propNode.isStringKey() || !propNode.getFirstChild().isFunction()) {
+	if !propNode.isStringKey() || !propNode.getFirstChild().isFunction() {
 		return false
 	}
 	var keyName string = propNode.getString()
@@ -3872,11 +4025,11 @@ func NodeUtil_isCallToNode(n Node, targetMethod Node) bool {
 	return n.getFirstChild().matchesQualifiedNameNode(targetMethod)
 }
 
-func NodeUtil_collectExternVariableNames(compiler *AbstractCompiler, externs Node) *TSet[string] {
+func NodeUtil_collectExternVariableNames(compiler *AbstractCompiler, externs Node) *JTSet[string] {
 	var externsRefs *ReferenceCollector = new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator(compiler, ReferenceCollector_DO_NOTHING_BEHAVIOR, ScopeCreator(new_SyntacticScopeCreator_AbstractCompiler(compiler)))
 	externsRefs.process(externs)
-	var externsNames *TSetBuilder[string] = newTSetBuilder_(tc_string)
-	it_1 := eachOf_(externsRefs.getAllSymbols())
+	var externsNames *TSetBuilder[string] = newTSetBuilder_(jtc_string)
+	it_1 := jeachOf_(externsRefs.getAllSymbols())
 	for it_1.next() {
 		var v *Var = it_1.v
 		if !v.isParam() {
@@ -3916,56 +4069,61 @@ func NodeUtil_markFunctionsDeletedChangeTracker(node Node, changeTracker *Change
 	}
 	{
 		var child Node = node.getFirstChild()
-		for ; (child != 0); child = child.getNext() {
+		for ; child != 0; child = child.getNext() {
 			NodeUtil_markFunctionsDeletedChangeTracker(child, changeTracker)
 		}
 	}
 	var shadowed Node = node.getClosureUnawareShadow()
-	if (shadowed != 0) {
+	if shadowed != 0 {
 		NodeUtil_markFunctionsDeletedChangeTracker(shadowed, changeTracker)
 	}
 }
 
-func NodeUtil_getParentChangeScopeNodes(scopeNodes ListT[Node]) *TList[Node] {
-	var parentScopeNodes *TSet[Node] = tsetFrom_(tc_Node, Collection(List_un_(scopeNodes)))
-	it_1 := eachOf_(scopeNodes)
+func NodeUtil_getParentChangeScopeNodes(scopeNodes ListT[Node]) *JTList[Node] {
+	var parentScopeNodes *JTSet[Node] = jtsetFrom_(jtc_Node, Collection(List_un_(scopeNodes)))
+	it_1 := jeachOf_(scopeNodes)
 	for it_1.next() {
 		var scopeNode Node = it_1.v
 		parentScopeNodes.add(ChangeTracker_getEnclosingChangeScopeRoot(scopeNode))
 	}
-	return tlistFrom_(tc_Node, Collection(parentScopeNodes.asSet()))
+	return jtlistFrom_(jtc_Node, Collection(parentScopeNodes.asSet()))
 }
 
-func NodeUtil_removeNestedChangeScopeNodes(scopeNodes *TList[Node]) *TList[Node] {
-	var uniqueScopeNodes *TSet[Node] = tsetFrom_(tc_Node, Collection(scopeNodes.asList()))
+func NodeUtil_removeNestedChangeScopeNodes(scopeNodes *JTList[Node]) *JTList[Node] {
+	var uniqueScopeNodes *JTSet[Node] = jtsetFrom_(jtc_Node, Collection(scopeNodes.asList()))
 	it_1 := scopeNodes.each()
 	for it_1.next() {
 		var scopeNode Node = it_1.v
 		{
 			var ancestor Node = scopeNode.getParent()
-			for ; (ancestor != 0); ancestor = ancestor.getParent() {
-				if (ChangeTracker_isChangeScopeRoot(ancestor) && uniqueScopeNodes.contains(ancestor)) {
+			for ; ancestor != 0; ancestor = ancestor.getParent() {
+				if ChangeTracker_isChangeScopeRoot(ancestor) && uniqueScopeNodes.contains(ancestor) {
 					uniqueScopeNodes.remove(scopeNode)
 					break
 				}
 			}
 		}
 	}
-	return tlistFrom_(tc_Node, Collection(uniqueScopeNodes.asSet()))
+	return jtlistFrom_(jtc_Node, Collection(uniqueScopeNodes.asSet()))
 }
 
 func NodeUtil_getInvocationArgsAsIterable(invocation Node) IterableT[Node] {
 	if invocation.isTaggedTemplateLit() {
-		return func() IterableT[Node] { if v := new_NodeUtil_TemplateArgsIterable(invocation.getLastChild()); v != nil { return v }; return nil }()
+		return func() IterableT[Node] {
+			if v := new_NodeUtil_TemplateArgsIterable(invocation.getLastChild()); v != nil {
+				return v
+			}
+			return nil
+		}()
 	}
 	Preconditions_checkState_boolean_Object_H(NodeUtil_isCallOrNew(invocation), invocation)
 	if invocation.hasOneChild() {
-		return tlistEmptyImm_(tc_Node).asIterable()
+		return jtlistEmptyImm_(jtc_Node).asIterable()
 	}
-	var list *TListBuilder[Node] = newTListBuilder_(tc_Node)
+	var list *TListBuilder[Node] = newTListBuilder_(jtc_Node)
 	{
 		var arg Node = invocation.getSecondChild()
-		for ; (arg != 0); arg = arg.getNext() {
+		for ; arg != 0; arg = arg.getNext() {
 			list.add(arg)
 		}
 	}
@@ -3974,7 +4132,12 @@ func NodeUtil_getInvocationArgsAsIterable(invocation Node) IterableT[Node] {
 
 func NodeUtil_getInvocationArgsCount(invocation Node) int32 {
 	if invocation.isTaggedTemplateLit() {
-		var args IterableT[Node] = func() IterableT[Node] { if v := new_NodeUtil_TemplateArgsIterable(invocation.getLastChild()); v != nil { return v }; return nil }()
+		var args IterableT[Node] = func() IterableT[Node] {
+			if v := new_NodeUtil_TemplateArgsIterable(invocation.getLastChild()); v != nil {
+				return v
+			}
+			return nil
+		}()
 		return (Iterables_size(Iterable_un_(args)) + 1)
 	} else {
 		return (invocation.getChildCount() - 1)
@@ -3982,10 +4145,10 @@ func NodeUtil_getInvocationArgsCount(invocation Node) int32 {
 	panic("unreachable")
 }
 
-func NodeUtil_getAllVarNamesDeclaredInModule(moduleNode Node, compiler *AbstractCompiler, scopeCreator ScopeCreator, globalScope *Scope) *TSet[string] {
+func NodeUtil_getAllVarNamesDeclaredInModule(moduleNode Node, compiler *AbstractCompiler, scopeCreator ScopeCreator, globalScope *Scope) *JTSet[string] {
 	Preconditions_checkState_boolean_Object(moduleNode.isModuleBody(), "getAllVarsDeclaredInModule expects a module body node")
 	Preconditions_checkState_boolean_Object(globalScope.isGlobal(), globalScope)
-	var nameVars *TSet[string] = newTSet_(tc_string)
+	var nameVars *JTSet[string] = jnewTSet_(jtc_string)
 	var finder NodeTraversal_ScopedCallback = NodeTraversal_ScopedCallback(new_NodeUtil_1(nameVars))
 	NodeTraversal_builder().setCompiler(compiler).setCallback(NodeTraversal_Callback(finder)).setScopeCreator(scopeCreator).traverseWithScope(moduleNode, globalScope.up_AbstractScope())
 	return nameVars
@@ -3993,8 +4156,8 @@ func NodeUtil_getAllVarNamesDeclaredInModule(moduleNode Node, compiler *Abstract
 
 func NodeUtil_getAllVarsDeclaredInFunction(compiler *AbstractCompiler, scopeCreator ScopeCreator, scope *Scope) *NodeUtil_AllVarsDeclaredInFunction {
 	Preconditions_checkState_boolean_Object(scope.isFunctionScope(), scope)
-	var nameVarMap *TMap[string, *Var] = newTMap_(tc_string, tc_p_Var)
-	var orderedVars *TList[*Var] = newTList_(tc_p_Var)
+	var nameVarMap *JTMap[string, *Var] = jnewTMap_(jtc_string, jtc_p_Var)
+	var orderedVars *JTList[*Var] = jnewTList_(jtc_p_Var)
 	var finder NodeTraversal_ScopedCallback = NodeTraversal_ScopedCallback(new_NodeUtil_2(nameVarMap, orderedVars, scope))
 	NodeTraversal_builder().setCompiler(compiler).setCallback(NodeTraversal_Callback(finder)).setScopeCreator(scopeCreator).traverseAtScope(scope.up_AbstractScope())
 	return new_NodeUtil_AllVarsDeclaredInFunction(nameVarMap, orderedVars)
@@ -4017,9 +4180,14 @@ func NodeUtil_getFeatureSetOfScript(scriptNode Node) *FeatureSet {
 func NodeUtil_addFeatureToScript(scriptNode Node, feature *FeatureSet_Feature, compiler *AbstractCompiler) {
 	Preconditions_checkState_boolean_Object_H(scriptNode.isScript(), scriptNode)
 	var currentFeatures *FeatureSet = NodeUtil_getFeatureSetOfScript(scriptNode)
-	var newFeatures *FeatureSet = func() *FeatureSet { if (currentFeatures != nil) { return currentFeatures.with(feature) }; return FeatureSet_BARE_MINIMUM.with(feature) }()
+	var newFeatures *FeatureSet = func() *FeatureSet {
+		if currentFeatures != nil {
+			return currentFeatures.with(feature)
+		}
+		return FeatureSet_BARE_MINIMUM.with(feature)
+	}()
 	scriptNode.setFeatureSet(obj_(newFeatures))
-	if (feature != FeatureSet_Feature_MODULES) {
+	if feature != FeatureSet_Feature_MODULES {
 		Preconditions_checkState_boolean_String_Object(compiler.getAllowableFeatures().contains(feature), "Cannot add feature: %s. It is not supported in the output language, and either 1) its corresponding transpilation pass has already run or 2) transpilation of this feature is unsupported entirely", feature)
 	} else {
 		compiler.setAllowableFeatures(compiler.getAllowableFeatures().with(feature))
@@ -4028,7 +4196,7 @@ func NodeUtil_addFeatureToScript(scriptNode Node, feature *FeatureSet_Feature, c
 
 func NodeUtil_removeFeatureFromScript(scriptNode Node, feature *FeatureSet_Feature) {
 	var currentFeatures *FeatureSet = NodeUtil_getFeatureSetOfScript(scriptNode)
-	if (currentFeatures != nil) {
+	if currentFeatures != nil {
 		currentFeatures = currentFeatures.without_2(feature, []*FeatureSet_Feature{})
 	}
 	scriptNode.setFeatureSet(obj_(currentFeatures))
@@ -4036,7 +4204,7 @@ func NodeUtil_removeFeatureFromScript(scriptNode Node, feature *FeatureSet_Featu
 
 func NodeUtil_removeFeaturesFromScript(scriptNode Node, featureSet *FeatureSet) {
 	var currentFeatures *FeatureSet = NodeUtil_getFeatureSetOfScript(scriptNode)
-	if (currentFeatures != nil) {
+	if currentFeatures != nil {
 		currentFeatures = currentFeatures.without(featureSet)
 		scriptNode.setFeatureSet(obj_(currentFeatures))
 	}
@@ -4046,7 +4214,7 @@ func NodeUtil_removeFeatureFromAllScripts(root Node, feature *FeatureSet_Feature
 	Preconditions_checkArgument_boolean_Object_H(root.isRoot(), root)
 	{
 		var childNode Node = root.getFirstChild()
-		for ; (childNode != 0); childNode = childNode.getNext() {
+		for ; childNode != 0; childNode = childNode.getNext() {
 			Preconditions_checkState(childNode.isScript())
 			NodeUtil_removeFeatureFromScript(childNode, feature)
 		}
@@ -4058,7 +4226,7 @@ func NodeUtil_removeFeaturesFromAllScripts(root Node, featureSet *FeatureSet, co
 	Preconditions_checkArgument_boolean_Object_H(root.isRoot(), root)
 	{
 		var childNode Node = root.getFirstChild()
-		for ; (childNode != 0); childNode = childNode.getNext() {
+		for ; childNode != 0; childNode = childNode.getNext() {
 			Preconditions_checkState(childNode.isScript())
 			NodeUtil_removeFeaturesFromScript(childNode, featureSet)
 		}
@@ -4070,7 +4238,7 @@ func NodeUtil_addFeatureToAllScripts(root Node, feature *FeatureSet_Feature, com
 	Preconditions_checkArgument_boolean_Object_H(root.isRoot(), root)
 	{
 		var childNode Node = root.getFirstChild()
-		for ; (childNode != 0); childNode = childNode.getNext() {
+		for ; childNode != 0; childNode = childNode.getNext() {
 			Preconditions_checkState(childNode.isScript())
 			NodeUtil_addFeatureToScript(childNode, feature, compiler)
 		}
@@ -4092,7 +4260,7 @@ func NodeUtil_getParamOrPatternNames(n Node, cb Consumer[Node]) {
 
 func NodeUtil_getGoogRequireInfo_String_Scope(name string, scope *Scope) *NodeUtil_GoogRequire {
 	var var_ *Var = scope.getVar_String_rVar(name)
-	if (var_ == nil) {
+	if var_ == nil {
 		return nil
 	}
 	return NodeUtil_getGoogRequireInfo_Var(var_)
@@ -4100,7 +4268,7 @@ func NodeUtil_getGoogRequireInfo_String_Scope(name string, scope *Scope) *NodeUt
 
 func NodeUtil_getGoogRequireInfo_Var(var_ *Var) *NodeUtil_GoogRequire {
 	Preconditions_checkNotNull_T(var_)
-	if (!var_.getScopeRoot().isModuleBody() || (var_.getNameNode() == 0)) {
+	if !var_.getScopeRoot().isModuleBody() || (var_.getNameNode() == 0) {
 		return nil
 	}
 	return NodeUtil_getGoogRequireInfoNode(var_.getNameNode())
@@ -4113,7 +4281,7 @@ func NodeUtil_getGoogRequireInfoNode(nameNode Node) *NodeUtil_GoogRequire {
 	Preconditions_checkState_boolean_String_Object_H(nameNode.isName(), "unexpected node type: %s", nameNode)
 	if NodeUtil_isNameDeclaration(nameNode.getParent()) {
 		var requireCall Node = nameNode.getFirstChild()
-		if (requireCall == 0) {
+		if requireCall == 0 {
 			return nil
 		}
 		var isStrongRequire bool = NodeUtil_isGoogRequireCall(requireCall)
@@ -4122,9 +4290,9 @@ func NodeUtil_getGoogRequireInfoNode(nameNode Node) *NodeUtil_GoogRequire {
 		}
 		var namespace string = requireCall.getSecondChild().getString()
 		return NodeUtil_GoogRequire_fromNamespace(namespace, isStrongRequire)
-	} else if (nameNode.getParent().isStringKey() && nameNode.getGrandparent().isObjectPattern()) {
+	} else if nameNode.getParent().isStringKey() && nameNode.getGrandparent().isObjectPattern() {
 		var requireCall Node = nameNode.getGrandparent().getNext()
-		if (requireCall == 0) {
+		if requireCall == 0 {
 			return nil
 		}
 		var isStrongRequire bool = NodeUtil_isGoogRequireCall(requireCall)
@@ -4152,12 +4320,12 @@ func NodeUtil_getOriginalName(name string) string {
 	name = MakeDeclaredNamesUnique_ContextualRenameInverter_getOriginalName(name)
 	if String_startsWith(name, "module$exports$") {
 		var lastDollar int32 = String_lastIndexOf(name, 36)
-		if (lastDollar != -1) {
+		if lastDollar != -1 {
 			name = String_substring_int(name, (lastDollar + 1))
 		}
 	} else if String_startsWith(name, "module$contents$") {
 		var lastUnderscore int32 = String_lastIndexOf(name, 95)
-		if (lastUnderscore != -1) {
+		if lastUnderscore != -1 {
 			name = String_substring_int(name, (lastUnderscore + 1))
 		}
 	}
@@ -4165,9 +4333,11 @@ func NodeUtil_getOriginalName(name string) string {
 }
 
 var NodeUtil_UNIQUE_NAME_SUFFIX_PATTERN *Pattern
+
 const NodeUtil_MAX_POSITIVE_INTEGER_NUMBER int64 = 9007199254740991
 const NodeUtil_JSC_PROPERTY_NAME_FN string = "JSCompiler_renameProperty"
 const NodeUtil_LARGEST_BASIC_LATIN uint16 = 0x007F
+
 var NodeUtil_GOOG_MODULE_DECLARE_LEGACY_NAMESPACE *QualifiedName
 var NodeUtil_GOOG_SET_TEST_ONLY *QualifiedName
 var NodeUtil_GOOG_PROVIDE *QualifiedName
@@ -4179,9 +4349,9 @@ var NodeUtil_GOOG_FORWARD_DECLARE *QualifiedName
 var NodeUtil_GOOG_REQUIRE_DYNAMIC *QualifiedName
 var NodeUtil_GOOG_WEAK_USAGE *QualifiedName
 var NodeUtil_GOOG_WEAK_USAGE_MANGLED *QualifiedName
-var NodeUtil_KNOWN_CONSTANTS *TSet[string]
-var NodeUtil_DEFINITE_CFG_ROOTS *TSet[*Token_rhino]
-var NodeUtil_IS_STATEMENT_PARENT *TSet[*Token_rhino]
+var NodeUtil_KNOWN_CONSTANTS *JTSet[string]
+var NodeUtil_DEFINITE_CFG_ROOTS *JTSet[*Token_rhino]
+var NodeUtil_IS_STATEMENT_PARENT *JTSet[*Token_rhino]
 var NodeUtil_GLOBAL_OBJECT *QualifiedName
 var NodeUtil_GLOBAL_OBJECT_MANGLED *QualifiedName
 var NodeUtil_MATCH_NOT_FUNCTION Predicate_base[Node]
@@ -4208,7 +4378,7 @@ func NodeUtil_clinit() {
 	NodeUtil_GOOG_REQUIRE_DYNAMIC = QualifiedName_of("goog.requireDynamic")
 	NodeUtil_GOOG_WEAK_USAGE = QualifiedName_of("goog.weakUsage")
 	NodeUtil_GOOG_WEAK_USAGE_MANGLED = QualifiedName_of("goog$weakUsage")
-	NodeUtil_KNOWN_CONSTANTS = immutableSetOf_[string](tc_string, "undefined", "Infinity", "NaN")
+	NodeUtil_KNOWN_CONSTANTS = jimmutableSetOf_[string](jtc_string, "undefined", "Infinity", "NaN")
 	NodeUtil_DEFINITE_CFG_ROOTS = tsetImm_(tc_p_Token_rhino, Sets_immutableEnumSet(Token_rhino_FUNCTION.up_Enum(), []*Enum{Token_rhino_SCRIPT.up_Enum(), Token_rhino_MODULE_BODY.up_Enum(), Token_rhino_ROOT.up_Enum()}))
 	NodeUtil_IS_STATEMENT_PARENT = tsetImm_(tc_p_Token_rhino, Sets_immutableEnumSet(Token_rhino_SCRIPT.up_Enum(), []*Enum{Token_rhino_MODULE_BODY.up_Enum(), Token_rhino_BLOCK.up_Enum(), Token_rhino_LABEL.up_Enum(), Token_rhino_NAMESPACE_ELEMENTS.up_Enum(), Token_rhino_INTERFACE_MEMBERS.up_Enum()}))
 	NodeUtil_GLOBAL_OBJECT = QualifiedName_of("$jscomp.global.Object")
@@ -4290,11 +4460,11 @@ func NodeUtil_ValueType_clinit() {
 }
 
 type NodeUtil_VarCollector struct {
-	vars *TMap[string, Node]
+	vars *JTMap[string, Node]
 }
 
 func (this *NodeUtil_VarCollector) finit_NodeUtil_VarCollector() {
-	this.vars = newTMap_(tc_string, tc_Node)
+	this.vars = jnewTMap_(jtc_string, jtc_Node)
 }
 
 func (this *NodeUtil_VarCollector) init_NodeUtil_VarCollector() {
@@ -4406,7 +4576,7 @@ func (this *NodeUtil_Visitor_fn) visit(p0 Node) {
 type NodeUtil_PreOrderIterator struct {
 	AbstractIterator
 	traverseNodePredicate Predicate_base[Node]
-	current_ Node
+	current_              Node
 }
 
 func (this *NodeUtil_PreOrderIterator) up_AbstractIterator() *AbstractIterator {
@@ -4431,7 +4601,7 @@ func new_NodeUtil_PreOrderIterator(root Node, traverseNodePredicate Predicate_ba
 }
 
 func (this *NodeUtil_PreOrderIterator) computeNext() any {
-	if (this.current_ == 0) {
+	if this.current_ == 0 {
 		return this.endOfData()
 	}
 	var returnValue Node = this.current_
@@ -4446,9 +4616,9 @@ func (this *NodeUtil_PreOrderIterator) calculateNextNode(currentNode Node) Node 
 			return currentNode.getFirstChild()
 		}
 	}
-	for (currentNode != 0) {
+	for currentNode != 0 {
 		var next Node = currentNode.getNext()
-		if (next != 0) {
+		if next != 0 {
 			return next
 		}
 		currentNode = currentNode.getParent()
@@ -4472,7 +4642,7 @@ func new_NodeUtil_TemplateArgsIterable(templateLit Node) *NodeUtil_TemplateArgsI
 }
 
 func (this *NodeUtil_TemplateArgsIterable) iterator_t() IteratorT[Node] {
-	return iteratorAs_(tc_Node, Iterator(new_NodeUtil_TemplateArgsIterable_1(this)))
+	return iteratorAs_(jtc_Node, Iterator(new_NodeUtil_TemplateArgsIterable_1(this)))
 }
 
 func (this *NodeUtil_TemplateArgsIterable) iterator() Iterator {
@@ -4480,33 +4650,33 @@ func (this *NodeUtil_TemplateArgsIterable) iterator() Iterator {
 }
 
 type NodeUtil_AllVarsDeclaredInFunction struct {
-	allVarsInFn *TMap[string, *Var]
-	orderedVars *TList[*Var]
+	allVarsInFn *JTMap[string, *Var]
+	orderedVars *JTList[*Var]
 }
 
-func (this *NodeUtil_AllVarsDeclaredInFunction) init_NodeUtil_AllVarsDeclaredInFunction(allVarsInFn *TMap[string, *Var], orderedVars *TList[*Var]) {
+func (this *NodeUtil_AllVarsDeclaredInFunction) init_NodeUtil_AllVarsDeclaredInFunction(allVarsInFn *JTMap[string, *Var], orderedVars *JTList[*Var]) {
 	Preconditions_checkState((allVarsInFn.isEmpty() == orderedVars.isEmpty()))
 	this.allVarsInFn = allVarsInFn
 	this.orderedVars = orderedVars
 }
 
-func new_NodeUtil_AllVarsDeclaredInFunction(allVarsInFn *TMap[string, *Var], orderedVars *TList[*Var]) *NodeUtil_AllVarsDeclaredInFunction {
+func new_NodeUtil_AllVarsDeclaredInFunction(allVarsInFn *JTMap[string, *Var], orderedVars *JTList[*Var]) *NodeUtil_AllVarsDeclaredInFunction {
 	this := &NodeUtil_AllVarsDeclaredInFunction{}
 	this.init_NodeUtil_AllVarsDeclaredInFunction(allVarsInFn, orderedVars)
 	return this
 }
 
-func (this *NodeUtil_AllVarsDeclaredInFunction) getAllVariables() *TMap[string, *Var] {
+func (this *NodeUtil_AllVarsDeclaredInFunction) getAllVariables() *JTMap[string, *Var] {
 	return this.allVarsInFn
 }
 
-func (this *NodeUtil_AllVarsDeclaredInFunction) getAllVariablesInOrder() *TList[*Var] {
+func (this *NodeUtil_AllVarsDeclaredInFunction) getAllVariablesInOrder() *JTList[*Var] {
 	return this.orderedVars
 }
 
 type NodeUtil_GoogRequire struct {
-	namespace_ string
-	property_ Optional[string]
+	namespace_       string
+	property_        Optional[string]
 	isStrongRequire_ bool
 }
 
@@ -4568,14 +4738,14 @@ func (this *NodeUtil_GoogRequire) toString() string {
 }
 
 type NodeUtil_1 struct {
-	cap_nameVars *TSet[string]
+	cap_nameVars *JTSet[string]
 }
 
 func (this *NodeUtil_1) init_NodeUtil_1() {
 
 }
 
-func new_NodeUtil_1(cap_nameVars *TSet[string]) *NodeUtil_1 {
+func new_NodeUtil_1(cap_nameVars *JTSet[string]) *NodeUtil_1 {
 	this := &NodeUtil_1{}
 	this.cap_nameVars = cap_nameVars
 	this.init_NodeUtil_1()
@@ -4585,7 +4755,7 @@ func new_NodeUtil_1(cap_nameVars *TSet[string]) *NodeUtil_1 {
 func (this *NodeUtil_1) enterScope(t *NodeTraversal) {
 	var currentScope *Scope = t.getScope()
 	if currentScope.isModuleScope() {
-		it_1 := eachOf_(currentScope.getVarIterable_rIterableOf_Var())
+		it_1 := jeachOf_(currentScope.getVarIterable_rIterableOf_Var())
 		for it_1.next() {
 			var v *Var = it_1.v
 			this.cap_nameVars.add(v.getName())
@@ -4606,16 +4776,16 @@ func (this *NodeUtil_1) visit(t *NodeTraversal, n Node, parent Node) {
 }
 
 type NodeUtil_2 struct {
-	cap_nameVarMap *TMap[string, *Var]
-	cap_orderedVars *TList[*Var]
-	cap_scope *Scope
+	cap_nameVarMap  *JTMap[string, *Var]
+	cap_orderedVars *JTList[*Var]
+	cap_scope       *Scope
 }
 
 func (this *NodeUtil_2) init_NodeUtil_2() {
 
 }
 
-func new_NodeUtil_2(cap_nameVarMap *TMap[string, *Var], cap_orderedVars *TList[*Var], cap_scope *Scope) *NodeUtil_2 {
+func new_NodeUtil_2(cap_nameVarMap *JTMap[string, *Var], cap_orderedVars *JTList[*Var], cap_scope *Scope) *NodeUtil_2 {
 	this := &NodeUtil_2{}
 	this.cap_nameVarMap = cap_nameVarMap
 	this.cap_orderedVars = cap_orderedVars
@@ -4626,7 +4796,7 @@ func new_NodeUtil_2(cap_nameVarMap *TMap[string, *Var], cap_orderedVars *TList[*
 
 func (this *NodeUtil_2) enterScope(t *NodeTraversal) {
 	var currentScope *Scope = t.getScope()
-	it_1 := eachOf_(currentScope.getVarIterable_rIterableOf_Var())
+	it_1 := jeachOf_(currentScope.getVarIterable_rIterableOf_Var())
 	for it_1.next() {
 		var v *Var = it_1.v
 		this.cap_nameVarMap.put(v.getName(), v)
@@ -4648,7 +4818,7 @@ func (this *NodeUtil_2) visit(t *NodeTraversal, n Node, parent Node) {
 
 type NodeUtil_TemplateArgsIterable_1 struct {
 	AbstractIterator
-	outer_ *NodeUtil_TemplateArgsIterable
+	outer_    *NodeUtil_TemplateArgsIterable
 	nextChild Node
 }
 
@@ -4677,10 +4847,10 @@ func new_NodeUtil_TemplateArgsIterable_1(outer_ *NodeUtil_TemplateArgsIterable) 
 }
 
 func (this *NodeUtil_TemplateArgsIterable_1) computeNext() any {
-	for ((this.nextChild != 0) && !this.nextChild.isTemplateLitSub()) {
+	for (this.nextChild != 0) && !this.nextChild.isTemplateLitSub() {
 		this.nextChild = this.nextChild.getNext()
 	}
-	if (this.nextChild == 0) {
+	if this.nextChild == 0 {
 		return this.endOfData()
 	} else {
 		var result Node = this.nextChild.getFirstChild()
@@ -4689,4 +4859,3 @@ func (this *NodeUtil_TemplateArgsIterable_1) computeNext() any {
 	}
 	panic("unreachable")
 }
-

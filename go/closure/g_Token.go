@@ -3,9 +3,9 @@
 package closure
 
 type Token_parser struct {
-	self_ any
+	self_     any
 	location_ *SourceRange
-	type__ *TokenType
+	type__    *TokenType
 }
 
 func (this *Token_parser) as_Token_parser() *Token_parser { return this }
@@ -64,4 +64,3 @@ func (this *Token_parser) asTemplateLiteral() *TemplateLiteralToken {
 func (this *Token_parser) toString() string {
 	return this.self_.(interface{ toString_impl() string }).toString_impl()
 }
-

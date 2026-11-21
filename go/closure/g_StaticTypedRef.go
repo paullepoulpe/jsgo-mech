@@ -6,4 +6,3 @@ type StaticTypedRef interface {
 	StaticRef
 	getSymbol_rStaticTypedSlot() StaticTypedSlot
 }
-

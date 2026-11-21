@@ -36,9 +36,9 @@ func (this *ConvertToDottedProperties) visit_impl(t *NodeTraversal, n Node, pare
 	case Token_rhino_COMPUTED_PROP, Token_rhino_COMPUTED_FIELD_DEF:
 		var leftElem Node = n.getFirstChild()
 		var rightElem Node = leftElem.getNext()
-		if (((leftElem.isStringLit() && NodeUtil_isValidPropertyName(FeatureSet_ES3, leftElem.getString())) && !(leftElem.getString() == "constructor")) && !(parent.isObjectLit() && (leftElem.getString() == "__proto__"))) {
+		if ((leftElem.isStringLit() && NodeUtil_isValidPropertyName(FeatureSet_ES3, leftElem.getString())) && !(leftElem.getString() == "constructor")) && !(parent.isObjectLit() && (leftElem.getString() == "__proto__")) {
 			leftElem.detach()
-			if (rightElem != 0) {
+			if rightElem != 0 {
 				rightElem.detach()
 			}
 			var temp Node
@@ -59,7 +59,7 @@ func (this *ConvertToDottedProperties) visit_impl(t *NodeTraversal, n Node, pare
 				} else {
 					temp = IR_stringKey_String_Node(leftElem.getString(), rightElem)
 				}
-			} else if (rightElem == 0) {
+			} else if rightElem == 0 {
 				temp = Node_newString_Token_String(Token_rhino_MEMBER_FIELD_DEF, leftElem.getString())
 			} else {
 				temp = IR_memberFieldDef(leftElem.getString(), rightElem)
@@ -78,14 +78,23 @@ func (this *ConvertToDottedProperties) visit_impl(t *NodeTraversal, n Node, pare
 	case Token_rhino_OPTCHAIN_GETELEM, Token_rhino_GETELEM:
 		var left Node = n.getFirstChild()
 		var right Node = left.getNext()
-		if (right.isStringLit() && NodeUtil_isValidPropertyName(FeatureSet_ES3, right.getString())) {
+		if right.isStringLit() && NodeUtil_isValidPropertyName(FeatureSet_ES3, right.getString()) {
 			left.detach()
 			right.detach()
-			var newGetProp Node = func() Node { if n.isGetElem() { return IR_getprop_Node_String(left, right.getString()) }; return func() Node { if n.isOptionalChainStart() { return IR_startOptChainGetprop(left, right.getString()) }; return IR_continueOptChainGetprop(left, right.getString()) }() }()
+			var newGetProp Node = func() Node {
+				if n.isGetElem() {
+					return IR_getprop_Node_String(left, right.getString())
+				}
+				return func() Node {
+					if n.isOptionalChainStart() {
+						return IR_startOptChainGetprop(left, right.getString())
+					}
+					return IR_continueOptChainGetprop(left, right.getString())
+				}()
+			}()
 			n.replaceWith(newGetProp)
 			this.compiler_.reportChangeToEnclosingScope(newGetProp)
 		}
 	default:
 	}
 }
-

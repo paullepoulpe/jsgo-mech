@@ -4,7 +4,7 @@ package closure
 
 type MemberLookupExpressionTree struct {
 	ParseTree
-	operand *ParseTree
+	operand          *ParseTree
 	memberExpression *ParseTree
 }
 
@@ -27,4 +27,3 @@ func new_MemberLookupExpressionTree(location *SourceRange, operand *ParseTree, m
 	this.init_MemberLookupExpressionTree(location, operand, memberExpression)
 	return this
 }
-

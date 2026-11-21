@@ -3,7 +3,7 @@
 package closure
 
 type AbstractScope struct {
-	self_ any
+	self_     any
 	rootNode_ Node
 }
 
@@ -137,7 +137,9 @@ func (this *AbstractScope) getParent() *AbstractScope {
 }
 
 func (this *AbstractScope) makeImplicitVar_ImplicitVar(p0 *AbstractScope_ImplicitVar) *AbstractVar {
-	return this.self_.(interface{ makeImplicitVar_ImplicitVar_impl(*AbstractScope_ImplicitVar) *AbstractVar }).makeImplicitVar_ImplicitVar_impl(p0)
+	return this.self_.(interface {
+		makeImplicitVar_ImplicitVar_impl(*AbstractScope_ImplicitVar) *AbstractVar
+	}).makeImplicitVar_ImplicitVar_impl(p0)
 }
 
 func (this *AbstractScope) getGlobalScope() *AbstractScope {
@@ -165,15 +167,21 @@ func (this *AbstractScope) getArgumentsVar() *AbstractVar {
 }
 
 func (this *AbstractScope) getVarIterable() IterableT[*AbstractVar] {
-	return this.self_.(interface{ getVarIterable_impl() IterableT[*AbstractVar] }).getVarIterable_impl()
+	return this.self_.(interface {
+		getVarIterable_impl() IterableT[*AbstractVar]
+	}).getVarIterable_impl()
 }
 
 func (this *AbstractScope) getAllAccessibleVariables() IterableT[*AbstractVar] {
-	return this.self_.(interface{ getAllAccessibleVariables_impl() IterableT[*AbstractVar] }).getAllAccessibleVariables_impl()
+	return this.self_.(interface {
+		getAllAccessibleVariables_impl() IterableT[*AbstractVar]
+	}).getAllAccessibleVariables_impl()
 }
 
 func (this *AbstractScope) getAllSymbols() IterableT[*AbstractVar] {
-	return this.self_.(interface{ getAllSymbols_impl() IterableT[*AbstractVar] }).getAllSymbols_impl()
+	return this.self_.(interface {
+		getAllSymbols_impl() IterableT[*AbstractVar]
+	}).getAllSymbols_impl()
 }
 
 func (this *AbstractScope) getClosestHoistScope() *AbstractScope {
@@ -197,7 +205,9 @@ func (this *AbstractScope) typed() *TypedScope {
 }
 
 func (this *AbstractScope) hasOwnImplicitSlot(p0 *AbstractScope_ImplicitVar) bool {
-	return this.self_.(interface{ hasOwnImplicitSlot_impl(*AbstractScope_ImplicitVar) bool }).hasOwnImplicitSlot_impl(p0)
+	return this.self_.(interface {
+		hasOwnImplicitSlot_impl(*AbstractScope_ImplicitVar) bool
+	}).hasOwnImplicitSlot_impl(p0)
 }
 
 func (this *AbstractScope) getTopmostScopeOfEventualDeclaration(p0 string) StaticScope {
@@ -327,4 +337,3 @@ func AbstractScope_ImplicitVar_clinit() {
 	registerEnum_("com.google.javascript.jscomp.AbstractScope.ImplicitVar", enumValues_(AbstractScope_ImplicitVar_values_))
 
 }
-

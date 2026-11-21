@@ -4,9 +4,9 @@ package closure
 
 type UpdateExpressionTree struct {
 	ParseTree
-	operator *Token_parser
+	operator         *Token_parser
 	operatorPosition *UpdateExpressionTree_OperatorPosition
-	operand *ParseTree
+	operand          *ParseTree
 }
 
 func (this *UpdateExpressionTree) up_ParseTree() *ParseTree {
@@ -90,4 +90,3 @@ func UpdateExpressionTree_OperatorPosition_clinit() {
 	registerEnum_("com.google.javascript.jscomp.parsing.parser.trees.UpdateExpressionTree.OperatorPosition", enumValues_(UpdateExpressionTree_OperatorPosition_values_))
 
 }
-

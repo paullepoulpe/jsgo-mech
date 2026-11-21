@@ -12,9 +12,13 @@ type StaticScope interface {
 
 func StaticScope_getTopmostScopeOfEventualDeclaration_default(this StaticScope, name string) StaticScope {
 	var slot StaticSlot = this.getOwnSlot_String(name)
-	if (slot != nil) {
+	if slot != nil {
 		return slot.getScope()
 	}
-	return func() StaticScope { if (this.getParentScope() != nil) { return this.getParentScope().getTopmostScopeOfEventualDeclaration(name) }; return nil }()
+	return func() StaticScope {
+		if this.getParentScope() != nil {
+			return this.getParentScope().getTopmostScopeOfEventualDeclaration(name)
+		}
+		return nil
+	}()
 }
-

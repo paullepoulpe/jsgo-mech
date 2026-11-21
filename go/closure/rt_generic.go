@@ -12,9 +12,9 @@ import (
 	"unsafe"
 )
 
-// null_ is Java null as a value of type parameter T: the null string for a String, the zero value
+// jnull_ is Java null as a value of type parameter T: the null string for a String, the zero value
 // otherwise (nil for a class or an interface, the zero handle).
-func null_[T any]() T {
+func jnull_[T any]() T {
 	var z T
 	if p, ok := any(&z).(*string); ok {
 		*p = nullstr_
@@ -22,9 +22,9 @@ func null_[T any]() T {
 	return z
 }
 
-// isnull_ is `v == null` for a value of a type parameter: the null string, a nil pointer, interface
+// jisnull_ is `v == null` for a value of a type parameter: the null string, a nil pointer, interface
 // or slice, the zero handle.
-func isnull_[T any](v T) bool {
+func jisnull_[T any](v T) bool {
 	switch p := any(&v).(type) {
 	case *string:
 		return *p == nullstr_
@@ -84,31 +84,31 @@ func boxT_[T any](v T) any {
 	return x
 }
 
-// unboxT_ is an Object as a value of type parameter T, as the erased code's cast of it to T's Java
+// junboxT_ is an Object as a value of type parameter T, as the erased code's cast of it to T's Java
 // type: nil is Java null; a most derived object gives its view of the class T points to (to_X); a
 // value of another type is the ClassCastException of the cast.
-func unboxT_[T any](v any) T {
+func junboxT_[T any](v any) T {
 	if t, ok := v.(T); ok {
 		return t
 	}
 	if v == nil {
-		return null_[T]()
+		return jnull_[T]()
 	}
 	want := reflect.TypeFor[T]()
 	if want == reflect.TypeFor[Node]() {
 		return any(Node_of_(v)).(T)
 	}
 	if want.Kind() == reflect.Pointer {
-		if p := embeddedPtr_(reflect.ValueOf(v), want.Elem()); p.IsValid() {
+		if p := jembeddedPtr_(reflect.ValueOf(v), want.Elem()); p.IsValid() {
 			return p.Interface().(T)
 		}
 	}
 	return v.(T) // the ClassCastException of the erased cast
 }
 
-// embeddedPtr_ is the pointer to the struct of type want that the object v points to embeds (the
+// jembeddedPtr_ is the pointer to the struct of type want that the object v points to embeds (the
 // view of a superclass), or an invalid value.
-func embeddedPtr_(v reflect.Value, want reflect.Type) reflect.Value {
+func jembeddedPtr_(v reflect.Value, want reflect.Type) reflect.Value {
 	if v.Kind() != reflect.Pointer || v.IsNil() || v.Elem().Kind() != reflect.Struct {
 		return reflect.Value{}
 	}
@@ -121,7 +121,7 @@ func embeddedPtr_(v reflect.Value, want reflect.Type) reflect.Value {
 		if f.Type == want {
 			return s.Field(i).Addr()
 		}
-		if p := embeddedPtr_(s.Field(i).Addr(), want); p.IsValid() {
+		if p := jembeddedPtr_(s.Field(i).Addr(), want); p.IsValid() {
 			return p
 		}
 	}
@@ -146,8 +146,8 @@ func hashCodeT_[T any](v T) int32 {
 	return Object_hashCode(boxT_(v))
 }
 
-// equalsT_ is a.equals(b) for a value a of a type parameter.
-func equalsT_[T any](a T, b any) bool {
+// jequalsT_ is a.equals(b) for a value a of a type parameter.
+func jequalsT_[T any](a T, b any) bool {
 	if p, ok := any(&a).(*string); ok {
 		if *p == nullstr_ {
 			panic(new_NullPointerException_0().self())
