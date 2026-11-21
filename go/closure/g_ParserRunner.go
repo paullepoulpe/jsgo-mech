@@ -84,7 +84,7 @@ func ParserRunner_parse(sourceFile StaticSourceFile, sourceString string, config
 			var factory *IRFactory = IRFactory_transformTree(tree, sourceFile, config, errorReporter, file)
 			root = factory.getResultNode()
 			features = features.union(factory.getFeatures())
-			root.setFeatureSet(obj_(features))
+			root.setFeatureSet(features)
 			if config.jsDocParsingMode().shouldParseDescriptions() {
 				comments = p.getComments()
 				var builder *TListBuilder[*SourceRange] = newTListBuilderN_(jtc_p_SourceRange, tree.sourceElements.size())
