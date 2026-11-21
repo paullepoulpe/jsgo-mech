@@ -381,7 +381,7 @@ func Outcome_4_clinit() {
 
 // isTruthy: an object that is exactly a Outcome_1_rhino calls its isTruthy_impl directly (post-flip); others dispatch.
 func (this *Outcome_1_rhino) isTruthy() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Outcome_1_rhino); p == this {
 		return this.isTruthy_impl()
 	}
 	return this.selfI_.isTruthy_impl()
@@ -389,7 +389,7 @@ func (this *Outcome_1_rhino) isTruthy() bool {
 
 // isNullish: an object that is exactly a Outcome_1_rhino calls its isNullish_impl directly (post-flip); others dispatch.
 func (this *Outcome_1_rhino) isNullish() Tri {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Outcome_1_rhino); p == this {
 		return this.isNullish_impl()
 	}
 	return this.selfI_.isNullish_impl()
@@ -397,7 +397,7 @@ func (this *Outcome_1_rhino) isNullish() Tri {
 
 // not: an object that is exactly a Outcome_1_rhino calls its not_impl directly (post-flip); others dispatch.
 func (this *Outcome_1_rhino) not() *Outcome_rhino {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Outcome_1_rhino); p == this {
 		return this.not_impl()
 	}
 	return this.selfI_.not_impl()
@@ -405,7 +405,7 @@ func (this *Outcome_1_rhino) not() *Outcome_rhino {
 
 // isTruthy: an object that is exactly a Outcome_2_rhino calls its isTruthy_impl directly (post-flip); others dispatch.
 func (this *Outcome_2_rhino) isTruthy() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Outcome_2_rhino); p == this {
 		return this.isTruthy_impl()
 	}
 	return this.selfI_.isTruthy_impl()
@@ -413,7 +413,7 @@ func (this *Outcome_2_rhino) isTruthy() bool {
 
 // isNullish: an object that is exactly a Outcome_2_rhino calls its isNullish_impl directly (post-flip); others dispatch.
 func (this *Outcome_2_rhino) isNullish() Tri {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Outcome_2_rhino); p == this {
 		return this.isNullish_impl()
 	}
 	return this.selfI_.isNullish_impl()
@@ -421,7 +421,7 @@ func (this *Outcome_2_rhino) isNullish() Tri {
 
 // not: an object that is exactly a Outcome_2_rhino calls its not_impl directly (post-flip); others dispatch.
 func (this *Outcome_2_rhino) not() *Outcome_rhino {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Outcome_2_rhino); p == this {
 		return this.not_impl()
 	}
 	return this.selfI_.not_impl()
@@ -429,7 +429,7 @@ func (this *Outcome_2_rhino) not() *Outcome_rhino {
 
 // isTruthy: an object that is exactly a Outcome_3 calls its isTruthy_impl directly (post-flip); others dispatch.
 func (this *Outcome_3) isTruthy() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Outcome_3); p == this {
 		return this.isTruthy_impl()
 	}
 	return this.selfI_.isTruthy_impl()
@@ -437,7 +437,7 @@ func (this *Outcome_3) isTruthy() bool {
 
 // isNullish: an object that is exactly a Outcome_3 calls its isNullish_impl directly (post-flip); others dispatch.
 func (this *Outcome_3) isNullish() Tri {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Outcome_3); p == this {
 		return this.isNullish_impl()
 	}
 	return this.selfI_.isNullish_impl()
@@ -445,7 +445,7 @@ func (this *Outcome_3) isNullish() Tri {
 
 // not: an object that is exactly a Outcome_3 calls its not_impl directly (post-flip); others dispatch.
 func (this *Outcome_3) not() *Outcome_rhino {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Outcome_3); p == this {
 		return this.not_impl()
 	}
 	return this.selfI_.not_impl()
@@ -453,7 +453,7 @@ func (this *Outcome_3) not() *Outcome_rhino {
 
 // isTruthy: an object that is exactly a Outcome_4 calls its isTruthy_impl directly (post-flip); others dispatch.
 func (this *Outcome_4) isTruthy() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Outcome_4); p == this {
 		return this.isTruthy_impl()
 	}
 	return this.selfI_.isTruthy_impl()
@@ -461,7 +461,7 @@ func (this *Outcome_4) isTruthy() bool {
 
 // isNullish: an object that is exactly a Outcome_4 calls its isNullish_impl directly (post-flip); others dispatch.
 func (this *Outcome_4) isNullish() Tri {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Outcome_4); p == this {
 		return this.isNullish_impl()
 	}
 	return this.selfI_.isNullish_impl()
@@ -469,7 +469,7 @@ func (this *Outcome_4) isNullish() Tri {
 
 // not: an object that is exactly a Outcome_4 calls its not_impl directly (post-flip); others dispatch.
 func (this *Outcome_4) not() *Outcome_rhino {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Outcome_4); p == this {
 		return this.not_impl()
 	}
 	return this.selfI_.not_impl()

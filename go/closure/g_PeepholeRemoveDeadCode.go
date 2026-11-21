@@ -1247,7 +1247,7 @@ func (this *PeepholeRemoveDeadCode_MatchUnnamedBreak) apply(n Node) bool {
 
 // optimizeSubtree: an object that is exactly a PeepholeRemoveDeadCode calls its optimizeSubtree_impl directly (post-flip); others dispatch.
 func (this *PeepholeRemoveDeadCode) optimizeSubtree(p0 Node) Node {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*PeepholeRemoveDeadCode); p == this {
 		return this.optimizeSubtree_impl(p0)
 	}
 	return this.self_.optimizeSubtree_impl(p0)

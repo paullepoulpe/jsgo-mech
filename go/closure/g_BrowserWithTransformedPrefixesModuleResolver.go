@@ -196,7 +196,7 @@ func (this *BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement) toSt
 
 // resolveJsModule: an object that is exactly a BrowserWithTransformedPrefixesModuleResolver calls its resolveJsModule_impl directly (post-flip); others dispatch.
 func (this *BrowserWithTransformedPrefixesModuleResolver) resolveJsModule(p0 string, p1 string, p2 Optional[string], p3 int32, p4 int32) Optional[string] {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*BrowserWithTransformedPrefixesModuleResolver); p == this {
 		return this.resolveJsModule_impl(p0, p1, p2, p3, p4)
 	}
 	return this.self_.resolveJsModule_impl(p0, p1, p2, p3, p4)
@@ -204,7 +204,7 @@ func (this *BrowserWithTransformedPrefixesModuleResolver) resolveJsModule(p0 str
 
 // resolveJsModuleSilently: an object that is exactly a BrowserWithTransformedPrefixesModuleResolver calls its resolveJsModuleSilently_impl directly (post-flip); others dispatch.
 func (this *BrowserWithTransformedPrefixesModuleResolver) resolveJsModuleSilently(p0 string, p1 string) Optional[string] {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*BrowserWithTransformedPrefixesModuleResolver); p == this {
 		return this.resolveJsModuleSilently_impl(p0, p1)
 	}
 	return this.self_.resolveJsModuleSilently_impl(p0, p1)
@@ -212,7 +212,7 @@ func (this *BrowserWithTransformedPrefixesModuleResolver) resolveJsModuleSilentl
 
 // resolveModuleAsPath: an object that is exactly a BrowserWithTransformedPrefixesModuleResolver calls its resolveModuleAsPath_impl directly (post-flip); others dispatch.
 func (this *BrowserWithTransformedPrefixesModuleResolver) resolveModuleAsPath(p0 string, p1 string) string {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*BrowserWithTransformedPrefixesModuleResolver); p == this {
 		return this.resolveModuleAsPath_impl(p0, p1)
 	}
 	return this.self_.resolveModuleAsPath_impl(p0, p1)

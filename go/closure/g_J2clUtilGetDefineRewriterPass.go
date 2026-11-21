@@ -183,7 +183,7 @@ func J2clUtilGetDefineRewriterPass_CheckGetDefineCalls_isAddSystemPropertyFromGo
 
 // visit: an object that is exactly a J2clUtilGetDefineRewriterPass calls its visit_impl directly (post-flip); others dispatch.
 func (this *J2clUtilGetDefineRewriterPass) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*J2clUtilGetDefineRewriterPass); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
@@ -192,7 +192,7 @@ func (this *J2clUtilGetDefineRewriterPass) visit(p0 *NodeTraversal, p1 Node, p2 
 
 // visit: an object that is exactly a J2clUtilGetDefineRewriterPass_CheckGetDefineCalls calls its visit_impl directly (post-flip); others dispatch.
 func (this *J2clUtilGetDefineRewriterPass_CheckGetDefineCalls) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*J2clUtilGetDefineRewriterPass_CheckGetDefineCalls); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}

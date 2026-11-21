@@ -540,7 +540,7 @@ func (this *TypedScope) getOwnSlot_String_rStaticTypedSlot(p0 string) StaticType
 
 // typed: an object that is exactly a TypedScope calls its typed_impl directly (post-flip); others dispatch.
 func (this *TypedScope) typed() *TypedScope {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypedScope); p == this {
 		return this.typed_impl()
 	}
 	return this.self_.typed_impl()
@@ -548,7 +548,7 @@ func (this *TypedScope) typed() *TypedScope {
 
 // getDepth: an object that is exactly a TypedScope calls its getDepth_impl directly (post-flip); others dispatch.
 func (this *TypedScope) getDepth() int32 {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypedScope); p == this {
 		return this.getDepth_impl()
 	}
 	return this.self_.getDepth_impl()
@@ -556,7 +556,7 @@ func (this *TypedScope) getDepth() int32 {
 
 // hasOwnImplicitSlot: an object that is exactly a TypedScope calls its hasOwnImplicitSlot_impl directly (post-flip); others dispatch.
 func (this *TypedScope) hasOwnImplicitSlot(p0 AbstractScope_ImplicitVar) bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypedScope); p == this {
 		return this.hasOwnImplicitSlot_impl(p0)
 	}
 	return this.self_.hasOwnImplicitSlot_impl(p0)
@@ -564,7 +564,7 @@ func (this *TypedScope) hasOwnImplicitSlot(p0 AbstractScope_ImplicitVar) bool {
 
 // getTopmostScopeOfEventualDeclaration: an object that is exactly a TypedScope calls its getTopmostScopeOfEventualDeclaration_impl directly (post-flip); others dispatch.
 func (this *TypedScope) getTopmostScopeOfEventualDeclaration(p0 string) StaticScope {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypedScope); p == this {
 		return this.getTopmostScopeOfEventualDeclaration_impl(p0)
 	}
 	return this.self_.getTopmostScopeOfEventualDeclaration_impl(p0)
@@ -572,7 +572,7 @@ func (this *TypedScope) getTopmostScopeOfEventualDeclaration(p0 string) StaticSc
 
 // clearVarsInternal: an object that is exactly a TypedScope calls its clearVarsInternal_impl directly (post-flip); others dispatch.
 func (this *TypedScope) clearVarsInternal() {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypedScope); p == this {
 		this.clearVarsInternal_impl()
 		return
 	}
@@ -581,7 +581,7 @@ func (this *TypedScope) clearVarsInternal() {
 
 // hasOwnSlot: an object that is exactly a TypedScope calls its hasOwnSlot_impl directly (post-flip); others dispatch.
 func (this *TypedScope) hasOwnSlot(p0 string) bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypedScope); p == this {
 		return this.hasOwnSlot_impl(p0)
 	}
 	return this.self_.hasOwnSlot_impl(p0)
@@ -589,7 +589,7 @@ func (this *TypedScope) hasOwnSlot(p0 string) bool {
 
 // hasSlot: an object that is exactly a TypedScope calls its hasSlot_impl directly (post-flip); others dispatch.
 func (this *TypedScope) hasSlot(p0 string) bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypedScope); p == this {
 		return this.hasSlot_impl(p0)
 	}
 	return this.self_.hasSlot_impl(p0)
@@ -597,7 +597,7 @@ func (this *TypedScope) hasSlot(p0 string) bool {
 
 // canDeclare: an object that is exactly a TypedScope calls its canDeclare_impl directly (post-flip); others dispatch.
 func (this *TypedScope) canDeclare(p0 string) bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypedScope); p == this {
 		return this.canDeclare_impl(p0)
 	}
 	return this.self_.canDeclare_impl(p0)
@@ -605,7 +605,7 @@ func (this *TypedScope) canDeclare(p0 string) bool {
 
 // getVarIterable: an object that is exactly a TypedScope calls its getVarIterable_impl directly (post-flip); others dispatch.
 func (this *TypedScope) getVarIterable() Iterable {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypedScope); p == this {
 		return this.getVarIterable_impl()
 	}
 	return this.self_.getVarIterable_impl()
@@ -613,7 +613,7 @@ func (this *TypedScope) getVarIterable() Iterable {
 
 // getAllAccessibleVariables: an object that is exactly a TypedScope calls its getAllAccessibleVariables_impl directly (post-flip); others dispatch.
 func (this *TypedScope) getAllAccessibleVariables() Iterable {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypedScope); p == this {
 		return this.getAllAccessibleVariables_impl()
 	}
 	return this.self_.getAllAccessibleVariables_impl()
@@ -621,7 +621,7 @@ func (this *TypedScope) getAllAccessibleVariables() Iterable {
 
 // getAllSymbols: an object that is exactly a TypedScope calls its getAllSymbols_impl directly (post-flip); others dispatch.
 func (this *TypedScope) getAllSymbols() Iterable {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypedScope); p == this {
 		return this.getAllSymbols_impl()
 	}
 	return this.self_.getAllSymbols_impl()
@@ -629,7 +629,7 @@ func (this *TypedScope) getAllSymbols() Iterable {
 
 // getVarCount: an object that is exactly a TypedScope calls its getVarCount_impl directly (post-flip); others dispatch.
 func (this *TypedScope) getVarCount() int32 {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypedScope); p == this {
 		return this.getVarCount_impl()
 	}
 	return this.self_.getVarCount_impl()
@@ -637,7 +637,7 @@ func (this *TypedScope) getVarCount() int32 {
 
 // getParent: an object that is exactly a TypedScope calls its getParent_impl directly (post-flip); others dispatch.
 func (this *TypedScope) getParent() *AbstractScope {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypedScope); p == this {
 		return this.getParent_impl()
 	}
 	return this.self_.getParent_impl()
@@ -645,7 +645,7 @@ func (this *TypedScope) getParent() *AbstractScope {
 
 // makeImplicitVar_ImplicitVar: an object that is exactly a TypedScope calls its makeImplicitVar_ImplicitVar_impl directly (post-flip); others dispatch.
 func (this *TypedScope) makeImplicitVar_ImplicitVar(p0 AbstractScope_ImplicitVar) *AbstractVar {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypedScope); p == this {
 		return this.makeImplicitVar_ImplicitVar_impl(p0)
 	}
 	return this.self_.makeImplicitVar_ImplicitVar_impl(p0)
@@ -653,7 +653,7 @@ func (this *TypedScope) makeImplicitVar_ImplicitVar(p0 AbstractScope_ImplicitVar
 
 // getVar_String: an object that is exactly a TypedScope calls its getVar_String_impl directly (post-flip); others dispatch.
 func (this *TypedScope) getVar_String(p0 string) *AbstractVar {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypedScope); p == this {
 		return this.getVar_String_impl(p0)
 	}
 	return this.self_.getVar_String_impl(p0)
@@ -661,7 +661,7 @@ func (this *TypedScope) getVar_String(p0 string) *AbstractVar {
 
 // getGlobalScope: an object that is exactly a TypedScope calls its getGlobalScope_impl directly (post-flip); others dispatch.
 func (this *TypedScope) getGlobalScope() *AbstractScope {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypedScope); p == this {
 		return this.getGlobalScope_impl()
 	}
 	return this.self_.getGlobalScope_impl()
@@ -669,7 +669,7 @@ func (this *TypedScope) getGlobalScope() *AbstractScope {
 
 // getParentScope_rAbstractScope: an object that is exactly a TypedScope calls its getParentScope_rAbstractScope_impl directly (post-flip); others dispatch.
 func (this *TypedScope) getParentScope_rAbstractScope() *AbstractScope {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypedScope); p == this {
 		return this.getParentScope_rAbstractScope_impl()
 	}
 	return this.self_.getParentScope_rAbstractScope_impl()
@@ -677,7 +677,7 @@ func (this *TypedScope) getParentScope_rAbstractScope() *AbstractScope {
 
 // getOwnSlot_String_rAbstractVar: an object that is exactly a TypedScope calls its getOwnSlot_String_rAbstractVar_impl directly (post-flip); others dispatch.
 func (this *TypedScope) getOwnSlot_String_rAbstractVar(p0 string) *AbstractVar {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypedScope); p == this {
 		return this.getOwnSlot_String_rAbstractVar_impl(p0)
 	}
 	return this.self_.getOwnSlot_String_rAbstractVar_impl(p0)
@@ -685,7 +685,7 @@ func (this *TypedScope) getOwnSlot_String_rAbstractVar(p0 string) *AbstractVar {
 
 // getSlot_String_rAbstractVar: an object that is exactly a TypedScope calls its getSlot_String_rAbstractVar_impl directly (post-flip); others dispatch.
 func (this *TypedScope) getSlot_String_rAbstractVar(p0 string) *AbstractVar {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypedScope); p == this {
 		return this.getSlot_String_rAbstractVar_impl(p0)
 	}
 	return this.self_.getSlot_String_rAbstractVar_impl(p0)
@@ -693,7 +693,7 @@ func (this *TypedScope) getSlot_String_rAbstractVar(p0 string) *AbstractVar {
 
 // getArgumentsVar: an object that is exactly a TypedScope calls its getArgumentsVar_impl directly (post-flip); others dispatch.
 func (this *TypedScope) getArgumentsVar() *AbstractVar {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypedScope); p == this {
 		return this.getArgumentsVar_impl()
 	}
 	return this.self_.getArgumentsVar_impl()
@@ -701,7 +701,7 @@ func (this *TypedScope) getArgumentsVar() *AbstractVar {
 
 // getClosestHoistScope: an object that is exactly a TypedScope calls its getClosestHoistScope_impl directly (post-flip); others dispatch.
 func (this *TypedScope) getClosestHoistScope() *AbstractScope {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypedScope); p == this {
 		return this.getClosestHoistScope_impl()
 	}
 	return this.self_.getClosestHoistScope_impl()
@@ -709,7 +709,7 @@ func (this *TypedScope) getClosestHoistScope() *AbstractScope {
 
 // getClosestCfgRootScope: an object that is exactly a TypedScope calls its getClosestCfgRootScope_impl directly (post-flip); others dispatch.
 func (this *TypedScope) getClosestCfgRootScope() *AbstractScope {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypedScope); p == this {
 		return this.getClosestCfgRootScope_impl()
 	}
 	return this.self_.getClosestCfgRootScope_impl()
@@ -717,7 +717,7 @@ func (this *TypedScope) getClosestCfgRootScope() *AbstractScope {
 
 // getClosestContainerScope: an object that is exactly a TypedScope calls its getClosestContainerScope_impl directly (post-flip); others dispatch.
 func (this *TypedScope) getClosestContainerScope() *AbstractScope {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypedScope); p == this {
 		return this.getClosestContainerScope_impl()
 	}
 	return this.self_.getClosestContainerScope_impl()
@@ -725,7 +725,7 @@ func (this *TypedScope) getClosestContainerScope() *AbstractScope {
 
 // getScopeOfThis: an object that is exactly a TypedScope calls its getScopeOfThis_impl directly (post-flip); others dispatch.
 func (this *TypedScope) getScopeOfThis() *AbstractScope {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypedScope); p == this {
 		return this.getScopeOfThis_impl()
 	}
 	return this.self_.getScopeOfThis_impl()
