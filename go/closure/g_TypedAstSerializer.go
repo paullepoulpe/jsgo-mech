@@ -143,7 +143,9 @@ func (this *TypedAstSerializer) visit(n Node) *AstNode {
 func (this *TypedAstSerializer) getSourceFilePointer(n Node) int32 {
 	var sourceFile *SourceFile_jscomp = cast_[*SourceFile_jscomp](n.getStaticSourceFile())
 	if sourceFile == nil {
-		Preconditions_checkState_boolean_String_Object_Object(this.subtreeSourceFiles.peekLast().isExtern(), "Unexpected null SourceFile for node %s with parent %s", n.toStringTree(), n.getParent().box_())
+		if ok_, a1_, a2_ := this.subtreeSourceFiles.peekLast().isExtern(), n.toStringTree(), n.getParent(); !ok_ {
+			Preconditions_checkState_boolean_String_Object_Object(false, "Unexpected null SourceFile for node %s with parent %s", a1_, a2_.box_())
+		}
 		return 0
 	}
 	if equalsR_(sourceFile, obj_(this.subtreeSourceFiles.peekLast())) {

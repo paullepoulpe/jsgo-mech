@@ -222,7 +222,9 @@ func (this *Compiler) initOptions(options *CompilerOptions) {
 	switch options.getShouldValidateRequiredInlinings() {
 	case Tri_TRUE:
 		var sufficientOptimizations *InlineFunctions_ShouldRequireInlining = InlineFunctions_checkOptimizationLevelSupportsRequireInlining(options)
-		Preconditions_checkState_boolean_String_Object(sufficientOptimizations.shouldValidate(), "shouldValidateRequiredInlinings cannot be set unless CompilerOptions enables sufficient optimization, but found: %s", sufficientOptimizations.optMessage())
+		if ok_, a1_ := sufficientOptimizations.shouldValidate(), sufficientOptimizations.optMessage(); !ok_ {
+			Preconditions_checkState_boolean_String_Object(false, "shouldValidateRequiredInlinings cannot be set unless CompilerOptions enables sufficient optimization, but found: %s", a1_)
+		}
 	case Tri_FALSE:
 	case Tri_UNKNOWN:
 		options.setValidateRequiredInlinings(InlineFunctions_checkOptimizationLevelSupportsRequireInlining(options).shouldValidate())
@@ -358,7 +360,9 @@ func (this *Compiler) getTypedAstDeserializer_impl(file *SourceFile_jscomp) Supp
 		}
 		return func() Node { return Node_of_(f_()) }
 	}()
-	Preconditions_checkState_boolean_String_Object((((ast != nil) || String_startsWith(file.getName(), Compiler_SYNTHETIC_FILE_NAME_PREFIX)) || AbstractCompiler_isFillFileName(file.getName())), "TypedAST filesystem initialized, but missing requested file: %s", file)
+	if !(((ast != nil) || String_startsWith(file.getName(), Compiler_SYNTHETIC_FILE_NAME_PREFIX)) || AbstractCompiler_isFillFileName(file.getName())) {
+		Preconditions_checkState_boolean_String_Object(false, "TypedAST filesystem initialized, but missing requested file: %s", file)
+	}
 	return ast
 }
 
@@ -659,7 +663,9 @@ func (this *Compiler) stage1Passes() {
 }
 
 func (this *Compiler) stage2Passes(segmentOfCompilationToRun *CompilerOptions_SegmentOfCompilationToRun) {
-	Preconditions_checkState_boolean_String_Object((((segmentOfCompilationToRun == CompilerOptions_SegmentOfCompilationToRun_OPTIMIZATIONS) || (segmentOfCompilationToRun == CompilerOptions_SegmentOfCompilationToRun_OPTIMIZATIONS_FIRST_HALF)) || (segmentOfCompilationToRun == CompilerOptions_SegmentOfCompilationToRun_OPTIMIZATIONS_SECOND_HALF)), "Unsupported segment of compilation to run in stage 2: %s", segmentOfCompilationToRun)
+	if !(((segmentOfCompilationToRun == CompilerOptions_SegmentOfCompilationToRun_OPTIMIZATIONS) || (segmentOfCompilationToRun == CompilerOptions_SegmentOfCompilationToRun_OPTIMIZATIONS_FIRST_HALF)) || (segmentOfCompilationToRun == CompilerOptions_SegmentOfCompilationToRun_OPTIMIZATIONS_SECOND_HALF)) {
+		Preconditions_checkState_boolean_String_Object(false, "Unsupported segment of compilation to run in stage 2: %s", segmentOfCompilationToRun)
+	}
 	Preconditions_checkState_boolean_Object((this.chunkGraph != nil), "No inputs. Did you call init() or initChunks()?")
 	Preconditions_checkState(!this.hasErrors())
 	Preconditions_checkState(!this.options_.getInstrumentForCoverageOnly())
@@ -684,7 +690,9 @@ func (this *Compiler) stage2Passes(segmentOfCompilationToRun *CompilerOptions_Se
 
 func (this *Compiler) stage3Passes() {
 	Preconditions_checkState_boolean_Object((this.chunkGraph != nil), "No inputs. Did you call init() or initChunks()?")
-	Preconditions_checkState_boolean_String_Object(!this.hasErrors(), "Cannot run stage3Passes with errors present: %s", this.getErrors().asList())
+	if ok_, a1_ := !this.hasErrors(), this.getErrors().asList(); !ok_ {
+		Preconditions_checkState_boolean_String_Object(false, "Cannot run stage3Passes with errors present: %s", a1_)
+	}
 	Preconditions_checkState(!this.options_.getInstrumentForCoverageOnly())
 	this.runInCompilerThread(Callable[any](func() any {
 		if this.options_.shouldOptimize() {
@@ -1019,7 +1027,9 @@ func (this *Compiler) createOrReopenLog_impl(owner ClassOf[any], firstNamePart s
 }
 
 func (this *Compiler) createOrReopenIndexedLog_impl(owner ClassOf[any], firstNamePart string, restNameParts []string) *LogFile {
-	Preconditions_checkState_boolean_Object((this.currentPassIndex >= 0), int32(this.currentPassIndex))
+	if !(this.currentPassIndex >= 0) {
+		Preconditions_checkState_boolean_Object(false, int32(this.currentPassIndex))
+	}
 	var index string = Strings_padStart(Integer_toString(this.currentPassIndex), 3, '0')
 	var length int32 = int32(len(restNameParts))
 	if length == 0 {
@@ -1404,7 +1414,9 @@ func (this *Compiler) getTopScope_impl() *TypedScope {
 }
 
 func (this *Compiler) setTopScope_impl(x *TypedScope) {
-	Preconditions_checkState_boolean_Object(((x == nil) || (x.getParent_rTypedScope() == nil)), x)
+	if !((x == nil) || (x.getParent_rTypedScope() == nil)) {
+		Preconditions_checkState_boolean_Object(false, x)
+	}
 	this.topScope = x
 }
 
@@ -1581,7 +1593,9 @@ func (this *Compiler) parseInputs() Node {
 			return 1
 		}
 		if this.typedAstFilesystem != nil {
-			Preconditions_checkState_boolean_Object(((this.typedAstFilesystem.size() == 1) || this.typedAstFilesystem.isEmpty()), int32(this.typedAstFilesystem.size()))
+			if ok_, a1_ := ((this.typedAstFilesystem.size() == 1) || this.typedAstFilesystem.isEmpty()), int32(this.typedAstFilesystem.size()); !ok_ {
+				Preconditions_checkState_boolean_Object(false, a1_)
+			}
 		}
 		ret_1 = this.externAndJsRoot
 		return 1
@@ -2788,7 +2802,9 @@ func (this *Compiler) loadResourceContents(resourceName string, path string) Nod
 		Preconditions_checkNotNull_Object_Object(this.runtimeLibraryTypedAsts.asMap(), "Must call initRuntimeLibraryTypedAsts before calling ensureLibraryInjected during optimizations")
 		var typedAstSupplier Supplier[Node] = func() Supplier[Node] {
 			f_ := this.runtimeLibraryTypedAsts.get(path)
-			Preconditions_checkNotNull_Object_String_Object(f_.box_(), String_join_CharSequence_CharSequenceArr("", []any{"Missing precompiled .typedast for '%s'. If this file is newly added, ", "you may need to regenerate runtime_libs.typedast.textproto", ""}), path)
+			if v_, a1_, a2_ := f_.box_(), String_join_CharSequence_CharSequenceArr("", []any{"Missing precompiled .typedast for '%s'. If this file is newly added, ", "you may need to regenerate runtime_libs.typedast.textproto", ""}), path; v_ == nil {
+				Preconditions_checkNotNull_Object_String_Object(nil, a1_, a2_)
+			}
 			return f_
 		}()
 		return typedAstSupplier.get()
@@ -2965,7 +2981,9 @@ func (this *Compiler) getCompilerStateProtoBuilder() *JSCompilerStateProto_Build
 		for it_5.next() {
 			var dep *JSChunk = it_5.v
 			var depIdx any = chunkNameMap.get(dep.getName())
-			Preconditions_checkState_boolean_String_Object_Object((depIdx != nil), "Missing dependency %s for chunk %s", dep.getName(), chunk.getName())
+			if ok_, a1_, a2_ := (depIdx != nil), dep.getName(), chunk.getName(); !ok_ {
+				Preconditions_checkState_boolean_String_Object_Object(false, "Missing dependency %s for chunk %s", a1_, a2_)
+			}
 			chunkBuilder.addDependencies(unbox_[int32](depIdx))
 		}
 		it_7 := foreach_(obj_(chunk.getInputs()))
@@ -3215,7 +3233,9 @@ func (this *Compiler) deserializeCompilerState(state []int8) {
 			var inputId string = str_(it_13.v)
 			var src *SourceFile_jscomp = codeFiles.get(inputId)
 			if src == nil {
-				Preconditions_checkState_boolean_String_Object(AbstractCompiler_isFillFileName(inputId), "Missing %s", inputId)
+				if !AbstractCompiler_isFillFileName(inputId) {
+					Preconditions_checkState_boolean_String_Object(false, "Missing %s", inputId)
+				}
 				continue
 			}
 			var input *CompilerInput = new_CompilerInput_SourceFile(src)
@@ -3321,7 +3341,9 @@ func (this *Compiler) resetAndIntitializeSourceMap() {
 }
 
 func Compiler_checkNotModule(script Node, msg string, args []any) Node {
-	Preconditions_checkArgument_boolean_Object_H(script.isScript(), script)
+	if !script.isScript() {
+		Preconditions_checkArgument_boolean_Object_H(false, script)
+	}
 	if !script.hasOneChild() {
 		return script
 	}

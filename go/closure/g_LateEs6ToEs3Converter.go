@@ -55,7 +55,9 @@ func (this *LateEs6ToEs3Converter) visit(t *NodeTraversal, n Node, parent Node) 
 			var qName *QualifiedName = QualifiedName_of("$jscomp.createTemplateTagFirstArgWithRaw")
 			if qName.matches(lhs) {
 				Preconditions_checkNotNull_Object_Object_T(n.getParent(), n.box_())
-				Preconditions_checkState_boolean_Object_H(n.getParent().isExprResult(), n)
+				if !n.getParent().isExprResult() {
+					Preconditions_checkState_boolean_Object_H(false, n)
+				}
 				this.templateLitInsertionPoint = n.getParent().getNext()
 			}
 		}

@@ -97,7 +97,9 @@ func (this *ModuleLoader) resolvePaths(inputs IterableOf[DependencyInfo_]) *JTSe
 		return func(p0 any, p1 any) int32 { return f_(str_(p0), str_(p1)) }
 	}())
 	var dupeModulePaths *SimpleMultiset[string] = SimpleMultiset_copyOf[string](Iterable(sortedModulePaths.asList()))
-	Preconditions_checkState_boolean_String_Object((dupeModulePaths.size() == dupeModulePaths.elementSet().size()), "Duplicate module paths after resolving: %s", dupeModulePaths)
+	if !(dupeModulePaths.size() == dupeModulePaths.elementSet().size()) {
+		Preconditions_checkState_boolean_String_Object(false, "Duplicate module paths after resolving: %s", dupeModulePaths)
+	}
 	return jimmutableSetCopyOf_(jtc_string, Collection(dupeModulePaths.elementSet()))
 }
 

@@ -180,7 +180,9 @@ func (this *PureFunctionIdentifier) getGoogCacheCallableExpression(cacheCall *Co
 }
 
 func (this *PureFunctionIdentifier) getSummariesForCallee(invocation Node) *JTList[*PureFunctionIdentifier_AmbiguatedFunctionSummary] {
-	Preconditions_checkArgument_boolean_Object_H(NodeUtil_isInvocation(invocation), invocation)
+	if !NodeUtil_isInvocation(invocation) {
+		Preconditions_checkArgument_boolean_Object_H(false, invocation)
+	}
 	var cacheCall *CodingConvention_Cache = this.compiler_.getCodingConvention().describeCachingCall(invocation)
 	var callees *JTList[Node]
 	if cacheCall != nil {
@@ -199,9 +201,13 @@ func (this *PureFunctionIdentifier) getSummariesForCallee(invocation Node) *JTLi
 	for it_1.next() {
 		var callee Node = it_1.v
 		if callee.isFunction() {
-			Preconditions_checkState_boolean_Object_H(callee.isFunction(), callee)
+			if !callee.isFunction() {
+				Preconditions_checkState_boolean_Object_H(false, callee)
+			}
 			var summariesForFunction CollectionOf[*PureFunctionIdentifier_AmbiguatedFunctionSummary] = Collection(this.summariesForAllNamesOfFunctionByNode.get(callee))
-			Preconditions_checkState_boolean_String_Object_H(!summariesForFunction.isEmpty(), "Function missed during analysis: %s", callee)
+			if summariesForFunction.isEmpty() {
+				Preconditions_checkState_boolean_String_Object_H(false, "Function missed during analysis: %s", callee)
+			}
 			results.addAll(Iterable(summariesForFunction))
 		} else {
 			var calleeName Optional[string] = PureFunctionIdentifier_nameForReference(callee)
@@ -366,7 +372,9 @@ func PureFunctionIdentifier_getParamIndex(param *Var) int32 {
 		}
 		return param.getNameNode()
 	}()
-	Preconditions_checkState_boolean_Object_H(node.getParent().isParamList(), node)
+	if !node.getParent().isParamList() {
+		Preconditions_checkState_boolean_Object_H(false, node)
+	}
 	return node.getParent().getIndexOfChild(node)
 }
 
@@ -638,7 +646,9 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) enterScope(t *NodeTrave
 		return
 	}
 	var function Node = t.getScopeRoot()
-	Preconditions_checkState_boolean_Object_H(function.isFunction(), function)
+	if !function.isFunction() {
+		Preconditions_checkState_boolean_Object_H(false, function)
+	}
 	var jsdoc *JSDocInfo = NodeUtil_getBestJSDocInfo(function)
 	var isArtificiallyPure bool = ((jsdoc != nil) && jsdoc.isNoSideEffects())
 	this.functionScopeStack.add(new_PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry(function, isArtificiallyPure))
@@ -654,7 +664,9 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) exitScope(t *NodeTraver
 		return
 	}
 	var functionEntry *PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry = cast_[*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry](SequencedCollection_getLast(SequencedCollection(this.functionScopeStack.asDeque())))
-	Preconditions_checkState_boolean_Object_H(equalsRRH_(functionScope.getRootNode(), functionEntry.root), functionScope.getRootNode())
+	if ok_, a1_ := equalsRRH_(functionScope.getRootNode(), functionEntry.root), functionScope.getRootNode(); !ok_ {
+		Preconditions_checkState_boolean_Object_H(false, a1_)
+	}
 	if equalsRRH_(t.getScopeRoot(), functionEntry.root) {
 		SequencedCollection_removeLast(SequencedCollection(this.functionScopeStack.asDeque()))
 	}
@@ -709,7 +721,9 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) visitLhsNode(encloserSu
 			}
 		}
 	} else {
-		Preconditions_checkState_boolean_Object_H(lhs.isName(), lhs)
+		if !lhs.isName() {
+			Preconditions_checkState_boolean_Object_H(false, lhs)
+		}
 		var var_ *Var = scope.getVar_String_rVar(lhs.getString())
 		if PureFunctionIdentifier_FunctionBodyAnalyzer_isVarDeclaredInSameContainerScope(var_, scope) {
 			if !hasLocalRhs.test(lhs) {
@@ -800,7 +814,9 @@ type PureFunctionIdentifier_SideEffectPropagation struct {
 }
 
 func (this *PureFunctionIdentifier_SideEffectPropagation) init_PureFunctionIdentifier_SideEffectPropagation(callerIsAlias bool, calleeThisEqualsCallerThis bool, propagateThrows bool, invocation Node, callScope *Scope, callerEntry *PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry, argumentsMatchParameters bool) {
-	Preconditions_checkArgument_boolean_Object_H(((invocation == 0) || NodeUtil_isInvocation(invocation)), invocation)
+	if !((invocation == 0) || NodeUtil_isInvocation(invocation)) {
+		Preconditions_checkArgument_boolean_Object_H(false, invocation)
+	}
 	this.callerIsAlias = callerIsAlias
 	this.calleeThisEqualsCallerThis = calleeThisEqualsCallerThis
 	this.propagateThrows = propagateThrows
@@ -821,7 +837,9 @@ func PureFunctionIdentifier_SideEffectPropagation_forAlias() *PureFunctionIdenti
 }
 
 func PureFunctionIdentifier_SideEffectPropagation_forInvocation(invocation Node, callScope *Scope, callerEntry *PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry, argumentsMatchParameters bool, propagateThrows bool) *PureFunctionIdentifier_SideEffectPropagation {
-	Preconditions_checkArgument_boolean_Object_H(NodeUtil_isInvocation(invocation), invocation)
+	if !NodeUtil_isInvocation(invocation) {
+		Preconditions_checkArgument_boolean_Object_H(false, invocation)
+	}
 	return new_PureFunctionIdentifier_SideEffectPropagation(false, (PureFunctionIdentifier_SideEffectPropagation_calleeAndCallerShareThis(invocation) && !callerEntry.root.isArrowFunction()), propagateThrows, invocation, callScope, callerEntry, argumentsMatchParameters)
 }
 
@@ -1006,7 +1024,9 @@ func (this *PureFunctionIdentifier_AmbiguatedFunctionSummary) setMutatesArgument
 }
 
 func (this *PureFunctionIdentifier_AmbiguatedFunctionSummary) setMutatesArgumentAt(paramIndex int32, debuggingReason Node) *PureFunctionIdentifier_AmbiguatedFunctionSummary {
-	Preconditions_checkArgument_boolean_Object((paramIndex >= 0), int32(paramIndex))
+	if !(paramIndex >= 0) {
+		Preconditions_checkArgument_boolean_Object(false, int32(paramIndex))
+	}
 	this.maybeCollectImpureDebuggingReason(debuggingReason)
 	var paramBit int64 = func() int64 {
 		if paramIndex < int32(64) {
