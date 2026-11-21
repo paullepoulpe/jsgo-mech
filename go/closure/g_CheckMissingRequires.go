@@ -65,7 +65,7 @@ func (this *CheckMissingRequires) isInGlobalControlFlowScope(n Node) bool {
 			}
 			return CheckMissingRequires_isIIFE(n)
 		default:
-			panic(new_AssertionError_Object(strobj_(("Unexpected control flow root: " + tostrH_(n)))).self())
+			panic(new_AssertionError_Object(strobj_(("Unexpected control flow root: " + tostrH_(n)))))
 		}
 	}()
 }
@@ -154,7 +154,7 @@ func CheckMissingRequires_isGoogScopeBody(hoistScopeRoot Node) bool {
 
 func (this *CheckMissingRequires) visitMaybeGoogModuleGet(t *NodeTraversal, googModuleGet Node, currentFile *ModuleMetadataMap_ModuleMetadata) {
 	if !googModuleGet.isCall() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !NodeUtil_isGoogModuleGetCall(googModuleGet) {
 		return
@@ -177,7 +177,7 @@ func (this *CheckMissingRequires) visitMaybeDeclaration(t *NodeTraversal, n Node
 		return
 	}
 	if !n.isName() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var rootName string = n.getString()
 	var var_ *Var = t.getScope().getVar_String_rVar(rootName)

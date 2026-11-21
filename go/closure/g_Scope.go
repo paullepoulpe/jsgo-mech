@@ -74,10 +74,10 @@ func (this *Scope) getParent_rScope() *Scope {
 
 func (this *Scope) declare(name string, nameNode Node, input *CompilerInput) *Var {
 	if name == "" {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	if this.getOwnSlot_String_rAbstractVar_rVar(name) != nil {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var var_ *Var = new_Var(name, nameNode, this, this.getVarCount(), input, 0)
 	this.declareInternal(name, var_)
@@ -86,10 +86,10 @@ func (this *Scope) declare(name string, nameNode Node, input *CompilerInput) *Va
 
 func (this *Scope) declareImplicitGoogNamespaceIfAbsent(name string, definition Node) *Var {
 	if name == "" {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	if !this.isGlobal() {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Cannot declare implicit goog namespace in local scope %s", []any{this})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Cannot declare implicit goog namespace in local scope %s", []any{this})))
 	}
 	var var_ *Var = this.getOwnSlot_String_rAbstractVar_rVar(name)
 	if var_ == nil {
@@ -107,7 +107,7 @@ func (this *Scope) makeImplicitVar_ImplicitVar_rVar(var_ AbstractScope_ImplicitV
 
 func (this *Scope) contains(other *Scope) bool {
 	if other == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	var s *Scope = other
 	for s != nil {
@@ -133,10 +133,10 @@ func (this *Scope) getParentScope_rAbstractScope_rScope() *Scope {
 
 func (this *Scope) undeclare(var_ *Var) {
 	if var_.getScope_rAbstractScope_rScope() != this {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !cast_[*Var](Map_get_s(this.vars, var_.getName())).equals_ScopedName(var_.up_ScopedName()) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.undeclareInteral(var_)
 }
@@ -147,7 +147,7 @@ func (this *Scope) undeclareInteral(var_ *Var) {
 
 func (this *Scope) declareInternal(name string, var_ *Var) {
 	if ok_, a1_ := (this.hasOwnSlot(name) || this.canDeclare(name)), var_.getNode(); !ok_ {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Illegal shadow: %s", []any{a1_.box_()})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Illegal shadow: %s", []any{a1_.box_()})))
 	}
 	var emptySentinel *JTMap[string, *Var] = jtmapEmptyImm_(jtc_string, jtc_p_Var)
 	if this.vars == emptySentinel.asMap() {
@@ -286,7 +286,7 @@ func (this *Scope) getClosestContainerScope_rScope() *Scope {
 	if scope.isFunctionBlockScope() {
 		scope = scope.getParent_rScope()
 		if scope.isBlockScope() {
-			panic(new_IllegalStateException_String(objstr_(scope)).self())
+			panic(new_IllegalStateException_String(objstr_(scope)))
 		}
 	}
 	return scope
@@ -294,13 +294,13 @@ func (this *Scope) getClosestContainerScope_rScope() *Scope {
 
 func (this *Scope) checkChildScope(parent *Scope) {
 	if parent == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if !NodeUtil_createsScope(this.rootNode_) {
-		panic(new_IllegalArgumentException_String(tostr_(this.rootNode_)).self())
+		panic(new_IllegalArgumentException_String(tostr_(this.rootNode_)))
 	}
 	if this.rootNode_ == parent.getRootNode() {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("rootNode should not be the parent's root node: %s", []any{this.rootNode_.box_()})).self())
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("rootNode should not be the parent's root node: %s", []any{this.rootNode_.box_()})))
 	}
 }
 
@@ -318,7 +318,7 @@ func (this *Scope) getCommonParent(other *Scope) *Scope {
 		}
 	}
 	if left == nil || left != right {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return left
 }

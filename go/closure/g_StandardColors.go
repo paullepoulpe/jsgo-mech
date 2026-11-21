@@ -6,7 +6,7 @@ type StandardColors struct {
 }
 
 func (this *StandardColors) init_StandardColors() {
-	panic(new_AssertionError_0().self())
+	panic(new_AssertionError_0())
 }
 
 func new_StandardColors() *StandardColors {

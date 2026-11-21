@@ -69,10 +69,10 @@ func (this *UnionType) countResolvedAlternates() int32 {
 
 func (this *UnionType) fillFromBuilder(builder *UnionType_Builder) {
 	if this.alternatesResolvedBeforeBuild {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if builder.finalAlternates.isEmpty() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.alternates = builder.finalAlternates
 	this.alternatesResolvedBeforeBuild = builder.alternatesResolvedBeforeBuild
@@ -544,7 +544,7 @@ func (this *UnionType_Builder) addAlternate(alternate *JSType) *UnionType_Builde
 				}
 			} else {
 				if !current.isTemplatizedType() || !alternate.isTemplatizedType() {
-					panic(new_IllegalStateException_0().self())
+					panic(new_IllegalStateException_0())
 				}
 				var templatizedAlternate *TemplatizedType = alternate.toMaybeTemplatizedType()
 				var templatizedCurrent *TemplatizedType = current.toMaybeTemplatizedType()
@@ -577,7 +577,7 @@ func (this *UnionType_Builder) addAlternate(alternate *JSType) *UnionType_Builde
 	}
 	if alternate.isFunctionType() {
 		if this.functionTypePosition != -1 {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		this.functionTypePosition = this.alternates.size()
 	}
@@ -622,7 +622,7 @@ func (this *UnionType_Builder) buildInternal() *UnionType_Builder {
 		this.finalAlternates = immutableListCopyOfT_(jtc_p_JSType, this.alternates)
 	}
 	if this.finalAlternates.asList() == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	return this
 }
@@ -642,7 +642,7 @@ func (this *UnionType_Builder) getNativeWildcardType() *JSType {
 
 func (this *UnionType_Builder) checkHasNotBuilt() {
 	if this.finalAlternates != nil {
-		panic(new_IllegalStateException_String(objstr_("Cannot reuse a `UnionType.Builder` that has already built.")).self())
+		panic(new_IllegalStateException_String(objstr_("Cannot reuse a `UnionType.Builder` that has already built.")))
 	}
 }
 

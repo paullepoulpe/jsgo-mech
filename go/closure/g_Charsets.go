@@ -32,7 +32,7 @@ func Charsets_isSupported(name string) bool {
 func Charsets_name(name string) string {
 	var canonical Optional[string] = Charsets_canonicalName(name)
 	if canonical.isEmpty() {
-		panic(new_IllegalArgumentException_String(("Unsupported charset: " + sstr_(name))).self())
+		panic(new_IllegalArgumentException_String(("Unsupported charset: " + sstr_(name))))
 	}
 	return canonical.get()
 }

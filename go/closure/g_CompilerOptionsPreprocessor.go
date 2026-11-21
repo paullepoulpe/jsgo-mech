@@ -17,7 +17,7 @@ func new_CompilerOptionsPreprocessor() *CompilerOptionsPreprocessor {
 
 func CompilerOptionsPreprocessor_preprocess(options *CompilerOptions) {
 	if (options.getInlineFunctionsLevel() == CompilerOptions_Reach_NONE) && (options.getMaxFunctionSizeAfterInlining() != CompilerOptions_UNLIMITED_FUN_SIZE_AFTER_INLINING) {
-		panic(obj_(new_CompilerOptionsPreprocessor_InvalidOptionsException("max_function_size_after_inlining has no effect if inlining is disabled.")))
+		panic(new_CompilerOptionsPreprocessor_InvalidOptionsException("max_function_size_after_inlining has no effect if inlining is disabled."))
 	}
 }
 

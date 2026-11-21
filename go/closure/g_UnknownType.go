@@ -124,7 +124,7 @@ func (this *UnknownType) getPossibleToBooleanOutcomes_impl() BooleanLiteralSet {
 }
 
 func (this *UnknownType) resolveInternal_impl(reporter ErrorReporter_rhino) *JSType {
-	panic(new_AssertionError_0().self())
+	panic(new_AssertionError_0())
 }
 
 func (this *UnknownType) recursionUnsafeHashCode_impl() int32 {

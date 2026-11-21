@@ -38,7 +38,7 @@ func (this *ReferenceCollection) isWellDefined() bool {
 		return false
 	}
 	if !this.references.get(0).isDeclaration() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var initBlock *BasicBlock = init_.getBasicBlock()
 	for i := int32(1); i < size; i++ {
@@ -112,7 +112,7 @@ func (this *ReferenceCollection) isInitializingAssignmentAt(index int32) bool {
 		var maybeDecl *Reference = this.references.get((index - 1))
 		if maybeDecl.isVarDeclaration() || maybeDecl.isLetDeclaration() {
 			if maybeDecl.isInitializingDeclaration() {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 			var maybeInit *Reference = this.references.get(index)
 			if maybeInit.isSimpleAssignmentToName() {
