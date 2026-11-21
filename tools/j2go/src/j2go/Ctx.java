@@ -504,7 +504,6 @@ final class Ctx {
    * constructors with an expected size, which are the runtime's typed constructors.
    */
   static final Map<String, String[]> TYPED_MAKERS = Map.of(
-      "com.google.common.collect.Sets.newIdentityHashSet", new String[] {"newTSet_", "set", null},
       "com.google.common.base.Splitter.splitToList", new String[] {"splitToListT_", "list", "java.lang.String"},
       "com.google.common.collect.Maps.newLinkedHashMapWithExpectedSize", new String[] {"newTMapN_", "map", null},
       "com.google.common.collect.Maps.newHashMapWithExpectedSize", new String[] {"newTMapN_", "map", null},
@@ -518,23 +517,8 @@ final class Ctx {
     if (!(m instanceof ExecutableElement me) || "1".equals(System.getenv("J2GO_COLLS_NOMAKERS"))) return null;
     String[] tm = TYPED_MAKERS.get(((TypeElement) me.getEnclosingElement()).getQualifiedName() + "." + me.getSimpleName());
     if (tm == null || !k.name.equals(tm[1])) return null;
-    if (identityMaker(m)) {
-      // Sets.newIdentityHashSet() (piece `idset`; J2GO_NOLIBGEN=idset is the translation without
-      // it): the typed set that compares with Go's ==, which is identity for a class or an
-      // interface of the program (the object's one pointer, a handle's number); not for a String,
-      // a box or a value of a type parameter
-      if (!LibGen.on("idset") || !LibGen.on("makers") || args.size() != 1 || args.get(0).getKind() != TypeKind.DECLARED) return null;
-      K ek = kind(args.get(0));
-      return (ek == K.CLS || ek == K.IFACE) && isSource(typeElement(erase(args.get(0)))) && ((DeclaredType) erase(args.get(0))).getTypeArguments().isEmpty() ? tm : null;
-    }
     if (tm[2] == null) return LibGen.on("makers") ? tm : null;
     return args.size() == 1 && types.isSameType(args.get(0), elems.getTypeElement(tm[2]).asType()) ? tm : null;
-  }
-
-  /** Whether m is Guava's Sets.newIdentityHashSet. */
-  static boolean identityMaker(Element m) {
-    return m instanceof ExecutableElement me && me.getSimpleName().contentEquals("newIdentityHashSet")
-        && ((TypeElement) me.getEnclosingElement()).getQualifiedName().contentEquals("com.google.common.collect.Sets");
   }
 
   /** The kind of typed collection that type t (TList<X>, TSet<X>) is, or null. */

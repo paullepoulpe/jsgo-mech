@@ -395,10 +395,6 @@ type Map_EntryT[K any, V any] interface { Map_Entry; getKey_t() K; getValue_t() 
   erased ones (a String key goes through the helpers `Map_get_s`...). `J2GO_LIBGEN=1` counts
   the erased methods still called on a typed receiver, and those of them that box an argument
   or give an element as `Object`.
-- Piece `idset`: `Sets.newIdentityHashSet()` made for a set of a class or an interface of the
-  program is the typed set that compares with Go's `==`, which is identity there (the object's
-  one pointer; a handle's number), whatever `equals` the class has (`newTSet_(tc_p_JSType)`,
-  not `tce_`).
 
 Refused (`typed library interfaces: refused: File.java:line: ...`, nothing is written):
 
@@ -423,7 +419,7 @@ Refused (`typed library interfaces: refused: File.java:line: ...`, nothing is wr
 `tools/j2go/selftest/refused/RefusedLib.java` has one use of each kind (7); the self-test
 fails unless the translator refuses exactly those and writes nothing.
 
-Each kind and piece is a switch: `J2GO_NOLIBGEN=iter,coll,list,set,map,makers,views,place,cov,elems,wide,nncoll,readers,cls,meth,idset`
+Each kind and piece is a switch: `J2GO_NOLIBGEN=iter,coll,list,set,map,makers,views,place,cov,elems,wide,nncoll,readers,cls,meth`
 (`all`: every one). A translation with any of them off is built with `-tags j2go_nolibgen`
 (`tools/prune/verify.sh` and the self-test do that when `J2GO_NOLIBGEN` is set): the erased
 factories that only such a translation names are in `go/closure/rt_lg_erased.go`, outside the

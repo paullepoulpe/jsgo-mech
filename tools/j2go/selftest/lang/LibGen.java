@@ -1265,7 +1265,7 @@ public class LibGen {
     return c.add(x);
   }
 
-  /** Pieces `meth` and `idset`: the methods that take an element, on views, wrappers and immutables. */
+  /** Piece `meth`: the methods that take an element, on views, wrappers and immutables; an identity set. */
   static String methods() {
     String r = "";
     List<String> view = new ArrayList<>();

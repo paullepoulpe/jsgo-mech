@@ -356,8 +356,6 @@ abstract class ExprEmitter extends Base {
     String[] maker = cx.typedMaker(m, ck, new ArrayList<>(((DeclaredType) target).getTypeArguments()));
     if (maker != null && m.getModifiers().contains(Modifier.STATIC)) {
       // a library function that makes a collection for its caller: the runtime's typed constructor
-      // (an identity set: with the conversion that compares with ==, whatever equals the class has)
-      if (Ctx.identityMaker(m)) tc = cx.tconv(((DeclaredType) target).getTypeArguments().get(0), false);
       StringBuilder sb = new StringBuilder(maker[0] + "(" + tc);
       for (int i = 0; i < as.size(); i++) sb.append(", ").append(exprAs(as.get(i), cx.lg.rt(m.getParameters().get(i).asType())));
       return sb.append(")").toString();

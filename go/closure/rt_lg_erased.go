@@ -22,12 +22,6 @@ func new_ArrayList_int(n int32) *ArrayList {
 	return this
 }
 
-func identitySet_() *LinkedHashSet {
-	this := new_LinkedHashSet()
-	this.identity = true
-	return this
-}
-
 // The unmodifiable views are the collections themselves: nothing checks that
 // they are not written through.
 func Collections_unmodifiableCollection(c Collection) Collection { return c }
@@ -69,8 +63,6 @@ func ImmutableSet_of_Object_Object_Object_Object_Object_Object_ObjectArr(p0 any,
 func ImmutableList_of_Object_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any) *ImmutableList {
 	return immList_([]any{p0, p1, p2, p3, p4, p5})
 }
-
-func Sets_newIdentityHashSet() Set { return identitySet_() }
 
 func Sets_newLinkedHashSetWithExpectedSize(p0 int32) *LinkedHashSet { return new_LinkedHashSet() }
 

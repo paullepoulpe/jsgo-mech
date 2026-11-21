@@ -365,6 +365,8 @@ func Sets_immutableEnumSet(p0 *Enum, p1 []*Enum) *ImmutableSet {
 	return set
 }
 
+func Sets_newIdentityHashSet() Set { return identitySet_() }
+
 // ---- Ordering (translated classes extend it and override compare)
 
 type Ordering struct {

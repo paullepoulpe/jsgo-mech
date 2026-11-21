@@ -1376,6 +1376,12 @@ func (this *LinkedHashSet) toString() string  { return collToString_(this) }
 
 type HashSet struct{ LinkedHashSet }
 
+func identitySet_() *LinkedHashSet {
+	this := new_LinkedHashSet()
+	this.identity = true
+	return this
+}
+
 // ---- ordering
 
 func compareNatural_(a, b any) int32 {
