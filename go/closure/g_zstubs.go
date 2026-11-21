@@ -2821,11 +2821,3 @@ type ThreadFactory_fn struct {
 func (this *ThreadFactory_fn) newThread(p0 Runnable) *Thread {
 	return this.f(p0)
 }
-
-type IntUnaryOperator_fn struct {
-	f func(int32) int32
-}
-
-func (this *IntUnaryOperator_fn) applyAsInt(p0 int32) int32 {
-	return this.f(p0)
-}
