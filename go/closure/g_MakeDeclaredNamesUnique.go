@@ -118,7 +118,7 @@ func (this *MakeDeclaredNamesUnique) getReplacementName(oldName string) Optional
 
 func (this *MakeDeclaredNamesUnique) findDeclaredNames(t *NodeTraversal, n Node) {
 	if !NodeUtil_createsScope(n) && !n.isScript() {
-		panic(new_IllegalStateException_String(objstr_(n.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(n)).self())
 	}
 	for v := range elemsAs_[*Var](t.getScope().getVarIterable()) {
 		this.renamerStack.peek().addDeclaredName(v.getName(), false)
@@ -619,11 +619,11 @@ func new_MakeDeclaredNamesUnique_ContextualRenamer_0() *MakeDeclaredNamesUnique_
 func (this *MakeDeclaredNamesUnique_ContextualRenamer) init_MakeDeclaredNamesUnique_ContextualRenamer_Node_SimpleMultiset_boolean_Renamer(scopeRoot Node, nameUsage *SimpleMultiset[string], hoistingTargetScope bool, parent MakeDeclaredNamesUnique_Renamer) {
 	this.finit_MakeDeclaredNamesUnique_ContextualRenamer()
 	if !NodeUtil_createsScope(scopeRoot) {
-		panic(new_IllegalStateException_String(objstr_(scopeRoot.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(scopeRoot)).self())
 	}
 	if scopeRoot.isFunction() {
 		if hoistingTargetScope {
-			panic(new_IllegalStateException_String(objstr_(scopeRoot.box_())).self())
+			panic(new_IllegalStateException_String(tostr_(scopeRoot)).self())
 		}
 	}
 	this.scopeRoot = scopeRoot
@@ -631,12 +631,12 @@ func (this *MakeDeclaredNamesUnique_ContextualRenamer) init_MakeDeclaredNamesUni
 	this.nameUsage = nameUsage
 	if hoistingTargetScope {
 		if NodeUtil_createsBlockScope(scopeRoot) {
-			panic(new_IllegalStateException_String(objstr_(scopeRoot.box_())).self())
+			panic(new_IllegalStateException_String(tostr_(scopeRoot)).self())
 		}
 		this.hoistRenamer = icast_MakeDeclaredNamesUnique_Renamer(this.self())
 	} else {
 		if !NodeUtil_createsBlockScope(scopeRoot) && !scopeRoot.isFunction() {
-			panic(new_IllegalStateException_String(objstr_(scopeRoot.box_())).self())
+			panic(new_IllegalStateException_String(tostr_(scopeRoot)).self())
 		}
 		this.hoistRenamer = parent.getHoistRenamer()
 	}

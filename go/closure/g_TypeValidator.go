@@ -258,7 +258,7 @@ func (this *TypeValidator) expectSwitchMatchesCase(n Node, switchType *JSType, c
 
 func (this *TypeValidator) expectIndexMatch(n Node, objType *JSType, indexType *JSType) {
 	if !(((n.isGetElem() || n.isOptChainGetElem()) || n.isComputedProp()) || n.isComputedFieldDef()) {
-		panic(new_IllegalStateException_String(objstr_(n.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(n)).self())
 	}
 	var indexNode Node = func() Node {
 		if n.isGetElem() {

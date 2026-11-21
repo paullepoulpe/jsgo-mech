@@ -38,7 +38,7 @@ func new_Es6RewriteBlockScopedDeclaration(compiler *AbstractCompiler) *Es6Rewrit
 
 func (this *Es6RewriteBlockScopedDeclaration) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	if parent != 0 && parent.isForOf() {
-		panic(new_IllegalStateException_String(objstr_(parent.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(parent)).self())
 	}
 	if n.isLet() || n.isConst() {
 		this.letConsts.add(n)
@@ -448,7 +448,7 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) changeLoopL
 		var newPropertyName string = this.getLoopObjPropName(var_)
 		for reference := range elemsBy_(this.referenceMap.get(var_), Node_of_) {
 			if loopNode.isForOf() {
-				panic(new_IllegalStateException_String(objstr_(loopNode.box_())).self())
+				panic(new_IllegalStateException_String(tostr_(loopNode)).self())
 			}
 			if loopNode.isForIn() && (loopNode.getFirstChild() == reference.getParent()) {
 				this.assignLoopVarToLoopObjectProperty(loopNode, loopObject, var_, newPropertyName, reference)
@@ -491,14 +491,14 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) replaceRefe
 
 func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) assignLoopVarToLoopObjectProperty(loopNode Node, loopObject *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject, var_ *Var, newPropertyName string, reference Node) {
 	if reference != var_.getNameNode() {
-		panic(new_IllegalStateException_String(objstr_(reference.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(reference)).self())
 	}
 	var referenceParent Node = reference.getParent()
 	if !NodeUtil_isNameDeclaration(referenceParent) {
-		panic(new_IllegalStateException_String(objstr_(referenceParent.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(referenceParent)).self())
 	}
 	if !reference.isName() {
-		panic(new_IllegalStateException_String(objstr_(reference.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(reference)).self())
 	}
 	var loopVarReference Node = reference.cloneNode()
 	var forInPropAssignmentStatemnt Node = IR_exprResult(this.outer_.astFactory_.createAssign(this.createLoopVarReferenceReplacement(loopObject, reference, newPropertyName), loopVarReference)).srcrefTreeIfMissing(reference)

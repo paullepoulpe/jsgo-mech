@@ -240,7 +240,7 @@ func (this *TypeInference) updateModuleScope(module *Module, syntacticBlockScope
 			rootNode.setJSType(exportsType)
 		} else {
 			if !rootNode.isBlock() {
-				panic(new_IllegalStateException_String(objstr_(rootNode.box_())).self())
+				panic(new_IllegalStateException_String(tostr_(rootNode)).self())
 			}
 			var paramList Node = NodeUtil_getFunctionParameters(rootNode.getParent())
 			paramList.getOnlyChild().setJSType(exportsType)
@@ -500,7 +500,7 @@ func (this *TypeInference) traverseAssignUnsignedRightShift(n Node, scope FlowSc
 
 func (this *TypeInference) traverseCall(callNode Node, originalScope FlowScope) FlowScope {
 	if !callNode.isCall() && !callNode.isOptChainCall() {
-		panic(new_IllegalArgumentException_String(objstr_(callNode.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(callNode)).self())
 	}
 	var scopeAfterChildren FlowScope = this.traverseChildren(callNode, originalScope)
 	var scopeAfterExecution FlowScope = this.setCallNodeTypeAfterChildrenTraversed(callNode, scopeAfterChildren)
@@ -509,7 +509,7 @@ func (this *TypeInference) traverseCall(callNode Node, originalScope FlowScope) 
 
 func (this *TypeInference) traverseTaggedTemplateLit(tagTempLitNode Node, originalScope FlowScope) FlowScope {
 	if !tagTempLitNode.isTaggedTemplateLit() {
-		panic(new_IllegalArgumentException_String(objstr_(tagTempLitNode.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(tagTempLitNode)).self())
 	}
 	var scopeAfterChildren FlowScope = this.traverseChildren(tagTempLitNode, originalScope)
 	var scopeAfterExecution FlowScope = this.setCallNodeTypeAfterChildrenTraversed(tagTempLitNode, scopeAfterChildren)
@@ -611,7 +611,7 @@ func (this *TypeInference) traverseCatch(catchNode Node, scope FlowScope) FlowSc
 		return this.traverseDestructuringPattern(pattern, scope, this.unknownType.up_JSType(), TypeInference_AssignmentType_DECLARATION)
 	} else {
 		if !catchTarget.isEmpty() {
-			panic(new_IllegalStateException_String(objstr_(catchTarget.box_())).self())
+			panic(new_IllegalStateException_String(tostr_(catchTarget)).self())
 		}
 		return scope
 	}
@@ -828,7 +828,7 @@ func (this *TypeInference) traverseDeclarationChild(n Node, scope FlowScope) Flo
 		return this.traverseName(n, scope)
 	}
 	if !n.isDestructuringLhs() {
-		panic(new_IllegalStateException_String(objstr_(n.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(n)).self())
 	}
 	scope = this.traverse(n.getSecondChild(), scope)
 	return this.traverseDestructuringPattern(n.getFirstChild(), scope, this.getJSType(n.getSecondChild()), TypeInference_AssignmentType_DECLARATION)
@@ -848,7 +848,7 @@ func (this *TypeInference) traverseDestructuringPattern(pattern Node, scope Flow
 
 func (this *TypeInference) traverseDestructuringPatternHelper(pattern Node, scope FlowScope, patternType *JSType, declarer func(FlowScope, Node, *JSType) FlowScope) FlowScope {
 	if !pattern.isDestructuringPattern() {
-		panic(new_IllegalArgumentException_String(objstr_(pattern.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(pattern)).self())
 	}
 	if patternType == nil {
 		panic(new_NullPointerException_0().self())
@@ -1380,7 +1380,7 @@ func (this *TypeInference) updateBind(n Node) {
 
 func (this *TypeInference) updateTypeOfArguments(n Node, fnType *FunctionType) {
 	if !NodeUtil_isInvocation(n) {
-		panic(new_IllegalStateException_String(objstr_(n.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(n)).self())
 	}
 	var parameters IteratorOf[*FunctionType_Parameter] = fnType.getParameters().iterator()
 	if n.isTaggedTemplateLit() {
@@ -1944,7 +1944,7 @@ func (this *TypeInference) newBooleanOutcomePair(jsType *JSType, flowScope FlowS
 
 func (this *TypeInference) redeclareSimpleVar(scope FlowScope, nameNode Node, varType *JSType) FlowScope {
 	if !nameNode.isName() {
-		panic(new_IllegalStateException_String(objstr_(nameNode.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(nameNode)).self())
 	}
 	var varName string = nameNode.getString()
 	if varType == nil {
