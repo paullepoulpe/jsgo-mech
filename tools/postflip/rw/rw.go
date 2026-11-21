@@ -284,13 +284,35 @@ func Load(dir string) {
 	}
 }
 
+// Del, as the text of a rewrite of a statement, deletes the statement and its line.
+const Del = "\x00del\x00"
+
+// dropDeleted removes the lines that hold only a deleted statement.
+func dropDeleted(s string) string {
+	if !strings.Contains(s, Del) {
+		return s
+	}
+	lines := strings.SplitAfter(s, "\n")
+	out := lines[:0]
+	for _, l := range lines {
+		if strings.TrimSpace(l) == Del {
+			continue
+		}
+		if strings.Contains(l, Del) {
+			panic("a deleted statement shares its line: " + l)
+		}
+		out = append(out, l)
+	}
+	return strings.Join(out, "")
+}
+
 // Save writes back every file that the registered rewrites change, and returns their number.
 func Save() int {
 	changed := 0
 	for _, f := range Files {
 		tf := Fset.File(f.Pos())
 		// The file node starts at `package`; keep what precedes it.
-		out := string(Src[tf][:tf.Offset(f.Pos())]) + RenderChildren(f) + string(Src[tf][tf.Offset(f.End()):])
+		out := dropDeleted(string(Src[tf][:tf.Offset(f.Pos())]) + RenderChildren(f) + string(Src[tf][tf.Offset(f.End()):]))
 		if out != string(Src[tf]) {
 			if err := os.WriteFile(tf.Name(), []byte(out), 0o644); err != nil {
 				panic(err)
