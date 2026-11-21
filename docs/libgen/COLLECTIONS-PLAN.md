@@ -1,8 +1,11 @@
 # Typed collections, the other half: map of the work, plan, and living record
 
-Branch `main-libgen-b3` (worktree `/mnt/data/ubuntu/jm/wt/agZ`), on top of `main-libgen-b2`
+Branches `main-libgen-b3` (worktree `/mnt/data/ubuntu/jm/wt/agZ`; sections 0 to 3) and
+`main-libgen-b4` (worktree `/mnt/data/ubuntu/jm/wt/agZ2`; section 4), on top of `main-libgen-b2`
 c8a3f9d5 (LIBGEN-STUDY.md sections 7 and 8: rules "function types" and "typed library
 interfaces", kind `iter`). This file is the handover: a successor continues from it alone.
+**The current state, what is left and the traps are in section 4** (4.6 replaces 3.6; sections
+0 to 3 are the record of the stage before, kept as written).
 Scratch files of this stage: `/mnt/data/tmp/claude-1000/-home-ubuntu-work/9db246f3-01a3-48c8-9bf5-1c94d1ed78d6/scratchpad/b3/`
 (`tr.sh` translate + build, `trto.sh <dir>` translate into a scratch directory that has the
 runtime copied in -- the translator reads `rt_*.go` of its output directory, so a directory
@@ -305,6 +308,9 @@ class-typed declarations remove them).
 
 ### 3.6 Left to do, in the order I would take it
 
+(State at the end of stage b3. Items 1, 2, 5 and parts of 4 and 6 were done in stage b4:
+section 4; the list that is current is 4.6.)
+
 1. Kind `set` (`SetT[X]`: `Set` + `iterator_t`; `keySetT()` of a typed map; typed-by-place for
    `new LinkedHashSet`, `ImmutableSet.of/copyOf`; `fromTypedColl` for the set kind). Same shape
    as `coll`; about 143 declarations. `LibGen.TYPED_METHODS`, `KINDS`, `rt_lg.go`.
@@ -390,3 +396,345 @@ In addition to LIBGEN-STUDY.md 7 and 8:
 - `strkeys` (123, 180): `Collection_add_s` etc. unchanged in count.
 - New for any tool that follows types by name: `ListT[`, `CollectionT[`, method groups named
   `m_rListOf_X` / `m_rIterableOf_X` / `m_rCollectionOf_X` for narrowing overrides.
+
+## 4. Record of stage b4 (branch `main-libgen-b4`, worktree `/mnt/data/ubuntu/jm/wt/agZ2`, 2026-11-21)
+
+On top of `main-libgen-b3` 4c069875. Scratch files: `/mnt/data/tmp/claude-1000/-home-ubuntu-work/9db246f3-01a3-48c8-9bf5-1c94d1ed78d6/scratchpad/b4/`
+(`tr.sh` translate + build; `trto.sh <dir>` translate into a scratch directory; `st.sh` self-test
+with the first difference; `checks.sh <binary> <label>` CHECKS with an allocation profile;
+`pool.sh <alloc dir>` totals without the protobuf pool; `pdiff.py A B [min]` per-function
+difference of two `-top` listings; `forms.sh <map dir>` declarations by form; `off.sh` /
+`offall.sh` the gates with switches off; `dead.py` / `delete.py` unreferenced runtime functions;
+gate logs `gate-b4_*.log`, `verify-*.log`).
+
+**How far: 3.6 items 1 (kind `set`), 2 (kind `map` / `entry`, typed elements), 5 (refusals) are
+built, gated and committed; of item 4 the three things the CHECKS profile showed (null checks,
+reading library methods, runtime parameter types); item 6 (deletion) only for what a build
+shows unreferenced in every translation (14 functions, 52 lines). Item 3 (class-typed declarations, more typed methods), the
+protobuf lists and item 7 (wide side of the graph family) are NOT built.** Reasons and designs:
+4.6.
+
+### 4.1 Commits
+
+| commit | what | switch (`J2GO_NOLIBGEN=`) |
+|---|---|---|
+| 185c0254 | kind `set` (`SetT[X]`, `asSetT`, `setAs_`, `keySetT()`); `collectionAs_` / `iterableAs_` find the typed set of an erased immutable set; `CollMap` writes the form L1 / L2 / L3 of each declaration | `set` (`views` for `keySetT`) |
+| 8f61c6a8 | kind `map` (`MapT[K,V]`, `Map_EntryT[K,V]`, `asMapT`, `mapAs_`, `map_EntryAs_`, `entrySetT()`); piece `elems` (collections as typed elements: `*TMap[K, ListT[X]]`); piece `wide` (places of `?` / of an erased type variable stay erased); four fixes (below) | `map`, `elems`, `wide` |
+| d9aa4aba | refusals (unchecked casts with a name list, collection classes) with a negative self-test; piece `nncoll` (typed null checks of typed collections); the erased view of a typed collection has the erased type | `nncoll` |
+| f060be6f | piece `readers` (a typed collection given to a reading library method is its view, not its twin) | `readers` |
+| f170a5e8 | each switch of the stage off alone translates and passes (three fixes found by those gates, 4.7) | |
+| 62ebd50a | deletion of the 14 runtime functions that no translation names (4.5) | |
+
+With `J2GO_NOLIBGEN=set,map,elems,wide,nncoll,readers` the generated files were compared with
+the b3 tip's for `set` alone (byte-identical, `out0b` against `out0`); the later pieces were
+gated off one by one (4.7), not compared byte by byte. Not behind a switch: `LibGen.rt` for the
+parameters of the runtime's typed factories and of the String-key helpers (identical text with
+every kind off), `instanceof` of a typed interface testing the erased one, the erased type of
+`x.asList()`, the runtime changes (`tmapEmptyImm_`, `TMap.entryAt`, the new methods).
+
+### 4.2 Counts
+
+Declarations of a collection type (3,867), by form (`J2GO_COLLMAP`, last column of `decls.tsv`;
+`forms.sh`):
+
+| state | b3 tip | + set | + map, elems, wide (final) |
+|---|---:|---:|---:|
+| L1 concrete typed collection | 3,067 | 3,067 | 3,067 |
+| L2 typed interface | 342 | 436 | 558 |
+| L3 erased | 458 | 364 | 242 |
+
+The 242 erased ones: class-typed with a typed family 133 (`ArrayList` 38, `ImmutableList` 30,
+`LinkedHashMap` 20, `ImmutableMap` 20, `ImmutableSet` 11, `LinkedHashSet` 5,
+`ImmutableCollection` 5, `TreeMap` 4); a class without a typed family 56 (`EnumSet` 16,
+`ImmutableSortedSet` 15, `ConcurrentMap` / `ConcurrentHashMap` 8, `Deque` / `Queue` /
+`PriorityQueue` 7, `ImmutableSortedMap` 4, `IdentityHashMap` 2, `SortedSet`, `RangeSet`,
+`EnumMap`, `ProtocolStringList`); builders 17; interface-typed 36: `List<? extends X>` 21
+(variance, 3.4) and 15 that piece `wide` keeps erased (`?`: `Map<?, ?>` 7, `List<?>` 2,
+`Collection<?>` 2, `Map.Entry<?, ?>` 1; an erased type variable: 3), which is the target of
+0.4. (Piece `wide` moved 13 declarations from L2 back to L3: 571 -> 558.)
+
+`baseline.sh` (`g_[A-Z]*.go`), b3 tip -> final: `cast_[` 787 -> 723, `icast_X(` 238 -> 195,
+`str_(` 196 -> 140, `Node_of_(` 98 -> 91, `obj_(` 557 -> 555, `strobj_(` 396 -> 390, erased views
+`.asList()` etc. 873 -> 572, `foreach_(` 272 -> 169, `XOf[` alias uses 485 -> 282, `unboxT_[` 37 -> 25.
+
+Conversions left (`J2GO_LIBGEN=1`, final): `iterableAs_` 70, `iteratorAs_` 7, `collectionAs_` 36, `listAs_` 76, `setAs_` 36, `mapAs_` 28, `map_EntryAs_` 12; uses left erased: 291 of a `List` with a wildcard, 255 of a place of `?`, 422 of a place with an erased type variable; 73 arguments given as views (piece `readers`)
+(b3 tip: `iterableAs_` 119, `iteratorAs_` 14, `collectionAs_` 110, `listAs_` 84).
+Erased constructors left in the generated code: 37 sites (`new_ConcurrentHashMap` 9,
+`new_LinkedHashSet*` 7, `new_LinkedHashMap*` 5, `new_ArrayList_*` 3, `new_EnumMap` 3, ...; b3
+tip: 102); `new_ArrayList_0` has none.
+
+Runtime lines (verify.sh): 20,040 -> 20,293 before the deletion -> 20,241 (`rt_lg.go` 434 ->
+687; start of the whole rule: 19,832). Test lines 4,240 -> 4,396.
+
+### 4.3 Allocation (CHECKS of the 18% subset, one run each, state sha256 1cb35c70ccb88501 in every run)
+
+| tree (binary in `scratchpad/b4/`) | alloc_objects | alloc_space | objects without the protobuf pool functions |
+|---|---:|---:|---:|
+| b3 tip (`../b3/mech_D4`) | 371.3 M | 19.04 GB | 335.2 M |
+| + set (`mech_set`) | 370.5 M | 18.99 GB | 334.9 M |
+| + map, elems, first form (`mech_map0`) | 360.9 M | 18.19 GB | 335.0 M |
+| + wide, the four fixes (`mech_map2`) | 370.1 M | 18.96 GB | 334.5 M |
+| + refusals, nncoll (`mech_ref`) | 360.9 M | 18.16 GB | 331.9 M |
+| + readers (`mech_rd`) | 361.6 M | 18.20 GB | 331.2 M |
+| final tree, after the deletion (`mech_del`) | 363.0 M | 18.35 GB | 331.2 M |
+
+Against the start of the rule's collection stages (b2 tip, 340.7 M): **340.7 M -> 331.2 M (-2.8%)**, of which this stage 335.2 M -> 331.2 M (-1.2%). The pool functions
+moved between 26 M and 36 M from run to run, so only the last column compares.
+
+What the profile showed, and what was done (the method: `pdiff.py` of two `-top
+-nodefraction=0` listings, then `-peek` of the function):
+
+- kind `set`: `collectionAs_` -346 k (a `Set` given as a `Collection`), `setAs_` +201 k
+  (`TemplateTypeReplacer.initSeenTypes`: `Sets.newIdentityHashSet()` in a `Set<JSType>` field,
+  one wrapper per replacer; left, see 4.6).
+- kind `map`, first form: `map_EntryAs_` +364 k (`JSDocInfo.init`: the loop variable over the
+  entries of an erased `TreeMap`: fixed, the variable of an erased loop holds the erased entry),
+  `mapAs_[any, any]` +134 k and `collectionAs_[any]` / `iterableAs_[any]` 540 k that the kinds
+  `iter` and `coll` already had (`Iterable<?>` / `Collection<?>` / `Map<?, ?>` places and the
+  parameter of `ImmutableList.copyOf`: fixed by piece `wide` and `LibGen.rt`), `mapAs_` +56 k
+  (`Timeline.addEvent`, `<V> .. Map<V, Event<V>>`: piece `wide`), `tmapEmptyImm_` +1.08 M
+  (`Scope.getOwnImplicitSlot`: the runtime made an empty map on every call for the third pair
+  of types of two conversions: fixed in `rt_timm.go`).
+- `TList.asImm` + `boxAll_` 3.0 M + 1.5 M (older than this stage): a typed immutable list read
+  by erased code as its twin. `checkNotNull(list)` was 1.8 M of it (piece `nncoll`),
+  `Iterables.getLast`, the message arguments of `checkArgument` and `addAll` of an immutable
+  list about 0.7 M (piece `readers`).
+
+Wrappers still allocated in CHECKS (`mech_ref`): `iterableAs_` 0.6 M
+(`TypedScope.getDeclarativelyUnboundVarsWithoutTypes` 0.39 M: the result of `Iterables.filter`;
+`JSDocInfo.TypeMapProperty.getTypeExpressions` 0.16 M; `ObjectType.getImplicitPrototypeChain`
+0.04 M: a lambda as an Iterable), `setAs_` 0.18 M (`initSeenTypes`), `collectionAs_` 0.3 M
+(the graph classes' `getNodes`, variance), `iteratorAs_` 0.14 M
+(`FunctionTypeBuilder.inferParameterTypes`). Twins still made: `TList[string].asImm` 1.4 M with
+`boxAll_` 1.3 M, of which `DependencyInfo.getRequiredSymbols` 1.3 M (an `ImmutableList<String>`
+result of a default method of an interface: class-typed, 4.6), `JSTypeIterations.mapTypes*`
+0.37 M (a type-variable result).
+
+### 4.4 Semantics, refusals, tests
+
+- Self-test `lang/LibGen.java`: `sets()` (seven origins of a `Set`, identity, `equals` /
+  `hashCode`, null element, `UnsupportedOperationException`, `NoSuchElementException`, a
+  `TreeSet`, live `keySet()` of a map that is immutable at first, keys with `equals`, sets as
+  elements, late `ClassCastException`), `maps()` (six origins of a `Map`, entries that write
+  through, live views and removal through them, `Map<String, List<String>>` and a map of maps
+  of sets with `computeIfAbsent`, pattern `instanceof` of `Map<?, ?>` / `Collection<?>` /
+  `Map.Entry<?, ?>` on typed and erased objects, wildcard maps, late `ClassCastException`).
+  Runtime tests `TestLgSet`, `TestLgKeySetT`, `TestLgMap`.
+- Refusals (`LibGen.check`; the translation stops and writes nothing), each with a use in
+  `tools/j2go/selftest/refused/RefusedLib.java` (the self-test fails unless exactly its 6 marked
+  uses are refused): a raw use; an unchecked cast to a use of a typed interface, between two
+  instantiations and from `Object`, outside the methods of `tools/j2go/unchecked-casts.txt` (the
+  2 of the tree: `GlobalNamespace.Name.castRefsForNodeMap`, `JSTypeRegistry.createRecordType`;
+  the self-test programs have `selftest/unchecked-casts.txt`); `instanceof` of and a cast to a
+  class of `LibGen.CONCRETE` (the tree has none). A cast to `List<?>` passes.
+- Found wrong and fixed: `x instanceof Collection<?> c` tested the typed interface since kind
+  `coll` (false for an erased `ArrayList`; one site, `LogsGson`, which no gate input reaches);
+  now the erased interface. The String-key helpers (`Collection_add_s`, `Map_get_s`) were given
+  wrappers since kind `coll` and took their boxing path; they get `X_un_(x)`.
+- Differences from Java seen while testing, older than this stage and unchanged:
+  `Collections.unmodifiableSet(x)` of the runtime is `x` (it accepts `add`); a box of the wrong
+  class read through a wrapper panics in `unbox_` with a Go error where Java throws
+  `ClassCastException` (`Map<String, Integer>` holding a String; a class element throws the
+  Java exception); the runtime has no `Collections.emptySet`, `Sets.newHashSet`, 4-argument
+  `ImmutableMap.of`.
+- Iteration order: every typed form reads the typed collection's own storage (insertion order,
+  sorted order for the sorted ones), the wrappers the erased collection's iterator; no order
+  is computed anew. ConcurrentModificationException: no test added (as 3.5).
+
+### 4.5 Deletion
+
+No `deadcode` on this host (`tools/prune/prune.sh` needs it; installing it was not permitted),
+so the candidates are the top-level runtime functions whose name occurs nowhere but in their
+own declaration: not in the generated code, the remaining runtime, the self-test's translation
+(`scratchpad/b4/dead.py`, iterated to a fixpoint), computed for the default translation and for
+the translation with every switch off (`J2GO_NOFNTYPES=1 J2GO_NOLIBGEN=all`), each with its
+self-test.
+
+- **Deleted (commit 62ebd50a): the 14 functions that neither translation names and the
+  translator's usage data does not list** (43 lines of code, 52 with their comments):
+  `ImmutableList_of_Object_Object_Object`, the 13-argument `ImmutableList_of`,
+  `ImmutableList_builderWithExpectedSize`, `ImmutableSet_of` with 4 and 5 arguments,
+  `ImmutableSet_builderWithExpectedSize`, `ImmutableSet_copyOf_Iterable`, the 4-pair
+  `ImmutableMap_of`, `new_TreeSet_Comparator`, `new_TreeMap_Comparator`, `new_ArrayDeque_int`,
+  `SequencedCollection_addFirst` / `removeFirst`, `equalsH_`. Runtime lines 20,293 -> 20,241.
+  Kept although no generated call names them: 5 that the translator notes as used and would
+  write a placeholder for (`CharMatcher_anyOf`, `Objects_requireNonNull_Object`,
+  `Pattern_matches`, `Preconditions_checkNotNull_Object_String_Object_Object`, `String_join`:
+  a first deletion of them changed `g_zstubs.go`), and 2 with a runtime test
+  (`new_ArrayDeque_Collection`, the 3-pair `ImmutableMap_of`).
+- **Not deleted: 13 erased functions that only the translation with switches off names**
+  (about 35 lines): `ImmutableList_of` with 5 to 11 arguments, `ImmutableList_copyOf_ObjectArr`,
+  `Collections_unmodifiableCollection`, `Collections_unmodifiableSet`,
+  `Maps_newLinkedHashMapWithExpectedSize`, `Sets_newLinkedHashSetWithExpectedSize`,
+  `new_TreeSet`. The typed forms have replaced them in the default translation; deleting them
+  ends `J2GO_NOLIBGEN=all` (and `place` / `makers` / `views` off), and every piece is to stay
+  behind its switch. They go when the switches go.
+- No erased class is dead: `TreeSet` (no site of generated code makes one any more) is still
+  made by the runtime (`rt_tsorted.go`: `descendingSet`, `tailSet`; the multimaps).
+
+Why the runtime does not shrink below its start (19,832; it is 20,241): the erased classes are
+all still constructed, by the runtime itself (`Lists.newArrayList`, `Arrays.asList`, the
+protobuf lists, the immutable twins, `LinkedHashSet` under `Sets.*`) and by 37 sites of
+generated code in places that stay erased; and the typed interfaces added 687 lines
+(`rt_lg.go`) for which no erased code can go while the erased interface is what the runtime's
+own functions take and give. What would let whole classes go: the class-typed declarations
+and typed runtime results (4.6), after which `ArrayList` / `LinkedHashMap` / `LinkedHashSet`
+are made only inside the runtime, and then the switches' end.
+
+### 4.6 Left to do, in the order I would take it
+
+1. **Class-typed declarations** (139: `ArrayList<X>`, `ImmutableList<X>`, `LinkedHashMap<K,V>`,
+   `ImmutableMap<K,V>`, ...; 3.6 item 3). Not built. Most are erased because their method is no
+   candidate of `Colls` (a method of a record / AutoValue class 16, lambdas 8, another
+   instantiation 7). The largest cost seen is `DependencyInfo.getRequiredSymbols():
+   ImmutableList<String>` (2.6 M objects in CHECKS: the typed list is turned into its twin for
+   the result and found again by the caller). Design: a kind whose places hold the kind's
+   interface (`ImmutableList<X>` -> `ListT[X]`, `ArrayList<X>` -> `ListT[X]`), the class's own
+   methods called on the erased object (`lgBox_`: the twin of an immutable collection, as rule
+   "typed collections" does); it needs `LibGen` to tell the place's Go type (`typedName`) from
+   the erased form (a class, not an interface: `X_un_` and `rt` assume an interface), and
+   `LibGen.CONCRETE` already refuses the tests that would see the difference. Then more typed
+   methods (`TYPED_METHODS`: `add_t`, `contains_t`, `put_t`), which only then let erased methods
+   go.
+2. **Typed runtime results**, by the profile (4.3, last paragraph): `Iterables.filter` (0.39 M
+   wrappers), `Sets.newIdentityHashSet` (a typed set compared by `==`; only for a class element),
+   the protobuf lists (not in the CHECKS profile at all: `getXList` is read by erased loops).
+3. Piece `readers` reads a name list (`LibGen.READERS`, 12 methods); other reading methods
+   (`Joiner.join`, `Iterables.concat`, `String.valueOf`) can be added as the profile shows them.
+4. The wide side of the graph family (3.4): not touched.
+
+Traps met in this stage: names of Go types are given in the order of their first use, so a
+rule must not ask for a Go type (`goTypeArg`, `goType`) while deciding a type in `erase` (it
+renamed `Node` to `Node_`); a type that is all `any` (`Collection<Object>`) cannot be told from
+a member of a Go generic class at that instantiation, so `wide` is decided on the type as
+written (`?`, an erased type variable) only; the runtime's helper functions tell their argument
+by its Go type, so a typed value must reach them as `X_un_(x)`; `tools/j2go/selftest/run.sh` is
+read by bash while it runs (do not edit it during a gate); the mech-cache copied by `mkwt.sh`
+has a stale `.cache/j2go/files.txt` (regenerate it as `tools/j2go/run.sh` does); one compile of
+the package takes about 10 GB, so two gates at once on this host (24 GB; another agent's
+replays compile too) stop making progress: `waitmem.sh` waits for memory before each; the
+translator writes a placeholder in `g_zstubs.go` for a runtime function it notes as used even
+where no call of it is emitted, so "unreferenced" has to be checked against the placeholders
+too (4.5); a switch that is only ever gated together with the others hides mixed states (set
+off with map on did not compile, wide off refused the tree: 4.7).
+
+### 4.7 Gate lines
+
+Final tree (code of 62ebd50a), default translation, `$B/gate.sh agZ2 b4_del` (log
+`/mnt/data/ubuntu/jm/logs/gate-b4_del.log`, copy in `scratchpad/b4/`): `GATE OK b4_del`
+
+```
+selftest: PASS
+removed 0 declarations in 0 rounds
+ok  	jsgomech/closure	(cached)
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+runtime lines: 20241  test lines: 4396
+```
+
+(the test line says "cached": the same command had printed `ok  jsgomech/closure 1.981s` just
+before the gate.) Same tree, every switch of the three stages off (translated with the
+switches, `-tags j2go_nofntypes`, `tools/prune/verify.sh`; `scratchpad/b4/verify-alloff2.log`):
+
+```
+switches: J2GO_NOFNTYPES=1 J2GO_NOLIBGEN=all
+selftest: PASS
+removed 0 declarations in 0 rounds
+ok  	jsgomech/closure	2.348s
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+runtime lines: 20241  test lines: 4396
+```
+
+Each switch of this stage off alone, on the tree before the deletion
+(`scratchpad/b4/verify-<switch>.log`; `set` and `wide`: code of f170a5e8; `map`, `elems`,
+`nncoll`, `readers`: code of f060be6f, not run again after f170a5e8, which changed two self-test
+programs and two places of the translator that act only with `set` or `wide` off; the generated
+files of the default translation are byte-identical from f060be6f to the final tree, md5 in
+`default.md5`):
+
+```
+switches: J2GO_NOLIBGEN=set
+selftest: PASS
+removed 0 declarations in 0 rounds
+ok  	jsgomech/closure	1.910s
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+runtime lines: 20293  test lines: 4396
+switches: J2GO_NOLIBGEN=map
+selftest: PASS
+removed 0 declarations in 0 rounds
+ok  	jsgomech/closure	1.907s
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+runtime lines: 20293  test lines: 4396
+switches: J2GO_NOLIBGEN=elems
+selftest: PASS
+removed 0 declarations in 0 rounds
+ok  	jsgomech/closure	1.934s
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+runtime lines: 20293  test lines: 4396
+switches: J2GO_NOLIBGEN=wide
+selftest: PASS
+removed 0 declarations in 0 rounds
+ok  	jsgomech/closure	1.924s
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+runtime lines: 20293  test lines: 4396
+switches: J2GO_NOLIBGEN=nncoll
+selftest: PASS
+removed 0 declarations in 0 rounds
+ok  	jsgomech/closure	2.001s
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+runtime lines: 20293  test lines: 4396
+switches: J2GO_NOLIBGEN=readers
+selftest: PASS
+removed 0 declarations in 0 rounds
+ok  	jsgomech/closure	1.932s
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+runtime lines: 20293  test lines: 4396
+```
+
+`map`, `elems`, `nncoll`, `readers` passed on the first run (code of f060be6f). `set` and `wide`
+did not, and the first run with everything off failed its self-test; what was wrong and the
+fixes are commit f170a5e8: with `set` off and `map` on the self-test's translation did not
+compile (`MapT.keySet_t` gives `SetT`); with `wide` off the translator refused the tree (three
+casts to `Collection<?>` / `Map<?, ?>` / `Iterable<?>` counted as unchecked); with everything
+off the new self-test programs called factories the erased runtime does not have. The three
+runs above are of the fixed tree. Not gated: the switches of the earlier stages (`iter`,
+`coll`, `list`, `makers`, `views`, `place`, `cov`) off one by one; combinations of switches.
+
+Earlier gates of this stage, GATE OK each (logs in `scratchpad/b4/`): `b4_set` (185c0254),
+`b4_map2` (8f61c6a8), `b4_ref` (d9aa4aba; its first run failed because `selftest/run.sh` was
+edited while it ran), `b4_rd` (f060be6f), `b4_final` (f170a5e8).
+
+### 4.8 Fifth flip: additions to 3.8
+
+- New type names for any tool that follows types by name: `SetT[`, `MapT[`, `Map_EntryT[`;
+  `*TMap[K, ListT[X]]` and the like (a typed interface as the element of a typed collection:
+  `gmaps`, `native` / `slices` / `maps` must not take a `ListT` element for an erased `List`).
+- New methods on the typed family: `asSetT`, `asMapT`, `asEntryT`, `keySetT`, `entrySetT`,
+  `get_t` / `keySet_t` / `values_t` / `entrySet_t` on `tmapView_`, `getKey_t` / `getValue_t` on
+  `tentryView_`, `entryAt`; `unify` (402) and the view patches (554a/b, 556) touch the same files.
+- `Preconditions_checkNotNull_T(x)` on typed collections and `x.asListT()` arguments of the
+  reading library methods replace `x.asList()`: `trips` / `tviews` find fewer round trips.
+- `casts`, `icasts`, `castfold`: fewer sites (counts in 4.2), same text.
