@@ -285,14 +285,14 @@ index 1380f0b1..c82c23c9 100644
 +	box := func(s string) any { return timmStr_.box(s) }
 +	for _, a := range [][]string{nil, {}, {"a"}, {"b", "a", "b"}} {
 +		got := immCopyArr_(timmStr_, a)
-+		same("immCopyArr_", got, sliceImm_(timmStr_, Collection(ImmutableList_copyOf_ObjectArr(arrmap_(a, box)))))
++		same("immCopyArr_", got, sliceImm_(timmStr_, Collection(immList_(append([]any(nil), arrmap_(a, box)...)))))
 +		if len(a) > 0 && &got[0] == &a[0] {
 +			t.Error("immCopyArr_ does not copy")
 +		}
 +	}
 +	guavaThrew_(t, "NullPointerException", func() { immCopyArr_(timmStr_, []string{"a", nullstr_}) })
 +	guavaThrew_(t, "NullPointerException", func() {
-+		sliceImm_(timmStr_, Collection(ImmutableList_copyOf_ObjectArr(arrmap_([]string{"a", nullstr_}, box))))
++		sliceImm_(timmStr_, Collection(immList_(append([]any(nil), arrmap_([]string{"a", nullstr_}, box)...))))
 +	})
 +	// tsetCopy_(c, s) is tsetFrom_(c, s.asSet(), false)
 +	mk := func(imm bool, xs ...string) *TSet[string] {

@@ -1,5 +1,88 @@
+diff --git a/go/closure/rt_lg.go b/go/closure/rt_lg.go
+index 1b999f639..f13290cfb 100644
+--- a/go/closure/rt_lg.go
++++ b/go/closure/rt_lg.go
+@@ -122,19 +122,14 @@ func (l *TList[T]) unwrap_() any { return l.asList() }
+ 
+ // tview_ is the view of the list that typed code holds as a List or Collection: the one erased
+ // code sees too, unless the list is an ImmutableList (erased code sees its twin, asList).
+-func (l *TList[T]) tview_() *tlistView_[T] {
+-	if l.view == nil {
+-		l.view = &tlistView_[T]{l: l}
+-	}
+-	return l.view
+-}
++func (l *TList[T]) tview_() *tlistView_[T] { return (*tlistView_[T])(l) }
+ func (l *TList[T]) iterator_t() IteratorT[T] {
+ 	if l == nil {
+ 		panic(new_NullPointerException_0().self())
+ 	}
+ 	return &tlistIter_[T]{l: l}
+ }
+-func (v *tlistView_[T]) iterator_t() IteratorT[T] { return &tlistIter_[T]{l: v.l} }
++func (v *tlistView_[T]) iterator_t() IteratorT[T] { return &tlistIter_[T]{l: v.tl()} }
+ 
+ func (it *tlistIter_[T]) next_t() T { return it.nextT() }
+ 
+@@ -207,7 +202,7 @@ func jeachOf_[T any](x IterableT[T]) iterEach_[T] {
+ 	case *TList[T]:
+ 		return iterEach_[T]{src: &l.items}
+ 	case *tlistView_[T]:
+-		return iterEach_[T]{src: &l.l.items}
++		return iterEach_[T]{src: &l.tl().items}
+ 	case *TDeque[T]:
+ 		return iterEach_[T]{src: &l.items}
+ 	case stepperT_[T]:
+@@ -353,7 +348,7 @@ func (l *TList[T]) asCollT() CollectionT[T] {
+ 	}
+ 	return l.tview_()
+ }
+-func (v *tlistView_[T]) unwrap_() any { return v.l.asList() }
++func (v *tlistView_[T]) unwrap_() any { return v.tl().asList() }
+ 
+ func (s *TSet[K]) asCollT() CollectionT[K] {
+ 	if s == nil {
+@@ -465,10 +460,10 @@ func (l *TList[T]) asListT() ListT[T] {
+ 	return l.tview_()
+ }
+ 
+-func (v *tlistView_[T]) get_t(i int32) T      { return v.l.get(i) }
+-func (v *tlistView_[T]) add_t(x T) bool       { return v.l.add(x) }
+-func (v *tlistView_[T]) set_t(i int32, x T) T { return v.l.set(i, x) }
+-func (v *tlistView_[T]) remove_t(i int32) T   { return v.l.removeAt(i) }
++func (v *tlistView_[T]) get_t(i int32) T      { return v.tl().get(i) }
++func (v *tlistView_[T]) add_t(x T) bool       { return v.tl().add(x) }
++func (v *tlistView_[T]) set_t(i int32, x T) T { return v.tl().set(i, x) }
++func (v *tlistView_[T]) remove_t(i int32) T   { return v.tl().removeAt(i) }
+ func (v *tsetView_[K]) add_t(x K) bool        { return v.s.Add(x) }
+ 
+ // (the views of a map take no element, as in Java)
+@@ -816,8 +811,8 @@ func (e *TEntry[K, V]) asEntryT() Map_EntryT[K, V] {
+ // declaration of rule "typed collections": the immutable typed list whose view it is, else
+ // tlistImm_ of the object erased code knows (which fails as a cast to the class does).
+ func tlistOfT_[T any](c *tconv_[T], x Collection) *TList[T] {
+-	if v, ok := x.(*tlistView_[T]); ok && v.l.imm && !v.l.unmod {
+-		return v.l
++	if v, ok := x.(*tlistView_[T]); ok && v.tl().imm && !v.tl().unmod {
++		return v.tl()
+ 	}
+ 	return tlistImm_(c, cast_[*ImmutableCollection](lgBox_(x)))
+ }
+diff --git a/go/closure/rt_lg_test.go b/go/closure/rt_lg_test.go
+index afe4fcd9c..791c567e2 100644
+--- a/go/closure/rt_lg_test.go
++++ b/go/closure/rt_lg_test.go
+@@ -491,7 +491,7 @@ func TestLgCls(t *testing.T) {
+ 	if tlistOfT_(tc_string, il.asListT()) != il || tlistOfT_(tc_string, il.asCollT()) != il || tlistOfT_(tc_string, nil) != nil {
+ 		t.Fatal("the typed list of its view")
+ 	}
+-	if il.view.twin != nil {
++	if il.twin != nil {
+ 		t.Fatal("the twin of an immutable list was made although only typed code read it")
+ 	}
+ 	// an erased immutable list in a wrapper: the typed list of that object, made once
 diff --git a/go/closure/rt_native.go b/go/closure/rt_native.go
-index f13e784a..0d8d86b3 100644
+index 9c2856d0d..f6f8076af 100644
 --- a/go/closure/rt_native.go
 +++ b/go/closure/rt_native.go
 @@ -795,11 +795,11 @@ func slicePtrView_[T any](c *tconv_[T], p *[]T) List {
@@ -17,7 +100,7 @@ index f13e784a..0d8d86b3 100644
  func (v *slicePtrList_[T]) self() any                     { return v }
  func (v *slicePtrList_[T]) boxed() []any                  { return v.tl().boxed() }
 diff --git a/go/closure/rt_tdeque.go b/go/closure/rt_tdeque.go
-index 76ff2887..41107768 100644
+index 76ff2887f..411077689 100644
 --- a/go/closure/rt_tdeque.go
 +++ b/go/closure/rt_tdeque.go
 @@ -113,9 +113,7 @@ func (d *TDeque[T]) asDeque() Deque {
@@ -41,7 +124,7 @@ index 76ff2887..41107768 100644
  }
  
 diff --git a/go/closure/rt_timm.go b/go/closure/rt_timm.go
-index 46fab0d9..d3b3ac77 100644
+index 46fab0d98..d3b3ac77d 100644
 --- a/go/closure/rt_timm.go
 +++ b/go/closure/rt_timm.go
 @@ -65,7 +65,7 @@ func boxAll_[T any](c *tconv_[T], s []T) []any {
@@ -114,7 +197,7 @@ index 46fab0d9..d3b3ac77 100644
  }
  
 diff --git a/go/closure/rt_timm_test.go b/go/closure/rt_timm_test.go
-index cdfd863d..05396b42 100644
+index cdfd863d4..05396b42c 100644
 --- a/go/closure/rt_timm_test.go
 +++ b/go/closure/rt_timm_test.go
 @@ -152,8 +152,8 @@ func TestTypedRoundTrips(t *testing.T) {
@@ -129,10 +212,10 @@ index cdfd863d..05396b42 100644
  		}
  	}
 diff --git a/go/closure/rt_tlist.go b/go/closure/rt_tlist.go
-index af461129..0ac7fa43 100644
+index b95bf1230..62ea7ddce 100644
 --- a/go/closure/rt_tlist.go
 +++ b/go/closure/rt_tlist.go
-@@ -33,8 +33,8 @@ type tconv_[T any] struct {
+@@ -36,8 +36,8 @@ type tconv_[T any] struct {
  type TList[T any] struct {
  	items []T
  	c     *tconv_[T]
@@ -143,7 +226,7 @@ index af461129..0ac7fa43 100644
  	// unmod (with imm): the list cannot be changed but is no ImmutableList
  	// (Collections.unmodifiableList of a private list, splitToListT_): erased code sees its
  	// view, and ImmutableList.copyOf copies it.
-@@ -68,7 +68,7 @@ func tlistImm_[T any](c *tconv_[T], from Collection) *TList[T] {
+@@ -71,7 +71,7 @@ func tlistImm_[T any](c *tconv_[T], from Collection) *TList[T] {
  	}
  	if ic, ok := from.(*ImmutableCollection); ok && ic.kind == icList_ {
  		// The list is the immutable list itself for erased code (asList): its identity.
@@ -152,7 +235,7 @@ index af461129..0ac7fa43 100644
  	}
  	return l
  }
-@@ -218,52 +218,51 @@ func (l *TList[T]) asList() List {
+@@ -221,52 +221,51 @@ func (l *TList[T]) asList() List {
  	if l.imm && !l.unmod {
  		return l.asImm()
  	}
@@ -230,7 +313,7 @@ index af461129..0ac7fa43 100644
  			return int32(i)
  		}
  	}
-@@ -271,8 +270,8 @@ func (v *tlistView_[T]) indexOf(x any) int32 {
+@@ -274,8 +273,8 @@ func (v *tlistView_[T]) indexOf(x any) int32 {
  }
  
  func (v *tlistView_[T]) lastIndexOf(x any) int32 {
@@ -241,7 +324,7 @@ index af461129..0ac7fa43 100644
  			return int32(i)
  		}
  	}
-@@ -295,12 +294,12 @@ func (v *tlistView_[T]) remove_Object(x any) bool {
+@@ -298,12 +297,12 @@ func (v *tlistView_[T]) remove_Object(x any) bool {
  	if i < 0 {
  		return false
  	}
@@ -256,7 +339,7 @@ index af461129..0ac7fa43 100644
  	if l.imm {
  		throwUOE_()
  	}
-@@ -316,17 +315,19 @@ func (v *tlistView_[T]) removeAll(c Collection) bool {
+@@ -319,17 +318,19 @@ func (v *tlistView_[T]) removeAll(c Collection) bool {
  	return changed
  }
  
@@ -273,17 +356,17 @@ index af461129..0ac7fa43 100644
 +	if a < 0 || b > v.tl().size() || a > b {
 +		panic(new_IndexOutOfBoundsException_String("fromIndex: " + istr_(int64(a)) + ", toIndex: " + istr_(int64(b)) + ", size: " + istr_(int64(len(v.tl().items)))).self())
  	}
- 	// Only the range is boxed (the whole list was, once per call).
- 	out := make([]any, b-a)
--	for i, x := range v.l.items[a:b] {
--		out[i] = v.l.c.box(x)
-+	for i, x := range v.tl().items[a:b] {
-+		out[i] = v.tl().c.box(x)
+ 	// as ArrayList.subList in rt_coll.go: a list on the same storage (set writes through, add
+ 	// does not), here on the typed items, so nothing is boxed and the result is a typed list too
+-	s := &TList[T]{items: v.l.items[a:b:b], c: v.l.c}
+-	if v.l.imm {
++	s := &TList[T]{items: v.tl().items[a:b:b], c: v.tl().c}
++	if v.tl().imm {
+ 		// of a list that cannot be changed: one that cannot be changed
+ 		s.imm, s.unmod = true, true
  	}
- 	return listOf_(out)
- }
 diff --git a/go/closure/rt_tnested.go b/go/closure/rt_tnested.go
-index 5f1e9f87..6a45d0ee 100644
+index 5f1e9f87d..6a45d0eef 100644
 --- a/go/closure/rt_tnested.go
 +++ b/go/closure/rt_tnested.go
 @@ -25,7 +25,7 @@ func tlistOf_[T any](v any) *TList[T] {
@@ -296,7 +379,7 @@ index 5f1e9f87..6a45d0ee 100644
  
  // tmapOf_ is the typed map whose view v is, or whose twin v is.
 diff --git a/go/closure/rt_tstep.go b/go/closure/rt_tstep.go
-index b95ad976..a131428a 100644
+index b95ad976b..a131428a2 100644
 --- a/go/closure/rt_tstep.go
 +++ b/go/closure/rt_tstep.go
 @@ -8,7 +8,7 @@ package closure
@@ -309,7 +392,7 @@ index b95ad976..a131428a 100644
  		return nil, -1
  	}
 diff --git a/go/closure/rt_tstep_test.go b/go/closure/rt_tstep_test.go
-index 593088a8..64390d4d 100644
+index 593088a85..64390d4d0 100644
 --- a/go/closure/rt_tstep_test.go
 +++ b/go/closure/rt_tstep_test.go
 @@ -107,3 +107,35 @@ func TestTypedViewSteppers(t *testing.T) {
