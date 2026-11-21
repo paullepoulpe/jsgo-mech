@@ -211,7 +211,7 @@ func (this *PeepholeFoldConstants) tryFoldTypeof(originalTypeofNode Node) Node {
 
 func (this *PeepholeFoldConstants) tryFoldUnaryOperator(n Node) Node {
 	if !n.hasOneChild() {
-		panic(new_IllegalStateException_String(objstr_(n.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(n)).self())
 	}
 	var left Node = n.getFirstChild()
 	var parent Node = n.getParent()

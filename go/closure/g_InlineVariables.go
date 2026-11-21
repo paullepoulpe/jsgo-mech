@@ -423,7 +423,7 @@ func (this *InlineVariables_InliningBehavior) inlineWellDefinedVariable(v *Var, 
 func (this *InlineVariables_InliningBehavior) removeDeclaration(decl *Reference) {
 	var varNode Node = decl.getParent()
 	if !NodeUtil_isNameDeclaration(varNode) {
-		panic(new_IllegalStateException_String(objstr_(varNode.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(varNode)).self())
 	}
 	var grandparent Node = decl.getGrandparent()
 	this.outer_.compiler_.reportChangeToEnclosingScope(decl.getNode())

@@ -132,15 +132,15 @@ func (this *TypedScopeCreator) createScopeInternal(root Node, typedParent *Typed
 	var module *Module = ModuleImportResolver_getModuleFromScopeRoot(this.moduleMap, icast_CompilerInputProvider(this.compiler_.self()), root)
 	if typedParent == nil {
 		if !root.isRoot() {
-			panic(new_IllegalStateException_String(objstr_(root.box_())).self())
+			panic(new_IllegalStateException_String(tostr_(root)).self())
 		}
 		var externsRoot Node = root.getFirstChild()
 		var jsRoot Node = root.getSecondChild()
 		if !externsRoot.isRoot() {
-			panic(new_IllegalStateException_String(objstr_(externsRoot.box_())).self())
+			panic(new_IllegalStateException_String(tostr_(externsRoot)).self())
 		}
 		if !jsRoot.isRoot() {
-			panic(new_IllegalStateException_String(objstr_(jsRoot.box_())).self())
+			panic(new_IllegalStateException_String(tostr_(jsRoot)).self())
 		}
 		var globalThis *JSType = this.typeRegistry.getNativeObjectType(JSTypeNative_GLOBAL_THIS).up_JSType()
 		root.setJSType(globalThis)
@@ -239,7 +239,7 @@ func (this *TypedScopeCreator) gatherAllProvides(root Node) {
 
 func (this *TypedScopeCreator) createInitialScope(root Node) *TypedScope {
 	if !root.isRoot() {
-		panic(new_IllegalArgumentException_String(objstr_(root.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(root)).self())
 	}
 	var scopeCreator *MemoizedScopeCreator = new_MemoizedScopeCreator(new_SyntacticScopeCreator_AbstractCompiler(this.compiler_).createScopeAbstractScope_Node_AbstractScope)
 	NodeTraversal_builder().setCompiler(this.compiler_).setCallback(NodeTraversal_Callback(new_TypedScopeCreator_FirstOrderFunctionAnalyzer(this))).setScopeCreator(MemoizedScopeCreator_as_ScopeCreator(scopeCreator)).traverseRoots(root.getFirstChild(), root.getLastChild())
@@ -489,7 +489,7 @@ type TypedScopeCreator_WeakModuleImport struct {
 
 func (this *TypedScopeCreator_WeakModuleImport) init_TypedScopeCreator_WeakModuleImport(moduleLocalNode Node, scopedImport *ScopedName, localModuleScope *TypedScope) {
 	if !moduleLocalNode.isName() && !moduleLocalNode.isImportStar() {
-		panic(new_IllegalStateException_String(objstr_(moduleLocalNode.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(moduleLocalNode)).self())
 	}
 	this.moduleLocalNode = moduleLocalNode
 	this.scopedImport = scopedImport
@@ -734,7 +734,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) finishDeclaringGoogModule() 
 		rootNode.setJSType(exportsVar.getType())
 	} else {
 		if !rootNode.isBlock() {
-			panic(new_IllegalStateException_String(objstr_(rootNode.box_())).self())
+			panic(new_IllegalStateException_String(tostr_(rootNode)).self())
 		}
 		var fn Node = rootNode.getParent()
 		var paramList Node = NodeUtil_getFunctionParameters(fn)
@@ -942,7 +942,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) assertDefinitionNode(n Node,
 		panic(new_IllegalStateException_0().self())
 	}
 	if n.getToken() != type_ {
-		panic(new_IllegalStateException_String(objstr_(n.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(n)).self())
 	}
 }
 
@@ -958,7 +958,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) defineAssignAsIfVarDeclarati
 	var info *JSDocInfo = assignment.getJSDocInfo()
 	var name Node = assignment.getFirstChild()
 	if !name.isName() {
-		panic(new_IllegalArgumentException_String(objstr_(name.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(name)).self())
 	}
 	var rvalue Node = assignment.getSecondChild()
 	this.defineName(name, rvalue, this.currentScope.getClosestHoistScope_rTypedScope(), info)
@@ -1000,7 +1000,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) defineVarChild(declarationIn
 		this.defineName(child, child.getFirstChild(), scope, declarationInfo)
 	} else {
 		if !child.isDestructuringLhs() {
-			panic(new_IllegalStateException_String(objstr_(child.box_())).self())
+			panic(new_IllegalStateException_String(tostr_(child)).self())
 		}
 		var pattern Node = child.getFirstChild()
 		var value Node = child.getSecondChild()
@@ -1181,7 +1181,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) shouldUseFunctionLiteralType
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) createClassTypeFromNodes(clazz Node, name Optional[string], syntacticName Optional[string], info *JSDocInfo, lvalueNode Node) *FunctionType {
 	if !clazz.isClass() {
-		panic(new_IllegalArgumentException_String(objstr_(clazz.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(clazz)).self())
 	}
 	var builder *FunctionTypeBuilder = new_FunctionTypeBuilder(name, this.outer_.compiler_, clazz, this.currentScope).usingClassSyntax().setSyntacticFunctionName(syntacticName).setContents(FunctionTypeBuilder_FunctionContents(new_FunctionTypeBuilder_AstFunctionContents(clazz))).setDeclarationScope(func() *TypedScope {
 		if lvalueNode != 0 {
@@ -1567,7 +1567,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) getLValueRootScope(n Node) *
 				return this.currentScope
 			case tokOrd1_ITER_REST, tokOrd1_OBJECT_REST:
 				if !nameParent.getParent().isParamList() {
-					panic(new_IllegalStateException_String(objstr_(nameParent.box_())).self())
+					panic(new_IllegalStateException_String(tostr_(nameParent)).self())
 				}
 				return this.currentScope
 			default:
@@ -1813,7 +1813,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) checkForClassDefiningCalls(n
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) maybeDeclareGetElem(info *JSDocInfo, n Node, rhsValue Node) {
 	if !n.isGetElem() {
-		panic(new_IllegalArgumentException_String(objstr_(n.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(n)).self())
 	}
 	var ownerNode Node = n.getFirstChild()
 	var key Node = n.getSecondChild()
@@ -2612,7 +2612,7 @@ func (this *TypedScopeCreator_ClassScopeBuilder) determineOwnerTypeForClassMembe
 		return ownerType.getInstanceType()
 	} else {
 		if !((((member.isMemberFunctionDef() || member.isGetterDef()) || member.isSetterDef()) || member.isComputedProp()) || member.isComputedFieldDef()) {
-			panic(new_IllegalStateException_String(objstr_(member.box_())).self())
+			panic(new_IllegalStateException_String(tostr_(member)).self())
 		}
 		return ownerType.getPrototype()
 	}
