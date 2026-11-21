@@ -63,17 +63,9 @@ func (this *DisambiguateProperties) process_2(externs Node, root Node) {
 		for n := range elemsBy_(graph.getNodes(), icast_DiGraph_DiGraphNode_ColorGraphNode_any) {
 			result = append(result, new_DisambiguateProperties_TypeNodeJson(n))
 		}
-		List_sort(sliceView_(tc_p_DisambiguateProperties_TypeNodeJson, result), func() Comparator[any] {
-			f_ := Comparator_comparingInt[*DisambiguateProperties_TypeNodeJson](ToIntFunction[*DisambiguateProperties_TypeNodeJson](func(x *DisambiguateProperties_TypeNodeJson) int32 {
-				return x.index_
-			}))
-			if f_ == nil {
-				return nil
-			}
-			return func(p0 any, p1 any) int32 {
-				return f_(cast_[*DisambiguateProperties_TypeNodeJson](p0), cast_[*DisambiguateProperties_TypeNodeJson](p1))
-			}
-		}())
+		sortSliceF_(result, Comparator_comparingInt[*DisambiguateProperties_TypeNodeJson](ToIntFunction[*DisambiguateProperties_TypeNodeJson](func(x *DisambiguateProperties_TypeNodeJson) int32 {
+			return x.index_
+		})))
 		return obj_(ImmutableList_copyOf(Collection(sliceView_(tc_p_DisambiguateProperties_TypeNodeJson, result))))
 	}))
 	this.invalidateBasedOnType(flattener)

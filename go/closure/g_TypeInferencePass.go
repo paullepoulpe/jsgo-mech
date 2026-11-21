@@ -67,13 +67,7 @@ func (this *TypeInferencePass) inferAllScopes(inferenceRoot Node) *TypedScope {
 			List_sort(sliceView_(tc_any, stepCounts), Comparator_naturalOrder[any]().reversed())
 			for _, stepCount := range stepCounts {
 				var entries []Map_Entry = sliceFrom_(tc_Map_Entry, Collection(this.stepCountHistogram.Get(stepCount).entrySet()))
-				List_sort(sliceView_(tc_Map_Entry, entries), func() Comparator[any] {
-					f_ := Comparator_comparingInt[Map_Entry](ToIntFunction[Map_Entry](func(p0 Map_Entry) int32 { return unbox_[int32](p0.getValue()) }))
-					if f_ == nil {
-						return nil
-					}
-					return func(p0 any, p1 any) int32 { return f_(icast_Map_Entry(p0), icast_Map_Entry(p1)) }
-				}())
+				sortSliceF_(entries, Comparator_comparingInt[Map_Entry](ToIntFunction[Map_Entry](func(p0 Map_Entry) int32 { return unbox_[int32](p0.getValue()) })))
 				for _, e := range entries {
 					totals[0] += (unbox_[int32](stepCount) * unbox_[int32](e.getValue()))
 					totals[1] += unbox_[int32](e.getValue())

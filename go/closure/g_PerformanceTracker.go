@@ -403,15 +403,9 @@ func (this *PerformanceTracker) outputTracerReport(output *Output) {
 	}()))), ("Type summary sources (post-pruning):   " + istr_(int64(this.transitiveSummarySources))), "", ("Dependency pruning analysis: " + sstr_(this.pruningAnalysisSummary))}))
 	output.println(JSCompStrings_lines([]string{"", "Summary:", "pass,runtime,allocMem,runs,changingRuns,astReduction,reduction,gzReduction"}))
 	var sortedPassSummary []Map_Entry = sliceFrom_(tc_Map_Entry, Collection(this.passSummary.asImm().entrySet()))
-	List_sort(sliceView_(tc_Map_Entry, sortedPassSummary), func() Comparator[any] {
-		f_ := Comparator_comparingLong[Map_Entry](ToLongFunction[Map_Entry](func(e Map_Entry) int64 {
-			return e.getValue().(*PerformanceTracker_Stats).runtime_
-		}))
-		if f_ == nil {
-			return nil
-		}
-		return func(p0 any, p1 any) int32 { return f_(icast_Map_Entry(p0), icast_Map_Entry(p1)) }
-	}())
+	sortSliceF_(sortedPassSummary, Comparator_comparingLong[Map_Entry](ToLongFunction[Map_Entry](func(e Map_Entry) int64 {
+		return e.getValue().(*PerformanceTracker_Stats).runtime_
+	})))
 	for _, entry := range sortedPassSummary {
 		var key string = str_(entry.getKey())
 		var stats *PerformanceTracker_Stats = cast_[*PerformanceTracker_Stats](entry.getValue())
