@@ -153,10 +153,6 @@ func (this Binding_CreatedBy) ordinal() int32 {
 
 func (this Binding_CreatedBy) toString() string { return this.enum_().name_ }
 
-func (this Binding_CreatedBy) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this Binding_CreatedBy) self() any {
 	if this == 0 {
 		return nil

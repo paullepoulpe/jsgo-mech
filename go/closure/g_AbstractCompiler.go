@@ -557,10 +557,6 @@ func (this AbstractCompiler_ConfigContext) toString() string {
 	return this.enum_().name_
 }
 
-func (this AbstractCompiler_ConfigContext) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this AbstractCompiler_ConfigContext) self() any {
 	if this == 0 {
 		return nil
@@ -628,10 +624,6 @@ func (this AbstractCompiler_LifeCycleStage) ordinal() int32 {
 
 func (this AbstractCompiler_LifeCycleStage) toString() string {
 	return this.enum_().name_
-}
-
-func (this AbstractCompiler_LifeCycleStage) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
 }
 
 func (this AbstractCompiler_LifeCycleStage) self() any {

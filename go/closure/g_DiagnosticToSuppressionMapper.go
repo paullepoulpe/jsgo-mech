@@ -116,10 +116,6 @@ func (this DiagnosticToSuppressionMapper_OutputFormat) toString() string {
 	return this.enum_().name_
 }
 
-func (this DiagnosticToSuppressionMapper_OutputFormat) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this DiagnosticToSuppressionMapper_OutputFormat) self() any {
 	if this == 0 {
 		return nil

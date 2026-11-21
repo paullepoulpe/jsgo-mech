@@ -184,7 +184,7 @@ func (this *SortingErrorManager_LeveledJSErrorComparator) compare(p1 *SortingErr
 		}
 	}
 	if p1.level_ != p2.level_ {
-		return p2.level_.compareTo(obj_(p1.level_))
+		return p2.level_.enum_().compareTo(obj_(p1.level_))
 	}
 	var source1 Optional[string] = p1.error_.sourceName()
 	var source2 Optional[string] = p2.error_.sourceName()

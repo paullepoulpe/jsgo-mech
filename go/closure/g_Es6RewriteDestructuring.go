@@ -665,10 +665,6 @@ func (this Es6RewriteDestructuring_ObjectDestructuringRewriteMode) toString() st
 	return this.enum_().name_
 }
 
-func (this Es6RewriteDestructuring_ObjectDestructuringRewriteMode) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this Es6RewriteDestructuring_ObjectDestructuringRewriteMode) self() any {
 	if this == 0 {
 		return nil

@@ -306,10 +306,6 @@ func (this GlobalNamespace_SourceKind) toString() string {
 	return this.enum_().name_
 }
 
-func (this GlobalNamespace_SourceKind) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this GlobalNamespace_SourceKind) self() any {
 	if this == 0 {
 		return nil
@@ -1024,10 +1020,6 @@ func (this GlobalNamespace_Inlinability) ordinal() int32 {
 
 func (this GlobalNamespace_Inlinability) toString() string {
 	return this.enum_().name_
-}
-
-func (this GlobalNamespace_Inlinability) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
 }
 
 func (this GlobalNamespace_Inlinability) self() any {
@@ -2126,10 +2118,6 @@ func (this GlobalNamespace_Ref_Type) toString() string {
 	return this.enum_().name_
 }
 
-func (this GlobalNamespace_Ref_Type) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this GlobalNamespace_Ref_Type) self() any {
 	if this == 0 {
 		return nil
@@ -2217,10 +2205,6 @@ func (this GlobalNamespace_NameProp) ordinal() int32 {
 
 func (this GlobalNamespace_NameProp) toString() string {
 	return this.enum_().name_
-}
-
-func (this GlobalNamespace_NameProp) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
 }
 
 func (this GlobalNamespace_NameProp) self() any {

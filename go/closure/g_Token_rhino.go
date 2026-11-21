@@ -206,8 +206,6 @@ func (this Token_rhino) ordinal() int32 {
 
 func (this Token_rhino) toString() string { return this.enum_().name_ }
 
-func (this Token_rhino) compareTo(o any) int32 { return this.enum_().compareTo(o) }
-
 func (this Token_rhino) self() any {
 	if this == 0 {
 		return nil
