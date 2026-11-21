@@ -6,16 +6,23 @@ type SimpleReference[T interface {
 	StaticTypedSlot
 	comparable
 }] struct {
-	self_   any
+	self_   SimpleReference_as[T]
 	symbol_ T
 	node_   Node
 }
 
 func (this *SimpleReference[T]) isa_SimpleReference_() {}
 
-func (this *SimpleReference[T]) as_SimpleReference() *SimpleReference[T] { return this }
+// SimpleReference_as is implemented by SimpleReference and the classes that extend it: a cast to SimpleReference asserts to it
+// (post-flip).
+type SimpleReference_as[T interface {
+	StaticTypedSlot
+	comparable
+}] interface {
+	as_SimpleReference() *SimpleReference[T]
+}
 
-func (this *SimpleReference[T]) as_SimpleReference_() any { return this }
+func (this *SimpleReference[T]) as_SimpleReference() *SimpleReference[T] { return this }
 
 func to_SimpleReference[T interface {
 	StaticTypedSlot
@@ -24,7 +31,7 @@ func to_SimpleReference[T interface {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_SimpleReference_() any }).as_SimpleReference_().(*SimpleReference[T])
+	return v.(SimpleReference_as[T]).as_SimpleReference()
 }
 
 func (this *SimpleReference[T]) self() any {

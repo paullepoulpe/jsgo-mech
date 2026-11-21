@@ -3,8 +3,7 @@
 package closure
 
 type Graph[N comparable, E comparable] struct {
-	self_               any
-	vt_Graph_           Graph_vt_[N, E]
+	self_               Graph_vt_[N, E]
 	nodeAnnotationStack *[]*Graph_GraphAnnotationState
 	edgeAnnotationStack *[]*Graph_GraphAnnotationState
 }
@@ -28,15 +27,19 @@ type Graph_vt_[N comparable, E comparable] interface {
 
 func (this *Graph[N, E]) isa_Graph_() {}
 
-func (this *Graph[N, E]) as_Graph() *Graph[N, E] { return this }
+// Graph_as is implemented by Graph and the classes that extend it: a cast to Graph asserts to it
+// (post-flip).
+type Graph_as[N comparable, E comparable] interface {
+	as_Graph() *Graph[N, E]
+}
 
-func (this *Graph[N, E]) as_Graph_() any { return this }
+func (this *Graph[N, E]) as_Graph() *Graph[N, E] { return this }
 
 func to_Graph[N comparable, E comparable](v any) *Graph[N, E] {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_Graph_() any }).as_Graph_().(*Graph[N, E])
+	return v.(Graph_as[N, E]).as_Graph()
 }
 
 func (this *Graph[N, E]) self() any {
@@ -127,59 +130,59 @@ func Graph_popAnnotations(stack *[]*Graph_GraphAnnotationState) {
 }
 
 func (this *Graph[N, E]) getNodes() Collection {
-	return this.vt_Graph_.getNodes_impl()
+	return this.self_.getNodes_impl()
 }
 
 func (this *Graph[N, E]) getEdges() List {
-	return this.vt_Graph_.getEdges_impl()
+	return this.self_.getEdges_impl()
 }
 
 func (this *Graph[N, E]) getEdges_2(p0 N, p1 N) List {
-	return this.vt_Graph_.getEdges_2_impl(p0, p1)
+	return this.self_.getEdges_2_impl(p0, p1)
 }
 
 func (this *Graph[N, E]) isConnected(p0 N, p1 N) bool {
-	return this.vt_Graph_.isConnected_impl(p0, p1)
+	return this.self_.isConnected_impl(p0, p1)
 }
 
 func (this *Graph[N, E]) isConnected_3(p0 N, p1 E, p2 N) bool {
-	return this.vt_Graph_.isConnected_3_impl(p0, p1, p2)
+	return this.self_.isConnected_3_impl(p0, p1, p2)
 }
 
 func (this *Graph[N, E]) createNode_Object(p0 N) GraphNode[N, E] {
-	return this.vt_Graph_.createNode_Object_impl(p0)
+	return this.self_.createNode_Object_impl(p0)
 }
 
 func (this *Graph[N, E]) getNode_Object(p0 N) GraphNode[N, E] {
-	return this.vt_Graph_.getNode_Object_impl(p0)
+	return this.self_.getNode_Object_impl(p0)
 }
 
 func (this *Graph[N, E]) newSubGraph() SubGraph[N, E] {
-	return this.vt_Graph_.newSubGraph_impl()
+	return this.self_.newSubGraph_impl()
 }
 
 func (this *Graph[N, E]) connect(p0 N, p1 E, p2 N) {
-	this.vt_Graph_.connect_impl(p0, p1, p2)
+	this.self_.connect_impl(p0, p1, p2)
 }
 
 func (this *Graph[N, E]) disconnect(p0 N, p1 N) {
-	this.vt_Graph_.disconnect_impl(p0, p1)
+	this.self_.disconnect_impl(p0, p1)
 }
 
 func (this *Graph[N, E]) getFirstEdge(p0 N, p1 N) Graph_GraphEdge[N, E] {
-	return this.vt_Graph_.getFirstEdge_impl(p0, p1)
+	return this.self_.getFirstEdge_impl(p0, p1)
 }
 
 func (this *Graph[N, E]) getNodeCount() int32 {
-	return this.vt_Graph_.getNodeCount_impl()
+	return this.self_.getNodeCount_impl()
 }
 
 func (this *Graph[N, E]) getNeighborNodes(p0 N) List {
-	return this.vt_Graph_.getNeighborNodes_impl(p0)
+	return this.self_.getNeighborNodes_impl(p0)
 }
 
 func (this *Graph[N, E]) getNodeDegree(p0 N) int32 {
-	return this.vt_Graph_.getNodeDegree_impl(p0)
+	return this.self_.getNodeDegree_impl(p0)
 }
 
 type Graph_AnnotationState struct {

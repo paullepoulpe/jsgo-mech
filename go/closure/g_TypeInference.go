@@ -67,7 +67,6 @@ func (this *TypeInference) init_TypeInference(compiler *AbstractCompiler, cfg *C
 func new_TypeInference(compiler *AbstractCompiler, cfg *ControlFlowGraph[Node], reverseInterpreter ReverseAbstractInterpreter, syntacticScope *TypedScope, scopeCreator *TypedScopeCreator, assertionFunctionLookup *CodingConvention_AssertionFunctionLookup) *TypeInference {
 	this := &TypeInference{}
 	this.self_ = this
-	this.vt_DataFlowAnalysis_ = this
 	this.init_TypeInference(compiler, cfg, reverseInterpreter, syntacticScope, scopeCreator, assertionFunctionLookup)
 	return this
 }
