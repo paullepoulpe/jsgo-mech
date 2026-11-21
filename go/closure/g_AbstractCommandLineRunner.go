@@ -323,7 +323,7 @@ func AbstractCommandLineRunner_getBuiltinExterns(env CompilerOptions_Environment
 			if !strings.HasPrefix(filename, envPrefix) {
 				continue
 			}
-			filename = String_substring_int(filename, String_length(envPrefix))
+			filename = filename[len(envPrefix):]
 		}
 		var data Optional[[]int8] = zip.get().read(entryName)
 		if data.isEmpty() {
@@ -1734,7 +1734,7 @@ func (this *AbstractCommandLineRunner) getMapPath(outputFile string) string {
 	} else {
 		var outputFileName string = FilePaths_fileName(outputFile)
 		if strings.HasSuffix(outputFileName, ".js") {
-			outputFileName = String_substring(outputFileName, 0, (String_length(outputFileName) - 3))
+			outputFileName = outputFileName[:len(outputFileName)-3]
 		}
 		var fileParent Optional[string] = FilePaths_parent(outputFile)
 		if fileParent.isEmpty() {
@@ -1819,7 +1819,7 @@ func AbstractCommandLineRunner_createDefineReplacements(definitions *JTList[stri
 			if isTrue || isFalse {
 				options.setDefineToBooleanLiteral(defName, isTrue)
 				continue
-			} else if (String_length(defValue) > 1) && (((String_charAt(defValue, 0) == '\'') && (String_charAt(defValue, (String_length(defValue)-1)) == '\'')) || ((String_charAt(defValue, 0) == '"') && (String_charAt(defValue, (String_length(defValue)-1)) == '"'))) {
+			} else if (String_length(defValue) > 1) && (((defValue[0] == '\'') && (defValue[len(defValue)-1] == '\'')) || ((defValue[0] == '"') && (defValue[len(defValue)-1] == '"'))) {
 				var maybeStringVal string = String_substring(defValue, 1, (String_length(defValue) - 1))
 				if String_indexOf(maybeStringVal, int32(String_charAt(defValue, 0))) == -1 {
 					options.setDefineToStringLiteral(defName, maybeStringVal)

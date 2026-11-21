@@ -449,7 +449,7 @@ func (this *GatherModuleMetadata_Finder) visitGoogCall(t *NodeTraversal, n Node)
 
 func (this *GatherModuleMetadata_Finder) addToggle(t *NodeTraversal, n Node, name string) {
 	if strings.HasPrefix(name, GatherModuleMetadata_TOGGLE_NAME_PREFIX) {
-		var toggleName string = String_substring_int(name, int32(len(GatherModuleMetadata_TOGGLE_NAME_PREFIX)))
+		var toggleName string = name[len(GatherModuleMetadata_TOGGLE_NAME_PREFIX):]
 		this.outer_.currentModule.metadataBuilder.readTogglesBuilder().add(toggleName)
 	} else {
 		t.report(n, GatherModuleMetadata_INVALID_TOGGLE_USAGE, []string{"all toggle names must start with `TOGGLE_`"})

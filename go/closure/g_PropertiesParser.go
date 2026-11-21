@@ -34,7 +34,7 @@ func PropertiesParser_parse(source string) *JTMap[string, string] {
 		line = PropertiesParser_trimLeft(String_substring_int(line, (delimeterIndex + 1)))
 		for {
 			if strings.HasSuffix(line, "\\") {
-				data += sstr_(String_substring(line, 0, (String_length(line) - 1)))
+				data += sstr_(line[:len(line)-1])
 				if (i + 1) == int32(len(lines)) {
 					break
 				}
