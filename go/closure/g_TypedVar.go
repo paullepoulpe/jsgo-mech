@@ -154,13 +154,13 @@ func (this *TypedVar) isImplicit() bool {
 	if this.isImplicitGoogNamespace() {
 		return true
 	}
-	var var_ *AbstractScope_ImplicitVar = AbstractScope_ImplicitVar_of(this.name_)
-	return ((var_ != nil) && var_.isMadeByScope(this.scope_.up_AbstractScope()))
+	var var_ AbstractScope_ImplicitVar = AbstractScope_ImplicitVar_of(this.name_)
+	return ((var_ != 0) && var_.isMadeByScope(this.scope_.up_AbstractScope()))
 }
 
-func (this *TypedVar) declarationType_impl() *Token_rhino {
+func (this *TypedVar) declarationType_impl() Token_rhino {
 	if this.isImplicitGoogNamespace() {
-		return nil
+		return 0
 	}
 	{
 		var current Node = this.getNode()
@@ -173,7 +173,7 @@ func (this *TypedVar) declarationType_impl() *Token_rhino {
 	if ok_, a1_, a2_ := this.isImplicit(), this, AbstractVar_DECLARATION_TYPES.asSetT(); !ok_ {
 		Preconditions_checkState_boolean_String_Object_Object(false, "The nameNode for %s must be a descendant of one of: %s", a1_, a2_)
 	}
-	return nil
+	return 0
 }
 
 func (this *TypedVar) getSymbol_rAbstractVar_impl() *AbstractVar {
@@ -200,7 +200,7 @@ func (this *TypedVar) getSymbol_rStaticTypedSlot() StaticTypedSlot {
 	return icast_StaticTypedSlot(obj_(this.getSymbol_rAbstractVar_rTypedVar()))
 }
 
-var TypedVar_NAME_NODE_TYPES *JTSet[*Token_rhino]
+var TypedVar_NAME_NODE_TYPES *JTSet[Token_rhino]
 
 var TypedVar_clinit_done bool
 
@@ -209,7 +209,7 @@ func TypedVar_clinit() {
 		return
 	}
 	TypedVar_clinit_done = true
-	TypedVar_NAME_NODE_TYPES = tsetImm_(tc_p_Token_rhino, Sets_immutableEnumSet(Token_rhino_NAME.up_Enum(), []*Enum{Token_rhino_THIS.up_Enum(), Token_rhino_IMPORT_STAR.up_Enum(), Token_rhino_EXPR_RESULT.up_Enum(), Token_rhino_EXPORT.up_Enum(), Token_rhino_GETPROP.up_Enum(), Token_rhino_FUNCTION.up_Enum(), Token_rhino_STRING_KEY.up_Enum(), Token_rhino_SETTER_DEF.up_Enum(), Token_rhino_GETTER_DEF.up_Enum(), Token_rhino_MEMBER_FUNCTION_DEF.up_Enum(), Token_rhino_MODULE_BODY.up_Enum()}))
+	TypedVar_NAME_NODE_TYPES = tsetImm_(tc_p_Token_rhino, Sets_immutableEnumSet(Token_rhino_NAME.enum_(), []*Enum{Token_rhino_THIS.enum_(), Token_rhino_IMPORT_STAR.enum_(), Token_rhino_EXPR_RESULT.enum_(), Token_rhino_EXPORT.enum_(), Token_rhino_GETPROP.enum_(), Token_rhino_FUNCTION.enum_(), Token_rhino_STRING_KEY.enum_(), Token_rhino_SETTER_DEF.enum_(), Token_rhino_GETTER_DEF.enum_(), Token_rhino_MEMBER_FUNCTION_DEF.enum_(), Token_rhino_MODULE_BODY.enum_()}))
 
 }
 
@@ -270,7 +270,7 @@ func (this *TypedVar) isThis() bool {
 }
 
 // declarationType: an object that is exactly a TypedVar calls its declarationType_impl directly (post-flip); others dispatch.
-func (this *TypedVar) declarationType() *Token_rhino {
+func (this *TypedVar) declarationType() Token_rhino {
 	if this.self_ == any(this) {
 		return this.declarationType_impl()
 	}

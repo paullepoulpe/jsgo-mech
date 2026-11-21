@@ -25,7 +25,7 @@ func new_AllType(registry *JSTypeRegistry) *AllType {
 	return this
 }
 
-func (this *AllType) getTypeClass_impl() *JSTypeClass {
+func (this *AllType) getTypeClass_impl() JSTypeClass {
 	return JSTypeClass_ALL
 }
 
@@ -41,7 +41,7 @@ func (this *AllType) matchesObjectContext_impl() bool {
 	return true
 }
 
-func (this *AllType) testForEquality_impl(that *JSType) *Tri {
+func (this *AllType) testForEquality_impl(that *JSType) Tri {
 	return Tri_UNKNOWN
 }
 
@@ -65,7 +65,7 @@ func (this *AllType) visitUntyped_2_impl(visitor RelationshipVisitor, that *JSTy
 	return visitor.caseAllType(that)
 }
 
-func (this *AllType) getPossibleToBooleanOutcomes_impl() *BooleanLiteralSet {
+func (this *AllType) getPossibleToBooleanOutcomes_impl() BooleanLiteralSet {
 	return BooleanLiteralSet_BOTH
 }
 
@@ -86,7 +86,7 @@ func (this *AllType) isVoidable_impl() bool {
 }
 
 // getTypeClass: an object that is exactly a AllType calls its getTypeClass_impl directly (post-flip); others dispatch.
-func (this *AllType) getTypeClass() *JSTypeClass {
+func (this *AllType) getTypeClass() JSTypeClass {
 	if this.self_ == any(this) {
 		return this.getTypeClass_impl()
 	}
@@ -118,7 +118,7 @@ func (this *AllType) matchesObjectContext() bool {
 }
 
 // testForEquality: an object that is exactly a AllType calls its testForEquality_impl directly (post-flip); others dispatch.
-func (this *AllType) testForEquality(p0 *JSType) *Tri {
+func (this *AllType) testForEquality(p0 *JSType) Tri {
 	if this.self_ == any(this) {
 		return this.testForEquality_impl(p0)
 	}
@@ -167,7 +167,7 @@ func (this *AllType) visitUntyped_2(p0 RelationshipVisitor, p1 *JSType) any {
 }
 
 // getPossibleToBooleanOutcomes: an object that is exactly a AllType calls its getPossibleToBooleanOutcomes_impl directly (post-flip); others dispatch.
-func (this *AllType) getPossibleToBooleanOutcomes() *BooleanLiteralSet {
+func (this *AllType) getPossibleToBooleanOutcomes() BooleanLiteralSet {
 	if this.self_ == any(this) {
 		return this.getPossibleToBooleanOutcomes_impl()
 	}

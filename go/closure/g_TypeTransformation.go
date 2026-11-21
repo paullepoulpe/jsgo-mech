@@ -32,7 +32,7 @@ func (this *TypeTransformation) isBooleanOperation(n Node) bool {
 	return ((n.isAnd() || n.isOr()) || n.isNot())
 }
 
-func (this *TypeTransformation) nameToKeyword(s string) *TypeTransformationParser_Keywords {
+func (this *TypeTransformation) nameToKeyword(s string) TypeTransformationParser_Keywords {
 	return TypeTransformationParser_Keywords_valueOf(Ascii_toUpperCase(s))
 }
 
@@ -176,9 +176,9 @@ func (this *TypeTransformation) evalInternal(ttlAst Node, nameResolver *TypeTran
 		return this.evalTypeVar(ttlAst, nameResolver)
 	}
 	var name string = this.getCallName(ttlAst)
-	var keyword *TypeTransformationParser_Keywords = this.nameToKeyword(name)
+	var keyword TypeTransformationParser_Keywords = this.nameToKeyword(name)
 	return func() *JSType {
-		switch keyword.kind_ {
+		switch TypeTransformationParser_Keywords_kind__[keyword-1] {
 		case TypeTransformationParser_OperationKind_TYPE_CONSTRUCTOR:
 			return this.evalTypeExpression(ttlAst, nameResolver)
 		case TypeTransformationParser_OperationKind_OPERATION:
@@ -192,7 +192,7 @@ func (this *TypeTransformation) evalInternal(ttlAst Node, nameResolver *TypeTran
 
 func (this *TypeTransformation) evalOperationExpression(ttlAst Node, nameResolver *TypeTransformation_NameResolver) *JSType {
 	var name string = this.getCallName(ttlAst)
-	var keyword *TypeTransformationParser_Keywords = this.nameToKeyword(name)
+	var keyword TypeTransformationParser_Keywords = this.nameToKeyword(name)
 	return func() *JSType {
 		switch keyword {
 		case TypeTransformationParser_Keywords_COND:
@@ -218,7 +218,7 @@ func (this *TypeTransformation) evalOperationExpression(ttlAst Node, nameResolve
 
 func (this *TypeTransformation) evalTypeExpression(ttlAst Node, nameResolver *TypeTransformation_NameResolver) *JSType {
 	var name string = this.getCallName(ttlAst)
-	var keyword *TypeTransformationParser_Keywords = this.nameToKeyword(name)
+	var keyword TypeTransformationParser_Keywords = this.nameToKeyword(name)
 	return func() *JSType {
 		switch keyword {
 		case TypeTransformationParser_Keywords_TYPE:
@@ -332,7 +332,7 @@ func (this *TypeTransformation) evalStringParams(ttlAst Node, nameResolver *Type
 func (this *TypeTransformation) evalTypePredicate(ttlAst Node, nameResolver *TypeTransformation_NameResolver) bool {
 	var params []*JSType = this.evalTypeParams(ttlAst, nameResolver)
 	var name string = this.getCallName(ttlAst)
-	var keyword *TypeTransformationParser_Keywords = this.nameToKeyword(name)
+	var keyword TypeTransformationParser_Keywords = this.nameToKeyword(name)
 	var type_ *JSType = params[0]
 	return func() bool {
 		switch keyword {
@@ -363,7 +363,7 @@ func (this *TypeTransformation) evalStringPredicate(ttlAst Node, nameResolver *T
 		}
 	}
 	var name string = this.getCallName(ttlAst)
-	var keyword *TypeTransformationParser_Keywords = this.nameToKeyword(name)
+	var keyword TypeTransformationParser_Keywords = this.nameToKeyword(name)
 	return func() bool {
 		switch keyword {
 		case TypeTransformationParser_Keywords_STREQ:
@@ -377,7 +377,7 @@ func (this *TypeTransformation) evalStringPredicate(ttlAst Node, nameResolver *T
 
 func (this *TypeTransformation) evalTypevarPredicate(ttlAst Node, nameResolver *TypeTransformation_NameResolver) bool {
 	var name string = this.getCallName(ttlAst)
-	var keyword *TypeTransformationParser_Keywords = this.nameToKeyword(name)
+	var keyword TypeTransformationParser_Keywords = this.nameToKeyword(name)
 	return func() bool {
 		switch keyword {
 		case TypeTransformationParser_Keywords_ISDEFINED:
@@ -408,9 +408,9 @@ func (this *TypeTransformation) evalBoolean(ttlAst Node, nameResolver *TypeTrans
 		return this.evalBooleanOperation(ttlAst, nameResolver)
 	}
 	var name string = this.getCallName(ttlAst)
-	var keyword *TypeTransformationParser_Keywords = this.nameToKeyword(name)
+	var keyword TypeTransformationParser_Keywords = this.nameToKeyword(name)
 	return func() bool {
-		switch keyword.kind_ {
+		switch TypeTransformationParser_Keywords_kind__[keyword-1] {
 		case TypeTransformationParser_OperationKind_STRING_PREDICATE:
 			return this.evalStringPredicate(ttlAst, nameResolver)
 		case TypeTransformationParser_OperationKind_TYPE_PREDICATE:

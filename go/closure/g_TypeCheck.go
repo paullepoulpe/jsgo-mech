@@ -9,7 +9,7 @@ type TypeCheck struct {
 	typeRegistry                 *JSTypeRegistry
 	topScope                     *TypedScope
 	scopeCreator                 *TypedScopeCreator
-	subtypingMode                *JSType_SubtypingMode
+	subtypingMode                JSType_SubtypingMode
 	inferJSDocInfo               *InferJSDocInfo
 	debugTypeLogger              *TypeCheck_DebugTypeLogger
 	typedCount                   int32
@@ -243,7 +243,7 @@ func (this *TypeCheck) visit(t *NodeTraversal, n Node, parent Node) {
 		rightType = this.getJSType(right)
 		var leftTypeRestricted *JSType = leftType.restrictByNotNullOrUndefined()
 		var rightTypeRestricted *JSType = rightType.restrictByNotNullOrUndefined()
-		var result *Tri = Tri_UNKNOWN
+		var result Tri = Tri_UNKNOWN
 		if n.isEQ() || n.isNE() {
 			result = leftTypeRestricted.testForEquality(rightTypeRestricted)
 			if n.isNE() {
@@ -251,7 +251,7 @@ func (this *TypeCheck) visit(t *NodeTraversal, n Node, parent Node) {
 			}
 		} else {
 			if !leftTypeRestricted.canTestForShallowEqualityWith(rightTypeRestricted) {
-				result = func() *Tri {
+				result = func() Tri {
 					if n.isSHEQ() {
 						return Tri_FALSE
 					}
@@ -601,7 +601,7 @@ func (this *TypeCheck) checkPropCreation(lvalue Node) {
 		var objType *JSType = this.getJSType(lvalue.getFirstChild())
 		if !objType.isEmptyType() && !objType.isUnknownType() {
 			var propName string = lvalue.getString()
-			var kind *JSTypeRegistry_PropDefinitionKind = this.typeRegistry.canPropertyBeDefined(objType, propName)
+			var kind JSTypeRegistry_PropDefinitionKind = this.typeRegistry.canPropertyBeDefined(objType, propName)
 			if !eqR_(kind, JSTypeRegistry_PropDefinitionKind_KNOWN) {
 				if objType.isStruct() {
 					if objType.restrictByNotNullOrUndefined().isUnionType() {
@@ -938,7 +938,7 @@ func (this *TypeCheck) visitName(t *NodeTraversal, n Node, parent Node) bool {
 		return false
 	}
 	var reportIfMissingType bool = true
-	var parentNodeType *Token_rhino = parent.getToken()
+	var parentNodeType Token_rhino = parent.getToken()
 	if ((isFunctionName || (parentNodeType == Token_rhino_CATCH)) || (parentNodeType == Token_rhino_PARAM_LIST)) || NodeUtil_isNameDeclaration(parent) {
 		reportIfMissingType = false
 	}
@@ -1082,7 +1082,7 @@ func (this *TypeCheck) checkPropertyAccessHelper(objectType *JSType, propNode No
 	if (!this.reportMissingPropertiesField || objectType.isEmptyType()) || (isGetprop && this.allowStrictPropertyAccessOnNode(propNode)) {
 		return
 	}
-	var kind *JSTypeRegistry_PropDefinitionKind = this.typeRegistry.canPropertyBeDefined(objectType, propName)
+	var kind JSTypeRegistry_PropDefinitionKind = this.typeRegistry.canPropertyBeDefined(objectType, propName)
 	if eqR_(kind, JSTypeRegistry_PropDefinitionKind_KNOWN) {
 		return
 	}
@@ -1098,7 +1098,7 @@ func (this *TypeCheck) checkPropertyAccessHelper(objectType *JSType, propNode No
 	this.reportMissingProperty(objNode, objectType, propNode, kind, strictReport)
 }
 
-func (this *TypeCheck) reportMissingProperty(objNode Node, objectType *JSType, propNode Node, kind *JSTypeRegistry_PropDefinitionKind, strictReport bool) {
+func (this *TypeCheck) reportMissingProperty(objNode Node, objectType *JSType, propNode Node, kind JSTypeRegistry_PropDefinitionKind, strictReport bool) {
 	var propName string = propNode.getString()
 	var isObjectType bool = objectType.equals(this.getNativeType(JSTypeNative_OBJECT_TYPE).self())
 	var lowConfidence bool = ((objectType.isUnknownType() || objectType.isAllType()) || isObjectType)
@@ -1626,7 +1626,7 @@ func (this *TypeCheck) visitTaggedTemplateLit(n Node) {
 	this.checkArgumentsMatchParameters(n, tagFnType, NodeUtil_getInvocationArgsAsIterable(n).iterator_t(), parameters, 1)
 }
 
-func (this *TypeCheck) visitBinaryOperator(op *Token_rhino, n Node) {
+func (this *TypeCheck) visitBinaryOperator(op Token_rhino, n Node) {
 	var operatorType *JSType = this.getJSType(n)
 	var left Node = n.getFirstChild()
 	var leftType *JSType = this.getJSType(left)
@@ -1750,7 +1750,7 @@ func (this *TypeCheck) ensureTyped(n Node) {
 	this.ensureTypedJSType(n, this.getNativeType(JSTypeNative_UNKNOWN_TYPE))
 }
 
-func (this *TypeCheck) ensureTyped_2(n Node, type_ *JSTypeNative) {
+func (this *TypeCheck) ensureTyped_2(n Node, type_ JSTypeNative) {
 	this.ensureTypedJSType(n, this.getNativeType(type_))
 }
 
@@ -1771,7 +1771,7 @@ func (this *TypeCheck) getTypedPercent() float64 {
 	}()
 }
 
-func (this *TypeCheck) getNativeType(typeId *JSTypeNative) *JSType {
+func (this *TypeCheck) getNativeType(typeId JSTypeNative) *JSType {
 	return this.typeRegistry.getNativeType(typeId)
 }
 

@@ -2,45 +2,61 @@
 
 package closure
 
-type VariableRenamingPolicy struct {
-	Enum
+type VariableRenamingPolicy uint8
+
+// VariableRenamingPolicy_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var VariableRenamingPolicy_enum_ = [3]Enum{
+	{self_: VariableRenamingPolicy_OFF, name_: "OFF", ordinal_: 0},
+	{self_: VariableRenamingPolicy_LOCAL, name_: "LOCAL", ordinal_: 1},
+	{self_: VariableRenamingPolicy_ALL, name_: "ALL", ordinal_: 2},
 }
 
-func (this *VariableRenamingPolicy) up_Enum() *Enum {
-	if this == nil {
+func (this VariableRenamingPolicy) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &VariableRenamingPolicy_enum_[this-1]
 }
 
-func (this *VariableRenamingPolicy) init_VariableRenamingPolicy(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this VariableRenamingPolicy) name() string { return VariableRenamingPolicy_enum_[this-1].name_ }
+
+func (this VariableRenamingPolicy) ordinal() int32 {
+	return VariableRenamingPolicy_enum_[this-1].ordinal_
 }
 
-func new_VariableRenamingPolicy(name_ string, ordinal_ int32) *VariableRenamingPolicy {
-	this := &VariableRenamingPolicy{}
-	this.self_ = this
-	this.init_VariableRenamingPolicy(name_, ordinal_)
+func (this VariableRenamingPolicy) toString() string {
+	return VariableRenamingPolicy_enum_[this-1].name_
+}
+
+func (this VariableRenamingPolicy) compareTo(o any) int32 {
+	return VariableRenamingPolicy_enum_[this-1].compareTo(o)
+}
+
+func (this VariableRenamingPolicy) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func VariableRenamingPolicy_values() []*VariableRenamingPolicy {
-	return append([]*VariableRenamingPolicy(nil), VariableRenamingPolicy_values_...)
+func VariableRenamingPolicy_values() []VariableRenamingPolicy {
+	return append([]VariableRenamingPolicy(nil), VariableRenamingPolicy_values_...)
 }
 
-func VariableRenamingPolicy_valueOf(name string) *VariableRenamingPolicy {
+func VariableRenamingPolicy_valueOf(name string) VariableRenamingPolicy {
 	for _, v := range VariableRenamingPolicy_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("VariableRenamingPolicy", name))
 }
 
-var VariableRenamingPolicy_OFF *VariableRenamingPolicy
-var VariableRenamingPolicy_LOCAL *VariableRenamingPolicy
-var VariableRenamingPolicy_ALL *VariableRenamingPolicy
-var VariableRenamingPolicy_values_ []*VariableRenamingPolicy
+const VariableRenamingPolicy_OFF VariableRenamingPolicy = 1
+const VariableRenamingPolicy_LOCAL VariableRenamingPolicy = 2
+const VariableRenamingPolicy_ALL VariableRenamingPolicy = 3
+
+var VariableRenamingPolicy_values_ []VariableRenamingPolicy
 
 var VariableRenamingPolicy_clinit_done bool
 
@@ -49,10 +65,7 @@ func VariableRenamingPolicy_clinit() {
 		return
 	}
 	VariableRenamingPolicy_clinit_done = true
-	VariableRenamingPolicy_OFF = new_VariableRenamingPolicy("OFF", 0)
-	VariableRenamingPolicy_LOCAL = new_VariableRenamingPolicy("LOCAL", 1)
-	VariableRenamingPolicy_ALL = new_VariableRenamingPolicy("ALL", 2)
-	VariableRenamingPolicy_values_ = []*VariableRenamingPolicy{VariableRenamingPolicy_OFF, VariableRenamingPolicy_LOCAL, VariableRenamingPolicy_ALL}
+	VariableRenamingPolicy_values_ = []VariableRenamingPolicy{VariableRenamingPolicy_OFF, VariableRenamingPolicy_LOCAL, VariableRenamingPolicy_ALL}
 	registerEnum_("com.google.javascript.jscomp.VariableRenamingPolicy", enumValues_(VariableRenamingPolicy_values_))
 
 }

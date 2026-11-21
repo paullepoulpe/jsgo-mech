@@ -3,7 +3,7 @@
 package closure
 
 type CheckRequiresSorted struct {
-	mode_              *CheckRequiresSorted_Mode
+	mode_              CheckRequiresSorted_Mode
 	importsByNamespace *SimpleListMultimap[string, *CheckRequiresSorted_ImportStatement]
 	originalImports    *JTList[*CheckRequiresSorted_ImportStatement]
 	replacement_       Optional[string]
@@ -23,12 +23,12 @@ func (this *CheckRequiresSorted) finit_CheckRequiresSorted() {
 	this.replacement_ = Optional_empty[string]()
 }
 
-func (this *CheckRequiresSorted) init_CheckRequiresSorted(mode *CheckRequiresSorted_Mode) {
+func (this *CheckRequiresSorted) init_CheckRequiresSorted(mode CheckRequiresSorted_Mode) {
 	this.finit_CheckRequiresSorted()
 	this.mode_ = mode
 }
 
-func new_CheckRequiresSorted(mode *CheckRequiresSorted_Mode) *CheckRequiresSorted {
+func new_CheckRequiresSorted(mode CheckRequiresSorted_Mode) *CheckRequiresSorted {
 	this := &CheckRequiresSorted{}
 	this.init_CheckRequiresSorted(mode)
 	return this
@@ -85,7 +85,7 @@ func CheckRequiresSorted_isValidImportCall(n Node) bool {
 }
 
 func CheckRequiresSorted_parseImport(callNode Node) *CheckRequiresSorted_ImportStatement {
-	var primitive *CheckRequiresSorted_ImportPrimitive = CheckRequiresSorted_ImportPrimitive_fromName(Optional_of[string](callNode.getFirstChild().getQualifiedName()).filter(Predicate[string](func(s string) bool {
+	var primitive CheckRequiresSorted_ImportPrimitive = CheckRequiresSorted_ImportPrimitive_fromName(Optional_of[string](callNode.getFirstChild().getQualifiedName()).filter(Predicate[string](func(s string) bool {
 		return !String_isEmpty(s)
 	})))
 	var namespace string = callNode.getSecondChild().getString()
@@ -128,7 +128,7 @@ func CheckRequiresSorted_canonicalizeImports(importsByNamespace *SimpleListMulti
 	for it_1.next() {
 		var namespace string = it_1.v
 		var allImports CollectionT[*CheckRequiresSorted_ImportStatement] = importsByNamespace.get(namespace)
-		var strongestPrimitive *CheckRequiresSorted_ImportPrimitive = CheckRequiresSorted_ImportPrimitive_WEAKEST
+		var strongestPrimitive CheckRequiresSorted_ImportPrimitive = CheckRequiresSorted_ImportPrimitive_WEAKEST
 		it_3 := jeachOf_(allImports)
 		for it_3.next() {
 			var i *CheckRequiresSorted_ImportStatement = it_3.v
@@ -213,44 +213,61 @@ func CheckRequiresSorted_clinit() {
 
 }
 
-type CheckRequiresSorted_Mode struct {
-	Enum
+type CheckRequiresSorted_Mode uint8
+
+// CheckRequiresSorted_Mode_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var CheckRequiresSorted_Mode_enum_ = [2]Enum{
+	{self_: CheckRequiresSorted_Mode_COLLECT_ONLY, name_: "COLLECT_ONLY", ordinal_: 0},
+	{self_: CheckRequiresSorted_Mode_COLLECT_AND_REPORT, name_: "COLLECT_AND_REPORT", ordinal_: 1},
 }
 
-func (this *CheckRequiresSorted_Mode) up_Enum() *Enum {
-	if this == nil {
+func (this CheckRequiresSorted_Mode) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &CheckRequiresSorted_Mode_enum_[this-1]
 }
 
-func (this *CheckRequiresSorted_Mode) init_CheckRequiresSorted_Mode(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this CheckRequiresSorted_Mode) name() string {
+	return CheckRequiresSorted_Mode_enum_[this-1].name_
 }
 
-func new_CheckRequiresSorted_Mode(name_ string, ordinal_ int32) *CheckRequiresSorted_Mode {
-	this := &CheckRequiresSorted_Mode{}
-	this.self_ = this
-	this.init_CheckRequiresSorted_Mode(name_, ordinal_)
+func (this CheckRequiresSorted_Mode) ordinal() int32 {
+	return CheckRequiresSorted_Mode_enum_[this-1].ordinal_
+}
+
+func (this CheckRequiresSorted_Mode) toString() string {
+	return CheckRequiresSorted_Mode_enum_[this-1].name_
+}
+
+func (this CheckRequiresSorted_Mode) compareTo(o any) int32 {
+	return CheckRequiresSorted_Mode_enum_[this-1].compareTo(o)
+}
+
+func (this CheckRequiresSorted_Mode) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func CheckRequiresSorted_Mode_values() []*CheckRequiresSorted_Mode {
-	return append([]*CheckRequiresSorted_Mode(nil), CheckRequiresSorted_Mode_values_...)
+func CheckRequiresSorted_Mode_values() []CheckRequiresSorted_Mode {
+	return append([]CheckRequiresSorted_Mode(nil), CheckRequiresSorted_Mode_values_...)
 }
 
-func CheckRequiresSorted_Mode_valueOf(name string) *CheckRequiresSorted_Mode {
+func CheckRequiresSorted_Mode_valueOf(name string) CheckRequiresSorted_Mode {
 	for _, v := range CheckRequiresSorted_Mode_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Mode", name))
 }
 
-var CheckRequiresSorted_Mode_COLLECT_ONLY *CheckRequiresSorted_Mode
-var CheckRequiresSorted_Mode_COLLECT_AND_REPORT *CheckRequiresSorted_Mode
-var CheckRequiresSorted_Mode_values_ []*CheckRequiresSorted_Mode
+const CheckRequiresSorted_Mode_COLLECT_ONLY CheckRequiresSorted_Mode = 1
+const CheckRequiresSorted_Mode_COLLECT_AND_REPORT CheckRequiresSorted_Mode = 2
+
+var CheckRequiresSorted_Mode_values_ []CheckRequiresSorted_Mode
 
 var CheckRequiresSorted_Mode_clinit_done bool
 
@@ -259,53 +276,67 @@ func CheckRequiresSorted_Mode_clinit() {
 		return
 	}
 	CheckRequiresSorted_Mode_clinit_done = true
-	CheckRequiresSorted_Mode_COLLECT_ONLY = new_CheckRequiresSorted_Mode("COLLECT_ONLY", 0)
-	CheckRequiresSorted_Mode_COLLECT_AND_REPORT = new_CheckRequiresSorted_Mode("COLLECT_AND_REPORT", 1)
-	CheckRequiresSorted_Mode_values_ = []*CheckRequiresSorted_Mode{CheckRequiresSorted_Mode_COLLECT_ONLY, CheckRequiresSorted_Mode_COLLECT_AND_REPORT}
+	CheckRequiresSorted_Mode_values_ = []CheckRequiresSorted_Mode{CheckRequiresSorted_Mode_COLLECT_ONLY, CheckRequiresSorted_Mode_COLLECT_AND_REPORT}
 	registerEnum_("com.google.javascript.jscomp.lint.CheckRequiresSorted.Mode", enumValues_(CheckRequiresSorted_Mode_values_))
 
 }
 
-type CheckRequiresSorted_ImportPrimitive struct {
-	Enum
-	nameField string
+type CheckRequiresSorted_ImportPrimitive uint8
+
+// CheckRequiresSorted_ImportPrimitive_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var CheckRequiresSorted_ImportPrimitive_enum_ = [3]Enum{
+	{self_: CheckRequiresSorted_ImportPrimitive_REQUIRE, name_: "REQUIRE", ordinal_: 0},
+	{self_: CheckRequiresSorted_ImportPrimitive_REQUIRE_TYPE, name_: "REQUIRE_TYPE", ordinal_: 1},
+	{self_: CheckRequiresSorted_ImportPrimitive_FORWARD_DECLARE, name_: "FORWARD_DECLARE", ordinal_: 2},
 }
 
-func (this *CheckRequiresSorted_ImportPrimitive) up_Enum() *Enum {
-	if this == nil {
+var CheckRequiresSorted_ImportPrimitive_nameField_ [3]string
+
+func (this CheckRequiresSorted_ImportPrimitive) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &CheckRequiresSorted_ImportPrimitive_enum_[this-1]
 }
 
-func (this *CheckRequiresSorted_ImportPrimitive) zero_CheckRequiresSorted_ImportPrimitive() {
-	this.nameField = nullstr_
+func (this CheckRequiresSorted_ImportPrimitive) name() string {
+	return CheckRequiresSorted_ImportPrimitive_enum_[this-1].name_
 }
 
-func (this *CheckRequiresSorted_ImportPrimitive) init_CheckRequiresSorted_ImportPrimitive(name_ string, ordinal_ int32, name string) {
-	this.Enum.init_Enum(name_, ordinal_)
-	this.nameField = name
+func (this CheckRequiresSorted_ImportPrimitive) ordinal() int32 {
+	return CheckRequiresSorted_ImportPrimitive_enum_[this-1].ordinal_
 }
 
-func new_CheckRequiresSorted_ImportPrimitive(name_ string, ordinal_ int32, name string) *CheckRequiresSorted_ImportPrimitive {
-	this := &CheckRequiresSorted_ImportPrimitive{}
-	this.self_ = this
-	this.zero_CheckRequiresSorted_ImportPrimitive()
-	this.init_CheckRequiresSorted_ImportPrimitive(name_, ordinal_, name)
+func (this CheckRequiresSorted_ImportPrimitive) compareTo(o any) int32 {
+	return CheckRequiresSorted_ImportPrimitive_enum_[this-1].compareTo(o)
+}
+
+func (this CheckRequiresSorted_ImportPrimitive) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func CheckRequiresSorted_ImportPrimitive_fromName(name Optional[string]) *CheckRequiresSorted_ImportPrimitive {
+func (this CheckRequiresSorted_ImportPrimitive) zero_CheckRequiresSorted_ImportPrimitive() {
+	CheckRequiresSorted_ImportPrimitive_nameField_[this-1] = nullstr_
+}
+
+func (this CheckRequiresSorted_ImportPrimitive) init_CheckRequiresSorted_ImportPrimitive(name string) {
+	CheckRequiresSorted_ImportPrimitive_nameField_[this-1] = name
+}
+
+func CheckRequiresSorted_ImportPrimitive_fromName(name Optional[string]) CheckRequiresSorted_ImportPrimitive {
 	for _, primitive := range CheckRequiresSorted_ImportPrimitive_values() {
-		if Object_equals(Optional_of[string](primitive.nameField).box_(), name.box_()) {
+		if Object_equals(Optional_of[string](CheckRequiresSorted_ImportPrimitive_nameField_[primitive-1]).box_(), name.box_()) {
 			return primitive
 		}
 	}
 	panic(new_IllegalArgumentException_String(("Invalid primitive name " + sstr_(name.orElse("null")))).self())
 }
 
-func CheckRequiresSorted_ImportPrimitive_stronger(p1 *CheckRequiresSorted_ImportPrimitive, p2 *CheckRequiresSorted_ImportPrimitive) *CheckRequiresSorted_ImportPrimitive {
-	return func() *CheckRequiresSorted_ImportPrimitive {
+func CheckRequiresSorted_ImportPrimitive_stronger(p1 CheckRequiresSorted_ImportPrimitive, p2 CheckRequiresSorted_ImportPrimitive) CheckRequiresSorted_ImportPrimitive {
+	return func() CheckRequiresSorted_ImportPrimitive {
 		if p1.ordinal() < p2.ordinal() {
 			return p1
 		}
@@ -313,28 +344,29 @@ func CheckRequiresSorted_ImportPrimitive_stronger(p1 *CheckRequiresSorted_Import
 	}()
 }
 
-func (this *CheckRequiresSorted_ImportPrimitive) toString() string {
-	return this.nameField
+func (this CheckRequiresSorted_ImportPrimitive) toString() string {
+	return CheckRequiresSorted_ImportPrimitive_nameField_[this-1]
 }
 
-func CheckRequiresSorted_ImportPrimitive_values() []*CheckRequiresSorted_ImportPrimitive {
-	return append([]*CheckRequiresSorted_ImportPrimitive(nil), CheckRequiresSorted_ImportPrimitive_values_...)
+func CheckRequiresSorted_ImportPrimitive_values() []CheckRequiresSorted_ImportPrimitive {
+	return append([]CheckRequiresSorted_ImportPrimitive(nil), CheckRequiresSorted_ImportPrimitive_values_...)
 }
 
-func CheckRequiresSorted_ImportPrimitive_valueOf(name string) *CheckRequiresSorted_ImportPrimitive {
+func CheckRequiresSorted_ImportPrimitive_valueOf(name string) CheckRequiresSorted_ImportPrimitive {
 	for _, v := range CheckRequiresSorted_ImportPrimitive_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("ImportPrimitive", name))
 }
 
-var CheckRequiresSorted_ImportPrimitive_REQUIRE *CheckRequiresSorted_ImportPrimitive
-var CheckRequiresSorted_ImportPrimitive_REQUIRE_TYPE *CheckRequiresSorted_ImportPrimitive
-var CheckRequiresSorted_ImportPrimitive_FORWARD_DECLARE *CheckRequiresSorted_ImportPrimitive
-var CheckRequiresSorted_ImportPrimitive_values_ []*CheckRequiresSorted_ImportPrimitive
-var CheckRequiresSorted_ImportPrimitive_WEAKEST *CheckRequiresSorted_ImportPrimitive
+const CheckRequiresSorted_ImportPrimitive_REQUIRE CheckRequiresSorted_ImportPrimitive = 1
+const CheckRequiresSorted_ImportPrimitive_REQUIRE_TYPE CheckRequiresSorted_ImportPrimitive = 2
+const CheckRequiresSorted_ImportPrimitive_FORWARD_DECLARE CheckRequiresSorted_ImportPrimitive = 3
+
+var CheckRequiresSorted_ImportPrimitive_values_ []CheckRequiresSorted_ImportPrimitive
+var CheckRequiresSorted_ImportPrimitive_WEAKEST CheckRequiresSorted_ImportPrimitive
 
 var CheckRequiresSorted_ImportPrimitive_clinit_done bool
 
@@ -343,10 +375,13 @@ func CheckRequiresSorted_ImportPrimitive_clinit() {
 		return
 	}
 	CheckRequiresSorted_ImportPrimitive_clinit_done = true
-	CheckRequiresSorted_ImportPrimitive_REQUIRE = new_CheckRequiresSorted_ImportPrimitive("REQUIRE", 0, "goog.require")
-	CheckRequiresSorted_ImportPrimitive_REQUIRE_TYPE = new_CheckRequiresSorted_ImportPrimitive("REQUIRE_TYPE", 1, "goog.requireType")
-	CheckRequiresSorted_ImportPrimitive_FORWARD_DECLARE = new_CheckRequiresSorted_ImportPrimitive("FORWARD_DECLARE", 2, "goog.forwardDeclare")
-	CheckRequiresSorted_ImportPrimitive_values_ = []*CheckRequiresSorted_ImportPrimitive{CheckRequiresSorted_ImportPrimitive_REQUIRE, CheckRequiresSorted_ImportPrimitive_REQUIRE_TYPE, CheckRequiresSorted_ImportPrimitive_FORWARD_DECLARE}
+	CheckRequiresSorted_ImportPrimitive_REQUIRE.zero_CheckRequiresSorted_ImportPrimitive()
+	CheckRequiresSorted_ImportPrimitive_REQUIRE.init_CheckRequiresSorted_ImportPrimitive("goog.require")
+	CheckRequiresSorted_ImportPrimitive_REQUIRE_TYPE.zero_CheckRequiresSorted_ImportPrimitive()
+	CheckRequiresSorted_ImportPrimitive_REQUIRE_TYPE.init_CheckRequiresSorted_ImportPrimitive("goog.requireType")
+	CheckRequiresSorted_ImportPrimitive_FORWARD_DECLARE.zero_CheckRequiresSorted_ImportPrimitive()
+	CheckRequiresSorted_ImportPrimitive_FORWARD_DECLARE.init_CheckRequiresSorted_ImportPrimitive("goog.forwardDeclare")
+	CheckRequiresSorted_ImportPrimitive_values_ = []CheckRequiresSorted_ImportPrimitive{CheckRequiresSorted_ImportPrimitive_REQUIRE, CheckRequiresSorted_ImportPrimitive_REQUIRE_TYPE, CheckRequiresSorted_ImportPrimitive_FORWARD_DECLARE}
 	registerEnum_("com.google.javascript.jscomp.lint.CheckRequiresSorted.ImportPrimitive", enumValues_(CheckRequiresSorted_ImportPrimitive_values_))
 	CheckRequiresSorted_ImportPrimitive_WEAKEST = CheckRequiresSorted_ImportPrimitive_FORWARD_DECLARE
 
@@ -434,7 +469,7 @@ func (this *CheckRequiresSorted_DestructuringBinding) toString() string {
 
 type CheckRequiresSorted_ImportStatement struct {
 	nodes_        *JTList[Node]
-	primitive_    *CheckRequiresSorted_ImportPrimitive
+	primitive_    CheckRequiresSorted_ImportPrimitive
 	namespace_    string
 	destructures_ *JTList[*CheckRequiresSorted_DestructuringBinding]
 	alias_        Optional[string]
@@ -444,7 +479,7 @@ func (this *CheckRequiresSorted_ImportStatement) zero_CheckRequiresSorted_Import
 	this.namespace_ = nullstr_
 }
 
-func (this *CheckRequiresSorted_ImportStatement) init_CheckRequiresSorted_ImportStatement(nodes *JTList[Node], primitive *CheckRequiresSorted_ImportPrimitive, namespace string, alias Optional[string], destructures *JTList[*CheckRequiresSorted_DestructuringBinding]) {
+func (this *CheckRequiresSorted_ImportStatement) init_CheckRequiresSorted_ImportStatement(nodes *JTList[Node], primitive CheckRequiresSorted_ImportPrimitive, namespace string, alias Optional[string], destructures *JTList[*CheckRequiresSorted_DestructuringBinding]) {
 	Objects_requireNonNull_T(nodes, "nodes")
 	Objects_requireNonNull_T(primitive, "primitive")
 	Preconditions_checkArgument_boolean_Object((alias.isEmpty() || (destructures == nil)), "Import statement cannot be simultaneously aliasing and destructuring")
@@ -455,14 +490,14 @@ func (this *CheckRequiresSorted_ImportStatement) init_CheckRequiresSorted_Import
 	this.destructures_ = destructures
 }
 
-func new_CheckRequiresSorted_ImportStatement(nodes *JTList[Node], primitive *CheckRequiresSorted_ImportPrimitive, namespace string, alias Optional[string], destructures *JTList[*CheckRequiresSorted_DestructuringBinding]) *CheckRequiresSorted_ImportStatement {
+func new_CheckRequiresSorted_ImportStatement(nodes *JTList[Node], primitive CheckRequiresSorted_ImportPrimitive, namespace string, alias Optional[string], destructures *JTList[*CheckRequiresSorted_DestructuringBinding]) *CheckRequiresSorted_ImportStatement {
 	this := &CheckRequiresSorted_ImportStatement{}
 	this.zero_CheckRequiresSorted_ImportStatement()
 	this.init_CheckRequiresSorted_ImportStatement(nodes, primitive, namespace, alias, destructures)
 	return this
 }
 
-func CheckRequiresSorted_ImportStatement_of(nodes *JTList[Node], primitive *CheckRequiresSorted_ImportPrimitive, namespace string, alias Optional[string], destructures *JTList[*CheckRequiresSorted_DestructuringBinding]) *CheckRequiresSorted_ImportStatement {
+func CheckRequiresSorted_ImportStatement_of(nodes *JTList[Node], primitive CheckRequiresSorted_ImportPrimitive, namespace string, alias Optional[string], destructures *JTList[*CheckRequiresSorted_DestructuringBinding]) *CheckRequiresSorted_ImportStatement {
 	return new_CheckRequiresSorted_ImportStatement(nodes, primitive, namespace, alias, destructures)
 }
 
@@ -478,7 +513,7 @@ func (this *CheckRequiresSorted_ImportStatement) isDestructuring() bool {
 	return (this.destructures() != nil)
 }
 
-func (this *CheckRequiresSorted_ImportStatement) upgrade(otherPrimitive *CheckRequiresSorted_ImportPrimitive) *CheckRequiresSorted_ImportStatement {
+func (this *CheckRequiresSorted_ImportStatement) upgrade(otherPrimitive CheckRequiresSorted_ImportPrimitive) *CheckRequiresSorted_ImportStatement {
 	if CheckRequiresSorted_ImportPrimitive_stronger(this.primitive(), otherPrimitive) != this.primitive() {
 		return new_CheckRequiresSorted_ImportStatement(this.nodes(), otherPrimitive, this.namespace(), this.alias(), this.destructures())
 	}
@@ -552,7 +587,7 @@ func (this *CheckRequiresSorted_ImportStatement) nodes() *JTList[Node] {
 	return this.nodes_
 }
 
-func (this *CheckRequiresSorted_ImportStatement) primitive() *CheckRequiresSorted_ImportPrimitive {
+func (this *CheckRequiresSorted_ImportStatement) primitive() CheckRequiresSorted_ImportPrimitive {
 	return this.primitive_
 }
 

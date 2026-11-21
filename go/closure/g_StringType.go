@@ -31,13 +31,13 @@ func new_StringType(registry *JSTypeRegistry) *StringType {
 	return this
 }
 
-func (this *StringType) getTypeClass_impl() *JSTypeClass {
+func (this *StringType) getTypeClass_impl() JSTypeClass {
 	return JSTypeClass_STRING
 }
 
-func (this *StringType) testForEquality_impl(that *JSType) *Tri {
-	var result *Tri = this.ValueType.testForEquality_impl(that)
-	if result != nil {
+func (this *StringType) testForEquality_impl(that *JSType) Tri {
+	var result Tri = this.ValueType.testForEquality_impl(that)
+	if result != 0 {
 		return result
 	}
 	if ((((that.isUnknownType() || that.isSubtypeOf(this.getNativeType(JSTypeNative_OBJECT_TYPE))) || that.isSubtypeOf(this.getNativeType(JSTypeNative_NUMBER_TYPE))) || that.isSubtypeOf(this.getNativeType(JSTypeNative_STRING_TYPE))) || that.isSubtypeOf(this.getNativeType(JSTypeNative_BOOLEAN_TYPE))) || that.isSubtypeOf(this.getNativeType(JSTypeNative_BIGINT_TYPE)) {
@@ -70,7 +70,7 @@ func (this *StringType) autoboxesTo_impl() *JSType {
 	return this.getNativeType(JSTypeNative_STRING_OBJECT_TYPE)
 }
 
-func (this *StringType) getPossibleToBooleanOutcomes_impl() *BooleanLiteralSet {
+func (this *StringType) getPossibleToBooleanOutcomes_impl() BooleanLiteralSet {
 	return BooleanLiteralSet_BOTH
 }
 
@@ -79,7 +79,7 @@ func (this *StringType) visitUntyped_impl(visitor Visitor) any {
 }
 
 // getTypeClass: an object that is exactly a StringType calls its getTypeClass_impl directly (post-flip); others dispatch.
-func (this *StringType) getTypeClass() *JSTypeClass {
+func (this *StringType) getTypeClass() JSTypeClass {
 	if this.self_ == any(this) {
 		return this.getTypeClass_impl()
 	}
@@ -87,7 +87,7 @@ func (this *StringType) getTypeClass() *JSTypeClass {
 }
 
 // testForEquality: an object that is exactly a StringType calls its testForEquality_impl directly (post-flip); others dispatch.
-func (this *StringType) testForEquality(p0 *JSType) *Tri {
+func (this *StringType) testForEquality(p0 *JSType) Tri {
 	if this.self_ == any(this) {
 		return this.testForEquality_impl(p0)
 	}
@@ -143,7 +143,7 @@ func (this *StringType) autoboxesTo() *JSType {
 }
 
 // getPossibleToBooleanOutcomes: an object that is exactly a StringType calls its getPossibleToBooleanOutcomes_impl directly (post-flip); others dispatch.
-func (this *StringType) getPossibleToBooleanOutcomes() *BooleanLiteralSet {
+func (this *StringType) getPossibleToBooleanOutcomes() BooleanLiteralSet {
 	if this.self_ == any(this) {
 		return this.getPossibleToBooleanOutcomes_impl()
 	}

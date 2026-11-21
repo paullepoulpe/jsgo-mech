@@ -269,7 +269,7 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		panic("unreachable")
 	})).build()
 	this.earlyInlineVariables = PassFactory_builder().setName("earlyInlineVariables").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(compiler *AbstractCompiler) CompilerPass {
-		var mode *InlineVariables_Mode
+		var mode InlineVariables_Mode
 		if this.options_.shouldInlineVariables() {
 			mode = InlineVariables_Mode_ALL
 		} else if this.options_.shouldInlineLocalVariables() {
@@ -366,7 +366,7 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		return DefaultPassConfig_combineChecks(compiler, jimmutableListOf_[NodeTraversal_Callback](jtc_NodeTraversal_Callback, NodeTraversal_Callback(new_CheckProvidesSorted(CheckProvidesSorted_Mode_COLLECT_AND_REPORT)), NodeTraversal_Callback(new_CheckRequiresSorted(CheckRequiresSorted_Mode_COLLECT_AND_REPORT))))
 	})).build()
 	this.checkStrictMode = PassFactory_builder().setName("checkStrictMode").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(compiler *AbstractCompiler) CompilerPass {
-		var defaultLevel *CheckLevel = func() *CheckLevel {
+		var defaultLevel CheckLevel = func() CheckLevel {
 			if this.options_.expectStrictModeInput() {
 				return CheckLevel_ERROR
 			}
@@ -432,7 +432,7 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		return DefaultPassConfig_requirePropertiesAreStaticallyAnalyzable(p0)
 	})).build()
 	this.inlineVariables = PassFactory_builder().setName(PassNames_INLINE_VARIABLES).setRunInFixedPointLoop(true).setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(compiler *AbstractCompiler) CompilerPass {
-		var mode *InlineVariables_Mode
+		var mode InlineVariables_Mode
 		if this.options_.shouldInlineVariables() {
 			mode = InlineVariables_Mode_ALL
 		} else if this.options_.shouldInlineLocalVariables() {
@@ -463,7 +463,7 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		return CompilerPass(new_IsolatePolyfills_AbstractCompiler(p0))
 	})).build()
 	this.removeUnusedCode = PassFactory_builder().setName(PassNames_REMOVE_UNUSED_CODE).setRunInFixedPointLoop(true).setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(compiler *AbstractCompiler) CompilerPass {
-		return RemoveUnusedCode_as_CompilerPass(new_RemoveUnusedCode_Builder(compiler).removeLocalVars(this.options_.shouldRemoveUnusedLocalVariables()).removeGlobals(this.options_.shouldRemoveUnusedVariables()).preserveFunctionExpressionNames(false).removeUnusedPrototypeProperties(this.options_.shouldRemoveUnusedPrototypeProperties()).removeUnusedThisProperties(this.options_.isRemoveUnusedClassProperties()).removeUnusedObjectDefinePropertiesDefinitions(this.options_.isRemoveUnusedClassProperties()).removeUnusedPolyfills((this.options_.getForceLibraryInjectionList().isEmpty() && (this.options_.getInjectPolyfillsNewerThan() == nil))).assumeGettersArePure(this.options_.getAssumeGettersArePure()).disambiguateProperties(this.options_.shouldDisambiguateProperties()).build())
+		return RemoveUnusedCode_as_CompilerPass(new_RemoveUnusedCode_Builder(compiler).removeLocalVars(this.options_.shouldRemoveUnusedLocalVariables()).removeGlobals(this.options_.shouldRemoveUnusedVariables()).preserveFunctionExpressionNames(false).removeUnusedPrototypeProperties(this.options_.shouldRemoveUnusedPrototypeProperties()).removeUnusedThisProperties(this.options_.isRemoveUnusedClassProperties()).removeUnusedObjectDefinePropertiesDefinitions(this.options_.isRemoveUnusedClassProperties()).removeUnusedPolyfills((this.options_.getForceLibraryInjectionList().isEmpty() && (this.options_.getInjectPolyfillsNewerThan() == 0))).assumeGettersArePure(this.options_.getAssumeGettersArePure()).disambiguateProperties(this.options_.shouldDisambiguateProperties()).build())
 	})).build()
 	this.removeUnusedCodeOnce = this.removeUnusedCode.toBuilder().setRunInFixedPointLoop(false).build()
 	this.crossChunkCodeMotion = PassFactory_builder().setName(PassNames_CROSS_CHUNK_CODE_MOTION).setRunInFixedPointLoop(true).setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(compiler *AbstractCompiler) CompilerPass {
@@ -489,7 +489,7 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 	})).build()
 	this.collapseVariableDeclarations = PassFactory_builder().setName(PassNames_COLLAPSE_VARIABLE_DECLARATIONS).setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(p0 *AbstractCompiler) CompilerPass { return CompilerPass(new_CollapseVariableDeclarations(p0)) })).build()
 	this.extractPrototypeMemberDeclarations = PassFactory_builder().setName(PassNames_EXTRACT_PROTOTYPE_MEMBER_DECLARATIONS).setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(compiler *AbstractCompiler) CompilerPass {
-		var pattern *ExtractPrototypeMemberDeclarations_Pattern = func() *ExtractPrototypeMemberDeclarations_Pattern {
+		var pattern ExtractPrototypeMemberDeclarations_Pattern = func() ExtractPrototypeMemberDeclarations_Pattern {
 			switch this.options_.getExtractPrototypeMemberDeclarationsMode() {
 			case CompilerOptions_ExtractPrototypeMemberDeclarationsMode_USE_GLOBAL_TEMP:
 				return ExtractPrototypeMemberDeclarations_Pattern_USE_GLOBAL_TEMP
@@ -674,7 +674,7 @@ func (this *DefaultPassConfig) getTranspileOnlyPasses_impl() *PassListBuilder {
 			panic(new_IllegalStateException_String("Polyfill isolation cannot be used in transpileOnly mode").self())
 		}
 		TranspilationPasses_addRewritePolyfillPass(passes)
-	} else if this.options_.getInjectPolyfillsNewerThan() != nil {
+	} else if this.options_.getInjectPolyfillsNewerThan() != 0 {
 		TranspilationPasses_addRewritePolyfillPass(passes)
 	}
 	passes.maybeAdd(this.injectRuntimeLibraries)
@@ -1104,7 +1104,7 @@ func (this *DefaultPassConfig) getEarlyOptimizationPasses() *PassListBuilder {
 	}
 	passes.maybeAdd(this.transpileAndOptimizeClosureUnaware)
 	TranspilationPasses_addTranspilationRuntimeLibraries(passes)
-	if (this.options_.getRewritePolyfills() || this.options_.getIsolatePolyfills()) || (this.options_.getInjectPolyfillsNewerThan() != nil) {
+	if (this.options_.getRewritePolyfills() || this.options_.getIsolatePolyfills()) || (this.options_.getInjectPolyfillsNewerThan() != 0) {
 		TranspilationPasses_addRewritePolyfillPass(passes)
 	}
 	passes.maybeAdd(this.injectRuntimeLibraries)
@@ -1339,7 +1339,7 @@ func DefaultPassConfig_combineChecks(compiler *AbstractCompiler, callbacks *JTLi
 	return CompilerPass(new_CombinedCompilerPass(compiler, callbacks))
 }
 
-func (this *DefaultPassConfig) createProcessDefines(mode *ProcessDefines_Mode) *PassFactory {
+func (this *DefaultPassConfig) createProcessDefines(mode ProcessDefines_Mode) *PassFactory {
 	return PassFactory_builder().setName(("processDefines_" + sstr_(mode.name()))).setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(compiler *AbstractCompiler) CompilerPass {
 		return ProcessDefines_as_CompilerPass(new_ProcessDefines_Builder(compiler).putReplacements(DefaultPassConfig_getAdditionalReplacements(this.options_)).putReplacements(this.options_.getDefineReplacements()).setMode(mode).setRecognizeClosureDefines(compiler.getOptions().getClosurePass()).setEnableZonesDefineName(this.options_.getEnableZonesDefineName()).setZoneInputPattern(this.options_.getZoneInputPattern()).setUnknownDefinesToIgnore(this.options_.getUnknownDefinesToIgnore()).build())
 	})).build()
@@ -1358,13 +1358,13 @@ func (this *DefaultPassConfig) runVariableRenaming(compiler *AbstractCompiler, p
 	return rn.getVariableMap()
 }
 
-func (this *DefaultPassConfig) createGatherExternProperties(mode *GatherExternProperties_Mode) *PassFactory {
+func (this *DefaultPassConfig) createGatherExternProperties(mode GatherExternProperties_Mode) *PassFactory {
 	return PassFactory_builder().setName("gatherExternProperties").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(compiler *AbstractCompiler) CompilerPass {
 		return CompilerPass(new_GatherExternProperties(compiler, mode))
 	})).build()
 }
 
-func (this *DefaultPassConfig) getCustomPasses(executionTime *CustomPassExecutionTime) *PassFactory {
+func (this *DefaultPassConfig) getCustomPasses(executionTime CustomPassExecutionTime) *PassFactory {
 	return PassFactory_builder().setName("runCustomPasses").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(compiler *AbstractCompiler) CompilerPass {
 		return DefaultPassConfig_runInSerial(this.options_.getCustomPassesAt(executionTime).asCollT())
 	})).build()

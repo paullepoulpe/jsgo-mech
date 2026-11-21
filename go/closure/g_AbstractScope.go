@@ -32,10 +32,10 @@ type AbstractScope_I interface {
 	getVarCount_impl() int32
 	getVarIterable_impl() IterableT[*AbstractVar]
 	getVar_String_impl(string) *AbstractVar
-	hasOwnImplicitSlot_impl(*AbstractScope_ImplicitVar) bool
+	hasOwnImplicitSlot_impl(AbstractScope_ImplicitVar) bool
 	hasOwnSlot_impl(string) bool
 	hasSlot_impl(string) bool
-	makeImplicitVar_ImplicitVar_impl(*AbstractScope_ImplicitVar) *AbstractVar
+	makeImplicitVar_ImplicitVar_impl(AbstractScope_ImplicitVar) *AbstractVar
 	typed_impl() *TypedScope
 	untyped_impl() *Scope
 }
@@ -86,8 +86,8 @@ func (this *AbstractScope) getRootNode() Node {
 	return this.rootNode_
 }
 
-func (this *AbstractScope) hasOwnImplicitSlot_impl(name *AbstractScope_ImplicitVar) bool {
-	return ((name != nil) && name.isMadeByScope(this))
+func (this *AbstractScope) hasOwnImplicitSlot_impl(name AbstractScope_ImplicitVar) bool {
+	return ((name != 0) && name.isMadeByScope(this))
 }
 
 func (this *AbstractScope) isGlobal() bool {
@@ -176,7 +176,7 @@ func (this *AbstractScope) getParent() *AbstractScope {
 	return this.self_.getParent_impl()
 }
 
-func (this *AbstractScope) makeImplicitVar_ImplicitVar(p0 *AbstractScope_ImplicitVar) *AbstractVar {
+func (this *AbstractScope) makeImplicitVar_ImplicitVar(p0 AbstractScope_ImplicitVar) *AbstractVar {
 	return this.self_.makeImplicitVar_ImplicitVar_impl(p0)
 }
 
@@ -236,7 +236,7 @@ func (this *AbstractScope) typed() *TypedScope {
 	return this.self_.typed_impl()
 }
 
-func (this *AbstractScope) hasOwnImplicitSlot(p0 *AbstractScope_ImplicitVar) bool {
+func (this *AbstractScope) hasOwnImplicitSlot(p0 AbstractScope_ImplicitVar) bool {
 	return this.self_.hasOwnImplicitSlot_impl(p0)
 }
 
@@ -272,36 +272,57 @@ func (this *AbstractScope) getSlot_String_impl(p0 string) StaticSlot {
 	return icast_StaticSlot(this.getSlot_String_rAbstractVar(p0).self())
 }
 
-type AbstractScope_ImplicitVar struct {
-	Enum
-	nameField string
+type AbstractScope_ImplicitVar uint8
+
+// AbstractScope_ImplicitVar_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var AbstractScope_ImplicitVar_enum_ = [4]Enum{
+	{self_: AbstractScope_ImplicitVar_ARGUMENTS, name_: "ARGUMENTS", ordinal_: 0},
+	{self_: AbstractScope_ImplicitVar_EXPORTS, name_: "EXPORTS", ordinal_: 1},
+	{self_: AbstractScope_ImplicitVar_SUPER, name_: "SUPER", ordinal_: 2},
+	{self_: AbstractScope_ImplicitVar_THIS, name_: "THIS", ordinal_: 3},
 }
 
-func (this *AbstractScope_ImplicitVar) up_Enum() *Enum {
-	if this == nil {
+var AbstractScope_ImplicitVar_nameField_ [4]string
+
+func (this AbstractScope_ImplicitVar) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &AbstractScope_ImplicitVar_enum_[this-1]
 }
 
-func (this *AbstractScope_ImplicitVar) zero_AbstractScope_ImplicitVar() {
-	this.nameField = nullstr_
+func (this AbstractScope_ImplicitVar) name() string {
+	return AbstractScope_ImplicitVar_enum_[this-1].name_
 }
 
-func (this *AbstractScope_ImplicitVar) init_AbstractScope_ImplicitVar(name_ string, ordinal_ int32, name string) {
-	this.Enum.init_Enum(name_, ordinal_)
-	this.nameField = name
+func (this AbstractScope_ImplicitVar) ordinal() int32 {
+	return AbstractScope_ImplicitVar_enum_[this-1].ordinal_
 }
 
-func new_AbstractScope_ImplicitVar(name_ string, ordinal_ int32, name string) *AbstractScope_ImplicitVar {
-	this := &AbstractScope_ImplicitVar{}
-	this.self_ = this
-	this.zero_AbstractScope_ImplicitVar()
-	this.init_AbstractScope_ImplicitVar(name_, ordinal_, name)
+func (this AbstractScope_ImplicitVar) toString() string {
+	return AbstractScope_ImplicitVar_enum_[this-1].name_
+}
+
+func (this AbstractScope_ImplicitVar) compareTo(o any) int32 {
+	return AbstractScope_ImplicitVar_enum_[this-1].compareTo(o)
+}
+
+func (this AbstractScope_ImplicitVar) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func (this *AbstractScope_ImplicitVar) isMadeByScope(scope *AbstractScope) bool {
+func (this AbstractScope_ImplicitVar) zero_AbstractScope_ImplicitVar() {
+	AbstractScope_ImplicitVar_nameField_[this-1] = nullstr_
+}
+
+func (this AbstractScope_ImplicitVar) init_AbstractScope_ImplicitVar(name string) {
+	AbstractScope_ImplicitVar_nameField_[this-1] = name
+}
+
+func (this AbstractScope_ImplicitVar) isMadeByScope(scope *AbstractScope) bool {
 	return func() bool {
 		switch this {
 		case AbstractScope_ImplicitVar_EXPORTS:
@@ -315,8 +336,8 @@ func (this *AbstractScope_ImplicitVar) isMadeByScope(scope *AbstractScope) bool 
 	}()
 }
 
-func AbstractScope_ImplicitVar_of(name string) *AbstractScope_ImplicitVar {
-	return func() *AbstractScope_ImplicitVar {
+func AbstractScope_ImplicitVar_of(name string) AbstractScope_ImplicitVar {
+	return func() AbstractScope_ImplicitVar {
 		switch name {
 		case "arguments":
 			return AbstractScope_ImplicitVar_ARGUMENTS
@@ -327,30 +348,31 @@ func AbstractScope_ImplicitVar_of(name string) *AbstractScope_ImplicitVar {
 		case "exports":
 			return AbstractScope_ImplicitVar_EXPORTS
 		default:
-			return nil
+			return 0
 		}
 		panic("unreachable")
 	}()
 }
 
-func AbstractScope_ImplicitVar_values() []*AbstractScope_ImplicitVar {
-	return append([]*AbstractScope_ImplicitVar(nil), AbstractScope_ImplicitVar_values_...)
+func AbstractScope_ImplicitVar_values() []AbstractScope_ImplicitVar {
+	return append([]AbstractScope_ImplicitVar(nil), AbstractScope_ImplicitVar_values_...)
 }
 
-func AbstractScope_ImplicitVar_valueOf(name string) *AbstractScope_ImplicitVar {
+func AbstractScope_ImplicitVar_valueOf(name string) AbstractScope_ImplicitVar {
 	for _, v := range AbstractScope_ImplicitVar_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("ImplicitVar", name))
 }
 
-var AbstractScope_ImplicitVar_ARGUMENTS *AbstractScope_ImplicitVar
-var AbstractScope_ImplicitVar_EXPORTS *AbstractScope_ImplicitVar
-var AbstractScope_ImplicitVar_SUPER *AbstractScope_ImplicitVar
-var AbstractScope_ImplicitVar_THIS *AbstractScope_ImplicitVar
-var AbstractScope_ImplicitVar_values_ []*AbstractScope_ImplicitVar
+const AbstractScope_ImplicitVar_ARGUMENTS AbstractScope_ImplicitVar = 1
+const AbstractScope_ImplicitVar_EXPORTS AbstractScope_ImplicitVar = 2
+const AbstractScope_ImplicitVar_SUPER AbstractScope_ImplicitVar = 3
+const AbstractScope_ImplicitVar_THIS AbstractScope_ImplicitVar = 4
+
+var AbstractScope_ImplicitVar_values_ []AbstractScope_ImplicitVar
 
 var AbstractScope_ImplicitVar_clinit_done bool
 
@@ -359,11 +381,15 @@ func AbstractScope_ImplicitVar_clinit() {
 		return
 	}
 	AbstractScope_ImplicitVar_clinit_done = true
-	AbstractScope_ImplicitVar_ARGUMENTS = new_AbstractScope_ImplicitVar("ARGUMENTS", 0, "arguments")
-	AbstractScope_ImplicitVar_EXPORTS = new_AbstractScope_ImplicitVar("EXPORTS", 1, "exports")
-	AbstractScope_ImplicitVar_SUPER = new_AbstractScope_ImplicitVar("SUPER", 2, "super")
-	AbstractScope_ImplicitVar_THIS = new_AbstractScope_ImplicitVar("THIS", 3, "this")
-	AbstractScope_ImplicitVar_values_ = []*AbstractScope_ImplicitVar{AbstractScope_ImplicitVar_ARGUMENTS, AbstractScope_ImplicitVar_EXPORTS, AbstractScope_ImplicitVar_SUPER, AbstractScope_ImplicitVar_THIS}
+	AbstractScope_ImplicitVar_ARGUMENTS.zero_AbstractScope_ImplicitVar()
+	AbstractScope_ImplicitVar_ARGUMENTS.init_AbstractScope_ImplicitVar("arguments")
+	AbstractScope_ImplicitVar_EXPORTS.zero_AbstractScope_ImplicitVar()
+	AbstractScope_ImplicitVar_EXPORTS.init_AbstractScope_ImplicitVar("exports")
+	AbstractScope_ImplicitVar_SUPER.zero_AbstractScope_ImplicitVar()
+	AbstractScope_ImplicitVar_SUPER.init_AbstractScope_ImplicitVar("super")
+	AbstractScope_ImplicitVar_THIS.zero_AbstractScope_ImplicitVar()
+	AbstractScope_ImplicitVar_THIS.init_AbstractScope_ImplicitVar("this")
+	AbstractScope_ImplicitVar_values_ = []AbstractScope_ImplicitVar{AbstractScope_ImplicitVar_ARGUMENTS, AbstractScope_ImplicitVar_EXPORTS, AbstractScope_ImplicitVar_SUPER, AbstractScope_ImplicitVar_THIS}
 	registerEnum_("com.google.javascript.jscomp.AbstractScope.ImplicitVar", enumValues_(AbstractScope_ImplicitVar_values_))
 
 }

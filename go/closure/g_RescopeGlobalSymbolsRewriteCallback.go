@@ -4,7 +4,7 @@ package closure
 
 type RescopeGlobalSymbolsRewriteCallback struct {
 	compiler_                               *AbstractCompiler
-	optimizeLocalAccess                     *CompilerOptions_OptimizeLocalAccess
+	optimizeLocalAccess                     CompilerOptions_OptimizeLocalAccess
 	symbolInfo                              *RescopeGlobalSymbolsInfo
 	renameHelper                            *RescopeGlobalSymbolsRenameHelper
 	preDeclarations                         *JTList[*RescopeGlobalSymbolsRewriteCallback_ChunkGlobal]
@@ -22,7 +22,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) finit_RescopeGlobalSymbolsRewri
 	this.chunksRequiringWrapperInitialization = jnewTMap_(jtc_string, tc_SetT_p_JSChunk_)
 }
 
-func (this *RescopeGlobalSymbolsRewriteCallback) init_RescopeGlobalSymbolsRewriteCallback(compiler *AbstractCompiler, optimizeLocalAccess *CompilerOptions_OptimizeLocalAccess, symbolInfo *RescopeGlobalSymbolsInfo, renameHelper *RescopeGlobalSymbolsRenameHelper) {
+func (this *RescopeGlobalSymbolsRewriteCallback) init_RescopeGlobalSymbolsRewriteCallback(compiler *AbstractCompiler, optimizeLocalAccess CompilerOptions_OptimizeLocalAccess, symbolInfo *RescopeGlobalSymbolsInfo, renameHelper *RescopeGlobalSymbolsRenameHelper) {
 	this.finit_RescopeGlobalSymbolsRewriteCallback()
 	this.compiler_ = compiler
 	this.optimizeLocalAccess = optimizeLocalAccess
@@ -30,7 +30,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) init_RescopeGlobalSymbolsRewrit
 	this.renameHelper = renameHelper
 }
 
-func new_RescopeGlobalSymbolsRewriteCallback(compiler *AbstractCompiler, optimizeLocalAccess *CompilerOptions_OptimizeLocalAccess, symbolInfo *RescopeGlobalSymbolsInfo, renameHelper *RescopeGlobalSymbolsRenameHelper) *RescopeGlobalSymbolsRewriteCallback {
+func new_RescopeGlobalSymbolsRewriteCallback(compiler *AbstractCompiler, optimizeLocalAccess CompilerOptions_OptimizeLocalAccess, symbolInfo *RescopeGlobalSymbolsInfo, renameHelper *RescopeGlobalSymbolsRenameHelper) *RescopeGlobalSymbolsRewriteCallback {
 	this := &RescopeGlobalSymbolsRewriteCallback{}
 	this.init_RescopeGlobalSymbolsRewriteCallback(compiler, optimizeLocalAccess, symbolInfo, renameHelper)
 	return this

@@ -64,7 +64,7 @@ func BaseTranspiler_clinit() {
 }
 
 type BaseTranspiler_CompilerSupplier struct {
-	moduleResolution   *ModuleLoader_ResolutionMode
+	moduleResolution   ModuleLoader_ResolutionMode
 	moduleRoots        *JTList[string]
 	prefixReplacements *JTMap[string, string]
 	outputFeatureSet   *FeatureSet
@@ -90,14 +90,14 @@ func new_BaseTranspiler_CompilerSupplier_FeatureSet(outputFeatureSet *FeatureSet
 	return this
 }
 
-func (this *BaseTranspiler_CompilerSupplier) init_BaseTranspiler_CompilerSupplier_FeatureSet_ResolutionMode_ImmutableList_ImmutableMap(outputFeatureSet *FeatureSet, moduleResolution *ModuleLoader_ResolutionMode, moduleRoots *JTList[string], prefixReplacements *JTMap[string, string]) {
+func (this *BaseTranspiler_CompilerSupplier) init_BaseTranspiler_CompilerSupplier_FeatureSet_ResolutionMode_ImmutableList_ImmutableMap(outputFeatureSet *FeatureSet, moduleResolution ModuleLoader_ResolutionMode, moduleRoots *JTList[string], prefixReplacements *JTMap[string, string]) {
 	this.outputFeatureSet = outputFeatureSet
 	this.moduleResolution = moduleResolution
 	this.moduleRoots = moduleRoots
 	this.prefixReplacements = prefixReplacements
 }
 
-func new_BaseTranspiler_CompilerSupplier_FeatureSet_ResolutionMode_ImmutableList_ImmutableMap(outputFeatureSet *FeatureSet, moduleResolution *ModuleLoader_ResolutionMode, moduleRoots *JTList[string], prefixReplacements *JTMap[string, string]) *BaseTranspiler_CompilerSupplier {
+func new_BaseTranspiler_CompilerSupplier_FeatureSet_ResolutionMode_ImmutableList_ImmutableMap(outputFeatureSet *FeatureSet, moduleResolution ModuleLoader_ResolutionMode, moduleRoots *JTList[string], prefixReplacements *JTMap[string, string]) *BaseTranspiler_CompilerSupplier {
 	this := &BaseTranspiler_CompilerSupplier{}
 	this.init_BaseTranspiler_CompilerSupplier_FeatureSet_ResolutionMode_ImmutableList_ImmutableMap(outputFeatureSet, moduleResolution, moduleRoots, prefixReplacements)
 	return this
@@ -157,7 +157,7 @@ func (this *BaseTranspiler_CompilerSupplier) options() *CompilerOptions {
 
 func (this *BaseTranspiler_CompilerSupplier) setOptions(options *CompilerOptions) {
 	options.setLanguageIn(CompilerOptions_LanguageMode_ECMASCRIPT_NEXT)
-	options.legacySetOutputFeatureSet(this.outputFeatureSet.without_2(FeatureSet_Feature_MODULES, []*FeatureSet_Feature{}))
+	options.legacySetOutputFeatureSet(this.outputFeatureSet.without_2(FeatureSet_Feature_MODULES, []FeatureSet_Feature{}))
 	options.setEmitUseStrict(false)
 	options.setQuoteKeywordProperties(true)
 	options.setSkipNonTranspilationPasses(true)

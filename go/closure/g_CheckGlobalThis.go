@@ -43,7 +43,7 @@ func (this *CheckGlobalThis) shouldTraverse(t *NodeTraversal, n Node, parent Nod
 				}
 			}
 		}
-		var pType *Token_rhino = parent.getToken()
+		var pType Token_rhino = parent.getToken()
 		if !(((((pType == Token_rhino_BLOCK) || (pType == Token_rhino_SCRIPT)) || (pType == Token_rhino_NAME)) || (pType == Token_rhino_ASSIGN)) || (pType == Token_rhino_STRING_KEY)) {
 			return false
 		}

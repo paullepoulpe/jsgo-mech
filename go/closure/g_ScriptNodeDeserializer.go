@@ -50,13 +50,13 @@ func (this *ScriptNodeDeserializer) setOriginalNameIfPresent(astNode *AstNode, n
 	}
 }
 
-func (this *ScriptNodeDeserializer) stringNode(token *Token_rhino, n *AstNode, templateNode Node) Node {
+func (this *ScriptNodeDeserializer) stringNode(token Token_rhino, n *AstNode, templateNode Node) Node {
 	var str Node = Node_newString_Token_LazyInternedStringList_int(token, this.stringPool.getInternedStrings(), n.getStringValuePointer())
 	str.clonePropsFrom(templateNode)
 	return str
 }
 
-func (this *ScriptNodeDeserializer) newNodeFromTemplate(token *Token_rhino, templateNode Node) Node {
+func (this *ScriptNodeDeserializer) newNodeFromTemplate(token Token_rhino, templateNode Node) Node {
 	var n Node = templateNode.cloneTree()
 	n.setToken(token)
 	return n
@@ -416,7 +416,7 @@ func (this *ScriptNodeDeserializer_Runner) run() Node {
 		}()
 		var astStream *CodedInputStream = this.owner().scriptBytes.newCodedInput()
 		astStream.setRecursionLimit(int32(2147483647))
-		var contextStack *JTList[*FeatureCollector_FeatureContext] = jnewTList_(jtc_p_FeatureCollector_FeatureContext)
+		var contextStack *JTList[FeatureCollector_FeatureContext] = jnewTList_(jtc_p_FeatureCollector_FeatureContext)
 		SequencedCollection_addLast(SequencedCollection(List_un_(contextStack.asListT())), obj_(FeatureCollector_FeatureContext_NONE))
 		var scriptNode Node = this.visit(AstNode_parseFrom(astStream, ExtensionRegistry_getEmptyRegistry().up_ExtensionRegistryLite()), contextStack, this.owner().createSourceInfoTemplate(this.owner().sourceFile))
 		scriptNode.setFeatureSet(obj_(this.featureCollector.allFeatures()))
@@ -434,7 +434,7 @@ func (this *ScriptNodeDeserializer_Runner) owner() *ScriptNodeDeserializer {
 	return this.outer_
 }
 
-func (this *ScriptNodeDeserializer_Runner) visit(astNode *AstNode, contextStack *JTList[*FeatureCollector_FeatureContext], sourceFileTemplate Node) Node {
+func (this *ScriptNodeDeserializer_Runner) visit(astNode *AstNode, contextStack *JTList[FeatureCollector_FeatureContext], sourceFileTemplate Node) Node {
 	if (sourceFileTemplate == 0) || (astNode.getSourceFile() != 0) {
 		sourceFileTemplate = this.owner().createSourceInfoTemplate(this.owner().filePool.get((astNode.getSourceFile() - 1)))
 	}

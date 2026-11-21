@@ -52,7 +52,7 @@ func new_PrintStreamErrorManager_Output(stream *Output) *PrintStreamErrorManager
 	return this
 }
 
-func (this *PrintStreamErrorManager) println_impl(level *CheckLevel, error_ *JSError) {
+func (this *PrintStreamErrorManager) println_impl(level CheckLevel, error_ *JSError) {
 	this.stream.println(error_.format(level, this.formatter).get())
 }
 
@@ -71,7 +71,7 @@ func (this *PrintStreamErrorManager) printSummary_impl() {
 }
 
 // println: an object that is exactly a PrintStreamErrorManager calls its println_impl directly (post-flip); others dispatch.
-func (this *PrintStreamErrorManager) println(p0 *CheckLevel, p1 *JSError) {
+func (this *PrintStreamErrorManager) println(p0 CheckLevel, p1 *JSError) {
 	if this.self_ == any(this) {
 		this.println_impl(p0, p1)
 		return

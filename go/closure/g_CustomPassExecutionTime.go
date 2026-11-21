@@ -2,46 +2,63 @@
 
 package closure
 
-type CustomPassExecutionTime struct {
-	Enum
+type CustomPassExecutionTime uint8
+
+// CustomPassExecutionTime_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var CustomPassExecutionTime_enum_ = [4]Enum{
+	{self_: CustomPassExecutionTime_BEFORE_CHECKS, name_: "BEFORE_CHECKS", ordinal_: 0},
+	{self_: CustomPassExecutionTime_BEFORE_OPTIMIZATIONS, name_: "BEFORE_OPTIMIZATIONS", ordinal_: 1},
+	{self_: CustomPassExecutionTime_BEFORE_OPTIMIZATION_LOOP, name_: "BEFORE_OPTIMIZATION_LOOP", ordinal_: 2},
+	{self_: CustomPassExecutionTime_AFTER_OPTIMIZATION_LOOP, name_: "AFTER_OPTIMIZATION_LOOP", ordinal_: 3},
 }
 
-func (this *CustomPassExecutionTime) up_Enum() *Enum {
-	if this == nil {
+func (this CustomPassExecutionTime) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &CustomPassExecutionTime_enum_[this-1]
 }
 
-func (this *CustomPassExecutionTime) init_CustomPassExecutionTime(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this CustomPassExecutionTime) name() string { return CustomPassExecutionTime_enum_[this-1].name_ }
+
+func (this CustomPassExecutionTime) ordinal() int32 {
+	return CustomPassExecutionTime_enum_[this-1].ordinal_
 }
 
-func new_CustomPassExecutionTime(name_ string, ordinal_ int32) *CustomPassExecutionTime {
-	this := &CustomPassExecutionTime{}
-	this.self_ = this
-	this.init_CustomPassExecutionTime(name_, ordinal_)
+func (this CustomPassExecutionTime) toString() string {
+	return CustomPassExecutionTime_enum_[this-1].name_
+}
+
+func (this CustomPassExecutionTime) compareTo(o any) int32 {
+	return CustomPassExecutionTime_enum_[this-1].compareTo(o)
+}
+
+func (this CustomPassExecutionTime) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func CustomPassExecutionTime_values() []*CustomPassExecutionTime {
-	return append([]*CustomPassExecutionTime(nil), CustomPassExecutionTime_values_...)
+func CustomPassExecutionTime_values() []CustomPassExecutionTime {
+	return append([]CustomPassExecutionTime(nil), CustomPassExecutionTime_values_...)
 }
 
-func CustomPassExecutionTime_valueOf(name string) *CustomPassExecutionTime {
+func CustomPassExecutionTime_valueOf(name string) CustomPassExecutionTime {
 	for _, v := range CustomPassExecutionTime_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("CustomPassExecutionTime", name))
 }
 
-var CustomPassExecutionTime_BEFORE_CHECKS *CustomPassExecutionTime
-var CustomPassExecutionTime_BEFORE_OPTIMIZATIONS *CustomPassExecutionTime
-var CustomPassExecutionTime_BEFORE_OPTIMIZATION_LOOP *CustomPassExecutionTime
-var CustomPassExecutionTime_AFTER_OPTIMIZATION_LOOP *CustomPassExecutionTime
-var CustomPassExecutionTime_values_ []*CustomPassExecutionTime
+const CustomPassExecutionTime_BEFORE_CHECKS CustomPassExecutionTime = 1
+const CustomPassExecutionTime_BEFORE_OPTIMIZATIONS CustomPassExecutionTime = 2
+const CustomPassExecutionTime_BEFORE_OPTIMIZATION_LOOP CustomPassExecutionTime = 3
+const CustomPassExecutionTime_AFTER_OPTIMIZATION_LOOP CustomPassExecutionTime = 4
+
+var CustomPassExecutionTime_values_ []CustomPassExecutionTime
 
 var CustomPassExecutionTime_clinit_done bool
 
@@ -50,11 +67,7 @@ func CustomPassExecutionTime_clinit() {
 		return
 	}
 	CustomPassExecutionTime_clinit_done = true
-	CustomPassExecutionTime_BEFORE_CHECKS = new_CustomPassExecutionTime("BEFORE_CHECKS", 0)
-	CustomPassExecutionTime_BEFORE_OPTIMIZATIONS = new_CustomPassExecutionTime("BEFORE_OPTIMIZATIONS", 1)
-	CustomPassExecutionTime_BEFORE_OPTIMIZATION_LOOP = new_CustomPassExecutionTime("BEFORE_OPTIMIZATION_LOOP", 2)
-	CustomPassExecutionTime_AFTER_OPTIMIZATION_LOOP = new_CustomPassExecutionTime("AFTER_OPTIMIZATION_LOOP", 3)
-	CustomPassExecutionTime_values_ = []*CustomPassExecutionTime{CustomPassExecutionTime_BEFORE_CHECKS, CustomPassExecutionTime_BEFORE_OPTIMIZATIONS, CustomPassExecutionTime_BEFORE_OPTIMIZATION_LOOP, CustomPassExecutionTime_AFTER_OPTIMIZATION_LOOP}
+	CustomPassExecutionTime_values_ = []CustomPassExecutionTime{CustomPassExecutionTime_BEFORE_CHECKS, CustomPassExecutionTime_BEFORE_OPTIMIZATIONS, CustomPassExecutionTime_BEFORE_OPTIMIZATION_LOOP, CustomPassExecutionTime_AFTER_OPTIMIZATION_LOOP}
 	registerEnum_("com.google.javascript.jscomp.CustomPassExecutionTime", enumValues_(CustomPassExecutionTime_values_))
 
 }
