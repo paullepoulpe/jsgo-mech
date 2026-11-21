@@ -82,7 +82,7 @@ func DiagnosticToSuppressionMapper_printAsMarkdown(diagnosticToSuppression Immut
 	Output_stdout().println("|---|---|")
 	for _, el := range immElems_(cast_[*ErasedImmutableSet](diagnosticToSuppression.entrySet())) {
 		e := icast_Map_Entry(el)
-		Output_stdout().println(String_format("|%s|%s|", []any{e.getKey(), e.getValue()}))
+		Output_stdout().println(String_format("|%s|%s|", e.getKey(), e.getValue()))
 	}
 }
 

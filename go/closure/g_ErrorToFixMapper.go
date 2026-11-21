@@ -230,7 +230,7 @@ func (this *ErrorToFixMapper) getFixForInexistentProperty(error_ *JSError) *Sugg
 func (this *ErrorToFixMapper) getFixForMissingRequire(error_ *JSError, importType SuggestedFix_ImportType) *SuggestedFix {
 	var regexMatcher *Matcher_re2j = ErrorToFixMapper_MISSING_REQUIRE.matcher_s(error_.description())
 	if ok_, a1_ := regexMatcher.matches(), error_.description(); !ok_ {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected error description: %s", []any{a1_})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected error description: %s", a1_)))
 	}
 	var namespaceToRequire string = regexMatcher.group(1)
 	var qName Optional[string] = func() Optional[string] {
@@ -242,7 +242,7 @@ func (this *ErrorToFixMapper) getFixForMissingRequire(error_ *JSError, importTyp
 		return Optional_of[string](error_.node().getString())
 	}()
 	if ok_, a1_, a2_ := strings.HasPrefix(qName.get(), namespaceToRequire), error_.node(), namespaceToRequire; !ok_ {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected error location %s to start with namespace <%s>", []any{a1_.box_(), a2_})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected error location %s to start with namespace <%s>", a1_.box_(), a2_)))
 	}
 	var script Node = this.compiler_.getScriptNode(error_.sourceName().orElseThrow())
 	var scriptMetadata *ScriptMetadata = this.getMetadataForScript(script)

@@ -1542,7 +1542,7 @@ func (this *RegExpTree_UnicodePropertyEscape) equals_impl(o any) bool {
 }
 
 func (this *RegExpTree_UnicodePropertyEscape) hashCode_impl() int32 {
-	return Objects_hash([]any{bool(this.negated), this.propertyName_.box_(), strobj_(this.propertyValue)})
+	return Objects_hash(bool(this.negated), this.propertyName_.box_(), strobj_(this.propertyValue))
 }
 
 type RegExpTree_Charset struct {

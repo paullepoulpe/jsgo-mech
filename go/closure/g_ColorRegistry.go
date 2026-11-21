@@ -29,7 +29,7 @@ func (this *ColorRegistry) get(id *ColorId) *Color {
 	}
 	nn_ := this.nativeColors.Get(id)
 	if nn_ == nil {
-		panic(new_NullPointerException_String(Strings_lenientFormat("Missing Color for %s", []any{id})))
+		panic(new_NullPointerException_String(Strings_lenientFormat("Missing Color for %s", id)))
 	}
 	return nn_
 }
