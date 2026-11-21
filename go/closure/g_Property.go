@@ -45,7 +45,7 @@ func Property_createFromKey(name Property_Key, type_ *JSType, inferred bool, pro
 		case Property_KeyKind_SYMBOL:
 			return obj_(name.symbol())
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 	if type_ == nil {
 		panic(new_NullPointerException_String(Strings_lenientFormat("Null type specified for %s", []any{name})))
