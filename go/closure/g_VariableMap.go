@@ -147,8 +147,9 @@ func VariableMap_unescape(value string) string {
 	if slashIndex == -1 {
 		return value
 	}
-	var sb *StringBuilder = new_StringBuilder_int((String_length(value) - 1))
-	Appendable_append_s_int_int(sb, value, 0, slashIndex)
+	var sb strBuilder_
+	sb.grow((String_length(value) - 1))
+	Appendable_append_s_int_int(appendable_(&sb), value, 0, slashIndex)
 	var len_ int32 = String_length(value)
 	for i := int32(slashIndex); i < len_; i++ {
 		var c uint16 = String_charAt(value, i)

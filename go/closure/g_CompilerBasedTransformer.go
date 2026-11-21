@@ -111,9 +111,9 @@ func (this *CompilerBasedTransformer_CompilerSupplier) compile(path string, code
 	var compiler *Compiler = this.compiler()
 	var result *Result = compiler.compileSourceFile(CompilerBasedTransformer_CompilerSupplier_EXTERNS, SourceFile_jscomp_fromCode_String_String(path, code), this.options())
 	var source string = compiler.toSource()
-	var sourceMap *StringBuilder = new_StringBuilder()
+	var sourceMap strBuilder_
 	if result.sourceMap_ != nil {
-		result.sourceMap_.appendTo(StringBuilder_as_Appendable(sourceMap), Optional_of[string](path))
+		result.sourceMap_.appendTo(appendable_(&sourceMap), Optional_of[string](path))
 	}
 	var transformed bool = this.transformed(result)
 	return new_CompilerBasedTransformer_CompileResult(source, result.errors_, transformed, func() string {
