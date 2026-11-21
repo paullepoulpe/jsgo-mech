@@ -172,6 +172,11 @@ func Iterables_filter(p0 Iterable, p1 Predicate_base_e) Iterable {
 	return &iterView_{func() Iterator { return filterIter_(p0.iterator(), p1.apply) }}
 }
 
+// Iterables_filter_f is Iterables_filter with the predicate as a Go func value.
+func Iterables_filter_f(p0 Iterable, p1 func(any) bool) Iterable {
+	return &iterView_{func() Iterator { return filterIter_(p0.iterator(), p1) }}
+}
+
 func Iterables_transform(p0 Iterable, p1 Function_base_e) Iterable {
 	return &iterView_{func() Iterator { return mapIter_(p0.iterator(), p1.apply) }}
 }
