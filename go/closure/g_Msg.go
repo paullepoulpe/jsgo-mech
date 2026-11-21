@@ -127,13 +127,13 @@ func (this Msg) enum_() *Enum {
 	return &Msg_enum_[this-1]
 }
 
-func (this Msg) name() string { return Msg_enum_[this-1].name_ }
+func (this Msg) name() string { return this.enum_().name_ }
 
-func (this Msg) ordinal() int32 { return Msg_enum_[this-1].ordinal_ }
+func (this Msg) ordinal() int32 { return this.enum_().ordinal_ }
 
-func (this Msg) toString() string { return Msg_enum_[this-1].name_ }
+func (this Msg) toString() string { return this.enum_().name_ }
 
-func (this Msg) compareTo(o any) int32 { return Msg_enum_[this-1].compareTo(o) }
+func (this Msg) compareTo(o any) int32 { return this.enum_().compareTo(o) }
 
 func (this Msg) self() any {
 	if this == 0 {

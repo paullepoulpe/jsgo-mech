@@ -1396,13 +1396,13 @@ func (this JSDocInfo_Bit) enum_() *Enum {
 	return &JSDocInfo_Bit_enum_[this-1]
 }
 
-func (this JSDocInfo_Bit) name() string { return JSDocInfo_Bit_enum_[this-1].name_ }
+func (this JSDocInfo_Bit) name() string { return this.enum_().name_ }
 
-func (this JSDocInfo_Bit) ordinal() int32 { return JSDocInfo_Bit_enum_[this-1].ordinal_ }
+func (this JSDocInfo_Bit) ordinal() int32 { return this.enum_().ordinal_ }
 
-func (this JSDocInfo_Bit) toString() string { return JSDocInfo_Bit_enum_[this-1].name_ }
+func (this JSDocInfo_Bit) toString() string { return this.enum_().name_ }
 
-func (this JSDocInfo_Bit) compareTo(o any) int32 { return JSDocInfo_Bit_enum_[this-1].compareTo(o) }
+func (this JSDocInfo_Bit) compareTo(o any) int32 { return this.enum_().compareTo(o) }
 
 func (this JSDocInfo_Bit) self() any {
 	if this == 0 {
@@ -1619,14 +1619,14 @@ func (this JSDocInfo_Visibility) enum_() *Enum {
 	return &JSDocInfo_Visibility_enum_[this-1]
 }
 
-func (this JSDocInfo_Visibility) name() string { return JSDocInfo_Visibility_enum_[this-1].name_ }
+func (this JSDocInfo_Visibility) name() string { return this.enum_().name_ }
 
-func (this JSDocInfo_Visibility) ordinal() int32 { return JSDocInfo_Visibility_enum_[this-1].ordinal_ }
+func (this JSDocInfo_Visibility) ordinal() int32 { return this.enum_().ordinal_ }
 
-func (this JSDocInfo_Visibility) toString() string { return JSDocInfo_Visibility_enum_[this-1].name_ }
+func (this JSDocInfo_Visibility) toString() string { return this.enum_().name_ }
 
 func (this JSDocInfo_Visibility) compareTo(o any) int32 {
-	return JSDocInfo_Visibility_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this JSDocInfo_Visibility) self() any {
@@ -1687,16 +1687,16 @@ func (this JSDocInfo_IdGenerator) enum_() *Enum {
 	return &JSDocInfo_IdGenerator_enum_[this-1]
 }
 
-func (this JSDocInfo_IdGenerator) name() string { return JSDocInfo_IdGenerator_enum_[this-1].name_ }
+func (this JSDocInfo_IdGenerator) name() string { return this.enum_().name_ }
 
 func (this JSDocInfo_IdGenerator) ordinal() int32 {
-	return JSDocInfo_IdGenerator_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
-func (this JSDocInfo_IdGenerator) toString() string { return JSDocInfo_IdGenerator_enum_[this-1].name_ }
+func (this JSDocInfo_IdGenerator) toString() string { return this.enum_().name_ }
 
 func (this JSDocInfo_IdGenerator) compareTo(o any) int32 {
-	return JSDocInfo_IdGenerator_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this JSDocInfo_IdGenerator) self() any {
@@ -1756,19 +1756,19 @@ func (this JSDocInfo_PerFileClosureUnawareMode) enum_() *Enum {
 }
 
 func (this JSDocInfo_PerFileClosureUnawareMode) name() string {
-	return JSDocInfo_PerFileClosureUnawareMode_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this JSDocInfo_PerFileClosureUnawareMode) ordinal() int32 {
-	return JSDocInfo_PerFileClosureUnawareMode_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this JSDocInfo_PerFileClosureUnawareMode) toString() string {
-	return JSDocInfo_PerFileClosureUnawareMode_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this JSDocInfo_PerFileClosureUnawareMode) compareTo(o any) int32 {
-	return JSDocInfo_PerFileClosureUnawareMode_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this JSDocInfo_PerFileClosureUnawareMode) self() any {

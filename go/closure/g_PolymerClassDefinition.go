@@ -330,19 +330,19 @@ func (this PolymerClassDefinition_DefinitionType) enum_() *Enum {
 }
 
 func (this PolymerClassDefinition_DefinitionType) name() string {
-	return PolymerClassDefinition_DefinitionType_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this PolymerClassDefinition_DefinitionType) ordinal() int32 {
-	return PolymerClassDefinition_DefinitionType_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this PolymerClassDefinition_DefinitionType) toString() string {
-	return PolymerClassDefinition_DefinitionType_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this PolymerClassDefinition_DefinitionType) compareTo(o any) int32 {
-	return PolymerClassDefinition_DefinitionType_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this PolymerClassDefinition_DefinitionType) self() any {

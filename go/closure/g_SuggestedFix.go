@@ -88,18 +88,18 @@ func (this SuggestedFix_ImportType) enum_() *Enum {
 	return &SuggestedFix_ImportType_enum_[this-1]
 }
 
-func (this SuggestedFix_ImportType) name() string { return SuggestedFix_ImportType_enum_[this-1].name_ }
+func (this SuggestedFix_ImportType) name() string { return this.enum_().name_ }
 
 func (this SuggestedFix_ImportType) ordinal() int32 {
-	return SuggestedFix_ImportType_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this SuggestedFix_ImportType) toString() string {
-	return SuggestedFix_ImportType_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this SuggestedFix_ImportType) compareTo(o any) int32 {
-	return SuggestedFix_ImportType_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this SuggestedFix_ImportType) self() any {

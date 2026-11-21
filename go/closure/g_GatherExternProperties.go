@@ -130,19 +130,19 @@ func (this GatherExternProperties_Mode) enum_() *Enum {
 }
 
 func (this GatherExternProperties_Mode) name() string {
-	return GatherExternProperties_Mode_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this GatherExternProperties_Mode) ordinal() int32 {
-	return GatherExternProperties_Mode_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this GatherExternProperties_Mode) toString() string {
-	return GatherExternProperties_Mode_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this GatherExternProperties_Mode) compareTo(o any) int32 {
-	return GatherExternProperties_Mode_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this GatherExternProperties_Mode) self() any {

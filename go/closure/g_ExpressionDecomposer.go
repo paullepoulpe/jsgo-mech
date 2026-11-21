@@ -647,19 +647,19 @@ func (this ExpressionDecomposer_DecompositionType) enum_() *Enum {
 }
 
 func (this ExpressionDecomposer_DecompositionType) name() string {
-	return ExpressionDecomposer_DecompositionType_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this ExpressionDecomposer_DecompositionType) ordinal() int32 {
-	return ExpressionDecomposer_DecompositionType_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this ExpressionDecomposer_DecompositionType) toString() string {
-	return ExpressionDecomposer_DecompositionType_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this ExpressionDecomposer_DecompositionType) compareTo(o any) int32 {
-	return ExpressionDecomposer_DecompositionType_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this ExpressionDecomposer_DecompositionType) self() any {
@@ -715,19 +715,19 @@ func (this ExpressionDecomposer_Workaround) enum_() *Enum {
 }
 
 func (this ExpressionDecomposer_Workaround) name() string {
-	return ExpressionDecomposer_Workaround_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this ExpressionDecomposer_Workaround) ordinal() int32 {
-	return ExpressionDecomposer_Workaround_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this ExpressionDecomposer_Workaround) toString() string {
-	return ExpressionDecomposer_Workaround_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this ExpressionDecomposer_Workaround) compareTo(o any) int32 {
-	return ExpressionDecomposer_Workaround_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this ExpressionDecomposer_Workaround) self() any {
@@ -801,19 +801,19 @@ func (this ExpressionDecomposer_EvaluationDirection) enum_() *Enum {
 }
 
 func (this ExpressionDecomposer_EvaluationDirection) name() string {
-	return ExpressionDecomposer_EvaluationDirection_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this ExpressionDecomposer_EvaluationDirection) ordinal() int32 {
-	return ExpressionDecomposer_EvaluationDirection_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this ExpressionDecomposer_EvaluationDirection) toString() string {
-	return ExpressionDecomposer_EvaluationDirection_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this ExpressionDecomposer_EvaluationDirection) compareTo(o any) int32 {
-	return ExpressionDecomposer_EvaluationDirection_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this ExpressionDecomposer_EvaluationDirection) self() any {
