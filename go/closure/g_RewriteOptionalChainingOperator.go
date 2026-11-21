@@ -11,9 +11,9 @@ func (this *RewriteOptionalChainingOperator) init_RewriteOptionalChainingOperato
 	this.compiler_ = compiler
 	var uniqueIdSupplier *UniqueIdSupplier = compiler.getUniqueIdSupplier()
 	this.getTmpVarNameCreatorForInput = Function[*CompilerInput, OptionalChainRewriter_TmpVarNameCreator](func(input *CompilerInput) OptionalChainRewriter_TmpVarNameCreator {
-		return &OptionalChainRewriter_TmpVarNameCreator_fn{func() string {
+		return newFuncObj_(func() string {
 			return ("$jscomp$optchain$tmp" + sstr_(uniqueIdSupplier.getUniqueId(input)))
-		}}
+		})
 	})
 }
 
