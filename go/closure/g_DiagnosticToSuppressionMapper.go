@@ -71,7 +71,7 @@ func DiagnosticToSuppressionMapper_printAsJson(diagnosticToSuppression Immutable
 	writer.beginObject()
 	for _, el := range immElems_(cast_[*ErasedImmutableSet](diagnosticToSuppression.entrySet())) {
 		entry := icast_Map_Entry(el)
-		writer.name(str_(entry.getKey())).stringValue(Optional_ofNullable[string](str_(entry.getValue())))
+		writer.name(str_(entry.getKey())).stringValue(str_(entry.getValue()))
 	}
 	writer.endObject()
 	Output_stdout().println(writer.toString())

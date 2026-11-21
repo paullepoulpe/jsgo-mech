@@ -302,12 +302,12 @@ func (this *CodePrinter_PrettyCodePrinter) addNumber_impl(x float64, n Node) {
 	if !JSCompDoubles_isPositive(x) {
 		panic(new_IllegalStateException_String(objstr_(float64(x))))
 	}
-	var numberFromSource Optional[string] = CodePrinter_PrettyCodePrinter_getNumberFromSource(n)
-	if numberFromSource.isEmpty() {
+	var numberFromSource string = CodePrinter_PrettyCodePrinter_getNumberFromSource(n)
+	if numberFromSource == nullstr_ {
 		this.CodePrinter_MappedCodePrinter.addNumber_impl(x, n)
 		return
 	}
-	var parsed any = Doubles_tryParse(strings.Trim(numberFromSource.get(), javaSpace_))
+	var parsed any = Doubles_tryParse(strings.Trim(optstrGet_(numberFromSource), javaSpace_))
 	if parsed == nil {
 		this.CodePrinter_MappedCodePrinter.addNumber_impl(x, n)
 		return
@@ -317,7 +317,7 @@ func (this *CodePrinter_PrettyCodePrinter) addNumber_impl(x float64, n Node) {
 		this.CodePrinter_MappedCodePrinter.addNumber_impl(x, n)
 		return
 	}
-	this.addConstant(numberFromSource.get())
+	this.addConstant(optstrGet_(numberFromSource))
 }
 
 func (this *CodePrinter_PrettyCodePrinter) startNewLine_impl() {
@@ -453,34 +453,34 @@ func (this *CodePrinter_PrettyCodePrinter) endFile_impl() {
 	this.maybeEndStatement()
 }
 
-func CodePrinter_PrettyCodePrinter_getNumberFromSource(n Node) Optional[string] {
+func CodePrinter_PrettyCodePrinter_getNumberFromSource(n Node) string {
 	if !n.isNumber() {
-		return Optional_empty[string]()
+		return nullstr_
 	}
 	var staticSrc StaticSourceFile = NodeUtil_getSourceFile(n)
 	src, ok := any(staticSrc).(*SourceFile_jscomp)
 	if !(ok) {
-		return Optional_empty[string]()
+		return nullstr_
 	}
 	if src.isStubSourceFileForAlreadyProvidedInput() {
-		return Optional_empty[string]()
+		return nullstr_
 	}
 	var codeRes *Outcome_base[string] = src.readCode()
 	if codeRes.isErr() {
-		return Optional_empty[string]()
+		return nullstr_
 	}
 	var srcCode string = codeRes.get()
 	var lineno int32 = n.getLineno()
 	if (lineno != -1) && !src.isValidLineNumber(lineno) {
-		return Optional_empty[string]()
+		return nullstr_
 	}
 	var offset int32 = n.getSourceOffset()
 	var endOffset int32 = (offset + n.getLength())
 	srcCodeU16 := utf16Of_(srcCode)
 	if (offset < 0) || (endOffset > srcCodeU16.length()) {
-		return Optional_empty[string]()
+		return nullstr_
 	}
-	return Optional_of[string](srcCodeU16.substring(offset, endOffset))
+	return optstrOf_(srcCodeU16.substring(offset, endOffset))
 }
 
 const CodePrinter_PrettyCodePrinter_INDENT string = "  "

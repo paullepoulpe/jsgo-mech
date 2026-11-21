@@ -3,23 +3,23 @@
 package closure
 
 type OutputCharsetEncoder struct {
-	charset Optional[string]
+	charset string
 }
 
-func (this *OutputCharsetEncoder) init_OutputCharsetEncoder(outputCharset Optional[string]) {
-	if outputCharset.isEmpty() || (Charsets_name(outputCharset.get()) == Charsets_US_ASCII) {
-		this.charset = Optional_empty[string]()
+func (this *OutputCharsetEncoder) init_OutputCharsetEncoder(outputCharset string) {
+	if outputCharset == nullstr_ || (Charsets_name(optstrGet_(outputCharset)) == Charsets_US_ASCII) {
+		this.charset = nullstr_
 	} else {
-		this.charset = Optional_of[string](Charsets_name(outputCharset.get()))
+		this.charset = optstrOf_(Charsets_name(optstrGet_(outputCharset)))
 	}
 }
 
-func new_OutputCharsetEncoder(outputCharset Optional[string]) *OutputCharsetEncoder {
+func new_OutputCharsetEncoder(outputCharset string) *OutputCharsetEncoder {
 	this := &OutputCharsetEncoder{}
 	this.init_OutputCharsetEncoder(outputCharset)
 	return this
 }
 
 func (this *OutputCharsetEncoder) canEncode(c uint16) bool {
-	return (this.charset.isPresent() && Charsets_canEncode(c, this.charset.get()))
+	return (this.charset != nullstr_ && Charsets_canEncode(c, optstrGet_(this.charset)))
 }

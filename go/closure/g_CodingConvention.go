@@ -5,20 +5,20 @@ package closure
 type CodingConvention interface {
 	isConstant(string) bool
 	isConstantKey(string) bool
-	isValidEnumKey(Optional[string]) bool
+	isValidEnumKey(string) bool
 	isOptionalParameter(Node) bool
 	isVarArgsParameter(Node) bool
 	isFunctionCallThatAlwaysThrows(Node) bool
 	isExported_2(string, bool) bool
 	isExported(string) bool
 	blockRenamingForProperty(string) bool
-	getPackageName(StaticSourceFile) Optional[string]
+	getPackageName(StaticSourceFile) string
 	getClassesDefinedByCall(Node) *CodingConvention_SubclassRelationship
 	isClassFactoryCall(Node) bool
 	isSuperClassReference(string) bool
 	extractIsModuleFile(Node, Node) bool
-	extractClassNameIfProvide(Node, Node) Optional[string]
-	extractClassNameIfRequire(Node, Node) Optional[string]
+	extractClassNameIfProvide(Node, Node) string
+	extractClassNameIfRequire(Node, Node) string
 	getExportPropertyFunction() string
 	getExportSymbolFunction() string
 	identifyTypeDeclarationCall(Node) *TList[string]
@@ -158,8 +158,8 @@ func CodingConvention_SubclassType_clinit() {
 
 type CodingConvention_SubclassRelationship struct {
 	type__         CodingConvention_SubclassType
-	subclassName   Optional[string]
-	superclassName Optional[string]
+	subclassName   string
+	superclassName string
 }
 
 func (this *CodingConvention_SubclassRelationship) init_CodingConvention_SubclassRelationship(type_ CodingConvention_SubclassType, subclassNode Node, superclassNode Node) {
@@ -170,10 +170,10 @@ func (this *CodingConvention_SubclassRelationship) init_CodingConvention_Subclas
 		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected qualified name, found: %s", superclassNode.box_())))
 	}
 	this.type__ = type_
-	this.subclassName = Optional_of[string](subclassNode.getQualifiedName()).filterFn_(func(s string) bool {
+	this.subclassName = optstrFilter_(optstrOf_(subclassNode.getQualifiedName()), func(s string) bool {
 		return s != ""
 	})
-	this.superclassName = Optional_of[string](superclassNode.getQualifiedName()).filterFn_(func(s string) bool {
+	this.superclassName = optstrFilter_(optstrOf_(superclassNode.getQualifiedName()), func(s string) bool {
 		return s != ""
 	})
 }
@@ -186,17 +186,17 @@ func new_CodingConvention_SubclassRelationship(type_ CodingConvention_SubclassTy
 
 type CodingConvention_ObjectLiteralCast struct {
 	diagnosticType *DiagnosticType
-	typeName       Optional[string]
+	typeName       string
 	objectNode     Node
 }
 
-func (this *CodingConvention_ObjectLiteralCast) init_CodingConvention_ObjectLiteralCast(typeName Optional[string], objectNode Node, diagnosticType *DiagnosticType) {
+func (this *CodingConvention_ObjectLiteralCast) init_CodingConvention_ObjectLiteralCast(typeName string, objectNode Node, diagnosticType *DiagnosticType) {
 	this.typeName = typeName
 	this.objectNode = objectNode
 	this.diagnosticType = diagnosticType
 }
 
-func new_CodingConvention_ObjectLiteralCast(typeName Optional[string], objectNode Node, diagnosticType *DiagnosticType) *CodingConvention_ObjectLiteralCast {
+func new_CodingConvention_ObjectLiteralCast(typeName string, objectNode Node, diagnosticType *DiagnosticType) *CodingConvention_ObjectLiteralCast {
 	this := &CodingConvention_ObjectLiteralCast{}
 	this.init_CodingConvention_ObjectLiteralCast(typeName, objectNode, diagnosticType)
 	return this
@@ -205,12 +205,12 @@ func new_CodingConvention_ObjectLiteralCast(typeName Optional[string], objectNod
 type CodingConvention_AssertionFunctionSpec struct {
 	getClosurePrimitive_ ClosurePrimitive
 	getAssertionKind_    CodingConvention_AssertionFunctionSpec_AssertionKind
-	getFunctionName_     Optional[string]
+	getFunctionName_     string
 	getParamIndex_       int32
 	hashMemo_            int32 // hashCode, once computed, when it is not 0 (post-flip step hashmemo)
 }
 
-func (this *CodingConvention_AssertionFunctionSpec) init_CodingConvention_AssertionFunctionSpec(getFunctionName Optional[string], getClosurePrimitive ClosurePrimitive, getAssertionKind CodingConvention_AssertionFunctionSpec_AssertionKind, getParamIndex int32) {
+func (this *CodingConvention_AssertionFunctionSpec) init_CodingConvention_AssertionFunctionSpec(getFunctionName string, getClosurePrimitive ClosurePrimitive, getAssertionKind CodingConvention_AssertionFunctionSpec_AssertionKind, getParamIndex int32) {
 	if getAssertionKind == 0 {
 		panic(new_NullPointerException_String("getAssertionKind"))
 	}
@@ -220,14 +220,14 @@ func (this *CodingConvention_AssertionFunctionSpec) init_CodingConvention_Assert
 	this.getParamIndex_ = getParamIndex
 }
 
-func new_CodingConvention_AssertionFunctionSpec(getFunctionName Optional[string], getClosurePrimitive ClosurePrimitive, getAssertionKind CodingConvention_AssertionFunctionSpec_AssertionKind, getParamIndex int32) *CodingConvention_AssertionFunctionSpec {
+func new_CodingConvention_AssertionFunctionSpec(getFunctionName string, getClosurePrimitive ClosurePrimitive, getAssertionKind CodingConvention_AssertionFunctionSpec_AssertionKind, getParamIndex int32) *CodingConvention_AssertionFunctionSpec {
 	this := &CodingConvention_AssertionFunctionSpec{}
 	this.init_CodingConvention_AssertionFunctionSpec(getFunctionName, getClosurePrimitive, getAssertionKind, getParamIndex)
 	return this
 }
 
 func (this *CodingConvention_AssertionFunctionSpec) toString() string {
-	return ("AssertionFunctionSpec{functionName=" + sstr_(this.getFunctionName_.orElse("null")) + ", closurePrimitive=" + jtostr_(this.getClosurePrimitive_) + ", assertionKind=" + jtostr_(this.getAssertionKind_) + ", paramIndex=" + istr_(int64(this.getParamIndex_)) + "}")
+	return ("AssertionFunctionSpec{functionName=" + sstr_(optstrOr_(this.getFunctionName_, "null")) + ", closurePrimitive=" + jtostr_(this.getClosurePrimitive_) + ", assertionKind=" + jtostr_(this.getAssertionKind_) + ", paramIndex=" + istr_(int64(this.getParamIndex_)) + "}")
 }
 
 func CodingConvention_AssertionFunctionSpec_builder() *CodingConvention_AssertionFunctionSpec_Builder {
@@ -247,7 +247,7 @@ func (this *CodingConvention_AssertionFunctionSpec) getId() any {
 		if this.getClosurePrimitive() != 0 {
 			return obj_(this.getClosurePrimitive())
 		}
-		return strobj_(this.getFunctionName().orElse(nullstr_))
+		return strobj_(this.getFunctionName())
 	}()
 }
 
@@ -261,7 +261,7 @@ func (this *CodingConvention_AssertionFunctionSpec) getAssertedArg(firstArg Node
 	return firstArg
 }
 
-func (this *CodingConvention_AssertionFunctionSpec) getFunctionName() Optional[string] {
+func (this *CodingConvention_AssertionFunctionSpec) getFunctionName() string {
 	return this.getFunctionName_
 }
 
@@ -282,7 +282,7 @@ func (this *CodingConvention_AssertionFunctionSpec) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && optEqualsNull_(this.getFunctionName_, o.getFunctionName_) && this.getClosurePrimitive_ == o.getClosurePrimitive_ && this.getAssertionKind_ == o.getAssertionKind_ && this.getParamIndex_ == o.getParamIndex_
+	return true && this.getFunctionName_ == o.getFunctionName_ && this.getClosurePrimitive_ == o.getClosurePrimitive_ && this.getAssertionKind_ == o.getAssertionKind_ && this.getParamIndex_ == o.getParamIndex_
 }
 
 func (this *CodingConvention_AssertionFunctionSpec) hashCode() int32 {
@@ -297,7 +297,7 @@ func (this *CodingConvention_AssertionFunctionSpec) hashCode() int32 {
 // hashCodeOnce_ computes hashCode: a function of data that is final in the object (post-flip step hashmemo).
 func (this *CodingConvention_AssertionFunctionSpec) hashCodeOnce_() int32 {
 	var h int32
-	h = h*31 + optHash_(this.getFunctionName_)
+	h = h*31 + optstrHash_(this.getFunctionName_)
 	h = h*31 + objhashId_(this.getClosurePrimitive_)
 	h = h*31 + objhashId_(this.getAssertionKind_)
 	h = h*31 + this.getParamIndex_
@@ -374,13 +374,13 @@ func CodingConvention_AssertionFunctionSpec_AssertionKind_clinit() {
 type CodingConvention_AssertionFunctionSpec_Builder struct {
 	closurePrimitive ClosurePrimitive
 	assertionKind    CodingConvention_AssertionFunctionSpec_AssertionKind
-	functionName     Optional[string]
+	functionName     string
 	paramIndex       int32
 	set0             int8
 }
 
 func (this *CodingConvention_AssertionFunctionSpec_Builder) finit_CodingConvention_AssertionFunctionSpec_Builder() {
-	this.functionName = Optional_empty[string]()
+	this.functionName = nullstr_
 }
 
 func (this *CodingConvention_AssertionFunctionSpec_Builder) init_CodingConvention_AssertionFunctionSpec_Builder() {
@@ -394,7 +394,7 @@ func new_CodingConvention_AssertionFunctionSpec_Builder() *CodingConvention_Asse
 }
 
 func (this *CodingConvention_AssertionFunctionSpec_Builder) setFunctionName(name string) *CodingConvention_AssertionFunctionSpec_Builder {
-	this.functionName = Optional_of[string](name)
+	this.functionName = optstrOf_(name)
 	return this
 }
 
@@ -433,7 +433,7 @@ func (this *CodingConvention_AssertionFunctionSpec_Builder) autoBuild() *CodingC
 
 func (this *CodingConvention_AssertionFunctionSpec_Builder) build() *CodingConvention_AssertionFunctionSpec {
 	var spec *CodingConvention_AssertionFunctionSpec = this.autoBuild()
-	if !spec.getFunctionName().isPresent() && spec.getClosurePrimitive() == 0 {
+	if spec.getFunctionName() == nullstr_ && spec.getClosurePrimitive() == 0 {
 		panic(new_IllegalStateException_String(objstr_("Must provide a function name or ClosurePrimitive for each spec")))
 	}
 	return spec

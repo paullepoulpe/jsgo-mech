@@ -118,15 +118,15 @@ func (this *LocaleDataPasses_LocaleSubstitutions) finit_LocaleDataPasses_LocaleS
 	this.qnameForLocale = IR_name(LocaleDataPasses_GOOG_LOCALE_REPLACEMENT)
 }
 
-func (this *LocaleDataPasses_LocaleSubstitutions) init_LocaleDataPasses_LocaleSubstitutions(compiler *AbstractCompiler, locale Optional[string]) {
+func (this *LocaleDataPasses_LocaleSubstitutions) init_LocaleDataPasses_LocaleSubstitutions(compiler *AbstractCompiler, locale string) {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 	this.finit_LocaleDataPasses_LocaleSubstitutions()
 	this.compiler_ = compiler
 	this.astFactory_ = compiler.createAstFactory()
-	this.locale = locale.orElse(LocaleDataPasses_LocaleSubstitutions_DEFAULT_LOCALE)
+	this.locale = optstrOr_(locale, LocaleDataPasses_LocaleSubstitutions_DEFAULT_LOCALE)
 }
 
-func new_LocaleDataPasses_LocaleSubstitutions(compiler *AbstractCompiler, locale Optional[string]) *LocaleDataPasses_LocaleSubstitutions {
+func new_LocaleDataPasses_LocaleSubstitutions(compiler *AbstractCompiler, locale string) *LocaleDataPasses_LocaleSubstitutions {
 	this := &LocaleDataPasses_LocaleSubstitutions{}
 	this.self_ = this
 	this.zero_LocaleDataPasses_LocaleSubstitutions()

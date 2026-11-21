@@ -7,8 +7,8 @@ import "strings"
 type GenerateExports struct {
 	compiler_              *AbstractCompiler
 	exportedVariables      *TSet[string]
-	exportSymbolFunction   Optional[string]
-	exportPropertyFunction Optional[string]
+	exportSymbolFunction   string
+	exportPropertyFunction string
 	allowNonGlobalExports  bool
 }
 
@@ -16,7 +16,7 @@ func (this *GenerateExports) finit_GenerateExports() {
 	this.exportedVariables = newTSet_(tc_string)
 }
 
-func (this *GenerateExports) init_GenerateExports(compiler *AbstractCompiler, allowNonGlobalExports bool, exportSymbolFunction Optional[string], exportPropertyFunction Optional[string]) {
+func (this *GenerateExports) init_GenerateExports(compiler *AbstractCompiler, allowNonGlobalExports bool, exportSymbolFunction string, exportPropertyFunction string) {
 	this.finit_GenerateExports()
 	if compiler == nil {
 		panic(new_NullPointerException_0())
@@ -27,7 +27,7 @@ func (this *GenerateExports) init_GenerateExports(compiler *AbstractCompiler, al
 	this.exportPropertyFunction = exportPropertyFunction
 }
 
-func new_GenerateExports(compiler *AbstractCompiler, allowNonGlobalExports bool, exportSymbolFunction Optional[string], exportPropertyFunction Optional[string]) *GenerateExports {
+func new_GenerateExports(compiler *AbstractCompiler, allowNonGlobalExports bool, exportSymbolFunction string, exportPropertyFunction string) *GenerateExports {
 	this := &GenerateExports{}
 	this.init_GenerateExports(compiler, allowNonGlobalExports, exportSymbolFunction, exportPropertyFunction)
 	return this
@@ -72,12 +72,12 @@ func (this *GenerateExports) validateExportMethodsIncluded(exports *TMap[string,
 	} else {
 		errorLocation = Node_of_(first_(es6Exports.asMap().keySet()))
 	}
-	if this.exportSymbolFunction.isEmpty() || this.exportPropertyFunction.isEmpty() {
+	if this.exportSymbolFunction == nullstr_ || this.exportPropertyFunction == nullstr_ {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(errorLocation, GenerateExports_MISSING_EXPORT_CONVENTION, []string{}))
 		return false
 	}
 	if !this.includesExportMethods(root.getParent()) {
-		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(errorLocation, GenerateExports_MISSING_GOOG_FOR_EXPORT, []string{this.exportSymbolFunction.get(), this.exportPropertyFunction.get()}))
+		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(errorLocation, GenerateExports_MISSING_GOOG_FOR_EXPORT, []string{optstrGet_(this.exportSymbolFunction), optstrGet_(this.exportPropertyFunction)}))
 		this.declareExportMethodsInExterns(errorLocation)
 		return true
 	}
@@ -86,14 +86,14 @@ func (this *GenerateExports) validateExportMethodsIncluded(exports *TMap[string,
 
 func (this *GenerateExports) includesExportMethods(root Node) bool {
 	var globalScope *Scope = new_SyntacticScopeCreator_AbstractCompiler(this.compiler_).createScope(root, nil)
-	var exportPropertyRoot string = NodeUtil_getRootOfQualifiedNameString(this.exportPropertyFunction.get())
-	var exportSymbolRoot string = NodeUtil_getRootOfQualifiedNameString(this.exportSymbolFunction.get())
+	var exportPropertyRoot string = NodeUtil_getRootOfQualifiedNameString(optstrGet_(this.exportPropertyFunction))
+	var exportSymbolRoot string = NodeUtil_getRootOfQualifiedNameString(optstrGet_(this.exportSymbolFunction))
 	return (globalScope.hasSlot(exportPropertyRoot) && globalScope.hasSlot(exportSymbolRoot))
 }
 
 func (this *GenerateExports) declareExportMethodsInExterns(srcref Node) {
-	var exportPropertyRoot string = NodeUtil_getRootOfQualifiedNameString(this.exportPropertyFunction.get())
-	var exportSymbolRoot string = NodeUtil_getRootOfQualifiedNameString(this.exportSymbolFunction.get())
+	var exportPropertyRoot string = NodeUtil_getRootOfQualifiedNameString(optstrGet_(this.exportPropertyFunction))
+	var exportSymbolRoot string = NodeUtil_getRootOfQualifiedNameString(optstrGet_(this.exportSymbolFunction))
 	if exportPropertyRoot == exportSymbolRoot {
 		this.declareSyntheticExternsVar(exportPropertyRoot, srcref)
 	} else {
@@ -145,7 +145,7 @@ func (this *GenerateExports) addExportForEs6Method(memberFunction Node, ownerNam
 func (this *GenerateExports) addExportMethod(exports *TMap[string, Node], export string, context Node) {
 	var methodOwnerName string = ""
 	var isEs5StylePrototypeAssignment bool = false
-	var propertyName Optional[string] = Optional_empty[string]()
+	var propertyName string = nullstr_
 	var child Node = context.getFirstChild()
 	if (child != 0) && child.isGetProp() {
 		var node Node = context.getFirstChild()
@@ -154,7 +154,7 @@ func (this *GenerateExports) addExportMethod(exports *TMap[string, Node], export
 		if ownerNode.isGetProp() && (ownerNode.getStringIs_(sid_prototype)) {
 			isEs5StylePrototypeAssignment = true
 		}
-		propertyName = Optional_of[string](node.getString())
+		propertyName = optstrOf_(node.getString())
 	}
 	var useExportSymbol bool = true
 	if isEs5StylePrototypeAssignment {
@@ -165,19 +165,19 @@ func (this *GenerateExports) addExportMethod(exports *TMap[string, Node], export
 	if useExportSymbol {
 		this.addExportSymbolCall(export, context)
 	} else {
-		this.addExportPropertyCall(methodOwnerName, context, export, propertyName.get())
+		this.addExportPropertyCall(methodOwnerName, context, export, optstrGet_(propertyName))
 	}
 }
 
 func (this *GenerateExports) addExportPropertyCall(methodOwnerName string, context Node, export string, propertyName string) {
-	var call Node = IR_call(NodeUtil_newQName_AbstractCompiler_String_Node_String(this.compiler_, this.exportPropertyFunction.get(), context, this.exportPropertyFunction.get()), []Node{NodeUtil_newQName_AbstractCompiler_String_Node_String(this.compiler_, methodOwnerName, context, this.exportPropertyFunction.get()), IR_string(propertyName), NodeUtil_newQName_AbstractCompiler_String_Node_String(this.compiler_, export, context, this.exportPropertyFunction.get())})
+	var call Node = IR_call(NodeUtil_newQName_AbstractCompiler_String_Node_String(this.compiler_, optstrGet_(this.exportPropertyFunction), context, optstrGet_(this.exportPropertyFunction)), []Node{NodeUtil_newQName_AbstractCompiler_String_Node_String(this.compiler_, methodOwnerName, context, optstrGet_(this.exportPropertyFunction)), IR_string(propertyName), NodeUtil_newQName_AbstractCompiler_String_Node_String(this.compiler_, export, context, optstrGet_(this.exportPropertyFunction))})
 	var expression Node = IR_exprResult(call).srcrefTreeIfMissing(context)
 	this.addStatement(context, expression)
 }
 
 func (this *GenerateExports) addExportSymbolCall(export string, context Node) {
 	this.recordExportSymbol(export)
-	var call Node = IR_call(NodeUtil_newQName_AbstractCompiler_String_Node_String(this.compiler_, this.exportSymbolFunction.get(), context, export), []Node{IR_string(export), NodeUtil_newQName_AbstractCompiler_String_Node_String(this.compiler_, export, context, export)})
+	var call Node = IR_call(NodeUtil_newQName_AbstractCompiler_String_Node_String(this.compiler_, optstrGet_(this.exportSymbolFunction), context, export), []Node{IR_string(export), NodeUtil_newQName_AbstractCompiler_String_Node_String(this.compiler_, export, context, export)})
 	var expression Node = IR_exprResult(call).srcrefTreeIfMissing(context)
 	this.addStatement(context, expression)
 }

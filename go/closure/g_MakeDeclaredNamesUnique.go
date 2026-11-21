@@ -80,12 +80,12 @@ func (this *MakeDeclaredNamesUnique) visitNameOrImportStar(t *NodeTraversal, n N
 	if n.isName() && NodeUtil_isNonlocalModuleExportName(n) {
 		return
 	}
-	var newName Optional[string] = this.getReplacementName(n.getString())
-	if newName.isEmpty() {
+	var newName string = this.getReplacementName(n.getString())
+	if newName == nullstr_ {
 		return
 	}
 	if this.assertOnChange_ {
-		panic(new_IllegalStateException_String(("Unexpected renaming in MakeDeclaredNamesUnique. new name: " + sstr_(newName.get()) + " for " + tostrH_(n))))
+		panic(new_IllegalStateException_String(("Unexpected renaming in MakeDeclaredNamesUnique. new name: " + sstr_(optstrGet_(newName)) + " for " + tostrH_(n))))
 	}
 	var renamer MakeDeclaredNamesUnique_Renamer = slicePeekTop_(tc_MakeDeclaredNamesUnique_Renamer, *this.renamerStack)
 	if renamer.stripConstIfReplaced() {
@@ -97,7 +97,7 @@ func (this *MakeDeclaredNamesUnique) visitNameOrImportStar(t *NodeTraversal, n N
 			jsDocInfoNode.setJSDocInfo(builder.build())
 		}
 	}
-	n.setString(newName.get())
+	n.setString(optstrGet_(newName))
 	if this.markChanges {
 		t.reportCodeChange()
 		if parent.isFunction() && NodeUtil_isFunctionDeclaration(parent) {
@@ -106,16 +106,16 @@ func (this *MakeDeclaredNamesUnique) visitNameOrImportStar(t *NodeTraversal, n N
 	}
 }
 
-func (this *MakeDeclaredNamesUnique) getReplacementName(oldName string) Optional[string] {
+func (this *MakeDeclaredNamesUnique) getReplacementName(oldName string) string {
 	it_1 := eachRevOf_(this.renamerStack)
 	for it_1.next() {
 		var renamer MakeDeclaredNamesUnique_Renamer = it_1.v
-		var newName Optional[string] = renamer.getReplacementName(oldName)
-		if newName.isPresent() {
+		var newName string = renamer.getReplacementName(oldName)
+		if newName != nullstr_ {
 			return newName
 		}
 	}
-	return Optional_empty[string]()
+	return nullstr_
 }
 
 func (this *MakeDeclaredNamesUnique) findDeclaredNames(t *NodeTraversal, n Node) {
@@ -174,7 +174,7 @@ func (this *MakeDeclaredNamesUnique_Builder) build() *MakeDeclaredNamesUnique {
 
 type MakeDeclaredNamesUnique_Renamer interface {
 	addDeclaredName(string, bool)
-	getReplacementName(string) Optional[string]
+	getReplacementName(string) string
 	stripConstIfReplaced() bool
 	createForChildScope(Node, bool) MakeDeclaredNamesUnique_Renamer
 	getHoistRenamer() MakeDeclaredNamesUnique_Renamer
@@ -656,40 +656,40 @@ func (this *MakeDeclaredNamesUnique_ContextualRenamer) addDeclaredName(name stri
 	} else {
 		if !(name == MakeDeclaredNamesUnique_ARGUMENTS) {
 			if this.global {
-				this.reserveName(Optional_of[string](name))
+				this.reserveName(optstrOf_(name))
 			} else {
 				if !Map_containsKey_s(this.declarations, name) {
-					var id int32 = this.incrementNameCount(Optional_of[string](name))
-					var newName Optional[string] = Optional_empty[string]()
+					var id int32 = this.incrementNameCount(optstrOf_(name))
+					var newName string = nullstr_
 					if id != 0 {
-						newName = Optional_of[string](MakeDeclaredNamesUnique_ContextualRenamer_getUniqueName(name, id))
-						for newName.isPresent() && this.nameUsage.contains(newName.get()) {
+						newName = optstrOf_(MakeDeclaredNamesUnique_ContextualRenamer_getUniqueName(name, id))
+						for newName != nullstr_ && this.nameUsage.contains(optstrGet_(newName)) {
 							id = this.incrementNameCount(newName)
-							newName = Optional_of[string](MakeDeclaredNamesUnique_ContextualRenamer_getUniqueName(name, id))
+							newName = optstrOf_(MakeDeclaredNamesUnique_ContextualRenamer_getUniqueName(name, id))
 						}
 						this.reserveName(newName)
 					}
-					Map_put_s(this.declarations, name, newName.box_())
+					Map_put_s(this.declarations, name, optstrBox_(newName))
 				}
 			}
 		}
 	}
 }
 
-func (this *MakeDeclaredNamesUnique_ContextualRenamer) getReplacementName(oldName string) Optional[string] {
-	return optOf_[string](Map_getOrDefault_s(this.declarations, oldName, Optional_empty[string]().box_()))
+func (this *MakeDeclaredNamesUnique_ContextualRenamer) getReplacementName(oldName string) string {
+	return optstrUnbox_(Map_getOrDefault_s(this.declarations, oldName, optstrBox_(nullstr_)))
 }
 
 func MakeDeclaredNamesUnique_ContextualRenamer_getUniqueName(name string, id int32) string {
 	return (sstr_(name) + sstr_(MakeDeclaredNamesUnique_ContextualRenamer_UNIQUE_ID_SEPARATOR) + istr_(int64(id)))
 }
 
-func (this *MakeDeclaredNamesUnique_ContextualRenamer) reserveName(name Optional[string]) {
-	this.nameUsage.setCount(name.orElse(nullstr_), 0, 1)
+func (this *MakeDeclaredNamesUnique_ContextualRenamer) reserveName(name string) {
+	this.nameUsage.setCount(name, 0, 1)
 }
 
-func (this *MakeDeclaredNamesUnique_ContextualRenamer) incrementNameCount(name Optional[string]) int32 {
-	return this.nameUsage.add_2(name.orElse(nullstr_), 1)
+func (this *MakeDeclaredNamesUnique_ContextualRenamer) incrementNameCount(name string) int32 {
+	return this.nameUsage.add_2(name, 1)
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenamer) stripConstIfReplaced() bool {
@@ -770,8 +770,8 @@ func (this *MakeDeclaredNamesUnique_InlineRenamer) getUniqueName(name string) st
 	return (sstr_(name) + sstr_(MakeDeclaredNamesUnique_ContextualRenamer_UNIQUE_ID_SEPARATOR) + sstr_(this.idPrefix) + sstr_(this.uniqueIdSupplier.get()))
 }
 
-func (this *MakeDeclaredNamesUnique_InlineRenamer) getReplacementName(oldName string) Optional[string] {
-	return Optional_ofNullable[string](this.declarations.Get(oldName))
+func (this *MakeDeclaredNamesUnique_InlineRenamer) getReplacementName(oldName string) string {
+	return this.declarations.Get(oldName)
 }
 
 func (this *MakeDeclaredNamesUnique_InlineRenamer) createForChildScope(scopeRoot Node, hoistingTargetScope bool) MakeDeclaredNamesUnique_Renamer {
@@ -845,12 +845,12 @@ func (this *MakeDeclaredNamesUnique_TargettedRenamer) addDeclaredName(name strin
 	}
 }
 
-func (this *MakeDeclaredNamesUnique_TargettedRenamer) getReplacementName(oldName string) Optional[string] {
-	return func() Optional[string] {
+func (this *MakeDeclaredNamesUnique_TargettedRenamer) getReplacementName(oldName string) string {
+	return func() string {
 		if this.targets.Has(oldName) {
 			return this.delegate.getReplacementName(oldName)
 		}
-		return Optional_empty[string]()
+		return nullstr_
 	}()
 }
 

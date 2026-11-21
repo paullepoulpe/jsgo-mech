@@ -49,8 +49,8 @@ func (this *AllType) appendTo_impl(sb *TypeStringBuilder) {
 	sb.append("*")
 }
 
-func (this *AllType) getDisplayName_impl() Optional[string] {
-	return Optional_of[string]("<Any Type>")
+func (this *AllType) getDisplayName_impl() string {
+	return "<Any Type>"
 }
 
 func (this *AllType) hasDisplayName_impl() bool {
@@ -127,7 +127,7 @@ func (this *AllType) appendTo(p0 *TypeStringBuilder) {
 }
 
 // getDisplayName: an object that is exactly a AllType calls its getDisplayName_impl directly (post-flip); others dispatch.
-func (this *AllType) getDisplayName() Optional[string] {
+func (this *AllType) getDisplayName() string {
 	if p, _ := this.self_.(*AllType); p == this {
 		return this.getDisplayName_impl()
 	}

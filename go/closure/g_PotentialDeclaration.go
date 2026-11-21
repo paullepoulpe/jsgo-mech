@@ -72,7 +72,7 @@ func PotentialDeclaration_fromMemberFieldDef(fieldNode Node) *PotentialDeclarati
 	}
 	var rhs Node = NodeUtil_getRValueOfLValue(fieldNode)
 	var name string = ClassUtil_getFullyQualifiedNameOfMemberFieldDef(fieldNode)
-	return new_PotentialDeclaration_MemberFieldDeclaration(Optional_of[string](name), fieldNode, rhs).up_PotentialDeclaration()
+	return new_PotentialDeclaration_MemberFieldDeclaration(optstrOf_(name), fieldNode, rhs).up_PotentialDeclaration()
 }
 
 func PotentialDeclaration_fromMethod(functionNode Node) *PotentialDeclaration {
@@ -625,11 +625,11 @@ func (this *PotentialDeclaration_MemberFieldDeclaration) zero_PotentialDeclarati
 	this.PotentialDeclaration.zero_PotentialDeclaration()
 }
 
-func (this *PotentialDeclaration_MemberFieldDeclaration) init_PotentialDeclaration_MemberFieldDeclaration(name Optional[string], lhs Node, rhs Node) {
-	this.PotentialDeclaration.init_PotentialDeclaration(name.orElseThrow(), lhs, rhs)
+func (this *PotentialDeclaration_MemberFieldDeclaration) init_PotentialDeclaration_MemberFieldDeclaration(name string, lhs Node, rhs Node) {
+	this.PotentialDeclaration.init_PotentialDeclaration(optstrGet_(name), lhs, rhs)
 }
 
-func new_PotentialDeclaration_MemberFieldDeclaration(name Optional[string], lhs Node, rhs Node) *PotentialDeclaration_MemberFieldDeclaration {
+func new_PotentialDeclaration_MemberFieldDeclaration(name string, lhs Node, rhs Node) *PotentialDeclaration_MemberFieldDeclaration {
 	this := &PotentialDeclaration_MemberFieldDeclaration{}
 	this.self_ = this
 	this.zero_PotentialDeclaration_MemberFieldDeclaration()

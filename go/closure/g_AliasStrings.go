@@ -104,7 +104,7 @@ func (this *AliasStrings) replaceStringsWithAliases() {
 		var info *AliasStrings_StringInfo = entry.getValue()
 		if this.shouldReplaceWithAlias(literal, info) {
 			for node := range sliceAll_(info.occurrences) {
-				this.replaceStringWithAliasName(node, info.getVariableName(literal).get(), info)
+				this.replaceStringWithAliasName(node, optstrGet_(info.getVariableName(literal)), info)
 			}
 		}
 	}
@@ -118,8 +118,8 @@ func (this *AliasStrings) addAliasDeclarationNodes() {
 		if !info.isAliased {
 			continue
 		}
-		var alias Optional[string] = info.getVariableName(entry.getKey())
-		var var_ Node = IR_var_Node_Node(IR_name(alias.get()), IR_string(entry.getKey()))
+		var alias string = info.getVariableName(entry.getKey())
+		var var_ Node = IR_var_Node_Node(IR_name(optstrGet_(alias)), IR_string(entry.getKey()))
 		var firstUse Node = sliceAt_(*info.occurrences, 0)
 		var_.srcrefTree(firstUse)
 		if info.siblingToInsertVarDeclBefore == 0 {
@@ -188,7 +188,7 @@ type AliasStrings_StringInfo struct {
 	outer_                       *AliasStrings
 	occurrences                  *[]Node
 	chunkToContainDecl           *JSChunk
-	aliasName_                   Optional[string]
+	aliasName_                   string
 	id                           int32
 	parentForNewVarDecl          Node
 	siblingToInsertVarDeclBefore Node
@@ -197,7 +197,7 @@ type AliasStrings_StringInfo struct {
 
 func (this *AliasStrings_StringInfo) finit_AliasStrings_StringInfo() {
 	this.occurrences = &[]Node{}
-	this.aliasName_ = Optional_empty[string]()
+	this.aliasName_ = nullstr_
 }
 
 func (this *AliasStrings_StringInfo) init_AliasStrings_StringInfo(id int32) {
@@ -213,9 +213,9 @@ func new_AliasStrings_StringInfo(outer_ *AliasStrings, id int32) *AliasStrings_S
 	return this
 }
 
-func (this *AliasStrings_StringInfo) getVariableName(stringLiteral string) Optional[string] {
-	if this.aliasName_.isEmpty() {
-		this.aliasName_ = Optional_of[string](this.encodeStringAsIdentifier(AliasStrings_STRING_ALIAS_PREFIX, stringLiteral))
+func (this *AliasStrings_StringInfo) getVariableName(stringLiteral string) string {
+	if this.aliasName_ == nullstr_ {
+		this.aliasName_ = optstrOf_(this.encodeStringAsIdentifier(AliasStrings_STRING_ALIAS_PREFIX, stringLiteral))
 	}
 	return this.aliasName_
 }

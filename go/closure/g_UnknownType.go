@@ -79,7 +79,7 @@ func (this *UnknownType) isVoidable_impl() bool {
 }
 
 func (this *UnknownType) appendTo_impl(sb *TypeStringBuilder) {
-	sb.append(this.getReferenceName().orElseThrow())
+	sb.append(optstrGet_(this.getReferenceName()))
 }
 
 func (this *UnknownType) defineProperty_impl(propertyName Property_Key, type_ *JSType, inferred bool, propertyNode Node) bool {
@@ -94,17 +94,17 @@ func (this *UnknownType) getConstructor_impl() *FunctionType {
 	return nil
 }
 
-func (this *UnknownType) getReferenceName_impl() Optional[string] {
-	return func() Optional[string] {
+func (this *UnknownType) getReferenceName_impl() string {
+	return func() string {
 		if this.isChecked {
-			return Optional_of[string]("??")
+			return "??"
 		}
-		return Optional_of[string]("?")
+		return "?"
 	}()
 }
 
-func (this *UnknownType) getDisplayName_impl() Optional[string] {
-	return Optional_of[string]("Unknown")
+func (this *UnknownType) getDisplayName_impl() string {
+	return "Unknown"
 }
 
 func (this *UnknownType) hasDisplayName_impl() bool {
@@ -245,7 +245,7 @@ func (this *UnknownType) getConstructor() *FunctionType {
 }
 
 // getReferenceName: an object that is exactly a UnknownType calls its getReferenceName_impl directly (post-flip); others dispatch.
-func (this *UnknownType) getReferenceName() Optional[string] {
+func (this *UnknownType) getReferenceName() string {
 	if p, _ := this.self_.(*UnknownType); p == this {
 		return this.getReferenceName_impl()
 	}
@@ -253,7 +253,7 @@ func (this *UnknownType) getReferenceName() Optional[string] {
 }
 
 // getDisplayName: an object that is exactly a UnknownType calls its getDisplayName_impl directly (post-flip); others dispatch.
-func (this *UnknownType) getDisplayName() Optional[string] {
+func (this *UnknownType) getDisplayName() string {
 	if p, _ := this.self_.(*UnknownType); p == this {
 		return this.getDisplayName_impl()
 	}

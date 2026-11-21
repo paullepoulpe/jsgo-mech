@@ -57,9 +57,9 @@ func (this *ExtractPrototypeMemberDeclarations) maybeDoExtraction(info *ExtractP
 
 func (this *ExtractPrototypeMemberDeclarations) extractInstance(instance *ExtractPrototypeMemberDeclarations_ExtractionInstance, alias string) {
 	var first *ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration = sliceAt_(*instance.declarations, 0)
-	var className Optional[string] = first.qualifiedClassName
+	var className string = first.qualifiedClassName
 	if (this.pattern == ExtractPrototypeMemberDeclarations_Pattern_USE_GLOBAL_TEMP) || (this.pattern == ExtractPrototypeMemberDeclarations_Pattern_USE_CHUNK_TEMP) {
-		var classNameNode Node = NodeUtil_newQName_AbstractCompiler_String(this.compiler_, className.get())
+		var classNameNode Node = NodeUtil_newQName_AbstractCompiler_String(this.compiler_, optstrGet_(className))
 		classNameNode.putBooleanProp(Node_IS_CONSTANT_NAME, first.constant)
 		var stmt Node = IR_exprResult(IR_assign(IR_name(alias), IR_getprop_Node_String(classNameNode, "prototype"))).srcrefTreeIfMissing(first.node_)
 		stmt.insertBefore(first.node_)
@@ -67,7 +67,7 @@ func (this *ExtractPrototypeMemberDeclarations) extractInstance(instance *Extrac
 	} else if this.pattern == ExtractPrototypeMemberDeclarations_Pattern_USE_IIFE {
 		var block Node = IR_block_0()
 		var func_ Node = IR_function(IR_name(""), IR_paramList([]Node{IR_name(alias)}), block)
-		var call Node = IR_call(func_, []Node{NodeUtil_newQName_AbstractCompiler_String_Node_String(this.compiler_, (sstr_(className.orElse("null")) + ".prototype"), instance.parent, (sstr_(className.orElse("null")) + ".prototype"))})
+		var call Node = IR_call(func_, []Node{NodeUtil_newQName_AbstractCompiler_String_Node_String(this.compiler_, (sstr_(optstrOr_(className, "null")) + ".prototype"), instance.parent, (sstr_(optstrOr_(className, "null")) + ".prototype"))})
 		call.putIntProp(Node_FREE_CALL, 1)
 		var stmt Node = IR_exprResult(call)
 		stmt.srcrefTreeIfMissing(first.node_)
@@ -325,7 +325,7 @@ func (this *ExtractPrototypeMemberDeclarations_ExtractionInstance) isFavorable()
 
 type ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration struct {
 	memberName         string
-	qualifiedClassName Optional[string]
+	qualifiedClassName string
 	node_              Node
 	lhs                Node
 	constant           bool
@@ -343,7 +343,7 @@ func (this *ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration) init_
 	this.memberName = NodeUtil_getPrototypePropertyName(lhs)
 	this.node_ = node
 	var classNode Node = ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration_getPrototypeClassName(lhs)
-	this.qualifiedClassName = Optional_of[string](classNode.getQualifiedName()).filterFn_(func(s string) bool {
+	this.qualifiedClassName = optstrFilter_(optstrOf_(classNode.getQualifiedName()), func(s string) bool {
 		return s != ""
 	})
 	this.constant = classNode.getBooleanProp(Node_IS_CONSTANT_NAME)
@@ -357,7 +357,7 @@ func new_ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration(lhs Node,
 }
 
 func (this *ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration) isSameClass(other *ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration) bool {
-	return optEquals_(this.qualifiedClassName, other.qualifiedClassName)
+	return this.qualifiedClassName == other.qualifiedClassName
 }
 
 func ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration_getPrototypeClassName(qName Node) Node {

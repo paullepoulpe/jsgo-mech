@@ -74,9 +74,9 @@ func (this *PolyfillUsageFinder) maybeCreateStaticPolyfillUsageForGetPropChain(t
 	var rootName string = ownerNode.getString()
 	components.push(rootName)
 	var fullName string = JString_join_s(".", Iterable(components.asDeque()))
-	var globalPrefix Optional[string] = PolyfillUsageFinder_findGlobalPrefix(fullName)
-	if globalPrefix.isPresent() {
-		var polyfill *PolyfillUsageFinder_Polyfill = this.polyfills.statics.Get(String_substring_int(fullName, String_length(globalPrefix.get())))
+	var globalPrefix string = PolyfillUsageFinder_findGlobalPrefix(fullName)
+	if globalPrefix != nullstr_ {
+		var polyfill *PolyfillUsageFinder_Polyfill = this.polyfills.statics.Get(String_substring_int(fullName, String_length(optstrGet_(globalPrefix))))
 		if polyfill != nil {
 			return PolyfillUsageFinder_PolyfillUsage_createExplicit(polyfill, getPropNode, polyfill.nativeSymbol)
 		}
@@ -95,7 +95,7 @@ func (this *PolyfillUsageFinder) isPolyfillVisibleInScope(t *NodeTraversal, glob
 	return ((this.compiler_.getLifeCycleStage() == AbstractCompiler_LifeCycleStage_NORMALIZED) || (t.getScope().getVar_String_rVar(globalName) == nil))
 }
 
-func PolyfillUsageFinder_findGlobalPrefix(qualifiedName string) Optional[string] {
+func PolyfillUsageFinder_findGlobalPrefix(qualifiedName string) string {
 	l_1 := PolyfillUsageFinder_GLOBAL_NAMES
 	for i_1 := l_1.first(); i_1 < len(l_1.keys); i_1++ {
 		if l_1.isDead(i_1) {
@@ -103,22 +103,22 @@ func PolyfillUsageFinder_findGlobalPrefix(qualifiedName string) Optional[string]
 		}
 		var global string = l_1.keys[i_1]
 		if strings.HasPrefix(qualifiedName, global) {
-			return Optional_of[string](global)
+			return optstrOf_(global)
 		}
 	}
-	return Optional_empty[string]()
+	return nullstr_
 }
 
-func PolyfillUsageFinder_getMethodOwner(nativeSymbol string) Optional[string] {
+func PolyfillUsageFinder_getMethodOwner(nativeSymbol string) string {
 	var protoIdx int32 = int32(strings.Index(nativeSymbol, ".prototype."))
 	if protoIdx != -1 {
-		return Optional_of[string](nativeSymbol[:protoIdx])
+		return optstrOf_(nativeSymbol[:protoIdx])
 	}
-	return Optional_empty[string]()
+	return nullstr_
 }
 
-func (this *PolyfillUsageFinder) isDisjointFromIterator_2(getPropNode Node, ownerName Optional[string]) bool {
-	if !("Iterator" == ownerName.orElse("")) {
+func (this *PolyfillUsageFinder) isDisjointFromIterator_2(getPropNode Node, ownerName string) bool {
+	if !("Iterator" == optstrOr_(ownerName, "")) {
 		return false
 	}
 	if this.registry == nil {
@@ -581,7 +581,7 @@ func (this *PolyfillUsageFinder_Traverser) visitGetPropChain(traversal *NodeTrav
 		var methodPolyfills ListOf[*PolyfillUsageFinder_Polyfill] = this.outer_.polyfills.methods.get(propertyName)
 		if !methodPolyfills.isEmpty() && this.includeGuardedUsages.shouldInclude(this.isGuarded(("." + sstr_(propertyName)))) {
 			for polyfill := range elemsAs_[*PolyfillUsageFinder_Polyfill](methodPolyfills) {
-				var ownerName Optional[string] = PolyfillUsageFinder_getMethodOwner(polyfill.nativeSymbol)
+				var ownerName string = PolyfillUsageFinder_getMethodOwner(polyfill.nativeSymbol)
 				if this.outer_.disambiguateProperties_ && this.outer_.isDisjointFromIterator_2(getPropNode, ownerName) {
 					continue
 				}

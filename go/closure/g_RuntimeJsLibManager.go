@@ -75,11 +75,11 @@ func (this *RuntimeJsLibManager) createField(fieldName string) *RuntimeJsLibMana
 		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Field name must start with $jscomp, found %s", fieldName)))
 	}
 	var propName string = parts.get(1)
-	var resource Optional[string] = Optional_ofNullable[string](RuntimeJsLibManager_FieldsTable_INSTANCE.Get(propName))
-	if resource.isEmpty() {
+	var resource string = RuntimeJsLibManager_FieldsTable_INSTANCE.Get(propName)
+	if resource == nullstr_ {
 		panic(new_NullPointerException_String(("Cannot find definition of " + sstr_(fieldName))))
 	}
-	var resourceName string = resource.get()
+	var resourceName string = optstrGet_(resource)
 	var compiledName string = func() string {
 		switch this.mode_ {
 		case RuntimeJsLibManager_RuntimeLibraryMode_EXTERN_FIELD_NAMES:

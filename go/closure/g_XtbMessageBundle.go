@@ -7,7 +7,7 @@ type XtbMessageBundle struct {
 	idGeneratorField JsMessage_IdGenerator
 }
 
-func (this *XtbMessageBundle) init_XtbMessageBundle(xtb []int8, projectId Optional[string]) {
+func (this *XtbMessageBundle) init_XtbMessageBundle(xtb []int8, projectId string) {
 	this.messages = newTMap_(tc_string, tc_p_JsMessage)
 	this.idGeneratorField = JsMessage_IdGenerator(new_GoogleJsMessageIdGenerator(projectId))
 	defer func() {
@@ -27,7 +27,7 @@ func (this *XtbMessageBundle) init_XtbMessageBundle(xtb []int8, projectId Option
 	reader.parse(new_InputSource(new_ByteArrayInputStream(xtb).up_InputStream()))
 }
 
-func new_XtbMessageBundle(xtb []int8, projectId Optional[string]) *XtbMessageBundle {
+func new_XtbMessageBundle(xtb []int8, projectId string) *XtbMessageBundle {
 	this := &XtbMessageBundle{}
 	this.init_XtbMessageBundle(xtb, projectId)
 	return this
@@ -76,7 +76,7 @@ type XtbMessageBundle_Handler struct {
 	outer_     *XtbMessageBundle
 	genderCase string
 	msgBuilder *JsMessage_Builder
-	lang       Optional[string]
+	lang       string
 }
 
 func (this *XtbMessageBundle_Handler) zero_XtbMessageBundle_Handler() {
@@ -84,7 +84,7 @@ func (this *XtbMessageBundle_Handler) zero_XtbMessageBundle_Handler() {
 }
 
 func (this *XtbMessageBundle_Handler) finit_XtbMessageBundle_Handler() {
-	this.lang = Optional_empty[string]()
+	this.lang = nullstr_
 }
 
 func (this *XtbMessageBundle_Handler) init_XtbMessageBundle_Handler() {
@@ -122,22 +122,22 @@ func (this *XtbMessageBundle_Handler) endPrefixMapping(prefix string) {
 func (this *XtbMessageBundle_Handler) startElement(uri string, localName string, qName string, atts Attributes) {
 	switch qName {
 	case XtbMessageBundle_Handler_BUNDLE_ELEM_NAME:
-		if !this.lang.isEmpty() {
+		if this.lang != nullstr_ {
 			panic(new_IllegalStateException_0())
 		}
-		this.lang = Optional_ofNullable[string](atts.getValue(XtbMessageBundle_Handler_LANG_ATT_NAME))
-		if !this.lang.isPresent() || this.lang.get() == "" {
+		this.lang = atts.getValue(XtbMessageBundle_Handler_LANG_ATT_NAME)
+		if this.lang == nullstr_ || optstrGet_(this.lang) == "" {
 			panic(new_IllegalStateException_0())
 		}
 	case XtbMessageBundle_Handler_TRANSLATION_ELEM_NAME:
 		if this.msgBuilder != nil {
 			panic(new_IllegalStateException_0())
 		}
-		var id Optional[string] = Optional_ofNullable[string](atts.getValue(XtbMessageBundle_Handler_MESSAGE_ID_ATT_NAME))
-		if !id.isPresent() || id.get() == "" {
+		var id string = atts.getValue(XtbMessageBundle_Handler_MESSAGE_ID_ATT_NAME)
+		if id == nullstr_ || optstrGet_(id) == "" {
 			panic(new_IllegalStateException_0())
 		}
-		this.msgBuilder = new_JsMessage_Builder().setKey(id.get()).setId(id)
+		this.msgBuilder = new_JsMessage_Builder().setKey(optstrGet_(id)).setId(id)
 	case XtbMessageBundle_Handler_PLACEHOLDER_ELEM_NAME:
 		if this.msgBuilder == nil {
 			panic(new_IllegalStateException_0())
@@ -173,8 +173,8 @@ func (this *XtbMessageBundle_Handler) endElement(uri string, localName string, q
 		if !this.msgBuilder.hasParts() {
 			this.msgBuilder.appendStringPart("")
 		}
-		var key Optional[string] = this.msgBuilder.getKey()
-		this.outer_.messages.Put(key.orElse(nullstr_), this.msgBuilder.build())
+		var key string = this.msgBuilder.getKey()
+		this.outer_.messages.Put(key, this.msgBuilder.build())
 		this.msgBuilder = nil
 	}
 }

@@ -3,7 +3,7 @@
 package closure
 
 type SourceMapGenerator interface {
-	appendTo(Appendable, Optional[string])
+	appendTo(Appendable, string)
 	appendIndexMapTo(Appendable, string, []*SourceMapSection)
 	reset()
 	addMapping(string, string, *FilePosition, *FilePosition, *FilePosition)

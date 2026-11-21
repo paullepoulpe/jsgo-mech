@@ -36,8 +36,8 @@ func (this RenamingToken) self() any {
 	return this
 }
 
-func (this RenamingToken) get(value string) Optional[string] {
-	return Optional_empty[string]()
+func (this RenamingToken) get(value string) string {
+	return nullstr_
 }
 
 func RenamingToken_values() []RenamingToken {
