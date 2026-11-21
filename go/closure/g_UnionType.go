@@ -68,8 +68,12 @@ func (this *UnionType) countResolvedAlternates() int32 {
 }
 
 func (this *UnionType) fillFromBuilder(builder *UnionType_Builder) {
-	Preconditions_checkState(!this.alternatesResolvedBeforeBuild)
-	Preconditions_checkState(!builder.finalAlternates.isEmpty())
+	if this.alternatesResolvedBeforeBuild {
+		panic(new_IllegalStateException_0().self())
+	}
+	if builder.finalAlternates.isEmpty() {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.alternates = builder.finalAlternates
 	this.alternatesResolvedBeforeBuild = builder.alternatesResolvedBeforeBuild
 }
@@ -542,7 +546,9 @@ func (this *UnionType_Builder) addAlternate(alternate *JSType) *UnionType_Builde
 					removeCurrent = true
 				}
 			} else {
-				Preconditions_checkState((current.isTemplatizedType() && alternate.isTemplatizedType()))
+				if !current.isTemplatizedType() || !alternate.isTemplatizedType() {
+					panic(new_IllegalStateException_0().self())
+				}
 				var templatizedAlternate *TemplatizedType = alternate.toMaybeTemplatizedType()
 				var templatizedCurrent *TemplatizedType = current.toMaybeTemplatizedType()
 				if templatizedCurrent.wrapsSameRawType(templatizedAlternate.up_JSType()) {
@@ -573,7 +579,9 @@ func (this *UnionType_Builder) addAlternate(alternate *JSType) *UnionType_Builde
 		}
 	}
 	if alternate.isFunctionType() {
-		Preconditions_checkState((this.functionTypePosition == -1))
+		if this.functionTypePosition != -1 {
+			panic(new_IllegalStateException_0().self())
+		}
 		this.functionTypePosition = this.alternates.size()
 	}
 	this.alternates.add(alternate)
@@ -617,7 +625,9 @@ func (this *UnionType_Builder) buildInternal() *UnionType_Builder {
 	} else {
 		this.finalAlternates = immutableListCopyOfT_(jtc_p_JSType, this.alternates)
 	}
-	Preconditions_checkNotNull(this.finalAlternates.asList())
+	if this.finalAlternates.asList() == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	return this
 }
 
@@ -635,7 +645,9 @@ func (this *UnionType_Builder) getNativeWildcardType() *JSType {
 }
 
 func (this *UnionType_Builder) checkHasNotBuilt() {
-	Preconditions_checkState_boolean_Object((this.finalAlternates == nil), "Cannot reuse a `UnionType.Builder` that has already built.")
+	if this.finalAlternates != nil {
+		panic(new_IllegalStateException_String(objstr_("Cannot reuse a `UnionType.Builder` that has already built.")).self())
+	}
 }
 
 // getTypeClass: an object that is exactly a UnionType calls its getTypeClass_impl directly (post-flip); others dispatch.

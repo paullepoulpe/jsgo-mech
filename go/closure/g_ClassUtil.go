@@ -20,7 +20,9 @@ func ClassUtil_isThisPropInsideClassWithName(maybeGetProp Node) bool {
 }
 
 func ClassUtil_getFullyQualifiedNameOfThisProp(getProp Node) string {
-	Preconditions_checkArgument(ClassUtil_isThisPropInsideClassWithName(getProp))
+	if !ClassUtil_isThisPropInsideClassWithName(getProp) {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var className string = ClassUtil_getClassNameOfThisProp(getProp)
 	return (sstr_(className) + ".prototype." + sstr_(getProp.getString()))
 }
@@ -52,7 +54,9 @@ func ClassUtil_isComputedMemberInsideClassWithName(fieldNode Node) bool {
 }
 
 func ClassUtil_getFullyQualifiedNameOfMemberFieldDef(fieldNode Node) string {
-	Preconditions_checkArgument(ClassUtil_isMemberFieldDefInsideClassWithName(fieldNode))
+	if !ClassUtil_isMemberFieldDefInsideClassWithName(fieldNode) {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var className string = ClassUtil_getMemberFieldDefClassName(fieldNode)
 	return func() string {
 		if fieldNode.isStaticMember() {
@@ -63,16 +67,24 @@ func ClassUtil_getFullyQualifiedNameOfMemberFieldDef(fieldNode Node) string {
 }
 
 func ClassUtil_getMemberFieldDefClassName(fieldNode Node) string {
-	Preconditions_checkArgument(fieldNode.isMemberFieldDef())
+	if !fieldNode.isMemberFieldDef() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var classNode Node = fieldNode.getGrandparent()
-	Preconditions_checkState(classNode.isClass())
+	if !classNode.isClass() {
+		panic(new_IllegalStateException_0().self())
+	}
 	return NodeUtil_getName(classNode)
 }
 
 func ClassUtil_getFullyQualifiedNameOfMethod(function Node) string {
-	Preconditions_checkArgument(ClassUtil_isClassMethod(function))
+	if !ClassUtil_isClassMethod(function) {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var className string = ClassUtil_getMemberFunctionClassName(function)
-	Preconditions_checkState((!String_isEmpty(className) && !String_isEmpty(className)))
+	if String_isEmpty(className) || String_isEmpty(className) {
+		panic(new_IllegalStateException_0().self())
+	}
 	var memberFunctionDef Node = function.getParent()
 	var methodName string = memberFunctionDef.getString()
 	return func() string {
@@ -84,23 +96,33 @@ func ClassUtil_getFullyQualifiedNameOfMethod(function Node) string {
 }
 
 func ClassUtil_isClassMethod(functionNode Node) bool {
-	Preconditions_checkArgument(functionNode.isFunction())
+	if !functionNode.isFunction() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var parent Node = functionNode.getParent()
 	return (parent.isMemberFunctionDef() && parent.getParent().isClassMembers())
 }
 
 func ClassUtil_hasNamedClass(functionNode Node) bool {
-	Preconditions_checkArgument(functionNode.isFunction())
+	if !functionNode.isFunction() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	return !String_isEmpty(ClassUtil_getMemberFunctionClassName(functionNode))
 }
 
 func ClassUtil_getMemberFunctionClassName(functionNode Node) string {
-	Preconditions_checkArgument(functionNode.isFunction())
+	if !functionNode.isFunction() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	if ClassUtil_isClassMethod(functionNode) {
 		var parent Node = functionNode.getParent()
-		Preconditions_checkState(parent.isMemberFunctionDef())
+		if !parent.isMemberFunctionDef() {
+			panic(new_IllegalStateException_0().self())
+		}
 		var classNode Node = functionNode.getGrandparent().getParent()
-		Preconditions_checkState(classNode.isClass())
+		if !classNode.isClass() {
+			panic(new_IllegalStateException_0().self())
+		}
 		return NodeUtil_getName(classNode)
 	}
 	return NodeUtil_getName(functionNode)

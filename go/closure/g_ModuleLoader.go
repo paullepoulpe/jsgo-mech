@@ -11,11 +11,26 @@ type ModuleLoader struct {
 }
 
 func (this *ModuleLoader) init_ModuleLoader(builder *ModuleLoader_Builder) {
-	this.errorHandler = Preconditions_checkNotNull_T(builder.errorHandler)
-	this.pathResolver = Preconditions_checkNotNull_T(builder.pathResolver)
-	this.pathEscaper = Preconditions_checkNotNull_T(builder.pathEscaper)
-	this.moduleRootPaths = this.createRootPaths(Preconditions_checkNotNull_T(builder.moduleRoots))
-	var modulePaths *JTSet[string] = this.resolvePaths(Preconditions_checkNotNull_T(builder.inputs))
+	if builder.errorHandler == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.errorHandler = builder.errorHandler
+	if builder.pathResolver == 0 {
+		panic(new_NullPointerException_0().self())
+	}
+	this.pathResolver = builder.pathResolver
+	if builder.pathEscaper == 0 {
+		panic(new_NullPointerException_0().self())
+	}
+	this.pathEscaper = builder.pathEscaper
+	if builder.moduleRoots == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.moduleRootPaths = this.createRootPaths(builder.moduleRoots)
+	if builder.inputs == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	var modulePaths *JTSet[string] = this.resolvePaths(builder.inputs)
 	this.moduleResolver = builder.factory.create(modulePaths.asImm(), this.moduleRootPaths.asImm(), this.errorHandler, this.pathEscaper)
 }
 
@@ -97,8 +112,8 @@ func (this *ModuleLoader) resolvePaths(inputs IterableOf[DependencyInfo_]) *JTSe
 		return func(p0 any, p1 any) int32 { return f_(str_(p0), str_(p1)) }
 	}())
 	var dupeModulePaths *SimpleMultiset[string] = SimpleMultiset_copyOf[string](Iterable(sortedModulePaths.asList()))
-	if !(dupeModulePaths.size() == dupeModulePaths.elementSet().size()) {
-		Preconditions_checkState_boolean_String_Object(false, "Duplicate module paths after resolving: %s", dupeModulePaths)
+	if dupeModulePaths.size() != dupeModulePaths.elementSet().size() {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Duplicate module paths after resolving: %s", []any{dupeModulePaths})).self())
 	}
 	return jimmutableSetCopyOf_(jtc_string, Collection(dupeModulePaths.elementSet()))
 }

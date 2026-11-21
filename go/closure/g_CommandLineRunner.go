@@ -298,13 +298,17 @@ func (this *CommandLineRunner) initConfigFromFlags(args []string, out *Output, e
 		var segmentOfCompilationToRun CompilerOptions_SegmentOfCompilationToRun = this.flags.segmentOfCompilationToRun
 		switch segmentOfCompilationToRun {
 		case CompilerOptions_SegmentOfCompilationToRun_CHECKS:
-			Preconditions_checkState_boolean_Object(this.flags.filenameToRestoreFrom.isEmpty(), "Cannot restore and run CHECKS segment of compilation")
+			if !this.flags.filenameToRestoreFrom.isEmpty() {
+				panic(new_IllegalStateException_String(objstr_("Cannot restore and run CHECKS segment of compilation")).self())
+			}
 			config.setSaveCompilationStateToFilename(this.flags.filenameToSaveTo, 1)
 		case CompilerOptions_SegmentOfCompilationToRun_OPTIMIZATIONS:
 			config.setContinueSavedCompilationFileName(this.flags.filenameToRestoreFrom, 1)
 			config.setSaveCompilationStateToFilename(this.flags.filenameToSaveTo, 2)
 		case CompilerOptions_SegmentOfCompilationToRun_FINALIZATIONS:
-			Preconditions_checkState_boolean_Object(this.flags.filenameToSaveTo.isEmpty(), "Cannot run FINALIZATIONS segment of compilation and then save the result")
+			if !this.flags.filenameToSaveTo.isEmpty() {
+				panic(new_IllegalStateException_String(objstr_("Cannot run FINALIZATIONS segment of compilation and then save the result")).self())
+			}
 			config.setContinueSavedCompilationFileName(this.flags.filenameToRestoreFrom, 2)
 		case CompilerOptions_SegmentOfCompilationToRun_ENTIRE_COMPILATION:
 		default:

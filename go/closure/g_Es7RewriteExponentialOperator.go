@@ -69,8 +69,8 @@ func (this *Es7RewriteExponentialOperator) visitExponentiationAssignmentOperator
 	if left.isName() {
 		replacement = this.handleLHSName(operator, left)
 	} else {
-		if !(left.isGetProp() || left.isGetElem()) {
-			Preconditions_checkState_boolean_Object_H(false, left)
+		if !left.isGetProp() && !left.isGetElem() {
+			panic(new_IllegalStateException_String(objstr_(left.box_())).self())
 		}
 		replacement = this.handleLHSPropertyReference(t, operator, left, enclosingStatement)
 	}
@@ -102,7 +102,7 @@ func (this *Es7RewriteExponentialOperator) handleLHSPropertyReference(t *NodeTra
 		newLHS = this.astFactory_.createGetProp(assignTemp, propertyName, AstFactory_type_Node(left)).srcref(left)
 	} else {
 		if !left.isGetElem() {
-			Preconditions_checkState_boolean_Object_H(false, left)
+			panic(new_IllegalStateException_String(objstr_(left.box_())).self())
 		}
 		var tempIndexVarName string = (sstr_(Es7RewriteExponentialOperator_TEMP_INDEX_VAR_NAME_PREFIX) + sstr_(uniqueId))
 		var indexExprNode Node = left.getLastChild().detach()
@@ -125,8 +125,8 @@ func (this *Es7RewriteExponentialOperator) createMathPowCall() Node {
 }
 
 func (this *Es7RewriteExponentialOperator) checkOperatorType(operator Node) bool {
-	if !(operator.isExponent() || operator.isAssignExponent()) {
-		Preconditions_checkArgument_boolean_Object_H(false, operator)
+	if !operator.isExponent() && !operator.isAssignExponent() {
+		panic(new_IllegalArgumentException_String(objstr_(operator.box_())).self())
 	}
 	if this.compiler_.hasTypeCheckingRun() {
 		if operator.getColor().equals(obj_(StandardColors_BIGINT)) {

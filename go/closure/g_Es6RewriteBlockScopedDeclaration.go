@@ -37,8 +37,8 @@ func new_Es6RewriteBlockScopedDeclaration(compiler *AbstractCompiler) *Es6Rewrit
 }
 
 func (this *Es6RewriteBlockScopedDeclaration) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	if !((parent == 0) || !parent.isForOf()) {
-		Preconditions_checkState_boolean_Object_H(false, parent)
+	if parent != 0 && parent.isForOf() {
+		panic(new_IllegalStateException_String(objstr_(parent.box_())).self())
 	}
 	if n.isLet() || n.isConst() {
 		this.letConsts.add(n)
@@ -99,7 +99,9 @@ func Es6RewriteBlockScopedDeclaration_maybeAddConstJSDoc(srcDeclaration Node, sr
 
 func (this *Es6RewriteBlockScopedDeclaration) handleLetConstDeclarationList(declarationList Node, parent Node) {
 	if declarationList.isVar() {
-		Preconditions_checkState_boolean_Object((!declarationList.hasChildren() || declarationList.hasOneChild()), "var declaration can have maximum one child post normalization.")
+		if declarationList.hasChildren() && !declarationList.hasOneChild() {
+			panic(new_IllegalStateException_String(objstr_("var declaration can have maximum one child post normalization.")).self())
+		}
 		return
 	}
 	if parent.isVanillaFor() {
@@ -123,15 +125,17 @@ func (this *Es6RewriteBlockScopedDeclaration) handleLetConstDeclarationList(decl
 }
 
 func (this *Es6RewriteBlockScopedDeclaration) handleLetConstDeclarationListInForInInitializer(declarationList Node, parent Node) {
-	Preconditions_checkState(parent.isForIn())
+	if !parent.isForIn() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var first Node = declarationList
 	var lhs Node = first.getFirstChild()
 	var loopNode Node = parent
 	if lhs.isDestructuringLhs() {
-		Preconditions_checkState_boolean_Object(false, "Destructuring syntax is unsupported in ES6RewriteBlockScopedDeclarations pass")
+		panic(new_IllegalStateException_String(objstr_("Destructuring syntax is unsupported in ES6RewriteBlockScopedDeclarations pass")).self())
 		NodeUtil_visitLhsNodesInNode(lhs, Consumer[Node](func(name Node) {
 			if !name.isName() {
-				Preconditions_checkState_boolean_String_Object_H(false, "lhs in destructuring declaration should be a simple name. (%s)", name)
+				panic(new_IllegalStateException_String(Strings_lenientFormat("lhs in destructuring declaration should be a simple name. (%s)", []any{name.box_()})).self())
 			}
 			var newName Node = IR_name(name.getString()).srcref(name)
 			var newVar Node = IR_var_Node(newName).srcref(name)
@@ -153,7 +157,9 @@ func (this *Es6RewriteBlockScopedDeclaration) handleLetConstDeclarationListInFor
 }
 
 func (this *Es6RewriteBlockScopedDeclaration) handleLetConstDeclarationListInVanillaForInitializer(declarationList Node, parent Node) {
-	Preconditions_checkState(parent.isVanillaFor())
+	if !parent.isVanillaFor() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var insertSpot Node = this.getInsertSpotBeforeLoop(parent)
 	for declarationList.hasChildren() {
 		var name Node = declarationList.getLastChild()
@@ -290,7 +296,9 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) shouldTrave
 		var nodeToWrapInClosure Node
 		if enclosingFunction.getParent().isGetterDef() || enclosingFunction.getParent().isSetterDef() {
 			nodeToWrapInClosure = enclosingFunction.getGrandparent()
-			Preconditions_checkState(nodeToWrapInClosure.isObjectLit())
+			if !nodeToWrapInClosure.isObjectLit() {
+				panic(new_IllegalStateException_0().self())
+			}
 		} else {
 			nodeToWrapInClosure = enclosingFunction
 		}
@@ -403,7 +411,7 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) createWrapp
 		call.putBooleanProp(Node_FREE_CALL, true)
 		var replacement Node
 		if NodeUtil_isFunctionDeclaration(functionOrObjectLit) {
-			Preconditions_checkState_boolean_String_Object_H(false, "block-scoped function declarations should not exist now: %s", functionOrObjectLit)
+			panic(new_IllegalStateException_String(Strings_lenientFormat("block-scoped function declarations should not exist now: %s", []any{functionOrObjectLit.box_()})).self())
 		}
 		replacement = call.srcrefTreeIfMissing(functionOrObjectLit)
 		functionOrObjectLit.replaceWith(replacement)
@@ -457,7 +465,7 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) changeLoopL
 		for it_3.next() {
 			var reference Node = Node_of_(it_3.v)
 			if loopNode.isForOf() {
-				Preconditions_checkState_boolean_Object_H(false, loopNode)
+				panic(new_IllegalStateException_String(objstr_(loopNode.box_())).self())
 			}
 			if loopNode.isForIn() && (loopNode.getFirstChild() == reference.getParent()) {
 				this.assignLoopVarToLoopObjectProperty(loopNode, loopObject, var_, newPropertyName, reference)
@@ -499,15 +507,15 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) replaceRefe
 }
 
 func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) assignLoopVarToLoopObjectProperty(loopNode Node, loopObject *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject, var_ *Var, newPropertyName string, reference Node) {
-	if !(reference == var_.getNameNode()) {
-		Preconditions_checkState_boolean_Object_H(false, reference)
+	if reference != var_.getNameNode() {
+		panic(new_IllegalStateException_String(objstr_(reference.box_())).self())
 	}
 	var referenceParent Node = reference.getParent()
 	if !NodeUtil_isNameDeclaration(referenceParent) {
-		Preconditions_checkState_boolean_Object_H(false, referenceParent)
+		panic(new_IllegalStateException_String(objstr_(referenceParent.box_())).self())
 	}
 	if !reference.isName() {
-		Preconditions_checkState_boolean_Object_H(false, reference)
+		panic(new_IllegalStateException_String(objstr_(reference.box_())).self())
 	}
 	var loopVarReference Node = reference.cloneNode()
 	var forInPropAssignmentStatemnt Node = IR_exprResult(this.outer_.astFactory_.createAssign(this.createLoopVarReferenceReplacement(loopObject, reference, newPropertyName), loopVarReference)).srcrefTreeIfMissing(reference)
