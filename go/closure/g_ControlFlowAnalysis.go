@@ -457,9 +457,7 @@ func (this *ControlFlowAnalysis) handleContinue(node Node) {
 
 func (this *ControlFlowAnalysis) handleReturn(node Node) {
 	var lastJump Node = 0
-	it_1 := eachRevOf_(this.exceptionHandler)
-	for it_1.next() {
-		var curHandler Node = it_1.v
+	for curHandler := range sliceAllRev_(this.exceptionHandler) {
 		if curHandler.isFunction() {
 			break
 		}
