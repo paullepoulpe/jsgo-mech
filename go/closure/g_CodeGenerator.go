@@ -194,7 +194,7 @@ func (this *CodeGenerator) add_3(node Node, context *CodeGenerator_Context, prin
 	var first Node = node.getFirstChild()
 	var last Node = node.getLastChild()
 	if opstr.isPresent() && (first != last) {
-		Preconditions_checkState_boolean_String_Object_int((childCount == 2), "Bad binary operator \"%s\": expected 2 arguments but got %s", opstr.get(), childCount)
+		Preconditions_checkState_boolean_String_Object_int((childCount == 2), "Bad binary operator \"%s\": expected 2 arguments but got %s", strobj_(opstr.get()), childCount)
 		var p int32 = this.precedence(node)
 		var rhsContext *CodeGenerator_Context = CodeGenerator_getContextForNoInOperator(context)
 		var needsParens bool = (((context == CodeGenerator_Context_START_OF_EXPR) || context.atArrowFunctionBody()) && first.isObjectPattern())
