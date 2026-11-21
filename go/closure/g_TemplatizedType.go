@@ -179,7 +179,6 @@ func (this *TemplatizedType) resolveInternal_impl(reporter ErrorReporter_rhino) 
 	} else {
 		return this.up_JSType()
 	}
-	panic("unreachable")
 }
 
 var TemplatizedType_TYPE_CLASS_FIELD JSTypeClass

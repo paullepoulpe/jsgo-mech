@@ -241,7 +241,6 @@ func (this *OptimizeParameters) allDefinitionsAreCandidateFunctions(n Node) bool
 	default:
 		return false
 	}
-	panic("unreachable")
 }
 
 func OptimizeParameters_isUsedViaDotConstructor(function Node) bool {

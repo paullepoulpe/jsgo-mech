@@ -62,7 +62,6 @@ func SourceInformationAnnotator_isStringNodeRequiringOriginalName(node Node) boo
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 

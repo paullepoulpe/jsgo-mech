@@ -501,7 +501,6 @@ func SuggestedFix_Builder_createImportNode(importType SuggestedFix_ImportType, a
 	} else {
 		return IR_exprResult(callNode)
 	}
-	panic("unreachable")
 }
 
 func (this *SuggestedFix_Builder) addGoogRequire(m *Match, namespace string, scriptMetadata *ScriptMetadata) *SuggestedFix_Builder {

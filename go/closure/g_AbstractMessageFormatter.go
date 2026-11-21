@@ -52,7 +52,6 @@ func (this *AbstractMessageFormatter) getLevelName(level CheckLevel) string {
 		default:
 			return tostrR_(level)
 		}
-		panic("unreachable")
 	}()
 }
 

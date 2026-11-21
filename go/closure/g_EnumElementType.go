@@ -168,7 +168,6 @@ func EnumElementType_getGreatestSubtypeEnumElementType(element *EnumElementType,
 	} else {
 		return new_EnumElementType(element.registry, meetPrimitive, element.name_, element.getEnumType()).up_JSType()
 	}
-	panic("unreachable")
 }
 
 func (this *EnumElementType) resolveInternal_impl(reporter ErrorReporter_rhino) *JSType {
