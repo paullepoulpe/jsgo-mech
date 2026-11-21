@@ -51,7 +51,7 @@ func (this *JsFlumeCallback) visit(t *NodeTraversal, n Node, parent Node) {
 	var metadata *NodeMetadata = NodeMetadata_fromTraversal(t)
 	if this.scanner.matches(n, metadata) {
 		var match *Match = new_Match(n, metadata)
-		sliceAddAll_(tc_p_SuggestedFix, this.fixes, Collection(this.scanner.processMatch_Match(match).asList()))
+		sliceAddList_(this.fixes, this.scanner.processMatch_Match(match))
 		*this.matches_ = append(*this.matches_, match)
 	}
 }
