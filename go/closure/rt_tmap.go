@@ -37,6 +37,8 @@ type tmapExt_[K comparable, V any] struct {
 	// the mixed hash in the high 32 bits, 1 + the position in the low ones, 0 for free).
 	hs    []int32
 	slots []uint64
+	// Of an immutable map or set: the ImmutableMap or ImmutableSet erased code sees (rt_timm.go).
+	twin any
 }
 
 func (m *TMap[K, V]) ext() *tmapExt_[K, V] {
@@ -94,6 +96,9 @@ func tmapFrom_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], from Map, imm 
 	m.imm = imm
 	if slot != nil {
 		*slot = immTyped_{vc, m}
+	}
+	if im, ok := from.(*ErasedImmutableMap); ok && imm {
+		m.ext().twin = im // the map is the immutable map itself for erased code (asMap)
 	}
 	return m
 }
@@ -469,6 +474,9 @@ func tsetFrom_[K comparable](kc *tconv_[K], from Collection, imm bool) *TSet[K] 
 	if slot != nil {
 		*slot = immTyped_{kc, s}
 	}
+	if ic, ok := from.(*ImmutableCollection); ok && imm && ic.kind == icSet_ {
+		s.ext().twin = ic // the set is the immutable set itself for erased code (asSet)
+	}
 	return s
 }
 
@@ -536,6 +544,9 @@ func (m *TMap[K, V]) asMap() Map {
 	if m == nil {
 		return nil
 	}
+	if m.imm {
+		return m.asImm()
+	}
 	x := m.ext()
 	if x.view == nil {
 		x.view = &tmapView_[K, V]{m: m}
@@ -546,6 +557,9 @@ func (m *TMap[K, V]) asMap() Map {
 func (s *TSet[K]) asSet() Set {
 	if s == nil {
 		return nil
+	}
+	if s.imm {
+		return s.asImm()
 	}
 	x := s.ext()
 	if x.sview == nil {
