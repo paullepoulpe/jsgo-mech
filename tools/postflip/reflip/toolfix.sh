@@ -2830,3 +2830,109 @@ reflip_edit tools/postflip/optstr/rewrite.go reflip39 <<'E39b'
 	}
 	inner := map[ast.Node]bool{} // calls a rewrite of their `!` replaces
 E39b
+# 40. (sixth flip) tcmp, tfnapi, tgeneric: a typed collection given to an erased library function. On the fifth flip the
+#    argument was the collection's erased view, L.asList() / S.asSet() / M.asMap() (or asImm()), which these tools read to find
+#    the typed collection behind the call (List.sort and Collections.sort: sortTListF_; Iterable.forEach, Map.forEach, Map.merge,
+#    Map.compute: forEachT_, mergeT_, computeT_; Iterables.getFirst / getLast / getOnlyElement: the typed forms). Rule "typed
+#    library interfaces" writes the same argument as the collection's view for typed code, taken out for erased code where the
+#    callee may keep it: List_un_(L.asListT()), Map_un_(M.asMapT()), Iterable(L.asListT()), Iterable(S.asSetT()), and
+#    asCollT() / asIterable() likewise (rt_lg.go: every one of them is a view of the same typed collection, holding the
+#    elements the erased view holds). The tools' rewrites replace the whole call by an operation on the typed collection
+#    itself, whose equality with the erased function was shown for that collection's elements, so which of its views the
+#    call was given does not matter. Read so: X_un_(v) is v; asListT / asCollT / asIterable of a *TList stand where asList
+#    does, asSetT / asCollT / asIterable of a *TSet where asSet does, asMapT of a *TMap where asMap does. (The steps'
+#    counts on this flip are in steps.txt at 472, 481, 486 and 488.)
+f=tools/postflip/tcmp/main.go
+if [[ -f $f ]] && grep -q 'func tlistElem' $f && ! grep -q 'reflip40' $f; then
+  perl -0pi -e 's/view, ok := rw\.Unparen\(c\.Args\[0\]\)\.\(\*ast\.CallExpr\)/view, ok := reflip40view(c.Args[0])/g; s/s\.Sel\.Name != "asList" \{/s.Sel.Name != "asList" && s.Sel.Name != "asListT" { \/\/ reflip40/' $f
+  cat >> $f <<'G'
+
+// reflip40view: the list argument of a sort as the call it is, read through List_un_(..).
+func reflip40view(e ast.Expr) (*ast.CallExpr, bool) {
+	view, ok := rw.Unparen(e).(*ast.CallExpr)
+	if ok && len(view.Args) == 1 {
+		if n, _ := rw.CallName(view); n == "List_un_" {
+			view, ok = rw.Unparen(view.Args[0]).(*ast.CallExpr)
+		}
+	}
+	return view, ok
+}
+G
+  grep -q 'reflip40view(c.Args\[0\])' $f && grep -q '"asListT" { // reflip40' $f || { echo "toolfix: tcmp: the edits of fix 40 do not apply" >&2; exit 1; }
+fi
+reflip_edit tools/postflip/tfnapi/main.go reflip40 <<'E40'
+		} else if n, _ := rw.CallName(c); strings.HasPrefix(n, "iup_") {
+			e = rw.Unparen(c.Args[0])
+		}
+=====
+		} else if n, _ := rw.CallName(c); strings.HasPrefix(n, "iup_") || strings.HasSuffix(n, "_un_") { // reflip40: X_un_(v) is v
+			e = rw.Unparen(c.Args[0])
+		}
+-----
+	for _, v := range views {
+		if s.Sel.Name == v {
+=====
+	reflip40 := map[string][]string{"asList": {"asListT", "asCollT", "asIterable"}, "asSet": {"asSetT", "asCollT", "asIterable"}, "asMap": {"asMapT"}}
+	for _, v := range views {
+		is := s.Sel.Name == v
+		for _, a := range reflip40[v] {
+			is = is || s.Sel.Name == a
+		}
+		if is {
+E40
+reflip_edit tools/postflip/tgeneric/main.go reflip40 <<'E40b'
+		if n, _ := rw.CallName(c); n == "iup_Iterable" {
+			return rw.Unparen(c.Args[0])
+		}
+=====
+		if n, _ := rw.CallName(c); n == "iup_Iterable" || n == "Iterable_un_" || n == "Collection_un_" || n == "List_un_" || n == "Set_un_" { // reflip40
+			return rw.Unparen(c.Args[0])
+		}
+-----
+		case (s.Sel.Name == "asList" || s.Sel.Name == "asImm") && generic(rw.Info.TypeOf(x), "TList") != nil:
+=====
+		case (s.Sel.Name == "asList" || s.Sel.Name == "asImm" || s.Sel.Name == "asListT" || s.Sel.Name == "asCollT" || s.Sel.Name == "asIterable") && generic(rw.Info.TypeOf(x), "TList") != nil: // reflip40
+-----
+		case s.Sel.Name == "asSet" && m == "getOnlyElement" && generic(rw.Info.TypeOf(x), "TSet") != nil:
+=====
+		case (s.Sel.Name == "asSet" || s.Sel.Name == "asSetT" || s.Sel.Name == "asCollT" || s.Sel.Name == "asIterable") && m == "getOnlyElement" && generic(rw.Info.TypeOf(x), "TSet") != nil:
+E40b
+# 41. (sixth flip) native: the views of a typed list or set for typed code. The tool knows L.asList(): "a list that code wanting
+#    a List reads during one call, and does not keep, gets a view of its own made for that call" (its consumers are the erased
+#    reading methods called on the view, the runtime's readers and sorters, a box for a reading sink, a function of the package
+#    that only reads the parameter). Rule "typed library interfaces" writes the same expression as L.asListT() / L.asCollT() /
+#    L.asIterable() (the list as the typed interface, rt_lg.go), with List_un_ / Collection_un_ / Iterable_un_ around it where
+#    the fifth flip had the conversion List(..) / Collection(..) / Iterable(..) or nothing. The tool took these as unknown
+#    methods and kept every class that has one (native -kind list at step 403: 259 declarations become slices, 157 classes;
+#    the fifth flip 423, 233; "method asListT" 239 declarations, asCollT 23, asIterable 19). They are views as asList() is,
+#    decided by the same consumers: the erased consumers the tool accepts get the view made for the call (sliceView_, a List,
+#    which is what they take), X_un_ of that view is the view (it wraps nothing), and every consumer the tool does not know (a
+#    typed parameter, a typed variable or result, the typed cursor, a _t method) keeps the class as before. With it: 375
+#    declarations, 210 classes. Sets: S.asSetT().addAll(c) and S.asCollT().addAll(c) are S.asSet().addAll(c), the one view
+#    consumer the set kind accepts (the same object for a set that can change): 178 sets become Go maps, 103 classes, as the
+#    fifth flip (167, 92 without).
+reflip_edit tools/postflip/native/main.go reflip41a <<'E41a'
+	case m == "asList" && len(args) == 0:
+		view(n, recv, call)
+=====
+	case (m == "asList" || m == "asListT" || m == "asCollT" || m == "asIterable") && len(args) == 0: // reflip41a
+		view(n, recv, call)
+E41a
+reflip_edit tools/postflip/native/main.go reflip41b <<'E41b'
+			if nm, _ := rw.CallName(c); nm == "Collection" || nm == "Iterable" || nm == "List" || nm == "SequencedCollection" {
+				top = c
+				continue
+			}
+			// icast_Collection(any(l.asList())): the view seen as another collection interface.
+=====
+			if nm, _ := rw.CallName(c); nm == "Collection" || nm == "Iterable" || nm == "List" || nm == "SequencedCollection" || nm == "List_un_" || nm == "Collection_un_" || nm == "Iterable_un_" { // reflip41b
+				top = c
+				continue
+			}
+			// icast_Collection(any(l.asList())): the view seen as another collection interface.
+E41b
+reflip_edit tools/postflip/native/main.go reflip41c <<'E41c'
+	case m == "asSet" && len(args) == 0 && kc != "":
+=====
+	case (m == "asSet" || m == "asSetT" || m == "asCollT") && len(args) == 0 && kc != "": // reflip41c
+E41c
