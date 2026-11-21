@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 /**
@@ -353,6 +354,220 @@ public class LibGen {
       r += "no";
     } catch (NoSuchElementException e) {
       r += "nse";
+    }
+    return r;
+  }
+
+  // ---- kind `map` (Map, Map.Entry) and collections as elements
+
+  static String dump(Map<String, Integer> m) {
+    String r = m.size() + ":";
+    for (Map.Entry<String, Integer> e : m.entrySet()) {
+      r += e.getKey() + "=" + e.getValue() + ",";
+    }
+    for (String k : m.keySet()) {
+      r += k;
+    }
+    int sum = 0;
+    for (Integer v : m.values()) {
+      sum += v == null ? 1000 : v;
+    }
+    Iterator<Map.Entry<String, Integer>> it = m.entrySet().iterator();
+    while (it.hasNext()) {
+      Map.Entry<String, Integer> e = it.next();
+      r += e.getKey().length() + (e.getValue() == null ? "n" : "");
+    }
+    return r + sum + m.get("b") + m.get("zz") + m.containsKey("b") + m.containsValue(2) + m.isEmpty() + m;
+  }
+
+  static String wide(Map<? extends Object, ? extends Animal> m) {
+    String r = "";
+    for (Map.Entry<? extends Object, ? extends Animal> e : m.entrySet()) {
+      r += e.getKey() + e.getValue().name;
+    }
+    for (Animal a : m.values()) {
+      r += a.name;
+    }
+    return r + m.size();
+  }
+
+  static int anyMap(Map<?, ?> m) {
+    int n = 0;
+    for (Object k : m.keySet()) {
+      n += k == null ? 100 : 1;
+    }
+    for (Map.Entry<?, ?> e : m.entrySet()) {
+      n += e.getValue() == null ? 10 : 0;
+    }
+    return n;
+  }
+
+  static Map<String, Integer> pickMap(int how) {
+    switch (how) {
+      case 0:
+        return new LinkedHashMap<>();
+      case 1:
+        return ImmutableMap.of("b", 2, "a", 1);
+      case 2:
+        return new TreeMap<>(ImmutableMap.of("z", 26, "b", 2, "m", 13));
+      case 3:
+        return ImmutableMap.of();
+      case 4:
+        return Maps.newLinkedHashMapWithExpectedSize(4);
+      default: {
+        Map<String, Integer> src = new LinkedHashMap<>();
+        src.put("u", 21);
+        src.put("b", 2);
+        return ImmutableMap.copyOf(src);
+      }
+    }
+  }
+
+  static Map.Entry<String, Integer> firstEntry(Map<String, Integer> m) {
+    return m.entrySet().iterator().next();
+  }
+
+  static String kind(Object o) {
+    if (o instanceof Map<?, ?> m) {
+      return "map" + m.size();
+    } else if (o instanceof Collection<?> c) {
+      return "coll" + c.size();
+    } else if (o instanceof Map.Entry<?, ?> e) {
+      return "entry" + e.getKey();
+    }
+    return "other";
+  }
+
+  static final class Index {
+    final Map<String, List<String>> byKey = new LinkedHashMap<>();
+    final Map<String, Map<String, Set<String>>> deep = new LinkedHashMap<>();
+    Map<Key, Dog> dogs = ImmutableMap.of();
+
+    void add(String k, String v) {
+      byKey.computeIfAbsent(k, x -> new ArrayList<>()).add(v);
+      deep.computeIfAbsent(k, x -> new LinkedHashMap<>()).computeIfAbsent(v, x -> new LinkedHashSet<>()).add(k + v);
+    }
+
+    List<String> of(String k) {
+      return byKey.get(k);
+    }
+
+    Map<String, List<String>> all() {
+      return byKey;
+    }
+
+    Map<Key, Dog> dogs() {
+      return dogs;
+    }
+  }
+
+  static String maps() {
+    String r = "";
+    for (int i = 0; i < 6; i++) {
+      Map<String, Integer> m = pickMap(i);
+      r += dump(m) + anyMap(m);
+      try {
+        r += m.put("b", 7);
+        r += m.put("n", null) + "" + m.remove("n") + m.remove("nope") + m.getOrDefault("q", 5) + m.putIfAbsent("b", 9);
+      } catch (UnsupportedOperationException e) {
+        r += "uoe";
+      }
+      r += m + ";";
+    }
+    Map<String, Integer> a = pickMap(0);
+    a.put("b", 2);
+    a.put("a", 1);
+    Map<String, Integer> b = pickMap(1);
+    Object o = a;
+    r += "|" + a.equals(b) + b.equals(a) + (a.hashCode() == b.hashCode()) + (a == (Object) b) + (o == a) + (o instanceof Map) + ((Map<?, ?>) o).size();
+    r += kind(o) + kind(b) + kind(a.keySet()) + kind(a.values()) + kind(firstEntry(a)) + kind(Arrays.asList(1, 2)) + kind(new ArrayList<String>()) + kind("s");
+    // entries: live, setValue writes through, equal to another map's entry with the same key and value
+    Map.Entry<String, Integer> e = firstEntry(a);
+    Map.Entry<String, Integer> f = firstEntry(b);
+    r += e.getKey() + e.getValue() + e.equals(f) + (e.hashCode() == f.hashCode()) + e;
+    r += e.setValue(20) + "" + a.get("b") + e.getValue() + e.equals(f);
+    try {
+      f.setValue(3);
+      r += "no";
+    } catch (UnsupportedOperationException x) {
+      r += "uoe";
+    }
+    List<Map.Entry<String, Integer>> es = new ArrayList<>(a.entrySet());
+    es.add(f);
+    for (Map.Entry<String, Integer> x : es) {
+      r += x.getKey() + x.getValue();
+    }
+    // views: live, removing through them removes from the map
+    Set<String> ks = a.keySet();
+    Collection<Integer> vs = a.values();
+    Set<Map.Entry<String, Integer>> en = a.entrySet();
+    a.put("c", 3);
+    r += "|" + ks + vs + en + ks.size() + vs.size() + en.size() + ks.contains("c") + vs.contains(3) + (ks == a.keySet());
+    ks.remove("c");
+    vs.remove(20);
+    r += a;
+    Iterator<Map.Entry<String, Integer>> ei = en.iterator();
+    ei.next();
+    ei.remove();
+    r += a + "" + a.isEmpty() + ks.isEmpty();
+    try {
+      ei.next();
+      r += "no";
+    } catch (NoSuchElementException x) {
+      r += "nse";
+    }
+    Map<String, Integer> nul = null;
+    r += (nul == null);
+    try {
+      dump(nul);
+      r += "no";
+    } catch (NullPointerException x) {
+      r += "npe";
+    }
+    // collections as elements: one object per key, typed by its place
+    Index ix = new Index();
+    ix.add("k", "v1");
+    ix.add("k", "v2");
+    ix.add("j", "w");
+    r += "|" + ix.of("k") + ix.of("j").get(0) + ix.of("none") + (ix.of("k") == ix.byKey.get("k")) + ix.all() + ix.deep;
+    for (Map.Entry<String, List<String>> x : ix.all().entrySet()) {
+      r += x.getKey() + x.getValue().size() + x.getValue().get(0);
+    }
+    for (List<String> l : ix.all().values()) {
+      r += show(l);
+    }
+    Map<String, Set<String>> inner = ix.deep.get("k");
+    r += inner.keySet() + "" + inner.get("v2") + each(inner.get("v1"));
+    Object lo = ix.of("k");
+    r += (lo instanceof List) + "" + (lo == ix.all().get("k")) + ((List<?>) lo).size();
+    // keys with equals; values of a subclass through a wildcard
+    r += wide(ix.dogs()) + ix.dogs().get(new Key("x"));
+    ix.dogs = new LinkedHashMap<>();
+    Key k1 = new Key("x");
+    ix.dogs().put(k1, new Dog("d1"));
+    ix.dogs().put(new Key("y"), new Dog("d2"));
+    ix.dogs().put(new Key("x"), new Dog("d3"));
+    r += wide(ix.dogs()) + ix.dogs().get(new Key("x")).name + (ix.dogs().keySet().iterator().next() == k1) + ix.dogs().containsKey(new Key("y")) + anyMap(ix.dogs());
+    // an unchecked cast: nothing is checked until a value is read at its type
+    Map<String, Object> raw = new LinkedHashMap<>();
+    raw.put("k", "str");
+    @SuppressWarnings("unchecked")
+    Map<String, Dog> wrong = (Map<String, Dog>) (Map<?, ?>) raw;
+    r += wrong.size() + "" + anyMap(wrong) + (wrong == (Object) raw) + wrong.containsKey("k") + String.valueOf(wrong.get("k"));
+    try {
+      r += wrong.get("k").name;
+      r += "no";
+    } catch (ClassCastException x) {
+      r += "cce";
+    }
+    try {
+      for (Map.Entry<String, Dog> x : wrong.entrySet()) {
+        r += x.getKey();
+        r += x.getValue().name;
+      }
+      r += "no";
+    } catch (ClassCastException x) {
+      r += "cce";
     }
     return r;
   }
@@ -838,6 +1053,7 @@ public class LibGen {
   }
 
   public static String run() {
+    p(maps());
     p(sets());
     p(lists());
     p(colls());

@@ -270,7 +270,7 @@ abstract class ExprEmitter extends Base {
     TypeMirror from = typeOf(t);
     if (from == null || from.getKind() != TypeKind.DECLARED) return null;
     Ctx.CollKind k = cx.collKindOf(from);
-    if (k == null || k.builds != null || k == cx.entryKind || k.pair()) return null;
+    if (k == null || k.builds != null || k == cx.entryKind) return null;
     List<TypeMirror> args = cx.typedArgs(k, from);
     if (args == null) return null;
     TypeMirror stub = cx.typedOf(k, args);
@@ -339,13 +339,13 @@ abstract class ExprEmitter extends Base {
     if (maker != null && m.getModifiers().contains(Modifier.STATIC)) {
       // a library function that makes a collection for its caller: the runtime's typed constructor
       StringBuilder sb = new StringBuilder(maker[0] + "(" + tc);
-      for (int i = 0; i < as.size(); i++) sb.append(", ").append(exprAs(as.get(i), cx.erase(m.getParameters().get(i).asType())));
+      for (int i = 0; i < as.size(); i++) sb.append(", ").append(exprAs(as.get(i), cx.lg.rt(m.getParameters().get(i).asType())));
       return sb.append(")").toString();
     }
     if (maker != null && mi.getMethodSelect() instanceof MemberSelectTree ms && !m.getModifiers().contains(Modifier.STATIC)) {
       // a library method that makes a list for its caller: the runtime's typed twin
       StringBuilder sb = new StringBuilder(maker[0] + "(" + tc + ", " + exprAs(ms.getExpression(), cx.ownerOf(m).asType()));
-      for (int i = 0; i < as.size(); i++) sb.append(", ").append(exprAs(as.get(i), cx.erase(m.getParameters().get(i).asType())));
+      for (int i = 0; i < as.size(); i++) sb.append(", ").append(exprAs(as.get(i), cx.lg.rt(m.getParameters().get(i).asType())));
       return sb.append(")").toString();
     }
     if (ck.name.equals("set") && m.getSimpleName().contentEquals("keySet") && as.isEmpty() && mi.getMethodSelect() instanceof MemberSelectTree ms) {
@@ -365,7 +365,8 @@ abstract class ExprEmitter extends Base {
     if (m.getSimpleName().contentEquals("copyOf") && as.size() == 1) {
       // copyOf: of a typed collection of the same type (an immutable one is itself), of an
       // array of the elements, or of a collection as erased code sees it
-      TypeMirror at = typeOf(as.get(0)), pt = cx.erase(m.getParameters().get(0).asType());
+      // (the parameter as the runtime's function declares it: the erased interface, LibGen.rt)
+      TypeMirror at = typeOf(as.get(0)), pt = cx.lg.rt(m.getParameters().get(0).asType());
       if (cx.isTypedColl(at) && cx.goType(at).equals(cx.goType(target))) return "immutable" + cap + "CopyOfT_(" + tc + ", " + expr(as.get(0)) + ")";
       if (pt.getKind() == TypeKind.ARRAY) {
         TypeMirror et = cx.erase(at);
@@ -1013,7 +1014,9 @@ abstract class ExprEmitter extends Base {
         if (cx.isLeaf(te)) return "is_[" + cx.goType(target) + "](" + anyCode + ")";
         return "is_" + cx.className(te) + "(" + anyCode + ")";
       }
-      case IFACE: case ARR: return "is_[" + cx.goType(target) + "](" + anyCode + ")";
+      case IFACE: case ARR:
+        // (a typed library interface: the test is of the erased interface, which every object of it has)
+        return "is_[" + cx.goType(cx.lg.is(target) ? cx.types.erasure(target) : target) + "](" + anyCode + ")";
       case ANY: {
         String qn = Ctx.typeElement(target).getQualifiedName().toString();
         TypeMirror u = cx.unboxed(target);
@@ -1391,10 +1394,11 @@ abstract class ExprEmitter extends Base {
         // "String keys without a box").
         Ctx.K rk = cx.kind(recv.type);
         StringBuilder sb = new StringBuilder(sk).append("(")
-            .append(rk == Ctx.K.CLS || rk == Ctx.K.IFACE ? recv.code : cx.coerce(recv.code, recv.type, ro.asType()))
+            // (a value of a typed library interface: the object erased code knows, which the helper tells by its type)
+            .append((rk == Ctx.K.CLS || rk == Ctx.K.IFACE) && !cx.lg.is(cx.erase(recv.type)) ? recv.code : cx.coerce(recv.code, recv.type, cx.types.erasure(ro.asType())))
             .append(", ").append(args.get(0).as(stringType()));
         for (int i = 1; i < args.size(); i++) {
-          TypeMirror pt = cx.erase(re.getParameters().get(i).asType());
+          TypeMirror pt = cx.lg.rt(re.getParameters().get(i).asType());
           String a = args.get(i).as(pt);
           sb.append(", ").append(cx.goType(pt).equals("any") ? Conv.implicit(a) : a);
         }

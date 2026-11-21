@@ -21,7 +21,7 @@ import javax.lang.model.type.*;
  * </pre>
  *
  * Kinds: `iter` (java.util.Iterator, java.lang.Iterable), `coll` (java.util.Collection), `list`
- * (java.util.List), `set` (java.util.Set).
+ * (java.util.List), `set` (java.util.Set), `map` (java.util.Map, java.util.Map.Entry).
  *
  * - Types: the interfaces of an enabled kind are typed declarations (Ctx.typedClasses).
  *   `Iterator<Node>` is `IteratorT[Node]`. A wildcard is its bound, an erased type variable what
@@ -53,6 +53,7 @@ final class LibGen {
     KINDS.put("coll", List.of("java.util.Collection"));
     KINDS.put("list", List.of("java.util.List"));
     KINDS.put("set", List.of("java.util.Set"));
+    KINDS.put("map", List.of("java.util.Map", "java.util.Map.Entry"));
   }
 
   /**
@@ -64,7 +65,9 @@ final class LibGen {
   static final Map<String, Set<String>> TYPED_METHODS = Map.of(
       "java.util.Collection", Set.of(),
       "java.util.List", Set.of("get/1"),
-      "java.util.Set", Set.of());
+      "java.util.Set", Set.of(),
+      "java.util.Map", Set.of("get/1", "keySet/0", "values/0", "entrySet/0"),
+      "java.util.Map.Entry", Set.of("getKey/0", "getValue/0"));
 
   /** Whether root method r of one of the interfaces has its typed signature on a typed receiver. */
   boolean typedMethod(ExecutableElement r) {
@@ -215,7 +218,46 @@ final class LibGen {
       note("places left erased: a List with a wildcard (variance)", String.valueOf(t));
       return cx.types.erasure(t);
     }
+    if (on("wide")) {
+      String why = wide(d);
+      if (why != null) {
+        note("places left erased: " + why, String.valueOf(t));
+        return cx.types.erasure(t);
+      }
+    }
     return norm(t);
+  }
+
+  /**
+   * Piece `wide` (J2GO_NOLIBGEN=wide is the translation without it): why a use d of one of the
+   * interfaces stays the erased interface, or null. Collections of every element type enter
+   * such a place, and as a typed interface each of another element type would need a wrapper,
+   * while its typed methods give nothing the erased ones do not:
+   * - every type argument is the unbounded wildcard (`Iterable<?>`, `Map<?, ?>`);
+   * - a type argument is an erased type variable (`<V> void addEvent(V v, Map<V, Event<V>> m)`:
+   *   the variable is Object in Go, the callers' maps have their key types).
+   * Decided on the type as written. (`Collection<Object>` and `Iterable<? extends V>` at V =
+   * Object are typed at `any`: they are also what a use of a Go type parameter becomes at that
+   * instantiation, where the Go type is the typed interface. A member of a Go generic class
+   * whose type becomes one of the two forms above by substitution would not compile; the tree
+   * has none.)
+   */
+  String wide(DeclaredType d) {
+    boolean all = true;
+    for (TypeMirror a : d.getTypeArguments()) {
+      if (a.getKind() == TypeKind.TYPEVAR && !cx.typedVar(a) && !FnTypes.captured(a)) return "a type argument is an erased type variable";
+      all &= unbounded(a);
+    }
+    return all ? "every type argument is the wildcard `?`" : null;
+  }
+
+  /** Whether type argument a is the wildcard `?`, as written or captured (the type of an expression). */
+  private boolean unbounded(TypeMirror a) {
+    if (a.getKind() == TypeKind.WILDCARD) return ((WildcardType) a).getExtendsBound() == null && ((WildcardType) a).getSuperBound() == null;
+    if (!FnTypes.captured(a)) return false;
+    TypeVariable v = (TypeVariable) a;
+    TypeMirror lo = v.getLowerBound(), up = v.getUpperBound();
+    return (lo == null || lo.getKind() == TypeKind.NULL) && up != null && up.getKind() == TypeKind.DECLARED && Ctx.typeElement(up).getQualifiedName().contentEquals("java.lang.Object");
   }
 
   /**
@@ -316,18 +358,29 @@ final class LibGen {
 
   /**
    * A typed collection (list, set, deque) as the Iterable of its elements: itself; as the
-   * Collection of its elements: its view, which has the typed methods (asCollT).
+   * Collection / List / Set of its elements, a typed map as the Map of its keys and values, a
+   * typed entry as the Map.Entry: its view, which has the typed methods (asCollT, asListT,
+   * asSetT, asMapT, asEntryT). Null where from is no typed collection of to's kind and type
+   * arguments.
    */
   String fromTypedColl(String code, TypeMirror from, TypeMirror to) {
     if (!is(to)) return null;
-    String qn = Ctx.typeElement(to).getQualifiedName().toString();
-    String as = qn.equals("java.lang.Iterable") ? ".asIterable()" : qn.equals("java.util.Collection") ? ".asCollT()" : qn.equals("java.util.List") ? ".asListT()" : qn.equals("java.util.Set") ? ".asSetT()" : null;
-    if (as == null) return null;
     Ctx.CollKind k = cx.typedColl(from);
-    if (k == null || k.builds != null || k.pair()) return null;
-    if (qn.equals("java.util.List") && !k.name.equals("list") || qn.equals("java.util.Set") && !k.name.equals("set")) return null;
-    TypeMirror elem = ((DeclaredType) from).getTypeArguments().get(0);
-    if (!cx.goTypeArg(elem).equals(cx.goTypeArg(((DeclaredType) to).getTypeArguments().get(0)))) return null;
+    if (k == null || k.builds != null) return null;
+    String as;
+    switch (Ctx.typeElement(to).getQualifiedName().toString()) {
+      case "java.lang.Iterable": as = k.pair() ? null : ".asIterable()"; break;
+      case "java.util.Collection": as = k.pair() ? null : ".asCollT()"; break;
+      case "java.util.List": as = k.name.equals("list") ? ".asListT()" : null; break;
+      case "java.util.Set": as = k.name.equals("set") ? ".asSetT()" : null; break;
+      case "java.util.Map": as = k.name.equals("map") ? ".asMapT()" : null; break;
+      case "java.util.Map.Entry": as = k == cx.entryKind ? ".asEntryT()" : null; break;
+      default: as = null;
+    }
+    if (as == null) return null;
+    List<? extends TypeMirror> fa = ((DeclaredType) from).getTypeArguments(), ta = ((DeclaredType) to).getTypeArguments();
+    if (fa.size() != ta.size()) return null;
+    for (int i = 0; i < fa.size(); i++) if (!cx.goTypeArg(fa.get(i)).equals(cx.goTypeArg(ta.get(i)))) return null;
     return ExprEmitter.atomOrParen(code) + as;
   }
 
@@ -378,17 +431,26 @@ final class LibGen {
    * m (with nargs arguments) on a typed map of type recv gives, or null where the erased view
    * serves the call: `values()` declared with result java.util.Collection, where Collection is a
    * typed interface, is the Collection of the map's values (valuesT), `keySet()` the Set of its
-   * keys (keySetT).
+   * keys (keySetT), `entrySet()` the Set of its entries (entrySetT).
    */
   View mapView(Ctx.CollKind rk, TypeMirror recv, ExecutableElement m, int nargs) {
     if (!on("views") || !rk.name.equals("map") || nargs != 0) return null;
     String n = m.getSimpleName().toString();
-    boolean vals = n.equals("values");
-    if (!vals && !n.equals("keySet")) return null;
-    TypeElement coll = cx.elems.getTypeElement(vals ? "java.util.Collection" : "java.util.Set");
+    if (!n.equals("values") && !n.equals("keySet") && !n.equals("entrySet")) return null;
+    TypeElement coll = cx.elems.getTypeElement(n.equals("values") ? "java.util.Collection" : "java.util.Set");
     if (!isLib(coll) || !coll.equals(Ctx.typeElement(cx.types.erasure(m.getReturnType())))) return null;
-    TypeMirror t = cx.erase(cx.types.getDeclaredType(coll, ((DeclaredType) recv).getTypeArguments().get(vals ? 1 : 0)));
-    return is(t) ? new View(vals ? "valuesT" : "keySetT", t) : null;
+    List<? extends TypeMirror> ra = ((DeclaredType) recv).getTypeArguments();
+    TypeMirror elem;
+    if (n.equals("entrySet")) {
+      TypeElement entry = cx.elems.getTypeElement("java.util.Map.Entry");
+      if (!isLib(entry)) return null;
+      elem = cx.types.getDeclaredType(entry, ra.get(0), ra.get(1));
+      if (!is(cx.erase(elem))) return null;
+    } else {
+      elem = ra.get(n.equals("values") ? 1 : 0);
+    }
+    TypeMirror t = cx.erase(cx.types.getDeclaredType(coll, elem));
+    return is(t) ? new View(n + "T", t) : null;
   }
 
   /**

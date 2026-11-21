@@ -309,7 +309,36 @@ type SetT[T any] interface { Set; iterator_t() IteratorT[T] }
   the view of the typed list of an erased immutable list, else a wrapper (one allocation).
   `J2GO_LIBGEN=1` counts these sites, `=2` lists them by type.
 
-Each kind and piece is a switch: `J2GO_NOLIBGEN=iter,coll,list,set,makers,views,place,cov`
+Kind `map` (`java.util.Map`, `java.util.Map.Entry`):
+
+```go
+type MapT[K any, V any] interface {
+	Map
+	get_t(k any) V; keySet_t() SetT[K]; values_t() CollectionT[V]; entrySet_t() SetT[Map_EntryT[K, V]]
+}
+type Map_EntryT[K any, V any] interface { Map_Entry; getKey_t() K; getValue_t() V }
+```
+
+- A typed map enters as its view (`m.asMapT()`; also an immutable or sorted one), an erased map
+  through `mapAs_(tc_K, tc_V, v)`, an entry through `map_EntryAs_`. `new LinkedHashMap<>()`,
+  `ImmutableMap.of(..)` made for a `MapT` place are the typed map (piece `place`).
+  `entrySet()` of a typed map is `m.entrySetT()`; its entries are the objects the erased view
+  gives (one per entry, as in Java), which have the typed methods.
+- A lookup by a String key stays the runtime's helper on the erased object
+  (`Map_get_s(Map_un_(m), k)`: no box for the key); the helpers and `instanceof` see the object
+  erased code knows, never a wrapper.
+- The variable of a for-each loop over the entries of an erased map holds the erased entry (a
+  typed one would be a wrapper per entry).
+- Piece `elems`: a collection that is an element, key or value of a typed collection is held at
+  its typed interface: `Map<K, List<X>>` is `*TMap[K, ListT[X]]`, and `computeIfAbsent(k, x ->
+  new ArrayList<>())` makes the typed list (before: the erased `List`, a cast at every read).
+- Piece `wide`: a place whose type arguments are all the wildcard `?` (`Iterable<?>`, `Map<?,
+  ?>`), or one of whose type arguments is an erased type variable (`<V> void f(Map<V, X> m)`),
+  stays the erased interface: collections of every element type enter it, and each would need a
+  wrapper. (`Collection<Object>` and `? extends V` at V = Object stay typed at `any`: that is
+  also what a member of a Go generic class has at that instantiation.)
+
+Each kind and piece is a switch: `J2GO_NOLIBGEN=iter,coll,list,set,map,makers,views,place,cov,elems,wide`
 (`all`: every one).
 
 **`java.util.Optional` is a value.** The runtime's `Optional[T]` (`rt_base.go`) is a generic

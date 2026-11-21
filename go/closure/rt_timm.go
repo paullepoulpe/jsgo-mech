@@ -331,14 +331,20 @@ func tmapEmptyImm_[K comparable, V any](kc *tconv_[K], vc *tconv_[V]) *TMap[K, V
 	if m, ok := kc.emptyM.(*TMap[K, V]); ok && m.vc == vc {
 		return m
 	}
-	m := newTMap_(kc, vc)
-	m.imm = &timmMap_{twin: emptyImmMap_}
+	mk := func() *TMap[K, V] {
+		m := newTMap_(kc, vc)
+		m.imm = &timmMap_{twin: emptyImmMap_}
+		return m
+	}
+	if vc.emptyM != nil && kc.emptyM != nil {
+		// (both conversions have the empty map of another pair of types: found, not made again)
+		return immAltGet_(any(emptyImmMap_), mk)
+	}
+	m := mk()
 	if vc.emptyM == nil {
 		vc.emptyM = m
-	} else if kc.emptyM == nil {
-		kc.emptyM = m
 	} else {
-		return immAltGet_(any(emptyImmMap_), func() *TMap[K, V] { return m })
+		kc.emptyM = m
 	}
 	return m
 }

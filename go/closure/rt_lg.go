@@ -501,3 +501,183 @@ func (m *TMap[K, V]) keySetT() SetT[K] {
 	return (*tmapKeySet_[K, V])(&m.view)
 }
 func (v *tmapKeySet_[K, V]) unwrap_() any { return v.m.asMap().keySet() }
+
+// ---- Kind `map`: java.util.Map<K, V> and Map.Entry<K, V>. A typed Map is the erased one that
+// gives its values, its views and its entries at their types.
+
+type MapT[K any, V any] interface {
+	Map
+	get_t(k any) V
+	keySet_t() SetT[K]
+	values_t() CollectionT[V]
+	entrySet_t() SetT[Map_EntryT[K, V]]
+}
+
+type Map_EntryT[K any, V any] interface {
+	Map_Entry
+	getKey_t() K
+	getValue_t() V
+}
+
+// Map_un_ / Map_Entry_un_ are typed value x as erased code knows it.
+func Map_un_(x Map) Map {
+	if w, ok := x.(lgWrap_); ok {
+		u, _ := w.unwrap_().(Map)
+		return u
+	}
+	return x
+}
+
+func Map_Entry_un_(x Map_Entry) Map_Entry {
+	if w, ok := x.(lgWrap_); ok {
+		u, _ := w.unwrap_().(Map_Entry)
+		return u
+	}
+	return x
+}
+
+type mapAs[K any, V any] struct {
+	Map
+	kc *tconv_[K]
+	vc *tconv_[V]
+}
+
+func (w *mapAs[K, V]) get_t(k any) V            { return w.vc.unbox(w.Map.get(k)) }
+func (w *mapAs[K, V]) keySet_t() SetT[K]        { return setAs_(w.kc, w.Map.keySet()) }
+func (w *mapAs[K, V]) values_t() CollectionT[V] { return collectionAs_(w.vc, w.Map.values()) }
+func (w *mapAs[K, V]) entrySet_t() SetT[Map_EntryT[K, V]] {
+	return setAs_(entryConv_(w.kc, w.vc), w.Map.entrySet())
+}
+func (w *mapAs[K, V]) unwrap_() any { return w.Map }
+
+// entryConv_ is the conversion of the entries of an erased map to typed entries and back.
+func entryConv_[K any, V any](kc *tconv_[K], vc *tconv_[V]) *tconv_[Map_EntryT[K, V]] {
+	return &tconv_[Map_EntryT[K, V]]{
+		box: func(e Map_EntryT[K, V]) any { return lgBox_(e) },
+		unbox: func(x any) Map_EntryT[K, V] {
+			if x == nil {
+				return nil
+			}
+			return map_EntryAs_(kc, vc, x.(Map_Entry))
+		},
+	}
+}
+
+// asMapT_ is what a typed map has for typed code: itself as the Map of its keys and values.
+type asMapT_[K any, V any] interface{ asMapT() MapT[K, V] }
+
+// mapAs_ is erased v as a Map of K to V: v itself where its object is native (the view of a
+// typed map), the view of the typed map of an erased immutable map, else a wrapper.
+func mapAs_[K any, V any](kc *tconv_[K], vc *tconv_[V], v Map) MapT[K, V] {
+	if v == nil {
+		return nil
+	}
+	if t, ok := v.(MapT[K, V]); ok {
+		return t
+	}
+	if im, ok := v.(*ImmutableMap); ok {
+		if m, ok := im.typed_.(asMapT_[K, V]); ok {
+			return m.asMapT()
+		}
+	}
+	return &mapAs[K, V]{v, kc, vc}
+}
+
+type map_EntryAs[K any, V any] struct {
+	Map_Entry
+	kc *tconv_[K]
+	vc *tconv_[V]
+}
+
+func (w *map_EntryAs[K, V]) getKey_t() K   { return w.kc.unbox(w.Map_Entry.getKey()) }
+func (w *map_EntryAs[K, V]) getValue_t() V { return w.vc.unbox(w.Map_Entry.getValue()) }
+func (w *map_EntryAs[K, V]) unwrap_() any  { return w.Map_Entry }
+
+// map_EntryAs_ is erased v as an entry of K and V: v itself where its object is native (an
+// entry of a typed map), else a wrapper.
+func map_EntryAs_[K any, V any](kc *tconv_[K], vc *tconv_[V], v Map_Entry) Map_EntryT[K, V] {
+	if v == nil {
+		return nil
+	}
+	if t, ok := v.(Map_EntryT[K, V]); ok {
+		return t
+	}
+	return &map_EntryAs[K, V]{v, kc, vc}
+}
+
+// asMapT is a typed map as the Map of its keys and values for typed code: its view, which is
+// part of it (nil for null; also of an immutable or sorted map, whose changes throw as the
+// map's do). Erased code and Object get what asMap() gives (unwrap_).
+func (m *TMap[K, V]) asMapT() MapT[K, V] {
+	if m == nil {
+		return nil
+	}
+	return &m.view
+}
+func (v *tmapView_[K, V]) unwrap_() any { return v.m.asMap() }
+
+func (v *tmapView_[K, V]) get_t(x any) V {
+	if k, ok := v.key(x); ok {
+		if i := v.m.find(k); i >= 0 {
+			return v.m.vals[i]
+		}
+	}
+	return v.m.vc.null
+}
+func (v *tmapView_[K, V]) keySet_t() SetT[K]        { return (*tmapKeySet_[K, V])(v) }
+func (v *tmapView_[K, V]) values_t() CollectionT[V] { return (*tmapValues_[K, V])(v) }
+func (v *tmapView_[K, V]) entrySet_t() SetT[Map_EntryT[K, V]] {
+	return (*tmapEntrySet_[K, V])(v)
+}
+
+// entrySetT is entrySet() of a typed map for typed code (as keySetT, valuesT).
+func (m *TMap[K, V]) entrySetT() SetT[Map_EntryT[K, V]] {
+	_ = m.live
+	return (*tmapEntrySet_[K, V])(&m.view)
+}
+func (v *tmapEntrySet_[K, V]) unwrap_() any { return v.m.asMap().entrySet() }
+
+// The entry set of a typed map gives its entries as typed entries: the objects the erased
+// iterator gives (one per entry, as each entry of the Java map is an object).
+type tmapEntryIter_[K comparable, V any] struct{ tmapIter_[K, V] }
+
+func (it *tmapEntryIter_[K, V]) next_t() Map_EntryT[K, V] {
+	if !it.hasNext() {
+		panic(new_NoSuchElementException_0().self())
+	}
+	it.last = it.i
+	it.i++
+	return it.m.entryAt(it.last)
+}
+
+func (m *TMap[K, V]) entryAt(i int) *tentryView_[K, V] {
+	v := &tentryView_[K, V]{own: TEntry[K, V]{m: m, i: int32(i), k: m.keys[i], v: m.vals[i]}}
+	v.e = &v.own
+	return v
+}
+
+func (v *tmapEntrySet_[K, V]) iterator_t() IteratorT[Map_EntryT[K, V]] {
+	return &tmapEntryIter_[K, V]{tmapIter_[K, V]{m: v.m, last: -1, mode: tentries_}}
+}
+
+func (v *tmapEntrySet_[K, V]) step_t(i int) (e Map_EntryT[K, V], next int, ok bool) {
+	m := v.m
+	for ; i < len(m.keys); i++ {
+		if !m.dead(i) {
+			return m.entryAt(i), i + 1, true
+		}
+	}
+	return nil, i, false
+}
+
+func (v *tentryView_[K, V]) getKey_t() K   { return v.e.k }
+func (v *tentryView_[K, V]) getValue_t() V { return v.e.getValue() }
+
+// asEntryT is an entry of a typed map (the variable of a loop over its entries) as a typed
+// entry: its erased view, which has the typed methods.
+func (e *TEntry[K, V]) asEntryT() Map_EntryT[K, V] {
+	if e == nil {
+		return nil
+	}
+	return &tentryView_[K, V]{e: e}
+}

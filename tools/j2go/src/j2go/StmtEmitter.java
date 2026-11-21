@@ -507,6 +507,21 @@ abstract class StmtEmitter extends ExprEmitter {
       // copied at every iteration (Go's per-iteration loop variables; next() takes its address).
       cursor = it + " := foreach_(" + src + ")\n";
       head = "for " + it + ".next() ";
+      if (cx.lg.is(cx.erase(vt)) && Ctx.typeElement(vt).getQualifiedName().contentEquals("java.util.Map.Entry")) {
+        // rule "typed library interfaces": the entries of an erased map are erased objects, so
+        // the variable of the erased loop holds the erased entry (a typed one would be a wrapper
+        // per entry); the expressions that read it are typed from that
+        vt = cx.types.erasure(vt);
+        cx.refinedVars.put(e, vt);
+        TypeMirror ev = vt;
+        new com.sun.source.util.TreeScanner<Void, Void>() {
+          @Override
+          public Void visitIdentifier(IdentifierTree id, Void v) {
+            if (e.equals(elemOf(id))) typeMap.put(id, ev);
+            return null;
+          }
+        }.scan(t.getStatement(), null);
+      }
       bind = "var " + name + " " + cx.goType(vt) + " = " + cx.coerce(it + ".v", objectType(), vt) + "\n";
     }
     List<String> held = holdPre();

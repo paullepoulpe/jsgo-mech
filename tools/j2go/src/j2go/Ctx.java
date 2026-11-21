@@ -612,8 +612,9 @@ final class Ctx {
     // a function: held as it is; it cannot be compared (FnTypes refuses one as a key)
     if (fn.isLib(ae)) return compared ? null : erase(a);
     if (!((DeclaredType) a).getTypeArguments().isEmpty() || !ae.getTypeParameters().isEmpty()) {
-      // (an interface of rule "typed library interfaces": an element is held erased, as before)
-      if (lg.isLib(ae)) return compared ? null : types.erasure(a);
+      // an interface of rule "typed library interfaces": an element is held at the typed
+      // interface (piece `elems`; J2GO_NOLIBGEN=elems: erased, as before)
+      if (lg.isLib(ae)) return compared ? null : LibGen.on("elems") ? erase(a) : types.erasure(a);
       if (!simple || typedClasses.contains(ae) && !isSource(ae)) return null;
       if (isSource(ae)) {
         // a generic class of the program: the Go type it has (an instantiation of a Go generic

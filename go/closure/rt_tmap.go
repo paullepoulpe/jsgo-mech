@@ -594,9 +594,7 @@ func (m *TMap[K, V]) out(i int, mode int8) any {
 		return m.vc.box(m.vals[i])
 	}
 	// one object: the view holds the entry it shows
-	v := &tentryView_[K, V]{own: TEntry[K, V]{m: m, i: int32(i), k: m.keys[i], v: m.vals[i]}}
-	v.e = &v.own
-	return v
+	return m.entryAt(i)
 }
 
 func (m *TMap[K, V]) step(i int, mode int8) (any, int) {

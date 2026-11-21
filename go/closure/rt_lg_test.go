@@ -412,3 +412,74 @@ func TestLgKeySetT(t *testing.T) {
 		iks.clear()
 	}()
 }
+
+func TestLgMap(t *testing.T) {
+	m := newTMap_(tc_string, tc_string)
+	m.put("a", "1")
+	mt := m.asMapT()
+	if (*TMap[string, string])(nil).asMapT() != nil || mapAs_(tc_string, tc_string, nil) != nil {
+		t.Fatal("null as a Map is not nil")
+	}
+	if Map_un_(mt) != m.asMap() || lgBox_(mt) != any(m.asMap()) || mapAs_(tc_string, tc_string, m.asMap()) != mt {
+		t.Fatal("the typed map as a Map is not its view")
+	}
+	mt.put("b", "2") // the erased method, through the view
+	if m.size() != 2 || mt.get_t("b") != "2" || mt.get_t("zz") != nullstr_ || mt.get_t(nil) != nullstr_ || mt.get_t(7) != nullstr_ {
+		t.Fatal(m.size())
+	}
+	if mt.keySet_t() != m.keySetT() || mt.values_t() != m.valuesT() || mt.entrySet_t() != m.entrySetT() || Set_un_(mt.entrySet_t()) != m.asMap().entrySet() {
+		t.Fatal("the views of the typed Map are not the map's typed views")
+	}
+	got := ""
+	for e := eachOf_[Map_EntryT[string, string]](mt.entrySet_t()); e.next(); {
+		got += e.v.getKey_t() + e.v.getValue_t()
+	}
+	it := mt.entrySet_t().iterator_t()
+	en := it.next_t()
+	if en.setValue("9") != any("1") || m.get("a") != "9" || en.getValue_t() != "9" || Map_Entry_un_(en) != Map_Entry(en) {
+		t.Fatal("an entry of a typed map does not write through")
+	}
+	Iterator_remove(it)
+	if m.size() != 1 || en.getValue_t() != "9" {
+		t.Fatal("removing through the entry set")
+	}
+	// an immutable typed map: the view for typed code, the twin for erased code, found from the twin
+	im := immutableMapOf1_(tc_string, tc_string, "k", "w")
+	imt := im.asMapT()
+	if Map_un_(imt) != Map(im.asImm()) || mapAs_(tc_string, tc_string, Map(im.asImm())) != imt || imt.get_t("k") != "w" {
+		t.Fatal("the immutable typed map as a Map")
+	}
+	// an erased map: a wrapper that unboxes; erased code gets the map back
+	hm := new_LinkedHashMap()
+	hm.put("x", "1")
+	hm.put("y", "2")
+	w := mapAs_(tc_string, tc_string, Map(hm))
+	if Map_un_(w) != Map(hm) || lgBox_(w) != any(hm) || w.size() != 2 || w.get_t("y") != "2" || w.get_t("q") != nullstr_ {
+		t.Fatal("a wrapped erased map")
+	}
+	for e := eachOf_[string](w.keySet_t()); e.next(); {
+		got += e.v
+	}
+	for e := eachOf_[string](w.values_t()); e.next(); {
+		got += e.v
+	}
+	for e := eachOf_[Map_EntryT[string, string]](w.entrySet_t()); e.next(); {
+		got += e.v.getKey_t() + e.v.getValue_t()
+		if lgBox_(e.v) == any(e.v) {
+			t.Fatal("a wrapped entry reaches erased code")
+		}
+	}
+	if got != "a1b2xy12x1y2" {
+		t.Fatal(got)
+	}
+	// an entry of a loop over a typed map as a typed entry
+	for c := m.eachEntry(); c.next(); {
+		e := c.entry().asEntryT()
+		if e.getKey_t() != "b" || e.getValue_t() != "2" || !objequals_(e, m.asMap().entrySet().iterator().next()) {
+			t.Fatal("asEntryT")
+		}
+	}
+	if (*TEntry[string, string])(nil).asEntryT() != nil || map_EntryAs_(tc_string, tc_string, nil) != nil {
+		t.Fatal("null as an entry is not nil")
+	}
+}
