@@ -8,6 +8,7 @@ package closure
 
 import (
 	"hash/maphash"
+	"reflect"
 	"sort"
 	"strings"
 	"unsafe"
@@ -788,10 +789,15 @@ func (t *htable_) hashOf(k any) uint32 {
 }
 
 // primHash_ is the hash of a key compared by Go equality: a Node handle hashes as its value
-// (most such keys are nodes), anything else by Go's hash of the interface value.
+// (most such keys are nodes), a pointer (an object without equals/hashCode, the key of a Java
+// identity lookup) as its address, which is the interface's data word and all that == of two
+// such keys of one type compares; anything else by Go's hash of the interface value.
 func primHash_(k any) uint32 {
 	if n, ok := k.(Node); ok {
 		return hmix_(int32(n))
+	}
+	if k != nil && reflect.TypeOf(k).Kind() == reflect.Pointer {
+		return uint32((uint64(uintptr((*eface_)(unsafe.Pointer(&k)).data)) * 0x9E3779B97F4A7C15) >> 32)
 	}
 	return uint32(maphash.Comparable(hseed_, k))
 }
