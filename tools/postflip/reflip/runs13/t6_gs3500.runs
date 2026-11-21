@@ -1,0 +1,36 @@
+  flags3500/CHECKS vjava wall=40.01 cpu=82.67 round=0 load=1.67 rss=3907M exit=0
+  flags3500/OPTIMIZATIONS vjava wall=41.90 cpu=84.31 round=0 load=1.81 rss=4907M exit=0
+  flags3500/FINALIZATIONS vjava wall=11.20 cpu=34.79 round=0 load=2.09 rss=1442M exit=0
+  flags3500 vjava wall=93.11 cpu=201.77 round=0 load=2.09 sha=72b57cd286c9
+  flags3500/CHECKS vleadproto wall=47.91 cpu=59.38 round=0 load=2.36 rss=3073M exit=0
+  flags3500/OPTIMIZATIONS vleadproto wall=35.31 cpu=38.88 round=0 load=1.88 rss=1796M exit=0
+  flags3500/FINALIZATIONS vleadproto wall=8.09 cpu=9.53 round=0 load=1.74 rss=457M exit=0
+  flags3500 vleadproto wall=91.31 cpu=107.79 round=0 load=1.74 sha=72b57cd286c9
+  flags3500/CHECKS vlead17 wall=48.30 cpu=60.89 round=0 load=1.32 rss=3101M exit=0
+  flags3500/OPTIMIZATIONS vlead17 wall=35.17 cpu=38.60 round=0 load=1.26 rss=1799M exit=0
+  flags3500/FINALIZATIONS vlead17 wall=8.18 cpu=9.63 round=0 load=1.29 rss=483M exit=0
+  flags3500 vlead17 wall=91.64 cpu=109.12 round=0 load=1.29 sha=72b57cd286c9
+  flags3500/CHECKS vlead17 wall=47.90 cpu=60.36 round=1 load=1.14 rss=3111M exit=0
+  flags3500/OPTIMIZATIONS vlead17 wall=35.41 cpu=38.78 round=1 load=1.15 rss=1771M exit=0
+  flags3500/FINALIZATIONS vlead17 wall=8.27 cpu=9.70 round=1 load=1.13 rss=487M exit=0
+  flags3500 vlead17 wall=91.59 cpu=108.84 round=1 load=1.13 sha=72b57cd286c9
+  flags3500/CHECKS vleadproto wall=47.91 cpu=60.09 round=1 load=1.80 rss=3151M exit=0
+  flags3500/OPTIMIZATIONS vleadproto wall=34.88 cpu=38.39 round=1 load=1.44 rss=1831M exit=0
+  flags3500/FINALIZATIONS vleadproto wall=8.07 cpu=9.52 round=1 load=1.41 rss=501M exit=0
+  flags3500 vleadproto wall=90.85 cpu=108.00 round=1 load=1.41 sha=72b57cd286c9
+  flags3500/CHECKS vjava wall=39.05 cpu=80.33 round=1 load=2.76 rss=3416M exit=0
+  flags3500/OPTIMIZATIONS vjava wall=40.94 cpu=86.00 round=1 load=2.41 rss=4628M exit=0
+  flags3500/FINALIZATIONS vjava wall=11.18 cpu=34.58 round=1 load=2.83 rss=1826M exit=0
+  flags3500 vjava wall=91.17 cpu=200.90 round=1 load=2.83 sha=72b57cd286c9
+  flags3500/CHECKS vjava wall=39.01 cpu=80.07 round=2 load=2.48 rss=4254M exit=0
+  flags3500/OPTIMIZATIONS vjava wall=41.69 cpu=86.33 round=2 load=2.40 rss=4851M exit=0
+  flags3500/FINALIZATIONS vjava wall=11.09 cpu=34.00 round=2 load=2.40 rss=1530M exit=0
+  flags3500 vjava wall=91.80 cpu=200.40 round=2 load=2.40 sha=72b57cd286c9
+  flags3500/CHECKS vleadproto wall=47.42 cpu=59.92 round=2 load=1.75 rss=3131M exit=0
+  flags3500/OPTIMIZATIONS vleadproto wall=34.65 cpu=38.02 round=2 load=1.49 rss=1822M exit=0
+  flags3500/FINALIZATIONS vleadproto wall=7.98 cpu=9.44 round=2 load=1.53 rss=488M exit=0
+  flags3500 vleadproto wall=90.04 cpu=107.38 round=2 load=1.53 sha=72b57cd286c9
+  flags3500/CHECKS vlead17 wall=47.92 cpu=59.28 round=2 load=1.42 rss=3107M exit=0
+  flags3500/OPTIMIZATIONS vlead17 wall=34.86 cpu=38.70 round=2 load=1.23 rss=1780M exit=0
+  flags3500/FINALIZATIONS vlead17 wall=8.11 cpu=9.51 round=2 load=1.21 rss=483M exit=0
+  flags3500 vlead17 wall=90.89 cpu=107.50 round=2 load=1.19 sha=72b57cd286c9
