@@ -709,7 +709,7 @@ ab26441f run t adapters && f
 # 424. postflip (runtime, re-flip): TMap.ComputeIfAbsentObj, computeIfAbsent with a typed function whose result is an Object
 0aa1c57d patch 424-0aa1c57d-rt.patch
 # 425. postflip step (re-flip): TMap.computeIfAbsent given a typed lambda whose result is an Object takes the function
-#=5 97b8d1bf noop (fifth flip): the second adapters run takes 0 calls (fourth flip: 6 TMap.computeIfAbsent -> ComputeIfAbsentObj): open item, REFLIP5.md
+#=5 97b8d1bf noop (fifth flip): the second adapters run takes 0 calls (fourth flip: 6 TMap.computeIfAbsent -> ComputeIfAbsentObj). Not a gap: the six lambdas (ColorSerializer, LinkedDirectedGraph, LinkedUndirectedGraph, ModuleMapCreator, OptimizeCalls, PreprocessorSymbolTable) are typed func(K) V literals from the translator and their calls are ComputeIfAbsent since step 402 (toolfix 29), with no boxed result to unbox: .ComputeIfAbsent( in the final tree 33 = the fourth flip 27 + its 6 ComputeIfAbsentObj
 97b8d1bf run t adapters && f
 # 426. postflip (runtime, re-flip): no allocation sampling unless a heap profile is asked for
 95b92033 patch 426-95b92033-rt.patch
@@ -855,7 +855,7 @@ da83c1be run t tfnparams && f
 12d555a3 run t tfnparams && f
 #: tfnparams: 2 groups, 6 parameters (NodeUtil.has / findPreorder / isNameReferenced / visitPreOrder sharing MATCH_NOT_FUNCTION and MATCH_ANYTHING_BUT_NON_ARROW_FUNCTION; getCount / getNodeTypeReferenceCount) take func(Node) bool: 10 adapters, 13 Predicates.alwaysTrue() -> Predicates_alwaysTrueT_[Node], 4 named objects (MatchShallowStatement.applyT_), 2 package variables and their 2 initializers, 4 p.apply(n.box_()) -> p(n); left (groups) 145 given another value, 23 never given an adapter, 7 parameter used other than by calling it (stored: PreOrderIterator, InlineVariables.Mode), 1 package variable used otherwise, 4 Java interface, 2 interface with another signature
 # 472. postflip step (re-flip): tcmp, the sort of CmdLineParser's options is the typed sort of the slice with the comparator's function (tool f0a747ba, runtime 338f093c)
-#=5 d2350734 less (fifth flip): tcmp: 0 typed sorts (fourth flip: 1): open item, REFLIP5.md (the comparator is no adapter literal)
+#=5 d2350734 adapted (fifth flip, second part): toolfix 33 (rw.TypedFn: the comparator is the translator literal typed on entry or the converting closure of a never-null typed comparator). tcmp: 6 typed sorts of slices (fourth flip: 1 at this step; the combinator chains the fourth flip typed at step 486 are typed functions already here)
 d2350734 run t tcmp && f
 #: tcmp: 1 sort of a typed slice view with a typed comparator -> sortSlicePF_ (CmdLineParser); left 6 comparators of the runtime's combinators, 2 package variables holding them, 7 lists that are not slice views; TreeSets made with a Comparator: colls -kind treeset (9 "made with a Comparator")
 # 473. postflip step (re-flip): selftype, 51 casts of the self-typed builders' and covariant build() results through self() are the typed calls (tool cf2529b9)
@@ -886,10 +886,11 @@ dcb42e76 run t tviews && f
 #=5 efd82f06 adapted (fifth flip): fnpatch.py; sortTListF_ makes the erased comparator of a typed one with Comparator_of_ (no cmpFunc_ in the translator runtime)
 efd82f06 patch 480-efd82f06-rt.patch
 # 481. postflip step (re-flip): tcmp, 13 natural-order sorts of typed lists and arrays are typed sorts; deadbridge, 1 dead bridge (tool 4bc85f06, runtime efd82f06)
+#=5 af12fcda adapted (fifth flip, second part): toolfix 33. tcmp: 8 natural-order sorts of typed lists, 5 typed array sorts, 5 sorts of typed lists with a typed comparator (the converting closures of comparator chains; fourth flip at this step: 8 + 5 + 0, the chains at 486)
 af12fcda run t tcmp && t deadbridge && f
 #: tcmp: 8 natural-order sorts of typed lists (6 strings compareStrNat_, 2 compareToT_), 5 Arrays.sort of typed arrays -> sortArrF_; left 9 combinators, 3 package variables, 1 other comparator, 2 natural sorts of Objects, 2 not slice views; deadbridge: 1 bridge (+1 forwarder) deleted; left 22 (6 generic functions, 4 assigned to interfaces, 3 interface arguments, 3 element conversions used, 3 bridges named, 2 interface-returning methods, 1 conversion)
 # 482. postflip step (re-flip): fntypes, 11 func-typed parameters in 8 groups take the type their 33 functions cast the erased argument to; deadbridge, 2 more dead bridges (tool e1d08abd)
-#=5 bf31fa79 noop (fifth flip): fntypes types 0 groups (fourth flip: 8 groups, 11 parameters): open item, REFLIP5.md
+#=5 bf31fa79 noop (fifth flip): fntypes types 0 groups (fourth flip: 8 groups, 11 parameters). 10 of the 11 parameters have their function type from the translator: JSTypeIterations 6 (Predicate[*JSType]; mapTypes takes Function[*JSType, *JSType], where fntypes gave func(*JSType) any), NodeUtil.getCount / getNodeTypeReferenceCount, FlowSensitiveInlineVariables.checkPostExpressions / checkPreExpressions (Predicate_base[Node]), ReportUntranspilableFeatures.anySubtreeMeetsPredicate (Predicate[*RegExpTree]). The eleventh is NOT recovered: CmdLineParser_Option.flag(get, set) has set Consumer[any] (a Consumer<Boolean>; fourth flip: func(bool)): the tool reads parameters of plain func types only. The 10 groups it reports as "used other than by calling it or passing it to the group" are the parameter f of the translator runtime constructors X_of_(f) (BiConsumer_of_, Function_of_, Predicate_of_ ...: rt_fn.go), no program parameter
 bf31fa79 run t fntypes && t deadbridge && f
 #: fntypes: 8 groups, 11 parameters typed (JSTypeIterations 6 -> func(*JSType), NodeUtil.getCount, FlowSensitiveInlineVariables 2 -> func(Node) bool, ReportUntranspilableFeatures -> func(*RegExpTree) bool, CmdLineParser flag setter -> func(bool)); 9 literals, 20 package functions, 4 bridge method values -> mT_, 8 params renamed; left (groups) 17 other values, 6 used otherwise, 2 interface methods, 2 never given a function, 1 non-box argument, 1 boxed read without conversion; deadbridge: 2 bridges (+2 forwarders); left 20
 # 483. postflip (runtime, re-flip): buildT_ on every protobuf builder, build() with its message class
@@ -900,13 +901,13 @@ c8aa053b run t pbbuild && f
 # 485. postflip (runtime, re-flip): typed variants of the runtime's functional APIs and Comparator combinators
 ffe13e81 patch 485-ffe13e81-rt.patch
 # 486. postflip step (re-flip): tfnapi, 32 adapters given to the runtime's functional APIs are typed calls; tcmp, 8 sorts with Comparator combinator chains are typed sorts; deadtfn, 25 adapter types go (tool d445a0b8, runtime ffe13e81)
-#=5 f9d61144 less (fifth flip): tfnapi 0 (fourth flip: 33 calls to typed variants), tcmp 0 here (fourth flip: 9), deadtfn 0 (fourth flip: 28): open items, REFLIP5.md
+#=5 f9d61144 adapted (fifth flip, second part): toolfix 33. tfnapi: 13 calls to typed variants (8 forEachT_: 2 lists, 6 maps; 3 mergeT_; 2 computeT_), as the fourth flip, whose 20 mapComputeIfAbsentT_ are written by native at step 403 here (toolfix 34); left 5 forEach of erased collections, 3 of erased maps. tcmp: 0 here (the typed sorts are made at 472 and 481: 24 in all, fourth flip 23). deadtfn 0 (no library adapter types)
 f9d61144 run t tfnapi && t tcmp && t deadtfn && f
 #: tfnapi: 20 mapComputeIfAbsentT_, 7 forEachT_, 3 mergeT_, 2 computeT_; left 5 computeIfAbsent of erased maps, 1 type-parameter map, 7 forEach of erased collections/maps; tcmp: 8 combinator sorts typed; left 1 combinator over Objects, 3 package variables, 1 other comparator, 2 natural sorts of Objects, 2 not slice views; deadtfn: 25 adapter types deleted, 140 stay
 # 487. postflip (runtime, re-flip): typed forms of Iterables.getOnlyElement / getFirst / getLast and Compiler.runInCompilerThread
 45d25830 patch 487-45d25830-rt.patch
 # 488. postflip step (re-flip): tgeneric, 25 Iterables.getOnlyElement / getFirst / getLast of typed collections and 6 runInCompilerThread calls are typed (tool 38b7e1d0, runtime 45d25830)
-#=5 78fc86ad less (fifth flip): tgeneric: 26 calls (fourth flip: 32; the 6 Compiler.runInCompilerThread of a typed callable are not read: open item, REFLIP5.md)
+#=5 78fc86ad adapted (fifth flip, second part): toolfix 33. tgeneric: 32 calls (13 getOnlyElement, 5 getFirst, 8 getLast, 6 runInCompilerThread -> Compiler_runInCompilerThreadT_ with the callable literal typed by rw.TypedFn), as the fourth flip; left 10 runInCompilerThread with erased callables (result unused)
 78fc86ad run t tgeneric && f
 #: tgeneric: 12 getOnlyElement, 5 getFirst, 8 getLast of typed lists/sets/slice views, 6 runInCompilerThread -> typed forms; left 17 calls on erased collections, 10 runInCompilerThread with erased callables (result unused)
 # 489. postflip (runtime, re-flip): the methods of a non-null Optional<String> written as a string
