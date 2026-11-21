@@ -1752,7 +1752,7 @@ func (this *DefaultPassConfig_13) process_2(externs Node, root Node) {
 
 // getTranspileOnlyPasses: an object that is exactly a DefaultPassConfig calls its getTranspileOnlyPasses_impl directly (post-flip); others dispatch.
 func (this *DefaultPassConfig) getTranspileOnlyPasses() *PassListBuilder {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*DefaultPassConfig); p == this {
 		return this.getTranspileOnlyPasses_impl()
 	}
 	return this.self_.getTranspileOnlyPasses_impl()
@@ -1760,7 +1760,7 @@ func (this *DefaultPassConfig) getTranspileOnlyPasses() *PassListBuilder {
 
 // getWhitespaceOnlyPasses: an object that is exactly a DefaultPassConfig calls its getWhitespaceOnlyPasses_impl directly (post-flip); others dispatch.
 func (this *DefaultPassConfig) getWhitespaceOnlyPasses() *PassListBuilder {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*DefaultPassConfig); p == this {
 		return this.getWhitespaceOnlyPasses_impl()
 	}
 	return this.self_.getWhitespaceOnlyPasses_impl()
@@ -1768,7 +1768,7 @@ func (this *DefaultPassConfig) getWhitespaceOnlyPasses() *PassListBuilder {
 
 // getChecks: an object that is exactly a DefaultPassConfig calls its getChecks_impl directly (post-flip); others dispatch.
 func (this *DefaultPassConfig) getChecks() *PassListBuilder {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*DefaultPassConfig); p == this {
 		return this.getChecks_impl()
 	}
 	return this.self_.getChecks_impl()
@@ -1776,7 +1776,7 @@ func (this *DefaultPassConfig) getChecks() *PassListBuilder {
 
 // getOptimizations: an object that is exactly a DefaultPassConfig calls its getOptimizations_impl directly (post-flip); others dispatch.
 func (this *DefaultPassConfig) getOptimizations() *PassListBuilder {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*DefaultPassConfig); p == this {
 		return this.getOptimizations_impl()
 	}
 	return this.self_.getOptimizations_impl()
@@ -1784,7 +1784,7 @@ func (this *DefaultPassConfig) getOptimizations() *PassListBuilder {
 
 // getFinalizations: an object that is exactly a DefaultPassConfig calls its getFinalizations_impl directly (post-flip); others dispatch.
 func (this *DefaultPassConfig) getFinalizations() *PassListBuilder {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*DefaultPassConfig); p == this {
 		return this.getFinalizations_impl()
 	}
 	return this.self_.getFinalizations_impl()

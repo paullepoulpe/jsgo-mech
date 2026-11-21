@@ -143,7 +143,7 @@ func (this *GatherGetterAndSetterProperties_GatherCallback) visitDefinePropertie
 
 // visit: an object that is exactly a GatherGetterAndSetterProperties_GatherCallback calls its visit_impl directly (post-flip); others dispatch.
 func (this *GatherGetterAndSetterProperties_GatherCallback) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*GatherGetterAndSetterProperties_GatherCallback); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}

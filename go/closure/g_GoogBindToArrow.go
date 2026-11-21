@@ -81,7 +81,7 @@ func GoogBindToArrow_clinit() {
 
 // matches: an object that is exactly a GoogBindToArrow calls its matches_impl directly (post-flip); others dispatch.
 func (this *GoogBindToArrow) matches(p0 Node, p1 *NodeMetadata) bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*GoogBindToArrow); p == this {
 		return this.matches_impl(p0, p1)
 	}
 	return this.self_.(*GoogBindToArrow).matches_impl(p0, p1)
@@ -89,7 +89,7 @@ func (this *GoogBindToArrow) matches(p0 Node, p1 *NodeMetadata) bool {
 
 // processMatch_Match: an object that is exactly a GoogBindToArrow calls its processMatch_Match_impl directly (post-flip); others dispatch.
 func (this *GoogBindToArrow) processMatch_Match(p0 *Match) *JTList[*SuggestedFix] {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*GoogBindToArrow); p == this {
 		return this.processMatch_Match_impl(p0)
 	}
 	return this.self_.processMatch_Match_impl(p0)

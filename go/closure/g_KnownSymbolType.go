@@ -76,7 +76,7 @@ func KnownSymbolType_clinit() {
 
 // getTypeClass: an object that is exactly a KnownSymbolType calls its getTypeClass_impl directly (post-flip); others dispatch.
 func (this *KnownSymbolType) getTypeClass() JSTypeClass {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*KnownSymbolType); p == this {
 		return this.getTypeClass_impl()
 	}
 	return this.self_.getTypeClass_impl()
@@ -84,7 +84,7 @@ func (this *KnownSymbolType) getTypeClass() JSTypeClass {
 
 // getDisplayName: an object that is exactly a KnownSymbolType calls its getDisplayName_impl directly (post-flip); others dispatch.
 func (this *KnownSymbolType) getDisplayName() Optional[string] {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*KnownSymbolType); p == this {
 		return this.getDisplayName_impl()
 	}
 	return this.self_.getDisplayName_impl()
@@ -92,7 +92,7 @@ func (this *KnownSymbolType) getDisplayName() Optional[string] {
 
 // isKnownSymbolValueType: an object that is exactly a KnownSymbolType calls its isKnownSymbolValueType_impl directly (post-flip); others dispatch.
 func (this *KnownSymbolType) isKnownSymbolValueType() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*KnownSymbolType); p == this {
 		return this.isKnownSymbolValueType_impl()
 	}
 	return this.self_.isKnownSymbolValueType_impl()
@@ -100,7 +100,7 @@ func (this *KnownSymbolType) isKnownSymbolValueType() bool {
 
 // toMaybeKnownSymbolType: an object that is exactly a KnownSymbolType calls its toMaybeKnownSymbolType_impl directly (post-flip); others dispatch.
 func (this *KnownSymbolType) toMaybeKnownSymbolType() *KnownSymbolType {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*KnownSymbolType); p == this {
 		return this.toMaybeKnownSymbolType_impl()
 	}
 	return this.self_.toMaybeKnownSymbolType_impl()
