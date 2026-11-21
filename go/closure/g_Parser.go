@@ -2107,17 +2107,7 @@ func (this *Parser) peekImportDot() bool {
 func (this *Parser) parseLeftHandSideExpression() *ParseTree {
 	var start *SourcePosition_util = this.getTreeStartLocation()
 	var operand *ParseTree = this.parseNewExpression()
-	var newExpressionTree *NewExpressionTree
-	_ = newExpressionTree
-	if !(func() bool {
-		v_ := operand.self()
-		p, ok := v_.(*NewExpressionTree)
-		if !ok {
-			return false
-		}
-		newExpressionTree = p
-		return true
-	}()) || (newExpressionTree.arguments != nil) {
+	if newExpressionTree, ok := operand.self().(*NewExpressionTree); !(ok) || (newExpressionTree.arguments != nil) {
 		for this.peekCallSuffix() {
 			switch this.peekType() {
 			case TokenType_OPEN_PAREN:

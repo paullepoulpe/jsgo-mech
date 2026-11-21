@@ -301,17 +301,8 @@ func (this *LiveVariablesAnalysis_LiveVariableLattice) equals(other any) bool {
 	if other == nil {
 		panic(new_NullPointerException_0())
 	}
-	var liveVariableLattice *LiveVariablesAnalysis_LiveVariableLattice
-	_ = liveVariableLattice
-	return (func() bool {
-		v_ := other
-		p, ok := v_.(*LiveVariablesAnalysis_LiveVariableLattice)
-		if !ok {
-			return false
-		}
-		liveVariableLattice = p
-		return true
-	}() && equalsBy_(this.liveSet, obj_(liveVariableLattice.liveSet), (*BitSet).equals))
+	liveVariableLattice, ok := other.(*LiveVariablesAnalysis_LiveVariableLattice)
+	return (ok && equalsBy_(this.liveSet, obj_(liveVariableLattice.liveSet), (*BitSet).equals))
 }
 
 func (this *LiveVariablesAnalysis_LiveVariableLattice) isLive(index int32) bool {

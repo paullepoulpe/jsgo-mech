@@ -56,17 +56,7 @@ func ComposeWarningsGuard_createFromGuards(guards []*WarningsGuard) *ComposeWarn
 }
 
 func (this *ComposeWarningsGuard) addGuard(guard *WarningsGuard) {
-	var composeGuard *ComposeWarningsGuard
-	_ = composeGuard
-	if func() bool {
-		v_ := guard.self()
-		p, ok := v_.(*ComposeWarningsGuard)
-		if !ok {
-			return false
-		}
-		composeGuard = p
-		return true
-	}() {
+	if composeGuard, ok := guard.self().(*ComposeWarningsGuard); ok {
 		if composeGuard.demoteErrors {
 			this.demoteErrors = composeGuard.demoteErrors
 		}
