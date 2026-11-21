@@ -2472,10 +2472,10 @@ var jtc_p_ConformanceConfig = &jtconv_[*ConformanceConfig]{
 	unbox: func(v any) *ConformanceConfig { return cast_[*ConformanceConfig](v) },
 }
 
-var jtc_p_ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = &jtconv_[*ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior]{
-	box: func(v *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior) any { return obj_(v) },
-	unbox: func(v any) *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior {
-		return cast_[*ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior](v)
+var jtc_p_ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = &jtconv_[ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior]{
+	box: func(v ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior) any { return obj_(v) },
+	unbox: func(v any) ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior {
+		return cast_[ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior](v)
 	},
 }
 
@@ -2716,9 +2716,9 @@ var jtc_p_FeatureCollector_FeatureContext = &jtconv_[FeatureCollector_FeatureCon
 	unbox: func(v any) FeatureCollector_FeatureContext { return cast_[FeatureCollector_FeatureContext](v) },
 }
 
-var tc_p_FeatureProto = &jtconv_[*FeatureProto]{
-	box:   func(v *FeatureProto) any { return obj_(v) },
-	unbox: func(v any) *FeatureProto { return cast_[*FeatureProto](v) },
+var tc_p_FeatureProto = &jtconv_[FeatureProto]{
+	box:   func(v FeatureProto) any { return obj_(v) },
+	unbox: func(v any) FeatureProto { return cast_[FeatureProto](v) },
 }
 
 var jtc_p_FeatureSet_Feature = &jtconv_[FeatureSet_Feature]{
@@ -2875,14 +2875,14 @@ var jtc_p_InstrumentationPointStats = &jtconv_[*InstrumentationPointStats]{
 	unbox: func(v any) *InstrumentationPointStats { return cast_[*InstrumentationPointStats](v) },
 }
 
-var jtc_p_InstrumentationPointStats_Presence = &jtconv_[*InstrumentationPointStats_Presence]{
-	box:   func(v *InstrumentationPointStats_Presence) any { return obj_(v) },
-	unbox: func(v any) *InstrumentationPointStats_Presence { return cast_[*InstrumentationPointStats_Presence](v) },
+var jtc_p_InstrumentationPointStats_Presence = &jtconv_[InstrumentationPointStats_Presence]{
+	box:   func(v InstrumentationPointStats_Presence) any { return obj_(v) },
+	unbox: func(v any) InstrumentationPointStats_Presence { return cast_[InstrumentationPointStats_Presence](v) },
 }
 
-var tc_p_InstrumentationPoint_Type = &jtconv_[*InstrumentationPoint_Type]{
-	box:   func(v *InstrumentationPoint_Type) any { return obj_(v) },
-	unbox: func(v any) *InstrumentationPoint_Type { return cast_[*InstrumentationPoint_Type](v) },
+var tc_p_InstrumentationPoint_Type = &jtconv_[InstrumentationPoint_Type]{
+	box:   func(v InstrumentationPoint_Type) any { return obj_(v) },
+	unbox: func(v any) InstrumentationPoint_Type { return cast_[InstrumentationPoint_Type](v) },
 }
 
 var tc_p_J2clClinitPrunerPass_HierarchicalSet_string_ = &jtconv_[*J2clClinitPrunerPass_HierarchicalSet[string]]{
@@ -2988,9 +2988,9 @@ var jtc_p_JsMessage_GrammaticalGenderCase = &jtconv_[JsMessage_GrammaticalGender
 	unbox: func(v any) JsMessage_GrammaticalGenderCase { return cast_[JsMessage_GrammaticalGenderCase](v) },
 }
 
-var tc_p_JsdocTag = &jtconv_[*JsdocTag]{
-	box:   func(v *JsdocTag) any { return obj_(v) },
-	unbox: func(v any) *JsdocTag { return cast_[*JsdocTag](v) },
+var tc_p_JsdocTag = &jtconv_[JsdocTag]{
+	box:   func(v JsdocTag) any { return obj_(v) },
+	unbox: func(v any) JsdocTag { return cast_[JsdocTag](v) },
 }
 
 var tc_p_Keywords = &jtconv_[Keywords]{
