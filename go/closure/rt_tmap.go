@@ -916,15 +916,34 @@ func (it *tmapIter_[K, V]) remove() {
 	if it.m.imm {
 		throwUOE_()
 	}
+	if x := it.m.x; x != nil && x.sort != nil {
+		// A sorted map (this flip's unified family) closes the gap at once (removeSorted): the
+		// next element is at the removed position.
+		it.m.removeAt(it.last)
+		it.i = int(it.last)
+		return
+	}
 	// Live positions before the removed one: where the next element is if the table compacts.
-	live := 0
-	for j := it.m.first(); j < int(it.last); j++ {
-		if !it.m.isDead(j) {
-			live++
+	// Counted only when this removal compacts it (removeAt's condition), so that removing
+	// through an iterator stays constant time per element, as LinkedHashMap's does.
+	live := -1
+	nd := int32(1)
+	if it.m.x != nil {
+		nd += it.m.x.ndead
+	}
+	if nd > tsmall_ && nd > it.m.live-1 {
+		live = 0
+		for j := it.m.first(); j < int(it.last); j++ {
+			if !it.m.isDead(j) {
+				live++
+			}
 		}
 	}
 	it.m.removeAt(it.last)
 	if it.m.x.dead == nil { // compacted: the live positions moved down
+		if live < 0 {
+			panic("tmapIter_.remove: compaction not foreseen")
+		}
 		it.i = live
 	}
 }
