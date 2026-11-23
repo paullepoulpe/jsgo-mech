@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type CodePrinter struct {
 }
 
@@ -308,7 +310,7 @@ func (this *CodePrinter_PrettyCodePrinter) addNumber_impl(x float64, n Node) {
 		this.CodePrinter_MappedCodePrinter.addNumber_impl(x, n)
 		return
 	}
-	var parsed any = Doubles_tryParse(String_trim(numberFromSource.get()))
+	var parsed any = Doubles_tryParse(strings.Trim(numberFromSource.get(), javaSpace_))
 	if parsed == nil {
 		this.CodePrinter_MappedCodePrinter.addNumber_impl(x, n)
 		return
