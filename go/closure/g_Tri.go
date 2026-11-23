@@ -80,7 +80,7 @@ func (this Tri) toBoolean(x bool) bool {
 		case Tri_TRUE:
 			return true
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 }
 
