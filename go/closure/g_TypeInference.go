@@ -1749,7 +1749,7 @@ func (this *TypeInference) getPropertyType(objType *JSType, propName string, n N
 		var varType *JSType = var_.getType()
 		if varType != nil {
 			var isDeclared bool = !var_.isTypeInferred()
-			isLocallyInferred = (any(var_) != obj_(TypeInference_getDeclaredVar(scope, qualifiedName)))
+			isLocallyInferred = (var_ != obj_(TypeInference_getDeclaredVar(scope, qualifiedName)))
 			if isDeclared || isLocallyInferred {
 				propertyType = varType
 			}

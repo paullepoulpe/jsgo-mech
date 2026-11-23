@@ -1627,12 +1627,12 @@ func XtbMessageBundle_SecureEntityResolver_as_EntityResolver(v *XtbMessageBundle
 }
 
 var tc_AnalyzePrototypeProperties_Symbol = &jtconv_[AnalyzePrototypeProperties_Symbol]{
-	box:   func(v AnalyzePrototypeProperties_Symbol) any { return any(v) },
+	box:   func(v AnalyzePrototypeProperties_Symbol) any { return v },
 	unbox: func(v any) AnalyzePrototypeProperties_Symbol { return icast_AnalyzePrototypeProperties_Symbol(v) },
 }
 
 var tc_Annotatable = &jtconv_[Annotatable]{
-	box:   func(v Annotatable) any { return any(v) },
+	box:   func(v Annotatable) any { return v },
 	unbox: func(v any) Annotatable { return icast_Annotatable(v) },
 }
 
@@ -1647,12 +1647,12 @@ var tc_Character = &jtconv_[any]{
 }
 
 var jtc_CheckConformance_Rule = &jtconv_[CheckConformance_Rule]{
-	box:   func(v CheckConformance_Rule) any { return any(v) },
+	box:   func(v CheckConformance_Rule) any { return v },
 	unbox: func(v any) CheckConformance_Rule { return icast_CheckConformance_Rule(v) },
 }
 
 var jtc_CodeChangeHandler = &jtconv_[CodeChangeHandler]{
-	box:   func(v CodeChangeHandler) any { return any(v) },
+	box:   func(v CodeChangeHandler) any { return v },
 	unbox: func(v any) CodeChangeHandler { return icast_CodeChangeHandler(v) },
 }
 
@@ -1664,31 +1664,31 @@ var tc_CollectionT_p_Mapping_OriginalMapping_ = &jtconv_[CollectionT[*Mapping_Or
 }
 
 var jtc_CompilerPass = &jtconv_[CompilerPass]{
-	box:   func(v CompilerPass) any { return any(v) },
+	box:   func(v CompilerPass) any { return v },
 	unbox: func(v any) CompilerPass { return icast_CompilerPass(v) },
 }
 
 var jtc_ConformanceRules_CustomRuleProxy_CustomRuleFactory = &jtconv_[ConformanceRules_CustomRuleProxy_CustomRuleFactory]{
-	box: func(v ConformanceRules_CustomRuleProxy_CustomRuleFactory) any { return any(v) },
+	box: func(v ConformanceRules_CustomRuleProxy_CustomRuleFactory) any { return v },
 	unbox: func(v any) ConformanceRules_CustomRuleProxy_CustomRuleFactory {
 		return icast_ConformanceRules_CustomRuleProxy_CustomRuleFactory(v)
 	},
 }
 
 var jtc_CrossChunkCodeMotion_InstanceofReference = &jtconv_[CrossChunkCodeMotion_InstanceofReference]{
-	box: func(v CrossChunkCodeMotion_InstanceofReference) any { return any(v) },
+	box: func(v CrossChunkCodeMotion_InstanceofReference) any { return v },
 	unbox: func(v any) CrossChunkCodeMotion_InstanceofReference {
 		return icast_CrossChunkCodeMotion_InstanceofReference(v)
 	},
 }
 
 var tc_DependencyInfo_ = &jtconv_[DependencyInfo_]{
-	box:   func(v DependencyInfo_) any { return any(v) },
+	box:   func(v DependencyInfo_) any { return v },
 	unbox: func(v any) DependencyInfo_ { return icast_DependencyInfo_(v) },
 }
 
 var tc_Deque = &jtconv_[Deque]{
-	box:   func(v Deque) any { return any(v) },
+	box:   func(v Deque) any { return v },
 	unbox: func(v any) Deque { return icast_Deque(v) },
 }
 
@@ -1698,7 +1698,7 @@ func tc_DiGraph_DiGraphNode_N__E_[N comparable, E comparable]() *jtconv_[DiGraph
 	return single_(&tc_DiGraph_DiGraphNode_N__E__single_, func() *jtconv_[DiGraph_DiGraphNode[N, E]] {
 		return &jtconv_[DiGraph_DiGraphNode[N, E]]{
 			box: func(v DiGraph_DiGraphNode[N, E]) any {
-				return any(v)
+				return v
 			},
 			unbox: func(v any) DiGraph_DiGraphNode[N, E] { return cast_[DiGraph_DiGraphNode[N, E]](v) },
 		}
@@ -1757,7 +1757,7 @@ var tc_Function_base_p_ClosureReverseAbstractInterpreter_TypeRestriction__p_JSTy
 }
 
 var tc_GarbageCollectorMXBean = &jtconv_[GarbageCollectorMXBean]{
-	box:   func(v GarbageCollectorMXBean) any { return any(v) },
+	box:   func(v GarbageCollectorMXBean) any { return v },
 	unbox: func(v any) GarbageCollectorMXBean { return icast_GarbageCollectorMXBean(v) },
 }
 
@@ -1767,7 +1767,7 @@ func tc_GraphNode_N__E_[N comparable, E comparable]() *jtconv_[GraphNode[N, E]] 
 	return single_(&tc_GraphNode_N__E__single_, func() *jtconv_[GraphNode[N, E]] {
 		return &jtconv_[GraphNode[N, E]]{
 			box: func(v GraphNode[N, E]) any {
-				return any(v)
+				return v
 			},
 			unbox: func(v any) GraphNode[N, E] { return cast_[GraphNode[N, E]](v) },
 		}
@@ -1775,7 +1775,7 @@ func tc_GraphNode_N__E_[N comparable, E comparable]() *jtconv_[GraphNode[N, E]] 
 }
 
 var tc_GraphNode_p_AmbiguateProperties_Property__any_ = &jtconv_[GraphNode[*AmbiguateProperties_Property, any]]{
-	box: func(v GraphNode[*AmbiguateProperties_Property, any]) any { return any(v) },
+	box: func(v GraphNode[*AmbiguateProperties_Property, any]) any { return v },
 	unbox: func(v any) GraphNode[*AmbiguateProperties_Property, any] {
 		return cast_[GraphNode[*AmbiguateProperties_Property, any]](v)
 	},
@@ -1787,7 +1787,7 @@ func tc_Graph_GraphEdge_N__E_[N comparable, E comparable]() *jtconv_[Graph_Graph
 	return single_(&tc_Graph_GraphEdge_N__E__single_, func() *jtconv_[Graph_GraphEdge[N, E]] {
 		return &jtconv_[Graph_GraphEdge[N, E]]{
 			box: func(v Graph_GraphEdge[N, E]) any {
-				return any(v)
+				return v
 			},
 			unbox: func(v any) Graph_GraphEdge[N, E] { return cast_[Graph_GraphEdge[N, E]](v) },
 		}
@@ -1795,17 +1795,17 @@ func tc_Graph_GraphEdge_N__E_[N comparable, E comparable]() *jtconv_[Graph_Graph
 }
 
 var jtc_GraphvizGraph_GraphvizEdge = &jtconv_[GraphvizGraph_GraphvizEdge]{
-	box:   func(v GraphvizGraph_GraphvizEdge) any { return any(v) },
+	box:   func(v GraphvizGraph_GraphvizEdge) any { return v },
 	unbox: func(v any) GraphvizGraph_GraphvizEdge { return icast_GraphvizGraph_GraphvizEdge(v) },
 }
 
 var jtc_GraphvizGraph_GraphvizNode = &jtconv_[GraphvizGraph_GraphvizNode]{
-	box:   func(v GraphvizGraph_GraphvizNode) any { return any(v) },
+	box:   func(v GraphvizGraph_GraphvizNode) any { return v },
 	unbox: func(v any) GraphvizGraph_GraphvizNode { return icast_GraphvizGraph_GraphvizNode(v) },
 }
 
 var jtc_IndexProvider = &jtconv_[IndexProvider]{
-	box:   func(v IndexProvider) any { return any(v) },
+	box:   func(v IndexProvider) any { return v },
 	unbox: func(v any) IndexProvider { return icast_IndexProvider(v) },
 }
 
@@ -1815,7 +1815,7 @@ var tc_Integer = &jtconv_[any]{
 }
 
 var jtc_JsMessage_Part = &jtconv_[JsMessage_Part]{
-	box:   func(v JsMessage_Part) any { return any(v) },
+	box:   func(v JsMessage_Part) any { return v },
 	unbox: func(v any) JsMessage_Part { return icast_JsMessage_Part(v) },
 }
 
@@ -1875,7 +1875,7 @@ var tc_ListT_string_ = &jtconv_[ListT[string]]{
 }
 
 var tc_ListenableFuture = &jtconv_[ListenableFuture]{
-	box:   func(v ListenableFuture) any { return any(v) },
+	box:   func(v ListenableFuture) any { return v },
 	unbox: func(v any) ListenableFuture { return icast_ListenableFuture(v) },
 }
 
@@ -1885,7 +1885,7 @@ var tc_Long = &jtconv_[any]{
 }
 
 var jtc_MakeDeclaredNamesUnique_Renamer = &jtconv_[MakeDeclaredNamesUnique_Renamer]{
-	box:   func(v MakeDeclaredNamesUnique_Renamer) any { return any(v) },
+	box:   func(v MakeDeclaredNamesUnique_Renamer) any { return v },
 	unbox: func(v any) MakeDeclaredNamesUnique_Renamer { return icast_MakeDeclaredNamesUnique_Renamer(v) },
 }
 
@@ -1960,7 +1960,7 @@ var tc_Map_EntryT_string__p_PerformanceTracker_Stats_ = &jtconv_[Map_EntryT[stri
 }
 
 var tc_MemoryPoolMXBean = &jtconv_[MemoryPoolMXBean]{
-	box:   func(v MemoryPoolMXBean) any { return any(v) },
+	box:   func(v MemoryPoolMXBean) any { return v },
 	unbox: func(v any) MemoryPoolMXBean { return icast_MemoryPoolMXBean(v) },
 }
 
@@ -1970,7 +1970,7 @@ var jtc_Node = &jtconv_[Node]{
 }
 
 var jtc_NodeTraversal_Callback = &jtconv_[NodeTraversal_Callback]{
-	box:   func(v NodeTraversal_Callback) any { return any(v) },
+	box:   func(v NodeTraversal_Callback) any { return v },
 	unbox: func(v any) NodeTraversal_Callback { return icast_NodeTraversal_Callback(v) },
 }
 
@@ -1980,7 +1980,7 @@ var tc_Object = &jtconv_[any]{
 }
 
 var jtc_OptimizeCalls_CallGraphCompilerPass = &jtconv_[OptimizeCalls_CallGraphCompilerPass]{
-	box:   func(v OptimizeCalls_CallGraphCompilerPass) any { return any(v) },
+	box:   func(v OptimizeCalls_CallGraphCompilerPass) any { return v },
 	unbox: func(v any) OptimizeCalls_CallGraphCompilerPass { return icast_OptimizeCalls_CallGraphCompilerPass(v) },
 }
 
@@ -1990,22 +1990,22 @@ var tc_Optional_string_ = &jtconv_[Optional[string]]{
 }
 
 var tc_RemoveUnusedCode_VarInfo = &jtconv_[RemoveUnusedCode_VarInfo]{
-	box:   func(v RemoveUnusedCode_VarInfo) any { return any(v) },
+	box:   func(v RemoveUnusedCode_VarInfo) any { return v },
 	unbox: func(v any) RemoveUnusedCode_VarInfo { return icast_RemoveUnusedCode_VarInfo(v) },
 }
 
 var jtc_RenamingMap = &jtconv_[RenamingMap]{
-	box:   func(v RenamingMap) any { return any(v) },
+	box:   func(v RenamingMap) any { return v },
 	unbox: func(v any) RenamingMap { return icast_RenamingMap(v) },
 }
 
 var tc_ReplaceIdGenerators_NameSupplier = &jtconv_[ReplaceIdGenerators_NameSupplier]{
-	box:   func(v ReplaceIdGenerators_NameSupplier) any { return any(v) },
+	box:   func(v ReplaceIdGenerators_NameSupplier) any { return v },
 	unbox: func(v any) ReplaceIdGenerators_NameSupplier { return icast_ReplaceIdGenerators_NameSupplier(v) },
 }
 
 var jtc_RuntimeJsLibManager_ExternedField = &jtconv_[RuntimeJsLibManager_ExternedField]{
-	box:   func(v RuntimeJsLibManager_ExternedField) any { return any(v) },
+	box:   func(v RuntimeJsLibManager_ExternedField) any { return v },
 	unbox: func(v any) RuntimeJsLibManager_ExternedField { return icast_RuntimeJsLibManager_ExternedField(v) },
 }
 
@@ -2051,14 +2051,14 @@ var tc_SetT_string_ = &jtconv_[SetT[string]]{
 }
 
 var jtc_SortingErrorManager_ErrorReportGenerator = &jtconv_[SortingErrorManager_ErrorReportGenerator]{
-	box: func(v SortingErrorManager_ErrorReportGenerator) any { return any(v) },
+	box: func(v SortingErrorManager_ErrorReportGenerator) any { return v },
 	unbox: func(v any) SortingErrorManager_ErrorReportGenerator {
 		return icast_SortingErrorManager_ErrorReportGenerator(v)
 	},
 }
 
 var jtc_SourceMap_LocationMapping = &jtconv_[SourceMap_LocationMapping]{
-	box:   func(v SourceMap_LocationMapping) any { return any(v) },
+	box:   func(v SourceMap_LocationMapping) any { return v },
 	unbox: func(v any) SourceMap_LocationMapping { return icast_SourceMap_LocationMapping(v) },
 }
 
@@ -2085,7 +2085,7 @@ var tc_Supplier_Node_ = &jtconv_[Supplier[Node]]{
 }
 
 var tc_Tracer_TracingStatistic = &jtconv_[Tracer_TracingStatistic]{
-	box:   func(v Tracer_TracingStatistic) any { return any(v) },
+	box:   func(v Tracer_TracingStatistic) any { return v },
 	unbox: func(v any) Tracer_TracingStatistic { return icast_Tracer_TracingStatistic(v) },
 }
 
@@ -2095,7 +2095,7 @@ func tc_UndiGraph_UndiGraphEdge_N__E_[N comparable, E comparable]() *jtconv_[Und
 	return single_(&tc_UndiGraph_UndiGraphEdge_N__E__single_, func() *jtconv_[UndiGraph_UndiGraphEdge[N, E]] {
 		return &jtconv_[UndiGraph_UndiGraphEdge[N, E]]{
 			box: func(v UndiGraph_UndiGraphEdge[N, E]) any {
-				return any(v)
+				return v
 			},
 			unbox: func(v any) UndiGraph_UndiGraphEdge[N, E] { return cast_[UndiGraph_UndiGraphEdge[N, E]](v) },
 		}
@@ -2108,7 +2108,7 @@ func tc_UndiGraph_UndiGraphNode_N__E_[N comparable, E comparable]() *jtconv_[Und
 	return single_(&tc_UndiGraph_UndiGraphNode_N__E__single_, func() *jtconv_[UndiGraph_UndiGraphNode[N, E]] {
 		return &jtconv_[UndiGraph_UndiGraphNode[N, E]]{
 			box: func(v UndiGraph_UndiGraphNode[N, E]) any {
-				return any(v)
+				return v
 			},
 			unbox: func(v any) UndiGraph_UndiGraphNode[N, E] { return cast_[UndiGraph_UndiGraphNode[N, E]](v) },
 		}
@@ -3624,7 +3624,7 @@ var jtc_string = &jtconv_[string]{
 }
 
 var tce_CheckConformance_Rule = &jtconv_[CheckConformance_Rule]{
-	box:      func(v CheckConformance_Rule) any { return any(v) },
+	box:      func(v CheckConformance_Rule) any { return v },
 	unbox:    func(v any) CheckConformance_Rule { return icast_CheckConformance_Rule(v) },
 	byEquals: true,
 }
@@ -3635,7 +3635,7 @@ func tce_DiGraph_DiGraphNode_N__E_[N comparable, E comparable]() *jtconv_[DiGrap
 	return single_(&tce_DiGraph_DiGraphNode_N__E__single_, func() *jtconv_[DiGraph_DiGraphNode[N, E]] {
 		return &jtconv_[DiGraph_DiGraphNode[N, E]]{
 			box: func(v DiGraph_DiGraphNode[N, E]) any {
-				return any(v)
+				return v
 			},
 			unbox:    func(v any) DiGraph_DiGraphNode[N, E] { return cast_[DiGraph_DiGraphNode[N, E]](v) },
 			byEquals: true,
@@ -3644,13 +3644,13 @@ func tce_DiGraph_DiGraphNode_N__E_[N comparable, E comparable]() *jtconv_[DiGrap
 }
 
 var tce_GlobalNamespace_AstChange = &jtconv_[GlobalNamespace_AstChange]{
-	box:      func(v GlobalNamespace_AstChange) any { return any(v) },
+	box:      func(v GlobalNamespace_AstChange) any { return v },
 	unbox:    func(v any) GlobalNamespace_AstChange { return icast_GlobalNamespace_AstChange(v) },
 	byEquals: true,
 }
 
 var tce_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo = &jtconv_[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo]{
-	box: func(v MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo) any { return any(v) },
+	box: func(v MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo) any { return v },
 	unbox: func(v any) MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo {
 		return icast_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo(v)
 	},
@@ -3658,19 +3658,19 @@ var tce_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo = &jtconv_
 }
 
 var tce_Property_Key = &jtconv_[Property_Key]{
-	box:      func(v Property_Key) any { return any(v) },
+	box:      func(v Property_Key) any { return v },
 	unbox:    func(v any) Property_Key { return icast_Property_Key(v) },
 	byEquals: true,
 }
 
 var tce_RuntimeJsLibManager_ExternedField = &jtconv_[RuntimeJsLibManager_ExternedField]{
-	box:      func(v RuntimeJsLibManager_ExternedField) any { return any(v) },
+	box:      func(v RuntimeJsLibManager_ExternedField) any { return v },
 	unbox:    func(v any) RuntimeJsLibManager_ExternedField { return icast_RuntimeJsLibManager_ExternedField(v) },
 	byEquals: true,
 }
 
 var tce_SortingErrorManager_ErrorReportGenerator = &jtconv_[SortingErrorManager_ErrorReportGenerator]{
-	box: func(v SortingErrorManager_ErrorReportGenerator) any { return any(v) },
+	box: func(v SortingErrorManager_ErrorReportGenerator) any { return v },
 	unbox: func(v any) SortingErrorManager_ErrorReportGenerator {
 		return icast_SortingErrorManager_ErrorReportGenerator(v)
 	},
@@ -3678,7 +3678,7 @@ var tce_SortingErrorManager_ErrorReportGenerator = &jtconv_[SortingErrorManager_
 }
 
 var tce_StaticSourceFile = &jtconv_[StaticSourceFile]{
-	box:      func(v StaticSourceFile) any { return any(v) },
+	box:      func(v StaticSourceFile) any { return v },
 	unbox:    func(v any) StaticSourceFile { return icast_StaticSourceFile(v) },
 	byEquals: true,
 }

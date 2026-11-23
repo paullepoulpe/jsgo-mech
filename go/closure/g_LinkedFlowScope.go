@@ -178,7 +178,7 @@ func (this *LinkedFlowScope) getOwnSlot_String_rStaticTypedSlot(name string) Sta
 func (this *LinkedFlowScope) withSyntacticScope(scope StaticTypedScope) FlowScope {
 	var typedScope *TypedScope = cast_[*TypedScope](scope)
 	return func() FlowScope {
-		if any(scope) != obj_(this.syntacticScope) {
+		if scope != obj_(this.syntacticScope) {
 			return FlowScope(new_LinkedFlowScope(this.inputProvider, this.trimScopes(typedScope), typedScope, this.functionScope))
 		}
 		return FlowScope(this)
