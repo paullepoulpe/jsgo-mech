@@ -59,10 +59,7 @@
 // Only g_*.go files are rewritten; the helpers of the handwritten runtime are listed. Rewritten
 // helpers no longer match, so running the step again changes nothing.
 //
-// With -named, the assertions to interface{ as_X() *X } that remain assert to a named interface
-// X_I, and helpers nothing calls are removed; see named.go.
-//
-// usage: casts [-n] [-named] <dir of package closure>
+// usage: casts [-n] <dir of package closure>
 package main
 
 import (
@@ -100,11 +97,6 @@ func assertedIface(e ast.Expr, v types.Object, x *types.Named) *types.Interface 
 
 func main() {
 	report := len(os.Args) > 2 && os.Args[1] == "-n"
-	if len(os.Args) > 2 && (os.Args[1] == "-named" || os.Args[2] == "-named") {
-		rw.Load(os.Args[len(os.Args)-1])
-		named(os.Args[1] == "-n", os.Args[len(os.Args)-1])
-		return
-	}
 	const maxFast = 3
 	rw.Load(os.Args[len(os.Args)-1])
 
