@@ -110,7 +110,7 @@ func ApplySuggestedFixes_applyCodeReplacements(replacements CollectionT[*CodeRep
 	if lastIndex <= String_length(code) {
 		Appendable_append_s_int_int(sb, code, lastIndex, String_length(code))
 	}
-	return tostrR_(sb)
+	return sb.toString()
 }
 
 func ApplySuggestedFixes_containsOverlaps(replacements ImmutableSortedSetOf[*CodeReplacement]) bool {

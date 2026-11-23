@@ -1153,12 +1153,12 @@ func (this Node) toString() string {
 }
 
 func (this Node) toString_3(printSource bool, printAnnotations bool, printType bool) string {
-	var sb *StringBuilder = new_StringBuilder()
-	this.toString_4(sb, printSource, printAnnotations, printType)
-	return tostrR_(sb)
+	var sb strBuilder_
+	this.toString_4(&sb, printSource, printAnnotations, printType)
+	return sb.toString()
 }
 
-func (this Node) toString_4(sb *StringBuilder, printSource bool, printAnnotations bool, printType bool) {
+func (this Node) toString_4(sb *strBuilder_, printSource bool, printAnnotations bool, printType bool) {
 	sb.append_Object(obj_(Token_rhino(this.ns_().token)))
 	if this.payload_iss_() {
 		sb.append_char(' ')
@@ -1312,7 +1312,7 @@ func (this Node) toStringTreeImpl() string {
 		}()
 		var s *StringBuilder = new_StringBuilder()
 		this.appendStringTree(StringBuilder_as_Appendable(s))
-		ret_1 = tostrR_(s)
+		ret_1 = s.toString()
 		return 1
 	}()
 	if code_1 == 1 {
@@ -1902,10 +1902,10 @@ func (this Node) getQualifiedName() string {
 				return name
 			}()
 		case Token_rhino_GETPROP:
-			var builder *StringBuilder = this.getQualifiedNameForGetProp(0)
+			var builder *strBuilder_ = this.getQualifiedNameForGetProp(0)
 			return func() string {
 				if builder != nil {
-					return tostrR_(builder)
+					return builder.toString()
 				}
 				return ""
 			}()
@@ -1928,10 +1928,10 @@ func (this Node) getQualifiedNameObject() *QualifiedName {
 	}()
 }
 
-func (this Node) getQualifiedNameForGetProp(reserve int32) *StringBuilder {
+func (this Node) getQualifiedNameForGetProp(reserve int32) *strBuilder_ {
 	var propName string = this.getString()
 	reserve += (1 + String_length(propName))
-	var builder *StringBuilder
+	var builder *strBuilder_
 	if this.ns_().first.isGetProp() {
 		builder = this.ns_().first.getQualifiedNameForGetProp(reserve)
 		if builder == nil {
@@ -1942,10 +1942,10 @@ func (this Node) getQualifiedNameForGetProp(reserve int32) *StringBuilder {
 		if left == "" {
 			return nil
 		}
-		builder = new_StringBuilder_int((String_length(left) + reserve))
+		builder = strBuilderCap_((String_length(left) + reserve))
 		builder.append(left)
 	}
-	cast_[*StringBuilder](builder.append_char('.')).append(propName)
+	builder.append_char('.').append(propName)
 	return builder
 }
 

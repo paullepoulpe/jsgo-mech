@@ -416,14 +416,14 @@ func (this *CodingConvention_AssertionFunctionSpec_Builder) setAssertionKind(kin
 
 func (this *CodingConvention_AssertionFunctionSpec_Builder) autoBuild() *CodingConvention_AssertionFunctionSpec {
 	if (int32(this.set0) != 1) || (this.assertionKind == 0) {
-		var missing *StringBuilder = new_StringBuilder()
+		var missing strBuilder_
 		if this.assertionKind == 0 {
 			missing.append(" assertionKind")
 		}
 		if (int32(this.set0) & 1) == 0 {
 			missing.append(" paramIndex")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + jtostr_(missing))).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + missing.toString())).self())
 	}
 	return new_CodingConvention_AssertionFunctionSpec(this.functionName, this.closurePrimitive, this.assertionKind, this.paramIndex)
 }
