@@ -1,0 +1,32 @@
+diff --git a/go/closure/rt_tlist.go b/go/closure/rt_tlist.go
+index ec758dce2..f262cdd3c 100644
+--- a/go/closure/rt_tlist.go
++++ b/go/closure/rt_tlist.go
+@@ -17,6 +17,9 @@ type tconv_[T any] struct {
+ 	box   func(T) any
+ 	unbox func(any) T
+ 	null  T // Java's null as a T (the null string for strings, else the zero value)
++	// isnull: set for an element type that Go cannot compare (a func type of the translator's
++	// rule "function types"): whether v is null.
++	isnull func(T) bool
+ 	// For a key of a typed map or set compared by equals (a class with its own equals and
+ 	// hashCode, or an interface such classes implement): Java's hashCode of a non-null key, and
+ 	// a.equals(b) for a non-null a. Nil for keys compared by ==.
+diff --git a/go/closure/rt_tmap.go b/go/closure/rt_tmap.go
+index 1db41dcc7..8afb34270 100644
+--- a/go/closure/rt_tmap.go
++++ b/go/closure/rt_tmap.go
+@@ -541,7 +541,12 @@ func (c *tconv_[T]) try(v any) (r T, ok bool) {
+ 	return c.unbox(v), true
+ }
+ 
+-func (c *tconv_[T]) isNull(v T) bool { return any(v) == any(c.null) }
++func (c *tconv_[T]) isNull(v T) bool {
++	if c.isnull != nil {
++		return c.isnull(v)
++	}
++	return any(v) == any(c.null)
++}
+ 
+ func (m *TMap[K, V]) asMap() Map {
+ 	if m == nil {
