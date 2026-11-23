@@ -13,11 +13,11 @@ func (this *BrowserModuleResolver) up_ModuleResolver() *ModuleResolver {
 	return &this.ModuleResolver
 }
 
-func (this *BrowserModuleResolver) init_BrowserModuleResolver(modulePaths SetT[string], moduleRootPaths ListT[string], errorHandler ErrorHandler, pathEscaper *ModuleLoader_PathEscaper) {
+func (this *BrowserModuleResolver) init_BrowserModuleResolver(modulePaths SetT[string], moduleRootPaths ListT[string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) {
 	this.ModuleResolver.init_ModuleResolver(tsetOfT_(jtc_string, modulePaths), tlistOfT_(jtc_string, moduleRootPaths), errorHandler, pathEscaper)
 }
 
-func new_BrowserModuleResolver(modulePaths SetT[string], moduleRootPaths ListT[string], errorHandler ErrorHandler, pathEscaper *ModuleLoader_PathEscaper) *BrowserModuleResolver {
+func new_BrowserModuleResolver(modulePaths SetT[string], moduleRootPaths ListT[string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) *BrowserModuleResolver {
 	this := &BrowserModuleResolver{}
 	this.self_ = this
 	this.init_BrowserModuleResolver(modulePaths, moduleRootPaths, errorHandler, pathEscaper)
@@ -59,7 +59,7 @@ func BrowserModuleResolver_clinit() {
 }
 
 // lambda_BrowserModuleResolver_clinit_1_ is a lambda of BrowserModuleResolver_clinit that captures nothing (post-flip step lambdas).
-var lambda_BrowserModuleResolver_clinit_1_ = &ModuleLoader_ModuleResolverFactory_fn{func(p0 SetT[string], p1 ListT[string], p2 ErrorHandler, p3 *ModuleLoader_PathEscaper) *ModuleResolver {
+var lambda_BrowserModuleResolver_clinit_1_ = &ModuleLoader_ModuleResolverFactory_fn{func(p0 SetT[string], p1 ListT[string], p2 ErrorHandler, p3 ModuleLoader_PathEscaper) *ModuleResolver {
 	return new_BrowserModuleResolver(p0, p1, p2, p3).up_ModuleResolver()
 }}
 
