@@ -152,7 +152,8 @@ func (this *ReportUntranspilableFeatures) checkForLookbehind(regexpNode Node, tr
 		panic(new_IllegalArgumentException_0().self())
 	}
 	if ReportUntranspilableFeatures_anySubtreeMeetsPredicate(tree, Predicate[*RegExpTree](func(t *RegExpTree) bool {
-		return is_[*RegExpTree_LookbehindAssertion](t.self())
+		_, ok := t.self().(*RegExpTree_LookbehindAssertion)
+		return ok
 	})) {
 		this.reportUntranspilable(FeatureSet_Feature_REGEXP_LOOKBEHIND, regexpNode)
 	}
@@ -163,7 +164,8 @@ func (this *ReportUntranspilableFeatures) checkForNamedGroups(regexpNode Node, t
 		panic(new_IllegalArgumentException_0().self())
 	}
 	if ReportUntranspilableFeatures_anySubtreeMeetsPredicate(tree, Predicate[*RegExpTree](func(t *RegExpTree) bool {
-		return is_[*RegExpTree_NamedCaptureGroup](t.self())
+		_, ok := t.self().(*RegExpTree_NamedCaptureGroup)
+		return ok
 	})) {
 		this.reportUntranspilable(FeatureSet_Feature_REGEXP_NAMED_GROUPS, regexpNode)
 	}
@@ -174,7 +176,8 @@ func (this *ReportUntranspilableFeatures) checkForUnicodePropertyEscape(regexpNo
 		panic(new_IllegalArgumentException_0().self())
 	}
 	if ReportUntranspilableFeatures_anySubtreeMeetsPredicate(tree, Predicate[*RegExpTree](func(t *RegExpTree) bool {
-		return is_[*RegExpTree_UnicodePropertyEscape](t.self())
+		_, ok := t.self().(*RegExpTree_UnicodePropertyEscape)
+		return ok
 	})) {
 		this.reportUntranspilable(FeatureSet_Feature_REGEXP_UNICODE_PROPERTY_ESCAPE, regexpNode)
 	}
