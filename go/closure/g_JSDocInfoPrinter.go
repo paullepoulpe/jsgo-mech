@@ -242,12 +242,12 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 				}
 			}()
 			var text string = str_(suppression.getValue())
-			var sb *StringBuilder = new_StringBuilder()
+			var sb strBuilder_
 			sb.append("@suppress {").append(Joiner_on_char(',').join_ObjectArr(arrmap_(warnings, func(v_ string) any { return strobj_(v_) }))).append("}")
 			if !String_isEmpty(text) {
 				sb.append(" ").append(text)
 			}
-			parts.add(tostrR_(sb))
+			parts.add(sb.toString())
 		}
 		multiline = true
 	}

@@ -110,14 +110,15 @@ func JSChunkGraph_makeWeakChunk(chunksInDepOrder ListT[*JSChunk]) ListT[*JSChunk
 			}
 		}
 		if !(misplacedStrongFiles.isEmpty() && misplacedWeakFiles.isEmpty()) {
-			var sb *StringBuilder = new_StringBuilder_String("A weak chunk exists but some sources are misplaced.")
+			var sb strBuilder_
+			sb.append("A weak chunk exists but some sources are misplaced.")
 			if !misplacedStrongFiles.isEmpty() {
 				sb.append("\nFound these strong sources in the weak chunk:\n  ").append(Joiner_on("\n  ").join(Iterable(misplacedStrongFiles.asList())))
 			}
 			if !misplacedWeakFiles.isEmpty() {
 				sb.append("\nFound these weak sources in other chunks:\n  ").append(Joiner_on("\n  ").join(Iterable(misplacedWeakFiles.asList())))
 			}
-			panic(new_IllegalStateException_String(tostrR_(sb)).self())
+			panic(new_IllegalStateException_String(sb.toString()).self())
 		}
 	} else {
 		var weakChunk *JSChunk = new_JSChunk(JSChunk_WEAK_CHUNK_NAME)
