@@ -12,13 +12,13 @@ const (
 	imSorted_
 )
 
-type ImmutableMap struct {
+type ErasedImmutableMap struct {
 	kind     int8
 	keys     []any
 	vals     []any
 	idx      *htable_     // key -> position (nil for sorted maps and until first lookup)
 	cmp      Comparator_e // sorted map (nil: natural ordering)
-	inv      *ImmutableMap
+	inv      *ErasedImmutableMap
 	keySet_  *ImmutableCollection
 	typed_   immTyped_ // its typed copy (post-flip typed collections), made on first use
 	values_  *ImmutableCollection
@@ -26,10 +26,10 @@ type ImmutableMap struct {
 	jtyped_  any // the typed map (*JTMap[K, V]) that typed code sees this map as (see ImmutableCollection)
 }
 
-type ImmutableBiMap = ImmutableMap
-type ImmutableSortedMap = ImmutableMap
+type ImmutableBiMap = ErasedImmutableMap
+type ImmutableSortedMap = ErasedImmutableMap
 
-func (this *ImmutableMap) up_ImmutableMap() *ImmutableMap { return this }
+func (this *ErasedImmutableMap) up_ImmutableMap() *ErasedImmutableMap { return this }
 
 func dupKey_(k, v1, v2 any) {
 	throwIAE_("Multiple entries with same key: " + objstr_(k) + "=" + objstr_(v1) + " and " + objstr_(k) + "=" + objstr_(v2))
@@ -50,7 +50,7 @@ func immDup_(keys, vals []any) {
 
 // immMap_ builds a map of the given kind from parallel key/value slices, which
 // it owns. Duplicate keys throw, or with keepLast keep the last entry.
-func immMap_(kind int8, keys, vals []any, cmp Comparator_e, keepLast bool) *ImmutableMap {
+func immMap_(kind int8, keys, vals []any, cmp Comparator_e, keepLast bool) *ErasedImmutableMap {
 	if len(keys) == 0 && kind == emptyImmMap_.kind && cmp == nil {
 		return emptyImmMap_
 	}
@@ -62,7 +62,7 @@ func immMap_(kind int8, keys, vals []any, cmp Comparator_e, keepLast bool) *Immu
 			throwNPE_("null value in entry: " + objstr_(keys[i]) + "=null")
 		}
 	}
-	this := &ImmutableMap{kind: kind, cmp: cmp}
+	this := &ErasedImmutableMap{kind: kind, cmp: cmp}
 	if kind == imSorted_ {
 		c := cmpOrNatural_(cmp)
 		order := make([]int, len(keys))
@@ -110,12 +110,12 @@ func immMap_(kind int8, keys, vals []any, cmp Comparator_e, keepLast bool) *Immu
 			}
 			vt.add(v)
 		}
-		this.inv = &ImmutableMap{kind: imBiMap_, keys: vals, vals: keys, idx: vt, inv: this}
+		this.inv = &ErasedImmutableMap{kind: imBiMap_, keys: vals, vals: keys, idx: vt, inv: this}
 	}
 	return this
 }
 
-func (this *ImmutableMap) find_(k any) int {
+func (this *ErasedImmutableMap) find_(k any) int {
 	if k == nil || len(this.keys) == 0 {
 		return -1
 	}
@@ -142,7 +142,7 @@ func (this *ImmutableMap) find_(k any) int {
 	return this.index_().find(k)
 }
 
-func (this *ImmutableMap) index_() *htable_ {
+func (this *ErasedImmutableMap) index_() *htable_ {
 	if this.idx == nil {
 		t := &htable_{}
 		for _, x := range this.keys {
@@ -153,17 +153,17 @@ func (this *ImmutableMap) index_() *htable_ {
 	return this.idx
 }
 
-func (this *ImmutableMap) size() int32   { return int32(len(this.keys)) }
-func (this *ImmutableMap) isEmpty() bool { return len(this.keys) == 0 }
+func (this *ErasedImmutableMap) size() int32   { return int32(len(this.keys)) }
+func (this *ErasedImmutableMap) isEmpty() bool { return len(this.keys) == 0 }
 
-func (this *ImmutableMap) get(k any) any {
+func (this *ErasedImmutableMap) get(k any) any {
 	if i := this.find_(k); i >= 0 {
 		return this.vals[i]
 	}
 	return nil
 }
 
-func (this *ImmutableMap) get_s(k string) any {
+func (this *ErasedImmutableMap) get_s(k string) any {
 	if len(this.keys) == 0 {
 		return nil
 	}
@@ -176,7 +176,7 @@ func (this *ImmutableMap) get_s(k string) any {
 	return nil
 }
 
-func (this *ImmutableMap) containsKey_s(k string) bool {
+func (this *ErasedImmutableMap) containsKey_s(k string) bool {
 	if len(this.keys) == 0 {
 		return false
 	}
@@ -186,9 +186,9 @@ func (this *ImmutableMap) containsKey_s(k string) bool {
 	return this.index_().findStr(k) >= 0
 }
 
-func (this *ImmutableMap) containsKey(k any) bool { return this.find_(k) >= 0 }
+func (this *ErasedImmutableMap) containsKey(k any) bool { return this.find_(k) >= 0 }
 
-func (this *ImmutableMap) containsValue(v any) bool {
+func (this *ErasedImmutableMap) containsValue(v any) bool {
 	if v == nil {
 		return false
 	}
@@ -203,7 +203,7 @@ func (this *ImmutableMap) containsValue(v any) bool {
 	return false
 }
 
-func (this *ImmutableMap) keySet() Set {
+func (this *ErasedImmutableMap) keySet() Set {
 	if this.keySet_ == nil {
 		if this.kind == imSorted_ {
 			this.keySet_ = &ImmutableCollection{kind: icSorted_, items: this.keys, cmp: this.cmp}
@@ -214,7 +214,7 @@ func (this *ImmutableMap) keySet() Set {
 	return this.keySet_
 }
 
-func (this *ImmutableMap) values() Collection {
+func (this *ErasedImmutableMap) values() Collection {
 	if this.values_ == nil {
 		if this.inv != nil {
 			this.values_ = &ImmutableCollection{kind: icSet_, items: this.vals, idx: this.inv.index_()}
@@ -225,7 +225,7 @@ func (this *ImmutableMap) values() Collection {
 	return this.values_
 }
 
-func (this *ImmutableMap) entrySet() Set {
+func (this *ErasedImmutableMap) entrySet() Set {
 	if this.entries_ == nil {
 		es := make([]any, len(this.keys))
 		for i, k := range this.keys {
@@ -236,26 +236,26 @@ func (this *ImmutableMap) entrySet() Set {
 	return this.entries_
 }
 
-func (this *ImmutableMap) put(k any, v any) any { throwUOE_(); return nil }
-func (this *ImmutableMap) putAll(m Map)         { throwUOE_() }
-func (this *ImmutableMap) remove(k any) any     { throwUOE_(); return nil }
-func (this *ImmutableMap) clear()               { throwUOE_() }
+func (this *ErasedImmutableMap) put(k any, v any) any { throwUOE_(); return nil }
+func (this *ErasedImmutableMap) putAll(m Map)         { throwUOE_() }
+func (this *ErasedImmutableMap) remove(k any) any     { throwUOE_(); return nil }
+func (this *ErasedImmutableMap) clear()               { throwUOE_() }
 
-func (this *ImmutableMap) equals(o any) bool { return mapEquals_(this, o) }
-func (this *ImmutableMap) hashCode() int32 {
+func (this *ErasedImmutableMap) equals(o any) bool { return mapEquals_(this, o) }
+func (this *ErasedImmutableMap) hashCode() int32 {
 	var h int32
 	for i, k := range this.keys {
 		h += objhash_(k) ^ objhash_(this.vals[i])
 	}
 	return h
 }
-func (this *ImmutableMap) toString() string { return mapToString_(this) }
+func (this *ErasedImmutableMap) toString() string { return mapToString_(this) }
 
 func (this *ImmutableSortedMap) comparator() Comparator_e { return cmpOrNatural_(this.cmp) }
 
 // mapEntries_ copies a Map's entries to parallel slices.
 func mapKV_(m Map) (keys, vals []any) {
-	if im, ok := m.(*ImmutableMap); ok {
+	if im, ok := m.(*ErasedImmutableMap); ok {
 		return append([]any(nil), im.keys...), append([]any(nil), im.vals...)
 	}
 	if tv, ok := m.(interface{ boxedKV_() ([]any, []any) }); ok {
@@ -269,7 +269,7 @@ func mapKV_(m Map) (keys, vals []any) {
 	return keys, vals
 }
 
-func immMapOf_(kv ...any) *ImmutableMap {
+func immMapOf_(kv ...any) *ErasedImmutableMap {
 	keys := make([]any, 0, len(kv)/2)
 	vals := make([]any, 0, len(kv)/2)
 	for i := 0; i < len(kv); i += 2 {
@@ -279,23 +279,23 @@ func immMapOf_(kv ...any) *ImmutableMap {
 	return immMap_(imMap_, keys, vals, nil, false)
 }
 
-var emptyImmMap_ = &ImmutableMap{}
-var emptyImmSortedMap_ = &ImmutableMap{kind: imSorted_}
+var emptyImmMap_ = &ErasedImmutableMap{}
+var emptyImmSortedMap_ = &ErasedImmutableMap{kind: imSorted_}
 
-func ImmutableMap_of() *ImmutableMap { return emptyImmMap_ }
+func ImmutableMap_of() *ErasedImmutableMap { return emptyImmMap_ }
 
-func ImmutableMap_of_Object_Object(p0 any, p1 any) *ImmutableMap { return immMapOf_(p0, p1) }
+func ImmutableMap_of_Object_Object(p0 any, p1 any) *ErasedImmutableMap { return immMapOf_(p0, p1) }
 
-func ImmutableMap_of_Object_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any) *ImmutableMap {
+func ImmutableMap_of_Object_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any) *ErasedImmutableMap {
 	return immMapOf_(p0, p1, p2, p3, p4, p5)
 }
 
-func ImmutableMap_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any, p6 any, p7 any, p8 any, p9 any, p10 any, p11 any, p12 any, p13 any, p14 any, p15 any, p16 any, p17 any, p18 any, p19 any) *ImmutableMap {
+func ImmutableMap_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any, p6 any, p7 any, p8 any, p9 any, p10 any, p11 any, p12 any, p13 any, p14 any, p15 any, p16 any, p17 any, p18 any, p19 any) *ErasedImmutableMap {
 	return immMapOf_(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19)
 }
 
-func ImmutableMap_copyOf(p0 Map) *ImmutableMap {
-	if im, ok := p0.(*ImmutableMap); ok && im.kind != imSorted_ {
+func ImmutableMap_copyOf(p0 Map) *ErasedImmutableMap {
+	if im, ok := p0.(*ErasedImmutableMap); ok && im.kind != imSorted_ {
 		return im
 	}
 	keys, vals := mapKV_(p0)
@@ -303,7 +303,7 @@ func ImmutableMap_copyOf(p0 Map) *ImmutableMap {
 }
 
 func ImmutableSortedMap_copyOf(p0 Map) *ImmutableSortedMap {
-	if im, ok := p0.(*ImmutableMap); ok && im.kind == imSorted_ && im.cmp == nil {
+	if im, ok := p0.(*ErasedImmutableMap); ok && im.kind == imSorted_ && im.cmp == nil {
 		return im
 	}
 	keys, vals := mapKV_(p0)
@@ -311,7 +311,7 @@ func ImmutableSortedMap_copyOf(p0 Map) *ImmutableSortedMap {
 }
 
 // Maps.immutableEnumMap: iteration follows the enum constants' declaration order.
-func Maps_immutableEnumMap(p0 Map) *ImmutableMap {
+func Maps_immutableEnumMap(p0 Map) *ErasedImmutableMap {
 	keys, vals := mapKV_(p0)
 	order := make([]any, len(keys))
 	for i := range order {
@@ -328,22 +328,22 @@ func Maps_immutableEnumMap(p0 Map) *ImmutableMap {
 
 // ---- ImmutableMap.Builder
 
-type ImmutableMap_Builder struct {
+type ErasedImmutableMap_Builder struct {
 	kind int8
 	keys []any
 	vals []any
 	cmp  Comparator_e
 }
 
-type ImmutableSortedMap_Builder = ImmutableMap_Builder
-type ImmutableBiMap_Builder = ImmutableMap_Builder
+type ImmutableSortedMap_Builder = ErasedImmutableMap_Builder
+type ImmutableBiMap_Builder = ErasedImmutableMap_Builder
 
-func new_ImmutableMap_Builder() *ImmutableMap_Builder { return &ImmutableMap_Builder{} }
-func ImmutableMap_builder() *ImmutableMap_Builder     { return &ImmutableMap_Builder{} }
+func new_ImmutableMap_Builder() *ErasedImmutableMap_Builder { return &ErasedImmutableMap_Builder{} }
+func ImmutableMap_builder() *ErasedImmutableMap_Builder     { return &ErasedImmutableMap_Builder{} }
 func ImmutableSortedMap_naturalOrder() *ImmutableSortedMap_Builder {
-	return &ImmutableMap_Builder{kind: imSorted_}
+	return &ErasedImmutableMap_Builder{kind: imSorted_}
 }
-func (this *ImmutableMap_Builder) put(p0 any, p1 any) *ImmutableMap_Builder {
+func (this *ErasedImmutableMap_Builder) put(p0 any, p1 any) *ErasedImmutableMap_Builder {
 	if p0 == nil {
 		throwNPE_("null key in entry: null=" + objstr_(p1))
 	}
@@ -355,7 +355,7 @@ func (this *ImmutableMap_Builder) put(p0 any, p1 any) *ImmutableMap_Builder {
 	return this
 }
 
-func (this *ImmutableMap_Builder) putAll(p0 Map) *ImmutableMap_Builder {
+func (this *ErasedImmutableMap_Builder) putAll(p0 Map) *ErasedImmutableMap_Builder {
 	keys, vals := mapKV_(p0)
 	for i := range keys {
 		this.put(keys[i], vals[i])
@@ -363,13 +363,13 @@ func (this *ImmutableMap_Builder) putAll(p0 Map) *ImmutableMap_Builder {
 	return this
 }
 
-func (this *ImmutableMap_Builder) make_(keepLast bool) *ImmutableMap {
+func (this *ErasedImmutableMap_Builder) make_(keepLast bool) *ErasedImmutableMap {
 	return immMap_(this.kind, append([]any(nil), this.keys...), append([]any(nil), this.vals...), this.cmp, keepLast)
 }
 
-func (this *ImmutableMap_Builder) build() *ImmutableMap        { return this.make_(false) }
-func (this *ImmutableMap_Builder) buildOrThrow() *ImmutableMap { return this.make_(false) }
-func (this *ImmutableMap_Builder) buildKeepingLast() *ImmutableMap {
+func (this *ErasedImmutableMap_Builder) build() *ErasedImmutableMap        { return this.make_(false) }
+func (this *ErasedImmutableMap_Builder) buildOrThrow() *ErasedImmutableMap { return this.make_(false) }
+func (this *ErasedImmutableMap_Builder) buildKeepingLast() *ErasedImmutableMap {
 	if this.kind == imSorted_ {
 		// ImmutableSortedMap.Builder does not support buildKeepingLast.
 		throwUOE_()
@@ -381,7 +381,7 @@ func (this *ImmutableMap_Builder) buildKeepingLast() *ImmutableMap {
 
 type ImmutableMultimap struct {
 	set  bool
-	m    *ImmutableMap // key -> *ImmutableCollection
+	m    *ErasedImmutableMap // key -> *ImmutableCollection
 	n    int32
 	inv_ *ImmutableMultimap
 	vals *ImmutableCollection

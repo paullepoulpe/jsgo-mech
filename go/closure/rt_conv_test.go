@@ -13,7 +13,7 @@ func msgOf_(f func()) (s string) {
 
 func TestConvCanon(t *testing.T) {
 	var jt *JSType
-	var il *ImmutableList
+	var il *ErasedImmutableList
 	var n Node
 	for i, v := range []any{jt, il, nullstr_, n.box_(), nil} {
 		if canon_(v) != nil {

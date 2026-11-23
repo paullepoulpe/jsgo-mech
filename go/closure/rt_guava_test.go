@@ -48,7 +48,7 @@ func TestGuavaImmutableMap(t *testing.T) {
 	guavaStr_(t, m.keySet(), "[b, a, c]")
 	guavaStr_(t, m.values(), "[1, 2, 3]")
 	guavaStr_(t, m.entrySet(), "[b=1, a=2, c=3]")
-	if _, ok := any(m.keySet()).(*ImmutableSet); !ok {
+	if _, ok := any(m.keySet()).(*ErasedImmutableSet); !ok {
 		t.Error("keySet should be an ImmutableSet")
 	}
 	guavaEq_(t, m.entrySet().contains(&immEntry_{"a", int32(2)}), true)
