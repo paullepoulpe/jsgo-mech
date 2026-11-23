@@ -7,6 +7,7 @@ type JsDocTokenStream struct {
 	stringBuffer    []uint16
 	ungetBuffer     []int32
 	sourceString    string
+	sourceStringU16 utf16_
 	stringBufferTop int32
 	ungetCursor     int32
 	lineStart       int32
@@ -23,6 +24,7 @@ type JsDocTokenStream struct {
 func (this *JsDocTokenStream) zero_JsDocTokenStream() {
 	this.string_ = nullstr_
 	this.sourceString = nullstr_
+	this.sourceStringU16 = utf16Of_(this.sourceString)
 }
 
 func (this *JsDocTokenStream) finit_JsDocTokenStream() {
@@ -60,6 +62,7 @@ func (this *JsDocTokenStream) init_JsDocTokenStream_String_int_int(sourceString 
 	this.finit_JsDocTokenStream()
 	this.lineno_ = lineno
 	this.sourceString = sourceString
+	this.sourceStringU16 = utf16Of_(this.sourceString)
 	this.sourceEnd = String_length(sourceString)
 	this.cursor = 0
 	this.sourceCursor = 0
@@ -310,7 +313,7 @@ func (this *JsDocTokenStream) getChar() int32 {
 			return JsDocTokenStream_EOF_CHAR
 		}
 		this.cursor++
-		c = int32(String_charAt(this.sourceString, this.sourceCursor))
+		c = int32(this.sourceStringU16.charAt(this.sourceCursor))
 		this.sourceCursor++
 		if this.lineEndChar >= 0 {
 			if (this.lineEndChar == 13) && (c == 10) {
@@ -360,7 +363,7 @@ func (this *JsDocTokenStream) getCharIgnoreLineEnd() int32 {
 			return JsDocTokenStream_EOF_CHAR
 		}
 		this.cursor++
-		c = int32(String_charAt(this.sourceString, this.sourceCursor))
+		c = int32(this.sourceStringU16.charAt(this.sourceCursor))
 		this.sourceCursor++
 		if c <= 127 {
 			if (c == 10) || (c == 13) {

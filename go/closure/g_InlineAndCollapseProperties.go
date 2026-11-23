@@ -1097,7 +1097,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) flattenReferencesToC
 
 func (this *InlineAndCollapseProperties_CollapseProperties) logDecisionForName_3(name *GlobalNamespace_Name, inlinability GlobalNamespace_Inlinability, message string) {
 	this.logDecisionForNameSupplier(name, Supplier[string](func() string {
-		return String_format("inlinability %s: %s", []any{obj_(inlinability), strobj_(message)})
+		return ("inlinability " + objstr_(obj_(inlinability)) + ": " + sstr_(message))
 	}))
 }
 
@@ -1315,7 +1315,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) updateGlobalNameDecl
 
 func (this *InlineAndCollapseProperties_CollapseProperties) logDeclarationAction(name *GlobalNamespace_Name, declarationNode Node, message string) {
 	this.logDecisionForNameSupplier(name, Supplier[string](func() string {
-		return String_format("%s: %s", []any{declarationNode.box_(), strobj_(message)})
+		return (objstr_(declarationNode.box_()) + ": " + sstr_(message))
 	}))
 }
 
