@@ -516,6 +516,7 @@ final class Ctx {
   String[] typedMaker(Element m, CollKind k, List<TypeMirror> args) {
     if (!(m instanceof ExecutableElement me) || "1".equals(System.getenv("J2GO_COLLS_NOMAKERS"))) return null;
     String[] tm = TYPED_MAKERS.get(((TypeElement) me.getEnclosingElement()).getQualifiedName() + "." + me.getSimpleName());
+    if (tm == null) tm = LibGen.t2Maker(me);
     if (tm == null || !k.name.equals(tm[1])) return null;
     if (tm[2] == null) return LibGen.on("makers") ? tm : null;
     return args.size() == 1 && types.isSameType(args.get(0), elems.getTypeElement(tm[2]).asType()) ? tm : null;

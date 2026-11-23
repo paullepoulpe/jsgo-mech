@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
+import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -1407,7 +1408,63 @@ public class LibGen {
     return r;
   }
 
+  enum Hue {
+    RED, GREEN, BLUE, GRAY
+  }
+
+  static EnumSet<Hue> warm() {
+    return EnumSet.of(Hue.RED);
+  }
+
+  static EnumSet<Hue> union(Set<Hue> a, Set<Hue> b) {
+    EnumSet<Hue> r = a.isEmpty() ? EnumSet.noneOf(Hue.class) : EnumSet.copyOf(a);
+    r.addAll(b);
+    return r;
+  }
+
+  /** Kind `enumset`: EnumSet at typed places, made by the typed makers (ordered by ordinal). */
+  static String enumSets() {
+    String r = "";
+    EnumSet<Hue> none = EnumSet.noneOf(Hue.class);
+    none.add(Hue.BLUE);
+    none.add(Hue.RED);
+    none.add(Hue.BLUE);
+    r += none + "" + none.size() + none.contains(Hue.RED) + none.contains(Hue.GREEN) + none.remove(Hue.RED) + none;
+    EnumSet<Hue> all = EnumSet.allOf(Hue.class);
+    for (Hue h : all) {
+      r += h.ordinal();
+    }
+    EnumSet<Hue> some = EnumSet.of(Hue.GRAY, new Hue[] {Hue.GREEN, Hue.RED});
+    r += some + "" + warm() + union(some, warm()) + union(EnumSet.noneOf(Hue.class), all) + union(new LinkedHashSet<>(Arrays.asList(Hue.GRAY, Hue.RED)), warm());
+    Set<Hue> asSet = some;
+    Collection<Hue> asColl = some;
+    r += asSet.contains(Hue.GRAY) + "" + asColl.size() + (asSet == some) + some.equals(EnumSet.copyOf(Arrays.asList(Hue.RED, Hue.GREEN, Hue.GRAY))) + (some.hashCode() == new LinkedHashSet<>(some).hashCode());
+    some.removeAll(warm());
+    r += some + "" + some.containsAll(EnumSet.of(Hue.GREEN)) + some.isEmpty();
+    Object o = some;
+    r += (o instanceof Set) + "" + (o == some) + o.equals(EnumSet.of(Hue.GREEN, new Hue[] {Hue.GRAY})) + o;
+    EnumSet<Hue> copy = EnumSet.copyOf((Collection<Hue>) all);
+    copy.remove(Hue.BLUE);
+    r += copy + "" + all.size() + ImmutableSet.copyOf(copy);
+    EnumSet<Hue> nul = null;
+    r += (nul == null);
+    try {
+      r += nul.size();
+    } catch (NullPointerException e) {
+      r += "npe";
+    }
+    Map<String, EnumSet<Hue>> byKey = new LinkedHashMap<>();
+    byKey.put("k", copy);
+    r += byKey.get("k").contains(Hue.GRAY) + "" + (byKey.get("k") == copy) + byKey;
+    Iterator<Hue> it = all.iterator();
+    it.next();
+    it.remove();
+    r += all;
+    return r;
+  }
+
   public static String run() {
+    p(enumSets());
     p(sorted());
     p(classes());
     p(methods());

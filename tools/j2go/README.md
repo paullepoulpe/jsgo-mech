@@ -407,6 +407,14 @@ type Map_EntryT[K any, V any] interface { Map_Entry; getKey_t() K; getValue_t() 
     in the kind: its 4 places have a key with type arguments (`Property<?>`), and a
     `TreeMap` made for a typed place is the typed sorted map's view, on which the class's
     navigable methods would fail.
+  - Kind `enumset`: `EnumSet<E>` is `SetT[E]`, and what `EnumSet.noneOf` / `allOf` / `of(e)` /
+    `of(e, rest...)` / `copyOf` make for such a place (`LibGen.MAKERS_T2`) is the typed set in
+    its sorted mode with the ordinal comparator of the runtime's `EnumSet` (`rt_lg_t2.go`:
+    `tenumSetNoneOf_` ...), the typed twin of the same structure. Such a set is no `EnumSet`
+    object, so `instanceof EnumSet`, a cast to it and a method that only `EnumSet` declares are
+    refused (the tree has none), as is a library method with a parameter of the class
+    (`EnumSet.copyOf(EnumSet)`, `complementOf`: its argument may be such a set); another
+    overload (`EnumSet.of(a, b, c)`) makes the erased object, which enters through `setAs_`.
 
 Refused (`typed library interfaces: refused: File.java:line: ...`, nothing is written):
 
@@ -427,14 +435,16 @@ Refused (`typed library interfaces: refused: File.java:line: ...`, nothing is wr
 - an unchecked cast to a use of a class of `LibGen.CLASSES_T2` whose kind is on
   (`(ImmutableSortedSet<String>) sortedOfAny`), for the reason above (tools/j2go/unchecked-casts.txt
   applies too; the tree has none);
+- `instanceof` of, a cast to, a method declared only by, or a library parameter of a class
+  whose typed places the makers of `LibGen.MAKERS_T2` serve (`EnumSet`, kind `enumset`);
 - a method that a class of `LibGen.CONCRETE` declares itself (no method of an interface or of
   `Object`: `ArrayList.ensureCapacity`), called on a receiver of the class with type arguments,
   unless `LibGen.OWN` lists it (piece `cls`; the tree has none).
 
-`tools/j2go/selftest/refused/RefusedLib.java` has one use of each kind (8); the self-test
+`tools/j2go/selftest/refused/RefusedLib.java` has one use of each kind (10); the self-test
 fails unless the translator refuses exactly those and writes nothing.
 
-Each kind and piece is a switch: `J2GO_NOLIBGEN=iter,coll,list,set,map,makers,views,place,cov,elems,wide,nncoll,readers,cls,meth,sorted`
+Each kind and piece is a switch: `J2GO_NOLIBGEN=iter,coll,list,set,map,makers,views,place,cov,elems,wide,nncoll,readers,cls,meth,sorted,enumset`
 (`all`: every one). A translation with any of them off is built with `-tags j2go_nolibgen`
 (`tools/prune/verify.sh` and the self-test do that when `J2GO_NOLIBGEN` is set): the erased
 factories that only such a translation names are in `go/closure/rt_lg_erased.go`, outside the
