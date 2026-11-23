@@ -54,8 +54,8 @@ func (this *DepsGenerator) computeDependencyCalls() *Outcome_base[string] {
 	if this.errorManager.getErrorCount() > 0 {
 		return Outcome_base_ok_Object[string](nullstr_)
 	}
-	var output *StringBuilder = new_StringBuilder()
-	this.writeDepsContent(depsFiles, jsFiles, output)
+	var output strBuilder_
+	this.writeDepsContent(depsFiles, jsFiles, &output)
 	return Outcome_base_ok_Object[string](Io_utf8String(Io_utf8Bytes(output.toString())))
 }
 
@@ -293,7 +293,7 @@ func (this *DepsGenerator) parseSources(preparsedFiles SetT[string]) *Outcome_ba
 	return Outcome_base_ok_Object[MapT[string, DependencyInfo_]](parsedFiles.asMapT())
 }
 
-func (this *DepsGenerator) writeDepsContent(depsFiles MapT[string, DependencyInfo_], jsFiles MapT[string, DependencyInfo_], out *StringBuilder) {
+func (this *DepsGenerator) writeDepsContent(depsFiles MapT[string, DependencyInfo_], jsFiles MapT[string, DependencyInfo_], out *strBuilder_) {
 	DepsGenerator_writeDepInfos(out, jsFiles.values_t())
 	if this.mergeStrategy == DepsGenerator_InclusionStrategy_ALWAYS {
 		var infosIndex *SimpleListMultimap[string, DependencyInfo_] = SimpleListMultimap_create[string, DependencyInfo_]()
@@ -312,9 +312,9 @@ func (this *DepsGenerator) formatPathToDepsFile(path string) string {
 	return path
 }
 
-func DepsGenerator_writeDepInfos(out *StringBuilder, depInfos CollectionT[DependencyInfo_]) {
+func DepsGenerator_writeDepInfos(out *strBuilder_, depInfos CollectionT[DependencyInfo_]) {
 	for depInfo := range elemsT_(depInfos) {
-		DependencyInfo_Util_writeAddDependency(StringBuilder_as_Appendable(out), depInfo)
+		DependencyInfo_Util_writeAddDependency(appendable_(out), depInfo)
 	}
 }
 
