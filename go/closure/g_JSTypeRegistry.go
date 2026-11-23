@@ -670,7 +670,6 @@ func (this *JSTypeRegistry) resolveViaClosureNamespace(reference string) *JSType
 		unusedComponents.add(postfix)
 		prefix = String_substring(prefix, 0, lastDot)
 	}
-	panic("unreachable")
 }
 
 func (this *JSTypeRegistry) resolveViaProperties(declarationScope StaticTypedScope, qualifiedName string) *JSType {
@@ -735,7 +734,6 @@ func (this *JSTypeRegistry) resolveViaPropertyGivenSlot(slotType *JSType, defini
 			return nil
 		}
 	}
-	panic("unreachable")
 }
 
 func JSTypeRegistry_resolveTypeFromNodeIfTypedef(node Node) *JSType {
@@ -888,7 +886,6 @@ func (this *JSTypeRegistry) getEachReferenceTypeWithProperty(propertyName string
 	} else {
 		return jtlistEmptyImm_(jtc_p_ObjectType).asIterable()
 	}
-	panic("unreachable")
 }
 
 func (this *JSTypeRegistry) findCommonSuperObject(a *ObjectType, b *ObjectType) *ObjectType {
@@ -1034,7 +1031,6 @@ func (this *JSTypeRegistry) getReadableJSTypeName(n Node, dereference bool) Opti
 	} else {
 		return Optional_of[string](type_.toString())
 	}
-	panic("unreachable")
 }
 
 func JSTypeRegistry_isReadableObjectType(type_ *ObjectType) bool {
@@ -1057,7 +1053,6 @@ func (this *JSTypeRegistry) getJSTypeOrUnknown(n Node) *JSType {
 	} else {
 		return jsType
 	}
-	panic("unreachable")
 }
 
 func (this *JSTypeRegistry) getGlobalType(jsTypeName string) *JSType {
@@ -1128,7 +1123,6 @@ func (this *JSTypeRegistry) createOptionalType(type_ *JSType) *JSType {
 	} else {
 		return this.createUnionType([]*JSType{type_, this.getNativeType(JSTypeNative_VOID_TYPE)})
 	}
-	panic("unreachable")
 }
 
 func (this *JSTypeRegistry) createNullableType(type_ *JSType) *JSType {
@@ -1476,7 +1470,6 @@ func (this *JSTypeRegistry) createTypeFromCommentNode_3(n Node, sourceName Optio
 		default:
 			panic(new_IllegalStateException_String(("Unexpected node in type expression: " + tostrH_(n))).self())
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -1496,7 +1489,6 @@ func (this *JSTypeRegistry) addNullabilityBasedOnParseContext(n Node, type_ *JST
 	} else {
 		return this.createNullableType(type_)
 	}
-	panic("unreachable")
 }
 
 func (this *JSTypeRegistry) parseTemplateArgs(nominalType *JSType, typeNode Node, sourceName Optional[string], scope StaticTypedScope) *JTList[*JSType] {

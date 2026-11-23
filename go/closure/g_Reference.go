@@ -163,7 +163,6 @@ func (this *Reference) isLvalue() bool {
 		default:
 			return (NodeUtil_isAssignmentOp(parent) && (parent.getFirstChild() == this.nameNode_))
 		}
-		panic("unreachable")
 	}()
 }
 

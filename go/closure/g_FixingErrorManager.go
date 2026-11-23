@@ -93,7 +93,6 @@ func (this *FixingErrorManager) getFixesForJsError(error_ *JSError) ListT[*Sugge
 	} else {
 		return this.multiFixes.get(error_)
 	}
-	panic("unreachable")
 }
 
 func (this *FixingErrorManager) getFixes(fixTypes FixingErrorManager_FixTypes) CollectionT[*SuggestedFix] {

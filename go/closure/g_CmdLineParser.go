@@ -373,7 +373,6 @@ func (this *CmdLineParser_Option) string(get Supplier[string], set Consumer[stri
 		}
 		set.accept(value.get())
 		return Outcome_base_ok_Object[any](int32(1))
-		panic("unreachable")
 	}
 }
 
@@ -401,7 +400,6 @@ func (this *CmdLineParser_Option) stringList(get Supplier[ListT[string]], set Co
 			return func(p0 List) { f_(listAs_(jtc_string, p0)) }
 		}(), strobj_(value.get()))
 		return Outcome_base_ok_Object[any](int32(1))
-		panic("unreachable")
 	}
 }
 
@@ -415,7 +413,6 @@ func (this *CmdLineParser_Option) stringEach(add Consumer[string]) {
 		}
 		add.accept(value.get())
 		return Outcome_base_ok_Object[any](int32(1))
-		panic("unreachable")
 	}
 }
 
@@ -440,7 +437,6 @@ func (this *CmdLineParser_Option) integer(get Supplier[any], set Consumer[any]) 
 		}
 		set.accept(value)
 		return Outcome_base_ok_Object[any](int32(1))
-		panic("unreachable")
 	}
 }
 
@@ -452,7 +448,6 @@ func (this *CmdLineParser_Option) flag(get Supplier[any], set Consumer[any]) {
 	this.handler = func(params CmdLineParser_Parameters) *Outcome_base[any] {
 		set.accept(bool(true))
 		return Outcome_base_ok_Object[any](int32(0))
-		panic("unreachable")
 	}
 }
 
@@ -478,7 +473,6 @@ func (this *CmdLineParser_Option) bool(get Supplier[any], set Consumer[any]) {
 			}
 			return Outcome_base_ok_Object[any](int32(1))
 		}
-		panic("unreachable")
 	}
 }
 
@@ -494,7 +488,6 @@ func CmdLineParser_Option_enumValue[E comparable](this *CmdLineParser_Option, va
 		}
 		set.accept(value.get())
 		return Outcome_base_ok_Object[any](int32(1))
-		panic("unreachable")
 	}
 }
 
@@ -522,7 +515,6 @@ func CmdLineParser_Option_enumList[E comparable](this *CmdLineParser_Option, val
 			return func(p0 List) { f_(listAs_(tcT_[E](), p0)) }
 		}(), boxT_(value.get()))
 		return Outcome_base_ok_Object[any](int32(1))
-		panic("unreachable")
 	}
 }
 
@@ -556,7 +548,6 @@ func (this *CmdLineParser_Option) map_(get Supplier[MapT[string, string]], set C
 		}
 		map_.put_t(mapKey, mapValue.orElse(nullstr_))
 		return Outcome_base_ok_Object[any](int32(1))
-		panic("unreachable")
 	}
 }
 

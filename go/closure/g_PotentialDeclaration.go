@@ -208,7 +208,6 @@ func (this *PotentialDeclaration) isDefiniteDeclaration_impl(compiler *AbstractC
 	default:
 		return ((PotentialDeclaration_isExportLhs(this.getLhs()) || ((this.getJsDoc() != nil) && this.getJsDoc().containsDeclaration())) || ((this.getRhs() != 0) && PotentialDeclaration_isTypedRhs(this.getRhs())))
 	}
-	panic("unreachable")
 }
 
 func (this *PotentialDeclaration) shouldPreserve_impl() bool {
@@ -261,7 +260,6 @@ func PotentialDeclaration_isQualifiedAliasExpression(n Node) bool {
 	default:
 		return false
 	}
-	panic("unreachable")
 }
 
 func PotentialDeclaration_removeStringKeyValue(stringKey Node) {
@@ -552,7 +550,6 @@ func PotentialDeclaration_DefineDeclaration_from(callNode Node) *PotentialDeclar
 		default:
 			panic(new_IllegalStateException_String(("Unexpected parent: " + jtostr_(callNode.getParent().getToken()))).self())
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -577,7 +574,6 @@ func PotentialDeclaration_DefineDeclaration_makeEmptyValueNode(type_ *JSTypeExpr
 		default:
 			return 0
 		}
-		panic("unreachable")
 	}()
 }
 

@@ -251,7 +251,6 @@ func (this *FunctionToBlockMutator) aliasAndInlineArguments(fnTemplateRoot Node,
 		}
 		return result
 	}
-	panic("unreachable")
 }
 
 func FunctionToBlockMutator_replaceReturns(block Node, resultName Optional[string], labelName string, resultMustBeSet bool) Node {

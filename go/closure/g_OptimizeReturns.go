@@ -140,7 +140,6 @@ func OptimizeReturns_isCandidateFunction(n Node) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -178,7 +177,6 @@ func (this *OptimizeReturns) isRemovableValue(n Node) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
