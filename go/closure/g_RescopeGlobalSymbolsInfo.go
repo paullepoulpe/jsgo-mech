@@ -103,29 +103,6 @@ func (this *RescopeGlobalSymbolsInfo) wrappedCrossChunkNames() *TSet[string] {
 	return this.wrappedCrossChunkNames_
 }
 
-func (this *RescopeGlobalSymbolsInfo) equals(p0 any) bool {
-	o, ok := p0.(*RescopeGlobalSymbolsInfo)
-	if !ok || o == nil {
-		return false
-	}
-	return true && this.globalSymbolNamespace_ == o.globalSymbolNamespace_ && Objects_equals(this.externNames_.asSet(), o.externNames_.asSet()) && Objects_equals(this.crossChunkNames_.asSet(), o.crossChunkNames_.asSet()) && Objects_equals(this.crossChunkNamesWithWriteFromOtherChunk_.asSet(), o.crossChunkNamesWithWriteFromOtherChunk_.asSet()) && Objects_equals(this.crossChunkNamesUsedInNonDependentChunk_.asSet(), o.crossChunkNamesUsedInNonDependentChunk_.asSet()) && Objects_equals(this.globalNamesWithReadInDefiningChunk_.asSet(), o.globalNamesWithReadInDefiningChunk_.asSet()) && Objects_equals(this.globalNamesWithInnerScopeWriteInDefiningChunk_.asSet(), o.globalNamesWithInnerScopeWriteInDefiningChunk_.asSet()) && Objects_equals(this.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_.asSet(), o.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_.asSet()) && Objects_equals(this.maybeReferencesThis_.asSet(), o.maybeReferencesThis_.asSet()) && Objects_equals(this.wrappedCrossChunkNames_.asSet(), o.wrappedCrossChunkNames_.asSet())
-}
-
-func (this *RescopeGlobalSymbolsInfo) hashCode() int32 {
-	var h int32
-	h = h*31 + strhash_(this.globalSymbolNamespace_)
-	h = h*31 + objhashDyn_(this.externNames_.asSet())
-	h = h*31 + objhashDyn_(this.crossChunkNames_.asSet())
-	h = h*31 + objhashDyn_(this.crossChunkNamesWithWriteFromOtherChunk_.asSet())
-	h = h*31 + objhashDyn_(this.crossChunkNamesUsedInNonDependentChunk_.asSet())
-	h = h*31 + objhashDyn_(this.globalNamesWithReadInDefiningChunk_.asSet())
-	h = h*31 + objhashDyn_(this.globalNamesWithInnerScopeWriteInDefiningChunk_.asSet())
-	h = h*31 + objhashDyn_(this.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_.asSet())
-	h = h*31 + objhashDyn_(this.maybeReferencesThis_.asSet())
-	h = h*31 + objhashDyn_(this.wrappedCrossChunkNames_.asSet())
-	return h
-}
-
 func (this *RescopeGlobalSymbolsInfo) toString() string {
 	return "RescopeGlobalSymbolsInfo[" + "globalSymbolNamespace=" + sstr_(this.globalSymbolNamespace_) + ", externNames=" + objstr_(this.externNames_.asSet()) + ", crossChunkNames=" + objstr_(this.crossChunkNames_.asSet()) + ", crossChunkNamesWithWriteFromOtherChunk=" + objstr_(this.crossChunkNamesWithWriteFromOtherChunk_.asSet()) + ", crossChunkNamesUsedInNonDependentChunk=" + objstr_(this.crossChunkNamesUsedInNonDependentChunk_.asSet()) + ", globalNamesWithReadInDefiningChunk=" + objstr_(this.globalNamesWithReadInDefiningChunk_.asSet()) + ", globalNamesWithInnerScopeWriteInDefiningChunk=" + objstr_(this.globalNamesWithInnerScopeWriteInDefiningChunk_.asSet()) + ", globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk=" + objstr_(this.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_.asSet()) + ", maybeReferencesThis=" + objstr_(this.maybeReferencesThis_.asSet()) + ", wrappedCrossChunkNames=" + objstr_(this.wrappedCrossChunkNames_.asSet()) + "]"
 }
