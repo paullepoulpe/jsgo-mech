@@ -210,25 +210,52 @@ func throwableString_(t *Throwable) string {
 
 // ---- java.util.concurrent.TimeUnit
 
-type TimeUnit struct {
-	Enum
-	nanos_ int64
+// TimeUnit is java.util.concurrent.TimeUnit as a uint8 (0 is null, a constant is its ordinal + 1).
+type TimeUnit uint8
+
+const (
+	TimeUnit_NANOSECONDS TimeUnit = 1 + iota
+	TimeUnit_MICROSECONDS
+	TimeUnit_MILLISECONDS
+	TimeUnit_SECONDS
+	TimeUnit_MINUTES
+	TimeUnit_HOURS
+	TimeUnit_DAYS
+)
+
+// TimeUnit_enum_ is the java.lang.Enum record of each constant, by ordinal.
+var TimeUnit_enum_ = [7]Enum{
+	{self_: TimeUnit_NANOSECONDS, name_: "NANOSECONDS", ordinal_: 0},
+	{self_: TimeUnit_MICROSECONDS, name_: "MICROSECONDS", ordinal_: 1},
+	{self_: TimeUnit_MILLISECONDS, name_: "MILLISECONDS", ordinal_: 2},
+	{self_: TimeUnit_SECONDS, name_: "SECONDS", ordinal_: 3},
+	{self_: TimeUnit_MINUTES, name_: "MINUTES", ordinal_: 4},
+	{self_: TimeUnit_HOURS, name_: "HOURS", ordinal_: 5},
+	{self_: TimeUnit_DAYS, name_: "DAYS", ordinal_: 6},
 }
 
-func newTimeUnit_(name string, ordinal int32, nanos int64) *TimeUnit {
-	e := &TimeUnit{nanos_: nanos}
-	e.self_ = e
-	e.init_Enum(name, ordinal)
-	return e
+// timeUnitNanos_ is the length of each unit in nanoseconds, by ordinal.
+var timeUnitNanos_ = [7]int64{1, 1e3, 1e6, 1e9, 60e9, 3600e9, 86400e9}
+
+func (this TimeUnit) enum_() *Enum {
+	if this == 0 {
+		return nil
+	}
+	return &TimeUnit_enum_[this-1]
 }
 
-var TimeUnit_NANOSECONDS = newTimeUnit_("NANOSECONDS", 0, 1)
-var TimeUnit_MICROSECONDS = newTimeUnit_("MICROSECONDS", 1, 1e3)
-var TimeUnit_MILLISECONDS = newTimeUnit_("MILLISECONDS", 2, 1e6)
-var TimeUnit_SECONDS = newTimeUnit_("SECONDS", 3, 1e9)
-var TimeUnit_MINUTES = newTimeUnit_("MINUTES", 4, 60e9)
-var TimeUnit_HOURS = newTimeUnit_("HOURS", 5, 3600e9)
-var TimeUnit_DAYS = newTimeUnit_("DAYS", 6, 86400e9)
+func (this TimeUnit) name() string          { return this.enum_().name_ }
+func (this TimeUnit) ordinal() int32        { return this.enum_().ordinal_ }
+func (this TimeUnit) toString() string      { return this.enum_().name_ }
+func (this TimeUnit) compareTo(o any) int32 { return this.enum_().compareTo(o) }
+func (this TimeUnit) nanos_() int64         { return timeUnitNanos_[this.ordinal()] }
+
+func (this TimeUnit) self() any {
+	if this == 0 {
+		return nil
+	}
+	return this
+}
 
 // ---- futures
 
@@ -245,7 +272,7 @@ func (this *future_) get() any {
 	return this.value_
 }
 
-func (this *future_) get_long_TimeUnit(timeout int64, unit *TimeUnit) any { return this.get() }
+func (this *future_) get_long_TimeUnit(timeout int64, unit TimeUnit) any { return this.get() }
 
 // runTask_ runs a task and returns its completed future.
 func runTask_(task func() any) *future_ {
@@ -344,7 +371,7 @@ func (this *ThreadPoolExecutor) self() any {
 	return this.self_
 }
 
-func (this *ThreadPoolExecutor) init_ThreadPoolExecutor_int_int_long_TimeUnit_BlockingQueue_ThreadFactory(core int32, max int32, keepAlive int64, unit *TimeUnit, queue BlockingQueue, factory ThreadFactory) {
+func (this *ThreadPoolExecutor) init_ThreadPoolExecutor_int_int_long_TimeUnit_BlockingQueue_ThreadFactory(core int32, max int32, keepAlive int64, unit TimeUnit, queue BlockingQueue, factory ThreadFactory) {
 	if core < 0 || max <= 0 || max < core || keepAlive < 0 {
 		panic(new_IllegalArgumentException_0().self())
 	}
@@ -354,7 +381,7 @@ func (this *ThreadPoolExecutor) init_ThreadPoolExecutor_int_int_long_TimeUnit_Bl
 	this.factory_ = factory
 }
 
-func new_ThreadPoolExecutor_int_int_long_TimeUnit_BlockingQueue_ThreadFactory(core int32, max int32, keepAlive int64, unit *TimeUnit, queue BlockingQueue, factory ThreadFactory) *ThreadPoolExecutor {
+func new_ThreadPoolExecutor_int_int_long_TimeUnit_BlockingQueue_ThreadFactory(core int32, max int32, keepAlive int64, unit TimeUnit, queue BlockingQueue, factory ThreadFactory) *ThreadPoolExecutor {
 	this := &ThreadPoolExecutor{}
 	this.self_ = this
 	this.init_ThreadPoolExecutor_int_int_long_TimeUnit_BlockingQueue_ThreadFactory(core, max, keepAlive, unit, queue, factory)
