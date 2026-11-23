@@ -106,7 +106,7 @@ func (this *Binding) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && objequalsBy_(this.metadata_, obj_(o.metadata_), (*ModuleMetadataMap_ModuleMetadata).equals) && this.sourceNode_ == o.sourceNode_ && objequalsBy_(this.originatingExport_, obj_(o.originatingExport_), (*Export).equals) && this.isModuleNamespace_ == o.isModuleNamespace_ && Objects_equals(this.closureNamespace_.box_(), o.closureNamespace_.box_()) && this.createdBy_ == o.createdBy_
+	return true && objequalsBy_(this.metadata_, obj_(o.metadata_), (*ModuleMetadataMap_ModuleMetadata).equals) && this.sourceNode_ == o.sourceNode_ && objequalsBy_(this.originatingExport_, obj_(o.originatingExport_), (*Export).equals) && this.isModuleNamespace_ == o.isModuleNamespace_ && optEqualsNull_(this.closureNamespace_, o.closureNamespace_) && this.createdBy_ == o.createdBy_
 }
 
 func (this *Binding) hashCode() int32 {
@@ -115,7 +115,7 @@ func (this *Binding) hashCode() int32 {
 	h = h*31 + objhashId_(this.sourceNode_)
 	h = h*31 + objhashBy_(this.originatingExport_, (*Export).hashCode)
 	h = h*31 + boolhash_(this.isModuleNamespace_)
-	h = h*31 + Objects_hashCode(this.closureNamespace_.box_())
+	h = h*31 + optHash_(this.closureNamespace_)
 	h = h*31 + objhashId_(this.createdBy_)
 	return h
 }

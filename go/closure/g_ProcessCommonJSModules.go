@@ -921,7 +921,7 @@ func (this *ProcessCommonJSModules_RewriteModule) visit_impl(t *NodeTraversal, n
 			var functionExpr Node = sliceAt_(*this.functionsToHoist, i)
 			var scopeRoot Node = t.getClosestHoistScopeRoot()
 			var insertionPoint Node = scopeRoot.getFirstChild()
-			if (insertionPoint == 0) || !(insertionPoint.isVar() && Object_equals(Optional_of[string](insertionPoint.getFirstChild().getString()).box_(), moduleName.box_())) {
+			if (insertionPoint == 0) || !(insertionPoint.isVar() && optEquals_(Optional_of[string](insertionPoint.getFirstChild().getString()), moduleName)) {
 				insertionPoint = 0
 			}
 			if insertionPoint == 0 {
@@ -1153,7 +1153,7 @@ func (this *ProcessCommonJSModules_RewriteModule) maybeUpdateName(t *NodeTravers
 			return
 		}
 		if (((importedModuleName.isEmpty() && exportedName.isPresent()) && !(exportedName.get() == name)) && !var_.isParam()) && ((var_.getNameNode().getParent() == 0) || !NodeUtil_isLhsByDestructuring(var_.getNameNode())) {
-			var exportPropIsConst bool = (((this.defaultExportIsConst && Object_equals(this.outer_.getBasePropertyImport(ProcessCommonJSModules_getModuleName(t.getInput())).box_(), exportedName.box_())) && (this.outer_.getBaseQualifiedNameNode(n) == n)) && NodeUtil_isLValue(n))
+			var exportPropIsConst bool = (((this.defaultExportIsConst && optEquals_(this.outer_.getBasePropertyImport(ProcessCommonJSModules_getModuleName(t.getInput())), exportedName)) && (this.outer_.getBaseQualifiedNameNode(n) == n)) && NodeUtil_isLValue(n))
 			this.updateNameReference(t, n, Optional_of[string](name).filterFn_(func(s string) bool {
 				return s != ""
 			}), exportedName.get(), true, exportPropIsConst)
@@ -1182,7 +1182,7 @@ func (this *ProcessCommonJSModules_RewriteModule) updateNameReference(t *NodeTra
 		panic(new_NullPointerException_0())
 	}
 	var newNameIsQualified bool = (strings.Contains(newName, "."))
-	var newNameIsModuleExport bool = Object_equals(Optional_of[string](newName).box_(), this.outer_.getBasePropertyImport(ProcessCommonJSModules_getModuleName(t.getInput())).box_())
+	var newNameIsModuleExport bool = optEquals_(Optional_of[string](newName), this.outer_.getBasePropertyImport(ProcessCommonJSModules_getModuleName(t.getInput())))
 	var newNameDeclaration *Var = t.getScope().getVar_String_rVar(newName)
 	switch parent.ns_().token {
 	case tokOrd1_CLASS:
