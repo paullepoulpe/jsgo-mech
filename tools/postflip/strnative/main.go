@@ -28,7 +28,8 @@
 //     comparisons with -1 or 0 and the bounds s.substring(0, i) / s.substring(i + k) of the
 //     same s is a byte index: strings.IndexByte, and s[:i] / s[i+k:] (see indexVar).
 //   - String.format of a constant template with only %s, %d, %n and %% is a concatenation
-//     (see format).
+//     (see format); an Object argument's toString then runs before the arguments after it are
+//     evaluated, so those must be constants or local variables.
 //
 // charAt and substring of an ASCII string are left: s[i] and s[a:b] would throw Go's index
 // error (ArrayIndexOutOfBoundsException with Go's message) where Java throws
@@ -1257,8 +1258,14 @@ func format(c *ast.CallExpr) string {
 				parts[i] = func() string { return "sstr_(" + rw.Render(in) + ")" }
 			}
 		default:
-			if len(cl.Elts) != 1 {
-				return "%s of an Object among several arguments (its toString runs after all are evaluated)"
+			// Java evaluates every argument, then calls toString of each Object in turn; the
+			// concatenation calls toString of this one before it evaluates the arguments after
+			// it. That is the same when those are constants or local variables that no function
+			// literal assigns: nothing toString does can change what they give.
+			for _, later := range cl.Elts[k:] {
+				if !stableArg(later) {
+					return "%s of an Object before an argument that is not a constant or a local variable (its toString runs after all are evaluated)"
+				}
 			}
 			parts[i] = func() string { return "objstr_(" + rw.Render(a) + ")" }
 		}
@@ -1275,6 +1282,66 @@ func format(c *ast.CallExpr) string {
 		return "(" + strings.Join(out, " + ") + ")"
 	}
 	return ""
+}
+
+// stableArg reports whether e is a constant or a local variable (boxed or not) that only its
+// own function assigns, outside function literals.
+func stableArg(e ast.Expr) bool {
+	e = rw.Unparen(e)
+	if isConst(e) {
+		return true
+	}
+	if c, ok := e.(*ast.CallExpr); ok {
+		switch f := c.Fun.(type) {
+		case *ast.Ident:
+			if len(c.Args) == 1 && (f.Name == "strobj_" || f.Name == "any" || f.Name == "obj_" || f.Name == "boxNull_" || f.Name == "int32" || f.Name == "int64") {
+				return stableArg(c.Args[0])
+			}
+		case *ast.SelectorExpr:
+			if len(c.Args) == 0 && f.Sel.Name == "box_" {
+				return stableArg(f.X)
+			}
+		}
+		return false
+	}
+	id, ok := e.(*ast.Ident)
+	if !ok {
+		return false
+	}
+	v, ok := rw.Info.Uses[id].(*types.Var)
+	if !ok || v.IsField() || v.Parent() == rw.Pkg.Scope() || v.Parent() == nil {
+		return false
+	}
+	// no assignment of v in a function literal (v's own function runs none during toString)
+	for _, use := range rw.UsesOf[v] {
+		inLit := false
+		for p := rw.Parent[use]; p != nil; p = rw.Parent[p] {
+			if _, ok := p.(*ast.FuncLit); ok {
+				inLit = true
+			}
+			if _, ok := p.(*ast.FuncDecl); ok {
+				break
+			}
+		}
+		if !inLit {
+			continue
+		}
+		switch up := rw.Up(use).(type) {
+		case *ast.AssignStmt:
+			for _, l := range up.Lhs {
+				if rw.Unparen(l) == ast.Expr(use) {
+					return false
+				}
+			}
+		case *ast.UnaryExpr:
+			if up.Op == token.AND {
+				return false
+			}
+		case *ast.IncDecStmt, *ast.RangeStmt:
+			return false
+		}
+	}
+	return true
 }
 
 // unboxArg splits a boxed array element: strobj_(s), any(x) of a number, or the element.

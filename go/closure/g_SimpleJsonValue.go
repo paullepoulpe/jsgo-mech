@@ -101,14 +101,15 @@ func (this *SimpleJsonValue) asInt() *Outcome_base[any] {
 
 func SimpleJsonValue_wrapToInt(number string) int32 {
 	var negative bool = (byteAt_(number, 0) == '-')
-	var end int32 = String_length(number)
+	numberU16 := utf16Of_(number)
+	var end int32 = numberU16.length()
 	var exponent int64 = 0
-	var e int32 = Math_max(String_indexOf(number, 101), String_indexOf(number, 69))
+	var e int32 = Math_max(numberU16.indexOf(101), numberU16.indexOf(69))
 	if e >= 0 {
 		end = e
-		var negativeExponent bool = (String_charAt(number, (e+1)) == '-')
-		for i := int32((e + 1)); (i < String_length(number)) && (exponent < 1000000); i++ {
-			var digit int32 = (int32(String_charAt(number, i)) - 48)
+		var negativeExponent bool = (numberU16.charAt((e + 1)) == '-')
+		for i := int32((e + 1)); (i < numberU16.length()) && (exponent < 1000000); i++ {
+			var digit int32 = (int32(numberU16.charAt(i)) - 48)
 			exponent = func() int64 {
 				if digit >= 0 {
 					return ((exponent * 10) + int64(digit))
@@ -123,16 +124,17 @@ func SimpleJsonValue_wrapToInt(number string) int32 {
 			return exponent
 		}()
 	}
-	var digits string = String_substring(number, func() int32 {
+	var digits string = numberU16.substring(func() int32 {
 		if negative {
 			return 1
 		}
 		return 0
 	}(), end)
-	var dot int32 = String_indexOf(digits, 46)
+	digitsU16 := utf16Of_(digits)
+	var dot int32 = digitsU16.indexOf(46)
 	var integerDigits int64 = (int64(func() int32 {
 		if dot < 0 {
-			return String_length(digits)
+			return digitsU16.length()
 		}
 		return dot
 	}()) + exponent)
@@ -140,13 +142,14 @@ func SimpleJsonValue_wrapToInt(number string) int32 {
 		if dot < 0 {
 			return digits
 		}
-		return (sstr_(String_substring(digits, 0, dot)) + sstr_(String_substring_int(digits, (dot+1))))
+		return (sstr_(digitsU16.substring(0, dot)) + sstr_(digitsU16.substring_int((dot + 1))))
 	}()
+	digitsU16 = utf16Of_(digits)
 	var value int32 = 0
-	for i := int32(0); (int64(i) < integerDigits) && (i < (String_length(digits) + 32)); i++ {
+	for i := int32(0); (int64(i) < integerDigits) && (i < (digitsU16.length() + 32)); i++ {
 		value = ((value * 10) + func() int32 {
-			if i < String_length(digits) {
-				return (int32(String_charAt(digits, i)) - 48)
+			if i < digitsU16.length() {
+				return (int32(digitsU16.charAt(i)) - 48)
 			}
 			return 0
 		}())

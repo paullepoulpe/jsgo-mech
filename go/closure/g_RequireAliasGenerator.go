@@ -51,7 +51,8 @@ func RequireAliasGenerator_captializeFirstChar(w string) string {
 	if w == "" || Ascii_isUpperCase(uint16(byteAt_(w, 0))) {
 		return w
 	}
-	return (chrstr_(Ascii_toUpperCase_char(String_charAt(w, 0))) + sstr_(String_substring_int(w, 1)))
+	wU16 := utf16Of_(w)
+	return (chrstr_(Ascii_toUpperCase_char(wU16.charAt(0))) + sstr_(wU16.substring_int(1)))
 }
 
 var RequireAliasGenerator_SKIPLISTED_ALIASES *JTSet[string]
