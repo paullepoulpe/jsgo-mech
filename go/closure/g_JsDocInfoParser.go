@@ -2147,10 +2147,6 @@ func (this JsDocInfoParser_State) ordinal() int32 {
 
 func (this JsDocInfoParser_State) toString() string { return this.enum_().name_ }
 
-func (this JsDocInfoParser_State) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this JsDocInfoParser_State) self() any {
 	if this == 0 {
 		return nil
@@ -2217,10 +2213,6 @@ func (this JsDocInfoParser_JsDocSourceKind) ordinal() int32 {
 
 func (this JsDocInfoParser_JsDocSourceKind) toString() string {
 	return this.enum_().name_
-}
-
-func (this JsDocInfoParser_JsDocSourceKind) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
 }
 
 func (this JsDocInfoParser_JsDocSourceKind) self() any {
@@ -2328,10 +2320,6 @@ func (this JsDocInfoParser_WhitespaceOption) ordinal() int32 {
 
 func (this JsDocInfoParser_WhitespaceOption) toString() string {
 	return this.enum_().name_
-}
-
-func (this JsDocInfoParser_WhitespaceOption) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
 }
 
 func (this JsDocInfoParser_WhitespaceOption) self() any {

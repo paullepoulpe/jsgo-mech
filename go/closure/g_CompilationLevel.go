@@ -31,10 +31,6 @@ func (this CompilationLevel) ordinal() int32 {
 
 func (this CompilationLevel) toString() string { return this.enum_().name_ }
 
-func (this CompilationLevel) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this CompilationLevel) self() any {
 	if this == 0 {
 		return nil

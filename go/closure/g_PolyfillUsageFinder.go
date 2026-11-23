@@ -269,10 +269,6 @@ func (this PolyfillUsageFinder_Polyfill_Kind) toString() string {
 	return this.enum_().name_
 }
 
-func (this PolyfillUsageFinder_Polyfill_Kind) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this PolyfillUsageFinder_Polyfill_Kind) self() any {
 	if this == 0 {
 		return nil
@@ -487,10 +483,6 @@ func (this PolyfillUsageFinder_Guard) ordinal() int32 {
 
 func (this PolyfillUsageFinder_Guard) toString() string {
 	return this.enum_().name_
-}
-
-func (this PolyfillUsageFinder_Guard) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
 }
 
 func (this PolyfillUsageFinder_Guard) self() any {

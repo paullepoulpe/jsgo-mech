@@ -1303,10 +1303,6 @@ func (this AstFactory_TypeMode) ordinal() int32 {
 
 func (this AstFactory_TypeMode) toString() string { return this.enum_().name_ }
 
-func (this AstFactory_TypeMode) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this AstFactory_TypeMode) self() any {
 	if this == 0 {
 		return nil
