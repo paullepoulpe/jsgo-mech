@@ -4,6 +4,4 @@ package closure
 
 // Element conversions of the typed lists.
 
-var tc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_1SwitchCase = &tconv_[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_1SwitchCase]{box: func(v *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_1SwitchCase) any { return obj_(v) }, unbox: func(v any) *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_1SwitchCase {
-	return cast_[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_1SwitchCase](v)
-}}
+var tc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_1SwitchCase = &tconv_[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_1SwitchCase]{box: obj_[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_1SwitchCase], unbox: cast_[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_1SwitchCase]}

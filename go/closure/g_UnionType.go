@@ -79,19 +79,19 @@ func (this *UnionType) fillFromBuilder(builder *UnionType_Builder) {
 }
 
 func (this *UnionType) matchesNumberContext_impl() bool {
-	return JSTypeIterations_anyTypeMatches(Predicate[*JSType](func(p0 *JSType) bool { return p0.matchesNumberContext() }), this)
+	return JSTypeIterations_anyTypeMatches(Predicate[*JSType]((*JSType).matchesNumberContext), this)
 }
 
 func (this *UnionType) matchesStringContext_impl() bool {
-	return JSTypeIterations_anyTypeMatches(Predicate[*JSType](func(p0 *JSType) bool { return p0.matchesStringContext() }), this)
+	return JSTypeIterations_anyTypeMatches(Predicate[*JSType]((*JSType).matchesStringContext), this)
 }
 
 func (this *UnionType) matchesSymbolContext_impl() bool {
-	return JSTypeIterations_anyTypeMatches(Predicate[*JSType](func(p0 *JSType) bool { return p0.matchesSymbolContext() }), this)
+	return JSTypeIterations_anyTypeMatches(Predicate[*JSType]((*JSType).matchesSymbolContext), this)
 }
 
 func (this *UnionType) matchesObjectContext_impl() bool {
-	return JSTypeIterations_anyTypeMatches(Predicate[*JSType](func(p0 *JSType) bool { return p0.matchesObjectContext() }), this)
+	return JSTypeIterations_anyTypeMatches(Predicate[*JSType]((*JSType).matchesObjectContext), this)
 }
 
 func (this *UnionType) findPropertyTypeWithoutConsideringTemplateTypes_impl(propertyName Property_Key) *JSType {
@@ -114,23 +114,23 @@ func (this *UnionType) findPropertyTypeWithoutConsideringTemplateTypes_impl(prop
 }
 
 func (this *UnionType) canBeCalled_impl() bool {
-	return JSTypeIterations_allTypesMatch(Predicate[*JSType](func(p0 *JSType) bool { return p0.canBeCalled() }), this)
+	return JSTypeIterations_allTypesMatch(Predicate[*JSType]((*JSType).canBeCalled), this)
 }
 
 func (this *UnionType) autobox_impl() *JSType {
-	return JSTypeIterations_mapTypes(Function[*JSType, *JSType](func(p0 *JSType) *JSType { return p0.autobox() }), this)
+	return JSTypeIterations_mapTypes(Function[*JSType, *JSType]((*JSType).autobox), this)
 }
 
 func (this *UnionType) restrictByNotNullOrUndefined_impl() *JSType {
-	return JSTypeIterations_mapTypes(Function[*JSType, *JSType](func(p0 *JSType) *JSType { return p0.restrictByNotNullOrUndefined() }), this)
+	return JSTypeIterations_mapTypes(Function[*JSType, *JSType]((*JSType).restrictByNotNullOrUndefined), this)
 }
 
 func (this *UnionType) restrictByNotUndefined_impl() *JSType {
-	return JSTypeIterations_mapTypes(Function[*JSType, *JSType](func(p0 *JSType) *JSType { return p0.restrictByNotUndefined() }), this)
+	return JSTypeIterations_mapTypes(Function[*JSType, *JSType]((*JSType).restrictByNotUndefined), this)
 }
 
 func (this *UnionType) restrictByNotNull_impl() *JSType {
-	return JSTypeIterations_mapTypes(Function[*JSType, *JSType](func(p0 *JSType) *JSType { return p0.restrictByNotNull() }), this)
+	return JSTypeIterations_mapTypes(Function[*JSType, *JSType]((*JSType).restrictByNotNull), this)
 }
 
 func (this *UnionType) testForEquality_impl(that *JSType) Tri {
@@ -148,27 +148,27 @@ func (this *UnionType) testForEquality_impl(that *JSType) Tri {
 }
 
 func (this *UnionType) isNullable_impl() bool {
-	return JSTypeIterations_anyTypeMatches(Predicate[*JSType](func(p0 *JSType) bool { return p0.isNullable() }), this)
+	return JSTypeIterations_anyTypeMatches(Predicate[*JSType]((*JSType).isNullable), this)
 }
 
 func (this *UnionType) isVoidable_impl() bool {
-	return JSTypeIterations_anyTypeMatches(Predicate[*JSType](func(p0 *JSType) bool { return p0.isVoidable() }), this)
+	return JSTypeIterations_anyTypeMatches(Predicate[*JSType]((*JSType).isVoidable), this)
 }
 
 func (this *UnionType) isExplicitlyVoidable_impl() bool {
-	return JSTypeIterations_anyTypeMatches(Predicate[*JSType](func(p0 *JSType) bool { return p0.isExplicitlyVoidable() }), this)
+	return JSTypeIterations_anyTypeMatches(Predicate[*JSType]((*JSType).isExplicitlyVoidable), this)
 }
 
 func (this *UnionType) isUnknownType_impl() bool {
-	return JSTypeIterations_anyTypeMatches(Predicate[*JSType](func(p0 *JSType) bool { return p0.isUnknownType() }), this)
+	return JSTypeIterations_anyTypeMatches(Predicate[*JSType]((*JSType).isUnknownType), this)
 }
 
 func (this *UnionType) isStruct_impl() bool {
-	return JSTypeIterations_anyTypeMatches(Predicate[*JSType](func(p0 *JSType) bool { return p0.isStruct() }), this)
+	return JSTypeIterations_anyTypeMatches(Predicate[*JSType]((*JSType).isStruct), this)
 }
 
 func (this *UnionType) isDict_impl() bool {
-	return JSTypeIterations_anyTypeMatches(Predicate[*JSType](func(p0 *JSType) bool { return p0.isDict() }), this)
+	return JSTypeIterations_anyTypeMatches(Predicate[*JSType]((*JSType).isDict), this)
 }
 
 func (this *UnionType) getLeastSupertype_impl(that *JSType) *JSType {
@@ -260,7 +260,7 @@ func (this *UnionType) toMaybeUnionType_impl() *UnionType {
 }
 
 func (this *UnionType) isObject_impl() bool {
-	return JSTypeIterations_allTypesMatch(Predicate[*JSType](func(p0 *JSType) bool { return p0.isObject() }), this)
+	return JSTypeIterations_allTypesMatch(Predicate[*JSType]((*JSType).isObject), this)
 }
 
 func (this *UnionType) contains(type_ *JSType) bool {
@@ -399,7 +399,7 @@ func (this *UnionType) matchConstraint_impl(constraint *JSType) {
 }
 
 func (this *UnionType) hasAnyTemplateTypesInternal_impl() bool {
-	return JSTypeIterations_anyTypeMatches(Predicate[*JSType](func(p0 *JSType) bool { return p0.hasAnyTemplateTypes() }), this)
+	return JSTypeIterations_anyTypeMatches(Predicate[*JSType]((*JSType).hasAnyTemplateTypes), this)
 }
 
 var UnionType_TYPE_CLASS JSTypeClass

@@ -122,7 +122,7 @@ func (this *SourceMapConsumerV3) getMappingForLine(lineNumber int32, column int3
 }
 
 func (this *SourceMapConsumerV3) getOriginalSources() CollectionT[string] {
-	return collectionAs_(tc_string, Collection(Arrays_asList(arrmap_(this.sources, func(v_ string) any { return strobj_(v_) }))))
+	return collectionAs_(tc_string, Collection(Arrays_asList(arrmap_(this.sources, strobj_))))
 }
 
 func (this *SourceMapConsumerV3) getOriginalSourcesContent() CollectionT[string] {
@@ -130,12 +130,12 @@ func (this *SourceMapConsumerV3) getOriginalSourcesContent() CollectionT[string]
 		if this.sourcesContent == nil {
 			return nil
 		}
-		return collectionAs_(tc_string, Collection(Arrays_asList(arrmap_(this.sourcesContent, func(v_ string) any { return strobj_(v_) }))))
+		return collectionAs_(tc_string, Collection(Arrays_asList(arrmap_(this.sourcesContent, strobj_))))
 	}()
 }
 
 func (this *SourceMapConsumerV3) getOriginalNames() ListT[string] {
-	return listAs_(tc_string, Arrays_asList(arrmap_(this.names_, func(v_ string) any { return strobj_(v_) })))
+	return listAs_(tc_string, Arrays_asList(arrmap_(this.names_, strobj_)))
 }
 
 func (this *SourceMapConsumerV3) getFile() Optional[string] {
