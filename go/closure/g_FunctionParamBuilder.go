@@ -79,12 +79,12 @@ func (this *FunctionParamBuilder) hasOptionalOrVarArgs() bool {
 	if this.parameters.isEmpty() {
 		return false
 	}
-	var lastParam *FunctionType_Parameter = cast_[*FunctionType_Parameter](Iterables_getLast(Iterable(this.parameters.asListT())))
+	var lastParam *FunctionType_Parameter = this.parameters.getLastT_()
 	return (lastParam.isOptional() || lastParam.isVariadic())
 }
 
 func (this *FunctionParamBuilder) hasVarArgs() bool {
-	return (!this.parameters.isEmpty() && Iterables_getLast(Iterable(this.parameters.asListT())).(*FunctionType_Parameter).isVariadic())
+	return (!this.parameters.isEmpty() && this.parameters.getLastT_().isVariadic())
 }
 
 func (this *FunctionParamBuilder) build() *TList[*FunctionType_Parameter] {

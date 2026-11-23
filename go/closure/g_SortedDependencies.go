@@ -143,7 +143,7 @@ func (this *SortedDependencies[InputT]) orderInput(input InputT) {
 func (this *SortedDependencies[InputT]) processInputs() {
 	for userOrderedInput := range this.userOrderedInputs.All() {
 		var provides []string = sliceOfT_(tc_string, userOrderedInput.getProvides())
-		var firstProvide Optional[string] = Optional_ofNullable[string](str_(Iterables_getFirst(Iterable(sliceView_(tc_string, provides)), nil)))
+		var firstProvide Optional[string] = Optional_ofNullable[string](sliceGetFirstT_(tc_string, provides, nil))
 		if firstProvide.isEmpty() || (((int32(len(provides)) == 1) && strings.HasPrefix(firstProvide.get(), "module$")) && !userOrderedInput.isEs6Module()) {
 			this.nonExportingInputs.Put(ModuleNames_fileToModuleName(userOrderedInput.getName()), userOrderedInput)
 		}
