@@ -279,6 +279,7 @@ readers and its own obligation (as_JSType is the receiver of the promoted htabSl
 of this one. getJSType's cost (to_JSType's assertion, ~0.6 s flat here) is left as it was.
 
     bash tools/postflip/reflip/replay6.sh replay6h   (a tail replay: $B/wt/replay6h made from replay6b's tip 2c5e324f)
+    (replay6h was removed after the gate; its commit 88e20f2d is branch flip6-tree-h; its tool log is $B/logs/replay6h.replay.log)
     REPLAY DONE: replayed 1 commit (step 561), tip 88e20f2d, go/ tree 04cbc7cffec3c32c8d7bcf9bc40ba05036c37c09,
     go/closure tree 03874c988bbd6f536ac8ef1c82ce68ce5552e0eb (the step's four files byte-identical to the
     measured tree); tree worktree $B/wt/tree6h (branch flip6-tree-h, at 88e20f2d); $B/gate.sh tree6h flip6h,
