@@ -98,7 +98,7 @@ func (this *TypeInferencePass) inferScope(n Node, scope *TypedScope) {
 			if node == cfg.getImplicitReturn() {
 				continue
 			}
-			var state *DataFlowAnalysis_LinearFlowState[any] = cast_[*DataFlowAnalysis_LinearFlowState[any]](Annotatable_getAnnotation(Annotatable(node)))
+			var state *DataFlowAnalysis_LinearFlowState[FlowScope] = cast_[*DataFlowAnalysis_LinearFlowState[FlowScope]](Annotatable_getAnnotation(Annotatable(node)))
 			this.stepCountHistogram.ComputeIfAbsent(int32(state.getStepCount()), Function[any, *SimpleMultiset[Token_rhino]](func(k any) *SimpleMultiset[Token_rhino] {
 				return SimpleMultiset_create[Token_rhino]()
 			})).add(node.getValue().getToken())
