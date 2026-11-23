@@ -3327,9 +3327,8 @@ func (this *ConformanceRules_BanCreateDom) checkConformance_impl(t *NodeTraversa
 	if attrs.isNull() || ((attrsType != nil) && attrsType.isVoidType()) {
 		return ConformanceRules_ConformanceResult_CONFORMANCE
 	}
-	it_1 := foreach_(obj_(this.bannedTagAttrs))
-	for it_1.next() {
-		var tagAttr []string = cast_[[]string](it_1.v)
+	for _, el_1 := range immElems_(this.bannedTagAttrs) {
+		var tagAttr []string = cast_[[]string](el_1)
 		if ((tagNames != nil) && !Collection_contains_s(Collection_un_(tagNames), tagAttr[0])) && !(tagAttr[0] == "*") {
 			continue
 		}
