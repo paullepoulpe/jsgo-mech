@@ -112,7 +112,7 @@ func (s *TSet[K]) asSorted() NavigableSet {
 func (s *TSet[K]) sortedView() *tsortedSetView_[K] {
 	v, _ := s.x.sort.view.(*tsortedSetView_[K])
 	if v == nil {
-		v = &tsortedSetView_[K]{tsetView_[K]{m: &s.TMap, s: s}}
+		v = &tsortedSetView_[K]{(*tsetView_[K])(s)}
 		s.x.sort.view = v
 	}
 	return v
@@ -121,7 +121,7 @@ func (s *TSet[K]) sortedView() *tsortedSetView_[K] {
 // tsortedSetView_ is a sorted TSet seen as an erased TreeSet: the view of a set, with the
 // methods of a sorted set that erased code calls.
 type tsortedSetView_[K comparable] struct {
-	tsetView_[K]
+	*tsetView_[K]
 }
 
 func (v *tsortedSetView_[K]) self() any       { return v }
@@ -129,8 +129,8 @@ func (v *tsortedSetView_[K]) goName_() string { return "TreeSet" }
 
 // contains and remove compare x with the elements: an object of another class throws
 // ClassCastException there, as the comparison of a TreeSet does.
-func (v *tsortedSetView_[K]) contains(x any) bool      { return v.m.find(v.m.kc.unbox(x)) >= 0 }
-func (v *tsortedSetView_[K]) remove_Object(x any) bool { return v.s.Delete(v.m.kc.unbox(x)) }
+func (v *tsortedSetView_[K]) contains(x any) bool      { return v.tm().find(v.tm().kc.unbox(x)) >= 0 }
+func (v *tsortedSetView_[K]) remove_Object(x any) bool { return v.ts().Delete(v.tm().kc.unbox(x)) }
 func (v *tsortedSetView_[K]) equals(o any) bool        { return setEquals_(v, o) }
 func (v *tsortedSetView_[K]) hashCode() int32          { return setHash_(v) }
 func (v *tsortedSetView_[K]) toString() string         { return collToString_(v) }
@@ -146,7 +146,7 @@ func (v *tsortedSetView_[K]) containsAll(c Collection) bool {
 // descendingSet and tailSet are, as the erased TreeSet's, new sets of the elements as they
 // are now.
 func (v *tsortedSetView_[K]) descendingSet() NavigableSet {
-	m := v.m
+	m := v.tm()
 	out := &TreeSet{cmp: cmpReversed_(Comparator_of_(func(a, b any) int32 {
 		return m.x.sort.cmp(m.kc.unbox(a), m.kc.unbox(b))
 	}))}
@@ -157,7 +157,7 @@ func (v *tsortedSetView_[K]) descendingSet() NavigableSet {
 }
 
 func (v *tsortedSetView_[K]) tailSet(from any, inclusive bool) NavigableSet {
-	m := v.m
+	m := v.tm()
 	i, ok := ttreeSearch_(m.keys, m.x.sort.cmp, m.kc.unbox(from))
 	if ok && !inclusive {
 		i++
@@ -175,7 +175,7 @@ func (v *tsortedSetView_[K]) tailSet(from any, inclusive bool) NavigableSet {
 func (m *TMap[K, V]) sortedView() *tsortedMapView_[K, V] {
 	v, _ := m.x.sort.view.(*tsortedMapView_[K, V])
 	if v == nil {
-		v = &tsortedMapView_[K, V]{tmapView_[K, V]{m: m}}
+		v = &tsortedMapView_[K, V]{(*tmapView_[K, V])(m)}
 		m.x.sort.view = v
 	}
 	return v
@@ -183,7 +183,7 @@ func (m *TMap[K, V]) sortedView() *tsortedMapView_[K, V] {
 
 // tsortedMapView_ is a sorted TMap seen as an erased TreeMap.
 type tsortedMapView_[K comparable, V any] struct {
-	tmapView_[K, V]
+	*tmapView_[K, V]
 }
 
 func (v *tsortedMapView_[K, V]) self() any       { return v }
@@ -192,16 +192,18 @@ func (v *tsortedMapView_[K, V]) goName_() string { return "TreeMap" }
 // get, containsKey and remove compare x with the keys: an object of another class throws
 // ClassCastException there, as the comparison of a TreeMap does.
 func (v *tsortedMapView_[K, V]) get(x any) any {
-	if i := v.m.find(v.m.kc.unbox(x)); i >= 0 {
-		return v.m.vc.box(v.m.vals[i])
+	if i := v.tm().find(v.tm().kc.unbox(x)); i >= 0 {
+		return v.tm().vc.box(v.tm().vals[i])
 	}
 	return nil
 }
-func (v *tsortedMapView_[K, V]) containsKey(x any) bool { return v.m.find(v.m.kc.unbox(x)) >= 0 }
-func (v *tsortedMapView_[K, V]) remove(x any) any       { return v.m.vc.box(v.m.Delete(v.m.kc.unbox(x))) }
-func (v *tsortedMapView_[K, V]) equals(o any) bool      { return mapEquals_(v, o) }
-func (v *tsortedMapView_[K, V]) hashCode() int32        { return mapHash_(v) }
-func (v *tsortedMapView_[K, V]) toString() string       { return mapToString_(v) }
+func (v *tsortedMapView_[K, V]) containsKey(x any) bool { return v.tm().find(v.tm().kc.unbox(x)) >= 0 }
+func (v *tsortedMapView_[K, V]) remove(x any) any {
+	return v.tm().vc.box(v.tm().Delete(v.tm().kc.unbox(x)))
+}
+func (v *tsortedMapView_[K, V]) equals(o any) bool { return mapEquals_(v, o) }
+func (v *tsortedMapView_[K, V]) hashCode() int32   { return mapHash_(v) }
+func (v *tsortedMapView_[K, V]) toString() string  { return mapToString_(v) }
 
 var (
 	_ NavigableSet = (*tsortedSetView_[string])(nil)

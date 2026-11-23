@@ -259,9 +259,6 @@ func TestTypedRoundTrips(t *testing.T) {
 			if r1 != wr || r2 != wr || r3 != wr {
 				t.Errorf("addAll results %v %v %v, want %v", r1, r2, r3, wr)
 			}
-			if s1.x != nil && s1.x.sview != nil || s2.x != nil && s2.x.sview != nil {
-				t.Error("the helper made the set's view")
-			}
 		}
 	}
 	imm := mk(true, "a")
