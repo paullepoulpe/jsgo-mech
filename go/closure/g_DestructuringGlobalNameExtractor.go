@@ -19,11 +19,11 @@ func DestructuringGlobalNameExtractor_reassignDestructringLvalue(stringKey Node,
 	var pattern Node = stringKey.getParent()
 	var assignmentType Node = pattern.getParent()
 	if !assignmentType.isAssign() && !assignmentType.isDestructuringLhs() {
-		panic(new_IllegalStateException_String(tostr_(assignmentType)).self())
+		panic(new_IllegalStateException_String(tostr_(assignmentType)))
 	}
 	var originalRvalue Node = pattern.getNext()
 	if !originalRvalue.isQualifiedName() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var lvalueToReassign Node = func() Node {
 		if stringKey.getOnlyChild().isDefaultValue() {
@@ -78,7 +78,7 @@ func DestructuringGlobalNameExtractor_addAfter(originalLvalue Node, newLvalue No
 		return parent
 	}()
 	if !NodeUtil_isNameDeclaration(declaration) {
-		panic(new_IllegalStateException_String(tostr_(declaration)).self())
+		panic(new_IllegalStateException_String(tostr_(declaration)))
 	}
 	if NodeUtil_isStatementParent(declaration.getParent()) {
 		var newDeclaration Node = new_Node_Token(declaration.getToken()).srcref(declaration)
@@ -96,7 +96,7 @@ func DestructuringGlobalNameExtractor_replaceDestructuringAssignment(pattern Nod
 		parent.replaceWith(newAssign)
 	} else if newLvalue.isName() {
 		if !parent.isDestructuringLhs() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		parent.replaceWith(newLvalue)
 		newLvalue.addChildToBack(newRvalue)

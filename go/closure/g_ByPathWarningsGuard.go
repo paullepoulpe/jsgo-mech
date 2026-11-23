@@ -20,10 +20,10 @@ func (this *ByPathWarningsGuard) up_WarningsGuard() *WarningsGuard {
 func (this *ByPathWarningsGuard) init_ByPathWarningsGuard(paths *JTList[string], include bool, level CheckLevel) {
 	this.WarningsGuard.init_WarningsGuard()
 	if paths == nil {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	if level != CheckLevel_OFF && level != CheckLevel_ERROR {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	this.paths = paths
 	this.include = include

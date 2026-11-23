@@ -6,7 +6,7 @@ type TypePointers struct {
 }
 
 func (this *TypePointers) init_TypePointers() {
-	panic(new_AssertionError_0().self())
+	panic(new_AssertionError_0())
 }
 
 func new_TypePointers() *TypePointers {
@@ -17,14 +17,14 @@ func new_TypePointers() *TypePointers {
 
 func TypePointers_trimOffset(x int32) int32 {
 	if x < TypePointers_AXIOMATIC_COLOR_COUNT {
-		panic(new_IllegalStateException_String(objstr_(int32(x))).self())
+		panic(new_IllegalStateException_String(objstr_(int32(x))))
 	}
 	return (x - TypePointers_AXIOMATIC_COLOR_COUNT)
 }
 
 func TypePointers_untrimOffset(x int32) int32 {
 	if x < 0 {
-		panic(new_IllegalStateException_String(objstr_(int32(x))).self())
+		panic(new_IllegalStateException_String(objstr_(int32(x))))
 	}
 	return (x + TypePointers_AXIOMATIC_COLOR_COUNT)
 }

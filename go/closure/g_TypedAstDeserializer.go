@@ -59,7 +59,7 @@ func TypedAstDeserializer_deserializeRuntimeLibraries(compiler *AbstractCompiler
 
 func TypedAstDeserializer_deserialize(compiler *AbstractCompiler, syntheticExterns *SourceFile_jscomp, requiredInputFiles Optional_baseOf[SetT[*SourceFile_jscomp]], scriptSourceFiles *JTMap[string, *SourceFile_jscomp], colorPool Optional_baseOf[*ColorPool_Builder], typedAstStream []int8, mode TypedAstDeserializer_Mode, includeTypeInformation bool, resolveSourceMapAnnotations bool, parseInlineSourceMaps bool) *TypedAstDeserializer_DeserializedAst {
 	if colorPool.isPresent() != (eqR_(mode, TypedAstDeserializer_Mode_RUNTIME_LIBRARY_ONLY) && includeTypeInformation) {
-		panic(new_IllegalArgumentException_String(objstr_("ColorPool.Builder required iff deserializing runtime libraries & including types")).self())
+		panic(new_IllegalArgumentException_String(objstr_("ColorPool.Builder required iff deserializing runtime libraries & including types")))
 	}
 	var deserializer *TypedAstDeserializer = new_TypedAstDeserializer(syntheticExterns, colorPool, requiredInputFiles, mode, includeTypeInformation)
 	deserializer.addToFilePool(syntheticExterns.getName(), syntheticExterns)
@@ -227,7 +227,7 @@ func TypedAstDeserializer_deserializeTypedAsts(typedAstsStream []int8, deseriali
 				ex_ := catch_(r_)
 				if p, ok := ex_.(IOException_as); ok {
 					var ex *IOException = p.as_IOException()
-					panic(new_IllegalArgumentException_String_Throwable("Cannot read from TypedAST input stream", ex.up_Throwable()).self())
+					panic(new_IllegalArgumentException_String_Throwable("Cannot read from TypedAST input stream", ex.up_Throwable()))
 				}
 				panic(r_)
 			}
@@ -237,7 +237,7 @@ func TypedAstDeserializer_deserializeTypedAsts(typedAstsStream []int8, deseriali
 		for !codedInput.isAtEnd() {
 			var tag int32 = codedInput.readTag()
 			if (WireFormat_getTagFieldNumber(tag) != int32(1)) || (WireFormat_getTagWireType(tag) != int32(2)) {
-				panic(new_InvalidProtocolBufferException_String(("Unexpected field number " + istr_(int64(WireFormat_getTagFieldNumber(tag))) + " or wire type " + istr_(int64(WireFormat_getTagWireType(tag))))).self())
+				panic(new_InvalidProtocolBufferException_String(("Unexpected field number " + istr_(int64(WireFormat_getTagFieldNumber(tag))) + " or wire type " + istr_(int64(WireFormat_getTagWireType(tag))))))
 			}
 			codedInput.readMessage(TypedAst_Builder_as_MessageLite_Builder(typedAstBuilder), ExtensionRegistry_getEmptyRegistry().up_ExtensionRegistryLite())
 			var typedAst *TypedAst = cast_[*TypedAst](typedAstBuilder.build())
@@ -356,13 +356,13 @@ type TypedAstDeserializer_DeserializedAst struct {
 
 func (this *TypedAstDeserializer_DeserializedAst) init_TypedAstDeserializer_DeserializedAst(getFilesystem ConcurrentMapOf[*SourceFile_jscomp, Supplier[Node]], getColorRegistry Optional_baseOf[*ColorRegistry], getExternProperties *JTSet[string], getRuntimeLibraries *JTSet[string]) {
 	if getFilesystem == nil {
-		panic(new_NullPointerException_String("getFilesystem").self())
+		panic(new_NullPointerException_String("getFilesystem"))
 	}
 	if getColorRegistry == nil {
-		panic(new_NullPointerException_String("getColorRegistry").self())
+		panic(new_NullPointerException_String("getColorRegistry"))
 	}
 	if getRuntimeLibraries == nil {
-		panic(new_NullPointerException_String("getRuntimeLibraries").self())
+		panic(new_NullPointerException_String("getRuntimeLibraries"))
 	}
 	this.getFilesystem_ = getFilesystem
 	this.getColorRegistry_ = getColorRegistry

@@ -28,7 +28,7 @@ func new_DisambiguateProperties(compiler *AbstractCompiler, propertiesThatMustDi
 
 func (this *DisambiguateProperties) process_2(externs Node, root Node) {
 	if externs.getParent() != root.getParent() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var flattener *ColorGraphNodeFactory = ColorGraphNodeFactory_createFactory(this.registry)
 	var findRefs *ColorFindPropertyReferences = new_ColorFindPropertyReferences(flattener, func() func(Node) bool {
@@ -155,7 +155,7 @@ func (this *DisambiguateProperties) invalidateBasedOnType(flattener *ColorGraphN
 func (this *DisambiguateProperties) invalidateNonDeclaredPropertyAccesses(colorGraphNode *ColorGraphNode) {
 	var color *Color = colorGraphNode.getColor()
 	if color.isInvalidating() {
-		panic(new_IllegalArgumentException_String(objstr_("Not applicable to invalidating types. All their properties are invalidated")).self())
+		panic(new_IllegalArgumentException_String(objstr_("Not applicable to invalidating types. All their properties are invalidated")))
 	}
 	it_1 := colorGraphNode.getAssociatedProps().eachKey()
 	for it_1.next() {
@@ -214,7 +214,7 @@ func (this *DisambiguateProperties) mayHaveProperty(color *Color, propertyName s
 
 func (this *DisambiguateProperties) registerOwnDeclaredProperties(colorGraphNode *ColorGraphNode, propIndex *JTMap[string, *PropertyClustering]) {
 	if colorGraphNode.getColor().isUnion() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	it_1 := colorGraphNode.getColor().getOwnProperties().each()
 	for it_1.next() {
@@ -459,7 +459,7 @@ func (this *DisambiguateProperties_TypeEdgeJson) compareTo(x_ any) int32 {
 	var x *DisambiguateProperties_TypeEdgeJson = cast_[*DisambiguateProperties_TypeEdgeJson](x_)
 	_ = x
 	if this.dest == x.dest {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	return (this.dest - x.dest)
 }

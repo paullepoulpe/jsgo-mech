@@ -181,7 +181,7 @@ func (this *CheckSideEffects_StripProtection) visit_impl(t *NodeTraversal, n Nod
 			if !J2clSourceUtils_isJ2clSourceString(Optional_of[string](n.getSourceFileName()).filter(Predicate[string](func(s string) bool {
 				return s != ""
 			}))) {
-				panic(new_IllegalStateException_String(objstr_("Only allowed for J2CL code")).self())
+				panic(new_IllegalStateException_String(objstr_("Only allowed for J2CL code")))
 			}
 			NodeUtil_deleteFunctionCall(n, this.compiler_)
 			return

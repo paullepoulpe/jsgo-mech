@@ -11,15 +11,15 @@ type RewriteAsyncFunctions struct {
 
 func (this *RewriteAsyncFunctions) init_RewriteAsyncFunctions(compiler *AbstractCompiler, astFactory *AstFactory, namespace StaticScope) {
 	if compiler == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.compiler_ = compiler
 	if astFactory == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.astFactory_ = astFactory
 	if namespace == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.namespace_ = namespace
 	this.contextStack = newTDeque_(jtc_p_RewriteAsyncFunctions_LexicalContext)
@@ -45,7 +45,7 @@ func (this *RewriteAsyncFunctions) process_2(externs Node, root Node) {
 func (this *RewriteAsyncFunctions) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
 	if parent == 0 {
 		if !this.contextStack.isEmpty() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		var uniqueId string = this.compiler_.getUniqueIdSupplier().getUniqueId(t.getInput())
 		this.contextStack.push(new_RewriteAsyncFunctions_RootContext(this, n, uniqueId).up_RewriteAsyncFunctions_LexicalContext())
@@ -189,11 +189,11 @@ func new_RewriteAsyncFunctions_SuperPropertyWrappers(outer_ *RewriteAsyncFunctio
 
 func (this *RewriteAsyncFunctions_SuperPropertyWrappers) getOrCreateSuperPropertyWrapperInfo(superDotPropertyNode Node) *RewriteAsyncFunctions_SuperPropertyWrapperInfo {
 	if !superDotPropertyNode.isGetProp() {
-		panic(new_IllegalArgumentException_String(tostr_(superDotPropertyNode)).self())
+		panic(new_IllegalArgumentException_String(tostr_(superDotPropertyNode)))
 	}
 	var superNode Node = superDotPropertyNode.getFirstChild()
 	if !superNode.isSuper() {
-		panic(new_IllegalArgumentException_String(tostr_(superNode)).self())
+		panic(new_IllegalArgumentException_String(tostr_(superNode)))
 	}
 	var propertyName string = superDotPropertyNode.getString()
 	var propertyType *Color = superDotPropertyNode.getColor()
@@ -202,7 +202,7 @@ func (this *RewriteAsyncFunctions_SuperPropertyWrappers) getOrCreateSuperPropert
 		superPropertyWrapperInfo = this.propertyNameToTypeMap.get(propertyName)
 		var existingColor *Color = superPropertyWrapperInfo.getPropertyType()
 		if !objequalsBy_(existingColor, obj_(propertyType), (*Color).equals) {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("Previous reference type: %s differs from current reference type: %s", []any{existingColor, propertyType})).self())
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Previous reference type: %s differs from current reference type: %s", []any{existingColor, propertyType})))
 		}
 	} else {
 		superPropertyWrapperInfo = this.createNewInfo(superDotPropertyNode)
@@ -213,7 +213,7 @@ func (this *RewriteAsyncFunctions_SuperPropertyWrappers) getOrCreateSuperPropert
 
 func (this *RewriteAsyncFunctions_SuperPropertyWrappers) createNewInfo(firstSuperDotPropertyNode Node) *RewriteAsyncFunctions_SuperPropertyWrapperInfo {
 	if !firstSuperDotPropertyNode.isGetProp() {
-		panic(new_IllegalArgumentException_String(tostr_(firstSuperDotPropertyNode)).self())
+		panic(new_IllegalArgumentException_String(tostr_(firstSuperDotPropertyNode)))
 	}
 	var propertyName string = firstSuperDotPropertyNode.getString()
 	var wrapperFunctionName string = (sstr_(RewriteAsyncFunctions_ASYNC_SUPER_PROP_GETTER_PREFIX) + sstr_(this.outer_.compiler_.getUniqueIdSupplier().getUniqueId(this.outer_.compiler_.getInput(NodeUtil_getInputId(firstSuperDotPropertyNode)))) + "$" + sstr_(propertyName))
@@ -274,7 +274,7 @@ func (this *RewriteAsyncFunctions_LexicalContext) zero_RewriteAsyncFunctions_Lex
 
 func (this *RewriteAsyncFunctions_LexicalContext) init_RewriteAsyncFunctions_LexicalContext(contextRootNode Node, uniqueId string) {
 	if contextRootNode == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.contextRootNode = contextRootNode
 	this.uniqueId = uniqueId
@@ -354,7 +354,7 @@ func (this *RewriteAsyncFunctions_ParameterListContext) zero_RewriteAsyncFunctio
 func (this *RewriteAsyncFunctions_ParameterListContext) init_RewriteAsyncFunctions_ParameterListContext(functionContext *RewriteAsyncFunctions_FunctionContext, contextRootNode Node, uniqueId string) {
 	this.RewriteAsyncFunctions_LexicalContext.init_RewriteAsyncFunctions_LexicalContext(contextRootNode, uniqueId)
 	if functionContext == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.functionContext = functionContext
 }
@@ -446,7 +446,7 @@ func (this *RewriteAsyncFunctions_FunctionContext) init_RewriteAsyncFunctions_Fu
 	this.RewriteAsyncFunctions_LexicalContext.init_RewriteAsyncFunctions_LexicalContext(contextRootNode, uniqueId)
 	this.finit_RewriteAsyncFunctions_FunctionContext()
 	if !contextRootNode.isFunction() {
-		panic(new_IllegalStateException_String(tostr_(contextRootNode)).self())
+		panic(new_IllegalStateException_String(tostr_(contextRootNode)))
 	}
 	if contextRootNode.isAsyncFunction() {
 		if contextRootNode.isArrowFunction() {

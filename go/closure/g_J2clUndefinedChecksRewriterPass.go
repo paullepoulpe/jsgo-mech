@@ -49,7 +49,7 @@ func (this *J2clUndefinedChecksRewriterPass) optimizeSubtree_impl(subtree Node) 
 	}
 	if replacement != 0 {
 		if replacement == subtree {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		replacement.srcrefTreeIfMissing(subtree)
 		subtree.replaceWith(replacement)
@@ -62,7 +62,7 @@ func (this *J2clUndefinedChecksRewriterPass) optimizeSubtree_impl(subtree Node) 
 func J2clUndefinedChecksRewriterPass_maybeOptimizeIsUndefinedCall(node Node) Node {
 	var valueExpression Node = node.getSecondChild()
 	if valueExpression == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if NodeUtil_isUndefined(valueExpression) {
 		return IR_trueNode()
@@ -76,7 +76,7 @@ func J2clUndefinedChecksRewriterPass_maybeOptimizeIsUndefinedCall(node Node) Nod
 func J2clUndefinedChecksRewriterPass_maybeOptimizeCoerceToNullCall(node Node) Node {
 	var valueExpression Node = node.getSecondChild()
 	if valueExpression == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if NodeUtil_isUndefined(valueExpression) {
 		return IR_nullNode()

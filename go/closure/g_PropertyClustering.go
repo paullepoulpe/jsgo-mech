@@ -45,7 +45,7 @@ func (this *PropertyClustering) getClusters() *StandardUnionFind[*ColorGraphNode
 
 func (this *PropertyClustering) getOriginalNameClusterRep() *ColorGraphNode {
 	if this.isInvalidated() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return func() *ColorGraphNode {
 		if this.originalNameClusterRep == nil {
@@ -61,21 +61,21 @@ func (this *PropertyClustering) isInvalidated() bool {
 
 func (this *PropertyClustering) invalidate(invalidation *Invalidation) {
 	if invalidation == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.lastInvalidation = invalidation
 }
 
 func (this *PropertyClustering) getLastInvalidation() *Invalidation {
 	if !this.isInvalidated() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return this.lastInvalidation
 }
 
 func (this *PropertyClustering) registerOriginalNameType(type_ *ColorGraphNode) {
 	if this.isInvalidated() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if this.originalNameClusterRep == nil {
 		this.originalNameClusterRep = type_

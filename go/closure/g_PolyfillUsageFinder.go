@@ -53,7 +53,7 @@ func (this *PolyfillUsageFinder) traverseOnlyGuarded(root Node, polyfillConsumer
 
 func (this *PolyfillUsageFinder) maybeCreateStaticPolyfillUsageForGetPropChain(traversal *NodeTraversal, getPropNode Node) *PolyfillUsageFinder_PolyfillUsage {
 	if !getPropNode.isGetProp() && !getPropNode.isOptChainGetProp() {
-		panic(new_IllegalArgumentException_String(tostr_(getPropNode)).self())
+		panic(new_IllegalArgumentException_String(tostr_(getPropNode)))
 	}
 	var lastComponent string = getPropNode.getString()
 	if !this.polyfills.suffixes.contains(lastComponent) {
@@ -347,7 +347,7 @@ func PolyfillUsageFinder_Polyfills_fromTable(table string) *PolyfillUsageFinder_
 		if (tokens.size() == 1) && tokens.get(0) == "" {
 			continue
 		} else if tokens.size() < 3 {
-			panic(new_IllegalArgumentException_String(("Invalid table: too few tokens on line: " + sstr_(line))).self())
+			panic(new_IllegalArgumentException_String(("Invalid table: too few tokens on line: " + sstr_(line))))
 		}
 		var symbol string = tokens.get(0)
 		var isPrototypeMethod bool = JString_contains_s(symbol, ".prototype.")
@@ -399,10 +399,10 @@ func (this *PolyfillUsageFinder_PolyfillUsage) zero_PolyfillUsageFinder_Polyfill
 
 func (this *PolyfillUsageFinder_PolyfillUsage) init_PolyfillUsageFinder_PolyfillUsage(polyfill *PolyfillUsageFinder_Polyfill, node Node, name string, isExplicitGlobal bool) {
 	if polyfill == nil {
-		panic(new_NullPointerException_String("polyfill").self())
+		panic(new_NullPointerException_String("polyfill"))
 	}
 	if node == 0 {
-		panic(new_NullPointerException_String("node").self())
+		panic(new_NullPointerException_String("node"))
 	}
 	this.polyfill_ = polyfill
 	this.node_ = node

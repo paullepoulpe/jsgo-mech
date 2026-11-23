@@ -9,7 +9,7 @@ type CachingTranspiler struct {
 
 func (this *CachingTranspiler) init_CachingTranspiler(delegate Transpiler_transpile, builder CacheBuilderOf[any, any]) {
 	if delegate == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.cache = builder.build(new_CachingTranspiler_1(this, delegate).up_CacheLoader())
 	this.runtimeField = Suppliers_memoize[string](Supplier_base[string](func() string { return delegate.runtime() }))
@@ -29,7 +29,7 @@ func (this *CachingTranspiler) transpile(path string, code string) *TranspileRes
 				ex_ := catch_(r_)
 				if e, ok := ex_.(*UncheckedExecutionException); ok {
 					if _, ok2 := e.getCause().self().(*TranspilationException); ok2 {
-						panic(obj_(new_TranspilationException_Exception(e.up_Exception())))
+						panic(new_TranspilationException_Exception(e.up_Exception()))
 					} else {
 						panic(e.self())
 					}

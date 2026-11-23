@@ -13,7 +13,7 @@ func (this *ColorRegistry) init_ColorRegistry(builder *ColorRegistry_Builder) {
 	this.colorToDisambiguationSupertypeGraph = builder.colorToDisambiguationSupertypeGraph.immutableCopy()
 	this.mismatchLocations = builder.mismatchLocations.immutableCopy()
 	if !equalsDyn_(lgBox_(setAs_(jtc_p_ColorId, this.nativeColors.asImm().keySet())), ColorRegistry_REQUIRED_IDS.asSet()) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 }
 
@@ -25,11 +25,11 @@ func new_ColorRegistry(builder *ColorRegistry_Builder) *ColorRegistry {
 
 func (this *ColorRegistry) get(id *ColorId) *Color {
 	if id == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	nn_ := this.nativeColors.get(id)
 	if nn_ == nil {
-		panic(new_NullPointerException_String(Strings_lenientFormat("Missing Color for %s", []any{id})).self())
+		panic(new_NullPointerException_String(Strings_lenientFormat("Missing Color for %s", []any{id})))
 	}
 	return nn_
 }
@@ -83,7 +83,7 @@ func new_ColorRegistry_Builder() *ColorRegistry_Builder {
 
 func (this *ColorRegistry_Builder) setNativeColor(x *Color) *ColorRegistry_Builder {
 	if !ColorRegistry_REQUIRED_IDS.contains(x.getId()) {
-		panic(new_IllegalStateException_String(objstr_(x)).self())
+		panic(new_IllegalStateException_String(objstr_(x)))
 	}
 	this.nativeColors.put(x.getId(), x)
 	return this

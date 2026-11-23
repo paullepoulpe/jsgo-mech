@@ -41,7 +41,7 @@ func (this *DependencyInfo_Require) zero_DependencyInfo_Require() {
 
 func (this *DependencyInfo_Require) init_DependencyInfo_Require(getSymbol string, getRawText string, getType DependencyInfo_Require_Type) {
 	if getType == 0 {
-		panic(new_NullPointerException_String("getType").self())
+		panic(new_NullPointerException_String("getType"))
 	}
 	this.getSymbol_ = getSymbol
 	this.getRawText_ = getRawText
@@ -253,7 +253,7 @@ func new_DependencyInfo_Require_Builder_Require(source *DependencyInfo_Require) 
 
 func (this *DependencyInfo_Require_Builder) setType(value DependencyInfo_Require_Type) *DependencyInfo_Require_Builder {
 	if value == 0 {
-		panic(new_NullPointerException_String("Null type").self())
+		panic(new_NullPointerException_String("Null type"))
 	}
 	this.type__ = value
 	return this
@@ -281,7 +281,7 @@ func (this *DependencyInfo_Require_Builder) build() *DependencyInfo_Require {
 		if this.type__ == 0 {
 			missing.append(" type")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + missing.toString())).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + missing.toString())))
 	}
 	return new_DependencyInfo_Require(this.symbol_.get(), this.rawText.get(), this.type__)
 }
