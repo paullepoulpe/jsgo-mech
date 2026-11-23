@@ -10,7 +10,7 @@ t=.cache/j2go-selftest
 rm -rf "$t" && mkdir -p "$t/java" "$t/go/closure" "$t/go/cmd/t"
 # lang/Imm.java uses Guava (typed immutable collections).
 javac -nowarn -cp .cache/build/stock-libs.jar -d "$t/java" tools/j2go/selftest/lang/*.java
-for c in Lang Lang2 Handles Generics Generics2 Generics3 Colls Imm Unboxed Covariant CovariantIface Layout FnTypes LibGen; do env -u JAVA_TOOL_OPTIONS java -Dstdout.encoding=UTF-8 -cp "$t/java:.cache/build/stock-libs.jar" lang.$c; done >"$t/expected.txt"
+for c in Lang Lang2 Handles Generics Generics2 Generics3 Colls Imm Unboxed Covariant CovariantIface Layout FnTypes LibGen LibFns; do env -u JAVA_TOOL_OPTIONS java -Dstdout.encoding=UTF-8 -cp "$t/java:.cache/build/stock-libs.jar" lang.$c; done >"$t/expected.txt"
 # The test class is translated together with the whole tree, so that the runtime it needs is all there.
 cp go/go.mod "$t/go/" && cp go/closure/rt_*.go tools/j2go/selftest/rt_*.go "$t/go/closure/" && rm -f "$t"/go/closure/*_test.go
 [[ -d go/closure/resources ]] && cp -r go/closure/resources "$t/go/closure/"
@@ -43,7 +43,7 @@ import (
 	"unsafe"
 )
 
-func SelfTest() string { return Lang_run() + Lang2_run() + Handles_run() + Generics_run() + Generics2_run() + Generics3_run() + Colls_run() + Imm_run() + Unboxed_run() + Covariant_run() + CovariantIface_run() + Layout_run() + FnTypes_run() + LibGen_run() }
+func SelfTest() string { return Lang_run() + Lang2_run() + Handles_run() + Generics_run() + Generics2_run() + Generics3_run() + Colls_run() + Imm_run() + Unboxed_run() + Covariant_run() + CovariantIface_run() + Layout_run() + FnTypes_run() + LibGen_run() + LibFns_run() }
 
 // SelfTestSizes: the sizes of the structs of lang/Layout.java.
 func SelfTestSizes() string {
@@ -63,6 +63,18 @@ sizes="Mixed=136 Sub=168 Slot=40 Rec=48 Inner=24 Local=40"
 [[ ${J2GO_NOLAYOUT:-} == 1 ]] && sizes="Mixed=168 Sub=208 Slot=56 Rec=72 Inner=32 Local=48"
 echo "$sizes" >>"$t/expected.txt" && "$t/t" sizes >>"$t/actual.txt"
 if ! diff "$t/expected.txt" "$t/actual.txt"; then echo "selftest: FAIL"; exit 1; fi
+if [[ -z ${J2GO_NOLIBGEN:-} && ${J2GO_NOFNTYPES:-} != 1 ]]; then
+  # Rule "typed library interfaces", piece `fns` (lang/LibFns.java): typed() calls the typed twins
+  # (33 of them), erased() none (variance, an erased argument, keys that are not Strings, a
+  # function without a twin: 4 calls of the erased functions).
+  twin='\b(Iterables_[a-zA-Z]+T_|MoreObjects_firstNonNullT_|List_sortT_|Collections_sortT_|Iterable_forEachT_|Map_[a-zA-Z_]+T_)\[|\b(newTSortedSetCT_|newTSortedMapCT_|splitToListST_)\('
+  erased='\b(Iterables_getFirst|Map_get_s|Lists_reverse)\('
+  g="$t/go/closure/g_LibFns.go"
+  nt=$(awk '/^func LibFns_typed\(/,/^}/' "$g" | { grep -oE "$twin" || true; } | wc -l)
+  nx=$(awk '/^func LibFns_erased\(/,/^}/' "$g" | { grep -oE "$twin" || true; } | wc -l)
+  ne=$(awk '/^func LibFns_erased\(/,/^}/' "$g" | { grep -oE "$erased" || true; } | wc -l)
+  if [[ $nt != 33 || $nx != 0 || $ne != 4 ]]; then echo "selftest: FAIL (typed library functions: $nt twins in typed(), $nx and $ne erased calls in erased())"; exit 1; fi
+fi
 if [[ ${J2GO_NOFNTYPES:-} != 1 ]]; then
   # Rule "function types": the translator must refuse every use in refused/Refused.java (14) and write nothing.
   mkdir -p "$t/refused" && { cat "$t/files.txt"; echo tools/j2go/selftest/refused/Refused.java; } >"$t/refused/files.txt"

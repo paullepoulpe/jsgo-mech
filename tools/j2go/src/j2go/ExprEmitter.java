@@ -320,6 +320,8 @@ abstract class ExprEmitter extends Base {
     if (elemOf(n) instanceof ExecutableElement ctor && ctor.getParameters().size() == 1 && cx.erase(ctor.getParameters().get(0).asType()) instanceof DeclaredType pt
         && Ctx.typeElement(pt).getQualifiedName().contentEquals("java.util.Comparator")) {
       // new TreeSet<>(comparator)
+      String ct = cx.lf.sortedComparator(fn, target, pt);
+      if (ct != null) return "newT" + fn + "CT_(" + tc + ", " + exprAs(a, cx.erase(cx.types.getDeclaredType(Ctx.typeElement(pt), ((DeclaredType) target).getTypeArguments().get(0)))) + ")";
       return "newT" + fn + "C_(" + tc + ", " + exprAs(a, pt) + ")";
     }
     if (cx.isTypedColl(at) && cx.goType(at).equals(cx.goType(target))) return lower + "Copy_(" + tc + ", " + expr(a) + ")";
@@ -362,6 +364,11 @@ abstract class ExprEmitter extends Base {
     }
     if (maker != null && mi.getMethodSelect() instanceof MemberSelectTree ms && !m.getModifiers().contains(Modifier.STATIC)) {
       // a library method that makes a list for its caller: the runtime's typed twin
+      String sm = as.size() == 1 ? cx.lf.stringMaker(maker[0], as.get(0), typeOf(as.get(0))) : null;
+      if (sm != null) {
+        // (of a String, at its type: piece `fns`)
+        return sm + "(" + tc + ", " + exprAs(ms.getExpression(), cx.ownerOf(m).asType()) + ", " + exprAs(as.get(0), stringType()) + ")";
+      }
       StringBuilder sb = new StringBuilder(maker[0] + "(" + tc + ", " + exprAs(ms.getExpression(), cx.ownerOf(m).asType()));
       for (int i = 0; i < as.size(); i++) sb.append(", ").append(exprAs(as.get(i), cx.lg.rt(m.getParameters().get(i).asType())));
       return sb.append(")").toString();
@@ -1721,7 +1728,11 @@ abstract class ExprEmitter extends Base {
     }
   }
 
+  /** Whether the call being translated is lgWantErased (its result enters an Object), for LibFns.call, which clears it. */
+  boolean lfErased;
+
   CallResult invocation(MethodInvocationTree t, boolean lgEr) {
+    lfErased = lgEr;
     ExpressionTree sel = t.getMethodSelect();
     Element el = elemOf(t);
     if (!(el instanceof ExecutableElement)) el = elemOf(sel);
@@ -1793,6 +1804,9 @@ abstract class ExprEmitter extends Base {
   }
 
   CallResult special(ExecutableElement e, Recv recv, List<Arg> as) {
+    // rule "typed library interfaces", piece `fns`: the typed twin of a library function (LibFns)
+    CallResult lf = cx.lf.call(this, e, recv, as);
+    if (lf != null) return lf;
     as = lgReaders(e, as);
     TypeElement owner = cx.ownerOf(e);
     String qn = owner.getQualifiedName() + "#" + e.getSimpleName();

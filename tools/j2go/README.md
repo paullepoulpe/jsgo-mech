@@ -395,6 +395,24 @@ type Map_EntryT[K any, V any] interface { Map_Entry; getKey_t() K; getValue_t() 
   erased ones (a String key goes through the helpers `Map_get_s`...). `J2GO_LIBGEN=1` counts
   the erased methods still called on a typed receiver, and those of them that box an argument
   or give an element as `Object`.
+- Piece `fns` (`LibFns`; needs rule "function types"): the runtime's static library functions
+  and the default methods of the interfaces have typed twins at their Java generic signatures
+  (`go/closure/rt_lgfn.go`, built with rule "function types" only): `Iterables.getFirst` is
+  `Iterables_getFirstT_[T](IterableT[T], T) T`, `Map.forEach` is `Map_forEachT_[K, V](MapT[K, V],
+  BiConsumer[K, V])`, `Map.get` with a String key on a map of String keys is `Map_get_sT_[V]`.
+  A name list (`LibFns.TYPED`, with the Go signature of each twin as a template) chooses them; a
+  call is the twin's, with javac's type arguments, where the Go types that javac's types give
+  for the call are the template's, every collection argument and the receiver enter at their
+  typed interface as they are (a typed collection, a typed interface of the same element
+  types: no wrapper), and the result does not go to an `Object` (Java casts nothing there).
+  Every other call keeps the erased function; `J2GO_LIBGEN=2` lists them by reason, and the
+  functions of the same kind without a twin (`LibFns.REFUSED`: `Lists.reverse` / `transform`,
+  live views; `SequencedCollection`'s methods, `CacheLoader.from`, `Map.putIfAbsent`). Also:
+  `new TreeSet<>(comparator)` / `new TreeMap<>(comparator)` of a typed collection take the
+  comparator at the key type (`newTSortedSetCT_`; the sorted set compares its keys without
+  boxes, `teq_.cmpT`), and `Splitter.splitToList` of a String takes it unboxed
+  (`splitToListST_`). `selftest/lang/LibFns.java` has the twins (33 calls, counted by
+  `selftest/run.sh`) and calls that must stay erased (4).
 
 Refused (`typed library interfaces: refused: File.java:line: ...`, nothing is written):
 
@@ -419,7 +437,7 @@ Refused (`typed library interfaces: refused: File.java:line: ...`, nothing is wr
 `tools/j2go/selftest/refused/RefusedLib.java` has one use of each kind (7); the self-test
 fails unless the translator refuses exactly those and writes nothing.
 
-Each kind and piece is a switch: `J2GO_NOLIBGEN=iter,coll,list,set,map,makers,views,place,cov,elems,wide,nncoll,readers,cls,meth`
+Each kind and piece is a switch: `J2GO_NOLIBGEN=iter,coll,list,set,map,makers,views,place,cov,elems,wide,nncoll,readers,cls,meth,fns`
 (`all`: every one). A translation with any of them off is built with `-tags j2go_nolibgen`
 (`tools/prune/verify.sh` and the self-test do that when `J2GO_NOLIBGEN` is set): the erased
 factories that only such a translation names are in `go/closure/rt_lg_erased.go`, outside the

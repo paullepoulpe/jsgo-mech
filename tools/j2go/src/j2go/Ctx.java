@@ -227,6 +227,9 @@ final class Ctx {
   /** Rule "typed library interfaces": library collection interfaces with their typed methods. */
   final LibGen lg = new LibGen(this);
 
+  /** Rule "typed library interfaces", piece `fns`: the typed twins of library functions. */
+  final LibFns lf = new LibFns(this);
+
   boolean isValueLib(TypeElement te) {
     return te != null && valueLibs.contains(te);
   }

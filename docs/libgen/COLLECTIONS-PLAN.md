@@ -1277,3 +1277,159 @@ Not gated: combinations of switches other than "all"; the older switches `J2GO_C
 - `rt_lg_erased.go` (tag `j2go_nolibgen`) is not part of the default build: a step that edits
   runtime functions by name must not expect `ImmutableList_of_Object_...` (5 to 11 arguments),
   `to_ArrayList`, `new_ArrayList_int` there.
+
+## 6. Record of piece `fns` (candidate T1 of docs/javaisms6/JAVAISMS6.md; branch `main-libgen-t1`, worktree `/mnt/data/ubuntu/jm/wt/libt1`, 2026-11-23)
+
+On top of main 697100e9. Scratch files: `/mnt/data/tmp/claude-1000/-home-ubuntu-work/9db246f3-01a3-48c8-9bf5-1c94d1ed78d6/scratchpad/t1/`
+(`jc.sh` rebuild the translator; `tx.sh` translate; `st.sh` self-test; `pipe.sh <label>` translate +
+build + gate under one hold of the lock; `count.sh <base> <new>` the counts below; `basebin.sh` main's
+translation with main's runtime as `$B/bin/m_t1_base`; `tm.sh` timing; `alloff.sh` the all-off
+translation by main's translator and this one; `offall.sh` / `off.sh` the gates with switches off;
+`rep.sh` the J2GO_LIBGEN=2 report, `rep.log`; `base/` and `new/` the two translations). Every heavy
+command ran under `flock /mnt/data/ubuntu/jm/heavy.lock` (shared with the agent of candidate T2).
+
+### 6.1 What it is
+
+T1: the runtime's static library functions and the default methods of the library interfaces were
+erased (`Iterables_getFirst(p0 Iterable, p1 any) any`), so a call on a typed collection took its
+erased form (`List_un_(x)`, `Iterable(..)`), boxed its arguments, cast its result, and a
+lambda given to it was a converting closure. Piece `fns` of rule "typed library interfaces"
+(`J2GO_NOLIBGEN=fns`; it needs rule "function types", so `J2GO_NOFNTYPES=1` turns it off too)
+adds typed twins (`go/closure/rt_lgfn.go`, 320 lines, tag `!j2go_nofntypes`), Go generic
+functions at the Java generic signature with the typed interfaces of rt_lg.go and the func types
+of rule "function types", and a name list in the translator (`tools/j2go/src/j2go/LibFns.java`,
+`LibFns.TYPED`), the mechanism of `mapComputeIfAbsentT_` / `sortSliceF_` (which are post-flip
+tools; this is the translator). Each entry has the twin's Go signature as a template (`$i` the
+i-th type argument). A call becomes the twin's, instantiated with javac's type arguments (a static:
+its own type parameters as inferred; a default method: the receiver's typed interface's), where:
+
+- the Go types that javac's types give for the call's parameters and result are the template's
+  (text comparison: an element type a typed interface cannot hold, a wildcard, an erased type
+  variable fail here) and the runtime declares the twin (`Conv.rtGenerics`);
+- every collection argument and the receiver enter at their typed interface as they are (a typed
+  collection, or a typed interface of the same element types): variance or an erased argument
+  would need a wrapper, so the call stays erased;
+- a typed collection's own method (`TMap.computeIfAbsent`) is not replaced;
+- the result does not go to an `Object` (`ExprEmitter.lfErased`, set from `lgWantErased`): Java
+  casts nothing there, so an element of another class that unchecked code put into the collection
+  passes, where the twin would cast it. (Found by the self-test: LibGen.java's `wrong` map,
+  `String.valueOf(wrong.get("k"))`.)
+
+Twins (17 functions): `Iterables.getFirst / getLast / getOnlyElement / get / indexOf / filter /
+transform` (filter and transform give a typed Iterable: `iterViewT_`, `filterIterT_`,
+`mapIterT_`), `MoreObjects.firstNonNull`, `Collections.sort(List)` and `(List, Comparator)`,
+`List.sort`, `Iterable.forEach`, `Map.forEach / replaceAll / computeIfAbsent / getOrDefault /
+merge`, and `Map.get / getOrDefault` with a String key on a map of String keys (the twins of the
+helpers `Map_get_s` / `Map_getOrDefault_s`: the typed map's own lookup, else the erased helper and
+`unboxT_`). Two translator places outside the name list, same switch: `new TreeSet<>(comparator)`
+/ `new TreeMap<>(comparator)` of a typed collection take the comparator at the key type
+(`newTSortedSetCT_` / `newTSortedMapCT_`; the sorted set keeps it as `teq_.cmpT`, a `func(K, K)
+int32`, and compares keys without boxing them; erased code asking for `comparator()` gets an
+adapter), and `Splitter.splitToList` of a String takes it unboxed (`splitToListST_`). Each twin
+does what the erased function does, step by step (the same calls on the collection in the same
+order: List_sortT_ copies with `get_t`, sorts with `sort.SliceStable` as `sortSlice_` does, sets
+back with `set_t`; natural order compares two Strings with `String_compareTo`, else the boxes).
+
+Left erased, by function (`LibFns.REFUSED`, reported by `J2GO_LIBGEN=2`):
+`Lists.reverse` (6 calls) and `Lists.transform` (2): live List views; a twin needs a List class
+of the runtime at the element type (not a minimal runtime). `SequencedCollection.getFirst /
+getLast / removeLast / addLast` (72): no typed interface; the receivers are Deques (candidate T2;
+5 are a List, `contextStack`). `CacheLoader.from` (1): LoadingCache (T2). `Map.putIfAbsent` (24
+calls of the root; the 2 erased helper calls left have erased receivers). Not attempted: the 24
+"runtime method whose Java signature is typed or overloaded" sites (`BigInteger.compareTo`,
+`Enum.compareTo`, `ComparisonChain.compare`): instance methods of runtime classes, not generic
+functions; they need a rule for runtime method signatures. `Comparator.comparing` with a key typed
+`any` (2): already generic in the runtime; the key's type is what javac inferred. `Object.clone`
+(3): not generic.
+
+Left erased, by site (default translation, `rep.log`): the result enters an Object 12 (`Map.get`
+with a String key), the receiver is erased 6 (`Map.get` 3, `computeIfAbsent` 2, `getOrDefault`
+1), a parameter's Go type is not the twin's 1 (`Iterables.transform` to `Function_base[F, any]`).
+
+### 6.2 Counts (`count.sh`, main's default translation `base/` against this one `new/`, `g_*.go`)
+
+Calls of the erased function -> left, and of the twin: getFirst 14 -> 0 (14), getLast 9 -> 0 (9),
+getOnlyElement 19 -> 0 (19), get 5 -> 0 (5), indexOf 1 -> 0, filter 5 -> 0, transform 5 -> 1 (4),
+firstNonNull 5 -> 0, Collections_sort 10 -> 0, Collections_sort_List_Comparator 4 -> 0, List_sort 12
+-> 0 (List_sortT_ 16 with those 4), Iterable_forEach 7 -> 0, Map_forEach 9 -> 0, Map_replaceAll 1
+-> 0, Map_computeIfAbsent 6 -> 2 (4), Map_getOrDefault 1 -> 0, Map_merge 3 -> 0, Map_get_s 22 -> 5
+(17), Map_getOrDefault_s 3 -> 1 (2), newTSortedSetC_ 9 -> 0 (9), splitToListT_ 22 -> 0 (22):
+**172 calls of 182 typed** (163 by the name list, 9 sorted sets; 22 splitToList).
+
+Census rows (`pf5/tools/postflip/census.py` on each directory), **-310 sites**:
+
+| row | main | t1 | |
+|---|---:|---:|---:|
+| for-each via iterator objects | 782 | 780 | -2 |
+| interface casts `icast_X(` | 322 | 298 | -24 |
+| class casts | 1,255 | 1,165 | -90 |
+| boxing to any | 1,601 | 1,554 | -47 |
+| unboxing from any | 210 | 155 | -55 |
+| Optional | 1,401 | 1,402 | +1 (a line count: one call split differently) |
+| fields/params declared any (approx) | 1,378 | 1,286 | -92 |
+
+Conversions at the boundary: `Map_un_(` 66 -> 29, `List_un_(` 97 -> 80, `Collection_un_(` 56
+-> 41, `Set_un_(` 82 -> 79, `Iterable_un_(` 60 -> 58, `lgBox_(` 86 -> 83, `iterableAs_(` 56 ->
+55, `listAs_(` 78 -> 76, `setAs_(` 40 -> 38, `mapAs_(` 48 -> 47; converting closures `func()
+Comparator[any]` 27 -> 8, `BiConsumer[any, any](` 9 -> 0, `Consumer[any](` 47 -> 40,
+`Comparator[any](` 3 -> 0, `Function_base[any, any](` 7 -> 3, `BiFunction[any, any, any](` 6 -> 2.
+
+These are counts on the translator's output. JAVAISMS6.md's 283 are sites of the sixth flip's tree
+(post-flip tools applied, which rewrite some of these calls themselves, `tfnapi`, `native`); the
+census of a flip of this translation was not made.
+
+### 6.3 Timing (gast.py, flags3500 subset, 3 rounds alternating; `tm-t1.log`)
+
+`t1base` = main's translation with main's runtime (`basebin.sh`), `t1` = this branch (gate
+binary `m_t1_a`): cpu mean 165.42 s (min 164.92) against 166.34 s (min 165.08), +0.6% mean, +0.1%
+min: **neutral** (within the spread of each binary's runs, 1.3 s). Output sha 72b57cd286c9 in all
+six runs. No allocation profile was taken.
+
+### 6.4 Switches and gates
+
+With `J2GO_NOLIBGEN=fns` the generated files are byte-identical to main's default translation (md5
+of `cat g_*.go` f630308fb905a07052ac0ea004b9214c, both); with `J2GO_NOFNTYPES=1 J2GO_NOLIBGEN=all`
+main's translator and this one give the same files (973b5b6d3e4f71ab1cc82872360f9759,
+`alloff.sh`). Default translation: 88d6f66b25b35b59b1ed0b8e6ef4a9c3. Not behind the switch: the
+runtime (`rt_lgfn.go`, `teq_.cmpT` and its test in `tsortCmp_`, which is nil without the
+piece), and `ExprEmitter.lfErased` (read only by the piece).
+
+Self-test: `selftest/lang/LibFns.java`: `typed()` has 33 twin calls, `erased()` 4 calls that must
+stay erased (variance: `Iterables.getFirst(List<Dog>, Animal)`; `Iterable<?>`; a `Map<Object,
+String>` read with a String; `Lists.reverse`) and no twin; `run.sh` counts both in the
+generated `g_LibFns.go` (when `J2GO_NOLIBGEN` and `J2GO_NOFNTYPES` are unset), and both print
+what Java prints.
+
+Gate, default translation (`$B/gate.sh libt1 t1_a`, the tree of commit 7a414f32 before it was
+committed): `GATE OK t1_a`
+
+```
+selftest: PASS
+removed 0 declarations in 0 rounds
+ok  	jsgomech/closure	1.941s
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+runtime lines: 20685  test lines: 4524
+runtime lines of the default build: 20441  off-mode extras (build-tagged files): 244
+```
+
+(main: 20117 lines of the default build; +320 `rt_lgfn.go`, +4 `teq_.cmpT`.)
+
+Switches off (`offall.sh fns alloff`, `tools/prune/verify.sh` with the switches; logs
+`verify-fns.log`, `verify-alloff.log`): both selftest PASS, `ok`, 4 MATCH, with the same lines as
+above; the default translation made again afterwards was identical.
+
+### 6.5 Not done, unverified, overlaps
+
+- No Go unit tests for the twins (the self-test compares them with Java; the tree's e2e compares
+  the outputs). No CHECKS allocation profile.
+- The census of a flip of this translation (the post-flip tools' rewrites of `Map_computeIfAbsent`,
+  `List_sort`, ... now meet twins, which they do not know; `tfnapi` / `native` steps that look for
+  the erased calls find fewer).
+- Overlap with candidate T2 (branch `main-libgen-t2`): `rt_tset.go` / `rt_tsorted.go` (`teq_`,
+  `tsortCmp_`: 4 lines), `Ctx.java` (one field next to `lg`), `ExprEmitter.java` (`special`,
+  `newTyped`, `immutableOf`, `invocation`), `selftest/run.sh` (class list), `tools/j2go/README.md`
+  (the switch list). The `SequencedCollection` and `CacheLoader` calls are T2's types; once T2
+  types Deque / TreeMap, their default methods can join `LibFns.TYPED` (a receiver template).
