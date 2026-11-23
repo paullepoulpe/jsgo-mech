@@ -130,7 +130,7 @@ func (this *PropertyMap) getOwnProperty(propertyName Property_Key) *Property {
 				return nil
 			}()
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 }
 
