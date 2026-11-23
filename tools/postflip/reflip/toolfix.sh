@@ -2840,8 +2840,10 @@ E39b
 #    elements the erased view holds). The tools' rewrites replace the whole call by an operation on the typed collection
 #    itself, whose equality with the erased function was shown for that collection's elements, so which of its views the
 #    call was given does not matter. Read so: X_un_(v) is v; asListT / asCollT / asIterable of a *TList stand where asList
-#    does, asSetT / asCollT / asIterable of a *TSet where asSet does, asMapT of a *TMap where asMap does. (The steps'
-#    counts on this flip are in steps.txt at 472, 481, 486 and 488.)
+#    does, asSetT / asCollT / asIterable of a *TSet where asSet does, asMapT of a *TMap where asMap does. tfnapi also reads
+#    the erased conversion around it, I(X_un_(v)) (Iterable(List_un_(L.asListT())): Iterable.forEach of a typed list, 2
+#    calls of ClosureRewriteModule; added in the second part of the sixth flip). (The steps' counts on this flip are in
+#    steps.txt at 472, 481, 486 and 488.)
 f=tools/postflip/tcmp/main.go
 if [[ -f $f ]] && grep -q 'func tlistElem' $f && ! grep -q 'reflip40' $f; then
   perl -0pi -e 's/view, ok := rw\.Unparen\(c\.Args\[0\]\)\.\(\*ast\.CallExpr\)/view, ok := reflip40view(c.Args[0])/g; s/s\.Sel\.Name != "asList" \{/s.Sel.Name != "asList" && s.Sel.Name != "asListT" { \/\/ reflip40/' $f
@@ -2867,6 +2869,11 @@ reflip_edit tools/postflip/tfnapi/main.go reflip40 <<'E40'
 =====
 		} else if n, _ := rw.CallName(c); strings.HasPrefix(n, "iup_") || strings.HasSuffix(n, "_un_") { // reflip40: X_un_(v) is v
 			e = rw.Unparen(c.Args[0])
+		}
+		if c2, ok := e.(*ast.CallExpr); ok && len(c2.Args) == 1 { // reflip40: I(X_un_(v))
+			if n, _ := rw.CallName(c2); strings.HasSuffix(n, "_un_") {
+				e = rw.Unparen(c2.Args[0])
+			}
 		}
 -----
 	for _, v := range views {
@@ -2936,3 +2943,270 @@ reflip_edit tools/postflip/native/main.go reflip41c <<'E41c'
 =====
 	case (m == "asSet" || m == "asSetT" || m == "asCollT") && len(args) == 0 && kc != "": // reflip41c
 E41c
+# 42. (sixth flip) trips: the round trips through a typed collection's views for typed code. Rule "typed library interfaces"
+#    writes S.asSet().addAll(Collection(U.asSet())) (fifth flip; step 512 rewrote 36 such calls to tsetAddSet_ / tsetAddList_ /
+#    tsetAddAllOf_) as S.asSetT().addAll(Collection(U.asSet())) (also asCollT()), and a typed list given to an erased reader as
+#    Collection(L.asListT()) or Collection(List_un_(L.asListT())); the tool read asSet / asImm / asList only (7 round trips at
+#    the step, the fifth flip 47). Read so: (a) as an operand, L.asListT() / L.asCollT() / L.asIterable() of a *TList stand where
+#    L.asList() does, U.asSetT() / U.asCollT() / U.asIterable() of a *TSet where U.asSet() does, and X_un_(v) is v (rt_lg.go:
+#    each is a view of the same typed collection holding the elements its erased view holds, in its order; X_un_ of a view is
+#    its erased view, unwrap_: the claim of fix 40). (b) As the receiver, S.asSetT() differs from S.asSet() in one case: for an
+#    immutable set asSet() is the erased twin, whose addAll throws UnsupportedOperationException always, and asSetT() the typed
+#    view, whose add throws for the first element (an empty source changes nothing and returns false). So the receiver form
+#    takes helpers of its own (rt_tripst.go, this flip's patch reflip6-tripst-rt.patch at the step): tsetAddAllOfT_,
+#    tsetAddSetT_, tsetAddListT_ are S.asSetT().addAll(..) itself for an immutable S and the tool's helpers otherwise, which for
+#    a set that can change are S.asSet().addAll(..) (asSet() and asSetT() are then the same view, the sorted view for a sorted
+#    set); TestTypedRoundTripsT compares each with the call it replaces, immutable, sorted and null sets included.
+reflip_edit tools/postflip/trips/main.go reflip42 <<'E42'
+	for _, m := range []string{"asImm", "asList"} {
+=====
+	for _, m := range []string{"asImm", "asList", "asListT", "asCollT", "asIterable"} { // reflip42
+-----
+	for _, m := range []string{"asSet", "asImm"} {
+=====
+	for _, m := range []string{"asSet", "asImm", "asSetT", "asCollT", "asIterable"} { // reflip42
+-----
+		if f.Name == "iup_Collection" {
+			return rw.Unparen(c.Args[0])
+		}
+=====
+		if f.Name == "iup_Collection" {
+			return reflip42un(c.Args[0])
+		}
+		if reflip42un(e) != e {
+			return reflip42un(e)
+		}
+-----
+		if tn, ok := rw.Info.Uses[f].(*types.TypeName); ok && tn.Name() == "Collection" && tn.Pkg() == rw.Pkg {
+			return rw.Unparen(c.Args[0])
+		}
+=====
+		if tn, ok := rw.Info.Uses[f].(*types.TypeName); ok && tn.Name() == "Collection" && tn.Pkg() == rw.Pkg {
+			return reflip42un(c.Args[0])
+		}
+-----
+				s, _ := method(fs.X, "asSet", 0)
+				if s == nil {
+					return true
+				}
+=====
+				s, _ := method(fs.X, "asSet", 0)
+				T := "" // reflip42: S.asSetT().addAll / S.asCollT().addAll: the helpers of the typed view
+				for _, m := range []string{"asSetT", "asCollT"} {
+					if s == nil && rw.HasFunc("tsetAddAllOfT_") {
+						s, _ = method(fs.X, m, 0)
+						T = "T"
+					}
+				}
+				if s == nil {
+					return true
+				}
+-----
+					return put(c, "S.asSet().addAll(the view or twin of a typed set U) -> tsetAddSet_(S, U)", func() string { return "tsetAddSet_(" + r(s) + ", " + r(u) + ")" })
+				}
+				if l := listOf(in, k); l != nil {
+					return put(c, "S.asSet().addAll(the view or twin of a typed list L) -> tsetAddList_(S, L)", func() string { return "tsetAddList_(" + r(s) + ", " + r(l) + ")" })
+				}
+				return put(c, "S.asSet().addAll(c) -> tsetAddAllOf_(S, c)", func() string { return "tsetAddAllOf_(" + r(s) + ", " + r(arg) + ")" })
+=====
+					return put(c, "S.asSet"+T+"().addAll(the view or twin of a typed set U) -> tsetAddSet"+T+"_(S, U)", func() string { return "tsetAddSet" + T + "_(" + r(s) + ", " + r(u) + ")" })
+				}
+				if l := listOf(in, k); l != nil {
+					return put(c, "S.asSet"+T+"().addAll(the view or twin of a typed list L) -> tsetAddList"+T+"_(S, L)", func() string { return "tsetAddList" + T + "_(" + r(s) + ", " + r(l) + ")" })
+				}
+				return put(c, "S.asSet"+T+"().addAll(c) -> tsetAddAllOf"+T+"_(S, c)", func() string { return "tsetAddAllOf" + T + "_(" + r(s) + ", " + r(arg) + ")" })
++++++
+
+// reflip42un: e without X_un_(..) around it (List_un_, Collection_un_, Set_un_, Iterable_un_ of the package).
+func reflip42un(e ast.Expr) ast.Expr {
+	e = rw.Unparen(e)
+	for {
+		c, ok := e.(*ast.CallExpr)
+		if !ok || len(c.Args) != 1 {
+			return e
+		}
+		f, ok := c.Fun.(*ast.Ident)
+		if !ok || f.Name != "List_un_" && f.Name != "Collection_un_" && f.Name != "Set_un_" && f.Name != "Iterable_un_" {
+			return e
+		}
+		if fo, ok := rw.Info.Uses[f].(*types.Func); !ok || fo.Pkg() != rw.Pkg {
+			return e
+		}
+		e = rw.Unparen(c.Args[0])
+	}
+}
+E42
+# 43. (sixth flip) eqhash (its versions with interfaces, steps 192 and 557): the box of a value of a typed library interface.
+#    The fifth flip's translator wrote the equality of a typed collection's view with the boxing of the view erased code sees,
+#    equalsR_(L.asList(), y) / Object_equals(obj_(..)), which the tool decided from the static type List (equalsVia_ /
+#    equalsDyn_: the dynamic types are the package's types implementing List, all with equals). Rule "typed library
+#    interfaces" writes Object_equals(lgBox_(L.asListT()), y), Objects_hash(lgBox_(s), ..) and the like: the operand is the
+#    `any` of lgBox_, which the tool leaves to the runtime (12 calls in the final tree: CheckProvidesSorted,
+#    CheckRequiresSorted, ColorRegistry, EqualityChecker, JSDocInfo, JSTypeReconserializer, MustBeReachingVariableDef,
+#    PropertyMap 2, RegExpTree, SimpleMultiset, TemplatizedType). lgBox_(v) of v of the package's typed interface XT[..]
+#    (IterableT, CollectionT, ListT, SetT, MapT, Map_EntryT, IteratorT: each embeds the erased interface X first) is the
+#    object erased code knows for v (rt_lg.go): unwrap_() for a wrapper or a typed collection (the wrapped X, or the
+#    collection's erased view or twin of that kind), else v itself; in every case a value of X, nil for nil. So the box is a
+#    value of interface type X as obj_ of an X is, and the tool's own rule for an interface applies, with lgBox_(v) as the
+#    operand written as it is (an `any` the runtime helpers take as T = any). Only the decisions that call through the
+#    value are taken (equalsVia_ / objequalsVia_ / equalsDyn_ / objequalsDyn_, hashVia_ .. objhashDyn_): they assert the
+#    value's own method as Object_equals / Objects.hashCode do; identity and method-expression forms are left, since the
+#    operand's static type is not X.
+reflip_edit tools/postflip/eqhash/main.go reflip43 <<'E43'
+	keepNull bool
+}
+=====
+	keepNull bool
+	lg       bool // reflip43: x is lgBox_(v) of a typed library interface value, t the erased interface it embeds
+}
+-----
+			case "strobj_":
+				return boxed{x: c.Args[0], t: types.Typ[types.String]}, true
+			case "Boolean_valueOf":
+=====
+			case "strobj_":
+				return boxed{x: c.Args[0], t: types.Typ[types.String]}, true
+			case "lgBox_": // reflip43
+				if X := reflip43erased(c.Args[0]); X != nil {
+					if fo, ok := rw.Info.Uses[f].(*types.Func); ok && fo.Pkg() == rw.Pkg {
+						return boxed{x: c, t: X, lg: true}, true
+					}
+				}
+				return boxed{}, false
+			case "Boolean_valueOf":
+-----
+	sameType := bok && bb.self == ba.self && bb.keepNull == ba.keepNull && types.Identical(ta, bb.t)
+=====
+	sameType := bok && bb.self == ba.self && bb.keepNull == ba.keepNull && types.Identical(ta, bb.t) && !bb.lg // reflip43
+-----
+		m = mode(ta, "equals", eqSig)
+	}
+=====
+		m = mode(ta, "equals", eqSig)
+	}
+	if ba.lg && m != mVia && m != mMixed { // reflip43: only the calls through the value
+		return ""
+	}
+-----
+		m = mode(ta, "hashCode", hashSig)
+	}
+=====
+		m = mode(ta, "hashCode", hashSig)
+	}
+	if ba.lg && m != mVia && m != mMixed { // reflip43
+		return nil, ""
+	}
++++++
+
+// reflip43erased: the erased interface X that the type of v, a typed library interface XT[..] of the package, embeds first;
+// nil for any other type.
+func reflip43erased(v ast.Expr) types.Type {
+	tv, ok := rw.Info.Types[v]
+	if !ok || tv.Type == nil {
+		return nil
+	}
+	nt, ok := types.Unalias(tv.Type).(*types.Named)
+	if !ok || nt.Obj().Pkg() != rw.Pkg || nt.TypeArgs().Len() == 0 || !strings.HasSuffix(nt.Obj().Name(), "T") {
+		return nil
+	}
+	it, ok := nt.Underlying().(*types.Interface)
+	if !ok || it.NumEmbeddeds() == 0 {
+		return nil
+	}
+	x, ok := types.Unalias(it.EmbeddedType(0)).(*types.Named)
+	if !ok || x.Obj().Pkg() != rw.Pkg || x.Obj().Name()+"T" != nt.Obj().Name() {
+		return nil
+	}
+	if _, ok := x.Underlying().(*types.Interface); !ok {
+		return nil
+	}
+	return x
+}
+E43
+# 44. (sixth flip) native -kind list, two forms of rule "typed library interfaces" the tool did not read (with fix 41 the step
+#    made 375 declarations slices, the fifth flip 423; the 48 stay for these two):
+#    (a) tlistOfT_(c, x): the value of a place of class ImmutableList entering a typed declaration, the immutable typed list
+#    whose view x is, else tlistImm_ of the object (rt_lg.go). The tool knows tlistImm_(c, x) as an ImmutableList (a value
+#    the class must not change, made a slice by sliceImm_); tlistOfT_ is one too (both results are immutable typed lists),
+#    and its slice is sliceOfT_(c, x) / slicePtrOfT_(c, x) (rt_nativet.go, this flip's patch reflip6-nativet-rt.patch at
+#    step 403): tlistOfT_(c, x)'s items, with the same exception for a value that is no ImmutableList, an empty slice for
+#    an empty list and nil for null.
+#    (b) a parameter of a typed library interface (IterableT[T], CollectionT[T], ListT[T]) of a function of the package:
+#    the fifth flip's translator declared it Iterable / Collection / List, which the tool's readParams decides (every
+#    function of the group only reads it during the call: reading methods, iteration in place, runtime readers, nil tests,
+#    or passing it to another such parameter); a list given to it as a view then becomes a pointer to a slice with a live
+#    view made for the call (slicePtrView_). Rule "typed library interfaces" declares the parameter typed and the list is
+#    given as L.asListT() / L.asCollT() / L.asIterable(); its readers are the typed cursor jeachOf_(p) (a local cursor used
+#    in the function, as foreach_), elemsT_(p) as a range expression, get_t(i), X_un_(p) for an erased reader. The same
+#    decision with those readers, and the live view the typed one: slicePtrViewT_(c, p), slicePtrView_'s list with the typed
+#    methods (get_t, iterator_t read *p at every call, as the typed list's view and its cursor read the items; the typed
+#    cursor of jeachOf_ walks it through iterator_t). TestNativeTypedViews compares it with asListT() of a typed list over
+#    the same items, and sliceOfT_ with tlistOfT_. Both readings apply only when the runtime has the functions.
+reflip_edit tools/postflip/native/main.go reflip44a <<'E44a'
+		case n == "tlistImm_":
+=====
+		case n == "tlistImm_", n == "tlistOfT_" && rw.HasFunc("sliceOfT_"): // reflip44a
+-----
+	case "tlistImm_":
+=====
+	case "tlistOfT_": // reflip44a
+		edit(n, call, func() string {
+			if cls(n).ptr {
+				return "slicePtrOfT_(" + rw.Render(call.Args[0]) + ", " + rw.Render(call.Args[1]) + ")"
+			}
+			return "sliceOfT_(" + rw.Render(call.Args[0]) + ", " + rw.Render(call.Args[1]) + ")"
+		})
+	case "tlistImm_":
+E44a
+reflip_edit tools/postflip/native/main.go reflip44b <<'E44b'
+	switch nt.Obj().Name() {
+	case "List", "Collection", "Iterable", "SequencedCollection":
+		return true
+	}
+=====
+	switch nt.Obj().Name() {
+	case "List", "Collection", "Iterable", "SequencedCollection":
+		return true
+	case "ListT", "CollectionT", "IterableT": // reflip44b
+		return rw.HasFunc("slicePtrViewT_")
+	}
+-----
+				if nm != "Collection" && nm != "Iterable" && nm != "List" && nm != "SequencedCollection" && nm != "icast_Collection" && nm != "icast_Iterable" && nm != "icast_List" {
+=====
+				if nm != "Collection" && nm != "Iterable" && nm != "List" && nm != "SequencedCollection" && nm != "icast_Collection" && nm != "icast_Iterable" && nm != "icast_List" && nm != "List_un_" && nm != "Collection_un_" && nm != "Iterable_un_" { // reflip44b
+-----
+	"indexOf": true, "lastIndexOf": true, "toArray": true, "toArray_0": true, "equals": true, "hashCode": true, "toString": true}
+=====
+	"indexOf": true, "lastIndexOf": true, "toArray": true, "toArray_0": true, "equals": true, "hashCode": true, "toString": true,
+	"get_t": true} // reflip44b
+-----
+var iterFns = map[string]bool{"elems_": true, "elemsBy_": true, "foreach_": true}
+=====
+var iterFns = map[string]bool{"elems_": true, "elemsBy_": true, "foreach_": true, "elemsT_": true, "jeachOf_": true} // reflip44b
+-----
+						if base != "foreach_" || y.Tok != token.DEFINE || len(y.Lhs) != 1 {
+=====
+						if base != "foreach_" && base != "jeachOf_" || y.Tok != token.DEFINE || len(y.Lhs) != 1 { // reflip44b
+-----
+		edit(rc.n, rc.call, func() string { return "slicePtrView_(" + rc.tc + ", " + rw.Render(rc.recv) + ")" })
+=====
+		v := "slicePtrView_(" // reflip44b: the typed live view where the view was one for typed code
+		if reflip44typed(rc.call) {
+			v = "slicePtrViewT_("
+		}
+		edit(rc.n, rc.call, func() string { return v + rc.tc + ", " + rw.Render(rc.recv) + ")" })
++++++
+
+// reflip44typed: call (L.asListT(), L.asCollT(), L.asIterable()) is a view of a typed library interface.
+func reflip44typed(call *ast.CallExpr) bool {
+	nt, ok := types.Unalias(typeOf(call)).(*types.Named)
+	if !ok || nt.Obj().Pkg() != rw.Pkg {
+		return false
+	}
+	switch nt.Obj().Name() {
+	case "ListT", "CollectionT", "IterableT":
+		return true
+	}
+	return false
+}
+E44b

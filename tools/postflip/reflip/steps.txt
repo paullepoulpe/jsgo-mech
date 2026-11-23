@@ -396,6 +396,7 @@ c8d2cff4 patch 174-c8d2cff4-rt.patch
 # 187. postflip (runtime): typed helpers for equals, hashCode, Objects.hash and requireNonNull of values whose types bound their dynamic types (rt_eqhash.go)
 82bb2fac patch 187-82bb2fac-rt.patch
 # 189. postflip step: equals, hashCode, Objects.hash and requireNonNull decided from the static types, interface values included (tools/postflip/eqhash/run.sh)
+#=6 90376a5f adapted (sixth flip): toolfix 43 (eqhash: lgBox_(v) of a value of a typed library interface XT is a value of the erased interface X; the calls through the value are decided): 344 calls rewritten (326 without; the 18 more: 11 Object_equals, 4 Object_hashCode, 2 Objects_hash, 1 Objects_hashCode of lgBox_ operands, all equalsDyn_ / objhashDyn_ forms)
 90376a5f run bash tools/postflip/eqhash/run.sh
 # 190. postflip (runtime): strBuilder_ has every StringBuilder method the translated code calls, with UTF-16 lengths and indexes (rt_strbuf.go)
 cac08e10 patch 190-cac08e10-rt.patch
@@ -625,6 +626,8 @@ a5732999 patch 402-a5732999-rt.patch
 # 403. postflip step (re-flip): the collection steps on the unified typed collections
 #=5 8c9c3988 adapted (fifth flip, second part): toolfix 34 (native: a typed map's m.ComputeIfAbsent(k, f), the translator's typed computeIfAbsent since step 402, is the map operation mapComputeIfAbsentT_(vc, m, k, f)) and a runtime patch added before the run: mapComputeIfAbsentT_ (rt_tfnapi.go), the first function of patch 485, which is regenerated without it. Without the fix the maps given a computeIfAbsent stayed TMaps (fourth flip: 20 Go maps through the erased computeIfAbsent of an adapter and step 486)
 8c9c3988 patch reflip5-ciat-rt.patch
+#=6 8c9c3988 adapted (sixth flip): toolfix 41 (native: asListT / asCollT / asIterable are views as asList is; the set kind reads asSetT().addAll) and toolfix 44 (native: tlistOfT_ is an ImmutableList made a slice by sliceOfT_; a parameter of a typed library interface that the group only reads gets the typed live view slicePtrViewT_) with the runtime patch reflip6-nativet-rt.patch (rt_nativet.go: sliceOfT_, slicePtrOfT_, slicePtrViewT_; its test). native -kind list at the step: 423 declarations become slices (233 classes, 269 pointers in 130 classes), as the fifth flip (423, 233; 269, 130); without 44: 375 (210), without 41 and 44: 259 (157)
+8c9c3988 patch reflip6-nativet-rt.patch
 8c9c3988 run bash tools/postflip/colls/run.sh
 # 404. postflip step (re-flip): ranges and iters on the unified typed collections
 3b887150 run t ranges && t ranges -loops && t ranges -index && t ranges -entries && t iters && f
@@ -948,6 +951,8 @@ d791dde5 patch 510-d791dde5-rt.patch
 # 512. postflip step (re-flip): trips, 88 round trips of a typed collection through its erased form become typed helper calls (tool a9769ba0, runtime 68513bc0)
 #: trips: 88 round trips through an erased collection rewritten; files changed: 47 (10 tsetAddAllOf_, 5 tsetAddList_, 13 tsetAddSet_, 7 immCopySlice_, 1 sliceSkip_ of splitStrs_, 15 tlistImmCopy_, 8 sliceAddSlice_, 1 sliceAddList_, 1 immCopyArr_, 5 tlistSlice_, 20 splitStrs_, 2 tsetCopy_; left 1 array boxed by a function literal)
 #=4 e9d53d6c partly superseded (fourth flip): 46 round trips rewritten (lead: 88; no splitStrs_ / immCopySlice_ sites: the translator's typed splitToList and immutables do not make the trip), left 2
+#=6 e9d53d6c adapted (sixth flip): toolfix 38 (the runtime has no ImmutableList_copyOf_ObjectArr: the round trips through it have no subject) and toolfix 42 (the views for typed code: S.asSetT().addAll(..) / S.asCollT().addAll(..) with the helpers tsetAddAllOfT_ / tsetAddSetT_ / tsetAddListT_ of the runtime patch reflip6-tripst-rt.patch, operands L.asListT() / U.asSetT() .. and X_un_(v)): 44 round trips (15 + 4 + 17 set addAll, 3 + 3 slice addAll, 2 sliceImm_), the fifth flip 47 (its 3 immutableListCopyOf_(tc, L.asList()) are immutableListCopyOfT_ from the translator); without 42: 7
+e9d53d6c patch reflip6-tripst-rt.patch
 e9d53d6c run t trips && f
 # 513. postflip (runtime, re-flip): a Splitter makes the slice of its pieces once, at its final size
 4071b655 patch 513-4071b655-rt.patch
