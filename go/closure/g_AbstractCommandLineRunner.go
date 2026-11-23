@@ -356,31 +356,12 @@ func (this *AbstractCommandLineRunner) run() {
 		}()
 		var resultOutcome *Outcome_base[any] = this.doRun()
 		if resultOutcome.isErr() {
-			var e *FlagUsageException
-			_ = e
-			if func() bool {
-				v_ := resultOutcome.error().self()
-				p2, ok2 := v_.(*FlagUsageException)
-				if !ok2 {
-					return false
-				}
-				e = p2
-				return true
-			}() {
+			if e, ok2 := resultOutcome.error().self().(*FlagUsageException); ok2 {
 				this.err.println(e.getMessage())
 				result = -1
 			} else {
-				var e_2 *IOException
-				_ = e_2
-				if func() bool {
-					v_ := resultOutcome.error().self()
-					p3, ok3 := v_.(IOException_as)
-					if !ok3 {
-						return false
-					}
-					e_2 = p3.as_IOException()
-					return true
-				}() {
+				if p2, ok3 := resultOutcome.error().self().(IOException_as); ok3 {
+					e_2 := p2.as_IOException()
 					this.err.println(("ERROR - " + sstr_(e_2.getMessage())))
 					result = -2
 				} else {
@@ -860,17 +841,7 @@ func (this *AbstractCommandLineRunner) createDefaultOutput() *Outcome_base[Appen
 }
 
 func AbstractCommandLineRunner_closeAppendable(output Appendable) *Outcome_base[any] {
-	var out *Output
-	_ = out
-	if func() bool {
-		v_ := any(output)
-		p, ok := v_.(*Output)
-		if !ok {
-			return false
-		}
-		out = p
-		return true
-	}() {
+	if out, ok := any(output).(*Output); ok {
 		out.flush()
 		return AbstractCommandLineRunner_closeOutput(out)
 	}

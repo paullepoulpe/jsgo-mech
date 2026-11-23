@@ -81,17 +81,7 @@ func (this *CombinedCompilerPass_CallbackWrapper) finit_CombinedCompilerPass_Cal
 func (this *CombinedCompilerPass_CallbackWrapper) init_CombinedCompilerPass_CallbackWrapper(callback NodeTraversal_Callback) {
 	this.finit_CombinedCompilerPass_CallbackWrapper()
 	this.callback = callback
-	var scopedCallback NodeTraversal_ScopedCallback
-	_ = scopedCallback
-	if func() bool {
-		v_ := any(callback)
-		p, ok := v_.(NodeTraversal_ScopedCallback)
-		if !ok {
-			return false
-		}
-		scopedCallback = p
-		return true
-	}() {
+	if scopedCallback, ok := any(callback).(NodeTraversal_ScopedCallback); ok {
 		this.scopedCallback = scopedCallback
 	} else {
 		this.scopedCallback = nil

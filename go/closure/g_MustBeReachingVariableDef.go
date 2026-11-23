@@ -377,17 +377,8 @@ func MustBeReachingVariableDef_MustDef_createFromMustDef(other *MustBeReachingVa
 }
 
 func (this *MustBeReachingVariableDef_MustDef) equals(other any) bool {
-	var mustDef *MustBeReachingVariableDef_MustDef
-	_ = mustDef
-	return (func() bool {
-		v_ := other
-		p, ok := v_.(*MustBeReachingVariableDef_MustDef)
-		if !ok {
-			return false
-		}
-		mustDef = p
-		return true
-	}() && equalsDyn_(lgBox_(mustDef.reachingDef.asMapT()), this.reachingDef.asMap()))
+	mustDef, ok := other.(*MustBeReachingVariableDef_MustDef)
+	return (ok && equalsDyn_(lgBox_(mustDef.reachingDef.asMapT()), this.reachingDef.asMap()))
 }
 
 func (this *MustBeReachingVariableDef_MustDef) hashCode() int32 {
