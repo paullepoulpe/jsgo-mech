@@ -72,7 +72,7 @@ func (this *RemoveUnusedCode) process_2(externs Node, root Node) {
 	if !this.compiler_.getLifeCycleStage().isNormalized() {
 		panic(new_IllegalStateException_0())
 	}
-	this.pinnedPropertyNames.asSetT().addAll(Collection(this.compiler_.getExternProperties().asSet()))
+	tsetAddSetT_(this.pinnedPropertyNames, this.compiler_.getExternProperties())
 	defer func() {
 		this.removalLog = nil
 		this.unremovableLog = nil

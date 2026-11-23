@@ -155,7 +155,7 @@ func FunctionArgumentInjector_findModifiedParameters(n Node, names *TSet[string]
 	{
 		var c Node = n.getFirstChild()
 		for ; c != 0; c = c.getNext() {
-			unsafe.asSetT().addAll(Collection(FunctionArgumentInjector_findModifiedParameters(c, names, inInnerClosure).asSet()))
+			tsetAddSetT_(unsafe, FunctionArgumentInjector_findModifiedParameters(c, names, inInnerClosure))
 		}
 	}
 	return unsafe

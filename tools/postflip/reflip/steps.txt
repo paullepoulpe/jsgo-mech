@@ -760,3 +760,13 @@ d00b98f3 patch 489-d00b98f3-rt.patch
 ca2a6157 patch 491-ca2a6157-rt.patch
 # 492. postflip (runtime, re-flip): optstrGet_ inlines, its failure is a call of its own
 ad8c897b patch 492-ad8c897b-rt.patch
+# 493. postflip (runtime, re-flip): removing through a typed map's iterator is constant time, as LinkedHashMap's is
+34aca0ab patch 493-34aca0ab-rt.patch
+# 494. postflip (runtime, re-flip): test of removing through a typed set's iterator across the compactions it causes
+62aa65b3 patch 494-62aa65b3-rt.patch
+# 495. postflip (runtime, re-flip): subList of a typed list's erased view boxes its range, not the whole list
+75f0351d patch 495-75f0351d-rt.patch
+# 496. postflip (runtime, re-flip): a protobuf builder's build() gives the message the builder's storage (copied only if the builder changes afterwards), with a test
+265af42f patch 496-265af42f-rt.patch
+# 497. postflip (runtime, re-flip): protobuf fields are stored typed, in one struct per message written by tools/protogen, instead of boxed in a []any
+7be430ed patch 497-7be430ed-rt.patch
