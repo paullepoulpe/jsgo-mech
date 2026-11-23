@@ -5,22 +5,22 @@ package closure
 type RewriteLogicalAssignmentOperatorsHelper struct {
 	compiler_        *AbstractCompiler
 	astFactory_      *AstFactory
-	uniqueIdSupplier *UniqueIdSupplier
+	uniqueIdSupplier UniqueIdSupplier
 }
 
-func (this *RewriteLogicalAssignmentOperatorsHelper) init_RewriteLogicalAssignmentOperatorsHelper(compiler *AbstractCompiler, astFactory *AstFactory, uniqueIdSupplier *UniqueIdSupplier) {
+func (this *RewriteLogicalAssignmentOperatorsHelper) init_RewriteLogicalAssignmentOperatorsHelper(compiler *AbstractCompiler, astFactory *AstFactory, uniqueIdSupplier UniqueIdSupplier) {
 	this.compiler_ = compiler
 	this.astFactory_ = astFactory
 	this.uniqueIdSupplier = uniqueIdSupplier
 }
 
-func new_RewriteLogicalAssignmentOperatorsHelper(compiler *AbstractCompiler, astFactory *AstFactory, uniqueIdSupplier *UniqueIdSupplier) *RewriteLogicalAssignmentOperatorsHelper {
-	this := &RewriteLogicalAssignmentOperatorsHelper{}
+func new_RewriteLogicalAssignmentOperatorsHelper(compiler *AbstractCompiler, astFactory *AstFactory, uniqueIdSupplier UniqueIdSupplier) RewriteLogicalAssignmentOperatorsHelper {
+	this := RewriteLogicalAssignmentOperatorsHelper{}
 	this.init_RewriteLogicalAssignmentOperatorsHelper(compiler, astFactory, uniqueIdSupplier)
 	return this
 }
 
-func (this *RewriteLogicalAssignmentOperatorsHelper) visitLogicalAssignmentOperator(t *NodeTraversal, logicalAssignment Node) {
+func (this RewriteLogicalAssignmentOperatorsHelper) visitLogicalAssignmentOperator(t *NodeTraversal, logicalAssignment Node) {
 	var enclosingFunction Node = NodeUtil_getEnclosingFunction(logicalAssignment)
 	if (enclosingFunction != 0) && !NodeUtil_getFunctionBody(enclosingFunction).isBlock() {
 		var returnValue Node = NodeUtil_getFunctionBody(enclosingFunction)
@@ -50,12 +50,12 @@ func (this *RewriteLogicalAssignmentOperatorsHelper) visitLogicalAssignmentOpera
 	this.compiler_.reportChangeToEnclosingScope(enclosingStatement)
 }
 
-func (this *RewriteLogicalAssignmentOperatorsHelper) handleLHSName(logicalAssignment Node, left Node, right Node) Node {
+func (this RewriteLogicalAssignmentOperatorsHelper) handleLHSName(logicalAssignment Node, left Node, right Node) Node {
 	var assignToRHS Node = this.astFactory_.createAssign(left, right).srcref(right)
 	return new_Node_Token_Node_Node(NodeUtil_getOpFromAssignmentOp(logicalAssignment), left.cloneNode(), assignToRHS).copyTypeFrom(logicalAssignment).srcref(logicalAssignment)
 }
 
-func (this *RewriteLogicalAssignmentOperatorsHelper) handleLHSPropertyReference(t *NodeTraversal, logicalAssignment Node, left Node, right Node, enclosingStatement Node) Node {
+func (this RewriteLogicalAssignmentOperatorsHelper) handleLHSPropertyReference(t *NodeTraversal, logicalAssignment Node, left Node, right Node, enclosingStatement Node) Node {
 	var input *CompilerInput = t.getInput()
 	var uniqueId string = this.uniqueIdSupplier.getUniqueId(input)
 	var tempVarName string = (sstr_(RewriteLogicalAssignmentOperatorsHelper_TEMP_VAR_NAME_PREFIX) + sstr_(uniqueId))

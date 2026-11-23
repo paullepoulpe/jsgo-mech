@@ -632,7 +632,7 @@ func (this *IRFactory) transform(tree *ParseTree) Node {
 	var isRootOfClosureUnawareSubTree bool = ((info != nil) && info.isClosureUnawareCode())
 	if isRootOfClosureUnawareSubTree {
 		this.templateNode = this.closureUnawareTemplateNode
-		var nextClosureUnawareRange *SourceRange = tree.location_
+		var nextClosureUnawareRange SourceRange = tree.location_
 		var nextClosureUnawareRangeStart *IRFactory_LineAndColumn = IRFactory_LineAndColumn_fromSourcePosition(nextClosureUnawareRange.start_)
 		var nextClosureUnawareRangeEnd *IRFactory_LineAndColumn = IRFactory_LineAndColumn_fromSourcePosition(nextClosureUnawareRange.end_)
 		this.closureUnawareCodeRanges.add(Range_closed(obj_(nextClosureUnawareRangeStart), obj_(nextClosureUnawareRangeEnd)))
@@ -1020,7 +1020,7 @@ func (this *IRFactory) normalizeNumber(token *LiteralToken) float64 {
 		value = this.removeNumericSeparators(value, token)
 		valueU16 = utf16Of_(value)
 	}
-	var location *SourceRange = token.location_
+	var location SourceRange = token.location_
 	var length int32 = valueU16.length()
 	if length <= 0 {
 		panic(new_IllegalStateException_0())

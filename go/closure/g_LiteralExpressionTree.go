@@ -14,12 +14,12 @@ func (this *LiteralExpressionTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *LiteralExpressionTree) init_LiteralExpressionTree(location *SourceRange, literalToken *Token_parser) {
+func (this *LiteralExpressionTree) init_LiteralExpressionTree(location SourceRange, literalToken *Token_parser) {
 	this.ParseTree.init_ParseTree(ParseTreeType_LITERAL_EXPRESSION, location)
 	this.literalToken = literalToken
 }
 
-func new_LiteralExpressionTree(location *SourceRange, literalToken *Token_parser) *LiteralExpressionTree {
+func new_LiteralExpressionTree(location SourceRange, literalToken *Token_parser) *LiteralExpressionTree {
 	this := &LiteralExpressionTree{}
 	this.self_ = this
 	this.init_LiteralExpressionTree(location, literalToken)

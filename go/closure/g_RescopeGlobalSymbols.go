@@ -52,7 +52,7 @@ func (this *RescopeGlobalSymbols) process_2(externs Node, root Node) {
 		this.addExternForGlobalSymbolNamespace()
 	}
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(new_RescopeGlobalSymbols_RewriteGlobalClassFunctionDeclarationsToVarAssignmentsCallback(this.compiler_)))
-	var renameHelperBuilder *RescopeGlobalSymbolsRenameHelper_HelperBuilder = new_RescopeGlobalSymbolsRenameHelper_HelperBuilder(this.compiler_, this.globalSymbolNamespace_, this.optimizeLocalAccess)
+	var renameHelperBuilder RescopeGlobalSymbolsRenameHelper_HelperBuilder = new_RescopeGlobalSymbolsRenameHelper_HelperBuilder(this.compiler_, this.globalSymbolNamespace_, this.optimizeLocalAccess)
 	var findCrossChunkNames *RescopeGlobalSymbols_FindCrossChunkNamesCallback = new_RescopeGlobalSymbols_FindCrossChunkNamesCallback(this.compiler_, this.assumeCrossChunkNames, this.optimizeLocalAccess.shouldOptimize(), renameHelperBuilder)
 	var findNamesReferencingThis *RescopeGlobalSymbols_FindNamesReferencingThis = new_RescopeGlobalSymbols_FindNamesReferencingThis()
 	CombinedCompilerPass_traverse(this.compiler_, root, immutableListOf_[NodeTraversal_Callback](tc_NodeTraversal_Callback, RescopeGlobalSymbols_FindCrossChunkNamesCallback_as_NodeTraversal_Callback(findCrossChunkNames), RescopeGlobalSymbols_FindNamesReferencingThis_as_NodeTraversal_Callback(findNamesReferencingThis)))
@@ -124,7 +124,7 @@ type RescopeGlobalSymbols_FindCrossChunkNamesCallback struct {
 	globalNamesWithReadInDefiningChunk_                     *TSet[string]
 	globalNamesWithInnerScopeWriteInDefiningChunk_          *TSet[string]
 	globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_ *TSet[string]
-	renameHelperBuilder                                     *RescopeGlobalSymbolsRenameHelper_HelperBuilder
+	renameHelperBuilder                                     RescopeGlobalSymbolsRenameHelper_HelperBuilder
 	assumeCrossChunkNames                                   bool
 	trackLocalAccessSets                                    bool
 }
@@ -145,7 +145,7 @@ func (this *RescopeGlobalSymbols_FindCrossChunkNamesCallback) finit_RescopeGloba
 	this.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_ = newTSet_(tc_string)
 }
 
-func (this *RescopeGlobalSymbols_FindCrossChunkNamesCallback) init_RescopeGlobalSymbols_FindCrossChunkNamesCallback(compiler *AbstractCompiler, assumeCrossChunkNames bool, trackLocalAccessSets bool, renameHelperBuilder *RescopeGlobalSymbolsRenameHelper_HelperBuilder) {
+func (this *RescopeGlobalSymbols_FindCrossChunkNamesCallback) init_RescopeGlobalSymbols_FindCrossChunkNamesCallback(compiler *AbstractCompiler, assumeCrossChunkNames bool, trackLocalAccessSets bool, renameHelperBuilder RescopeGlobalSymbolsRenameHelper_HelperBuilder) {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 	this.finit_RescopeGlobalSymbols_FindCrossChunkNamesCallback()
 	this.compiler_ = compiler
@@ -154,7 +154,7 @@ func (this *RescopeGlobalSymbols_FindCrossChunkNamesCallback) init_RescopeGlobal
 	this.renameHelperBuilder = renameHelperBuilder
 }
 
-func new_RescopeGlobalSymbols_FindCrossChunkNamesCallback(compiler *AbstractCompiler, assumeCrossChunkNames bool, trackLocalAccessSets bool, renameHelperBuilder *RescopeGlobalSymbolsRenameHelper_HelperBuilder) *RescopeGlobalSymbols_FindCrossChunkNamesCallback {
+func new_RescopeGlobalSymbols_FindCrossChunkNamesCallback(compiler *AbstractCompiler, assumeCrossChunkNames bool, trackLocalAccessSets bool, renameHelperBuilder RescopeGlobalSymbolsRenameHelper_HelperBuilder) *RescopeGlobalSymbols_FindCrossChunkNamesCallback {
 	this := &RescopeGlobalSymbols_FindCrossChunkNamesCallback{}
 	this.self_ = this
 	this.init_RescopeGlobalSymbols_FindCrossChunkNamesCallback(compiler, assumeCrossChunkNames, trackLocalAccessSets, renameHelperBuilder)

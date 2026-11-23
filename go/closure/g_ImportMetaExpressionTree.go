@@ -13,11 +13,11 @@ func (this *ImportMetaExpressionTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *ImportMetaExpressionTree) init_ImportMetaExpressionTree(location *SourceRange) {
+func (this *ImportMetaExpressionTree) init_ImportMetaExpressionTree(location SourceRange) {
 	this.ParseTree.init_ParseTree(ParseTreeType_IMPORT_META_EXPRESSION, location)
 }
 
-func new_ImportMetaExpressionTree(location *SourceRange) *ImportMetaExpressionTree {
+func new_ImportMetaExpressionTree(location SourceRange) *ImportMetaExpressionTree {
 	this := &ImportMetaExpressionTree{}
 	this.self_ = this
 	this.init_ImportMetaExpressionTree(location)
