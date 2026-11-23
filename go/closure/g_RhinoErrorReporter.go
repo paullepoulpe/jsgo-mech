@@ -3,8 +3,14 @@
 package closure
 
 type RhinoErrorReporter struct {
-	self_            any
+	self_            RhinoErrorReporter_as
 	internalReporter func(CheckLevel, *JSError)
+}
+
+// RhinoErrorReporter_as is implemented by RhinoErrorReporter and the classes that extend it: a cast to RhinoErrorReporter asserts to it
+// (post-flip).
+type RhinoErrorReporter_as interface {
+	as_RhinoErrorReporter() *RhinoErrorReporter
 }
 
 func (this *RhinoErrorReporter) as_RhinoErrorReporter() *RhinoErrorReporter { return this }
