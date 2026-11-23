@@ -383,7 +383,7 @@ func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) processCall(ca
 
 func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) processObjectProperty(objectLit Node, key Node, type_ *Color) {
 	if !objectLit.isObjectLit() && !objectLit.isObjectPattern() {
-		panic(new_IllegalArgumentException_String(objstr_(objectLit.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(objectLit)).self())
 	}
 	switch key.ns_().token {
 	case tokOrd1_COMPUTED_PROP:

@@ -94,10 +94,10 @@ type InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite struct {
 
 func (this *InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite) init_InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite(callNode Node, closureUnawareFunction Node) {
 	if !callNode.isCall() {
-		panic(new_IllegalArgumentException_String(objstr_(callNode.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(callNode)).self())
 	}
 	if !closureUnawareFunction.isFunction() {
-		panic(new_IllegalArgumentException_String(objstr_(closureUnawareFunction.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(closureUnawareFunction)).self())
 	}
 	this.callNode_ = callNode
 	this.closureUnawareFunction_ = closureUnawareFunction

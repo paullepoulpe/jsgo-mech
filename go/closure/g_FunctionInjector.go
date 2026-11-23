@@ -114,7 +114,7 @@ func (this *FunctionInjector) isSupportedCallType(callNode Node, fnNode Node) bo
 
 func FunctionInjector_hasSpreadCallArgument(callNode Node) bool {
 	if !NodeUtil_isNormalOrOptChainCall(callNode) {
-		panic(new_IllegalArgumentException_String(objstr_(callNode.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(callNode)).self())
 	}
 	{
 		var arg Node = callNode.getSecondChild()
@@ -166,7 +166,7 @@ func (this *FunctionInjector) inlineReturnValue(ref *FunctionInjector_Reference,
 	} else {
 		var returnNode Node = block.getFirstChild()
 		if !returnNode.isReturn() {
-			panic(new_IllegalArgumentException_String(objstr_(returnNode.box_())).self())
+			panic(new_IllegalArgumentException_String(tostr_(returnNode)).self())
 		}
 		var safeReturnNode Node = returnNode.cloneTree()
 		var inlineResult Node = this.functionArgumentInjector_.inject(nil, safeReturnNode, 0, paramReplacements)
