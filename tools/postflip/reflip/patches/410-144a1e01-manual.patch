@@ -1,5 +1,5 @@
 diff --git a/go/closure/g_RemoveUnusedCode.go b/go/closure/g_RemoveUnusedCode.go
-index 26b18f2e..23f6ce50 100644
+index ac89a483..f49ccfbb 100644
 --- a/go/closure/g_RemoveUnusedCode.go
 +++ b/go/closure/g_RemoveUnusedCode.go
 @@ -130,9 +130,14 @@ func (this *RemoveUnusedCode) traverseNode(n Node, scope *Scope) {
@@ -38,7 +38,7 @@ index 26b18f2e..23f6ce50 100644
  		}
  	case Token_rhino_GETPROP, Token_rhino_OPTCHAIN_GETPROP:
  		this.traverseNormalOrOptChainGetProp(n, scope)
-@@ -519,9 +529,14 @@ func (this *RemoveUnusedCode) traverseCatch(catchNode Node, scope *Scope) {
+@@ -511,9 +521,14 @@ func (this *RemoveUnusedCode) traverseCatch(catchNode Node, scope *Scope) {
  	var block Node = exceptionNameNode.getNext()
  	if exceptionNameNode.isName() {
  		var exceptionVarInfo RemoveUnusedCode_VarInfo = this.traverseNameNode(exceptionNameNode, scope)
@@ -56,7 +56,7 @@ index 26b18f2e..23f6ce50 100644
  	} else {
  		this.traverseNode(exceptionNameNode, scope)
  	}
-@@ -535,9 +550,14 @@ func (this *RemoveUnusedCode) traverseEnhancedFor(enhancedFor Node, scope *Scope
+@@ -527,9 +542,14 @@ func (this *RemoveUnusedCode) traverseEnhancedFor(enhancedFor Node, scope *Scope
  	var body Node = collection.getNext()
  	if iterationTarget.isName() {
  		var varInfo RemoveUnusedCode_VarInfo = this.traverseNameNode(iterationTarget, forScope)
@@ -74,7 +74,7 @@ index 26b18f2e..23f6ce50 100644
  	} else if NodeUtil_isNameDeclaration(iterationTarget) {
  		var declNode Node = iterationTarget.getOnlyChild()
  		if declNode.isDestructuringLhs() {
-@@ -550,9 +570,14 @@ func (this *RemoveUnusedCode) traverseEnhancedFor(enhancedFor Node, scope *Scope
+@@ -542,9 +562,14 @@ func (this *RemoveUnusedCode) traverseEnhancedFor(enhancedFor Node, scope *Scope
  				panic(new_IllegalStateException_0())
  			}
  			var varInfo RemoveUnusedCode_VarInfo = this.traverseNameNode(declNode, forScope)
@@ -92,7 +92,7 @@ index 26b18f2e..23f6ce50 100644
  		}
  	} else {
  		this.traverseNode(iterationTarget, forScope)
-@@ -590,9 +615,14 @@ func (this *RemoveUnusedCode) traverseVanillaForNameDeclarations(nameDeclaration
+@@ -582,9 +607,14 @@ func (this *RemoveUnusedCode) traverseVanillaForNameDeclarations(nameDeclaration
  				if valueNode == 0 {
  					varInfo.addRemovable(new_RemoveUnusedCode_RemovableBuilder(this).buildVanillaForNameDeclaration(nameNode).up_RemoveUnusedCode_Removable())
  				} else if this.mayHaveSideEffects(valueNode) {
@@ -110,7 +110,7 @@ index 26b18f2e..23f6ce50 100644
  					this.traverseNode(valueNode, scope)
  				} else {
  					var vanillaForNameDeclaration *RemoveUnusedCode_VanillaForNameDeclaration = new_RemoveUnusedCode_RemovableBuilder(this).addContinuation(new_RemoveUnusedCode_Continuation(this, valueNode, scope)).buildVanillaForNameDeclaration(nameNode)
-@@ -816,21 +846,36 @@ func (this *RemoveUnusedCode) traverseClassDeclaration(classNode Node, scope *Sc
+@@ -808,21 +838,36 @@ func (this *RemoveUnusedCode) traverseClassDeclaration(classNode Node, scope *Sc
  	var classScope *Scope = this.scopeCreator.createScope(classNode, scope)
  	var varInfo RemoveUnusedCode_VarInfo = this.traverseNameNode(classNameNode, scope)
  	if classNode.getParent().isExport() {
@@ -156,7 +156,7 @@ index 26b18f2e..23f6ce50 100644
  		this.traverseNode(baseClassExpression, scope)
  		this.traverseClassMembers(classBodyNode, classScope)
  	} else {
-@@ -1066,9 +1111,14 @@ func (this *RemoveUnusedCode) traverseVar(var_ *Var) RemoveUnusedCode_VarInfo {
+@@ -1056,9 +1101,14 @@ func (this *RemoveUnusedCode) traverseVar(var_ *Var) RemoveUnusedCode_VarInfo {
  				if lValue == 0 {
  					continue
  				}
@@ -174,7 +174,7 @@ index 26b18f2e..23f6ce50 100644
  			}
  		}
  		return this.canonicalUnremovableVarInfo
-@@ -1119,13 +1169,23 @@ func (this *RemoveUnusedCode) getVarInfo(var_ *Var) RemoveUnusedCode_VarInfo {
+@@ -1107,13 +1157,23 @@ func (this *RemoveUnusedCode) getVarInfo(var_ *Var) RemoveUnusedCode_VarInfo {
  				varInfo.setHasNonLocalOrNonLiteralValue()
  			}
  			if !this.removeGlobals_ && isGlobal {
@@ -204,7 +204,7 @@ index 26b18f2e..23f6ce50 100644
  			}
  			this.varInfoMap.put(var_, varInfo)
  		}
-@@ -2871,9 +2931,14 @@ func (this *RemoveUnusedCode_RealVarInfo) addRemovable(removable *RemoveUnusedCo
+@@ -2850,9 +2910,14 @@ func (this *RemoveUnusedCode_RealVarInfo) addRemovable(removable *RemoveUnusedCo
  		this.requiresLocalLiteralValueForRemoval = true
  	}
  	if this.hasNonLocalOrNonLiteralValue && this.requiresLocalLiteralValueForRemoval {
@@ -222,7 +222,7 @@ index 26b18f2e..23f6ce50 100644
  	}
  	if this.isEntirelyRemovable {
  		*this.removables = append(*this.removables, removable)
-@@ -2889,7 +2954,9 @@ func (this *RemoveUnusedCode_RealVarInfo) isRemovable() bool {
+@@ -2868,7 +2933,9 @@ func (this *RemoveUnusedCode_RealVarInfo) isRemovable() bool {
  func (this *RemoveUnusedCode_RealVarInfo) setIsExplicitlyNotRemovable(reasonSupplier func() any) {
  	if this.isEntirelyRemovable {
  		this.isEntirelyRemovable = false
@@ -233,7 +233,7 @@ index 26b18f2e..23f6ce50 100644
  		for r := range sliceAll_(this.removables) {
  			this.outer_.considerForIndependentRemoval(r)
  		}
-@@ -3617,3 +3684,14 @@ func (this *RemoveUnusedCode_VanillaForNameDeclaration) getLocalAssignedValue()
+@@ -3593,3 +3660,14 @@ func (this *RemoveUnusedCode_VanillaForNameDeclaration) getLocalAssignedValue()
  	}
  	return this.self_.getLocalAssignedValue_impl()
  }

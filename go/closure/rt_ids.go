@@ -201,11 +201,21 @@ func valcode_caststr_(c uint32) string {
 // ---------------------------------------------------------------- handle tables
 
 // htabEntry_ is a value of the table and the number of fields holding its handle (the largest
-// number: for ever).
+// number: for ever); inSlot: the entry is found by the value's own slot, not by the map.
 type htabEntry_ struct {
-	v    any
-	refs uint32
+	v      any
+	refs   uint32
+	inSlot bool
 }
+
+// htabHolder_ is an object that keeps its handle itself (post-flip htabself writes the field
+// and this method into the classes whose objects the generated setters store): htabSlot_ is
+// where. The slot is the index of the object's entry when that entry was made while the slot
+// was 0; every other entry is in the map. A slot is believed only when the entry it names holds
+// the same interface words as the value, so a value finds the entry it would find in the map
+// alone, whatever its slot holds; handles, counts and the reuse of freed entries are as without
+// slots.
+type htabHolder_ interface{ htabSlot_() *uint32 }
 
 const htabPinned_ = 1<<32 - 1
 
@@ -220,6 +230,10 @@ var (
 		id uint32
 	}
 	htabFree_ []uint32 // entries no field holds any more, to use again
+	// entries found by their value's slot, and entries in the map whose value has a slot (a
+	// value other than the one its slot names: none in the generated code, which stores each
+	// object by its one class)
+	htabInSlots_, htabHoldersInMap_ int
 )
 
 func htabCacheAt_(k eface_) *struct {
@@ -232,21 +246,24 @@ func htabCacheAt_(k eface_) *struct {
 // htabRef_ is the entry of v (not nil), new if v has none, counted once more.
 func htabRef_(v any) uint32 {
 	k := *(*eface_)(unsafe.Pointer(&v))
+	if h, ok := v.(htabHolder_); ok {
+		s := h.htabSlot_()
+		if id := *s; id != 0 && id < htabTab_.n {
+			if p := htabTab_.ptr(id); *(*eface_)(unsafe.Pointer(&p.v)) == k {
+				if p.refs != htabPinned_ {
+					p.refs++
+				}
+				return id
+			}
+		}
+		return htabRefHolder_(v, k, s)
+	}
 	e := htabCacheAt_(k)
 	id := e.id
 	if e.k != k {
 		var ok bool
 		if id, ok = htabIds_[k]; !ok {
-			if n := len(htabFree_); n > 0 {
-				id = htabFree_[n-1]
-				htabFree_ = htabFree_[:n-1]
-				*htabTab_.ptr(id) = htabEntry_{v: v}
-			} else {
-				id = htabTab_.add(htabEntry_{v: v})
-				if id >= 1<<31 {
-					panic(new_RuntimeException_String("handle table: more than 2^31 values").self())
-				}
-			}
+			id = htabNew_(v, false)
 			htabIds_[k] = id
 		}
 		e.k, e.id = k, id
@@ -265,14 +282,65 @@ func htabUnref_(c uint32) {
 		return
 	}
 	if p.refs--; p.refs == 0 {
-		k := *(*eface_)(unsafe.Pointer(&p.v))
-		delete(htabIds_, k)
-		if e := htabCacheAt_(k); e.k == k {
-			e.k, e.id = eface_{}, 0
+		if p.inSlot {
+			if s := p.v.(htabHolder_).htabSlot_(); *s == c>>1 {
+				*s = 0
+			}
+			htabInSlots_--
+		} else {
+			k := *(*eface_)(unsafe.Pointer(&p.v))
+			if _, ok := p.v.(htabHolder_); ok {
+				htabHoldersInMap_--
+			} else if e := htabCacheAt_(k); e.k == k {
+				e.k, e.id = eface_{}, 0
+			}
+			delete(htabIds_, k)
 		}
-		p.v = nil
+		*p = htabEntry_{}
 		htabFree_ = append(htabFree_, c>>1)
 	}
+}
+
+// htabNew_ is a new entry of v, counted 0 times: a freed one again (the last freed first), or
+// the next.
+func htabNew_(v any, inSlot bool) uint32 {
+	var id uint32
+	if n := len(htabFree_); n > 0 {
+		id = htabFree_[n-1]
+		htabFree_ = htabFree_[:n-1]
+		*htabTab_.ptr(id) = htabEntry_{v: v, inSlot: inSlot}
+	} else {
+		id = htabTab_.add(htabEntry_{v: v, inSlot: inSlot})
+		if id >= 1<<31 {
+			panic(new_RuntimeException_String("handle table: more than 2^31 values").self())
+		}
+	}
+	return id
+}
+
+// htabRefHolder_ is htabRef_ of a value with slot s that its slot does not name: its entry in
+// the map, or a new one, kept in s when s is free (in the map when it names another entry).
+func htabRefHolder_(v any, k eface_, s *uint32) uint32 {
+	if htabHoldersInMap_ > 0 {
+		if id, ok := htabIds_[k]; ok {
+			if p := htabTab_.ptr(id); p.refs != htabPinned_ {
+				p.refs++
+			}
+			return id
+		}
+	}
+	if *s == 0 {
+		id := htabNew_(v, true)
+		*s = id
+		htabInSlots_++
+		htabTab_.ptr(id).refs = 1
+		return id
+	}
+	id := htabNew_(v, false)
+	htabIds_[k] = id
+	htabHoldersInMap_++
+	htabTab_.ptr(id).refs = 1
+	return id
 }
 
 // htab_set_ stores v in the field at loc: its handle (0 for nil) shifted left by one, with
@@ -334,6 +402,6 @@ func init() {
 				pinned++
 			}
 		}
-		return fmt.Sprintf("handle table: %d entries, %d in use (%d for ever)\n", htabTab_.n-1, len(htabIds_), pinned)
+		return fmt.Sprintf("handle table: %d entries, %d in use (%d for ever)\n", htabTab_.n-1, len(htabIds_)+htabInSlots_, pinned)
 	})
 }

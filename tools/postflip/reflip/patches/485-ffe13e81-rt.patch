@@ -1,30 +1,11 @@
 diff --git a/go/closure/rt_tfnapi.go b/go/closure/rt_tfnapi.go
-new file mode 100644
-index 00000000..6270c152
---- /dev/null
+index f04cc686c..6270c152b 100644
+--- a/go/closure/rt_tfnapi.go
 +++ b/go/closure/rt_tfnapi.go
-@@ -0,0 +1,110 @@
-+package closure
-+
-+// Typed variants of the runtime's functional APIs (post-flip steps tfnapi and tcmp): the same
-+// calls of the function, in the same order, with the same values, where the erased API boxed
-+// the arguments for a lambda adapter (&X_tfn_T{f}) that unboxed them again and boxed f's result
-+// for the API to unbox. A box of null is nil and its unboxing the conversion's null in both.
-+
-+// mapComputeIfAbsentT_ is mapComputeIfAbsent_ of a typed function: the value of k if the map has
-+// one that is not null; else f(k), stored unless it is null.
-+func mapComputeIfAbsentT_[K comparable, V any](vc *tconv_[V], m map[K]V, k K, f func(K) V) V {
-+	mapNN_(m)
-+	if v, ok := m[k]; ok && !vc.isNull(v) {
-+		return v
-+	}
-+	v := f(k)
-+	if vc.isNull(v) {
-+		return vc.null
-+	}
-+	m[k] = v
-+	return v
-+}
+@@ -19,3 +19,92 @@ func mapComputeIfAbsentT_[K comparable, V any](vc *tconv_[V], m map[K]V, k K, f
+ 	m[k] = v
+ 	return v
+ }
 +
 +// forEachT_ is Iterable.forEach of the list (of its erased view or immutable twin, whose
 +// iterators read the items in place): f of each item, the k-th step reading item k as it is
