@@ -451,7 +451,9 @@ func (this *ReplaceMessages_MsgProtectionPass) performMessageProtection(msgProte
 	var originalMessageString Node = msgProtectionData.templateTextNode()
 	var placeholdersNode Node = msgProtectionData.placeholderValuesNode()
 	var msgOptions *ReplaceMessages_MsgOptions = msgProtectionData.messageOptions()
-	Preconditions_checkState_boolean_Object_H(callNode.isCall(), callNode)
+	if !callNode.isCall() {
+		Preconditions_checkState_boolean_Object_H(false, callNode)
+	}
 	var googGetMsg Node = callNode.getFirstChild()
 	var protectionFunctionName string = ReplaceMessagesConstants_DEFINE_MSG_CALLEE
 	var newCallee Node = this.createProtectionFunctionCallee(protectionFunctionName).srcref(googGetMsg)
@@ -459,11 +461,15 @@ func (this *ReplaceMessages_MsgProtectionPass) performMessageProtection(msgProte
 	var newCallNode Node = this.outer_.astFactory_.createCall(newCallee, AstFactory_type_Node(callNode), []Node{msgPropertiesNode}).srcref(callNode)
 	newCallNode.setSideEffectFlagsInt(Node_SideEffectFlags_NO_SIDE_EFFECTS)
 	if placeholdersNode != 0 {
-		Preconditions_checkState_boolean_Object_H(placeholdersNode.isObjectLit(), placeholdersNode)
+		if !placeholdersNode.isObjectLit() {
+			Preconditions_checkState_boolean_Object_H(false, placeholdersNode)
+		}
 		{
 			var strKey Node = placeholdersNode.getFirstChild()
 			for ; strKey != 0; strKey = strKey.getNext() {
-				Preconditions_checkState_boolean_Object_H(strKey.isStringKey(), strKey)
+				if !strKey.isStringKey() {
+					Preconditions_checkState_boolean_Object_H(false, strKey)
+				}
 				strKey.setQuotedStringKey()
 			}
 		}
@@ -517,7 +523,9 @@ func (this *ReplaceMessages_QuotedKeyObjectLitBuilder) addString(key string, val
 }
 
 func (this *ReplaceMessages_QuotedKeyObjectLitBuilder) addNode(key string, node Node) *ReplaceMessages_QuotedKeyObjectLitBuilder {
-	Preconditions_checkState_boolean_String_Object(!this.keyToValueNodeMap.containsKey(key), "repeated key: %s", key)
+	if this.keyToValueNodeMap.containsKey(key) {
+		Preconditions_checkState_boolean_String_Object(false, "repeated key: %s", key)
+	}
 	this.keyToValueNodeMap.put(key, node)
 	return this
 }
@@ -634,7 +642,9 @@ func ReplaceMessages_ProtectedMsgFallback_fromAstNode(n Node) *ReplaceMessages_P
 	if !callee.matchesName(ReplaceMessagesConstants_FALLBACK_MSG_CALLEE) {
 		return nil
 	}
-	Preconditions_checkState_boolean_String_Object_H(n.hasXChildren(5), "bad message fallback call: %s", n)
+	if !n.hasXChildren(5) {
+		Preconditions_checkState_boolean_String_Object_H(false, "bad message fallback call: %s", n)
+	}
 	var firstMsgKeyNode Node = callee.getNext()
 	var firstMsgKey string = firstMsgKeyNode.getString()
 	var firstMsgValue Node = firstMsgKeyNode.getNext()
@@ -886,7 +896,9 @@ func ReplaceMessages_ProtectedJsMessage_fromAstNode(node Node, idGenerator JsMes
 	var unescapeHtmlEntitiesOption bool = false
 	var isIcuTemplate bool = false
 	var jsMessageBuilder *JsMessage_Builder = new_JsMessage_Builder()
-	Preconditions_checkState_boolean_Object_H(propertiesNode.isObjectLit(), propertiesNode)
+	if !propertiesNode.isObjectLit() {
+		Preconditions_checkState_boolean_Object_H(false, propertiesNode)
+	}
 	var msgKey Optional[string] = Optional_empty[string]()
 	var meaning Optional[string] = Optional_empty[string]()
 	var icuPlaceholderNames *JTSet[string] = jnewTSet_(jtc_string)
@@ -895,7 +907,9 @@ func ReplaceMessages_ProtectedJsMessage_fromAstNode(node Node, idGenerator JsMes
 	{
 		var strKey Node = propertiesNode.getFirstChild()
 		for ; strKey != 0; strKey = strKey.getNext() {
-			Preconditions_checkState_boolean_Object_H(strKey.isStringKey(), strKey)
+			if !strKey.isStringKey() {
+				Preconditions_checkState_boolean_Object_H(false, strKey)
+			}
 			var key string = strKey.getString()
 			var valueNode Node = strKey.getOnlyChild()
 			if key == "icu_placeholder_names" {
@@ -907,7 +921,9 @@ func ReplaceMessages_ProtectedJsMessage_fromAstNode(node Node, idGenerator JsMes
 				}
 				continue
 			}
-			Preconditions_checkState_boolean_Object_H(valueNode.isStringLit(), valueNode)
+			if !valueNode.isStringLit() {
+				Preconditions_checkState_boolean_Object_H(false, valueNode)
+			}
 			var value string = valueNode.getString()
 			switch key {
 			case "key":

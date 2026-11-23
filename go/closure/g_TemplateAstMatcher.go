@@ -26,7 +26,9 @@ func (this *TemplateAstMatcher) finit_TemplateAstMatcher() {
 
 func (this *TemplateAstMatcher) init_TemplateAstMatcher(compiler *AbstractCompiler, templateFunctionNode Node, typeMatchingStrategy *TypeMatchingStrategy) {
 	this.finit_TemplateAstMatcher()
-	Preconditions_checkState_boolean_String_Object_H(templateFunctionNode.isFunction(), "Template node must be a function node. Received: %s", templateFunctionNode)
+	if !templateFunctionNode.isFunction() {
+		Preconditions_checkState_boolean_String_Object_H(false, "Template node must be a function node. Received: %s", templateFunctionNode)
+	}
 	this.topScope = compiler.getTopScope()
 	this.typeRegistry = Preconditions_checkNotNull_T(compiler.getTypeRegistry())
 	this.templateStart = this.initTemplate(templateFunctionNode)

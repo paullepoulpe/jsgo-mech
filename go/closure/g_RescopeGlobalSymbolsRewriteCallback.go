@@ -72,7 +72,9 @@ func (this *RescopeGlobalSymbolsRewriteCallback) visitNameDeclaration(t *NodeTra
 	it_1 := jeachOf_(allLhsNodes)
 	for it_1.next() {
 		var lhs Node = it_1.v
-		Preconditions_checkState_boolean_String_Object_H(lhs.isName(), "Unexpected lhs node %s, expected NAME", lhs)
+		if !lhs.isName() {
+			Preconditions_checkState_boolean_String_Object_H(false, "Unexpected lhs node %s, expected NAME", lhs)
+		}
 		if (isGlobalDeclaration && this.isCrossChunkName(lhs.getString())) || this.isExternVar(lhs.getString(), t) {
 			hasImportantName = true
 			break
@@ -84,7 +86,9 @@ func (this *RescopeGlobalSymbolsRewriteCallback) visitNameDeclaration(t *NodeTra
 }
 
 func (this *RescopeGlobalSymbolsRewriteCallback) globalVarStaysLocalInDefiningChunk(name string, t *NodeTraversal) bool {
-	Preconditions_checkState_boolean_String_Object(t.getScope().getVar_String_rVar(name).isGlobal(), "Expected global variable: %s", name)
+	if !t.getScope().getVar_String_rVar(name).isGlobal() {
+		Preconditions_checkState_boolean_String_Object(false, "Expected global variable: %s", name)
+	}
 	if this.isExternVar(name, t) {
 		return false
 	}
@@ -158,7 +162,9 @@ func (this *RescopeGlobalSymbolsRewriteCallback) rewriteNameDeclaration(t *NodeT
 				assign.setJSDocInfo(declaration.getJSDocInfo())
 			} else if child.isDestructuringLhs() {
 				if child.hasOneChild() {
-					Preconditions_checkState_boolean_String_Object(NodeUtil_isEnhancedFor(declaration.getParent()), "DESTRUCTURING_LHS should have two children: %s", declaration.toStringTree())
+					if ok_, a1_ := NodeUtil_isEnhancedFor(declaration.getParent()), declaration.toStringTree(); !ok_ {
+						Preconditions_checkState_boolean_String_Object(false, "DESTRUCTURING_LHS should have two children: %s", a1_)
+					}
 					child.replaceWith(child.removeFirstChild())
 				} else {
 					var assign Node = IR_assign(child.removeFirstChild(), child.removeFirstChild())
@@ -243,7 +249,9 @@ func (this *RescopeGlobalSymbolsRewriteCallback) visitName(t *NodeTraversal, n N
 		this.replaceSymbol(n, name, replacement)
 		return
 	}
-	Preconditions_checkState_boolean_String_Object(this.symbolInfo.wrappedCrossChunkNames().contains(name), "Unexpected unaliased cross-chunk symbol under ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS: %s", name)
+	if !this.symbolInfo.wrappedCrossChunkNames().contains(name) {
+		Preconditions_checkState_boolean_String_Object(false, "Unexpected unaliased cross-chunk symbol under ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS: %s", name)
+	}
 	this.chunksUsingWrappedReassignableSymbols.computeIfAbsent(name, Function[string, SetT[*JSChunk]](func(k string) SetT[*JSChunk] {
 		return jnewTSet_(jtc_p_JSChunk).asSetT()
 	})).add_t(currentChunk)
@@ -285,7 +293,9 @@ func (this *RescopeGlobalSymbolsRewriteCallback) addGlobalNamespaceAlias(n Node,
 		parent.addChildToBack(globalNamespaceAssign)
 		this.compiler_.reportChangeToEnclosingScope(parent)
 	} else if NodeUtil_isNameDeclaration(parent) {
-		Preconditions_checkState_boolean_String_Object_H(n.hasChildren(), "Expected initialized declaration for %s", n)
+		if !n.hasChildren() {
+			Preconditions_checkState_boolean_String_Object_H(false, "Expected initialized declaration for %s", n)
+		}
 		var rhs Node = n.removeFirstChild()
 		var globalNamespaceAssign Node = IR_assign(globalTarget, rhs)
 		globalNamespaceAssign.srcrefTree(n)

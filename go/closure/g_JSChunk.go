@@ -86,13 +86,17 @@ func (this *JSChunk) add(file *SourceFile_jscomp) {
 func (this *JSChunk) addCompilerInput(input *CompilerInput) {
 	var inputName string = input.getName()
 	var previous *CompilerInput = this.inputs.put(inputName, input)
-	Preconditions_checkState_boolean_String_Object_Object((previous == nil), "%s already exist in chunk %s", inputName, this.getName())
+	if ok_, a1_, a2_ := (previous == nil), inputName, this.getName(); !ok_ {
+		Preconditions_checkState_boolean_String_Object_Object(false, "%s already exist in chunk %s", a1_, a2_)
+	}
 	input.setChunk(this)
 }
 
 func (this *JSChunk) addDependency(dep *JSChunk) {
 	Preconditions_checkNotNull_T(dep)
-	Preconditions_checkState_boolean_String_Object((dep != this), "Cannot add dependency on self (%s)", this)
+	if !(dep != this) {
+		Preconditions_checkState_boolean_String_Object(false, "Cannot add dependency on self (%s)", this)
+	}
 	this.deps.add(dep)
 }
 
@@ -202,7 +206,9 @@ func (this *JSChunk) sortInputsByDeps(compiler *AbstractCompiler) {
 }
 
 func (this *JSChunk) setDepth(dep int32) {
-	Preconditions_checkArgument_boolean_String_int((dep >= 0), "invalid depth: %s", dep)
+	if !(dep >= 0) {
+		Preconditions_checkArgument_boolean_String_int(false, "invalid depth: %s", dep)
+	}
 	this.depth = dep
 }
 
@@ -211,7 +217,9 @@ func (this *JSChunk) getDepth() int32 {
 }
 
 func (this *JSChunk) setIndex(index int32) {
-	Preconditions_checkArgument_boolean_String_int((index >= 0), "Invalid chunk index: %s", index)
+	if !(index >= 0) {
+		Preconditions_checkArgument_boolean_String_int(false, "Invalid chunk index: %s", index)
+	}
 	this.index_ = index
 }
 

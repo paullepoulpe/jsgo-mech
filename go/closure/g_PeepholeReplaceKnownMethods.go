@@ -41,11 +41,15 @@ func (this *PeepholeReplaceKnownMethods) optimizeSubtree_impl(subtree Node) Node
 }
 
 func (this *PeepholeReplaceKnownMethods) tryFoldKnownMethods(subtree Node) Node {
-	Preconditions_checkArgument_boolean_Object_H(subtree.isCall(), subtree)
+	if !subtree.isCall() {
+		Preconditions_checkArgument_boolean_Object_H(false, subtree)
+	}
 	subtree = this.tryFoldArrayJoin(subtree)
 	if subtree.isCall() {
 		subtree = this.tryToFoldArrayConcat(subtree)
-		Preconditions_checkState_boolean_Object_H(subtree.isCall(), subtree)
+		if !subtree.isCall() {
+			Preconditions_checkState_boolean_Object_H(false, subtree)
+		}
 		var callTarget Node = Preconditions_checkNotNull_T(subtree.getFirstChild())
 		if callTarget.isGetProp() {
 			if this.isASTNormalized() && callTarget.getFirstChild().isQualifiedName() {
@@ -737,7 +741,9 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringAt(n Node, stringNode Node
 }
 
 func (this *PeepholeReplaceKnownMethods) tryFoldArrayJoin(n Node) Node {
-	Preconditions_checkState_boolean_Object_H(n.isCall(), n)
+	if !n.isCall() {
+		Preconditions_checkState_boolean_Object_H(false, n)
+	}
 	var callTarget Node = n.getFirstChild()
 	if (callTarget == 0) || !callTarget.isGetProp() {
 		return n
@@ -1101,7 +1107,9 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringSplit(n Node, stringNode N
 }
 
 func (this *PeepholeReplaceKnownMethods) tryToFoldArrayConcat(n Node) Node {
-	Preconditions_checkArgument_boolean_Object_H(n.isCall(), n)
+	if !n.isCall() {
+		Preconditions_checkArgument_boolean_Object_H(false, n)
+	}
 	if !this.isASTNormalized() || !this.useTypes {
 		return n
 	}
@@ -1163,7 +1171,9 @@ func (this *PeepholeReplaceKnownMethods) tryToFoldConcatChaining(concatFunctionC
 }
 
 func PeepholeReplaceKnownMethods_createConcatFunctionCallForNode(n Node) *PeepholeReplaceKnownMethods_ConcatFunctionCall {
-	Preconditions_checkArgument_boolean_Object_H(n.isCall(), n)
+	if !n.isCall() {
+		Preconditions_checkArgument_boolean_Object_H(false, n)
+	}
 	var callTarget Node = Preconditions_checkNotNull_T(n.getFirstChild())
 	if !callTarget.isGetProp() || !(callTarget.getString() == "concat") {
 		return nil

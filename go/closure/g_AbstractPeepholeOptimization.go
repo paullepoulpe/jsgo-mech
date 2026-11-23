@@ -72,7 +72,9 @@ func (this *AbstractPeepholeOptimization) beginTraversal_impl(compiler *Abstract
 }
 
 func (this *AbstractPeepholeOptimization) endTraversal() {
-	Preconditions_checkState_boolean_String_Object_Object(this.newFeatures.isEmpty(), "Expected getNewFeatures() to be empty in endTraversal() but found %s for %s", this.newFeatures.asSetT(), Object_getClass(this.self()).getName())
+	if ok_, a1_, a2_ := this.newFeatures.isEmpty(), this.newFeatures.asSetT(), Object_getClass(this.self()).getName(); !ok_ {
+		Preconditions_checkState_boolean_String_Object_Object(false, "Expected getNewFeatures() to be empty in endTraversal() but found %s for %s", a1_, a2_)
+	}
 	this.compiler_ = nil
 	this.astAnalyzer = nil
 }

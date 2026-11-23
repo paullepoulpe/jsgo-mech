@@ -126,7 +126,9 @@ func new_ColorPool_ShardView(typePool *TypePool, stringPool *StringPool, trimmed
 }
 
 func (this *ColorPool_ShardView) getColor(pointer int32) *Color {
-	Preconditions_checkState_boolean_Object((this.colorPool != nil), this)
+	if !(this.colorPool != nil) {
+		Preconditions_checkState_boolean_Object(false, this)
+	}
 	return this.colorPool.getColor(this.getId(pointer))
 }
 
@@ -188,7 +190,9 @@ func (this *ColorPool_Builder) addShard(typePool *TypePool, stringPool *StringPo
 	Preconditions_checkState_boolean_Object(this.idToProto.isEmpty(), "build has already been called")
 	var existing *ColorPool_ShardView = this.protoToShard.get(typePool)
 	if existing != nil {
-		Preconditions_checkState_boolean_Object((typePool == TypePool_getDefaultInstance()), typePool)
+		if !(typePool == TypePool_getDefaultInstance()) {
+			Preconditions_checkState_boolean_Object(false, typePool)
+		}
 		return existing
 	}
 	var trimmedOffsetToId *JTList[*ColorId] = ColorPool_createTrimmedOffsetToId(typePool)
@@ -296,7 +300,9 @@ func (this *ColorPool_Builder) lookupOrReconcileColor(id *ColorId) *Color {
 			}
 			panic("unreachable")
 		}()
-		Preconditions_checkState_boolean_Object((result != nil), id)
+		if !(result != nil) {
+			Preconditions_checkState_boolean_Object(false, id)
+		}
 		this.idToColor.put(id, result)
 		ret_1 = result
 		return 1
@@ -349,7 +355,9 @@ func (this *ColorPool_Builder) reconcileObjectProtos(id *ColorId, viewToProto Ma
 func (this *ColorPool_Builder) reconcileUnionProtos(id *ColorId, viewToProto MapT[*ColorPool_ShardView, *TypeProto]) *Color {
 	var union *JTSet[*Color] = jnewTSet_(tce_p_Color)
 	Map_forEachT_[*ColorPool_ShardView, *TypeProto](viewToProto, BiConsumer[*ColorPool_ShardView, *TypeProto](func(shard *ColorPool_ShardView, proto *TypeProto) {
-		Preconditions_checkState_boolean_Object(proto.hasUnion(), proto)
+		if !proto.hasUnion() {
+			Preconditions_checkState_boolean_Object(false, proto)
+		}
 		var unionMemberList ListT[any] = listAs_(tc_Integer, proto.getUnion().getUnionMemberList())
 		for i := int32(0); i < unionMemberList.size(); i++ {
 			var memberPointer any = unionMemberList.get(i)
@@ -360,6 +368,8 @@ func (this *ColorPool_Builder) reconcileUnionProtos(id *ColorId, viewToProto Map
 		}
 	}))
 	var result *Color = Color_createUnion(union)
-	Preconditions_checkState_boolean_String_Object_Object(id.equals(obj_(result.getId())), "%s == %s", id, result)
+	if !id.equals(obj_(result.getId())) {
+		Preconditions_checkState_boolean_String_Object_Object(false, "%s == %s", id, result)
+	}
 	return result
 }

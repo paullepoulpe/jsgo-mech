@@ -37,7 +37,9 @@ func NestedCompilerRunner_create(original *AbstractCompiler, shadowOptions *Comp
 }
 
 func (this *NestedCompilerRunner) addScript(shadowScript Node, uniqueShadowId string) *NestedCompilerRunner {
-	Preconditions_checkArgument_boolean_String_Object_H(shadowScript.getIsInClosureUnawareSubtree(), "Expected closureUnaware script, found %s", shadowScript)
+	if !shadowScript.getIsInClosureUnawareSubtree() {
+		Preconditions_checkArgument_boolean_String_Object_H(false, "Expected closureUnaware script, found %s", shadowScript)
+	}
 	var shadowFile *SourceFile_jscomp = SourceFile_jscomp_fromCode_String_String_SourceKind(uniqueShadowId, "", StaticSourceFile_SourceKind_STRONG)
 	var shadowInput *CompilerInput = CompilerInput_createFromInputId(shadowFile, new_InputId(uniqueShadowId))
 	shadowInput.initShadowAst(shadowScript)
@@ -113,9 +115,13 @@ func (this *NestedCompilerRunner) delegateDiagnosticsToOriginal() {
 }
 
 func (this *NestedCompilerRunner) checkInvariants() {
-	Preconditions_checkState_boolean_String_Object((this.baseChunk.getInputs().size() == 1), "Expected exactly 1 base chunk input, got %s", lgBox_(this.baseChunk.getInputs()))
+	if ok_, a1_ := (this.baseChunk.getInputs().size() == 1), lgBox_(this.baseChunk.getInputs()); !ok_ {
+		Preconditions_checkState_boolean_String_Object(false, "Expected exactly 1 base chunk input, got %s", a1_)
+	}
 	var baseInputNode Node = this.baseChunk.getInputs().get_t(0).getAstRoot(this.shadowCompiler.up_AbstractCompiler())
-	Preconditions_checkState_boolean_String_Object(!baseInputNode.hasChildren(), "Expected synthetic base input chunk to have zero children, but found %s", baseInputNode.toStringTree())
+	if ok_, a1_ := !baseInputNode.hasChildren(), baseInputNode.toStringTree(); !ok_ {
+		Preconditions_checkState_boolean_String_Object(false, "Expected synthetic base input chunk to have zero children, but found %s", a1_)
+	}
 }
 
 type NestedCompilerRunner_Mode struct {

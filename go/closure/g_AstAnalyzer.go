@@ -36,7 +36,9 @@ func (this *AstAnalyzer) mayHaveSideEffects(n Node) bool {
 }
 
 func (this *AstAnalyzer) functionCallHasSideEffects(callNode Node) bool {
-	Preconditions_checkState_boolean_Object_H(((callNode.isCall() || callNode.isTaggedTemplateLit()) || callNode.isOptChainCall()), callNode)
+	if !((callNode.isCall() || callNode.isTaggedTemplateLit()) || callNode.isOptChainCall()) {
+		Preconditions_checkState_boolean_Object_H(false, callNode)
+	}
 	if callNode.isNoSideEffectsCall() {
 		return false
 	}
@@ -222,7 +224,9 @@ func (this *AstAnalyzer) checkAssignmentForChangeState(assignOp Node, checkForNe
 }
 
 func (this *AstAnalyzer) constructorCallHasSideEffects(newNode Node) bool {
-	Preconditions_checkArgument_boolean_String_Object(newNode.isNew(), "Expected NEW node, got %s", newNode.getToken())
+	if ok_, a1_ := newNode.isNew(), newNode.getToken(); !ok_ {
+		Preconditions_checkArgument_boolean_String_Object(false, "Expected NEW node, got %s", a1_)
+	}
 	if newNode.isNoSideEffectsCall() {
 		return false
 	}

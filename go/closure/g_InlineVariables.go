@@ -421,7 +421,9 @@ func (this *InlineVariables_InliningBehavior) inlineWellDefinedVariable(v *Var, 
 
 func (this *InlineVariables_InliningBehavior) removeDeclaration(decl *Reference) {
 	var varNode Node = decl.getParent()
-	Preconditions_checkState_boolean_Object_H(NodeUtil_isNameDeclaration(varNode), varNode)
+	if !NodeUtil_isNameDeclaration(varNode) {
+		Preconditions_checkState_boolean_Object_H(false, varNode)
+	}
 	var grandparent Node = decl.getGrandparent()
 	this.outer_.compiler_.reportChangeToEnclosingScope(decl.getNode())
 	decl.getNode().detach()
@@ -561,7 +563,9 @@ func new_InlineVariables_InliningBehavior_AliasInlineRetryHandler(outer_ *Inline
 
 func (this *InlineVariables_InliningBehavior_AliasInlineRetryHandler) handleAliasedVarCompletion(aliasedVar *Var, aliasedVarAnalyis *InlineVariables_InlineVarAnalysis) {
 	var newAnalysis *InlineVariables_InlineVarAnalysis = this.expert.reanalyzeAfterAliasedVar(aliasedVar, aliasedVarAnalyis)
-	Preconditions_checkState_boolean_String_Object(!newAnalysis.shouldWaitForAliasedVar(), "expert for %s asked to wait a second time", this.v)
+	if newAnalysis.shouldWaitForAliasedVar() {
+		Preconditions_checkState_boolean_String_Object(false, "expert for %s asked to wait a second time", this.v)
+	}
 	if newAnalysis.shouldInline() {
 		newAnalysis.performInline()
 	}

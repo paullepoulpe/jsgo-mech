@@ -74,7 +74,9 @@ func (this *SemanticReverseAbstractInterpreter) getPreciserScopeKnowingCondition
 		var right Node
 		if operatorToken == Token_rhino_CASE {
 			left = condition.getParent().getPrevious()
-			Preconditions_checkState_boolean_Object_H(condition.getParent().isSwitchBody(), condition.getParent())
+			if ok_, a1_ := condition.getParent().isSwitchBody(), condition.getParent(); !ok_ {
+				Preconditions_checkState_boolean_Object_H(false, a1_)
+			}
 			right = condition.getFirstChild()
 		} else {
 			left = condition.getFirstChild()
