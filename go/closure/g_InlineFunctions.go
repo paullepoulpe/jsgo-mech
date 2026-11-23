@@ -8,7 +8,7 @@ type InlineFunctions struct {
 	compiler_                   *AbstractCompiler
 	injector                    *FunctionInjector
 	functionArgumentInjector_   *FunctionArgumentInjector
-	reach                       *CompilerOptions_Reach
+	reach                       CompilerOptions_Reach
 	maxSizeAfterInlining        int32
 	enforceMaxSizeAfterInlining bool
 }
@@ -18,7 +18,7 @@ func (this *InlineFunctions) finit_InlineFunctions() {
 	this.anonFns = jnewTMap_(jtc_Node, jtc_string)
 }
 
-func (this *InlineFunctions) init_InlineFunctions(compiler *AbstractCompiler, safeNameIdSupplier Supplier[string], reach *CompilerOptions_Reach, assumeStrictThis bool, maxSizeAfterInlining int32) {
+func (this *InlineFunctions) init_InlineFunctions(compiler *AbstractCompiler, safeNameIdSupplier Supplier[string], reach CompilerOptions_Reach, assumeStrictThis bool, maxSizeAfterInlining int32) {
 	this.finit_InlineFunctions()
 	Preconditions_checkArgument((compiler != nil))
 	Preconditions_checkArgument((safeNameIdSupplier != nil))
@@ -31,7 +31,7 @@ func (this *InlineFunctions) init_InlineFunctions(compiler *AbstractCompiler, sa
 	this.injector = new_FunctionInjector_Builder(compiler).safeNameIdSupplier(safeNameIdSupplier).assumeStrictThis(assumeStrictThis).functionArgumentInjector(this.functionArgumentInjector_).build()
 }
 
-func new_InlineFunctions(compiler *AbstractCompiler, safeNameIdSupplier Supplier[string], reach *CompilerOptions_Reach, assumeStrictThis bool, maxSizeAfterInlining int32) *InlineFunctions {
+func new_InlineFunctions(compiler *AbstractCompiler, safeNameIdSupplier Supplier[string], reach CompilerOptions_Reach, assumeStrictThis bool, maxSizeAfterInlining int32) *InlineFunctions {
 	this := &InlineFunctions{}
 	this.init_InlineFunctions(compiler, safeNameIdSupplier, reach, assumeStrictThis, maxSizeAfterInlining)
 	return this
@@ -654,7 +654,7 @@ func (this *InlineFunctions_FindCandidatesReferences) maybeAddReference(t *NodeT
 	if !functionState.canInline() {
 		return
 	}
-	var mode *FunctionInjector_InliningMode = func() *FunctionInjector_InliningMode {
+	var mode FunctionInjector_InliningMode = func() FunctionInjector_InliningMode {
 		if functionState.canInlineDirectly() {
 			return FunctionInjector_InliningMode_DIRECT
 		}
@@ -670,12 +670,12 @@ func (this *InlineFunctions_FindCandidatesReferences) maybeAddReference(t *NodeT
 	}
 }
 
-func (this *InlineFunctions_FindCandidatesReferences) maybeAddReferenceUsingMode(t *NodeTraversal, functionState *InlineFunctions_FunctionState, callNode Node, chunk *JSChunk, mode *FunctionInjector_InliningMode) bool {
+func (this *InlineFunctions_FindCandidatesReferences) maybeAddReferenceUsingMode(t *NodeTraversal, functionState *InlineFunctions_FunctionState, callNode Node, chunk *JSChunk, mode FunctionInjector_InliningMode) bool {
 	if this.outer_.enforceMaxSizeAfterInlining && this.outer_.targetSizeAfterInlineExceedsLimit(t, functionState) {
 		return false
 	}
 	var candidate *InlineFunctions_Reference = new_InlineFunctions_Reference(callNode, t.getScope(), chunk, mode)
-	var result *FunctionInjector_CanInlineResult = this.outer_.injector.canInlineReferenceToFunction(candidate.up_FunctionInjector_Reference(), functionState.getFn().getFunctionNode(), functionState.getNamesToAlias(), functionState.getReferencesThis(), functionState.hasInnerClosures())
+	var result FunctionInjector_CanInlineResult = this.outer_.injector.canInlineReferenceToFunction(candidate.up_FunctionInjector_Reference(), functionState.getFn().getFunctionNode(), functionState.getNamesToAlias(), functionState.getReferencesThis(), functionState.hasInnerClosures())
 	if result != FunctionInjector_CanInlineResult_NO {
 		candidate.setRequiresDecomposition((result == FunctionInjector_CanInlineResult_AFTER_PREPARATION))
 		functionState.addReference(candidate)
@@ -876,11 +876,11 @@ func (this *InlineFunctions_FunctionState) requireInlining() bool {
 	return this.hasRequireInliningAnnotation
 }
 
-func (this *InlineFunctions_FunctionState) disallowInlining(compiler *AbstractCompiler, reason *InlineFunctions_DisallowInliningReason) {
+func (this *InlineFunctions_FunctionState) disallowInlining(compiler *AbstractCompiler, reason InlineFunctions_DisallowInliningReason) {
 	this.disallowInlining_3(compiler, reason, InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_YES)
 }
 
-func (this *InlineFunctions_FunctionState) disallowInlining_3(compiler *AbstractCompiler, reason *InlineFunctions_DisallowInliningReason, shouldWarnWhenRequireInliningCannotInline *InlineFunctions_ShouldWarnWhenRequireInliningCannotInline) {
+func (this *InlineFunctions_FunctionState) disallowInlining_3(compiler *AbstractCompiler, reason InlineFunctions_DisallowInliningReason, shouldWarnWhenRequireInliningCannotInline InlineFunctions_ShouldWarnWhenRequireInliningCannotInline) {
 	if (this.requireInlining() && compiler.isDebugLoggingEnabled()) && (shouldWarnWhenRequireInliningCannotInline == InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_YES) {
 		compiler.report(JSError_make_Node_DiagnosticType_StringArr(this.fn.getFunctionNode(), InlineFunctions_MISSED_REQUIRED_INLINING, []string{reason.name()}))
 	}
@@ -893,11 +893,11 @@ func (this *InlineFunctions_FunctionState) canRemove() bool {
 	return this.remove_
 }
 
-func (this *InlineFunctions_FunctionState) setRemove(remove bool, compiler *AbstractCompiler, reason *InlineFunctions_CannotRemoveReason, shouldWarnIfRequireInlining *InlineFunctions_ShouldWarnWhenRequireInliningCannotInline) {
+func (this *InlineFunctions_FunctionState) setRemove(remove bool, compiler *AbstractCompiler, reason InlineFunctions_CannotRemoveReason, shouldWarnIfRequireInlining InlineFunctions_ShouldWarnWhenRequireInliningCannotInline) {
 	this.setRemove_5(remove, compiler, reason, shouldWarnIfRequireInlining, 0)
 }
 
-func (this *InlineFunctions_FunctionState) setRemove_5(remove bool, compiler *AbstractCompiler, reason *InlineFunctions_CannotRemoveReason, shouldWarnIfRequireInlining *InlineFunctions_ShouldWarnWhenRequireInliningCannotInline, contextNode Node) {
+func (this *InlineFunctions_FunctionState) setRemove_5(remove bool, compiler *AbstractCompiler, reason InlineFunctions_CannotRemoveReason, shouldWarnIfRequireInlining InlineFunctions_ShouldWarnWhenRequireInliningCannotInline, contextNode Node) {
 	if ((!remove && (shouldWarnIfRequireInlining != InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_NO)) && this.requireInlining()) && compiler.isDebugLoggingEnabled() {
 		compiler.report(JSError_make_Node_DiagnosticType_StringArr(this.fn.getFunctionNode(), InlineFunctions_MISSED_REQUIRED_INLINING, []string{reason.name(), func() string {
 			if contextNode == 0 {
@@ -1107,12 +1107,12 @@ func (this *InlineFunctions_Reference) finit_InlineFunctions_Reference() {
 	this.inlined = false
 }
 
-func (this *InlineFunctions_Reference) init_InlineFunctions_Reference(callNode Node, scope *Scope, chunk *JSChunk, mode *FunctionInjector_InliningMode) {
+func (this *InlineFunctions_Reference) init_InlineFunctions_Reference(callNode Node, scope *Scope, chunk *JSChunk, mode FunctionInjector_InliningMode) {
 	this.FunctionInjector_Reference.init_FunctionInjector_Reference(callNode, scope, chunk, mode)
 	this.finit_InlineFunctions_Reference()
 }
 
-func new_InlineFunctions_Reference(callNode Node, scope *Scope, chunk *JSChunk, mode *FunctionInjector_InliningMode) *InlineFunctions_Reference {
+func new_InlineFunctions_Reference(callNode Node, scope *Scope, chunk *JSChunk, mode FunctionInjector_InliningMode) *InlineFunctions_Reference {
 	this := &InlineFunctions_Reference{}
 	this.self_ = this
 	this.init_InlineFunctions_Reference(callNode, scope, chunk, mode)
@@ -1123,44 +1123,61 @@ func (this *InlineFunctions_Reference) setRequiresDecomposition(newVal bool) {
 	this.requiresDecomposition = newVal
 }
 
-type InlineFunctions_ShouldWarnWhenRequireInliningCannotInline struct {
-	Enum
+type InlineFunctions_ShouldWarnWhenRequireInliningCannotInline uint8
+
+// InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_enum_ = [2]Enum{
+	{self_: InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_YES, name_: "YES", ordinal_: 0},
+	{self_: InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_NO, name_: "NO", ordinal_: 1},
 }
 
-func (this *InlineFunctions_ShouldWarnWhenRequireInliningCannotInline) up_Enum() *Enum {
-	if this == nil {
+func (this InlineFunctions_ShouldWarnWhenRequireInliningCannotInline) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_enum_[this-1]
 }
 
-func (this *InlineFunctions_ShouldWarnWhenRequireInliningCannotInline) init_InlineFunctions_ShouldWarnWhenRequireInliningCannotInline(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this InlineFunctions_ShouldWarnWhenRequireInliningCannotInline) name() string {
+	return InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_enum_[this-1].name_
 }
 
-func new_InlineFunctions_ShouldWarnWhenRequireInliningCannotInline(name_ string, ordinal_ int32) *InlineFunctions_ShouldWarnWhenRequireInliningCannotInline {
-	this := &InlineFunctions_ShouldWarnWhenRequireInliningCannotInline{}
-	this.self_ = this
-	this.init_InlineFunctions_ShouldWarnWhenRequireInliningCannotInline(name_, ordinal_)
+func (this InlineFunctions_ShouldWarnWhenRequireInliningCannotInline) ordinal() int32 {
+	return InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_enum_[this-1].ordinal_
+}
+
+func (this InlineFunctions_ShouldWarnWhenRequireInliningCannotInline) toString() string {
+	return InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_enum_[this-1].name_
+}
+
+func (this InlineFunctions_ShouldWarnWhenRequireInliningCannotInline) compareTo(o any) int32 {
+	return InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_enum_[this-1].compareTo(o)
+}
+
+func (this InlineFunctions_ShouldWarnWhenRequireInliningCannotInline) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_values() []*InlineFunctions_ShouldWarnWhenRequireInliningCannotInline {
-	return append([]*InlineFunctions_ShouldWarnWhenRequireInliningCannotInline(nil), InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_values_...)
+func InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_values() []InlineFunctions_ShouldWarnWhenRequireInliningCannotInline {
+	return append([]InlineFunctions_ShouldWarnWhenRequireInliningCannotInline(nil), InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_values_...)
 }
 
-func InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_valueOf(name string) *InlineFunctions_ShouldWarnWhenRequireInliningCannotInline {
+func InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_valueOf(name string) InlineFunctions_ShouldWarnWhenRequireInliningCannotInline {
 	for _, v := range InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("ShouldWarnWhenRequireInliningCannotInline", name))
 }
 
-var InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_YES *InlineFunctions_ShouldWarnWhenRequireInliningCannotInline
-var InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_NO *InlineFunctions_ShouldWarnWhenRequireInliningCannotInline
-var InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_values_ []*InlineFunctions_ShouldWarnWhenRequireInliningCannotInline
+const InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_YES InlineFunctions_ShouldWarnWhenRequireInliningCannotInline = 1
+const InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_NO InlineFunctions_ShouldWarnWhenRequireInliningCannotInline = 2
+
+var InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_values_ []InlineFunctions_ShouldWarnWhenRequireInliningCannotInline
 
 var InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_clinit_done bool
 
@@ -1169,53 +1186,70 @@ func InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_clinit() {
 		return
 	}
 	InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_clinit_done = true
-	InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_YES = new_InlineFunctions_ShouldWarnWhenRequireInliningCannotInline("YES", 0)
-	InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_NO = new_InlineFunctions_ShouldWarnWhenRequireInliningCannotInline("NO", 1)
-	InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_values_ = []*InlineFunctions_ShouldWarnWhenRequireInliningCannotInline{InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_YES, InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_NO}
+	InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_values_ = []InlineFunctions_ShouldWarnWhenRequireInliningCannotInline{InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_YES, InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_NO}
 	registerEnum_("com.google.javascript.jscomp.InlineFunctions.ShouldWarnWhenRequireInliningCannotInline", enumValues_(InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_values_))
 
 }
 
-type InlineFunctions_CannotRemoveReason struct {
-	Enum
+type InlineFunctions_CannotRemoveReason uint8
+
+// InlineFunctions_CannotRemoveReason_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var InlineFunctions_CannotRemoveReason_enum_ = [4]Enum{
+	{self_: InlineFunctions_CannotRemoveReason_BLOCK_INLINING_REFERENCE, name_: "BLOCK_INLINING_REFERENCE", ordinal_: 0},
+	{self_: InlineFunctions_CannotRemoveReason_CALLED_BY_INLINED_FUNCTION, name_: "CALLED_BY_INLINED_FUNCTION", ordinal_: 1},
+	{self_: InlineFunctions_CannotRemoveReason_UNINLINABLE_REFERENCE, name_: "UNINLINABLE_REFERENCE", ordinal_: 2},
+	{self_: InlineFunctions_CannotRemoveReason_UNREMOVABLE_REFERENCE, name_: "UNREMOVABLE_REFERENCE", ordinal_: 3},
 }
 
-func (this *InlineFunctions_CannotRemoveReason) up_Enum() *Enum {
-	if this == nil {
+func (this InlineFunctions_CannotRemoveReason) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &InlineFunctions_CannotRemoveReason_enum_[this-1]
 }
 
-func (this *InlineFunctions_CannotRemoveReason) init_InlineFunctions_CannotRemoveReason(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this InlineFunctions_CannotRemoveReason) name() string {
+	return InlineFunctions_CannotRemoveReason_enum_[this-1].name_
 }
 
-func new_InlineFunctions_CannotRemoveReason(name_ string, ordinal_ int32) *InlineFunctions_CannotRemoveReason {
-	this := &InlineFunctions_CannotRemoveReason{}
-	this.self_ = this
-	this.init_InlineFunctions_CannotRemoveReason(name_, ordinal_)
+func (this InlineFunctions_CannotRemoveReason) ordinal() int32 {
+	return InlineFunctions_CannotRemoveReason_enum_[this-1].ordinal_
+}
+
+func (this InlineFunctions_CannotRemoveReason) toString() string {
+	return InlineFunctions_CannotRemoveReason_enum_[this-1].name_
+}
+
+func (this InlineFunctions_CannotRemoveReason) compareTo(o any) int32 {
+	return InlineFunctions_CannotRemoveReason_enum_[this-1].compareTo(o)
+}
+
+func (this InlineFunctions_CannotRemoveReason) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func InlineFunctions_CannotRemoveReason_values() []*InlineFunctions_CannotRemoveReason {
-	return append([]*InlineFunctions_CannotRemoveReason(nil), InlineFunctions_CannotRemoveReason_values_...)
+func InlineFunctions_CannotRemoveReason_values() []InlineFunctions_CannotRemoveReason {
+	return append([]InlineFunctions_CannotRemoveReason(nil), InlineFunctions_CannotRemoveReason_values_...)
 }
 
-func InlineFunctions_CannotRemoveReason_valueOf(name string) *InlineFunctions_CannotRemoveReason {
+func InlineFunctions_CannotRemoveReason_valueOf(name string) InlineFunctions_CannotRemoveReason {
 	for _, v := range InlineFunctions_CannotRemoveReason_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("CannotRemoveReason", name))
 }
 
-var InlineFunctions_CannotRemoveReason_BLOCK_INLINING_REFERENCE *InlineFunctions_CannotRemoveReason
-var InlineFunctions_CannotRemoveReason_CALLED_BY_INLINED_FUNCTION *InlineFunctions_CannotRemoveReason
-var InlineFunctions_CannotRemoveReason_UNINLINABLE_REFERENCE *InlineFunctions_CannotRemoveReason
-var InlineFunctions_CannotRemoveReason_UNREMOVABLE_REFERENCE *InlineFunctions_CannotRemoveReason
-var InlineFunctions_CannotRemoveReason_values_ []*InlineFunctions_CannotRemoveReason
+const InlineFunctions_CannotRemoveReason_BLOCK_INLINING_REFERENCE InlineFunctions_CannotRemoveReason = 1
+const InlineFunctions_CannotRemoveReason_CALLED_BY_INLINED_FUNCTION InlineFunctions_CannotRemoveReason = 2
+const InlineFunctions_CannotRemoveReason_UNINLINABLE_REFERENCE InlineFunctions_CannotRemoveReason = 3
+const InlineFunctions_CannotRemoveReason_UNREMOVABLE_REFERENCE InlineFunctions_CannotRemoveReason = 4
+
+var InlineFunctions_CannotRemoveReason_values_ []InlineFunctions_CannotRemoveReason
 
 var InlineFunctions_CannotRemoveReason_clinit_done bool
 
@@ -1224,62 +1258,84 @@ func InlineFunctions_CannotRemoveReason_clinit() {
 		return
 	}
 	InlineFunctions_CannotRemoveReason_clinit_done = true
-	InlineFunctions_CannotRemoveReason_BLOCK_INLINING_REFERENCE = new_InlineFunctions_CannotRemoveReason("BLOCK_INLINING_REFERENCE", 0)
-	InlineFunctions_CannotRemoveReason_CALLED_BY_INLINED_FUNCTION = new_InlineFunctions_CannotRemoveReason("CALLED_BY_INLINED_FUNCTION", 1)
-	InlineFunctions_CannotRemoveReason_UNINLINABLE_REFERENCE = new_InlineFunctions_CannotRemoveReason("UNINLINABLE_REFERENCE", 2)
-	InlineFunctions_CannotRemoveReason_UNREMOVABLE_REFERENCE = new_InlineFunctions_CannotRemoveReason("UNREMOVABLE_REFERENCE", 3)
-	InlineFunctions_CannotRemoveReason_values_ = []*InlineFunctions_CannotRemoveReason{InlineFunctions_CannotRemoveReason_BLOCK_INLINING_REFERENCE, InlineFunctions_CannotRemoveReason_CALLED_BY_INLINED_FUNCTION, InlineFunctions_CannotRemoveReason_UNINLINABLE_REFERENCE, InlineFunctions_CannotRemoveReason_UNREMOVABLE_REFERENCE}
+	InlineFunctions_CannotRemoveReason_values_ = []InlineFunctions_CannotRemoveReason{InlineFunctions_CannotRemoveReason_BLOCK_INLINING_REFERENCE, InlineFunctions_CannotRemoveReason_CALLED_BY_INLINED_FUNCTION, InlineFunctions_CannotRemoveReason_UNINLINABLE_REFERENCE, InlineFunctions_CannotRemoveReason_UNREMOVABLE_REFERENCE}
 	registerEnum_("com.google.javascript.jscomp.InlineFunctions.CannotRemoveReason", enumValues_(InlineFunctions_CannotRemoveReason_values_))
 
 }
 
-type InlineFunctions_DisallowInliningReason struct {
-	Enum
+type InlineFunctions_DisallowInliningReason uint8
+
+// InlineFunctions_DisallowInliningReason_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var InlineFunctions_DisallowInliningReason_enum_ = [11]Enum{
+	{self_: InlineFunctions_DisallowInliningReason_ASYNC_FUNCTION, name_: "ASYNC_FUNCTION", ordinal_: 0},
+	{self_: InlineFunctions_DisallowInliningReason_CAPTURED_VARIABLE_NOT_IN_SCOPE, name_: "CAPTURED_VARIABLE_NOT_IN_SCOPE", ordinal_: 1},
+	{self_: InlineFunctions_DisallowInliningReason_COST, name_: "COST", ordinal_: 2},
+	{self_: InlineFunctions_DisallowInliningReason_GENERATOR_FUNCTION, name_: "GENERATOR_FUNCTION", ordinal_: 3},
+	{self_: InlineFunctions_DisallowInliningReason_HAS_LOCAL_NAMES, name_: "HAS_LOCAL_NAMES", ordinal_: 4},
+	{self_: InlineFunctions_DisallowInliningReason_MULTIPLE_FUNCTION_DEFINITIONS, name_: "MULTIPLE_FUNCTION_DEFINITIONS", ordinal_: 5},
+	{self_: InlineFunctions_DisallowInliningReason_NON_INLINABLE_PARAM, name_: "NON_INLINABLE_PARAM", ordinal_: 6},
+	{self_: InlineFunctions_DisallowInliningReason_NOT_CANDIDATE_FUNCTION, name_: "NOT_CANDIDATE_FUNCTION", ordinal_: 7},
+	{self_: InlineFunctions_DisallowInliningReason_NO_INLINE_ANNOTATION, name_: "NO_INLINE_ANNOTATION", ordinal_: 8},
+	{self_: InlineFunctions_DisallowInliningReason_REASSIGNED, name_: "REASSIGNED", ordinal_: 9},
+	{self_: InlineFunctions_DisallowInliningReason_TARGET_SIZE_EXCEEDS_LIMIT, name_: "TARGET_SIZE_EXCEEDS_LIMIT", ordinal_: 10},
 }
 
-func (this *InlineFunctions_DisallowInliningReason) up_Enum() *Enum {
-	if this == nil {
+func (this InlineFunctions_DisallowInliningReason) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &InlineFunctions_DisallowInliningReason_enum_[this-1]
 }
 
-func (this *InlineFunctions_DisallowInliningReason) init_InlineFunctions_DisallowInliningReason(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this InlineFunctions_DisallowInliningReason) name() string {
+	return InlineFunctions_DisallowInliningReason_enum_[this-1].name_
 }
 
-func new_InlineFunctions_DisallowInliningReason(name_ string, ordinal_ int32) *InlineFunctions_DisallowInliningReason {
-	this := &InlineFunctions_DisallowInliningReason{}
-	this.self_ = this
-	this.init_InlineFunctions_DisallowInliningReason(name_, ordinal_)
+func (this InlineFunctions_DisallowInliningReason) ordinal() int32 {
+	return InlineFunctions_DisallowInliningReason_enum_[this-1].ordinal_
+}
+
+func (this InlineFunctions_DisallowInliningReason) toString() string {
+	return InlineFunctions_DisallowInliningReason_enum_[this-1].name_
+}
+
+func (this InlineFunctions_DisallowInliningReason) compareTo(o any) int32 {
+	return InlineFunctions_DisallowInliningReason_enum_[this-1].compareTo(o)
+}
+
+func (this InlineFunctions_DisallowInliningReason) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func InlineFunctions_DisallowInliningReason_values() []*InlineFunctions_DisallowInliningReason {
-	return append([]*InlineFunctions_DisallowInliningReason(nil), InlineFunctions_DisallowInliningReason_values_...)
+func InlineFunctions_DisallowInliningReason_values() []InlineFunctions_DisallowInliningReason {
+	return append([]InlineFunctions_DisallowInliningReason(nil), InlineFunctions_DisallowInliningReason_values_...)
 }
 
-func InlineFunctions_DisallowInliningReason_valueOf(name string) *InlineFunctions_DisallowInliningReason {
+func InlineFunctions_DisallowInliningReason_valueOf(name string) InlineFunctions_DisallowInliningReason {
 	for _, v := range InlineFunctions_DisallowInliningReason_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("DisallowInliningReason", name))
 }
 
-var InlineFunctions_DisallowInliningReason_ASYNC_FUNCTION *InlineFunctions_DisallowInliningReason
-var InlineFunctions_DisallowInliningReason_CAPTURED_VARIABLE_NOT_IN_SCOPE *InlineFunctions_DisallowInliningReason
-var InlineFunctions_DisallowInliningReason_COST *InlineFunctions_DisallowInliningReason
-var InlineFunctions_DisallowInliningReason_GENERATOR_FUNCTION *InlineFunctions_DisallowInliningReason
-var InlineFunctions_DisallowInliningReason_HAS_LOCAL_NAMES *InlineFunctions_DisallowInliningReason
-var InlineFunctions_DisallowInliningReason_MULTIPLE_FUNCTION_DEFINITIONS *InlineFunctions_DisallowInliningReason
-var InlineFunctions_DisallowInliningReason_NON_INLINABLE_PARAM *InlineFunctions_DisallowInliningReason
-var InlineFunctions_DisallowInliningReason_NOT_CANDIDATE_FUNCTION *InlineFunctions_DisallowInliningReason
-var InlineFunctions_DisallowInliningReason_NO_INLINE_ANNOTATION *InlineFunctions_DisallowInliningReason
-var InlineFunctions_DisallowInliningReason_REASSIGNED *InlineFunctions_DisallowInliningReason
-var InlineFunctions_DisallowInliningReason_TARGET_SIZE_EXCEEDS_LIMIT *InlineFunctions_DisallowInliningReason
-var InlineFunctions_DisallowInliningReason_values_ []*InlineFunctions_DisallowInliningReason
+const InlineFunctions_DisallowInliningReason_ASYNC_FUNCTION InlineFunctions_DisallowInliningReason = 1
+const InlineFunctions_DisallowInliningReason_CAPTURED_VARIABLE_NOT_IN_SCOPE InlineFunctions_DisallowInliningReason = 2
+const InlineFunctions_DisallowInliningReason_COST InlineFunctions_DisallowInliningReason = 3
+const InlineFunctions_DisallowInliningReason_GENERATOR_FUNCTION InlineFunctions_DisallowInliningReason = 4
+const InlineFunctions_DisallowInliningReason_HAS_LOCAL_NAMES InlineFunctions_DisallowInliningReason = 5
+const InlineFunctions_DisallowInliningReason_MULTIPLE_FUNCTION_DEFINITIONS InlineFunctions_DisallowInliningReason = 6
+const InlineFunctions_DisallowInliningReason_NON_INLINABLE_PARAM InlineFunctions_DisallowInliningReason = 7
+const InlineFunctions_DisallowInliningReason_NOT_CANDIDATE_FUNCTION InlineFunctions_DisallowInliningReason = 8
+const InlineFunctions_DisallowInliningReason_NO_INLINE_ANNOTATION InlineFunctions_DisallowInliningReason = 9
+const InlineFunctions_DisallowInliningReason_REASSIGNED InlineFunctions_DisallowInliningReason = 10
+const InlineFunctions_DisallowInliningReason_TARGET_SIZE_EXCEEDS_LIMIT InlineFunctions_DisallowInliningReason = 11
+
+var InlineFunctions_DisallowInliningReason_values_ []InlineFunctions_DisallowInliningReason
 
 var InlineFunctions_DisallowInliningReason_clinit_done bool
 
@@ -1288,18 +1344,7 @@ func InlineFunctions_DisallowInliningReason_clinit() {
 		return
 	}
 	InlineFunctions_DisallowInliningReason_clinit_done = true
-	InlineFunctions_DisallowInliningReason_ASYNC_FUNCTION = new_InlineFunctions_DisallowInliningReason("ASYNC_FUNCTION", 0)
-	InlineFunctions_DisallowInliningReason_CAPTURED_VARIABLE_NOT_IN_SCOPE = new_InlineFunctions_DisallowInliningReason("CAPTURED_VARIABLE_NOT_IN_SCOPE", 1)
-	InlineFunctions_DisallowInliningReason_COST = new_InlineFunctions_DisallowInliningReason("COST", 2)
-	InlineFunctions_DisallowInliningReason_GENERATOR_FUNCTION = new_InlineFunctions_DisallowInliningReason("GENERATOR_FUNCTION", 3)
-	InlineFunctions_DisallowInliningReason_HAS_LOCAL_NAMES = new_InlineFunctions_DisallowInliningReason("HAS_LOCAL_NAMES", 4)
-	InlineFunctions_DisallowInliningReason_MULTIPLE_FUNCTION_DEFINITIONS = new_InlineFunctions_DisallowInliningReason("MULTIPLE_FUNCTION_DEFINITIONS", 5)
-	InlineFunctions_DisallowInliningReason_NON_INLINABLE_PARAM = new_InlineFunctions_DisallowInliningReason("NON_INLINABLE_PARAM", 6)
-	InlineFunctions_DisallowInliningReason_NOT_CANDIDATE_FUNCTION = new_InlineFunctions_DisallowInliningReason("NOT_CANDIDATE_FUNCTION", 7)
-	InlineFunctions_DisallowInliningReason_NO_INLINE_ANNOTATION = new_InlineFunctions_DisallowInliningReason("NO_INLINE_ANNOTATION", 8)
-	InlineFunctions_DisallowInliningReason_REASSIGNED = new_InlineFunctions_DisallowInliningReason("REASSIGNED", 9)
-	InlineFunctions_DisallowInliningReason_TARGET_SIZE_EXCEEDS_LIMIT = new_InlineFunctions_DisallowInliningReason("TARGET_SIZE_EXCEEDS_LIMIT", 10)
-	InlineFunctions_DisallowInliningReason_values_ = []*InlineFunctions_DisallowInliningReason{InlineFunctions_DisallowInliningReason_ASYNC_FUNCTION, InlineFunctions_DisallowInliningReason_CAPTURED_VARIABLE_NOT_IN_SCOPE, InlineFunctions_DisallowInliningReason_COST, InlineFunctions_DisallowInliningReason_GENERATOR_FUNCTION, InlineFunctions_DisallowInliningReason_HAS_LOCAL_NAMES, InlineFunctions_DisallowInliningReason_MULTIPLE_FUNCTION_DEFINITIONS, InlineFunctions_DisallowInliningReason_NON_INLINABLE_PARAM, InlineFunctions_DisallowInliningReason_NOT_CANDIDATE_FUNCTION, InlineFunctions_DisallowInliningReason_NO_INLINE_ANNOTATION, InlineFunctions_DisallowInliningReason_REASSIGNED, InlineFunctions_DisallowInliningReason_TARGET_SIZE_EXCEEDS_LIMIT}
+	InlineFunctions_DisallowInliningReason_values_ = []InlineFunctions_DisallowInliningReason{InlineFunctions_DisallowInliningReason_ASYNC_FUNCTION, InlineFunctions_DisallowInliningReason_CAPTURED_VARIABLE_NOT_IN_SCOPE, InlineFunctions_DisallowInliningReason_COST, InlineFunctions_DisallowInliningReason_GENERATOR_FUNCTION, InlineFunctions_DisallowInliningReason_HAS_LOCAL_NAMES, InlineFunctions_DisallowInliningReason_MULTIPLE_FUNCTION_DEFINITIONS, InlineFunctions_DisallowInliningReason_NON_INLINABLE_PARAM, InlineFunctions_DisallowInliningReason_NOT_CANDIDATE_FUNCTION, InlineFunctions_DisallowInliningReason_NO_INLINE_ANNOTATION, InlineFunctions_DisallowInliningReason_REASSIGNED, InlineFunctions_DisallowInliningReason_TARGET_SIZE_EXCEEDS_LIMIT}
 	registerEnum_("com.google.javascript.jscomp.InlineFunctions.DisallowInliningReason", enumValues_(InlineFunctions_DisallowInliningReason_values_))
 
 }

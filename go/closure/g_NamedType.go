@@ -6,7 +6,7 @@ type NamedType struct {
 	ProxyObjectType
 	reference             string
 	sourceName_           string
-	resolutionKind        *NamedType_ResolutionKind
+	resolutionKind        NamedType_ResolutionKind
 	resolutionScope       StaticTypedScope
 	validator             Predicate_base[*JSType]
 	propertyContinuations *JTList[*NamedType_PropertyContinuation]
@@ -79,7 +79,7 @@ func NamedType_nominalHashCode(type_ *ObjectType) int32 {
 	return String_hashCode(name)
 }
 
-func (this *NamedType) getTypeClass_impl() *JSTypeClass {
+func (this *NamedType) getTypeClass_impl() JSTypeClass {
 	return NamedType_TYPE_CLASS_FIELD
 }
 
@@ -355,7 +355,7 @@ func (this *NamedType) toBuilder() *NamedType_Builder {
 	return new_NamedType_Builder(this.registry, this.reference).setScope(this.resolutionScope).setResolutionKind(this.resolutionKind).setErrorReportingLocation(this.sourceName_, this.lineno_, this.charno_).setTemplateTypes(this.templateTypes).setReferencedType(this.getReferencedType()).setRestrictByNull(this.restrictByNull)
 }
 
-var NamedType_TYPE_CLASS_FIELD *JSTypeClass
+var NamedType_TYPE_CLASS_FIELD JSTypeClass
 
 var NamedType_clinit_done bool
 
@@ -392,45 +392,63 @@ func (this *NamedType_PropertyContinuation) commit(target *ObjectType) {
 	target.defineProperty(this.propertyName_, this.type__, this.inferred, this.propertyNode)
 }
 
-type NamedType_ResolutionKind struct {
-	Enum
+type NamedType_ResolutionKind uint8
+
+// NamedType_ResolutionKind_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var NamedType_ResolutionKind_enum_ = [3]Enum{
+	{self_: NamedType_ResolutionKind_NONE, name_: "NONE", ordinal_: 0},
+	{self_: NamedType_ResolutionKind_TYPE_NAME, name_: "TYPE_NAME", ordinal_: 1},
+	{self_: NamedType_ResolutionKind_TYPEOF, name_: "TYPEOF", ordinal_: 2},
 }
 
-func (this *NamedType_ResolutionKind) up_Enum() *Enum {
-	if this == nil {
+func (this NamedType_ResolutionKind) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &NamedType_ResolutionKind_enum_[this-1]
 }
 
-func (this *NamedType_ResolutionKind) init_NamedType_ResolutionKind(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this NamedType_ResolutionKind) name() string {
+	return NamedType_ResolutionKind_enum_[this-1].name_
 }
 
-func new_NamedType_ResolutionKind(name_ string, ordinal_ int32) *NamedType_ResolutionKind {
-	this := &NamedType_ResolutionKind{}
-	this.self_ = this
-	this.init_NamedType_ResolutionKind(name_, ordinal_)
+func (this NamedType_ResolutionKind) ordinal() int32 {
+	return NamedType_ResolutionKind_enum_[this-1].ordinal_
+}
+
+func (this NamedType_ResolutionKind) toString() string {
+	return NamedType_ResolutionKind_enum_[this-1].name_
+}
+
+func (this NamedType_ResolutionKind) compareTo(o any) int32 {
+	return NamedType_ResolutionKind_enum_[this-1].compareTo(o)
+}
+
+func (this NamedType_ResolutionKind) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func NamedType_ResolutionKind_values() []*NamedType_ResolutionKind {
-	return append([]*NamedType_ResolutionKind(nil), NamedType_ResolutionKind_values_...)
+func NamedType_ResolutionKind_values() []NamedType_ResolutionKind {
+	return append([]NamedType_ResolutionKind(nil), NamedType_ResolutionKind_values_...)
 }
 
-func NamedType_ResolutionKind_valueOf(name string) *NamedType_ResolutionKind {
+func NamedType_ResolutionKind_valueOf(name string) NamedType_ResolutionKind {
 	for _, v := range NamedType_ResolutionKind_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("ResolutionKind", name))
 }
 
-var NamedType_ResolutionKind_NONE *NamedType_ResolutionKind
-var NamedType_ResolutionKind_TYPE_NAME *NamedType_ResolutionKind
-var NamedType_ResolutionKind_TYPEOF *NamedType_ResolutionKind
-var NamedType_ResolutionKind_values_ []*NamedType_ResolutionKind
+const NamedType_ResolutionKind_NONE NamedType_ResolutionKind = 1
+const NamedType_ResolutionKind_TYPE_NAME NamedType_ResolutionKind = 2
+const NamedType_ResolutionKind_TYPEOF NamedType_ResolutionKind = 3
+
+var NamedType_ResolutionKind_values_ []NamedType_ResolutionKind
 
 var NamedType_ResolutionKind_clinit_done bool
 
@@ -439,17 +457,14 @@ func NamedType_ResolutionKind_clinit() {
 		return
 	}
 	NamedType_ResolutionKind_clinit_done = true
-	NamedType_ResolutionKind_NONE = new_NamedType_ResolutionKind("NONE", 0)
-	NamedType_ResolutionKind_TYPE_NAME = new_NamedType_ResolutionKind("TYPE_NAME", 1)
-	NamedType_ResolutionKind_TYPEOF = new_NamedType_ResolutionKind("TYPEOF", 2)
-	NamedType_ResolutionKind_values_ = []*NamedType_ResolutionKind{NamedType_ResolutionKind_NONE, NamedType_ResolutionKind_TYPE_NAME, NamedType_ResolutionKind_TYPEOF}
+	NamedType_ResolutionKind_values_ = []NamedType_ResolutionKind{NamedType_ResolutionKind_NONE, NamedType_ResolutionKind_TYPE_NAME, NamedType_ResolutionKind_TYPEOF}
 	registerEnum_("com.google.javascript.rhino.jstype.NamedType.ResolutionKind", enumValues_(NamedType_ResolutionKind_values_))
 
 }
 
 type NamedType_Builder struct {
 	registry       *JSTypeRegistry
-	resolutionKind *NamedType_ResolutionKind
+	resolutionKind NamedType_ResolutionKind
 	referenceName  string
 	scope_         StaticTypedScope
 	sourceName_    string
@@ -489,7 +504,7 @@ func (this *NamedType_Builder) setScope(scope StaticTypedScope) *NamedType_Build
 	return this
 }
 
-func (this *NamedType_Builder) setResolutionKind(resolutionKind *NamedType_ResolutionKind) *NamedType_Builder {
+func (this *NamedType_Builder) setResolutionKind(resolutionKind NamedType_ResolutionKind) *NamedType_Builder {
 	this.resolutionKind = resolutionKind
 	return this
 }
@@ -528,7 +543,7 @@ func (this *NamedType_Builder) build() *NamedType {
 }
 
 // getTypeClass: an object that is exactly a NamedType calls its getTypeClass_impl directly (post-flip); others dispatch.
-func (this *NamedType) getTypeClass() *JSTypeClass {
+func (this *NamedType) getTypeClass() JSTypeClass {
 	if this.self_ == any(this) {
 		return this.getTypeClass_impl()
 	}

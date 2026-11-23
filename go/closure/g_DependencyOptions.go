@@ -3,24 +3,24 @@
 package closure
 
 type DependencyOptions struct {
-	mode_        *DependencyOptions_DependencyMode
+	mode_        DependencyOptions_DependencyMode
 	entryPoints_ *JTList[*ModuleIdentifier]
 }
 
-func (this *DependencyOptions) init_DependencyOptions(mode *DependencyOptions_DependencyMode, entryPoints *JTList[*ModuleIdentifier]) {
+func (this *DependencyOptions) init_DependencyOptions(mode DependencyOptions_DependencyMode, entryPoints *JTList[*ModuleIdentifier]) {
 	Objects_requireNonNull_T(mode, "mode")
 	Objects_requireNonNull_T(entryPoints, "entryPoints")
 	this.mode_ = mode
 	this.entryPoints_ = entryPoints
 }
 
-func new_DependencyOptions(mode *DependencyOptions_DependencyMode, entryPoints *JTList[*ModuleIdentifier]) *DependencyOptions {
+func new_DependencyOptions(mode DependencyOptions_DependencyMode, entryPoints *JTList[*ModuleIdentifier]) *DependencyOptions {
 	this := &DependencyOptions{}
 	this.init_DependencyOptions(mode, entryPoints)
 	return this
 }
 
-func (this *DependencyOptions) getMode() *DependencyOptions_DependencyMode {
+func (this *DependencyOptions) getMode() DependencyOptions_DependencyMode {
 	return this.mode()
 }
 
@@ -65,7 +65,7 @@ func DependencyOptions_pruneForEntryPoints(entryPoints IterableT[*ModuleIdentifi
 	return new_DependencyOptions(DependencyOptions_DependencyMode_PRUNE, jimmutableListCopyOf_(jtc_p_ModuleIdentifier, Iterable_un_(entryPoints)))
 }
 
-func DependencyOptions_fromFlags(dependencyModeFlag *DependencyOptions_DependencyMode, entryPointFlag ListT[string], closureEntryPointFlag *JTList[string], commonJsEntryModuleFlag Optional[string], manageClosureDependenciesFlag bool, onlyClosureDependenciesFlag bool) *Outcome_base[*DependencyOptions] {
+func DependencyOptions_fromFlags(dependencyModeFlag DependencyOptions_DependencyMode, entryPointFlag ListT[string], closureEntryPointFlag *JTList[string], commonJsEntryModuleFlag Optional[string], manageClosureDependenciesFlag bool, onlyClosureDependenciesFlag bool) *Outcome_base[*DependencyOptions] {
 	var hasEntryPoint bool = ((commonJsEntryModuleFlag.isPresent() || !entryPointFlag.isEmpty()) || !closureEntryPointFlag.isEmpty())
 	if !hasEntryPoint && onlyClosureDependenciesFlag {
 		return Outcome_base_err[*DependencyOptions](new_FlagUsageException("--only_closure_dependencies requires --entry_point.").up_Throwable())
@@ -85,20 +85,20 @@ func DependencyOptions_fromFlags(dependencyModeFlag *DependencyOptions_Dependenc
 	if manageClosureDependenciesFlag && onlyClosureDependenciesFlag {
 		return Outcome_base_err[*DependencyOptions](new_FlagUsageException("--only_closure_dependencies cannot be used with --manage_closure_dependencies.").up_Throwable())
 	}
-	if manageClosureDependenciesFlag && (dependencyModeFlag != nil) {
+	if manageClosureDependenciesFlag && (dependencyModeFlag != 0) {
 		return Outcome_base_err[*DependencyOptions](new_FlagUsageException("--manage_closure_dependencies cannot be used with --dependency_mode.").up_Throwable())
 	}
-	if onlyClosureDependenciesFlag && (dependencyModeFlag != nil) {
+	if onlyClosureDependenciesFlag && (dependencyModeFlag != 0) {
 		return Outcome_base_err[*DependencyOptions](new_FlagUsageException("--only_closure_dependencies cannot be used with --dependency_mode.").up_Throwable())
 	}
-	var dependencyMode *DependencyOptions_DependencyMode
+	var dependencyMode DependencyOptions_DependencyMode
 	if (dependencyModeFlag == DependencyOptions_DependencyMode_PRUNE) || onlyClosureDependenciesFlag {
 		dependencyMode = DependencyOptions_DependencyMode_PRUNE
 	} else if dependencyModeFlag == DependencyOptions_DependencyMode_PRUNE_ALLOW_NO_ENTRY_POINTS {
 		dependencyMode = DependencyOptions_DependencyMode_PRUNE_ALLOW_NO_ENTRY_POINTS
 	} else if ((dependencyModeFlag == DependencyOptions_DependencyMode_PRUNE_LEGACY) || manageClosureDependenciesFlag) || hasEntryPoint {
 		dependencyMode = DependencyOptions_DependencyMode_PRUNE_LEGACY
-	} else if dependencyModeFlag != nil {
+	} else if dependencyModeFlag != 0 {
 		dependencyMode = dependencyModeFlag
 	} else {
 		return Outcome_base_ok_Object[*DependencyOptions](nil)
@@ -135,7 +135,7 @@ func DependencyOptions_fromFlags(dependencyModeFlag *DependencyOptions_Dependenc
 	return Outcome_base_ok_Object[*DependencyOptions](result)
 }
 
-func (this *DependencyOptions) mode() *DependencyOptions_DependencyMode {
+func (this *DependencyOptions) mode() DependencyOptions_DependencyMode {
 	return this.mode_
 }
 
@@ -162,47 +162,67 @@ func (this *DependencyOptions) toString() string {
 	return "DependencyOptions[" + "mode=" + jtostr_(this.mode_) + ", entryPoints=" + objstr_(this.entryPoints_.asList()) + "]"
 }
 
-type DependencyOptions_DependencyMode struct {
-	Enum
+type DependencyOptions_DependencyMode uint8
+
+// DependencyOptions_DependencyMode_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var DependencyOptions_DependencyMode_enum_ = [5]Enum{
+	{self_: DependencyOptions_DependencyMode_NONE, name_: "NONE", ordinal_: 0},
+	{self_: DependencyOptions_DependencyMode_SORT_ONLY, name_: "SORT_ONLY", ordinal_: 1},
+	{self_: DependencyOptions_DependencyMode_PRUNE_LEGACY, name_: "PRUNE_LEGACY", ordinal_: 2},
+	{self_: DependencyOptions_DependencyMode_PRUNE, name_: "PRUNE", ordinal_: 3},
+	{self_: DependencyOptions_DependencyMode_PRUNE_ALLOW_NO_ENTRY_POINTS, name_: "PRUNE_ALLOW_NO_ENTRY_POINTS", ordinal_: 4},
 }
 
-func (this *DependencyOptions_DependencyMode) up_Enum() *Enum {
-	if this == nil {
+func (this DependencyOptions_DependencyMode) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &DependencyOptions_DependencyMode_enum_[this-1]
 }
 
-func (this *DependencyOptions_DependencyMode) init_DependencyOptions_DependencyMode(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this DependencyOptions_DependencyMode) name() string {
+	return DependencyOptions_DependencyMode_enum_[this-1].name_
 }
 
-func new_DependencyOptions_DependencyMode(name_ string, ordinal_ int32) *DependencyOptions_DependencyMode {
-	this := &DependencyOptions_DependencyMode{}
-	this.self_ = this
-	this.init_DependencyOptions_DependencyMode(name_, ordinal_)
+func (this DependencyOptions_DependencyMode) ordinal() int32 {
+	return DependencyOptions_DependencyMode_enum_[this-1].ordinal_
+}
+
+func (this DependencyOptions_DependencyMode) toString() string {
+	return DependencyOptions_DependencyMode_enum_[this-1].name_
+}
+
+func (this DependencyOptions_DependencyMode) compareTo(o any) int32 {
+	return DependencyOptions_DependencyMode_enum_[this-1].compareTo(o)
+}
+
+func (this DependencyOptions_DependencyMode) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func DependencyOptions_DependencyMode_values() []*DependencyOptions_DependencyMode {
-	return append([]*DependencyOptions_DependencyMode(nil), DependencyOptions_DependencyMode_values_...)
+func DependencyOptions_DependencyMode_values() []DependencyOptions_DependencyMode {
+	return append([]DependencyOptions_DependencyMode(nil), DependencyOptions_DependencyMode_values_...)
 }
 
-func DependencyOptions_DependencyMode_valueOf(name string) *DependencyOptions_DependencyMode {
+func DependencyOptions_DependencyMode_valueOf(name string) DependencyOptions_DependencyMode {
 	for _, v := range DependencyOptions_DependencyMode_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("DependencyMode", name))
 }
 
-var DependencyOptions_DependencyMode_NONE *DependencyOptions_DependencyMode
-var DependencyOptions_DependencyMode_SORT_ONLY *DependencyOptions_DependencyMode
-var DependencyOptions_DependencyMode_PRUNE_LEGACY *DependencyOptions_DependencyMode
-var DependencyOptions_DependencyMode_PRUNE *DependencyOptions_DependencyMode
-var DependencyOptions_DependencyMode_PRUNE_ALLOW_NO_ENTRY_POINTS *DependencyOptions_DependencyMode
-var DependencyOptions_DependencyMode_values_ []*DependencyOptions_DependencyMode
+const DependencyOptions_DependencyMode_NONE DependencyOptions_DependencyMode = 1
+const DependencyOptions_DependencyMode_SORT_ONLY DependencyOptions_DependencyMode = 2
+const DependencyOptions_DependencyMode_PRUNE_LEGACY DependencyOptions_DependencyMode = 3
+const DependencyOptions_DependencyMode_PRUNE DependencyOptions_DependencyMode = 4
+const DependencyOptions_DependencyMode_PRUNE_ALLOW_NO_ENTRY_POINTS DependencyOptions_DependencyMode = 5
+
+var DependencyOptions_DependencyMode_values_ []DependencyOptions_DependencyMode
 
 var DependencyOptions_DependencyMode_clinit_done bool
 
@@ -211,12 +231,7 @@ func DependencyOptions_DependencyMode_clinit() {
 		return
 	}
 	DependencyOptions_DependencyMode_clinit_done = true
-	DependencyOptions_DependencyMode_NONE = new_DependencyOptions_DependencyMode("NONE", 0)
-	DependencyOptions_DependencyMode_SORT_ONLY = new_DependencyOptions_DependencyMode("SORT_ONLY", 1)
-	DependencyOptions_DependencyMode_PRUNE_LEGACY = new_DependencyOptions_DependencyMode("PRUNE_LEGACY", 2)
-	DependencyOptions_DependencyMode_PRUNE = new_DependencyOptions_DependencyMode("PRUNE", 3)
-	DependencyOptions_DependencyMode_PRUNE_ALLOW_NO_ENTRY_POINTS = new_DependencyOptions_DependencyMode("PRUNE_ALLOW_NO_ENTRY_POINTS", 4)
-	DependencyOptions_DependencyMode_values_ = []*DependencyOptions_DependencyMode{DependencyOptions_DependencyMode_NONE, DependencyOptions_DependencyMode_SORT_ONLY, DependencyOptions_DependencyMode_PRUNE_LEGACY, DependencyOptions_DependencyMode_PRUNE, DependencyOptions_DependencyMode_PRUNE_ALLOW_NO_ENTRY_POINTS}
+	DependencyOptions_DependencyMode_values_ = []DependencyOptions_DependencyMode{DependencyOptions_DependencyMode_NONE, DependencyOptions_DependencyMode_SORT_ONLY, DependencyOptions_DependencyMode_PRUNE_LEGACY, DependencyOptions_DependencyMode_PRUNE, DependencyOptions_DependencyMode_PRUNE_ALLOW_NO_ENTRY_POINTS}
 	registerEnum_("com.google.javascript.jscomp.DependencyOptions.DependencyMode", enumValues_(DependencyOptions_DependencyMode_values_))
 
 }

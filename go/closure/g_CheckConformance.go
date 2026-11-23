@@ -15,7 +15,7 @@ func (this *CheckConformance) finit_CheckConformance() {
 }
 
 func (this *CheckConformance) init_CheckConformance_AbstractCompiler(compiler *AbstractCompiler) {
-	this.init_CheckConformance_AbstractCompiler_ImmutableList_ConformanceReportingMode(compiler, jtlistEmptyImm_(jtc_p_ConformanceConfig), nil)
+	this.init_CheckConformance_AbstractCompiler_ImmutableList_ConformanceReportingMode(compiler, jtlistEmptyImm_(jtc_p_ConformanceConfig), 0)
 }
 
 func new_CheckConformance_AbstractCompiler(compiler *AbstractCompiler) *CheckConformance {
@@ -24,13 +24,13 @@ func new_CheckConformance_AbstractCompiler(compiler *AbstractCompiler) *CheckCon
 	return this
 }
 
-func (this *CheckConformance) init_CheckConformance_AbstractCompiler_ImmutableList_ConformanceReportingMode(compiler *AbstractCompiler, configs *JTList[*ConformanceConfig], reportingMode *CompilerOptions_ConformanceReportingMode) {
+func (this *CheckConformance) init_CheckConformance_AbstractCompiler_ImmutableList_ConformanceReportingMode(compiler *AbstractCompiler, configs *JTList[*ConformanceConfig], reportingMode CompilerOptions_ConformanceReportingMode) {
 	this.finit_CheckConformance()
 	this.compiler_ = compiler
 	this.categories = this.initRules(compiler, configs, reportingMode)
 }
 
-func new_CheckConformance_AbstractCompiler_ImmutableList_ConformanceReportingMode(compiler *AbstractCompiler, configs *JTList[*ConformanceConfig], reportingMode *CompilerOptions_ConformanceReportingMode) *CheckConformance {
+func new_CheckConformance_AbstractCompiler_ImmutableList_ConformanceReportingMode(compiler *AbstractCompiler, configs *JTList[*ConformanceConfig], reportingMode CompilerOptions_ConformanceReportingMode) *CheckConformance {
 	this := &CheckConformance{}
 	this.init_CheckConformance_AbstractCompiler_ImmutableList_ConformanceReportingMode(compiler, configs, reportingMode)
 	return this
@@ -63,9 +63,9 @@ func (this *CheckConformance) visit(t *NodeTraversal, n Node, parent Node) {
 	}
 }
 
-func (this *CheckConformance) initRules(compiler *AbstractCompiler, configs *JTList[*ConformanceConfig], reportingMode *CompilerOptions_ConformanceReportingMode) *JTList[*CheckConformance_Category] {
+func (this *CheckConformance) initRules(compiler *AbstractCompiler, configs *JTList[*ConformanceConfig], reportingMode CompilerOptions_ConformanceReportingMode) *JTList[*CheckConformance_Category] {
 	var builder *SimpleSetMultimap[CheckConformance_Precondition, CheckConformance_Rule] = SimpleSetMultimap_createInsertionOrdered[CheckConformance_Precondition, CheckConformance_Rule]()
-	var isLibraryLevelReportingMode bool = ((reportingMode != nil) && eqR_(reportingMode, CompilerOptions_ConformanceReportingMode_RESPECT_LIBRARY_LEVEL_BEHAVIOR_SPECIFIED_IN_CONFIG))
+	var isLibraryLevelReportingMode bool = ((reportingMode != 0) && eqR_(reportingMode, CompilerOptions_ConformanceReportingMode_RESPECT_LIBRARY_LEVEL_BEHAVIOR_SPECIFIED_IN_CONFIG))
 	if isLibraryLevelReportingMode {
 		if !CheckConformance_validateBehaviorSettingOfConfigs(compiler, configs, reportingMode) {
 			return jtlistEmptyImm_(jtc_p_CheckConformance_Category)
@@ -95,7 +95,7 @@ func (this *CheckConformance) initRules(compiler *AbstractCompiler, configs *JTL
 	return result.build()
 }
 
-func CheckConformance_validateBehaviorSettingOfConfigs(compiler *AbstractCompiler, configs *JTList[*ConformanceConfig], reportingMode *CompilerOptions_ConformanceReportingMode) bool {
+func CheckConformance_validateBehaviorSettingOfConfigs(compiler *AbstractCompiler, configs *JTList[*ConformanceConfig], reportingMode CompilerOptions_ConformanceReportingMode) bool {
 	Preconditions_checkState(eqR_(reportingMode, CompilerOptions_ConformanceReportingMode_RESPECT_LIBRARY_LEVEL_BEHAVIOR_SPECIFIED_IN_CONFIG))
 	var baseRequirementBehaviors *JTMap[string, *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior] = jnewTMap_(jtc_string, jtc_p_ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior)
 	it_1 := configs.each()

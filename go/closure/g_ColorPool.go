@@ -318,7 +318,7 @@ func (this *ColorPool_Builder) reconcileObjectProtos(id *ColorId, viewToProto Ma
 	var instanceColors *TSetBuilder[*Color] = newTSetBuilder_(tce_p_Color)
 	var prototypes *TSetBuilder[*Color] = newTSetBuilder_(tce_p_Color)
 	var ownProperties *TSetBuilder[string] = newTSetBuilder_(jtc_string)
-	var isClosureAssert *Tri = Tri_UNKNOWN
+	var isClosureAssert Tri = Tri_UNKNOWN
 	var isConstructor bool = false
 	var isInvalidating bool = false
 	var propertiesKeepOriginalName bool = false

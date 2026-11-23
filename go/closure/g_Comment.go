@@ -5,20 +5,20 @@ package closure
 type Comment struct {
 	value_    string
 	location_ *SourceRange
-	type__    *Comment_Type
+	type__    Comment_Type
 }
 
 func (this *Comment) zero_Comment() {
 	this.value_ = nullstr_
 }
 
-func (this *Comment) init_Comment(value string, location *SourceRange, type_ *Comment_Type) {
+func (this *Comment) init_Comment(value string, location *SourceRange, type_ Comment_Type) {
 	this.value_ = value
 	this.location_ = location
 	this.type__ = type_
 }
 
-func new_Comment(value string, location *SourceRange, type_ *Comment_Type) *Comment {
+func new_Comment(value string, location *SourceRange, type_ Comment_Type) *Comment {
 	this := &Comment{}
 	this.zero_Comment()
 	this.init_Comment(value, location, type_)
@@ -37,47 +37,59 @@ func (this *Comment) getLength() int32 {
 	return (this.location_.end_.offset - this.location_.start_.offset)
 }
 
-type Comment_Type struct {
-	Enum
+type Comment_Type uint8
+
+// Comment_Type_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var Comment_Type_enum_ = [5]Enum{
+	{self_: Comment_Type_BLOCK, name_: "BLOCK", ordinal_: 0},
+	{self_: Comment_Type_LINE, name_: "LINE", ordinal_: 1},
+	{self_: Comment_Type_JSDOC, name_: "JSDOC", ordinal_: 2},
+	{self_: Comment_Type_SHEBANG, name_: "SHEBANG", ordinal_: 3},
+	{self_: Comment_Type_IMPORTANT, name_: "IMPORTANT", ordinal_: 4},
 }
 
-func (this *Comment_Type) up_Enum() *Enum {
-	if this == nil {
+func (this Comment_Type) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &Comment_Type_enum_[this-1]
 }
 
-func (this *Comment_Type) init_Comment_Type(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
-}
+func (this Comment_Type) name() string { return Comment_Type_enum_[this-1].name_ }
 
-func new_Comment_Type(name_ string, ordinal_ int32) *Comment_Type {
-	this := &Comment_Type{}
-	this.self_ = this
-	this.init_Comment_Type(name_, ordinal_)
+func (this Comment_Type) ordinal() int32 { return Comment_Type_enum_[this-1].ordinal_ }
+
+func (this Comment_Type) toString() string { return Comment_Type_enum_[this-1].name_ }
+
+func (this Comment_Type) compareTo(o any) int32 { return Comment_Type_enum_[this-1].compareTo(o) }
+
+func (this Comment_Type) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func Comment_Type_values() []*Comment_Type {
-	return append([]*Comment_Type(nil), Comment_Type_values_...)
+func Comment_Type_values() []Comment_Type {
+	return append([]Comment_Type(nil), Comment_Type_values_...)
 }
 
-func Comment_Type_valueOf(name string) *Comment_Type {
+func Comment_Type_valueOf(name string) Comment_Type {
 	for _, v := range Comment_Type_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Type", name))
 }
 
-var Comment_Type_BLOCK *Comment_Type
-var Comment_Type_LINE *Comment_Type
-var Comment_Type_JSDOC *Comment_Type
-var Comment_Type_SHEBANG *Comment_Type
-var Comment_Type_IMPORTANT *Comment_Type
-var Comment_Type_values_ []*Comment_Type
+const Comment_Type_BLOCK Comment_Type = 1
+const Comment_Type_LINE Comment_Type = 2
+const Comment_Type_JSDOC Comment_Type = 3
+const Comment_Type_SHEBANG Comment_Type = 4
+const Comment_Type_IMPORTANT Comment_Type = 5
+
+var Comment_Type_values_ []Comment_Type
 
 var Comment_Type_clinit_done bool
 
@@ -86,12 +98,7 @@ func Comment_Type_clinit() {
 		return
 	}
 	Comment_Type_clinit_done = true
-	Comment_Type_BLOCK = new_Comment_Type("BLOCK", 0)
-	Comment_Type_LINE = new_Comment_Type("LINE", 1)
-	Comment_Type_JSDOC = new_Comment_Type("JSDOC", 2)
-	Comment_Type_SHEBANG = new_Comment_Type("SHEBANG", 3)
-	Comment_Type_IMPORTANT = new_Comment_Type("IMPORTANT", 4)
-	Comment_Type_values_ = []*Comment_Type{Comment_Type_BLOCK, Comment_Type_LINE, Comment_Type_JSDOC, Comment_Type_SHEBANG, Comment_Type_IMPORTANT}
+	Comment_Type_values_ = []Comment_Type{Comment_Type_BLOCK, Comment_Type_LINE, Comment_Type_JSDOC, Comment_Type_SHEBANG, Comment_Type_IMPORTANT}
 	registerEnum_("com.google.javascript.jscomp.parsing.parser.trees.Comment.Type", enumValues_(Comment_Type_values_))
 
 }

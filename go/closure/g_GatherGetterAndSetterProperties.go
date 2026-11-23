@@ -31,7 +31,7 @@ func GatherGetterAndSetterProperties_update(compiler *AbstractCompiler, externs 
 	compiler.setAccessorSummary(accessorSummary)
 }
 
-func GatherGetterAndSetterProperties_gather(compiler *AbstractCompiler, root Node) *JTMap[string, *AccessorSummary_PropertyAccessKind] {
+func GatherGetterAndSetterProperties_gather(compiler *AbstractCompiler, root Node) *JTMap[string, AccessorSummary_PropertyAccessKind] {
 	var gatherCallback *GatherGetterAndSetterProperties_GatherCallback = new_GatherGetterAndSetterProperties_GatherCallback()
 	NodeTraversal_traverse(compiler, root, GatherGetterAndSetterProperties_GatherCallback_as_NodeTraversal_Callback(gatherCallback))
 	return immutableMapCopyOfT_(jtc_string, jtc_p_AccessorSummary_PropertyAccessKind, gatherCallback.properties)
@@ -39,7 +39,7 @@ func GatherGetterAndSetterProperties_gather(compiler *AbstractCompiler, root Nod
 
 type GatherGetterAndSetterProperties_GatherCallback struct {
 	NodeTraversal_AbstractPostOrderCallback
-	properties *JTMap[string, *AccessorSummary_PropertyAccessKind]
+	properties *JTMap[string, AccessorSummary_PropertyAccessKind]
 }
 
 func (this *GatherGetterAndSetterProperties_GatherCallback) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -65,8 +65,8 @@ func new_GatherGetterAndSetterProperties_GatherCallback() *GatherGetterAndSetter
 	return this
 }
 
-func (this *GatherGetterAndSetterProperties_GatherCallback) record(property string, kind *AccessorSummary_PropertyAccessKind) {
-	Map_mergeT_[string, *AccessorSummary_PropertyAccessKind](this.properties.asMapT(), property, kind, BiFunction[*AccessorSummary_PropertyAccessKind, *AccessorSummary_PropertyAccessKind, *AccessorSummary_PropertyAccessKind](func(p0 *AccessorSummary_PropertyAccessKind, p1 *AccessorSummary_PropertyAccessKind) *AccessorSummary_PropertyAccessKind {
+func (this *GatherGetterAndSetterProperties_GatherCallback) record(property string, kind AccessorSummary_PropertyAccessKind) {
+	Map_mergeT_[string, AccessorSummary_PropertyAccessKind](this.properties.asMapT(), property, kind, BiFunction[AccessorSummary_PropertyAccessKind, AccessorSummary_PropertyAccessKind, AccessorSummary_PropertyAccessKind](func(p0 AccessorSummary_PropertyAccessKind, p1 AccessorSummary_PropertyAccessKind) AccessorSummary_PropertyAccessKind {
 		return p0.unionWith(p1)
 	}))
 }

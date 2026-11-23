@@ -149,11 +149,11 @@ func AbstractCommandLineRunner_setWarningGuardOptions(options *CompilerOptions, 
 				for it_3.next() {
 					var groupName string = it_3.v
 					if !DiagnosticGroups_wildcardExcludedGroups.contains(groupName) {
-						diagnosticGroups.setWarningLevel(options, groupName, cast_[*CheckLevel](entry.flag_))
+						diagnosticGroups.setWarningLevel(options, groupName, cast_[CheckLevel](entry.flag_))
 					}
 				}
 			} else if groupNames.contains(entry.value_) {
-				diagnosticGroups.setWarningLevel(options, entry.value_, cast_[*CheckLevel](entry.flag_))
+				diagnosticGroups.setWarningLevel(options, entry.value_, cast_[CheckLevel](entry.flag_))
 			} else {
 				return Outcome_base_err[any](new_FlagUsageException(("Unknown diagnostic group: '" + sstr_(entry.value_) + "'")).up_Throwable())
 			}
@@ -184,7 +184,7 @@ func (this *AbstractCommandLineRunner) setRunOptions(options *CompilerOptions) *
 	}
 	var define *JTList[string] = tlistCopy_(jtc_string, this.config.define)
 	if this.config.browserFeaturesetYear != 0 {
-		var yearRes *Outcome_base[*CompilerOptions_BrowserFeaturesetYear] = CompilerOptions_BrowserFeaturesetYear_fromResult(this.config.browserFeaturesetYear)
+		var yearRes *Outcome_base[CompilerOptions_BrowserFeaturesetYear] = CompilerOptions_BrowserFeaturesetYear_fromResult(this.config.browserFeaturesetYear)
 		if yearRes.isErr() {
 			return Outcome_base_err[any](new_FlagUsageException(yearRes.errorMessage().orElseThrow()).up_Throwable())
 		}
@@ -308,7 +308,7 @@ func (this *AbstractCommandLineRunner) getCompiler() *Compiler {
 	return this.compiler_
 }
 
-func AbstractCommandLineRunner_getBuiltinExterns(env *CompilerOptions_Environment) *Outcome_base[ListT[*SourceFile_jscomp]] {
+func AbstractCommandLineRunner_getBuiltinExterns(env CompilerOptions_Environment) *Outcome_base[ListT[*SourceFile_jscomp]] {
 	var input *Outcome_base[[]int8] = AbstractCommandLineRunner_getExternsInput()
 	if input.isErr() {
 		return Outcome_base_err[ListT[*SourceFile_jscomp]](input.error())
@@ -463,7 +463,7 @@ func (this *AbstractCommandLineRunner) createInputs_4(files *JTList[*AbstractCom
 	for i := int32(0); i < files.size(); i++ {
 		var file *AbstractCommandLineRunner_FlagEntry = files.get(i)
 		var filename string = file.value_
-		if cast_[*AbstractCommandLineRunner_JsSourceType](file.flag_) == AbstractCommandLineRunner_JsSourceType_JS_ZIP {
+		if cast_[AbstractCommandLineRunner_JsSourceType](file.flag_) == AbstractCommandLineRunner_JsSourceType_JS_ZIP {
 			if this.config.typedAstListInputFilename.isPresent() {
 				return Outcome_base_err[ListT[*SourceFile_jscomp]](new_FlagUsageException("Can't use TypedASTs with --zip.").up_Throwable())
 			}
@@ -490,8 +490,8 @@ func (this *AbstractCommandLineRunner) createInputs_4(files *JTList[*AbstractCom
 				}
 			}
 		} else if !("-" == filename) {
-			var kind *StaticSourceFile_SourceKind = func() *StaticSourceFile_SourceKind {
-				if cast_[*AbstractCommandLineRunner_JsSourceType](file.flag_) == AbstractCommandLineRunner_JsSourceType_WEAKDEP {
+			var kind StaticSourceFile_SourceKind = func() StaticSourceFile_SourceKind {
+				if cast_[AbstractCommandLineRunner_JsSourceType](file.flag_) == AbstractCommandLineRunner_JsSourceType_WEAKDEP {
 					return StaticSourceFile_SourceKind_WEAK
 				}
 				return StaticSourceFile_SourceKind_STRONG
@@ -546,7 +546,7 @@ func (this *AbstractCommandLineRunner) deduplicateIjsFiles(files *JTList[*Abstra
 	it_1 := files.each()
 	for it_1.next() {
 		var file *AbstractCommandLineRunner_FlagEntry = it_1.v
-		if (cast_[*AbstractCommandLineRunner_JsSourceType](file.flag_) == AbstractCommandLineRunner_JsSourceType_JS) || (cast_[*AbstractCommandLineRunner_JsSourceType](file.flag_) == AbstractCommandLineRunner_JsSourceType_WEAKDEP) {
+		if (cast_[AbstractCommandLineRunner_JsSourceType](file.flag_) == AbstractCommandLineRunner_JsSourceType_JS) || (cast_[AbstractCommandLineRunner_JsSourceType](file.flag_) == AbstractCommandLineRunner_JsSourceType_WEAKDEP) {
 			var absoluteName string = file.value_
 			var relativeName string = this.getModuleRootRelativeName(absoluteName, moduleRoots)
 			relativeToAbsoluteName.put(relativeName, absoluteName)
@@ -555,7 +555,7 @@ func (this *AbstractCommandLineRunner) deduplicateIjsFiles(files *JTList[*Abstra
 	var iterator IteratorT[*AbstractCommandLineRunner_FlagEntry] = files.iterator_t()
 	for iterator.hasNext() {
 		var file *AbstractCommandLineRunner_FlagEntry = iterator.next_t()
-		if cast_[*AbstractCommandLineRunner_JsSourceType](file.flag_) == AbstractCommandLineRunner_JsSourceType_IJS {
+		if cast_[AbstractCommandLineRunner_JsSourceType](file.flag_) == AbstractCommandLineRunner_JsSourceType_IJS {
 			if hasChunkSpecs {
 				return Outcome_base_err[ListT[*JSError]](new_FlagUsageException("--ijs is incompatible with --chunk or --module.").up_Throwable())
 			}
@@ -2179,7 +2179,7 @@ func AbstractCommandLineRunner_clinit() {
 }
 
 type AbstractCommandLineRunner_CommandLineConfig struct {
-	jscompDevMode                    *CompilerOptions_DevMode
+	jscompDevMode                    CompilerOptions_DevMode
 	loggingLevel                     string
 	externs                          *JTList[string]
 	mixedJsSources                   *JTList[*AbstractCommandLineRunner_FlagEntry]
@@ -2205,7 +2205,7 @@ type AbstractCommandLineRunner_CommandLineConfig struct {
 	sourceMapLocationMappings        *JTList[SourceMap_LocationMapping]
 	warningGuards                    *JTList[*AbstractCommandLineRunner_FlagEntry]
 	define                           *JTList[string]
-	tweakProcessing                  *CompilerOptions_TweakProcessing
+	tweakProcessing                  CompilerOptions_TweakProcessing
 	charset                          string
 	dependencyOptions                *DependencyOptions
 	outputManifests                  *JTList[string]
@@ -2214,8 +2214,8 @@ type AbstractCommandLineRunner_CommandLineConfig struct {
 	moduleRoots                      ListT[string]
 	warningsAllowFile                string
 	hideWarningsFor                  ListT[string]
-	jsonStreamMode                   *CompilerOptions_JsonStreamMode
-	errorFormat                      *AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption
+	jsonStreamMode                   CompilerOptions_JsonStreamMode
+	errorFormat                      AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption
 	jsonWarningsFile                 string
 	continueSavedCompilationFileName Optional[string]
 	typedAstListInputFilename        Optional[string]
@@ -2347,7 +2347,7 @@ func (this *AbstractCommandLineRunner_CommandLineConfig) setPrintAst(printAst bo
 	return this
 }
 
-func (this *AbstractCommandLineRunner_CommandLineConfig) setJscompDevMode(jscompDevMode *CompilerOptions_DevMode) *AbstractCommandLineRunner_CommandLineConfig {
+func (this *AbstractCommandLineRunner_CommandLineConfig) setJscompDevMode(jscompDevMode CompilerOptions_DevMode) *AbstractCommandLineRunner_CommandLineConfig {
 	this.jscompDevMode = jscompDevMode
 	return this
 }
@@ -2607,7 +2607,7 @@ func (this *AbstractCommandLineRunner_CommandLineConfig) setBrowserFeaturesetYea
 	return this
 }
 
-func (this *AbstractCommandLineRunner_CommandLineConfig) setTweakProcessing(tweakProcessing *CompilerOptions_TweakProcessing) *AbstractCommandLineRunner_CommandLineConfig {
+func (this *AbstractCommandLineRunner_CommandLineConfig) setTweakProcessing(tweakProcessing CompilerOptions_TweakProcessing) *AbstractCommandLineRunner_CommandLineConfig {
 	this.tweakProcessing = tweakProcessing
 	return this
 }
@@ -2680,12 +2680,12 @@ func (this *AbstractCommandLineRunner_CommandLineConfig) setAngularPass(angularP
 	return this
 }
 
-func (this *AbstractCommandLineRunner_CommandLineConfig) setJsonStreamMode(mode *CompilerOptions_JsonStreamMode) *AbstractCommandLineRunner_CommandLineConfig {
+func (this *AbstractCommandLineRunner_CommandLineConfig) setJsonStreamMode(mode CompilerOptions_JsonStreamMode) *AbstractCommandLineRunner_CommandLineConfig {
 	this.jsonStreamMode = mode
 	return this
 }
 
-func (this *AbstractCommandLineRunner_CommandLineConfig) setErrorFormat(errorFormat *AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption) *AbstractCommandLineRunner_CommandLineConfig {
+func (this *AbstractCommandLineRunner_CommandLineConfig) setErrorFormat(errorFormat AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption) *AbstractCommandLineRunner_CommandLineConfig {
 	this.errorFormat = errorFormat
 	return this
 }
@@ -2700,44 +2700,61 @@ func (this *AbstractCommandLineRunner_CommandLineConfig) setIncludeTrailingNewli
 	return this
 }
 
-type AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption struct {
-	Enum
+type AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption uint8
+
+// AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption_enum_ = [2]Enum{
+	{self_: AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption_STANDARD, name_: "STANDARD", ordinal_: 0},
+	{self_: AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption_JSON, name_: "JSON", ordinal_: 1},
 }
 
-func (this *AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption) up_Enum() *Enum {
-	if this == nil {
+func (this AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption_enum_[this-1]
 }
 
-func (this *AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption) init_AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption) name() string {
+	return AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption_enum_[this-1].name_
 }
 
-func new_AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption(name_ string, ordinal_ int32) *AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption {
-	this := &AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption{}
-	this.self_ = this
-	this.init_AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption(name_, ordinal_)
+func (this AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption) ordinal() int32 {
+	return AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption_enum_[this-1].ordinal_
+}
+
+func (this AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption) toString() string {
+	return AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption_enum_[this-1].name_
+}
+
+func (this AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption) compareTo(o any) int32 {
+	return AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption_enum_[this-1].compareTo(o)
+}
+
+func (this AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption_values() []*AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption {
-	return append([]*AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption(nil), AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption_values_...)
+func AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption_values() []AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption {
+	return append([]AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption(nil), AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption_values_...)
 }
 
-func AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption_valueOf(name string) *AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption {
+func AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption_valueOf(name string) AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption {
 	for _, v := range AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("ErrorFormatOption", name))
 }
 
-var AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption_STANDARD *AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption
-var AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption_JSON *AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption
-var AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption_values_ []*AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption
+const AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption_STANDARD AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption = 1
+const AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption_JSON AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption = 2
+
+var AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption_values_ []AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption
 
 var AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption_clinit_done bool
 
@@ -2746,9 +2763,7 @@ func AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption_clinit() {
 		return
 	}
 	AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption_clinit_done = true
-	AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption_STANDARD = new_AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption("STANDARD", 0)
-	AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption_JSON = new_AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption("JSON", 1)
-	AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption_values_ = []*AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption{AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption_STANDARD, AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption_JSON}
+	AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption_values_ = []AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption{AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption_STANDARD, AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption_JSON}
 	registerEnum_("com.google.javascript.jscomp.AbstractCommandLineRunner.CommandLineConfig.ErrorFormatOption", enumValues_(AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption_values_))
 
 }
@@ -2879,54 +2894,77 @@ func (this *AbstractCommandLineRunner_JsonFileSpec) setSourceMap(map_ string) {
 	this.sourceMap_ = Optional_of[string](map_)
 }
 
-type AbstractCommandLineRunner_JsSourceType struct {
-	Enum
-	flagName string
+type AbstractCommandLineRunner_JsSourceType uint8
+
+// AbstractCommandLineRunner_JsSourceType_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var AbstractCommandLineRunner_JsSourceType_enum_ = [5]Enum{
+	{self_: AbstractCommandLineRunner_JsSourceType_EXTERN, name_: "EXTERN", ordinal_: 0},
+	{self_: AbstractCommandLineRunner_JsSourceType_JS, name_: "JS", ordinal_: 1},
+	{self_: AbstractCommandLineRunner_JsSourceType_JS_ZIP, name_: "JS_ZIP", ordinal_: 2},
+	{self_: AbstractCommandLineRunner_JsSourceType_WEAKDEP, name_: "WEAKDEP", ordinal_: 3},
+	{self_: AbstractCommandLineRunner_JsSourceType_IJS, name_: "IJS", ordinal_: 4},
 }
 
-func (this *AbstractCommandLineRunner_JsSourceType) up_Enum() *Enum {
-	if this == nil {
+var AbstractCommandLineRunner_JsSourceType_flagName_ [5]string
+
+func (this AbstractCommandLineRunner_JsSourceType) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &AbstractCommandLineRunner_JsSourceType_enum_[this-1]
 }
 
-func (this *AbstractCommandLineRunner_JsSourceType) zero_AbstractCommandLineRunner_JsSourceType() {
-	this.flagName = nullstr_
+func (this AbstractCommandLineRunner_JsSourceType) name() string {
+	return AbstractCommandLineRunner_JsSourceType_enum_[this-1].name_
 }
 
-func (this *AbstractCommandLineRunner_JsSourceType) init_AbstractCommandLineRunner_JsSourceType(name_ string, ordinal_ int32, flagName string) {
-	this.Enum.init_Enum(name_, ordinal_)
-	this.flagName = flagName
+func (this AbstractCommandLineRunner_JsSourceType) ordinal() int32 {
+	return AbstractCommandLineRunner_JsSourceType_enum_[this-1].ordinal_
 }
 
-func new_AbstractCommandLineRunner_JsSourceType(name_ string, ordinal_ int32, flagName string) *AbstractCommandLineRunner_JsSourceType {
-	this := &AbstractCommandLineRunner_JsSourceType{}
-	this.self_ = this
-	this.zero_AbstractCommandLineRunner_JsSourceType()
-	this.init_AbstractCommandLineRunner_JsSourceType(name_, ordinal_, flagName)
+func (this AbstractCommandLineRunner_JsSourceType) toString() string {
+	return AbstractCommandLineRunner_JsSourceType_enum_[this-1].name_
+}
+
+func (this AbstractCommandLineRunner_JsSourceType) compareTo(o any) int32 {
+	return AbstractCommandLineRunner_JsSourceType_enum_[this-1].compareTo(o)
+}
+
+func (this AbstractCommandLineRunner_JsSourceType) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func AbstractCommandLineRunner_JsSourceType_values() []*AbstractCommandLineRunner_JsSourceType {
-	return append([]*AbstractCommandLineRunner_JsSourceType(nil), AbstractCommandLineRunner_JsSourceType_values_...)
+func (this AbstractCommandLineRunner_JsSourceType) zero_AbstractCommandLineRunner_JsSourceType() {
+	AbstractCommandLineRunner_JsSourceType_flagName_[this-1] = nullstr_
 }
 
-func AbstractCommandLineRunner_JsSourceType_valueOf(name string) *AbstractCommandLineRunner_JsSourceType {
+func (this AbstractCommandLineRunner_JsSourceType) init_AbstractCommandLineRunner_JsSourceType(flagName string) {
+	AbstractCommandLineRunner_JsSourceType_flagName_[this-1] = flagName
+}
+
+func AbstractCommandLineRunner_JsSourceType_values() []AbstractCommandLineRunner_JsSourceType {
+	return append([]AbstractCommandLineRunner_JsSourceType(nil), AbstractCommandLineRunner_JsSourceType_values_...)
+}
+
+func AbstractCommandLineRunner_JsSourceType_valueOf(name string) AbstractCommandLineRunner_JsSourceType {
 	for _, v := range AbstractCommandLineRunner_JsSourceType_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("JsSourceType", name))
 }
 
-var AbstractCommandLineRunner_JsSourceType_EXTERN *AbstractCommandLineRunner_JsSourceType
-var AbstractCommandLineRunner_JsSourceType_JS *AbstractCommandLineRunner_JsSourceType
-var AbstractCommandLineRunner_JsSourceType_JS_ZIP *AbstractCommandLineRunner_JsSourceType
-var AbstractCommandLineRunner_JsSourceType_WEAKDEP *AbstractCommandLineRunner_JsSourceType
-var AbstractCommandLineRunner_JsSourceType_IJS *AbstractCommandLineRunner_JsSourceType
-var AbstractCommandLineRunner_JsSourceType_values_ []*AbstractCommandLineRunner_JsSourceType
+const AbstractCommandLineRunner_JsSourceType_EXTERN AbstractCommandLineRunner_JsSourceType = 1
+const AbstractCommandLineRunner_JsSourceType_JS AbstractCommandLineRunner_JsSourceType = 2
+const AbstractCommandLineRunner_JsSourceType_JS_ZIP AbstractCommandLineRunner_JsSourceType = 3
+const AbstractCommandLineRunner_JsSourceType_WEAKDEP AbstractCommandLineRunner_JsSourceType = 4
+const AbstractCommandLineRunner_JsSourceType_IJS AbstractCommandLineRunner_JsSourceType = 5
+
+var AbstractCommandLineRunner_JsSourceType_values_ []AbstractCommandLineRunner_JsSourceType
 
 var AbstractCommandLineRunner_JsSourceType_clinit_done bool
 
@@ -2935,12 +2973,17 @@ func AbstractCommandLineRunner_JsSourceType_clinit() {
 		return
 	}
 	AbstractCommandLineRunner_JsSourceType_clinit_done = true
-	AbstractCommandLineRunner_JsSourceType_EXTERN = new_AbstractCommandLineRunner_JsSourceType("EXTERN", 0, "extern")
-	AbstractCommandLineRunner_JsSourceType_JS = new_AbstractCommandLineRunner_JsSourceType("JS", 1, "js")
-	AbstractCommandLineRunner_JsSourceType_JS_ZIP = new_AbstractCommandLineRunner_JsSourceType("JS_ZIP", 2, "jszip")
-	AbstractCommandLineRunner_JsSourceType_WEAKDEP = new_AbstractCommandLineRunner_JsSourceType("WEAKDEP", 3, "weakdep")
-	AbstractCommandLineRunner_JsSourceType_IJS = new_AbstractCommandLineRunner_JsSourceType("IJS", 4, "ijs")
-	AbstractCommandLineRunner_JsSourceType_values_ = []*AbstractCommandLineRunner_JsSourceType{AbstractCommandLineRunner_JsSourceType_EXTERN, AbstractCommandLineRunner_JsSourceType_JS, AbstractCommandLineRunner_JsSourceType_JS_ZIP, AbstractCommandLineRunner_JsSourceType_WEAKDEP, AbstractCommandLineRunner_JsSourceType_IJS}
+	AbstractCommandLineRunner_JsSourceType_EXTERN.zero_AbstractCommandLineRunner_JsSourceType()
+	AbstractCommandLineRunner_JsSourceType_EXTERN.init_AbstractCommandLineRunner_JsSourceType("extern")
+	AbstractCommandLineRunner_JsSourceType_JS.zero_AbstractCommandLineRunner_JsSourceType()
+	AbstractCommandLineRunner_JsSourceType_JS.init_AbstractCommandLineRunner_JsSourceType("js")
+	AbstractCommandLineRunner_JsSourceType_JS_ZIP.zero_AbstractCommandLineRunner_JsSourceType()
+	AbstractCommandLineRunner_JsSourceType_JS_ZIP.init_AbstractCommandLineRunner_JsSourceType("jszip")
+	AbstractCommandLineRunner_JsSourceType_WEAKDEP.zero_AbstractCommandLineRunner_JsSourceType()
+	AbstractCommandLineRunner_JsSourceType_WEAKDEP.init_AbstractCommandLineRunner_JsSourceType("weakdep")
+	AbstractCommandLineRunner_JsSourceType_IJS.zero_AbstractCommandLineRunner_JsSourceType()
+	AbstractCommandLineRunner_JsSourceType_IJS.init_AbstractCommandLineRunner_JsSourceType("ijs")
+	AbstractCommandLineRunner_JsSourceType_values_ = []AbstractCommandLineRunner_JsSourceType{AbstractCommandLineRunner_JsSourceType_EXTERN, AbstractCommandLineRunner_JsSourceType_JS, AbstractCommandLineRunner_JsSourceType_JS_ZIP, AbstractCommandLineRunner_JsSourceType_WEAKDEP, AbstractCommandLineRunner_JsSourceType_IJS}
 	registerEnum_("com.google.javascript.jscomp.AbstractCommandLineRunner.JsSourceType", enumValues_(AbstractCommandLineRunner_JsSourceType_values_))
 
 }

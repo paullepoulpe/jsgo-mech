@@ -24,20 +24,20 @@ func new_StrictWarningsGuard() *StrictWarningsGuard {
 	return this
 }
 
-func (this *StrictWarningsGuard) level_impl(error_ *JSError) *CheckLevel {
+func (this *StrictWarningsGuard) level_impl(error_ *JSError) CheckLevel {
 	if error_.type_() == StrictWarningsGuard_UNRAISABLE_WARNING {
-		return nil
+		return 0
 	}
-	return func() *CheckLevel {
+	return func() CheckLevel {
 		if error_.defaultLevel().isOn() {
 			return CheckLevel_ERROR
 		}
-		return nil
+		return 0
 	}()
 }
 
 func (this *StrictWarningsGuard) getPriority_impl() int32 {
-	return WarningsGuard_Priority_STRICT.value_
+	return WarningsGuard_Priority_value__[WarningsGuard_Priority_STRICT-1]
 }
 
 const StrictWarningsGuard_serialVersionUID int64 = 1
@@ -56,7 +56,7 @@ func StrictWarningsGuard_clinit() {
 }
 
 // level: an object that is exactly a StrictWarningsGuard calls its level_impl directly (post-flip); others dispatch.
-func (this *StrictWarningsGuard) level(p0 *JSError) *CheckLevel {
+func (this *StrictWarningsGuard) level(p0 *JSError) CheckLevel {
 	if this.self_ == any(this) {
 		return this.level_impl(p0)
 	}

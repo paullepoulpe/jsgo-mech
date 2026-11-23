@@ -2,71 +2,103 @@
 
 package closure
 
-type JSTypeClass struct {
-	Enum
+type JSTypeClass uint8
+
+// JSTypeClass_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var JSTypeClass_enum_ = [25]Enum{
+	{self_: JSTypeClass_ALL, name_: "ALL", ordinal_: 0},
+	{self_: JSTypeClass_ARROW, name_: "ARROW", ordinal_: 1},
+	{self_: JSTypeClass_BOOLEAN, name_: "BOOLEAN", ordinal_: 2},
+	{self_: JSTypeClass_BIGINT, name_: "BIGINT", ordinal_: 3},
+	{self_: JSTypeClass_ENUM, name_: "ENUM", ordinal_: 4},
+	{self_: JSTypeClass_ENUM_ELEMENT, name_: "ENUM_ELEMENT", ordinal_: 5},
+	{self_: JSTypeClass_FUNCTION, name_: "FUNCTION", ordinal_: 6},
+	{self_: JSTypeClass_INSTANCE_OBJECT, name_: "INSTANCE_OBJECT", ordinal_: 7},
+	{self_: JSTypeClass_NAMED, name_: "NAMED", ordinal_: 8},
+	{self_: JSTypeClass_NO, name_: "NO", ordinal_: 9},
+	{self_: JSTypeClass_NO_OBJECT, name_: "NO_OBJECT", ordinal_: 10},
+	{self_: JSTypeClass_NO_RESOLVED, name_: "NO_RESOLVED", ordinal_: 11},
+	{self_: JSTypeClass_NULL, name_: "NULL", ordinal_: 12},
+	{self_: JSTypeClass_NUMBER, name_: "NUMBER", ordinal_: 13},
+	{self_: JSTypeClass_PROTOTYPE_OBJECT, name_: "PROTOTYPE_OBJECT", ordinal_: 14},
+	{self_: JSTypeClass_PROXY_OBJECT, name_: "PROXY_OBJECT", ordinal_: 15},
+	{self_: JSTypeClass_RECORD, name_: "RECORD", ordinal_: 16},
+	{self_: JSTypeClass_STRING, name_: "STRING", ordinal_: 17},
+	{self_: JSTypeClass_SYMBOL, name_: "SYMBOL", ordinal_: 18},
+	{self_: JSTypeClass_WELL_KNOWN_SYMBOL, name_: "WELL_KNOWN_SYMBOL", ordinal_: 19},
+	{self_: JSTypeClass_TEMPLATE, name_: "TEMPLATE", ordinal_: 20},
+	{self_: JSTypeClass_TEMPLATIZED, name_: "TEMPLATIZED", ordinal_: 21},
+	{self_: JSTypeClass_UNION, name_: "UNION", ordinal_: 22},
+	{self_: JSTypeClass_UNKNOWN, name_: "UNKNOWN", ordinal_: 23},
+	{self_: JSTypeClass_VOID, name_: "VOID", ordinal_: 24},
 }
 
-func (this *JSTypeClass) up_Enum() *Enum {
-	if this == nil {
+func (this JSTypeClass) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &JSTypeClass_enum_[this-1]
 }
 
-func (this *JSTypeClass) init_JSTypeClass(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
-}
+func (this JSTypeClass) name() string { return JSTypeClass_enum_[this-1].name_ }
 
-func new_JSTypeClass(name_ string, ordinal_ int32) *JSTypeClass {
-	this := &JSTypeClass{}
-	this.self_ = this
-	this.init_JSTypeClass(name_, ordinal_)
+func (this JSTypeClass) ordinal() int32 { return JSTypeClass_enum_[this-1].ordinal_ }
+
+func (this JSTypeClass) toString() string { return JSTypeClass_enum_[this-1].name_ }
+
+func (this JSTypeClass) compareTo(o any) int32 { return JSTypeClass_enum_[this-1].compareTo(o) }
+
+func (this JSTypeClass) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func (this *JSTypeClass) isTypeOf(t *JSType) bool {
+func (this JSTypeClass) isTypeOf(t *JSType) bool {
 	return eqR_(this, t.getTypeClass())
 }
 
-func JSTypeClass_values() []*JSTypeClass {
-	return append([]*JSTypeClass(nil), JSTypeClass_values_...)
+func JSTypeClass_values() []JSTypeClass {
+	return append([]JSTypeClass(nil), JSTypeClass_values_...)
 }
 
-func JSTypeClass_valueOf(name string) *JSTypeClass {
+func JSTypeClass_valueOf(name string) JSTypeClass {
 	for _, v := range JSTypeClass_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("JSTypeClass", name))
 }
 
-var JSTypeClass_ALL *JSTypeClass
-var JSTypeClass_ARROW *JSTypeClass
-var JSTypeClass_BOOLEAN *JSTypeClass
-var JSTypeClass_BIGINT *JSTypeClass
-var JSTypeClass_ENUM *JSTypeClass
-var JSTypeClass_ENUM_ELEMENT *JSTypeClass
-var JSTypeClass_FUNCTION *JSTypeClass
-var JSTypeClass_INSTANCE_OBJECT *JSTypeClass
-var JSTypeClass_NAMED *JSTypeClass
-var JSTypeClass_NO *JSTypeClass
-var JSTypeClass_NO_OBJECT *JSTypeClass
-var JSTypeClass_NO_RESOLVED *JSTypeClass
-var JSTypeClass_NULL *JSTypeClass
-var JSTypeClass_NUMBER *JSTypeClass
-var JSTypeClass_PROTOTYPE_OBJECT *JSTypeClass
-var JSTypeClass_PROXY_OBJECT *JSTypeClass
-var JSTypeClass_RECORD *JSTypeClass
-var JSTypeClass_STRING *JSTypeClass
-var JSTypeClass_SYMBOL *JSTypeClass
-var JSTypeClass_WELL_KNOWN_SYMBOL *JSTypeClass
-var JSTypeClass_TEMPLATE *JSTypeClass
-var JSTypeClass_TEMPLATIZED *JSTypeClass
-var JSTypeClass_UNION *JSTypeClass
-var JSTypeClass_UNKNOWN *JSTypeClass
-var JSTypeClass_VOID *JSTypeClass
-var JSTypeClass_values_ []*JSTypeClass
+const JSTypeClass_ALL JSTypeClass = 1
+const JSTypeClass_ARROW JSTypeClass = 2
+const JSTypeClass_BOOLEAN JSTypeClass = 3
+const JSTypeClass_BIGINT JSTypeClass = 4
+const JSTypeClass_ENUM JSTypeClass = 5
+const JSTypeClass_ENUM_ELEMENT JSTypeClass = 6
+const JSTypeClass_FUNCTION JSTypeClass = 7
+const JSTypeClass_INSTANCE_OBJECT JSTypeClass = 8
+const JSTypeClass_NAMED JSTypeClass = 9
+const JSTypeClass_NO JSTypeClass = 10
+const JSTypeClass_NO_OBJECT JSTypeClass = 11
+const JSTypeClass_NO_RESOLVED JSTypeClass = 12
+const JSTypeClass_NULL JSTypeClass = 13
+const JSTypeClass_NUMBER JSTypeClass = 14
+const JSTypeClass_PROTOTYPE_OBJECT JSTypeClass = 15
+const JSTypeClass_PROXY_OBJECT JSTypeClass = 16
+const JSTypeClass_RECORD JSTypeClass = 17
+const JSTypeClass_STRING JSTypeClass = 18
+const JSTypeClass_SYMBOL JSTypeClass = 19
+const JSTypeClass_WELL_KNOWN_SYMBOL JSTypeClass = 20
+const JSTypeClass_TEMPLATE JSTypeClass = 21
+const JSTypeClass_TEMPLATIZED JSTypeClass = 22
+const JSTypeClass_UNION JSTypeClass = 23
+const JSTypeClass_UNKNOWN JSTypeClass = 24
+const JSTypeClass_VOID JSTypeClass = 25
+
+var JSTypeClass_values_ []JSTypeClass
 
 var JSTypeClass_clinit_done bool
 
@@ -75,32 +107,7 @@ func JSTypeClass_clinit() {
 		return
 	}
 	JSTypeClass_clinit_done = true
-	JSTypeClass_ALL = new_JSTypeClass("ALL", 0)
-	JSTypeClass_ARROW = new_JSTypeClass("ARROW", 1)
-	JSTypeClass_BOOLEAN = new_JSTypeClass("BOOLEAN", 2)
-	JSTypeClass_BIGINT = new_JSTypeClass("BIGINT", 3)
-	JSTypeClass_ENUM = new_JSTypeClass("ENUM", 4)
-	JSTypeClass_ENUM_ELEMENT = new_JSTypeClass("ENUM_ELEMENT", 5)
-	JSTypeClass_FUNCTION = new_JSTypeClass("FUNCTION", 6)
-	JSTypeClass_INSTANCE_OBJECT = new_JSTypeClass("INSTANCE_OBJECT", 7)
-	JSTypeClass_NAMED = new_JSTypeClass("NAMED", 8)
-	JSTypeClass_NO = new_JSTypeClass("NO", 9)
-	JSTypeClass_NO_OBJECT = new_JSTypeClass("NO_OBJECT", 10)
-	JSTypeClass_NO_RESOLVED = new_JSTypeClass("NO_RESOLVED", 11)
-	JSTypeClass_NULL = new_JSTypeClass("NULL", 12)
-	JSTypeClass_NUMBER = new_JSTypeClass("NUMBER", 13)
-	JSTypeClass_PROTOTYPE_OBJECT = new_JSTypeClass("PROTOTYPE_OBJECT", 14)
-	JSTypeClass_PROXY_OBJECT = new_JSTypeClass("PROXY_OBJECT", 15)
-	JSTypeClass_RECORD = new_JSTypeClass("RECORD", 16)
-	JSTypeClass_STRING = new_JSTypeClass("STRING", 17)
-	JSTypeClass_SYMBOL = new_JSTypeClass("SYMBOL", 18)
-	JSTypeClass_WELL_KNOWN_SYMBOL = new_JSTypeClass("WELL_KNOWN_SYMBOL", 19)
-	JSTypeClass_TEMPLATE = new_JSTypeClass("TEMPLATE", 20)
-	JSTypeClass_TEMPLATIZED = new_JSTypeClass("TEMPLATIZED", 21)
-	JSTypeClass_UNION = new_JSTypeClass("UNION", 22)
-	JSTypeClass_UNKNOWN = new_JSTypeClass("UNKNOWN", 23)
-	JSTypeClass_VOID = new_JSTypeClass("VOID", 24)
-	JSTypeClass_values_ = []*JSTypeClass{JSTypeClass_ALL, JSTypeClass_ARROW, JSTypeClass_BOOLEAN, JSTypeClass_BIGINT, JSTypeClass_ENUM, JSTypeClass_ENUM_ELEMENT, JSTypeClass_FUNCTION, JSTypeClass_INSTANCE_OBJECT, JSTypeClass_NAMED, JSTypeClass_NO, JSTypeClass_NO_OBJECT, JSTypeClass_NO_RESOLVED, JSTypeClass_NULL, JSTypeClass_NUMBER, JSTypeClass_PROTOTYPE_OBJECT, JSTypeClass_PROXY_OBJECT, JSTypeClass_RECORD, JSTypeClass_STRING, JSTypeClass_SYMBOL, JSTypeClass_WELL_KNOWN_SYMBOL, JSTypeClass_TEMPLATE, JSTypeClass_TEMPLATIZED, JSTypeClass_UNION, JSTypeClass_UNKNOWN, JSTypeClass_VOID}
+	JSTypeClass_values_ = []JSTypeClass{JSTypeClass_ALL, JSTypeClass_ARROW, JSTypeClass_BOOLEAN, JSTypeClass_BIGINT, JSTypeClass_ENUM, JSTypeClass_ENUM_ELEMENT, JSTypeClass_FUNCTION, JSTypeClass_INSTANCE_OBJECT, JSTypeClass_NAMED, JSTypeClass_NO, JSTypeClass_NO_OBJECT, JSTypeClass_NO_RESOLVED, JSTypeClass_NULL, JSTypeClass_NUMBER, JSTypeClass_PROTOTYPE_OBJECT, JSTypeClass_PROXY_OBJECT, JSTypeClass_RECORD, JSTypeClass_STRING, JSTypeClass_SYMBOL, JSTypeClass_WELL_KNOWN_SYMBOL, JSTypeClass_TEMPLATE, JSTypeClass_TEMPLATIZED, JSTypeClass_UNION, JSTypeClass_UNKNOWN, JSTypeClass_VOID}
 	registerEnum_("com.google.javascript.rhino.jstype.JSTypeClass", enumValues_(JSTypeClass_values_))
 
 }

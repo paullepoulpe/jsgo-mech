@@ -290,7 +290,7 @@ func (this *PolymerClassRewriter) addPropertiesConfigObjectReflection(cls *Polym
 	this.compiler_.getRuntimeJsLibManager().ensureLibraryInjected("util/reflectobject", false)
 }
 
-func (this *PolymerClassRewriter) addTypesToFunctions(objLit Node, thisType string, defType *PolymerClassDefinition_DefinitionType) {
+func (this *PolymerClassRewriter) addTypesToFunctions(objLit Node, thisType string, defType PolymerClassDefinition_DefinitionType) {
 	Preconditions_checkState(objLit.isObjectLit())
 	{
 		var keyNode Node = objLit.getFirstChild()
@@ -498,7 +498,7 @@ func PolymerClassRewriter_createNewTypeExpressionForExtern(propName string, sour
 	return new_JSTypeExpression(leftCurly, sourceName.orElse(""))
 }
 
-func (this *PolymerClassRewriter) removePropertyDocs(objLit Node, defType *PolymerClassDefinition_DefinitionType) {
+func (this *PolymerClassRewriter) removePropertyDocs(objLit Node, defType PolymerClassDefinition_DefinitionType) {
 	it_1 := PolymerPassStaticUtils_extractProperties(objLit, defType, this.compiler_, 0).each()
 	for it_1.next() {
 		var prop *PolymerPass_MemberDefinition = it_1.v
