@@ -132,9 +132,35 @@ on the translator's output cast_[ 1,029 to 723, erased views 1,198 to 572. CPU o
 each stage against the one before: iter +1%, coll and list -2%, set and map neutral. The
 runtime has not shrunk (20,241 lines against 19,832).
 
+## The sixth flip (2026-11-23)
+
+The step list replayed on main's translator with both typed-generics rules (function types;
+typed library interfaces: kinds iter, coll, list, set, map/entry, cls, meth). Overlay
+main-r13-flip6 670d0513, record tools/postflip/reflip/REFLIP6.md, gated tree flip6-tree 2c5e324f.
+An unattended replay from the base (271 commits) gives the working replay's tree; runtime tests
+ok; checks, bundle, downlevel, advanced MATCH. Tool fixes 37-44, two new runtime patches with
+tests, one manual patch (422).
+
+Census against the fifth flip: erased collection constructors 112 to 40, Guava immutables 149 to
+43, for-each via iterator objects 105 to 34, explicit Iterator use 125 to 73, class casts 699 to
+553, unboxing 224 to 131, boxing 999 to 938, equals/hashCode 76 to 72. Worse, explained in
+REFLIP6.md by cause and count: interface casts 164 to 183 and `any` slots 425 to 448 (the unbox
+functions and `func(v any)` of the new conversions of typed collections as elements), typed sorts
+24 to 20 (four sorts of typed map entries, where the round-trip proof does not hold).
+
+Idle host, same output, 2026-11-23. Full benchmark: sixth flip 576.5 s and fifth flip 575.1 s
+back to back (CHECKS 294.3 / 297.2, OPTIMIZATIONS 231.1 / 227.2, FINALIZATIONS 51.0 / 50.7);
+pre-flip Java 445.4 s (CHECKS 201.4, OPTIMIZATIONS 203.1, FINALIZATIONS 40.9). A first sixth-flip
+run read 595.6 s; the back-to-back pair shows it was the host. Java/Go 0.77 today (Java ran 7 s
+faster than on 2026-11-21, so the ratio moved with Java, not with Go). Subset: level with the
+fifth flip (119.1-122.3 s CPU both).
+
+So the typed-generics work (both translator rules and their flip) removed most of the
+erased-collection Java-isms and did not move the time. Speed is not met.
+
 ## Open
 
-- Speed: not met in bounds (0.79 on the full benchmark). No in-bounds step so far has moved the
+- Speed: not met in bounds (0.77 on the full benchmark, 2026-11-23). No in-bounds step so far has moved the
   full benchmark by more than about 2%; CHECKS (0.71) is where Go is behind, and its cost is
   spread thin with the collector at 30%.
 - A start-to-finish unattended replay of the final list (the list grew while its last replay
