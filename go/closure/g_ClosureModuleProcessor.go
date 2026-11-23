@@ -112,7 +112,7 @@ func (this *ClosureModuleProcessor_UnresolvedGoogModule) resolveExport_5_impl(mo
 func (this *ClosureModuleProcessor_UnresolvedGoogModule) resolve_2_impl(moduleRequestResolver ModuleRequestResolver, moduleSpecifier Optional[string]) *Module {
 	if this.resolved_ == nil {
 		var boundNames *TMap[string, *Binding] = tmapCopy_(tc_string, tc_p_Binding, this.getAllResolvedImports(moduleRequestResolver))
-		this.resolved_ = Module_builder().path(this.path_).metadata(this.metadataField).namespace(this.namespace_).boundNames(immutableMapCopyOfT_(tc_string, tc_p_Binding, boundNames)).localNameToLocalExport(tmapEmptyImm_(tc_string, tc_p_Export)).closureNamespace(Optional_ofNullable[string](str_(Iterables_getOnlyElement(icast_Iterable(obj_(this.metadataField.googNamespaces())))))).build()
+		this.resolved_ = Module_builder().path(this.path_).metadata(this.metadataField).namespace(this.namespace_).boundNames(immutableMapCopyOfT_(tc_string, tc_p_Binding, boundNames)).localNameToLocalExport(tmapEmptyImm_(tc_string, tc_p_Export)).closureNamespace(Optional_ofNullable[string](str_(Iterables_getOnlyElement(iup_Iterable(this.metadataField.googNamespaces()))))).build()
 	}
 	return this.resolved_
 }
@@ -207,7 +207,7 @@ func (this *ClosureModuleProcessor_ModuleProcessingCallback) init_ClosureModuleP
 	this.metadata_ = metadata
 	this.namespace_ = newTMap_(tc_string, tc_p_Binding)
 	this.requiresByLocalName = newTMap_(tc_string, tc_p_ClosureRequireProcessor_Require)
-	this.closureNamespace_ = str_(Iterables_getOnlyElement(icast_Iterable(obj_(metadata.googNamespaces()))))
+	this.closureNamespace_ = str_(Iterables_getOnlyElement(iup_Iterable(metadata.googNamespaces())))
 	this.seenExportsAssignment = false
 }
 

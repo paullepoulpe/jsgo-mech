@@ -194,7 +194,7 @@ func (this *SymbolTable) getSymbolForName(source Node, name Optional[string]) *S
 		return nil
 	}
 	if scope.isModuleScope() {
-		var moduleNameWithDot string = (sstr_(str_(Iterables_getFirst(icast_Iterable(obj_(this.compiler_.getModuleMetadataMap().getModulesByPath().Get(scope.getRootNode().getSourceFileName()).googNamespaces())), nil))) + ".")
+		var moduleNameWithDot string = (sstr_(str_(Iterables_getFirst(iup_Iterable(this.compiler_.getModuleMetadataMap().getModulesByPath().Get(scope.getRootNode().getSourceFileName()).googNamespaces()), nil))) + ".")
 		if strings.HasPrefix(name.get(), moduleNameWithDot) {
 			name = Optional_of[string](name.get()[len(moduleNameWithDot):])
 		}

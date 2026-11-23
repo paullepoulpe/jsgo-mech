@@ -197,7 +197,7 @@ func (this *TypedVar) getScope_rStaticTypedScope() StaticTypedScope {
 }
 
 func (this *TypedVar) getSymbol_rStaticTypedSlot() StaticTypedSlot {
-	return icast_StaticTypedSlot(obj_(this.getSymbol_rAbstractVar_rTypedVar()))
+	return iup_StaticTypedSlot(this.getSymbol_rAbstractVar_rTypedVar())
 }
 
 var TypedVar_NAME_NODE_TYPES *TSet[Token_rhino]
