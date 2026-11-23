@@ -436,7 +436,7 @@ func CoalesceVariableNames_LiveRangeChecker_isReadFrom(var_ *Var, name Node) boo
 
 // enterScopeWithCfg: an object that is exactly a CoalesceVariableNames calls its enterScopeWithCfg_impl directly (post-flip); others dispatch.
 func (this *CoalesceVariableNames) enterScopeWithCfg(p0 *NodeTraversal) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*CoalesceVariableNames); p == this {
 		this.enterScopeWithCfg_impl(p0)
 		return
 	}
@@ -445,7 +445,7 @@ func (this *CoalesceVariableNames) enterScopeWithCfg(p0 *NodeTraversal) {
 
 // exitScopeWithCfg: an object that is exactly a CoalesceVariableNames calls its exitScopeWithCfg_impl directly (post-flip); others dispatch.
 func (this *CoalesceVariableNames) exitScopeWithCfg(p0 *NodeTraversal) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*CoalesceVariableNames); p == this {
 		this.exitScopeWithCfg_impl(p0)
 		return
 	}
@@ -454,7 +454,7 @@ func (this *CoalesceVariableNames) exitScopeWithCfg(p0 *NodeTraversal) {
 
 // visit: an object that is exactly a CoalesceVariableNames calls its visit_impl directly (post-flip); others dispatch.
 func (this *CoalesceVariableNames) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*CoalesceVariableNames); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}

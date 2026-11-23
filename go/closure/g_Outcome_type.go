@@ -244,7 +244,7 @@ func Outcome_2_type_clinit() {
 
 // isTruthy: an object that is exactly a Outcome_1_type calls its isTruthy_impl directly (post-flip); others dispatch.
 func (this *Outcome_1_type) isTruthy() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Outcome_1_type); p == this {
 		return this.isTruthy_impl()
 	}
 	return this.selfI_.isTruthy_impl()
@@ -252,7 +252,7 @@ func (this *Outcome_1_type) isTruthy() bool {
 
 // isNullish: an object that is exactly a Outcome_1_type calls its isNullish_impl directly (post-flip); others dispatch.
 func (this *Outcome_1_type) isNullish() Tri {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Outcome_1_type); p == this {
 		return this.isNullish_impl()
 	}
 	return this.selfI_.isNullish_impl()
@@ -260,7 +260,7 @@ func (this *Outcome_1_type) isNullish() Tri {
 
 // not: an object that is exactly a Outcome_1_type calls its not_impl directly (post-flip); others dispatch.
 func (this *Outcome_1_type) not() *Outcome_type {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Outcome_1_type); p == this {
 		return this.not_impl()
 	}
 	return this.selfI_.not_impl()
@@ -268,7 +268,7 @@ func (this *Outcome_1_type) not() *Outcome_type {
 
 // isTruthy: an object that is exactly a Outcome_2_type calls its isTruthy_impl directly (post-flip); others dispatch.
 func (this *Outcome_2_type) isTruthy() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Outcome_2_type); p == this {
 		return this.isTruthy_impl()
 	}
 	return this.selfI_.isTruthy_impl()
@@ -276,7 +276,7 @@ func (this *Outcome_2_type) isTruthy() bool {
 
 // isNullish: an object that is exactly a Outcome_2_type calls its isNullish_impl directly (post-flip); others dispatch.
 func (this *Outcome_2_type) isNullish() Tri {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Outcome_2_type); p == this {
 		return this.isNullish_impl()
 	}
 	return this.selfI_.isNullish_impl()
@@ -284,7 +284,7 @@ func (this *Outcome_2_type) isNullish() Tri {
 
 // not: an object that is exactly a Outcome_2_type calls its not_impl directly (post-flip); others dispatch.
 func (this *Outcome_2_type) not() *Outcome_type {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Outcome_2_type); p == this {
 		return this.not_impl()
 	}
 	return this.selfI_.not_impl()

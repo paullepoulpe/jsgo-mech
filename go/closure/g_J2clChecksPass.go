@@ -96,7 +96,7 @@ func J2clChecksPass_clinit() {
 
 // visit: an object that is exactly a J2clChecksPass calls its visit_impl directly (post-flip); others dispatch.
 func (this *J2clChecksPass) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*J2clChecksPass); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}

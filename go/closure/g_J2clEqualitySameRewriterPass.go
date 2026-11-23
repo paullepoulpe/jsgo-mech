@@ -246,7 +246,7 @@ func J2clEqualitySameRewriterPass_NodeValue_clinit() {
 
 // beginTraversal: an object that is exactly a J2clEqualitySameRewriterPass calls its beginTraversal_impl directly (post-flip); others dispatch.
 func (this *J2clEqualitySameRewriterPass) beginTraversal(p0 *AbstractCompiler) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*J2clEqualitySameRewriterPass); p == this {
 		this.beginTraversal_impl(p0)
 		return
 	}
@@ -255,7 +255,7 @@ func (this *J2clEqualitySameRewriterPass) beginTraversal(p0 *AbstractCompiler) {
 
 // optimizeSubtree: an object that is exactly a J2clEqualitySameRewriterPass calls its optimizeSubtree_impl directly (post-flip); others dispatch.
 func (this *J2clEqualitySameRewriterPass) optimizeSubtree(p0 Node) Node {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*J2clEqualitySameRewriterPass); p == this {
 		return this.optimizeSubtree_impl(p0)
 	}
 	return this.self_.optimizeSubtree_impl(p0)

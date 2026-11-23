@@ -118,7 +118,7 @@ func (this *JsMessageExtractor_ExtractMessagesVisitor) getMessages() CollectionT
 
 // processJsMessageDefinition: an object that is exactly a JsMessageExtractor_ExtractMessagesVisitor calls its processJsMessageDefinition_impl directly (post-flip); others dispatch.
 func (this *JsMessageExtractor_ExtractMessagesVisitor) processJsMessageDefinition(p0 JsMessageDefinition) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*JsMessageExtractor_ExtractMessagesVisitor); p == this {
 		this.processJsMessageDefinition_impl(p0)
 		return
 	}
@@ -127,7 +127,7 @@ func (this *JsMessageExtractor_ExtractMessagesVisitor) processJsMessageDefinitio
 
 // processIcuTemplateDefinition: an object that is exactly a JsMessageExtractor_ExtractMessagesVisitor calls its processIcuTemplateDefinition_impl directly (post-flip); others dispatch.
 func (this *JsMessageExtractor_ExtractMessagesVisitor) processIcuTemplateDefinition(p0 IcuTemplateDefinition) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*JsMessageExtractor_ExtractMessagesVisitor); p == this {
 		this.processIcuTemplateDefinition_impl(p0)
 		return
 	}
