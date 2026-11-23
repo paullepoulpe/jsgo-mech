@@ -291,7 +291,7 @@ func (this *JsFileFullParser_1) println(p0 *CheckLevel, p1 *JSError) {
 		this.println_impl(p0, p1)
 		return
 	}
-	this.self_.(interface{ println_impl(*CheckLevel, *JSError) }).println_impl(p0, p1)
+	this.self_.println_impl(p0, p1)
 }
 
 // printSummary: an object that is exactly a JsFileFullParser_1 calls its printSummary_impl directly (post-flip); others dispatch.
@@ -300,5 +300,5 @@ func (this *JsFileFullParser_1) printSummary() {
 		this.printSummary_impl()
 		return
 	}
-	this.self_.(interface{ printSummary_impl() }).printSummary_impl()
+	this.self_.printSummary_impl()
 }

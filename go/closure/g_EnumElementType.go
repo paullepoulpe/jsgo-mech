@@ -211,7 +211,7 @@ func (this *EnumElementType) getPropertyMap() *PropertyMap {
 	if this.self_ == any(this) {
 		return this.getPropertyMap_impl()
 	}
-	return this.self_.(interface{ getPropertyMap_impl() *PropertyMap }).getPropertyMap_impl()
+	return this.self_.getPropertyMap_impl()
 }
 
 // toMaybeEnumElementType: an object that is exactly a EnumElementType calls its toMaybeEnumElementType_impl directly (post-flip); others dispatch.
@@ -324,7 +324,7 @@ func (this *EnumElementType) getReferenceName() Optional[string] {
 	if this.self_ == any(this) {
 		return this.getReferenceName_impl()
 	}
-	return this.self_.(interface{ getReferenceName_impl() Optional[string] }).getReferenceName_impl()
+	return this.self_.getReferenceName_impl()
 }
 
 // visitUntyped: an object that is exactly a EnumElementType calls its visitUntyped_impl directly (post-flip); others dispatch.
@@ -348,9 +348,7 @@ func (this *EnumElementType) defineProperty(p0 Property_Key, p1 *JSType, p2 bool
 	if this.self_ == any(this) {
 		return this.defineProperty_impl(p0, p1, p2, p3)
 	}
-	return this.self_.(interface {
-		defineProperty_impl(Property_Key, *JSType, bool, Node) bool
-	}).defineProperty_impl(p0, p1, p2, p3)
+	return this.self_.defineProperty_impl(p0, p1, p2, p3)
 }
 
 // getImplicitPrototype: an object that is exactly a EnumElementType calls its getImplicitPrototype_impl directly (post-flip); others dispatch.
@@ -358,7 +356,7 @@ func (this *EnumElementType) getImplicitPrototype() *ObjectType {
 	if this.self_ == any(this) {
 		return this.getImplicitPrototype_impl()
 	}
-	return this.self_.(interface{ getImplicitPrototype_impl() *ObjectType }).getImplicitPrototype_impl()
+	return this.self_.getImplicitPrototype_impl()
 }
 
 // findPropertyTypeWithoutConsideringTemplateTypes: an object that is exactly a EnumElementType calls its findPropertyTypeWithoutConsideringTemplateTypes_impl directly (post-flip); others dispatch.
@@ -374,7 +372,7 @@ func (this *EnumElementType) getConstructor() *FunctionType {
 	if this.self_ == any(this) {
 		return this.getConstructor_impl()
 	}
-	return this.self_.(interface{ getConstructor_impl() *FunctionType }).getConstructor_impl()
+	return this.self_.getConstructor_impl()
 }
 
 // autoboxesTo: an object that is exactly a EnumElementType calls its autoboxesTo_impl directly (post-flip); others dispatch.

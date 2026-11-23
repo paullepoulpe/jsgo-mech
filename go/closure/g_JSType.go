@@ -101,6 +101,99 @@ type JSType_I interface {
 	toString_impl() string
 	visitUntyped_2_impl(RelationshipVisitor, *JSType) any
 	visitUntyped_impl(Visitor) any
+	clearCachedValues_impl()
+	defineProperty_impl(Property_Key, *JSType, bool, Node) bool
+	getConstructor_impl() *FunctionType
+	getCtorExtendedInterfaces_impl() IterableT[*ObjectType]
+	getCtorImplementedInterfaces_impl() IterableT[*ObjectType]
+	getEnumeratedTypeOfEnumObject_impl() *JSType
+	getImplicitPrototype_impl() *ObjectType
+	getOwnPropertyNames_impl() SetT[string]
+	getOwnerFunction_impl() *FunctionType
+	getPropertyMap_impl() *PropertyMap
+	getPropertyTypeKey_impl(Property_Key) *JSType
+	getPropertyTypeMap_impl() *JTMap[string, *JSType]
+	getReferenceName_impl() Optional[string]
+	getSlot_impl(Property_Key) *Property
+	getSuperClassConstructor_impl() *FunctionType
+	getTemplateTypes_impl() *JTList[*JSType]
+	getTypeOfThis_impl() *JSType
+	hasCachedValues_impl() bool
+	setJSDocInfo_impl(*JSDocInfo)
+	setOwnerFunction_impl(*FunctionType)
+	setPropertyJSDocInfoKey_impl(Property_Key, *JSDocInfo)
+	setPropertyNode_impl(Property_Key, Node)
+}
+
+// Bodies of the methods that only the subclasses of ObjectType (22) implement. They put the
+// methods in JSType_I, so that the dispatchers of those classes call them through self_ without
+// an assertion. They are never run (a dispatcher's object is of a subclass of its class,
+// which has the method) and panic where the assertion would have (post-flip).
+func (this *JSType) clearCachedValues_impl() {
+	panic("clearCachedValues_impl called on a " + goTypeName_(this.self_))
+}
+func (this *JSType) defineProperty_impl(Property_Key, *JSType, bool, Node) bool {
+	panic("defineProperty_impl called on a " + goTypeName_(this.self_))
+}
+func (this *JSType) getConstructor_impl() *FunctionType {
+	panic("getConstructor_impl called on a " + goTypeName_(this.self_))
+}
+func (this *JSType) getCtorExtendedInterfaces_impl() IterableT[*ObjectType] {
+	panic("getCtorExtendedInterfaces_impl called on a " + goTypeName_(this.self_))
+}
+func (this *JSType) getCtorImplementedInterfaces_impl() IterableT[*ObjectType] {
+	panic("getCtorImplementedInterfaces_impl called on a " + goTypeName_(this.self_))
+}
+func (this *JSType) getEnumeratedTypeOfEnumObject_impl() *JSType {
+	panic("getEnumeratedTypeOfEnumObject_impl called on a " + goTypeName_(this.self_))
+}
+func (this *JSType) getImplicitPrototype_impl() *ObjectType {
+	panic("getImplicitPrototype_impl called on a " + goTypeName_(this.self_))
+}
+func (this *JSType) getOwnPropertyNames_impl() SetT[string] {
+	panic("getOwnPropertyNames_impl called on a " + goTypeName_(this.self_))
+}
+func (this *JSType) getOwnerFunction_impl() *FunctionType {
+	panic("getOwnerFunction_impl called on a " + goTypeName_(this.self_))
+}
+func (this *JSType) getPropertyMap_impl() *PropertyMap {
+	panic("getPropertyMap_impl called on a " + goTypeName_(this.self_))
+}
+func (this *JSType) getPropertyTypeKey_impl(Property_Key) *JSType {
+	panic("getPropertyTypeKey_impl called on a " + goTypeName_(this.self_))
+}
+func (this *JSType) getPropertyTypeMap_impl() *JTMap[string, *JSType] {
+	panic("getPropertyTypeMap_impl called on a " + goTypeName_(this.self_))
+}
+func (this *JSType) getReferenceName_impl() Optional[string] {
+	panic("getReferenceName_impl called on a " + goTypeName_(this.self_))
+}
+func (this *JSType) getSlot_impl(Property_Key) *Property {
+	panic("getSlot_impl called on a " + goTypeName_(this.self_))
+}
+func (this *JSType) getSuperClassConstructor_impl() *FunctionType {
+	panic("getSuperClassConstructor_impl called on a " + goTypeName_(this.self_))
+}
+func (this *JSType) getTemplateTypes_impl() *JTList[*JSType] {
+	panic("getTemplateTypes_impl called on a " + goTypeName_(this.self_))
+}
+func (this *JSType) getTypeOfThis_impl() *JSType {
+	panic("getTypeOfThis_impl called on a " + goTypeName_(this.self_))
+}
+func (this *JSType) hasCachedValues_impl() bool {
+	panic("hasCachedValues_impl called on a " + goTypeName_(this.self_))
+}
+func (this *JSType) setJSDocInfo_impl(*JSDocInfo) {
+	panic("setJSDocInfo_impl called on a " + goTypeName_(this.self_))
+}
+func (this *JSType) setOwnerFunction_impl(*FunctionType) {
+	panic("setOwnerFunction_impl called on a " + goTypeName_(this.self_))
+}
+func (this *JSType) setPropertyJSDocInfoKey_impl(Property_Key, *JSDocInfo) {
+	panic("setPropertyJSDocInfoKey_impl called on a " + goTypeName_(this.self_))
+}
+func (this *JSType) setPropertyNode_impl(Property_Key, Node) {
+	panic("setPropertyNode_impl called on a " + goTypeName_(this.self_))
 }
 
 func (this *JSType) as_JSType() *JSType { return this }
