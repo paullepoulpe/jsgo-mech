@@ -2423,7 +2423,7 @@ func (this *ConformanceRules_RequireUseStrict) initRequireUseStrict(compiler *Ab
 	if superInited.isErr() {
 		return Outcome_base_err[any](superInited.error())
 	}
-	if !icast_ProtocolStringList(requirement.getValueList()).isEmpty() {
+	if !ProtocolStringList(requirement.getValueList()).isEmpty() {
 		return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("invalid value").up_Throwable())
 	}
 	return Outcome_base_ok_0()
@@ -3836,7 +3836,7 @@ func (this *ConformanceRules_BanSettingAttributes) initBanSettingAttributes(comp
 	if superInited.isErr() {
 		return Outcome_base_err[any](superInited.error())
 	}
-	if icast_ProtocolStringList(requirement.getValueList()).isEmpty() {
+	if ProtocolStringList(requirement.getValueList()).isEmpty() {
 		return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("missing value").up_Throwable())
 	}
 	var registry *JSTypeRegistry = compiler.getTypeRegistry()
