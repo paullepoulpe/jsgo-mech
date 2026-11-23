@@ -124,7 +124,7 @@ func new_DeadPropertyAssignmentElimination_Property(name string) *DeadPropertyAs
 
 func (this *DeadPropertyAssignmentElimination_Property) markLastWriteRead() {
 	if !this.writes.isEmpty() {
-		cast_[*DeadPropertyAssignmentElimination_PropertyWrite](SequencedCollection_getLast(SequencedCollection(Deque_un_(this.writes.asDequeT())))).markRead()
+		SequencedCollection_getLast(SequencedCollection(Deque_un_(this.writes.asDequeT()))).(*DeadPropertyAssignmentElimination_PropertyWrite).markRead()
 	}
 }
 

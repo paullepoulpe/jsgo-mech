@@ -979,7 +979,7 @@ func (this *JSDocInfo_Property) clone_impl(arg any, unusedTransform func(*JSType
 }
 
 func (this *JSDocInfo_Property) isDefault(value any) bool {
-	return ((((value == nil) || (value == obj_(JSDocInfo_Visibility_INHERITED))) || (is_[Collection](value) && icast_Collection(value).isEmpty())) || (is_[Map](value) && icast_Map(value).isEmpty()))
+	return ((((value == nil) || (value == obj_(JSDocInfo_Visibility_INHERITED))) || (is_[Collection](value) && value.(Collection).isEmpty())) || (is_[Map](value) && value.(Map).isEmpty()))
 }
 
 func (this *JSDocInfo_Property) equalValues_impl(left any, right any) bool {

@@ -246,7 +246,7 @@ func (this *SymbolTable) getSymbolForTypeHelper(type_ *JSType, linkToCtor bool) 
 			return this.getSymbolDeclaredBy(type_.toMaybeFunctionType())
 		}()
 	} else if type_.isFunctionPrototypeType() {
-		var ownerFn *FunctionType = to_ObjectType(type_.self()).getOwnerFunction()
+		var ownerFn *FunctionType = type_.self().(ObjectType_as).as_ObjectType().getOwnerFunction()
 		if !ownerFn.isConstructor() && !ownerFn.isInterface() {
 			return nil
 		}
@@ -257,7 +257,7 @@ func (this *SymbolTable) getSymbolForTypeHelper(type_ *JSType, linkToCtor bool) 
 			return this.getSymbolForInstancesOf(ownerFn)
 		}()
 	} else if type_.isInstanceType() {
-		var ownerFn *FunctionType = to_ObjectType(type_.self()).getConstructor()
+		var ownerFn *FunctionType = type_.self().(ObjectType_as).as_ObjectType().getConstructor()
 		return func() *SymbolTable_Symbol {
 			if linkToCtor {
 				return this.getSymbolDeclaredBy(ownerFn)
@@ -274,7 +274,7 @@ func (this *SymbolTable) getSymbolForTypeHelper(type_ *JSType, linkToCtor bool) 
 	} else if type_.autoboxesTo() != nil {
 		return this.getSymbolForTypeHelper(type_.autoboxesTo(), linkToCtor)
 	} else if type_.isEnumType() {
-		return this.getSymbolDeclaredByEnumType(cast_[*EnumType](type_.self()))
+		return this.getSymbolDeclaredByEnumType(type_.self().(*EnumType))
 	} else if type_.isRecordType() {
 		return this.symbolThatDeclaresType.get(type_)
 	}

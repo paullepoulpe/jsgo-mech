@@ -57,7 +57,7 @@ func (this *Token_parser) toString_impl() string {
 }
 
 func (this *Token_parser) asIdentifier() *IdentifierToken {
-	return cast_[*IdentifierToken](this.self())
+	return this.self().(*IdentifierToken)
 }
 
 func (this *Token_parser) asLiteral() *LiteralToken {
@@ -65,7 +65,7 @@ func (this *Token_parser) asLiteral() *LiteralToken {
 }
 
 func (this *Token_parser) asTemplateLiteral() *TemplateLiteralToken {
-	return cast_[*TemplateLiteralToken](this.self())
+	return this.self().(*TemplateLiteralToken)
 }
 
 func (this *Token_parser) toString() string {

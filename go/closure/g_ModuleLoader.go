@@ -87,7 +87,7 @@ func (this *ModuleLoader) createRootPaths(roots IterableT[string]) *JTList[strin
 			return strobj_(n)
 		}())
 	}
-	return jtlistImm_(jtc_string, cast_[*ImmutableSortedSet](lgBox_(setAs_(jtc_string, ImmutableCollection_as_Set(result.build())))).asList())
+	return jtlistImm_(jtc_string, lgBox_(setAs_(jtc_string, ImmutableCollection_as_Set(result.build()))).(*ImmutableSortedSet).asList())
 }
 
 func (this *ModuleLoader) resolvePaths(inputs IterableT[DependencyInfo_]) *JTSet[string] {
