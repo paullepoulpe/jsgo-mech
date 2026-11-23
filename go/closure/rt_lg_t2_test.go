@@ -41,3 +41,35 @@ func TestLgT2EnumSet(t *testing.T) {
 		t.Fatal(str(c))
 	}
 }
+
+// Kind `deque`: the typed deque is native at QueueT / DequeT; an erased deque or queue goes
+// through a wrapper that unboxes, and erased code gets the object back.
+func TestLgT2Deque(t *testing.T) {
+	d := newTDeque_(tc_string)
+	dt := d.asDequeT()
+	if (*TDeque[string])(nil).asDequeT() != nil || (*TDeque[string])(nil).asQueueT() != nil {
+		t.Fatal("null as a Deque is not nil")
+	}
+	dt.push_t("a")
+	dt.push_t("b")
+	if Deque_un_(dt) != d.asDeque() || lgBox_(dt) != any(d.asDeque()) || dequeAs_(tc_string, d.asDeque()) != dt || queueAs_(tc_string, Queue(d.asDeque())) != d.asQueueT() {
+		t.Fatal("the typed deque as a Deque is not its view")
+	}
+	if dt.peek_t() != "b" || dt.pop_t() != "b" || d.asQueueT().poll_t() != "a" || dt.poll_t() != tc_string.null || dt.peek_t() != tc_string.null {
+		t.Fatal(d.size())
+	}
+	ad := new_ArrayDeque()
+	w := dequeAs_(tc_string, Deque(ad))
+	w.push_t("x")
+	w.add_t("y")
+	if w.peek_t() != "x" || Deque_un_(w) != Deque(ad) || lgBox_(w) != any(ad) || w.size() != 2 || w.remove_0_t() != "x" || w.pop_t() != "y" || !w.isEmpty() {
+		t.Fatal("the wrapper of an erased deque")
+	}
+	pq := new_PriorityQueue(nil)
+	q := queueAs_(tc_string, Queue(pq))
+	q.add_t("b")
+	q.add_t("a")
+	if q.peek_t() != "a" || q.poll_t() != "a" || q.poll_t() != "b" || q.poll_t() != tc_string.null || Queue_un_(q) != Queue(pq) {
+		t.Fatal("the wrapper of an erased queue")
+	}
+}

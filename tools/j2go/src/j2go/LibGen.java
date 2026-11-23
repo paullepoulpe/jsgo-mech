@@ -21,7 +21,8 @@ import javax.lang.model.type.*;
  * </pre>
  *
  * Kinds: `iter` (java.util.Iterator, java.lang.Iterable), `coll` (java.util.Collection), `list`
- * (java.util.List), `set` (java.util.Set), `map` (java.util.Map, java.util.Map.Entry).
+ * (java.util.List), `set` (java.util.Set), `map` (java.util.Map, java.util.Map.Entry), `deque`
+ * (java.util.Queue, java.util.Deque: rule candidate T2).
  *
  * - Types: the interfaces of an enabled kind are typed declarations (Ctx.typedClasses).
  *   `Iterator<Node>` is `IteratorT[Node]`. A wildcard is its bound, an erased type variable what
@@ -54,6 +55,8 @@ final class LibGen {
     KINDS.put("list", List.of("java.util.List"));
     KINDS.put("set", List.of("java.util.Set"));
     KINDS.put("map", List.of("java.util.Map", "java.util.Map.Entry"));
+    // (rule candidate T2: Queue and Deque, with their typed methods in rt_lg_t2.go)
+    KINDS.put("deque", List.of("java.util.Queue", "java.util.Deque"));
   }
 
   /**
@@ -67,7 +70,9 @@ final class LibGen {
       "java.util.List", Set.of("get/1"),
       "java.util.Set", Set.of(),
       "java.util.Map", Set.of("get/1", "keySet/0", "values/0", "entrySet/0"),
-      "java.util.Map.Entry", Set.of("getKey/0", "getValue/0"));
+      "java.util.Map.Entry", Set.of("getKey/0", "getValue/0"),
+      "java.util.Queue", Set.of("peek/0", "poll/0", "remove/0"),
+      "java.util.Deque", Set.of("pop/0", "push/1"));
 
   /**
    * Piece `meth` (J2GO_NOLIBGEN=meth is the translation without it): the methods that take or
@@ -116,7 +121,8 @@ final class LibGen {
       Map.entry("java.util.concurrent.ConcurrentHashMap", new String[] {"java.util.Map", "cmaps"}),
       Map.entry("java.util.concurrent.ConcurrentMap", new String[] {"java.util.Map", "cmaps"}),
       Map.entry("java.util.IdentityHashMap", new String[] {"java.util.Map", "cmaps"}),
-      Map.entry("java.util.EnumMap", new String[] {"java.util.Map", "cmaps"}));
+      Map.entry("java.util.EnumMap", new String[] {"java.util.Map", "cmaps"}),
+      Map.entry("java.util.PriorityQueue", new String[] {"java.util.Queue", "deque"}));
 
   /**
    * The typed makers of the kinds of CLASSES_T2 (rt_lg_t2.go): a library function ("class.method"
@@ -623,6 +629,8 @@ final class LibGen {
       case "java.util.Set": as = k.name.equals("set") ? ".asSetT()" : null; break;
       case "java.util.Map": as = k.name.equals("map") ? ".asMapT()" : null; break;
       case "java.util.Map.Entry": as = k == cx.entryKind ? ".asEntryT()" : null; break;
+      case "java.util.Queue": as = k.name.equals("deque") ? ".asQueueT()" : null; break;
+      case "java.util.Deque": as = k.name.equals("deque") ? ".asDequeT()" : null; break;
       default: as = null;
     }
     if (as == null) return null;

@@ -419,6 +419,15 @@ type Map_EntryT[K any, V any] interface { Map_Entry; getKey_t() K; getValue_t() 
     `EnumMap<K, V>` are `MapT[K, V]`. Nothing is made typed for them (the typed map compares
     keys by `equals` and keeps no lock): the erased map enters through `mapAs_`, one wrapper
     per value, and keeps its own comparison and order.
+  - Kind `deque` (a kind of `LibGen.KINDS`, as `list`): `Queue<X>` is `QueueT[X]` and `Deque<X>`
+    is `DequeT[X]` (`rt_lg_t2.go`: the erased interface, the methods of `CollectionT[X]`, and
+    typed `peek` / `poll` / `remove()`, `pop` / `push`); `PriorityQueue<X>` is `QueueT[X]`
+    (`LibGen.CLASSES_T2`). The typed deque of rule "typed collections" (`TDeque`) is native
+    through its erased view (`asDequeT()` / `asQueueT()`), so `new ArrayDeque<>()` for such a
+    place is typed by it; any other object (an erased `ArrayDeque`, a `LinkedList`, a
+    `PriorityQueue`) enters through `dequeAs_` / `queueAs_`. Of the methods that `Deque`
+    shares with `SequencedCollection` (`getFirst`, `addFirst` ...) none is typed: they are
+    calls of the runtime's helpers on the erased object, as before.
 
 Refused (`typed library interfaces: refused: File.java:line: ...`, nothing is written):
 
@@ -448,7 +457,7 @@ Refused (`typed library interfaces: refused: File.java:line: ...`, nothing is wr
 `tools/j2go/selftest/refused/RefusedLib.java` has one use of each kind (10); the self-test
 fails unless the translator refuses exactly those and writes nothing.
 
-Each kind and piece is a switch: `J2GO_NOLIBGEN=iter,coll,list,set,map,makers,views,place,cov,elems,wide,nncoll,readers,cls,meth,sorted,enumset,cmaps`
+Each kind and piece is a switch: `J2GO_NOLIBGEN=iter,coll,list,set,map,makers,views,place,cov,elems,wide,nncoll,readers,cls,meth,sorted,enumset,cmaps,deque`
 (`all`: every one). A translation with any of them off is built with `-tags j2go_nolibgen`
 (`tools/prune/verify.sh` and the self-test do that when `J2GO_NOLIBGEN` is set): the erased
 factories that only such a translation names are in `go/closure/rt_lg_erased.go`, outside the

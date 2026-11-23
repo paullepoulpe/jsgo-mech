@@ -14,4 +14,5 @@ Colls.addErased
 Colls.fields
 Colls.sets
 Colls.maps
+Colls.deques
 Imm.split

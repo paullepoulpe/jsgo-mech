@@ -22,9 +22,12 @@ import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.PriorityQueue;
+import java.util.Queue;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -1507,7 +1510,71 @@ public class LibGen {
     return r;
   }
 
+  static Deque<String> stackOf(String... xs) {
+    Deque<String> d = new ArrayDeque<>();
+    for (String x : xs) {
+      d.push(x);
+    }
+    return d;
+  }
+
+  static String drain(Queue<Dog> q) {
+    String r = "";
+    while (!q.isEmpty()) {
+      r += q.poll().name;
+    }
+    return r + q.poll();
+  }
+
+  /** Kind `deque`: Queue and Deque as typed interfaces; the typed deque natively, an erased one through a wrapper. */
+  static String deques() {
+    String r = "";
+    Deque<String> d = stackOf("a", "b", "c");
+    r += d.peek() + d.pop() + d.size() + d + d.contains("a");
+    d.push("z");
+    for (String x : d) {
+      r += x;
+    }
+    Queue<String> q = d;
+    r += q.peek() + q.poll() + q.remove() + q.size() + (q == d);
+    Deque<String> empty = new ArrayDeque<>();
+    r += empty.peek() + "" + empty.poll() + empty.isEmpty();
+    try {
+      empty.pop();
+      r += "popped";
+    } catch (NoSuchElementException e) {
+      r += "nse";
+    }
+    Deque<Dog> linked = new LinkedList<>();
+    linked.push(new Dog("l1"));
+    linked.push(new Dog("l2"));
+    r += linked.peek().name + linked.pop().name + linked.size();
+    Queue<Dog> pq = new PriorityQueue<>((x, y) -> x.name.compareTo(y.name));
+    pq.add(new Dog("p3"));
+    pq.add(new Dog("p1"));
+    pq.add(new Dog("p2"));
+    r += pq.peek().name + drain(pq);
+    PriorityQueue<Dog> pq2 = new PriorityQueue<>((x, y) -> y.name.compareTo(x.name));
+    pq2.add(new Dog("q1"));
+    pq2.add(new Dog("q2"));
+    r += drain(pq2);
+    Queue<Dog> fifo = new ArrayDeque<>();
+    fifo.add(new Dog("f1"));
+    fifo.add(new Dog("f2"));
+    r += drain(fifo);
+    Object o = d;
+    r += (o instanceof Deque) + "" + (o == d) + (o instanceof Collection);
+    Map<String, Deque<String>> stacks = new LinkedHashMap<>();
+    stacks.computeIfAbsent("k", k -> new ArrayDeque<>()).push("s1");
+    stacks.get("k").push("s2");
+    r += stacks.get("k").peek() + stacks + stacks.get("k").pop() + stacks.get("k").size();
+    Deque<String> nul = null;
+    r += (nul == null);
+    return r;
+  }
+
   public static String run() {
+    p(deques());
     p(cmaps());
     p(enumSets());
     p(sorted());
