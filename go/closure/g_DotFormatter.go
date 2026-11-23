@@ -80,14 +80,7 @@ func DotFormatter_toDot_GraphvizGraph(graph GraphvizGraph) string {
 		var gNode GraphvizGraph_GraphvizNode = sliceAt_(nodes, i)
 		nodeNames[i] = (sstr_(gNode.getId()) + " [label=\"" + sstr_(gNode.getLabel()) + "\" color=\"" + sstr_(gNode.getColor()) + "\"]")
 	}
-	func() {
-		arr_2 := nodeNames
-		tmp_3 := arrmap_(arr_2, strobj_)
-		Arrays_sort(tmp_3)
-		for i_ := range tmp_3 {
-			arr_2[i_] = str_(tmp_3[i_])
-		}
-	}()
+	sortArrF_(nodeNames, compareStrNat_)
 	for _, nodeName := range nodeNames {
 		builder.append(DotFormatter_INDENT)
 		builder.append(nodeName)
@@ -145,14 +138,7 @@ func (this *DotFormatter) traverseNodes(parent Node) {
 			}
 			edgeList[i] = (sstr_(DotFormatter_formatNodeName(int32(keyParent))) + sstr_(DotFormatter_ARROW) + sstr_(toNode.orElse("null")) + " [label=\"" + tostr_(edge.getValue()) + "\", fontcolor=\"red\", weight=0.01, color=\"red\"];\n")
 		}
-		func() {
-			arr_3 := edgeList
-			tmp_4 := arrmap_(arr_3, strobj_)
-			Arrays_sort(tmp_4)
-			for i_ := range tmp_4 {
-				arr_3[i_] = str_(tmp_4[i_])
-			}
-		}()
+		sortArrF_(edgeList, compareStrNat_)
 		for _, element := range edgeList {
 			Appendable_append_s(this.builder, DotFormatter_INDENT)
 			Appendable_append_s(this.builder, element)
