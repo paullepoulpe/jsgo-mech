@@ -164,10 +164,11 @@ func (this *FeatureSet) equals(other any) bool {
 	_ = featureSet
 	return (func() bool {
 		v_ := other
-		if !is_[*FeatureSet](v_) {
+		p, ok := v_.(*FeatureSet)
+		if !ok {
 			return false
 		}
-		featureSet = cast_[*FeatureSet](v_)
+		featureSet = p
 		return true
 	}() && equalsR_(featureSet.features_.asImm(), this.features_.asSet()))
 }

@@ -79,10 +79,11 @@ func (this *ColorId) equals(x any) bool {
 	_ = that
 	if !(func() bool {
 		v_ := x
-		if !is_[*ColorId](v_) {
+		p, ok := v_.(*ColorId)
+		if !ok {
 			return false
 		}
-		that = cast_[*ColorId](v_)
+		that = p
 		return true
 	}()) {
 		return false

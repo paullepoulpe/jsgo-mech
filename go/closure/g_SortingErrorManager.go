@@ -251,10 +251,11 @@ func (this *SortingErrorManager_ErrorWithLevel) equals(obj any) bool {
 	_ = e
 	if !(func() bool {
 		v_ := obj
-		if !is_[*SortingErrorManager_ErrorWithLevel](v_) {
+		p, ok := v_.(*SortingErrorManager_ErrorWithLevel)
+		if !ok {
 			return false
 		}
-		e = cast_[*SortingErrorManager_ErrorWithLevel](v_)
+		e = p
 		return true
 	}()) {
 		return false

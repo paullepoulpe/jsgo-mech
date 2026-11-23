@@ -556,8 +556,8 @@ func CommandLineRunner_loadConformanceConfig(configFile string) *Outcome_base[*C
 		defer func() {
 			if r_ := recover(); r_ != nil {
 				ex_ := catch_(r_)
-				if is_Exception(ex_) {
-					var e *Exception = to_Exception(ex_)
+				if p, ok := ex_.(Exception_as); ok {
+					var e *Exception = p.as_Exception()
 					panic(new_RuntimeException_Throwable(e.up_Throwable()).self())
 					return
 				}
