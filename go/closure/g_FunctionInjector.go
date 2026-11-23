@@ -727,6 +727,13 @@ func (this *FunctionInjector_Reference) toString() string {
 
 type FunctionInjector_CallSiteType struct {
 	Enum
+	selfI_ FunctionInjector_CallSiteType_I
+}
+
+// FunctionInjector_CallSiteType_I holds the methods the dispatchers of enum FunctionInjector_CallSiteType call on its
+// constant (selfI_, set with self_); every constant of the enum implements them (post-flip).
+type FunctionInjector_CallSiteType_I interface {
+	prepare_impl(*FunctionInjector, *FunctionInjector_Reference)
 }
 
 func (this *FunctionInjector_CallSiteType) as_FunctionInjector_CallSiteType() *FunctionInjector_CallSiteType {
@@ -768,9 +775,7 @@ func (this *FunctionInjector_CallSiteType) init_FunctionInjector_CallSiteType(na
 }
 
 func (this *FunctionInjector_CallSiteType) prepare(p0 *FunctionInjector, p1 *FunctionInjector_Reference) {
-	this.self_.(interface {
-		prepare_impl(*FunctionInjector, *FunctionInjector_Reference)
-	}).prepare_impl(p0, p1)
+	this.selfI_.prepare_impl(p0, p1)
 }
 
 func FunctionInjector_CallSiteType_values() []*FunctionInjector_CallSiteType {
@@ -918,6 +923,7 @@ func (this *FunctionInjector_CallSiteType_1) init_FunctionInjector_CallSiteType_
 func new_FunctionInjector_CallSiteType_1(name_ string, ordinal_ int32) *FunctionInjector_CallSiteType_1 {
 	this := &FunctionInjector_CallSiteType_1{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_FunctionInjector_CallSiteType_1(name_, ordinal_)
 	return this
 }
@@ -978,6 +984,7 @@ func (this *FunctionInjector_CallSiteType_2) init_FunctionInjector_CallSiteType_
 func new_FunctionInjector_CallSiteType_2(name_ string, ordinal_ int32) *FunctionInjector_CallSiteType_2 {
 	this := &FunctionInjector_CallSiteType_2{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_FunctionInjector_CallSiteType_2(name_, ordinal_)
 	return this
 }
@@ -1038,6 +1045,7 @@ func (this *FunctionInjector_CallSiteType_3) init_FunctionInjector_CallSiteType_
 func new_FunctionInjector_CallSiteType_3(name_ string, ordinal_ int32) *FunctionInjector_CallSiteType_3 {
 	this := &FunctionInjector_CallSiteType_3{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_FunctionInjector_CallSiteType_3(name_, ordinal_)
 	return this
 }
@@ -1098,6 +1106,7 @@ func (this *FunctionInjector_CallSiteType_4) init_FunctionInjector_CallSiteType_
 func new_FunctionInjector_CallSiteType_4(name_ string, ordinal_ int32) *FunctionInjector_CallSiteType_4 {
 	this := &FunctionInjector_CallSiteType_4{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_FunctionInjector_CallSiteType_4(name_, ordinal_)
 	return this
 }
@@ -1158,6 +1167,7 @@ func (this *FunctionInjector_CallSiteType_5) init_FunctionInjector_CallSiteType_
 func new_FunctionInjector_CallSiteType_5(name_ string, ordinal_ int32) *FunctionInjector_CallSiteType_5 {
 	this := &FunctionInjector_CallSiteType_5{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_FunctionInjector_CallSiteType_5(name_, ordinal_)
 	return this
 }
@@ -1222,6 +1232,7 @@ func (this *FunctionInjector_CallSiteType_6) init_FunctionInjector_CallSiteType_
 func new_FunctionInjector_CallSiteType_6(name_ string, ordinal_ int32) *FunctionInjector_CallSiteType_6 {
 	this := &FunctionInjector_CallSiteType_6{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_FunctionInjector_CallSiteType_6(name_, ordinal_)
 	return this
 }
@@ -1267,9 +1278,7 @@ func (this *FunctionInjector_CallSiteType_1) prepare(p0 *FunctionInjector, p1 *F
 		this.prepare_impl(p0, p1)
 		return
 	}
-	this.self_.(interface {
-		prepare_impl(*FunctionInjector, *FunctionInjector_Reference)
-	}).prepare_impl(p0, p1)
+	this.selfI_.prepare_impl(p0, p1)
 }
 
 // prepare: an object that is exactly a FunctionInjector_CallSiteType_2 calls its prepare_impl directly (post-flip); others dispatch.
@@ -1278,9 +1287,7 @@ func (this *FunctionInjector_CallSiteType_2) prepare(p0 *FunctionInjector, p1 *F
 		this.prepare_impl(p0, p1)
 		return
 	}
-	this.self_.(interface {
-		prepare_impl(*FunctionInjector, *FunctionInjector_Reference)
-	}).prepare_impl(p0, p1)
+	this.selfI_.prepare_impl(p0, p1)
 }
 
 // prepare: an object that is exactly a FunctionInjector_CallSiteType_3 calls its prepare_impl directly (post-flip); others dispatch.
@@ -1289,9 +1296,7 @@ func (this *FunctionInjector_CallSiteType_3) prepare(p0 *FunctionInjector, p1 *F
 		this.prepare_impl(p0, p1)
 		return
 	}
-	this.self_.(interface {
-		prepare_impl(*FunctionInjector, *FunctionInjector_Reference)
-	}).prepare_impl(p0, p1)
+	this.selfI_.prepare_impl(p0, p1)
 }
 
 // prepare: an object that is exactly a FunctionInjector_CallSiteType_4 calls its prepare_impl directly (post-flip); others dispatch.
@@ -1300,9 +1305,7 @@ func (this *FunctionInjector_CallSiteType_4) prepare(p0 *FunctionInjector, p1 *F
 		this.prepare_impl(p0, p1)
 		return
 	}
-	this.self_.(interface {
-		prepare_impl(*FunctionInjector, *FunctionInjector_Reference)
-	}).prepare_impl(p0, p1)
+	this.selfI_.prepare_impl(p0, p1)
 }
 
 // prepare: an object that is exactly a FunctionInjector_CallSiteType_5 calls its prepare_impl directly (post-flip); others dispatch.
@@ -1311,9 +1314,7 @@ func (this *FunctionInjector_CallSiteType_5) prepare(p0 *FunctionInjector, p1 *F
 		this.prepare_impl(p0, p1)
 		return
 	}
-	this.self_.(interface {
-		prepare_impl(*FunctionInjector, *FunctionInjector_Reference)
-	}).prepare_impl(p0, p1)
+	this.selfI_.prepare_impl(p0, p1)
 }
 
 // prepare: an object that is exactly a FunctionInjector_CallSiteType_6 calls its prepare_impl directly (post-flip); others dispatch.
@@ -1322,7 +1323,5 @@ func (this *FunctionInjector_CallSiteType_6) prepare(p0 *FunctionInjector, p1 *F
 		this.prepare_impl(p0, p1)
 		return
 	}
-	this.self_.(interface {
-		prepare_impl(*FunctionInjector, *FunctionInjector_Reference)
-	}).prepare_impl(p0, p1)
+	this.selfI_.prepare_impl(p0, p1)
 }
