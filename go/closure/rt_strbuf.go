@@ -315,3 +315,41 @@ func (this *Joiner) appendToStr_(sb *strBuilder_, parts Iterable) *strBuilder_ {
 	}
 	return sb
 }
+
+// strAppendable_ is a *strBuilder_ where Java passes the StringBuilder as an Appendable
+// (post-flip step sbuild): its Appendable methods append to the builder and return the same
+// Appendable, as StringBuilder's return the builder; it reads as a CharSequence as the
+// builder does.
+type strAppendable_ struct{ b *strBuilder_ }
+
+// appendable_ is builder b as an Appendable (nil for a nil builder, as Java's null).
+func appendable_(b *strBuilder_) Appendable {
+	if b == nil {
+		return nil
+	}
+	return strAppendable_{b}
+}
+
+func (a strAppendable_) append_CharSequence(v any) Appendable {
+	a.b.append_CharSequence(v)
+	return a
+}
+
+func (a strAppendable_) append_CharSequence_s(v string) Appendable {
+	a.b.append_CharSequence_s(v)
+	return a
+}
+
+func (a strAppendable_) append_CharSequence_int_int(v any, s int32, e int32) Appendable {
+	a.b.append_CharSequence_int_int(v, s, e)
+	return a
+}
+
+func (a strAppendable_) append_char(c uint16) Appendable {
+	a.b.append_char(c)
+	return a
+}
+
+func (a strAppendable_) toString() string      { return a.b.toString() }
+func (a strAppendable_) length() int32         { return a.b.length() }
+func (a strAppendable_) charAt(i int32) uint16 { return a.b.charAt(i) }
