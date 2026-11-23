@@ -58,7 +58,7 @@ func (this *JSDocInfo) toBuilder() *JSDocInfo_Builder {
 	return this.toBuilder_1(nil)
 }
 
-func (this *JSDocInfo) toBuilder_1(transform JSDocInfo_TypeTransform) *JSDocInfo_Builder {
+func (this *JSDocInfo) toBuilder_1(transform func(*JSTypeExpression) *JSTypeExpression) *JSDocInfo_Builder {
 	var builder *JSDocInfo_Builder = new_JSDocInfo_Builder()
 	builder.bits = (this.propertyBits & (^JSDocInfo_Bit_mask_[JSDocInfo_Bit_INLINE_TYPE-1]))
 	builder.props = this.asMap()
@@ -76,15 +76,15 @@ func (this *JSDocInfo) clone_rJSDocInfo() *JSDocInfo {
 }
 
 func (this *JSDocInfo) cloneAndReplaceTypeNames(names *JTSet[string]) *JSDocInfo {
-	return this.toBuilder_1(&JSDocInfo_TypeTransform_fn{func(type_ *JSTypeExpression) *JSTypeExpression {
+	return this.toBuilder_1(func(type_ *JSTypeExpression) *JSTypeExpression {
 		return type_.replaceNamesWithUnknownType(names)
-	}}).build()
+	}).build()
 }
 
 func (this *JSDocInfo) clone_1(cloneTypeNodes bool) *JSDocInfo {
 	return func() *JSDocInfo {
 		if cloneTypeNodes {
-			return this.toBuilder_1(&JSDocInfo_TypeTransform_fn{func(p0 *JSTypeExpression) *JSTypeExpression { return p0.copy() }}).build()
+			return this.toBuilder_1(func(p0 *JSTypeExpression) *JSTypeExpression { return p0.copy() }).build()
 		}
 		return this.toBuilder().build()
 	}()
@@ -923,7 +923,7 @@ type JSDocInfo_Property struct {
 // JSDocInfo_Property_I holds the methods the dispatchers of JSDocInfo_Property's hierarchy call on the most derived
 // object (self_); every class of the hierarchy implements them (post-flip).
 type JSDocInfo_Property_I interface {
-	clone_impl(any, JSDocInfo_TypeTransform) any
+	clone_impl(any, func(*JSTypeExpression) *JSTypeExpression) any
 	equalValues_impl(any, any) bool
 	getTypeExpressions_Object_impl(any) IterableT[*JSTypeExpression]
 }
@@ -979,7 +979,7 @@ func (this *JSDocInfo_Property) get(info *JSDocInfo) any {
 	return info.getPropertyValueByIndex(Long_bitCount((info.propertyKeysBitset & (this.mask - 1))))
 }
 
-func (this *JSDocInfo_Property) clone_impl(arg any, unusedTransform JSDocInfo_TypeTransform) any {
+func (this *JSDocInfo_Property) clone_impl(arg any, unusedTransform func(*JSTypeExpression) *JSTypeExpression) any {
 	return arg
 }
 
@@ -1005,7 +1005,7 @@ func (this *JSDocInfo_Property) equalValues(p0 any, p1 any) bool {
 	return this.self_.equalValues_impl(p0, p1)
 }
 
-func (this *JSDocInfo_Property) clone(p0 any, p1 JSDocInfo_TypeTransform) any {
+func (this *JSDocInfo_Property) clone(p0 any, p1 func(*JSTypeExpression) *JSTypeExpression) any {
 	return this.self_.clone_impl(p0, p1)
 }
 
@@ -1100,12 +1100,12 @@ func new_JSDocInfo_TypeProperty(name string) *JSDocInfo_TypeProperty {
 	return this
 }
 
-func (this *JSDocInfo_TypeProperty) clone_impl(arg_ any, transform JSDocInfo_TypeTransform) any {
+func (this *JSDocInfo_TypeProperty) clone_impl(arg_ any, transform func(*JSTypeExpression) *JSTypeExpression) any {
 	var arg *JSTypeExpression = cast_[*JSTypeExpression](arg_)
 	_ = arg
 	return func() any {
 		if (arg != nil) && (transform != nil) {
-			return obj_(transform.apply(arg))
+			return obj_(transform(arg))
 		}
 		return obj_(arg)
 	}()
@@ -1164,7 +1164,7 @@ func (this *JSDocInfo_TypeListProperty) getUnmodifiable(info *JSDocInfo) ListT[*
 	}()
 }
 
-func (this *JSDocInfo_TypeListProperty) clone_impl(arg_ any, transform JSDocInfo_TypeTransform) any {
+func (this *JSDocInfo_TypeListProperty) clone_impl(arg_ any, transform func(*JSTypeExpression) *JSTypeExpression) any {
 	var arg ListT[*JSTypeExpression] = listAs_(jtc_p_JSTypeExpression, icast_List(arg_))
 	_ = arg
 	var out ListT[*JSTypeExpression] = jtlistFrom_(jtc_p_JSTypeExpression, Collection(List_un_(arg))).asListT()
@@ -1172,7 +1172,7 @@ func (this *JSDocInfo_TypeListProperty) clone_impl(arg_ any, transform JSDocInfo
 		for i := int32(0); i < out.size(); i++ {
 			var elem *JSTypeExpression = out.get_t(i)
 			if elem != nil {
-				out.set_t(i, transform.apply(elem))
+				out.set_t(i, transform(elem))
 			}
 		}
 	}
@@ -1232,7 +1232,7 @@ func new_JSDocInfo_TypeMapProperty(name string) *JSDocInfo_TypeMapProperty {
 	return this
 }
 
-func (this *JSDocInfo_TypeMapProperty) clone_impl(arg_ any, transform JSDocInfo_TypeTransform) any {
+func (this *JSDocInfo_TypeMapProperty) clone_impl(arg_ any, transform func(*JSTypeExpression) *JSTypeExpression) any {
 	var arg MapT[string, *JSTypeExpression] = mapAs_(jtc_string, jtc_p_JSTypeExpression, icast_Map(arg_))
 	_ = arg
 	var out MapT[string, *JSTypeExpression] = jtmapFrom_(jtc_string, jtc_p_JSTypeExpression, Map_un_(arg)).asMapT()
@@ -1242,7 +1242,7 @@ func (this *JSDocInfo_TypeMapProperty) clone_impl(arg_ any, transform JSDocInfo_
 			var entry Map_EntryT[string, *JSTypeExpression] = it_1.v
 			var elem *JSTypeExpression = entry.getValue_t()
 			if elem != nil {
-				entry.setValue_t(transform.apply(elem))
+				entry.setValue_t(transform(elem))
 			}
 		}
 	}
@@ -1308,7 +1308,7 @@ func new_JSDocInfo_NodeMapProperty(name string) *JSDocInfo_NodeMapProperty {
 	return this
 }
 
-func (this *JSDocInfo_NodeMapProperty) clone_impl(arg_ any, transform JSDocInfo_TypeTransform) any {
+func (this *JSDocInfo_NodeMapProperty) clone_impl(arg_ any, transform func(*JSTypeExpression) *JSTypeExpression) any {
 	var arg MapT[string, Node] = mapAs_(jtc_string, jtc_Node, icast_Map(arg_))
 	_ = arg
 	return lgBox_(jtmapFrom_(jtc_string, jtc_Node, Map_un_(arg)).asMapT())
@@ -2963,7 +2963,7 @@ func (this *JSDocInfo_MarkerListProperty) equalValues(p0 any, p1 any) bool {
 }
 
 // clone: an object that is exactly a JSDocInfo_TypeProperty calls its clone_impl directly (post-flip); others dispatch.
-func (this *JSDocInfo_TypeProperty) clone(p0 any, p1 JSDocInfo_TypeTransform) any {
+func (this *JSDocInfo_TypeProperty) clone(p0 any, p1 func(*JSTypeExpression) *JSTypeExpression) any {
 	if this.self_ == any(this) {
 		return this.clone_impl(p0, p1)
 	}
@@ -2987,7 +2987,7 @@ func (this *JSDocInfo_TypeProperty) getTypeExpressions_Object(p0 any) IterableT[
 }
 
 // clone: an object that is exactly a JSDocInfo_TypeListProperty calls its clone_impl directly (post-flip); others dispatch.
-func (this *JSDocInfo_TypeListProperty) clone(p0 any, p1 JSDocInfo_TypeTransform) any {
+func (this *JSDocInfo_TypeListProperty) clone(p0 any, p1 func(*JSTypeExpression) *JSTypeExpression) any {
 	if this.self_ == any(this) {
 		return this.clone_impl(p0, p1)
 	}
@@ -3011,7 +3011,7 @@ func (this *JSDocInfo_TypeListProperty) getTypeExpressions_Object(p0 any) Iterab
 }
 
 // clone: an object that is exactly a JSDocInfo_TypeMapProperty calls its clone_impl directly (post-flip); others dispatch.
-func (this *JSDocInfo_TypeMapProperty) clone(p0 any, p1 JSDocInfo_TypeTransform) any {
+func (this *JSDocInfo_TypeMapProperty) clone(p0 any, p1 func(*JSTypeExpression) *JSTypeExpression) any {
 	if this.self_ == any(this) {
 		return this.clone_impl(p0, p1)
 	}
@@ -3035,7 +3035,7 @@ func (this *JSDocInfo_TypeMapProperty) getTypeExpressions_Object(p0 any) Iterabl
 }
 
 // clone: an object that is exactly a JSDocInfo_NodeMapProperty calls its clone_impl directly (post-flip); others dispatch.
-func (this *JSDocInfo_NodeMapProperty) clone(p0 any, p1 JSDocInfo_TypeTransform) any {
+func (this *JSDocInfo_NodeMapProperty) clone(p0 any, p1 func(*JSTypeExpression) *JSTypeExpression) any {
 	if this.self_ == any(this) {
 		return this.clone_impl(p0, p1)
 	}
