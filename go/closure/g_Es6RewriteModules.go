@@ -291,7 +291,7 @@ func (this *Es6RewriteModules) addGetterExport(script Node, forSourceInfo Node, 
 }
 
 func (this *Es6RewriteModules) rewriteRequires(script Node) {
-	NodeTraversal_builder().setCompiler(this.compiler_).setCallbackAbstractPostOrderCallbackInterface(&NodeTraversal_AbstractPostOrderCallbackInterface_fn{func(t *NodeTraversal, n Node, parent Node) {
+	NodeTraversal_builder().setCompiler(this.compiler_).setCallbackAbstractPostOrderCallbackInterface(func(t *NodeTraversal, n Node, parent Node) {
 		if n.isCall() {
 			var fn Node = n.getFirstChild()
 			if Es6RewriteModules_GOOG_REQUIRE.matches(fn) || Es6RewriteModules_GOOG_REQUIRETYPE.matches(fn) {
@@ -300,8 +300,8 @@ func (this *Es6RewriteModules) rewriteRequires(script Node) {
 				this.visitGoogModuleGet(t, n, parent)
 			}
 		}
-	}}).traverse(script)
-	NodeTraversal_builder().setCompiler(this.compiler_).setCallbackAbstractPostOrderCallbackInterface(&NodeTraversal_AbstractPostOrderCallbackInterface_fn{func(t *NodeTraversal, n Node, parent Node) {
+	}).traverse(script)
+	NodeTraversal_builder().setCompiler(this.compiler_).setCallbackAbstractPostOrderCallbackInterface(func(t *NodeTraversal, n Node, parent Node) {
 		var info *JSDocInfo = n.getJSDocInfo()
 		if info != nil {
 			it_1 := jeachOf_(info.getTypeNodes())
@@ -318,7 +318,7 @@ func (this *Es6RewriteModules) rewriteRequires(script Node) {
 				n.replaceWith(replacement)
 			}
 		}
-	}}).traverse(script)
+	}).traverse(script)
 }
 
 func (this *Es6RewriteModules) inlineAliasedTypes(t *NodeTraversal, typeNode Node) {

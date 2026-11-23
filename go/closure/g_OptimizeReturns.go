@@ -147,7 +147,7 @@ func OptimizeReturns_isCandidateFunction(n Node) bool {
 func (this *OptimizeReturns) rewriteReturns(fnNode Node) {
 	Preconditions_checkState(fnNode.isFunction())
 	var body Node = fnNode.getLastChild()
-	NodeUtil_visitPostOrder_Node_Visitor_Predicate(body, NodeUtil_Visitor(new_OptimizeReturns_1(this, body)), func() Predicate_base[Node] {
+	NodeUtil_visitPostOrder_Node_Visitor_Predicate(body, new_OptimizeReturns_1(this, body).visit, func() Predicate_base[Node] {
 		v_ := new_NodeUtil_MatchShallowStatement()
 		if v_ == nil {
 			return nil

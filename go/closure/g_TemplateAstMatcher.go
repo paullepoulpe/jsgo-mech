@@ -111,7 +111,7 @@ func (this *TemplateAstMatcher) prepTemplatePlaceholders(fn Node) {
 			paramTypes.put(name, type_)
 		}
 	}
-	this.traverse(fn, TemplateAstMatcher_Visitor(new_TemplateAstMatcher_1(this, locals, params, paramTypes)))
+	this.traverse(fn, new_TemplateAstMatcher_1(this, locals, params, paramTypes).visit)
 }
 
 func (this *TemplateAstMatcher) replaceNodeInPlace(n Node, replacement Node) {
@@ -122,7 +122,7 @@ func (this *TemplateAstMatcher) replaceNodeInPlace(n Node, replacement Node) {
 	n.replaceWith(replacement)
 }
 
-func (this *TemplateAstMatcher) traverse(n Node, callback TemplateAstMatcher_Visitor) {
+func (this *TemplateAstMatcher) traverse(n Node, callback func(Node)) {
 	var next Node = 0
 	{
 		var c Node = n.getFirstChild()
@@ -131,7 +131,7 @@ func (this *TemplateAstMatcher) traverse(n Node, callback TemplateAstMatcher_Vis
 			this.traverse(c, callback)
 		}
 	}
-	callback.visit(n)
+	callback(n)
 }
 
 func (this *TemplateAstMatcher) reset() {

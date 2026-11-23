@@ -63,7 +63,7 @@ func (this *SerializeTypesToPointers) logSerializationDebugInfo(serializer *JSTy
 		defer closeResource_(log.self())
 		if log.isLogging() {
 			var allSerializedTypes MapT[string, ListT[*JSType]] = serializer.getColorIdToJSTypeMapForDebugging().asMap()
-			log.logJson(LogFile_StreamedJsonProducer(new_SerializeTypesToPointers_StreamObjectUuidsJson(allSerializedTypes)))
+			log.logJson(new_SerializeTypesToPointers_StreamObjectUuidsJson(allSerializedTypes).writeJson)
 		}
 		return 0
 	}()
