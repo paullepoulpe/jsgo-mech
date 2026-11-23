@@ -46,6 +46,10 @@ func Main(args []string) (code int) {
 			stop()
 		}
 	}
+	// The runtime samples allocations for a heap profile unless told not to (by default one
+	// in every 512 kB allocated, each with a walk of the stack, which is deep in a tree
+	// traversal); nothing reads that profile unless JSGO_MEM_PROFILE asks for one.
+	runtime.MemProfileRate = 0
 	if f := os.Getenv("JSGO_MEM_PROFILE"); f != "" {
 		runtime.MemProfileRate = 4096
 		stop := flushStd_
