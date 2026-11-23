@@ -2,6 +2,8 @@
 
 package closure
 
+import "strconv"
+
 type TypeCheck struct {
 	compiler_                    *AbstractCompiler
 	validator                    *TypeValidator
@@ -948,7 +950,7 @@ func (this *TypeCheck) visitInterfacePropertyAssignment(object Node, lvalue Node
 func (this *TypeCheck) reportInvalidInterfaceMemberDeclaration(interfaceNode Node) {
 	var abstractMethodName string = this.compiler_.getCodingConvention().getAbstractMethodName()
 	var abstractMethodMessage string = func() string {
-		if !String_isEmpty(abstractMethodName) {
+		if abstractMethodName != "" {
 			return (", or " + sstr_(abstractMethodName))
 		}
 		return ""
@@ -958,7 +960,7 @@ func (this *TypeCheck) reportInvalidInterfaceMemberDeclaration(interfaceNode Nod
 
 func (this *TypeCheck) visitName(t *NodeTraversal, n Node, parent Node) bool {
 	var isFunctionName bool = (n.getParent().isFunction() && n.isFirstChildOf(parent))
-	if isFunctionName && String_isEmpty(n.getString()) {
+	if isFunctionName && n.getString() == "" {
 		return false
 	}
 	var reportIfMissingType bool = true
@@ -1527,7 +1529,7 @@ func (this *TypeCheck) checkArgumentsMatchParameters(call Node, functionType *Fu
 	var maxArity int32 = functionType.getMaxArity()
 	if spreadArgumentCount > 0 {
 		if normalArgumentCount > maxArity {
-			this.report(call, TypeCheck_WRONG_ARGUMENT_COUNT, []string{this.typeRegistry.getReadableTypeNameNoDeref(call.getFirstChild()).orElse("null"), ("at least " + istr_(int64(normalArgumentCount))), String_valueOf(minArity), func() string {
+			this.report(call, TypeCheck_WRONG_ARGUMENT_COUNT, []string{this.typeRegistry.getReadableTypeNameNoDeref(call.getFirstChild()).orElse("null"), ("at least " + istr_(int64(normalArgumentCount))), strconv.Itoa(int(minArity)), func() string {
 				if maxArity == int32(2147483647) {
 					return ""
 				}
@@ -1536,7 +1538,7 @@ func (this *TypeCheck) checkArgumentsMatchParameters(call Node, functionType *Fu
 		}
 	} else {
 		if (minArity > normalArgumentCount) || (maxArity < normalArgumentCount) {
-			this.report(call, TypeCheck_WRONG_ARGUMENT_COUNT, []string{this.typeRegistry.getReadableTypeNameNoDeref(call.getFirstChild()).orElse("null"), String_valueOf(normalArgumentCount), String_valueOf(minArity), func() string {
+			this.report(call, TypeCheck_WRONG_ARGUMENT_COUNT, []string{this.typeRegistry.getReadableTypeNameNoDeref(call.getFirstChild()).orElse("null"), strconv.Itoa(int(normalArgumentCount)), strconv.Itoa(int(minArity)), func() string {
 				if maxArity == int32(2147483647) {
 					return ""
 				}
@@ -1644,7 +1646,7 @@ func (this *TypeCheck) visitTaggedTemplateLit(n Node) {
 	var tagFnType *FunctionType = tagType.toMaybeFunctionType()
 	var parameters IteratorT[*FunctionType_Parameter] = tagFnType.getParameters().iterator_t()
 	if !parameters.hasNext() {
-		this.report(n, TypeCheck_WRONG_ARGUMENT_COUNT, []string{this.typeRegistry.getReadableTypeNameNoDeref(tag).orElse("null"), String_valueOf(NodeUtil_getInvocationArgsCount(n)), "0", " and no more than 0 argument(s)"})
+		this.report(n, TypeCheck_WRONG_ARGUMENT_COUNT, []string{this.typeRegistry.getReadableTypeNameNoDeref(tag).orElse("null"), strconv.Itoa(int(NodeUtil_getInvocationArgsCount(n))), "0", " and no more than 0 argument(s)"})
 		return
 	}
 	var firstParameter *FunctionType_Parameter = parameters.next_t()

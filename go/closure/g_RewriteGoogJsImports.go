@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type RewriteGoogJsImports struct {
 	mode_              RewriteGoogJsImports_Mode
 	moduleMap          *ModuleMap
@@ -55,13 +57,13 @@ func (this *RewriteGoogJsImports) findGoogImportNode(scriptRoot Node) Node {
 	{
 		var child Node = scriptRoot.getFirstFirstChild()
 		for ; child != 0; child = child.getNext() {
-			if child.isImport() && String_endsWith(child.getLastChild().getString(), "/goog.js") {
+			if child.isImport() && strings.HasSuffix(child.getLastChild().getString(), "/goog.js") {
 				if (child.getFirstChild().isEmpty() && child.getSecondChild().isImportStar()) && (child.getSecondChild().getString() == "goog") {
 					googImportNode = child
 				} else {
 					valid = false
 					this.compiler_.report(JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_of[string](scriptRoot.getSourceFileName()).filter(Predicate[string](func(s string) bool {
-						return !String_isEmpty(s)
+						return s != ""
 					})), child.getLineno(), child.getCharno(), RewriteGoogJsImports_GOOG_JS_IMPORT_MUST_BE_GOOG_STAR, []string{}))
 				}
 			}
@@ -76,7 +78,7 @@ func (this *RewriteGoogJsImports) findGoogImportNode(scriptRoot Node) Node {
 	var googVar *Var = moduleScope.getVar_String_rVar("goog")
 	if (googVar != nil) && (googVar.getNameNode() != 0) {
 		this.compiler_.report(JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_of[string](scriptRoot.getSourceFileName()).filter(Predicate[string](func(s string) bool {
-			return !String_isEmpty(s)
+			return s != ""
 		})), googVar.getNameNode().getLineno(), googVar.getNameNode().getCharno(), RewriteGoogJsImports_CANNOT_HAVE_MODULE_VAR_NAMED_GOOG, []string{}))
 	}
 	return 0
@@ -116,9 +118,9 @@ func (this *RewriteGoogJsImports) findGoogJsScriptNode(root Node) Node {
 			for ; script != 0; script = script.getNext() {
 				if this.compiler_.getInput(script.getInputId()).getPath().equalsIgnoreLeadingSlash(expectedGoogPath) {
 					googScriptNode = script
-				} else if String_endsWith(script.getSourceFileName(), "/goog.js") {
+				} else if strings.HasSuffix(script.getSourceFileName(), "/goog.js") {
 					this.compiler_.report(JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_of[string](script.getSourceFileName()).filter(Predicate[string](func(s string) bool {
-						return !String_isEmpty(s)
+						return s != ""
 					})), -1, -1, RewriteGoogJsImports_CANNOT_NAME_FILE_GOOG, []string{}))
 				}
 			}
@@ -362,7 +364,7 @@ func new_RewriteGoogJsImports_FindReexports(hasGoogImport bool) *RewriteGoogJsIm
 }
 
 func (this *RewriteGoogJsImports_FindReexports) checkIfForwardingExport(t *NodeTraversal, export Node) {
-	if export.hasTwoChildren() && String_endsWith(export.getLastChild().getString(), "/goog.js") {
+	if export.hasTwoChildren() && strings.HasSuffix(export.getLastChild().getString(), "/goog.js") {
 		t.report(export, RewriteGoogJsImports_GOOG_JS_REEXPORTED, []string{})
 	}
 }

@@ -334,7 +334,7 @@ func (this *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E]) getId() strin
 }
 
 func (this *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E]) getLabel() string {
-	return String_valueOf_Object(boxT_(this.value_))
+	return objstr_(boxT_(this.value_))
 }
 
 func (this *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E]) neighborList() ListT[GraphNode[N, E]] {
@@ -481,7 +481,7 @@ func (this *LinkedUndirectedGraph_LinkedUndirectedGraphEdge[N, E]) getColor() st
 }
 
 func (this *LinkedUndirectedGraph_LinkedUndirectedGraphEdge[N, E]) getLabel() string {
-	return String_valueOf_Object(boxT_(this.value_))
+	return objstr_(boxT_(this.value_))
 }
 
 func (this *LinkedUndirectedGraph_LinkedUndirectedGraphEdge[N, E]) getNode1Id() string {

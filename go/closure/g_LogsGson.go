@@ -59,7 +59,7 @@ func LogsGson_write(out *SimpleJsonWriter, value any) {
 				it_1 := foreach_(map_.entrySet())
 				for it_1.next() {
 					var entry Map_Entry = icast_Map_Entry(it_1.v)
-					out.name(String_valueOf_Object(entry.getKey()))
+					out.name(objstr_(entry.getKey()))
 					LogsGson_write(out, entry.getValue())
 				}
 				out.endObject()

@@ -59,7 +59,7 @@ func Config_buildAnnotations(allowlist IterableT[string]) *JTMap[string, Annotat
 	it_1 := jeachOf_(allowlist)
 	for it_1.next() {
 		var unrecognizedAnnotation string = it_1.v
-		if !String_isEmpty(unrecognizedAnnotation) && !Annotation_parsing_recognizedAnnotations.containsKey(unrecognizedAnnotation) {
+		if unrecognizedAnnotation != "" && !Annotation_parsing_recognizedAnnotations.containsKey(unrecognizedAnnotation) {
 			annotationsBuilder.put(unrecognizedAnnotation, Annotation_parsing_NOT_IMPLEMENTED)
 		}
 	}

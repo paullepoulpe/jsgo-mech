@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type SortedDependencies[InputT interface {
 	DependencyInfo_
 	comparable
@@ -154,7 +156,7 @@ func (this *SortedDependencies[InputT]) processInputs() {
 		var userOrderedInput InputT = it_1.v
 		var provides *JTList[string] = tlistOfT_(jtc_string, userOrderedInput.getProvides())
 		var firstProvide Optional[string] = Optional_ofNullable[string](Iterables_getFirstT_[string](provides.asIterable(), nullstr_))
-		if firstProvide.isEmpty() || (((provides.size() == 1) && String_startsWith(firstProvide.get(), "module$")) && !userOrderedInput.isEs6Module()) {
+		if firstProvide.isEmpty() || (((provides.size() == 1) && strings.HasPrefix(firstProvide.get(), "module$")) && !userOrderedInput.isEs6Module()) {
 			this.nonExportingInputs.put(ModuleNames_fileToModuleName(userOrderedInput.getName()), userOrderedInput)
 		}
 		it_3 := jeachOf_(userOrderedInput.getProvides())

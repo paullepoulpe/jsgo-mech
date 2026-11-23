@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type TypedScope struct {
 	AbstractScope
 	parent        *TypedScope
@@ -132,7 +134,7 @@ func (this *TypedScope) getTypeOfThis() *JSType {
 }
 
 func (this *TypedScope) declare(name string, nameNode Node, type_ *JSType, input *CompilerInput, inferred bool) *TypedVar {
-	if String_isEmpty(name) {
+	if name == "" {
 		panic(new_IllegalStateException_0().self())
 	}
 	if !this.reservedNames.isEmpty() {
@@ -204,12 +206,12 @@ func (this *TypedScope) getVar_String_rTypedVar(name string) *TypedVar {
 	} else if this.getParent_rTypedScope() == nil {
 		return nil
 	}
-	var dot int32 = String_indexOf(name, 46)
+	var dot int32 = int32(strings.IndexByte(name, '.'))
 	var rootName string = func() string {
 		if dot < 0 {
 			return name
 		}
-		return String_substring(name, 0, dot)
+		return name[:dot]
 	}()
 	var rootVar *TypedVar = this.getVarSuper(rootName)
 	if dot < 0 {
@@ -223,10 +225,10 @@ func (this *TypedScope) getVar_String_rTypedVar(name string) *TypedVar {
 }
 
 func (this *TypedScope) getTypeThroughNamespace(moduleId string) *JSType {
-	var split int32 = String_lastIndexOf(moduleId, 46)
+	var split int32 = int32(strings.LastIndexByte(moduleId, '.'))
 	if split >= 0 {
-		var parentName string = String_substring(moduleId, 0, split)
-		var prop string = String_substring_int(moduleId, (split + 1))
+		var parentName string = moduleId[:split]
+		var prop string = moduleId[split+1:]
 		var parentType *JSType = this.getTypeThroughNamespace(parentName)
 		if (parentType == nil) || (parentType.toMaybeObjectType() == nil) {
 			return nil

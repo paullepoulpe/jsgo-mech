@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type IdentifierToken struct {
 	Token_parser
 	value_            string
@@ -22,7 +24,7 @@ func (this *IdentifierToken) zero_IdentifierToken() {
 func (this *IdentifierToken) init_IdentifierToken(location *SourceRange, value string) {
 	this.Token_parser.init_Token_parser(TokenType_IDENTIFIER, location)
 	this.value_ = value
-	this.privateIdentifier = String_startsWith(value, "#")
+	this.privateIdentifier = strings.HasPrefix(value, "#")
 }
 
 func new_IdentifierToken(location *SourceRange, value string) *IdentifierToken {

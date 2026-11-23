@@ -248,7 +248,7 @@ func (this *ConvertChunksToESModules) visitName(t *NodeTraversal, nameNode Node,
 		panic(new_IllegalStateException_0().self())
 	}
 	var name string = nameNode.getString()
-	if String_isEmpty(name) {
+	if name == "" {
 		return false
 	}
 	var s *Scope = t.getScope()
