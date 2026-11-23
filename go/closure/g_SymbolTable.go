@@ -1753,7 +1753,7 @@ func (this *SymbolTable_JSDocInfoCollector) visitTypeNode(templateTypeNames *JTM
 				return n.getString()
 			}()
 			if JString_contains_s(typeString, ".") {
-				var lastPart string = String_substring_int(typeString, (String_lastIndexOf(typeString, 46) + 1))
+				var lastPart string = typeString[strings.LastIndexByte(typeString, '.')+1:]
 				var copy_ Node = n.cloneNode()
 				copy_.setLinenoCharno(copy_.getLineno(), ((copy_.getCharno() + copy_.getLength()) - String_length(lastPart)))
 				copy_.setLength(String_length(lastPart))

@@ -931,7 +931,7 @@ func (this *GlobalNamespace_BuildGlobalNamespace) maybeHandlePrototypePrefix(chu
 	var prefix string
 	if strings.HasSuffix(name, ".prototype") {
 		numLevelsToRemove = 1
-		prefix = String_substring(name, 0, (String_length(name) - 10))
+		prefix = name[:len(name)-10]
 	} else {
 		var i int32 = String_indexOf_String(name, ".prototype.")
 		if i == -1 {

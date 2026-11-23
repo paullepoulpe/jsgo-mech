@@ -51,7 +51,7 @@ func (this *ModuleIdentifier) toString() string {
 func ModuleIdentifier_forClosure(name string) *ModuleIdentifier {
 	var normalizedName string = name
 	if strings.HasPrefix(normalizedName, "goog:") {
-		normalizedName = String_substring_int(normalizedName, int32(len("goog:")))
+		normalizedName = normalizedName[len("goog:"):]
 	}
 	var namespace string = normalizedName
 	var moduleName string = normalizedName
