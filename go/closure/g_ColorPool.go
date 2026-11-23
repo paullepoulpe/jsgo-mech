@@ -266,47 +266,38 @@ func (this *ColorPool_Builder) reconcilationDebugStackProtos() *JTList[MapT[*Col
 	return result.build()
 }
 
-func (this *ColorPool_Builder) lookupOrReconcileColor(id *ColorId) *Color {
+func (this *ColorPool_Builder) lookupOrReconcileColor(id *ColorId) (ret_1 *Color) {
 	this.reconcilationDebugStack.add(id)
-	var ret_1 *Color
-	code_1 := func() (code_ int) {
-		defer func() {
-			SequencedCollection_removeLast(SequencedCollection(Deque_un_(this.reconcilationDebugStack.asDequeT())))
-		}()
-		var existing *Color = this.idToColor.putIfAbsent(id, ColorPool_PENDING_COLOR)
-		if existing != nil {
-			if existing == ColorPool_PENDING_COLOR {
-				panic(new_MalformedTypedAstException_Object(strobj_(("Cyclic Color structure detected: " + objstr_(this.reconcilationDebugStackProtos().asList())))))
-			}
-			ret_1 = existing
-			return 1
-		}
-		var viewToProto MapT[*ColorPool_ShardView, *TypeProto] = this.idToProto.row(id)
-		var sample *TypeProto = Iterables_getFirstT_[*TypeProto](viewToProto.values_t(), nil)
-		if sample == nil {
-			panic(new_NullPointerException_String(objstr_(canon_(id))))
-		}
-		var result *Color = func() *Color {
-			switch sample.getKindCase() {
-			case TypeProto_KindCase_OBJECT:
-				return this.reconcileObjectProtos(id, viewToProto)
-			case TypeProto_KindCase_UNION:
-				return this.reconcileUnionProtos(id, viewToProto)
-			default:
-				panic(new_AssertionError_Object(obj_(sample)))
-			}
-		}()
-		if result == nil {
-			panic(new_IllegalStateException_String(objstr_(id)))
-		}
-		this.idToColor.put(id, result)
-		ret_1 = result
-		return 1
+	defer func() {
+		SequencedCollection_removeLast(SequencedCollection(Deque_un_(this.reconcilationDebugStack.asDequeT())))
 	}()
-	if code_1 == 1 {
-		return ret_1
+	var existing *Color = this.idToColor.putIfAbsent(id, ColorPool_PENDING_COLOR)
+	if existing != nil {
+		if existing == ColorPool_PENDING_COLOR {
+			panic(new_MalformedTypedAstException_Object(strobj_(("Cyclic Color structure detected: " + objstr_(this.reconcilationDebugStackProtos().asList())))))
+		}
+		return existing
 	}
-	panic("unreachable")
+	var viewToProto MapT[*ColorPool_ShardView, *TypeProto] = this.idToProto.row(id)
+	var sample *TypeProto = Iterables_getFirstT_[*TypeProto](viewToProto.values_t(), nil)
+	if sample == nil {
+		panic(new_NullPointerException_String(objstr_(canon_(id))))
+	}
+	var result *Color = func() *Color {
+		switch sample.getKindCase() {
+		case TypeProto_KindCase_OBJECT:
+			return this.reconcileObjectProtos(id, viewToProto)
+		case TypeProto_KindCase_UNION:
+			return this.reconcileUnionProtos(id, viewToProto)
+		default:
+			panic(new_AssertionError_Object(obj_(sample)))
+		}
+	}()
+	if result == nil {
+		panic(new_IllegalStateException_String(objstr_(id)))
+	}
+	this.idToColor.put(id, result)
+	return result
 }
 
 func (this *ColorPool_Builder) reconcileObjectProtos(id *ColorId, viewToProto MapT[*ColorPool_ShardView, *TypeProto]) *Color {
