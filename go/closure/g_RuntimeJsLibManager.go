@@ -89,7 +89,7 @@ func (this *RuntimeJsLibManager) createField(fieldName string) *RuntimeJsLibMana
 		case RuntimeJsLibManager_RuntimeLibraryMode_NO_OP, RuntimeJsLibManager_RuntimeLibraryMode_RECORD_ONLY, RuntimeJsLibManager_RuntimeLibraryMode_RECORD_AND_VALIDATE_FIELDS, RuntimeJsLibManager_RuntimeLibraryMode_INJECT:
 			return fieldName
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 	return new_RuntimeJsLibManager_InternalField(this, resourceName, compiledName, fieldName)
 }
