@@ -239,11 +239,11 @@ func (this *ColorPool_Builder) build() *ColorPool {
 			this.registry.addDisambiguationEdge(this.idToColor.get(shard.getId(ColorPool_validatePointer(edge.getSubtype(), shard))), this.idToColor.get(shard.getId(ColorPool_validatePointer(edge.getSupertype(), shard))))
 		}
 	}))
-	var shardViewsForTesting ImmutableList_BuilderOf[*ColorPool_ShardView] = ImmutableList_builder()
+	var shardViewsForTesting *ImmutableList_Builder[*ColorPool_ShardView] = immutableListBuilder_(tc_p_ColorPool_ShardView)
 	if this.forTestingField {
-		this.forEachShard(Consumer[*ColorPool_ShardView](func(p0 *ColorPool_ShardView) { shardViewsForTesting.add(obj_(p0)) }))
+		this.forEachShard(Consumer[*ColorPool_ShardView](func(p0 *ColorPool_ShardView) { shardViewsForTesting.add(p0) }))
 	}
-	var colorPool *ColorPool = new_ColorPool(this.idToColor, this.registry.build(), jtlistImm_(jtc_p_ColorPool_ShardView, shardViewsForTesting.build()))
+	var colorPool *ColorPool = new_ColorPool(this.idToColor, this.registry.build(), jtlistImm_(jtc_p_ColorPool_ShardView, shardViewsForTesting.buildErased()))
 	this.forEachShard(Consumer[*ColorPool_ShardView](func(shard *ColorPool_ShardView) {
 		shard.updateStateAfterColorPoolIsBuilt(colorPool)
 	}))
