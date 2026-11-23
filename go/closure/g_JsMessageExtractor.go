@@ -50,9 +50,7 @@ func (this *JsMessageExtractor) extractMessagesIterable(inputs IterableT[*Source
 		var msg strBuilder_
 		msg.append("JSCompiler errors\n")
 		var formatter MessageFormatter = MessageFormatter(new_LightweightMessageFormatter_SourceExcerptProvider(Compiler_as_SourceExcerptProvider(compiler)))
-		it_1 := errors.each()
-		for it_1.next() {
-			var e *JSError = it_1.v
+		for e := range errors.All() {
 			msg.append(formatter.formatError(e))
 		}
 		panic(new_RuntimeException_String(msg.toString()))

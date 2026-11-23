@@ -95,9 +95,7 @@ func (this *SourceMap) fixupSourceLocation(sourceFile Optional[string]) Optional
 	if fixed.isPresent() {
 		return fixed
 	}
-	it_1 := this.prefixMappings.each()
-	for it_1.next() {
-		var mapping SourceMap_LocationMapping = it_1.v
+	for mapping := range this.prefixMappings.All() {
 		fixed = mapping.map_(sourceFile)
 		if fixed.isPresent() {
 			break

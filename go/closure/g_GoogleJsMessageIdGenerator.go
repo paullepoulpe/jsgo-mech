@@ -23,9 +23,7 @@ func (this *GoogleJsMessageIdGenerator) generateId(meaning Optional[string], mes
 		panic(new_IllegalStateException_0())
 	}
 	var sb strBuilder_
-	it_1 := messageParts.each()
-	for it_1.next() {
-		var part JsMessage_Part = it_1.v
+	for part := range messageParts.All() {
 		if part.isPlaceholder() {
 			sb.append(part.getCanonicalPlaceholderName())
 		} else {

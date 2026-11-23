@@ -90,9 +90,12 @@ func (this *ReplaceStrings) findMatching(name string, callsiteSourceFileName str
 		config = this.functions[name]
 	}
 	if config != nil {
-		it_1 := config.excludedFilenameSuffixes.each()
-		for it_1.next() {
-			var excludedSuffix string = it_1.v
+		l_1 := config.excludedFilenameSuffixes
+		for i_1 := l_1.first(); i_1 < len(l_1.keys); i_1++ {
+			if l_1.isDead(i_1) {
+				continue
+			}
+			var excludedSuffix string = l_1.keys[i_1]
 			if strings.HasSuffix(callsiteSourceFileName, excludedSuffix) {
 				return nil
 			}
@@ -227,9 +230,7 @@ func (this *ReplaceStrings) buildReplacement(t *NodeTraversal, expr Node, prefix
 }
 
 func (this *ReplaceStrings) parseConfigurationList(functionsToInspect *TList[string]) {
-	it_1 := functionsToInspect.each()
-	for it_1.next() {
-		var function string = it_1.v
+	for function := range functionsToInspect.All() {
 		var config *ReplaceStrings_Config = this.parseConfiguration(function)
 		if config != nil {
 			this.functions[config.name_] = config
@@ -253,9 +254,7 @@ func (this *ReplaceStrings) parseConfiguration(function string) *ReplaceStrings_
 	var paramCount int32 = 0
 	var replacementParameters *[]any = &[]any{}
 	var parts *TList[string] = splitToListST_(tc_string, Splitter_on(','), params)
-	it_1 := parts.each()
-	for it_1.next() {
-		var param string = it_1.v
+	for param := range parts.All() {
 		paramCount++
 		if param == ReplaceStrings_REPLACE_ALL_MARKER {
 			if paramCount != 1 || parts.size() != 1 {

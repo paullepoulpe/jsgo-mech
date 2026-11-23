@@ -31,9 +31,7 @@ func new_ModuleMapCreator(compiler *AbstractCompiler, moduleMetadataMap *ModuleM
 func (this *ModuleMapCreator) create() *ModuleMap {
 	this.unresolvedModules.Clear()
 	this.unresolvedModulesByClosureNamespace.Clear()
-	it_1 := this.moduleMetadataMap.getAllModuleMetadata().each()
-	for it_1.next() {
-		var moduleMetadata *ModuleMetadataMap_ModuleMetadata = it_1.v
+	for moduleMetadata := range this.moduleMetadataMap.getAllModuleMetadata().All() {
 		this.process(moduleMetadata)
 	}
 	return this.resolve()
@@ -45,9 +43,7 @@ func (this *ModuleMapCreator) resolve() *ModuleMap {
 	var resolvedClosureModules *TMap[string, *Module] = newTMap_(tc_string, tc_p_Module)
 	for do_2 := true; do_2; do_2 = !resolvedModules.keySetT().containsAll(Collection(Set_un_(this.unresolvedModules.keySetT()))) {
 		var toResolve *TSet[string] = tsetImm_(tc_string, Sets_difference(Set_un_(this.unresolvedModules.keySetT()), Set_un_(resolvedModules.keySetT())).immutableCopy())
-		it_3 := toResolve.each()
-		for it_3.next() {
-			var key string = it_3.v
+		for key := range toResolve.All() {
 			var resolved *Module = this.unresolvedModules.Get(key).resolve(requestResolver)
 			resolvedModules.Put(key, resolved)
 			for namespace := range elemsBy_(obj_(resolved.metadata().googNamespaces()), str_) {
@@ -57,9 +53,7 @@ func (this *ModuleMapCreator) resolve() *ModuleMap {
 	}
 	for do_8 := true; do_8; do_8 = !resolvedClosureModules.keySetT().containsAll(Collection(Set_un_(this.unresolvedModulesByClosureNamespace.keySetT()))) {
 		var toResolve *TSet[string] = tsetImm_(tc_string, Sets_difference(Set_un_(this.unresolvedModulesByClosureNamespace.keySetT()), Set_un_(resolvedClosureModules.keySetT())).immutableCopy())
-		it_9 := toResolve.each()
-		for it_9.next() {
-			var namespace string = it_9.v
+		for namespace := range toResolve.All() {
 			resolvedClosureModules.Put(namespace, this.unresolvedModulesByClosureNamespace.Get(namespace).resolve(requestResolver))
 		}
 	}
