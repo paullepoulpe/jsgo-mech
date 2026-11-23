@@ -721,7 +721,7 @@ func FunctionInjector_InliningMode_clinit() {
 }
 
 type FunctionInjector_Reference struct {
-	self_     any
+	self_     FunctionInjector_Reference_as
 	scope_    *Scope
 	chunk_    *JSChunk
 	mode_     FunctionInjector_InliningMode

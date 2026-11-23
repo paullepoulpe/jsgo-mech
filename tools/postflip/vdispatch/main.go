@@ -34,9 +34,12 @@
 //
 // With -sub (after -retype), the methods a sub-hierarchy's dispatchers call go into R_I too,
 // with a body on R that is never run; see sub.go. With -enums, an enum whose constants have
-// bodies gets its own interface and field selfI_; see enum.go.
+// bodies gets its own interface and field selfI_; see enum.go. With -rest (after those), the
+// roots that have no dispatch site of the form above (generic classes, which dispatch through a
+// vt_R_ field, and classes without an overridden method) get self_ typed too, and the casts
+// to_X that assert to an anonymous interface assert to a named X_as; see rest.go.
 //
-// usage: vdispatch [-n] [-retype | -sub | -enums] <dir of package closure>
+// usage: vdispatch [-n] [-retype | -sub | -enums | -rest] <dir of package closure>
 package main
 
 import (
@@ -75,7 +78,7 @@ type root struct {
 }
 
 func main() {
-	report, retype, sub, enums := false, false, false, false
+	report, retype, sub, enums, rest := false, false, false, false, false
 	for _, a := range os.Args[1 : len(os.Args)-1] {
 		switch a {
 		case "-n":
@@ -86,8 +89,10 @@ func main() {
 			sub = true
 		case "-enums":
 			enums = true
+		case "-rest":
+			rest = true
 		default:
-			panic("usage: vdispatch [-n] [-retype | -sub | -enums] <dir>")
+			panic("usage: vdispatch [-n] [-retype | -sub | -enums | -rest] <dir>")
 		}
 	}
 	rw.Load(os.Args[len(os.Args)-1])
@@ -97,6 +102,10 @@ func main() {
 	}
 	if enums {
 		enumsMain(report)
+		return
+	}
+	if rest {
+		restMain(report)
 		return
 	}
 
