@@ -31,10 +31,11 @@ func LogsGson_write(out *SimpleJsonWriter, value any) {
 		_ = able
 		if func() bool {
 			v_ := value
-			if !is_[LogsGson_Able](v_) {
+			p, ok := v_.(LogsGson_Able)
+			if !ok {
 				return false
 			}
-			able = icast_LogsGson_Able(v_)
+			able = p
 			return true
 		}() {
 			out.rawValue(Optional_of[string](LogsGson_toJson(able.toLogsGson())))
@@ -47,10 +48,11 @@ func LogsGson_write(out *SimpleJsonWriter, value any) {
 			_ = map_
 			if func() bool {
 				v_ := value
-				if !is_[Map](v_) {
+				p2, ok2 := v_.(Map)
+				if !ok2 {
 					return false
 				}
-				map_ = icast_Map(v_)
+				map_ = p2
 				return true
 			}() {
 				out.beginObject()
@@ -66,10 +68,11 @@ func LogsGson_write(out *SimpleJsonWriter, value any) {
 				_ = collection
 				if func() bool {
 					v_ := value
-					if !is_[Collection](v_) {
+					p3, ok3 := v_.(Collection)
+					if !ok3 {
 						return false
 					}
-					collection = icast_Collection(v_)
+					collection = p3
 					return true
 				}() {
 					out.beginArray()
@@ -96,7 +99,7 @@ func LogsGson_write(out *SimpleJsonWriter, value any) {
 						_ = bool_
 						if func() bool {
 							v_ := value
-							if !is_[bool](v_) {
+							if _, ok4 := v_.(bool); !ok4 {
 								return false
 							}
 							bool_ = v_
@@ -110,7 +113,7 @@ func LogsGson_write(out *SimpleJsonWriter, value any) {
 							_ = enumValue
 							if func() bool {
 								v_ := value
-								if !is_Enum(v_) {
+								if _, ok5 := v_.(enumConst_); !ok5 {
 									return false
 								}
 								enumValue = to_Enum(v_)

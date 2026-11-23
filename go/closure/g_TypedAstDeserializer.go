@@ -207,8 +207,8 @@ func TypedAstDeserializer_deserializeTypedAsts(typedAstsStream []int8, deseriali
 		defer func() {
 			if r_ := recover(); r_ != nil {
 				ex_ := catch_(r_)
-				if is_IOException(ex_) {
-					var ex *IOException = to_IOException(ex_)
+				if p, ok := ex_.(IOException_as); ok {
+					var ex *IOException = p.as_IOException()
 					panic(new_IllegalArgumentException_String_Throwable("Cannot read from TypedAST input stream", ex.up_Throwable()).self())
 					return
 				}

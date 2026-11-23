@@ -54,10 +54,11 @@ func (this *ComposeWarningsGuard) addGuard(guard *WarningsGuard) {
 	_ = composeGuard
 	if func() bool {
 		v_ := guard.self()
-		if !is_[*ComposeWarningsGuard](v_) {
+		p, ok := v_.(*ComposeWarningsGuard)
+		if !ok {
 			return false
 		}
-		composeGuard = cast_[*ComposeWarningsGuard](v_)
+		composeGuard = p
 		return true
 	}() {
 		if composeGuard.demoteErrors {
