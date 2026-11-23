@@ -73,14 +73,6 @@ func (this *ArrowType) testForEquality_impl(that *JSType) Tri {
 	panic(new_UnsupportedOperationException_0())
 }
 
-func (this *ArrowType) visitUntyped_impl(visitor Visitor) any {
-	panic(new_UnsupportedOperationException_0())
-}
-
-func (this *ArrowType) visitUntyped_2_impl(visitor RelationshipVisitor, that *JSType) any {
-	panic(new_UnsupportedOperationException_0())
-}
-
 func (this *ArrowType) getPossibleToBooleanOutcomes_impl() BooleanLiteralSet {
 	return BooleanLiteralSet_TRUE
 }
@@ -185,22 +177,6 @@ func (this *ArrowType) testForEquality(p0 *JSType) Tri {
 		return this.testForEquality_impl(p0)
 	}
 	return this.self_.testForEquality_impl(p0)
-}
-
-// visitUntyped: an object that is exactly a ArrowType calls its visitUntyped_impl directly (post-flip); others dispatch.
-func (this *ArrowType) visitUntyped(p0 Visitor) any {
-	if p, _ := this.self_.(*ArrowType); p == this {
-		return this.visitUntyped_impl(p0)
-	}
-	return this.self_.visitUntyped_impl(p0)
-}
-
-// visitUntyped_2: an object that is exactly a ArrowType calls its visitUntyped_2_impl directly (post-flip); others dispatch.
-func (this *ArrowType) visitUntyped_2(p0 RelationshipVisitor, p1 *JSType) any {
-	if p, _ := this.self_.(*ArrowType); p == this {
-		return this.visitUntyped_2_impl(p0, p1)
-	}
-	return this.self_.visitUntyped_2_impl(p0, p1)
 }
 
 // getPossibleToBooleanOutcomes: an object that is exactly a ArrowType calls its getPossibleToBooleanOutcomes_impl directly (post-flip); others dispatch.

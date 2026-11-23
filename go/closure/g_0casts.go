@@ -373,13 +373,6 @@ func icast_Tracer_TracingStatistic(v any) Tracer_TracingStatistic {
 	return v.(Tracer_TracingStatistic)
 }
 
-func icast_Visitor(v any) Visitor {
-	if v == nil {
-		return nil
-	}
-	return v.(Visitor)
-}
-
 func AmbiguateProperties_PropertyGraphNode_as_Annotatable(v *AmbiguateProperties_PropertyGraphNode) Annotatable {
 	if v == nil {
 		return nil
@@ -401,7 +394,7 @@ func BaseTranspiler_as_Transpiler_transpile(v *BaseTranspiler) Transpiler_transp
 	return v
 }
 
-func CanCastToVisitor_as_RelationshipVisitor(v *CanCastToVisitor) RelationshipVisitor {
+func CanCastToVisitor_as_RelationshipVisitor(v *CanCastToVisitor) RelationshipVisitor[bool] {
 	if v == nil {
 		return nil
 	}
@@ -751,7 +744,7 @@ func ConformanceRules_StrictBanUnresolvedType_as_CheckConformance_Rule(v *Confor
 	return v
 }
 
-func ContainsUpperBoundSuperTypeVisitor_as_Visitor(v *ContainsUpperBoundSuperTypeVisitor) Visitor {
+func ContainsUpperBoundSuperTypeVisitor_as_Visitor(v *ContainsUpperBoundSuperTypeVisitor) Visitor[ContainsUpperBoundSuperTypeVisitor_Result] {
 	if v == nil {
 		return nil
 	}
@@ -1507,7 +1500,7 @@ func SyntacticScopeCreator_as_ScopeCreator(v *SyntacticScopeCreator) ScopeCreato
 	return v
 }
 
-func TemplateTypeReplacer_as_Visitor(v *TemplateTypeReplacer) Visitor {
+func TemplateTypeReplacer_as_Visitor(v *TemplateTypeReplacer) Visitor[*JSType] {
 	if v == nil {
 		return nil
 	}
@@ -1542,7 +1535,7 @@ func TreeRangeSet_as_RangeSet(v *TreeRangeSet) RangeSet {
 	return v
 }
 
-func TypeValidator_WellFormedTemplatizedTypeVerifier_as_Visitor(v *TypeValidator_WellFormedTemplatizedTypeVerifier) Visitor {
+func TypeValidator_WellFormedTemplatizedTypeVerifier_as_Visitor(v *TypeValidator_WellFormedTemplatizedTypeVerifier) Visitor[bool] {
 	if v == nil {
 		return nil
 	}
