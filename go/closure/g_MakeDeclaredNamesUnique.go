@@ -48,7 +48,7 @@ func (this *MakeDeclaredNamesUnique) enterScope_impl(t *NodeTraversal) {
 	var declarationRoot Node = t.getScopeRoot()
 	var renamer MakeDeclaredNamesUnique_Renamer
 	if this.renamerStack.isEmpty() {
-		if declarationRoot.isFunction() && is_MakeDeclaredNamesUnique_ContextualRenamer(any(this.rootRenamer)) {
+		if declarationRoot.isFunction() && is_MakeDeclaredNamesUnique_ContextualRenamer(this.rootRenamer) {
 			panic(new_IllegalStateException_0().self())
 		}
 		renamer = this.rootRenamer
