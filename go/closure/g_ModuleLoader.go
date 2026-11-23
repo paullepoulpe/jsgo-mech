@@ -78,9 +78,7 @@ func (this *ModuleLoader) createRootPaths(roots IterableT[string]) *JTList[strin
 		}
 		return func(p0 any, p1 any) int32 { return f_(str_(p0), str_(p1)) }
 	}())
-	it_1 := jeachOf_(roots)
-	for it_1.next() {
-		var root string = it_1.v
+	for root := range elemsT_(roots) {
 		var n string = this.pathEscaper.escape(this.pathResolver.apply(root))
 		result.add(func() any {
 			if ModuleLoader_isAmbiguousIdentifier(n) {
@@ -94,9 +92,7 @@ func (this *ModuleLoader) createRootPaths(roots IterableT[string]) *JTList[strin
 
 func (this *ModuleLoader) resolvePaths(inputs IterableT[DependencyInfo_]) *JTSet[string] {
 	var sortedModulePaths *JTList[string] = jnewTList_(jtc_string)
-	it_1 := jeachOf_(inputs)
-	for it_1.next() {
-		var input DependencyInfo_ = it_1.v
+	for input := range elemsT_(inputs) {
 		var p string = this.pathEscaper.escape(this.pathResolver.apply(input.getName()))
 		var n string = ModuleLoader_normalize(p, this.moduleRootPaths.asIterable())
 		sortedModulePaths.add(func() string {

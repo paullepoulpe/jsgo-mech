@@ -52,9 +52,7 @@ func (this *CrossChunkReferenceCollector) getReferences(v *Var) *ReferenceCollec
 
 func (this *CrossChunkReferenceCollector) getGlobalVariableNamesMap() *JTMap[string, *Var] {
 	var builder *TMapBuilder[string, *Var] = newTMapBuilder_(jtc_string, jtc_p_Var)
-	it_1 := jeachOf_(this.referenceCollector.getAllSymbols())
-	for it_1.next() {
-		var v *Var = it_1.v
+	for v := range elemsT_(this.referenceCollector.getAllSymbols()) {
 		builder.put(v.getName(), v)
 	}
 	return builder.buildOrThrow()

@@ -51,12 +51,8 @@ func NodeModuleResolver_buildNodeModulesFoldersRegistry(modulePaths IterableT[st
 		}
 		return String_compareTo(a, b)
 	}))
-	it_1 := jeachOf_(modulePaths)
-	for it_1.next() {
-		var modulePath string = it_1.v
-		it_3 := jeachOf_(moduleRootPaths)
-		for it_3.next() {
-			var moduleRootPath string = it_3.v
+	for modulePath := range elemsT_(modulePaths) {
+		for moduleRootPath := range elemsT_(moduleRootPaths) {
 			if strings.HasPrefix(modulePath, moduleRootPath) {
 				modulePath = String_substring_int(modulePath, String_length(moduleRootPath))
 				break

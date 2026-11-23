@@ -246,9 +246,7 @@ func (this *FunctionTypeBuilder) inferInheritance(info *JSDocInfo, classExtendsT
 	if (info != nil) && (info.getImplementedInterfaceCount() > 0) {
 		if this.isConstructor_ {
 			this.implementedInterfaces = jnewTList_(jtc_p_ObjectType)
-			it_1 := jeachOf_(info.getImplementedInterfaces())
-			for it_1.next() {
-				var t *JSTypeExpression = it_1.v
+			for t := range elemsT_(info.getImplementedInterfaces()) {
 				var maybeInterType *JSType = t.evaluate(this.templateScope, this.typeRegistry)
 				if maybeInterType.setValidator(func() Predicate_base[*JSType] {
 					v_ := this.createImplementedTypeValidator()
@@ -269,9 +267,7 @@ func (this *FunctionTypeBuilder) inferInheritance(info *JSDocInfo, classExtendsT
 	if this.isInterface_ {
 		this.extendedInterfaces = jnewTList_(jtc_p_ObjectType)
 		if info != nil {
-			it_3 := jeachOf_(info.getExtendedInterfaces())
-			for it_3.next() {
-				var t *JSTypeExpression = it_3.v
+			for t := range elemsT_(info.getExtendedInterfaces()) {
 				var maybeInterfaceType *JSType = t.evaluate(this.templateScope, this.typeRegistry)
 				if maybeInterfaceType != nil {
 					var isValid bool = maybeInterfaceType.setValidator(func() Predicate_base[*JSType] {

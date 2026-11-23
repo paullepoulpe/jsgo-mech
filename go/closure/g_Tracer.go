@@ -24,9 +24,7 @@ func (this *Tracer) init_Tracer_Optional_Optional(type_ Optional[string], commen
 		var size int32 = Tracer_extraTracingStatistics.size()
 		this.extraTracingValues = make([]int64, size)
 		var i int32 = 0
-		it_1 := jeachOf_(Tracer_extraTracingStatistics)
-		for it_1.next() {
-			var tracingStatistic Tracer_TracingStatistic = it_1.v
+		for tracingStatistic := range elemsT_(Tracer_extraTracingStatistics) {
 			this.extraTracingValues[i] = tracingStatistic.start(this.startThread)
 			i++
 		}

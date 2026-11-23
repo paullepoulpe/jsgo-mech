@@ -210,9 +210,7 @@ func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) visitDefin
 	if this.outer_.isReferenceToClass(t, object) {
 		var className string = object.getQualifiedName()
 		var c *ConcretizeStaticInheritanceForInlining_JavascriptClass = this.outer_.classByAlias.get(className)
-		it_1 := jeachOf_(NodeUtil_getObjectDefinedPropertiesKeys(definePropertiesCall))
-		for it_1.next() {
-			var prop Node = it_1.v
+		for prop := range elemsT_(NodeUtil_getObjectDefinedPropertiesKeys(definePropertiesCall)) {
 			c.definedProperties.add(prop.getString())
 		}
 	}

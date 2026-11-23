@@ -157,9 +157,7 @@ func (this *ScriptMetadata_FillerCallback) maybeCollectNames(n Node) {
 	}
 	var jsdoc *JSDocInfo = n.getJSDocInfo()
 	if jsdoc != nil {
-		it_1 := jeachOf_(jsdoc.getTypeExpressions())
-		for it_1.next() {
-			var expr *JSTypeExpression = it_1.v
+		for expr := range elemsT_(jsdoc.getTypeExpressions()) {
 			it_3 := expr.getAllTypeNames().each()
 			for it_3.next() {
 				var type_ string = it_3.v

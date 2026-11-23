@@ -200,9 +200,7 @@ func (this *JSChunk) sortInputsByDeps(compiler *AbstractCompiler) {
 	}
 	var sortedList ListT[*CompilerInput] = new_SortedDependencies[*CompilerInput](this.getInputs()).getSortedList()
 	this.inputs.clear()
-	it_3 := jeachOf_(sortedList)
-	for it_3.next() {
-		var input *CompilerInput = it_3.v
+	for input := range elemsT_(sortedList) {
 		this.inputs.put(input.getName(), input)
 	}
 }

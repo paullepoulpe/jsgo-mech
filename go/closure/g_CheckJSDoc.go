@@ -46,9 +46,7 @@ func (this *CheckJSDoc) checkJsDocInBlockComments(fileName Optional[string]) {
 	if !this.compiler_.getOptions().preservesDetailedSourceInfo() {
 		return
 	}
-	it_1 := jeachOf_(this.compiler_.getComments(fileName))
-	for it_1.next() {
-		var comment *Comment = it_1.v
+	for comment := range elemsT_(this.compiler_.getComments(fileName)) {
 		if comment.type__ == Comment_Type_BLOCK {
 			if CheckJSDoc_COMMENT_PATTERN.matcher_s(comment.value_).find() {
 				this.compiler_.report(JSError_make_Optional_int_int_DiagnosticType_StringArr(fileName, (comment.location_.start_.line_ + 1), comment.location_.start_.column_, CheckJSDoc_JSDOC_IN_BLOCK_COMMENT, []string{}))
@@ -496,9 +494,7 @@ func (this *CheckJSDoc) validateJsDocTypeNames(info *JSDocInfo) {
 	if info == nil {
 		return
 	}
-	it_1 := jeachOf_(info.getTypeNodes())
-	for it_1.next() {
-		var typeNode Node = it_1.v
+	for typeNode := range elemsT_(info.getTypeNodes()) {
 		NodeUtil_visitPreOrder_Node_Visitor(typeNode, CheckJSDoc_CheckJsdocTypes_as_NodeUtil_Visitor(this.checkJsDocTypesVisitor))
 	}
 }

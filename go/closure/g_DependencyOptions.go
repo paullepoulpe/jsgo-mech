@@ -113,9 +113,7 @@ func DependencyOptions_fromFlags(dependencyModeFlag DependencyOptions_Dependency
 	if commonJsEntryModuleFlag.isPresent() {
 		entryPointsBuilder.add(ModuleIdentifier_forFile(commonJsEntryModuleFlag.get()))
 	}
-	it_1 := jeachOf_(entryPointFlag)
-	for it_1.next() {
-		var entryPoint string = it_1.v
+	for entryPoint := range elemsT_(entryPointFlag) {
 		entryPointsBuilder.add(ModuleIdentifier_forFlagValue(entryPoint))
 	}
 	it_3 := closureEntryPointFlag.each()

@@ -47,9 +47,7 @@ func new_InlineObjectLiterals_InliningBehavior(outer_ *InlineObjectLiterals) *In
 }
 
 func (this *InlineObjectLiterals_InliningBehavior) afterExitScope(t *NodeTraversal, referenceMap ReferenceMap) {
-	it_1 := jeachOf_(t.getScope().getVarIterable_rIterableOf_Var())
-	for it_1.next() {
-		var v *Var = it_1.v
+	for v := range elemsT_(t.getScope().getVarIterable_rIterableOf_Var()) {
 		if this.isVarInlineForbidden(v) {
 			continue
 		}

@@ -92,9 +92,7 @@ func (this *RewriteAsyncFunctions) convertAsyncFunction(t *NodeTraversal, functi
 		newBody.addChildToBack(this.astFactory_.createSingleConstNameDeclaration((sstr_(RewriteAsyncFunctions_ASYNC_NEW_TARGET) + sstr_(functionContext.asyncThisAndArgumentsContext.uniqueId)), this.astFactory_.createNewTarget(functionContext.typeOfNewTarget)))
 		NodeUtil_addFeatureToScript(t.getCurrentScript(), FeatureSet_Feature_CONST_DECLARATIONS, this.compiler_)
 	}
-	it_1 := jeachOf_(functionContext.superPropertyWrappers.asCollection())
-	for it_1.next() {
-		var superPropertyWrapperInfo *RewriteAsyncFunctions_SuperPropertyWrapperInfo = it_1.v
+	for superPropertyWrapperInfo := range elemsT_(functionContext.superPropertyWrappers.asCollection()) {
 		var arrowFunction Node = functionContext.createWrapperArrowFunction(superPropertyWrapperInfo)
 		var arrowFunctionDeclarationStatement Node = this.astFactory_.createSingleConstNameDeclaration(superPropertyWrapperInfo.wrapperFunctionName, arrowFunction)
 		newBody.addChildToBack(arrowFunctionDeclarationStatement)

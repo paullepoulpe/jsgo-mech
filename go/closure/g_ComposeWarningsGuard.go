@@ -74,9 +74,7 @@ func (this *ComposeWarningsGuard) addGuard(guard *WarningsGuard) {
 }
 
 func (this *ComposeWarningsGuard) addGuards(guards IterableT[*WarningsGuard]) {
-	it_1 := jeachOf_(guards)
-	for it_1.next() {
-		var guard *WarningsGuard = it_1.v
+	for guard := range elemsT_(guards) {
 		this.addGuard(guard)
 	}
 }
