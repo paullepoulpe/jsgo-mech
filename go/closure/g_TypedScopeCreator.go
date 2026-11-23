@@ -1890,7 +1890,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) maybeDeclareQualifiedName(t 
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) isQualifiedNameInferred(qName Optional[string], n Node, info *JSDocInfo, rhsValue Node, valueType *JSType) bool {
 	if qName.isPresent() && strings.HasSuffix(qName.get(), ".prototype") {
-		var className string = String_substring(qName.get(), 0, String_lastIndexOf_String(qName.get(), ".prototype"))
+		var className string = cutBytes_(qName.get(), 0, int32(strings.LastIndex(qName.get(), ".prototype")))
 		var slot *TypedVar = this.currentScope.getVar_String_rTypedVar(className)
 		var classType *JSType = func() *JSType {
 			if slot == nil {
