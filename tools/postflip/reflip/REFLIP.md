@@ -615,3 +615,198 @@ m9mem.log (allocations), gate_r9_*.log, cpu_r9d.prof / cpu_r9e.prof.
 3. The 438-441 left reasons are reflip-javaisms' (its REFLIP.md section): equals/hashCode
    82 + 84, instanceof 71 + 15 patterns, casts, Object slots, varargs 41.
 4. reflip-javaisms is superseded by 438-441 here; it was not changed.
+
+## Sixth session: where typed-full's wall went, ident, enumin, the Object-keyed map, opteq, tswitch (2026-11-19)
+
+Steps 443-448 of steps.txt.
+
+**Where the gap to round 8 was.** Two CPU profiles each of typed-full, m_r9e (step 442) and
+round 8 (m_m8final), interleaved, merged; per-pass times from `--tracer_mode TIMING_ONLY`, three
+runs each, interleaved. The handover's reading (string table, ReferenceCollector.visit,
+ScopeScanner.declareVar) did not hold up:
+
+- The string path is already cheaper than round 8's. getString, the id table and the scope
+  tables together: (*idTable_).at 1.82 + getString 0.85 + getStringId_ 0.63 + scopeVars find /
+  findId / lookupId / putId 1.91 s against round 8's getString 3.63 + payload_s_ 0.63 + scopeVars
+  find / lookup / getVar_impl 2.31 s (two runs each). Hashing (memHashAES, matchH2,
+  mapaccess2_faststr) is within 0.3 s of round 8's. ReferenceCollector.visit already looks up by
+  id (strids, 431).
+- The compiler thread (all samples outside the collector's workers) did 102.2 s against round
+  8's 100.6 s over the two runs: +0.8 s per run, which is the wall gap. By pass (tracer medians):
+  inferTypes +0.49 s, typesToColors +0.35, removeUnusedCode +0.16, checkTypes +0.14, the rest
+  within +-0.1 (inlineVariables -0.17, parseInputs -0.12). By function, the largest items that
+  round 8 did not have: runtime.memequal32 0.70 s, called by efaceeq from
+  JSCompObjects_identical of two boxed Nodes (ReferenceCollector.popLastBlock 0.67 s: a Node's
+  box is an interface of a 4-byte value, so == on two boxes calls efaceeq and memequal32); and
+  ImmutableCollection.contains 1.32 s (0.49 isStatementParent, 0.59 GuardedCallback, 0.14
+  isValidCfgRoot): a token boxed, asserted to an interface with ordinal() and compared as an
+  interface, per test. The rest is spread thinly: erased LinkedHashMaps inside generic classes
+  (LinkedDirectedGraph.getOrCreateNode_/getNode_impl 0.62 s, LinkedIdentityHashMap.get 0.34 s
+  in typesToColors, Timeline, SimpleMultiset: handover item 4 of the third session), boxT_ in
+  generic code 0.41 s, TDeque.push in GuardedCallback 0.2 s.
+
+So the first two steps below took the two items that were neither string work nor spread
+thin.
+
+| step | commits (tool, step) | command | counts |
+|---|---|---|---|
+| 443 | 1451a6cf, 0a3d07cd | `t ident && f` | 19 JSCompObjects_identical -> == (4 of two Nodes' box_(), 15 of obj_() of one type); left 56 self() of class pointers, 3 other operands |
+| 444 | ee20e0fe, 17eaf110 | `t enumin && f` | 10 contains(obj_(token)) on 9 constant enum sets -> X_has_(token), a switch in g_0enumin.go; left 2 (a field, a deque) |
+| 445 | 64aeed2f (manual) | patch | AssertionFunctionLookup: two maps (byPrimitive, byName) instead of the ImmutableMap<Object, ...> |
+| 446 | d7ca4e2e (runtime) | patch | optEquals_, optEqualsNull_, optHash_ (rt_base.go), TestOptEquals |
+| 447 | b468e727, 3fd072c4 | `t opteq && f` | 61 equals/hashCode of Optional[string] boxes (31 Object_equals, 15 Objects_equals, 15 Objects_hashCode); left none |
+| 448 | 65e033b7, f8f365f2 | `t tswitch && f` | 1 if/else-if chain of type tests -> type switch; left 2 (interrupted by a method test) |
+
+**ident** (tools/postflip/ident). JSCompObjects.identical(a, b) is Java's `a == b`; j2go passes
+both as `any`. For two operands of one static type boxed by `X.box_()` (a Node: nil for 0, else
+an interface holding the handle) or `obj_(X)` (nil for the zero value, else the value), the
+boxes are equal exactly when the values are, null included, so the comparison is `a == b`
+(`!=` under `!`). Left: 56 compare `self()` of two class pointers (JSType and subclasses: the
+pointers and their self() agree once the object's self_ is set, which the tool does not prove;
+those compare two pointer-shaped interfaces, which costs no memequal), 3 compare values already
+in interfaces.
+
+**enumin** (tools/postflip/enumin). `X.contains(obj_(x))` with x of an enum type E and X a
+package variable assigned once, in its class's static initializer (which g_0init.go runs before
+anything else), from Sets_immutableEnumSet of E's constants, is `X_has_(x)`, a switch over the
+same constants (as the hand port writes NodeUtil.isStatementParent). The set never changes and
+null is in no set: the same answer for every value. Left: ExpressionDecomposer.enabledWorkarounds
+(a field) and FeatureCollector's contextStack (a deque that changes).
+
+**445, the one map keyed by Object** (planned item 4). CodingConvention.AssertionFunctionLookup's
+ImmutableMap<Object, AssertionFunctionSpec> (keys "only ever a string or ClosurePrimitive", its
+Java comment) is two Go maps, as in jsgo; lookupByCallee reads the map of its key's type. On a
+null spec, a null id or a duplicate id the translation's builder is run over the specs from the
+start, as before, and throws what it threw. A manual patch: there is one such map.
+
+**opteq** (tools/postflip/opteq, runtime 446; planned item 1, equals/hashCode). Object_equals /
+Objects_equals / objequals_ of two `X.box_()` of one type Optional[T], and Objects_hashCode /
+objhash_ of one, for T compared by Go's == in Java (string, integer and boolean types, enums,
+nodes), are optEquals_ / optEqualsNull_ / optHash_ of the Optionals: Optional.equals boxed the
+other operand's content again and asked the runtime for its equals. All 61 are Optional[string]
+(record equals/hashCode of Binding, Export, JSError, AssertionFunctionSpec, ...; Optional.of(s)
+against a name). TestOptEquals checks the helpers against the dynamic protocol.
+
+**tswitch** (tools/postflip/tswitch; planned item 2, type switches). After castfold -instof,
+patinst and instof the tree has 1,444 single tests of a value's class and three if/else-if
+chains of two or more on one value. A chain of `if v, ok := S.(T); ok` links on one pure S
+with an else block (or none) is a type switch with the else as default: cases in order, nil in
+none, S evaluated once. RegExpTree.Concatenation's simplifier is one now; the two chains of
+JSTypeRegistry.getSimpleReadableJSTypeName are interrupted by isFunctionPrototypeType() and
+stay (a switch would nest the rest one level deeper).
+
+**The other two planned items, checked at this tip:**
+- Object/any slots (planned item 3): objslots re-run on the tip types 0 of 2,660 any slots. What
+  stays is listed by objslots: 689 results and 592 parameters of methods an interface lists
+  (overriding methods must keep one signature: self() 343, enum compareTo(o any) 207, the
+  functional interfaces' apply/accept/test/get, equals(any), JSType's visitUntyped and case*
+  visitors), 579 func literal parameters, 147 cast helpers, 139 range variables, 128 + 53 + 15 +
+  12 slots that receive a value that is not a box, 66 + 61 of generic functions. The census
+  row (1713) is mostly the Object protocol itself (self, compareTo, equals) and the visitors;
+  the j2go rule "visit as a generic function with a type switch" (POSTFLIP.md) is what removes
+  the visitors' `any`.
+- equals/hashCode (planned item 1, 159 -> 98 after opteq): 34 are the hash/eq functions of
+  typed containers keyed by classes with their own equals (g_0casts.go tch_*: SubtypeChecker and
+  EqualityChecker cache keys, ScopedName, JSType, JSError, Module, BranchIndexPair, ...) and 16
+  more in g_zconv_*.go; 27 are .equals( / .hashCode() (two of them in comments) of structural
+  classes (RegExpTree, JSType, FunctionType, UnionType: deep equality, no key projection); the
+  21 others are Object values (JSDocInfo, Source.Lazy, SimpleBiMap, HamtPMap, StandardUnionFind, Node's property
+  getter). Comparable structs fit the cache keys whose equals is all fields by ==
+  (BranchIndexPair; SubtypeChecker/EqualityChecker keys compare JSTypes by equals, so they do
+  not); that is a per-class change of pointer classes into values and is left for a tool that
+  proves a class immutable and identity-free.
+
+**Gate** after every commit (gatew.sh, a worktree at the commit): runtime tests ok (50 Test
+functions through 445, 51 from 446 with TestOptEquals), checks/bundle/downlevel/advanced MATCH.
+**Replay**: each run line, run as replay-all.sh runs it on its commit's parent with the tools
+of the commit (vstep.sh), gives the commit's go/ byte for byte (443, 444, 447, 448); the
+patches of 445 and 446 applied to the parent give the commit's go/.
+
+**Census** (census.py), 34f27fc5 -> f8f365f2, the rows that move:
+
+```
+1588 -> 1586  class casts to_X( / cast_[T](       (445)
+2934 -> 2787  boxing to any                       (ident, enumin, opteq, 445)
+ 159 ->   98  Java equals/hashCode protocol       (opteq)
+3477 -> 3478  throw as panic(                     (445: the builder that did not throw)
+1713 -> 1713  fields/params declared any (approx)
+```
+
+**Measurements** (fb.py, ABBA, under gate.lock, no PGO; medians of per-round ratios; outputs
+byte-identical: the gate). Run 1: m_r9e (442), m_r10a (443), m_r10b (444), 6 rounds, load
+1.0-1.5. Run 2: m_r10b, m_r10c (445), m_r10e (447), m_r10f (448), 4 rounds, load 1.0-1.6.
+Allocations by j2mem.py (JSGO_MEMSTATS), one run each.
+
+| step | typed-full cpu | wall | bundle cpu | wall | allocations typed-full; bundle |
+|---|---:|---:|---:|---:|---|
+| 443 ident (run 1) | **-1.7%** (-3.1..+1.2) | -1.7% | **-2.1%** (-3.3..+1.2) | -1.3% | unchanged (180.82M, 11.48 GB; 86.11M, 6.02 GB) |
+| 444 enumin (run 1) | **-1.1%** (-2.5..+0.5) | -1.4% | **-1.3%** (-4.3..+0.4) | -1.3% | unchanged |
+| **443-444 vs 442** (run 1) | **-3.0%** (58.11 -> 56.59 s; -4.0..+0.9) | **-3.7%** (49.78 -> 48.11 s) | **-3.4%** (25.80 -> 25.06 s; -7.4..-0.4) | **-2.7%** (23.91 -> 23.38 s) | unchanged |
+| 445 lookup maps (run 2) | +0.2% (-1.7..+1.3) | +0.3% | +1.6% (-1.0..+4.0) | +0.6% | unchanged |
+| 446-447 opteq (run 2) | -1.0% (-3.3..+2.1) | -0.5% | -0.6% (-2.4..-0.3) | -0.7% | 180.82M -> 180.73M; unchanged |
+| 448 tswitch (run 2) | +0.1% (-0.5..+3.2) | -0.3% | +1.2% (-3.0..+1.7) | +0.4% | unchanged |
+| **445-448 vs 444** (run 2) | -0.2% (-0.5..+0.4) | -0.4% | +0.6% (+0.2..+1.7) | -0.0% | 180.73M, 11.47 GB; 86.11M, 6.02 GB |
+
+445-448 are below what four rounds resolve (445 changes code that runs three times per
+compilation; 448 a regular-expression simplifier); they are steps of the planned list, not of
+the wall time.
+
+**Milestone run** at the tip f8f365f2 (m_r10f), interleaved with pre-flip Java, round 8
+(m_m8final) and step 442 (m_r9e), 6 rounds each, idle host (load 1.0-2.5, the high end during
+Java's runs), no PGO; stdout, stderr, out.js (and out.js.map) byte-identical with Java's for
+every binary (ident.sh). Medians:
+
+| | typed-full wall (cpu) | Java/Go | bundle wall (cpu) | Java/Go |
+|---|---:|---:|---:|---:|
+| pre-flip Java | 52.37 s (125.3) | | 27.99 s (67.7) | |
+| tip f8f365f2 | 48.39 s (56.8) | **1.086** | 23.55 s (25.2) | **1.183** |
+| round 8 | 48.70 s (58.6) | 1.073 | 24.17 s (27.8) | 1.159 |
+| step 442 (34f27fc5) | 49.55 s (58.1) | 1.058 | 24.12 s (25.7) | 1.168 |
+
+(Java/Go is the median of the per-round ratios.) Against round 8, per round: typed-full wall
+-0.6% (every round below round 8: -0.1 to -2.9%), cpu -3.4% (-5.3..-2.4); bundle wall -2.2%
+(every round: -0.7 to -5.4%), cpu -9.4%. Against 442: typed-full wall -2.4% (-2.2 to -2.9%),
+cpu -2.0%; bundle wall -2.4%, cpu -2.1%. The typed-full wall gap to round 8 (+0.9% at the
+fourth session's milestone; 442 is +1.7% in this run's medians) is closed.
+
+Two CPU profiles of the tip's typed-full, against the two of round 8 above: the compiler
+thread (samples outside the collector's workers) 96.2 s against 100.6 s over two runs;
+ImmutableCollection.contains (0.87 s in round 8) and memequal32 (0.39 s) are gone from the
+tip's list.
+
+## Handover after the sixth session
+
+1. **typed-full and bundle are ahead of round 8 in wall and CPU.** What the tip still spends
+   more on than round 8 (flat seconds over two runs): the node store's tables ((*idTable_).at
+   1.5, Node.getProp / Node_props_.lookup 1.6, which replace round 8's getString 3.6 and
+   lookupProperty 2.8, so less in total), erased LinkedHashMaps inside generic classes
+   (htable_.find +0.44: LinkedDirectedGraph.nodes_, LinkedIdentityHashMap,
+   StandardUnionFind, SimpleMultiset, Timeline), boxT_ in generic code 0.36, TDeque.push 0.25
+   (GuardedCallback's context stack). The generic classes are the third session's handover
+   item 4: colls/native taught type parameters.
+2. **ident's 56 left** compare self() of two class pointers: == on the pointers is the same
+   once every object's self_ is set, which a tool can prove by checking that every allocation
+   of a class (or of one embedding it) is a generated new_X whose first statement sets self_.
+   Pointer-shaped interfaces compare without memequal, so the gain is the call of efaceeq.
+3. **equals/hashCode (98)**: 50 are the hash/eq of typed containers keyed by classes with
+   equals (g_0casts.go 34, g_zconv_*.go 16); comparable structs fit only classes whose equals
+   is all fields by == and that are immutable and never compared by identity
+   (FileInstrumentationData.BranchIndexPair: two ints; Es6RewriteModulesToCommonJsModules
+   .ModuleRequest: two strings): a tool that proves those three properties and turns the class
+   into a value.
+   SubtypeChecker/EqualityChecker cache keys compare JSTypes by equals (no projection). 27 are
+   structural equals of RegExpTree and the type system; 21 compare Object values.
+4. **any slots (1713)**: objslots finds nothing more on this tip (above); what is left is the
+   Object protocol of overriding methods (self, compareTo, equals, the functional interfaces)
+   and the JSType visitors (j2go rule: `visit` as a generic function with a type switch).
+5. **Type switches**: one chain converted; the tree has no other chain of two or more tests
+   of one value. The 1,586 casts are castcensus's table (fourth/fifth sessions).
+6. Step 426 (MemProfileRate) still needs the decision of the fourth session's handover item 4.
+
+Binaries: $S/proto/m_r10a..m_r10f (443, 444, 445, 446-447 = r10e, 448 = r10f; r10d not built:
+446 alone changes no behaviour), m_r9e (442), m_m8final (round 8). Logs: $S/r10/m10a.log (run
+1), m10b.log (run 2), milestone.log, mem_r10b.log / mem_r10f.log (allocations), tr.log and
+$S/rf/tracer_tr9e*.txt / tracer_tm8*.txt (per-pass times), cpu_*_tf_1.prof (profiles: r9e1-2,
+m81-2, tip1-2), $S/rf/gate_r10*.log (gates). Scripts: $S/r10/meas.sh, milestone.sh, prof2.sh,
+tr.sh; $S/rf/gatew.sh, vstep.sh (now `git add -A -f`, as replay-all.sh: g_0enumin.go is a new
+ignored file), rec.sh, pairs.py.

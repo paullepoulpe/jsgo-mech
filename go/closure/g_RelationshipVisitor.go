@@ -2,16 +2,16 @@
 
 package closure
 
-type RelationshipVisitor interface {
-	caseUnknownType(*JSType, *JSType) any
-	caseNoType(*JSType) any
-	caseNoObjectType(*JSType) any
-	caseAllType(*JSType) any
-	caseValueType(*ValueType, *JSType) any
-	caseObjectType(*ObjectType, *JSType) any
-	caseFunctionType(*FunctionType, *JSType) any
-	caseUnionType(*UnionType, *JSType) any
-	caseTemplatizedType(*TemplatizedType, *JSType) any
-	caseTemplateType(*TemplateType, *JSType) any
-	caseEnumElementType(*EnumElementType, *JSType) any
+type RelationshipVisitor[T any] interface {
+	caseUnknownType(*JSType, *JSType) T
+	caseNoType(*JSType) T
+	caseNoObjectType(*JSType) T
+	caseAllType(*JSType) T
+	caseValueType(*ValueType, *JSType) T
+	caseObjectType(*ObjectType, *JSType) T
+	caseFunctionType(*FunctionType, *JSType) T
+	caseUnionType(*UnionType, *JSType) T
+	caseTemplatizedType(*TemplatizedType, *JSType) T
+	caseTemplateType(*TemplateType, *JSType) T
+	caseEnumElementType(*EnumElementType, *JSType) T
 }

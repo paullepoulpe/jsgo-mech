@@ -108,14 +108,6 @@ func (this *NoObjectType) setPropertyJSDocInfoKey_impl(propertyName Property_Key
 
 }
 
-func (this *NoObjectType) visitUntyped_impl(visitor Visitor) any {
-	return visitor.caseNoObjectType()
-}
-
-func (this *NoObjectType) visitUntyped_2_impl(visitor RelationshipVisitor, that *JSType) any {
-	return visitor.caseNoObjectType(that)
-}
-
 func (this *NoObjectType) appendTo_impl(sb *TypeStringBuilder) {
 	sb.append(func() string {
 		if sb.isForAnnotations() {
@@ -228,22 +220,6 @@ func (this *NoObjectType) setPropertyJSDocInfoKey(p0 Property_Key, p1 *JSDocInfo
 		return
 	}
 	this.self_.setPropertyJSDocInfoKey_impl(p0, p1)
-}
-
-// visitUntyped: an object that is exactly a NoObjectType calls its visitUntyped_impl directly (post-flip); others dispatch.
-func (this *NoObjectType) visitUntyped(p0 Visitor) any {
-	if p, _ := this.self_.(*NoObjectType); p == this {
-		return this.visitUntyped_impl(p0)
-	}
-	return this.self_.visitUntyped_impl(p0)
-}
-
-// visitUntyped_2: an object that is exactly a NoObjectType calls its visitUntyped_2_impl directly (post-flip); others dispatch.
-func (this *NoObjectType) visitUntyped_2(p0 RelationshipVisitor, p1 *JSType) any {
-	if p, _ := this.self_.(*NoObjectType); p == this {
-		return this.visitUntyped_2_impl(p0, p1)
-	}
-	return this.self_.visitUntyped_2_impl(p0, p1)
 }
 
 // appendTo: an object that is exactly a NoObjectType calls its appendTo_impl directly (post-flip); others dispatch.

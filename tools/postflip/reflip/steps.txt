@@ -633,3 +633,15 @@ bccfa30b run t varargs && fa
 e19b8f97 run t instof && f
 # 442. postflip step (re-flip): casts to an interface that mentions a type parameter try the classes of the code's type parameters first (icasts' 63 left; tool d4c32151)
 34f27fc5 run t gcasts && f
+# 443. postflip step (re-flip): JSCompObjects.identical of two values of one type boxed only to be compared is == (tool 1451a6cf)
+0a3d07cd run t ident && f
+# 444. postflip step (re-flip): the membership test of an enum value in a constant immutable enum set is a switch on the value (tool ee20e0fe)
+17eaf110 run t enumin && f
+# 445. postflip (manual, re-flip): AssertionFunctionLookup keeps one map per key type instead of the map keyed by Object
+64aeed2f patch 445-64aeed2f-manual.patch
+# 446. postflip (runtime, re-flip): optEquals_, optEqualsNull_, optHash_, equals and hashCode of Optionals of a type compared by ==
+d7ca4e2e patch 446-d7ca4e2e-rt.patch
+# 447. postflip step (re-flip): equals and hashCode of Optionals compared by value are computed on the Optionals (tool b468e727)
+3fd072c4 run t opteq && f
+# 448. postflip step (re-flip): an if / else-if chain of tests of one value's class is a type switch (tool 65e033b7)
+f8f365f2 run t tswitch && f
