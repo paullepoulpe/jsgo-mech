@@ -28,25 +28,22 @@ func new_CrossChunkCodeMotion(compiler *AbstractCompiler, graph *JSChunkGraph, p
 }
 
 func (this *CrossChunkCodeMotion) process_2(externs Node, root Node) {
-	_ = func() (code_ int) {
-		defer func() {
-			this.cccmLog = nil
-		}()
-		var logFile *LogFile = this.compiler_.createOrReopenIndexedLog(Object_getClass(this), "cccm.log", []string{})
-		defer closeResource_(logFile.self())
-		this.cccmLog = logFile
-		this.cccmLog.logString("doing cccm")
-		if this.graph.getChunkCount() > 1 {
-			var referenceCollector *CrossChunkReferenceCollector = new_CrossChunkReferenceCollector(this.compiler_, ScopeCreator(new_SyntacticScopeCreator_AbstractCompiler(this.compiler_)))
-			referenceCollector.process(root)
-			var globalSymbols CollectionT[*CrossChunkCodeMotion_GlobalSymbol] = new_CrossChunkCodeMotion_GlobalSymbolCollector(this).collectGlobalSymbols(referenceCollector)
-			this.moveGlobalSymbols(globalSymbols)
-			this.addInstanceofGuards(globalSymbols)
-		} else {
-			this.cccmLog.logString("only one chunk exists")
-		}
-		return 0
+	defer func() {
+		this.cccmLog = nil
 	}()
+	var logFile *LogFile = this.compiler_.createOrReopenIndexedLog(Object_getClass(this), "cccm.log", []string{})
+	defer closeResource_(logFile.self())
+	this.cccmLog = logFile
+	this.cccmLog.logString("doing cccm")
+	if this.graph.getChunkCount() > 1 {
+		var referenceCollector *CrossChunkReferenceCollector = new_CrossChunkReferenceCollector(this.compiler_, ScopeCreator(new_SyntacticScopeCreator_AbstractCompiler(this.compiler_)))
+		referenceCollector.process(root)
+		var globalSymbols CollectionT[*CrossChunkCodeMotion_GlobalSymbol] = new_CrossChunkCodeMotion_GlobalSymbolCollector(this).collectGlobalSymbols(referenceCollector)
+		this.moveGlobalSymbols(globalSymbols)
+		this.addInstanceofGuards(globalSymbols)
+	} else {
+		this.cccmLog.logString("only one chunk exists")
+	}
 }
 
 func (this *CrossChunkCodeMotion) addInstanceofGuards(globalSymbols CollectionT[*CrossChunkCodeMotion_GlobalSymbol]) {

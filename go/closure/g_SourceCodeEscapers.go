@@ -106,7 +106,7 @@ func SourceCodeEscapers_JavaScriptEscaper_asUnicodeHexEscape(c uint16) []uint16 
 
 func (this *SourceCodeEscapers_JavaScriptEscaper) escape(string_ string) string {
 	var sb *StringBuilder = new_StringBuilder()
-	_ = func() (code_ int) {
+	func() {
 		defer func() {
 			if r_ := recover(); r_ != nil {
 				ex_ := catch_(r_)
@@ -118,7 +118,6 @@ func (this *SourceCodeEscapers_JavaScriptEscaper) escape(string_ string) string 
 			}
 		}()
 		this.appendTo(strobj_(string_), StringBuilder_as_Appendable(sb))
-		return 0
 	}()
 	return sb.toString()
 }

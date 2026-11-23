@@ -49,35 +49,26 @@ func (this *Parser) getSourceMapURL() Optional[string] {
 	return this.sourceMapURL
 }
 
-func (this *Parser) parseProgram() *ProgramTree {
-	var ret_1 *ProgramTree
-	code_1 := func() (code_ int) {
-		defer func() {
-			if r_ := recover(); r_ != nil {
-				ex_ := catch_(r_)
-				if p, ok := ex_.(Error_as); ok {
-					var e *Error = p.as_Error()
-					if JString_contains_s(Object_toString(e.self()), "java.lang.StackOverflowError") {
-						this.reportError("Too deep recursion while parsing", []any{})
-						ret_1 = nil
-						code_ = 1
-						return
-					}
-					panic(e.self())
+func (this *Parser) parseProgram() (ret_1 *ProgramTree) {
+	defer func() {
+		if r_ := recover(); r_ != nil {
+			ex_ := catch_(r_)
+			if p, ok := ex_.(Error_as); ok {
+				var e *Error = p.as_Error()
+				if JString_contains_s(Object_toString(e.self()), "java.lang.StackOverflowError") {
+					this.reportError("Too deep recursion while parsing", []any{})
+					ret_1 = nil
+					return
 				}
-				panic(r_)
+				panic(e.self())
 			}
-		}()
-		var start *SourcePosition_util = this.lastSourcePosition
-		var sourceElements *JTList[*ParseTree] = this.parseGlobalSourceElements()
-		this.eat(TokenType_END_OF_FILE)
-		ret_1 = new_ProgramTree(this.getTreeLocation(start), sourceElements, this.commentRecorder.getComments())
-		return 1
+			panic(r_)
+		}
 	}()
-	if code_1 == 1 {
-		return ret_1
-	}
-	panic("unreachable")
+	var start *SourcePosition_util = this.lastSourcePosition
+	var sourceElements *JTList[*ParseTree] = this.parseGlobalSourceElements()
+	this.eat(TokenType_END_OF_FILE)
+	return new_ProgramTree(this.getTreeLocation(start), sourceElements, this.commentRecorder.getComments())
 }
 
 func (this *Parser) parseGlobalSourceElements() *JTList[*ParseTree] {
