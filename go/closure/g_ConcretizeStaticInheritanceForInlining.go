@@ -58,7 +58,7 @@ func (this *ConcretizeStaticInheritanceForInlining) copyStaticMembers(superClass
 	for it_1.next() {
 		var staticMember Node = it_1.v
 		if !staticMember.isAssign() {
-			panic(new_IllegalStateException_String(objstr_(staticMember.box_())).self())
+			panic(new_IllegalStateException_String(tostr_(staticMember)).self())
 		}
 		var memberName string = staticMember.getFirstChild().getString()
 		if superClass.definedProperties.contains(memberName) {

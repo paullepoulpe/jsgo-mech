@@ -275,7 +275,7 @@ func (this *CoalesceVariableNames) removeVarDeclaration(name Node, originalVar *
 		var_.replaceWith(name.detach())
 	} else {
 		if !var_.hasOneChild() || var_.getFirstChild() != name {
-			panic(new_IllegalStateException_String(objstr_(var_.box_())).self())
+			panic(new_IllegalStateException_String(tostr_(var_)).self())
 		}
 		if name.hasChildren() {
 			var value Node = name.removeFirstChild()
@@ -316,7 +316,7 @@ func (this *CoalesceVariableNames) makeDeclarationVar(coalescedName *Var) {
 
 func CoalesceVariableNames_isUninitializedLetNameInLoopBody(nameNode Node) bool {
 	if !nameNode.isName() {
-		panic(new_IllegalStateException_String(objstr_(nameNode.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(nameNode)).self())
 	}
 	var letNode Node = nameNode.getParent()
 	if !letNode.isLet() {
