@@ -148,7 +148,7 @@ func new_GraphColoring_GreedyGraphColoring_AdjacencyGraph_Comparator[N comparabl
 
 func (this *GraphColoring_GreedyGraphColoring[N, E]) color_impl() int32 {
 	var worklist *TList[GraphNode[N, E]] = tlistFrom_(tc_GraphNode_N__E_[N, E](), Collection_un_(this.graph.getNodes()))
-	List_sortT_[GraphNode[N, E]](worklist.asListT(), Comparator_comparing_Function_Comparator[GraphNode[N, E], N](Function[GraphNode[N, E], N](func(p0 GraphNode[N, E]) N { return p0.getValue() }), Comparator[N](func(leftProperty N, rightProperty N) int32 {
+	List_sortT_[GraphNode[N, E]](worklist.asListT(), Comparator_comparing_Function_Comparator[GraphNode[N, E], N](Function[GraphNode[N, E], N]((GraphNode[N, E]).getValue), Comparator[N](func(leftProperty N, rightProperty N) int32 {
 		var result int32 = (this.graph.getWeight(rightProperty) - this.graph.getWeight(leftProperty))
 		return func() int32 {
 			if (result == 0) && (this.tieBreaker != nil) {
@@ -174,7 +174,7 @@ func (this *GraphColoring_GreedyGraphColoring[N, E]) color_impl() int32 {
 		}
 		count++
 	}
-	var map_ []N = arrmap_(make([]any, count), func(v_ any) N { return junboxT_[N](v_) })
+	var map_ []N = arrmap_(make([]any, count), junboxT_[N])
 	this.colorToNodeMap = map_
 	return count
 }

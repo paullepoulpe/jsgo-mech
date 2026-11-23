@@ -82,7 +82,7 @@ func (this *JSDocInfo) cloneAndReplaceTypeNames(names map[string]struct{}) *JSDo
 func (this *JSDocInfo) clone_1(cloneTypeNodes bool) *JSDocInfo {
 	return func() *JSDocInfo {
 		if cloneTypeNodes {
-			return this.toBuilder_1(func(p0 *JSTypeExpression) *JSTypeExpression { return p0.copy() }).build()
+			return this.toBuilder_1((*JSTypeExpression).copy).build()
 		}
 		return this.toBuilder().build()
 	}()
