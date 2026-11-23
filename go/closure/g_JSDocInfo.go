@@ -1795,11 +1795,13 @@ type JSDocInfo_ComparableSourcePosition_vt_[T comparable] interface {
 
 func (this *JSDocInfo_ComparableSourcePosition[T]) isa_JSDocInfo_ComparableSourcePosition_() {}
 
-func (this *JSDocInfo_ComparableSourcePosition[T]) as_JSDocInfo_ComparableSourcePosition() *JSDocInfo_ComparableSourcePosition[T] {
-	return this
+// JSDocInfo_ComparableSourcePosition_as is implemented by JSDocInfo_ComparableSourcePosition and the classes that extend it: a cast to JSDocInfo_ComparableSourcePosition asserts to it
+// (post-flip).
+type JSDocInfo_ComparableSourcePosition_as[T comparable] interface {
+	as_JSDocInfo_ComparableSourcePosition() *JSDocInfo_ComparableSourcePosition[T]
 }
 
-func (this *JSDocInfo_ComparableSourcePosition[T]) as_JSDocInfo_ComparableSourcePosition_() any {
+func (this *JSDocInfo_ComparableSourcePosition[T]) as_JSDocInfo_ComparableSourcePosition() *JSDocInfo_ComparableSourcePosition[T] {
 	return this
 }
 
@@ -1807,7 +1809,7 @@ func to_JSDocInfo_ComparableSourcePosition[T comparable](v any) *JSDocInfo_Compa
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_JSDocInfo_ComparableSourcePosition_() any }).as_JSDocInfo_ComparableSourcePosition_().(*JSDocInfo_ComparableSourcePosition[T])
+	return v.(JSDocInfo_ComparableSourcePosition_as[T]).as_JSDocInfo_ComparableSourcePosition()
 }
 
 func (this *JSDocInfo_ComparableSourcePosition[T]) self() any {
