@@ -138,7 +138,7 @@ type Normalize_NormalizeStatements struct {
 	compiler_                               *AbstractCompiler
 	astFactory_                             *AstFactory
 	makeDeclaredNamesUnique                 *MakeDeclaredNamesUnique
-	rewriteLogicalAssignmentOperatorsHelper *RewriteLogicalAssignmentOperatorsHelper
+	rewriteLogicalAssignmentOperatorsHelper RewriteLogicalAssignmentOperatorsHelper
 	assertOnChange_                         bool
 }
 

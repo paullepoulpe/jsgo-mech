@@ -14,12 +14,12 @@ func (this *ContinueStatementTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *ContinueStatementTree) init_ContinueStatementTree(location *SourceRange, name *IdentifierToken) {
+func (this *ContinueStatementTree) init_ContinueStatementTree(location SourceRange, name *IdentifierToken) {
 	this.ParseTree.init_ParseTree(ParseTreeType_CONTINUE_STATEMENT, location)
 	this.name_ = name
 }
 
-func new_ContinueStatementTree(location *SourceRange, name *IdentifierToken) *ContinueStatementTree {
+func new_ContinueStatementTree(location SourceRange, name *IdentifierToken) *ContinueStatementTree {
 	this := &ContinueStatementTree{}
 	this.self_ = this
 	this.init_ContinueStatementTree(location, name)

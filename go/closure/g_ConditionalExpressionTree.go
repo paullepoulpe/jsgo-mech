@@ -16,14 +16,14 @@ func (this *ConditionalExpressionTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *ConditionalExpressionTree) init_ConditionalExpressionTree(location *SourceRange, condition *ParseTree, left *ParseTree, right *ParseTree) {
+func (this *ConditionalExpressionTree) init_ConditionalExpressionTree(location SourceRange, condition *ParseTree, left *ParseTree, right *ParseTree) {
 	this.ParseTree.init_ParseTree(ParseTreeType_CONDITIONAL_EXPRESSION, location)
 	this.condition = condition
 	this.left = left
 	this.right = right
 }
 
-func new_ConditionalExpressionTree(location *SourceRange, condition *ParseTree, left *ParseTree, right *ParseTree) *ConditionalExpressionTree {
+func new_ConditionalExpressionTree(location SourceRange, condition *ParseTree, left *ParseTree, right *ParseTree) *ConditionalExpressionTree {
 	this := &ConditionalExpressionTree{}
 	this.self_ = this
 	this.init_ConditionalExpressionTree(location, condition, left, right)

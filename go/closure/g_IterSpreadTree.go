@@ -14,12 +14,12 @@ func (this *IterSpreadTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *IterSpreadTree) init_IterSpreadTree(location *SourceRange, expression *ParseTree) {
+func (this *IterSpreadTree) init_IterSpreadTree(location SourceRange, expression *ParseTree) {
 	this.ParseTree.init_ParseTree(ParseTreeType_ITER_SPREAD, location)
 	this.expression = expression
 }
 
-func new_IterSpreadTree(location *SourceRange, expression *ParseTree) *IterSpreadTree {
+func new_IterSpreadTree(location SourceRange, expression *ParseTree) *IterSpreadTree {
 	this := &IterSpreadTree{}
 	this.self_ = this
 	this.init_IterSpreadTree(location, expression)

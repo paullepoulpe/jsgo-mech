@@ -1743,7 +1743,7 @@ func (this *Parser) parseArrowFunctionBody(expressionIn Parser_Expression, funct
 	return arrowFunctionBody
 }
 
-func Parser_newEmptyFormalParameterList(location *SourceRange) *FormalParameterListTree {
+func Parser_newEmptyFormalParameterList(location SourceRange) *FormalParameterListTree {
 	return new_FormalParameterListTree(location, tlistEmptyImm_(tc_p_ParseTree), false, tlistEmptyImm_(tc_p_SourcePosition_util))
 }
 
@@ -2590,7 +2590,7 @@ func (this *Parser) getTreeEndLocation() *SourcePosition_util {
 	return this.lastSourcePosition
 }
 
-func (this *Parser) getTreeLocation(start *SourcePosition_util) *SourceRange {
+func (this *Parser) getTreeLocation(start *SourcePosition_util) SourceRange {
 	return new_SourceRange(start, this.getTreeEndLocation())
 }
 
@@ -2879,7 +2879,7 @@ func new_Parser_CommentRecorder(outer_ *Parser) *Parser_CommentRecorder {
 	return this
 }
 
-func (this *Parser_CommentRecorder) recordComment(type_ Comment_Type, range_ *SourceRange, value string) {
+func (this *Parser_CommentRecorder) recordComment(type_ Comment_Type, range_ SourceRange, value string) {
 	if (this.lastCommentEndPosition == nil) || (range_.end_.offset > this.lastCommentEndPosition.offset) {
 		value = strings.Trim(value, javaSpace_)
 		if strings.HasPrefix(value, Parser_SOURCE_MAPPING_URL_PREFIX) {

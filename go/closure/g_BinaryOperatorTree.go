@@ -16,14 +16,14 @@ func (this *BinaryOperatorTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *BinaryOperatorTree) init_BinaryOperatorTree(location *SourceRange, left *ParseTree, operator *Token_parser, right *ParseTree) {
+func (this *BinaryOperatorTree) init_BinaryOperatorTree(location SourceRange, left *ParseTree, operator *Token_parser, right *ParseTree) {
 	this.ParseTree.init_ParseTree(ParseTreeType_BINARY_OPERATOR, location)
 	this.left = left
 	this.operator = operator
 	this.right = right
 }
 
-func new_BinaryOperatorTree(location *SourceRange, left *ParseTree, operator *Token_parser, right *ParseTree) *BinaryOperatorTree {
+func new_BinaryOperatorTree(location SourceRange, left *ParseTree, operator *Token_parser, right *ParseTree) *BinaryOperatorTree {
 	this := &BinaryOperatorTree{}
 	this.self_ = this
 	this.init_BinaryOperatorTree(location, left, operator, right)

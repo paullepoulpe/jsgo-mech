@@ -65,7 +65,7 @@ func (this *ConvertToTypedInterface) processFile(scriptNode Node) {
 		scriptJsDocBuilder.removeClosureUnawareCode()
 		scriptNode.setJSDocInfo(scriptJsDocBuilder.build())
 	}
-	var currentFile *FileInfo = new_FileInfo(sourceFileName)
+	var currentFile FileInfo = new_FileInfo(sourceFileName)
 	NodeTraversal_traverse(this.compiler_, scriptNode, NodeTraversal_Callback(new_ConvertToTypedInterface_RemoveNonDeclarations()))
 	NodeTraversal_traverse(this.compiler_, scriptNode, NodeTraversal_Callback(new_ConvertToTypedInterface_PropagateConstJsdoc(currentFile)))
 	new_ConvertToTypedInterface_SimplifyDeclarations(this.compiler_, currentFile).simplifyAll()
@@ -339,11 +339,11 @@ func (this *ConvertToTypedInterface_PropagateConstJsdoc) up_NodeTraversal_Abstra
 	return &this.NodeTraversal_AbstractPostOrderCallback
 }
 
-func (this *ConvertToTypedInterface_PropagateConstJsdoc) init_ConvertToTypedInterface_PropagateConstJsdoc(currentFile *FileInfo) {
+func (this *ConvertToTypedInterface_PropagateConstJsdoc) init_ConvertToTypedInterface_PropagateConstJsdoc(currentFile FileInfo) {
 	this.ProcessConstJsdocCallback.init_ProcessConstJsdocCallback(currentFile)
 }
 
-func new_ConvertToTypedInterface_PropagateConstJsdoc(currentFile *FileInfo) *ConvertToTypedInterface_PropagateConstJsdoc {
+func new_ConvertToTypedInterface_PropagateConstJsdoc(currentFile FileInfo) *ConvertToTypedInterface_PropagateConstJsdoc {
 	this := &ConvertToTypedInterface_PropagateConstJsdoc{}
 	this.self_ = this
 	this.init_ConvertToTypedInterface_PropagateConstJsdoc(currentFile)
@@ -370,15 +370,15 @@ func (this *ConvertToTypedInterface_PropagateConstJsdoc) processConstWithRhs_imp
 
 type ConvertToTypedInterface_SimplifyDeclarations struct {
 	compiler_   *AbstractCompiler
-	currentFile *FileInfo
+	currentFile FileInfo
 }
 
-func (this *ConvertToTypedInterface_SimplifyDeclarations) init_ConvertToTypedInterface_SimplifyDeclarations(compiler *AbstractCompiler, currentFile *FileInfo) {
+func (this *ConvertToTypedInterface_SimplifyDeclarations) init_ConvertToTypedInterface_SimplifyDeclarations(compiler *AbstractCompiler, currentFile FileInfo) {
 	this.compiler_ = compiler
 	this.currentFile = currentFile
 }
 
-func new_ConvertToTypedInterface_SimplifyDeclarations(compiler *AbstractCompiler, currentFile *FileInfo) *ConvertToTypedInterface_SimplifyDeclarations {
+func new_ConvertToTypedInterface_SimplifyDeclarations(compiler *AbstractCompiler, currentFile FileInfo) *ConvertToTypedInterface_SimplifyDeclarations {
 	this := &ConvertToTypedInterface_SimplifyDeclarations{}
 	this.init_ConvertToTypedInterface_SimplifyDeclarations(compiler, currentFile)
 	return this

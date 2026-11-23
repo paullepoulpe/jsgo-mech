@@ -14,12 +14,12 @@ func (this *VariableStatementTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *VariableStatementTree) init_VariableStatementTree(location *SourceRange, declarations *VariableDeclarationListTree) {
+func (this *VariableStatementTree) init_VariableStatementTree(location SourceRange, declarations *VariableDeclarationListTree) {
 	this.ParseTree.init_ParseTree(ParseTreeType_VARIABLE_STATEMENT, location)
 	this.declarations = declarations
 }
 
-func new_VariableStatementTree(location *SourceRange, declarations *VariableDeclarationListTree) *VariableStatementTree {
+func new_VariableStatementTree(location SourceRange, declarations *VariableDeclarationListTree) *VariableStatementTree {
 	this := &VariableStatementTree{}
 	this.self_ = this
 	this.init_VariableStatementTree(location, declarations)
