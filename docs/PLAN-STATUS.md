@@ -158,13 +158,19 @@ fifth flip (119.1-122.3 s CPU both).
 So the typed-generics work (both translator rules and their flip) removed most of the
 erased-collection Java-isms and did not move the time. Speed is not met.
 
+Step 561 (post-flip tool htabself, overlay main-r13-flip6 3010337d, tree flip6-tree-h 88e20f2d):
+JSType, its 27 subclasses and Color keep their node-type handle in a field, so the handle
+lookup reads the field and does not use the runtime's identity map. Same output; gated
+(checks, bundle, downlevel, advanced MATCH). Profile on the subset: Node.setJSType 0.75 s to
+0.28 s. Subset, three alternating rounds: CPU 120.4 s to 118.9 s on average (about -1%), wall
+within noise. An unattended replay from the flip base (272 commits, step 561 included) gives
+the gated tree exactly (go/ tree 04cbc7cf).
+
 ## Open
 
 - Speed: not met in bounds (0.77 on the full benchmark, 2026-11-23). No in-bounds step so far has moved the
   full benchmark by more than about 2%; CHECKS (0.71) is where Go is behind, and its cost is
   spread thin with the collector at 30%.
-- A start-to-finish unattended replay of the final list (the list grew while its last replay
-  ran, and step 556 was applied on top by hand).
 - 3 manual patches (416, 419, 422).
 - Coverage still below the older line: explicit iterators over immutable lists (125 against
   107) and Objects.equals of typed views (28 against 11) need new rules.
