@@ -798,11 +798,13 @@ c44d5926 run t visit && f
 # 450. postflip step (re-flip): value classes are comparable structs used by value, without equals and hashCode (tool c932f0a6)
 036a41a1 run t valcls && f
 # 451. postflip step (re-flip): typed deques used at one end are stacks or queues of typed lists, then slices (tool aceba30d)
+#=7 235bd03d adapted (seventh flip): toolfix 46 (tdeque: Deque_un_(d.asDequeT()) / Queue_un_(d.asQueueT()) of kind deque are d.asDeque()): 66 deque classes become typed lists (27 queues, 39 stacks), native -kind list 73 slices (61 classes), as the sixth flip; without 46: 52 (18, 34), 58 (47), 19 classes left "used through asDequeT"
 235bd03d run t tdeque && t native -kind list && f
 # 452. postflip (runtime, re-flip): tconvT_, tconvIdT_, the typed containers' conversion of a type parameter's values, once per instantiation
 594a08ff patch 452-594a08ff-rt.patch
 # 453. postflip step (re-flip): erased maps and sets keyed by a generic class's type parameter are typed (tool 731cbe88)
 #=4 2cd604d6 mostly superseded (fourth flip): the translator's rule for type variables as keys types these maps before the flip; the tool finds 1 field (lead: 11), left 5 keyed by Object
+#=7 2cd604d6 adapted (seventh flip): toolfix 48 (gmaps: a MapT[K, V] field of kind cmaps assigned mapAs_(kc, vc, Map(new_IdentityHashMap())) is the IdentityHashMap candidate, get_t / put_t its get / put): LinkedIdentityHashMap.innerMap is *TMap[K, ..] with tconvIdT_[K] (2 Get, 1 Put), as the sixth flip; without 48 the field stays a wrapper of the erased map, and optstr (step 553) cannot prove Compiler.idGeneratorMap (tconvT_ then has no instantiation of the program; see toolfix 48)
 2cd604d6 run t gmaps && f
 # 454. postflip step (re-flip): ranges -loops re-run, loops from the head of the stacks of 451 are range loops
 52b78402 run t ranges -loops && f
@@ -1013,6 +1015,7 @@ d6407a3e run t tryfn && f
 #: The tool's proof now goes through: its call graph follows a function value to where it is called, not to where it is made (call sites matched by signature at the closed set of generic instantiations; a func-typed field's stores; a method value bound to its adapter literal; jtostr_/tostrR_ of a class pointer go to that class's toString, while the runtime functions are the text the tool holds). The result does not depend on the step's position for optstr itself; hashmemo (552) must run before it (after optstr the hashCode bodies call optstrHash_, which hashmemo does not list: the 2 of its 22 classes whose hashCode hashes an Optional<String> would not be written), so 490 is not re-activated at its place.
 #: optstr: proved no Optional<String> is null: 177 fields (171 assigned before the object can be reached, 4 where it escapes but no code it can reach reads the field (call graph), 1 where it escapes only into a field of its own, 1 erased map kept), 1 package variable, 2 enum field arrays, 18 locals without a value (17 definitely assigned, 1 try temp), 355 locals with a value, 391 parameters, 11 func-typed slots, 1 cast of an Object; rewrote 1,378 type spellings, 428 empty, 99 ofNullable, 913 of (251 literals), 382 isPresent, 240 isEmpty, 880 get/orElseThrow, 302 orElse (112 of nullstr_), 102 filterFn_, 46 equals, 15 hashCode, 20 box_, 1 optOf_, 1 runtime Optional; 283 files; left 1 type spelling (MakeDeclaredNamesUnique's declarations map). One CPU check on the 3500 subset against 552 (sha 72b57cd286c9 both): cpu CHECKS 68.38 -> 66.57, OPTIMIZATIONS 46.92 -> 47.62, FINALIZATIONS 12.04 -> 12.03; rss CHECKS 3168M -> 2903M.
 #=6 684afd83 adapted (sixth flip): toolfix 39 (optstr: the kept map of Optional objects behind its typed interface, MapT[string, Optional[string]] with its conversion tc_Optional_string_)
+#=7 684afd83 adapted (seventh flip): toolfix 47 (optstr: Map_getOrDefault_sT_[Optional[string]](m, k, d) of piece fns on the kept map is its erased read, rewritten to optstrUnbox_(Map_getOrDefault_s(Map_un_(m), k, optstrBox_(d)))); and toolfix 48 at step 2cd604d6, without which the proof of Compiler.idGeneratorMap fails
 684afd83 run t optstr && f
 # 554a. postflip (runtime, in-bounds line): the erased views of typed lists, sets and maps are read by position in for-each loops (rt_tstep.go; branch inb-stepper 25255dfa)
 25255dfa patch 554a-25255dfa-rt.patch

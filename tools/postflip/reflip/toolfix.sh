@@ -3279,3 +3279,210 @@ func reflip45addr(e ast.Expr) bool {
 }
 E45
 fi
+# 46. (seventh flip) tdeque: kind `deque` of rule "typed library interfaces" (T2) declares Deque<X> / Queue<X> places as the typed
+#    interfaces DequeT[X] / QueueT[X], and an erased method or a SequencedCollection helper called on a typed deque d is written
+#    on Deque_un_(d.asDequeT()) where the sixth flip's translator wrote d.asDeque() (SequencedCollection_removeLast(
+#    SequencedCollection(Deque_un_(d.asDequeT()))) for SequencedCollection_removeLast(SequencedCollection(d.asDeque()))). The
+#    tool reads the second form (getFirst, getLast, removeLast through asDeque, and asDeque() compared with nil) and took the
+#    first as a use through an unknown method: at step 235bd03d 19 deque classes stayed "used through asDequeT" (sixth flip:
+#    66 deque classes became typed lists, here 52; its native -kind list 73 slices, here 58). The rule: Deque_un_(d.asDequeT())
+#    and Queue_un_(d.asQueueT()) are d.asDeque(). Proof obligation (rt_lg_t2.go after step 402): asDequeT() / asQueueT() of a
+#    non-nil deque make the deque's one erased view (asDeque()) and return it, a *tdequeFace_, which is no lgWrap_, so
+#    Deque_un_ / Queue_un_ return it unchanged: the object asDeque() returns; for a nil deque both give a nil interface, as
+#    asDeque() does. Every other use of asDequeT() / asQueueT() (returned, stored, given to a typed parameter, a _t method)
+#    keeps the class, as before.
+reflip_edit tools/postflip/tdeque/main.go reflip46 <<'E46'
+	call, ok := rw.Up(sel).(*ast.CallExpr)
+	if !ok || call.Fun != ast.Expr(sel) || len(call.Args) != 0 {
+		return "", nil
+	}
+=====
+	call, ok := rw.Up(sel).(*ast.CallExpr)
+	if !ok || call.Fun != ast.Expr(sel) || len(call.Args) != 0 {
+		return "", nil
+	}
+	if un := map[string]string{"asDequeT": "Deque_un_", "asQueueT": "Queue_un_"}[sel.Sel.Name]; un != "" { // reflip46
+		u, ok := rw.Up(call).(*ast.CallExpr)
+		if !ok || len(u.Args) != 1 || rw.Unparen(u.Args[0]) != ast.Expr(call) {
+			return "", nil
+		}
+		if nm, _ := rw.CallName(u); nm != un {
+			return "", nil
+		}
+		call = u
+	}
+-----
+				if u.Sel.Name == "asDeque" {
+=====
+				if u.Sel.Name == "asDeque" || u.Sel.Name == "asDequeT" || u.Sel.Name == "asQueueT" { // reflip46
+E46
+# 47. (seventh flip) optstr: piece `fns` (T1) reads the kept map of fix 39 (ContextualRenamer.declarations, MapT[string,
+#    Optional[string]] over an erased LinkedHashMap) with the typed twin Map_getOrDefault_sT_[Optional[string]](m, k, d), where
+#    the sixth flip's translator wrote optOf_[string](Map_getOrDefault_s(Map_un_(m), k, d.box_())). The proof refused the twin
+#    as generic code instantiated with Optional[string] and as a runtime function returning Optional<String>, and the step
+#    (553) stopped. The rule: that twin call of a kept map field is the erased read, and is rewritten to what the step makes of
+#    the erased read: optstrUnbox_(Map_getOrDefault_s(Map_un_(m), k, optstrBox_(d))). Proof obligation (rt_lgfn.go,
+#    rt_base.go): the field's one value is the wrapper mapAs_ makes over a new LinkedHashMap (fix 39), no *tmapView_, so the
+#    twin takes its erased path: Map_get_s(Map_un_(m), k), junboxT_ of it when it is non-nil or the key is present, else d.
+#    The erased read gives optOf_ of the same Map_get_s value, or optOf_(d.box_()). The values are put as Optional[string]
+#    values boxed by tc_Optional_string_ ((Optional[string]).box_, which returns the Optional value itself when set and nil
+#    for null), so junboxT_[Optional[string]](v) and optOf_[string](v) are both the assertion v.(Optional[string]) for a
+#    non-nil v and Optional[string]{} for nil; and optOf_(d.box_()) is d for a set d (the default the tool already requires
+#    to be an Optional of the program: d is of type Optional[string] here, never null by the tool's other proofs, as the
+#    o.box_() argument of the erased form was).
+reflip_edit tools/postflip/optstr/proof.go reflip47 <<'E47'
+		if c, ok := up.(*ast.CallExpr); ok && len(c.Args) == 1 && rw.Unparen(c.Args[0]) == ast.Expr(sel) { // reflip39: Map_un_(m), lgBox_(m): the erased map
+=====
+		if c, ok := up.(*ast.CallExpr); ok && reflip47Shape(c) != nil && rw.Unparen(c.Args[0]) == ast.Expr(sel) { // reflip47: the twin's read of the map
+			continue
+		}
+		if c, ok := up.(*ast.CallExpr); ok && len(c.Args) == 1 && rw.Unparen(c.Args[0]) == ast.Expr(sel) { // reflip39: Map_un_(m), lgBox_(m): the erased map
+-----
+			case "MapT", "mapAs_", "tconv_": // reflip39: the kept map's typed interface, its wrapper, its value conversion
+=====
+			case "Map_getOrDefault_sT_": // reflip47: the twin's read of a kept map
+				if c, ok := rw.Up(rw.Up(id)).(*ast.CallExpr); !ok || !reflip47Get(c) {
+					fail(id, "generic code instantiated with Optional[string] ("+id.Name+")")
+				}
+			case "MapT", "mapAs_", "tconv_": // reflip39: the kept map's typed interface, its wrapper, its value conversion
++++++
+
+// reflip47Get: c is Map_getOrDefault_sT_[Optional[string]](m, k, d) of a kept map field m, d of type Optional[string].
+func reflip47Get(c *ast.CallExpr) bool {
+	v := reflip47Shape(c)
+	return v != nil && isMapKept(v)
+}
+
+// reflip47Shape: the field m of c = Map_getOrDefault_sT_[Optional[string]](m, k, d), d of type Optional[string] (nil if c is
+// not of that form; whether m is kept is decided by the caller: isMapKept reads its own uses with it).
+func reflip47Shape(c *ast.CallExpr) *types.Var {
+	ix, ok := c.Fun.(*ast.IndexExpr)
+	if !ok || len(c.Args) != 3 || !isOptStr(rw.Info.TypeOf(ix.Index)) || !isOptStr(rw.Info.TypeOf(c.Args[2])) {
+		return nil
+	}
+	if id, ok := ix.X.(*ast.Ident); !ok || id.Name != "Map_getOrDefault_sT_" {
+		return nil
+	}
+	sel, ok := rw.Unparen(c.Args[0]).(*ast.SelectorExpr)
+	if !ok {
+		return nil
+	}
+	if v, _ := rw.Info.Uses[sel.Sel].(*types.Var); v != nil && v.IsField() {
+		return v
+	}
+	return nil
+}
+E47
+reflip_edit tools/postflip/optstr/rewrite.go reflip47 <<'E47b'
+				case runtimeOpt[fn.Name()]:
+				default:
+					fail(x, "runtime function returning Optional<String> ("+fn.Name()+")")
+=====
+				case runtimeOpt[fn.Name()]:
+				case reflip47Get(x): // reflip47
+				default:
+					fail(x, "runtime function returning Optional<String> ("+fn.Name()+")")
+-----
+			if c, ok := n.(*ast.CallExpr); ok && reflip39Put(c) {
+=====
+			if c, ok := n.(*ast.CallExpr); ok && reflip47Get(c) { // reflip47
+				c := c
+				done["Map_getOrDefault_sT_(m, k, d) of the kept map -> optstrUnbox_(Map_getOrDefault_s(Map_un_(m), k, optstrBox_(d)))"]++
+				rw.Rewrite[c] = func() string {
+					return "optstrUnbox_(Map_getOrDefault_s(Map_un_(" + rw.Render(c.Args[0]) + "), " + rw.Render(c.Args[1]) + ", optstrBox_(" + rw.Render(c.Args[2]) + ")))"
+				}
+				return true
+			}
+			if c, ok := n.(*ast.CallExpr); ok && reflip39Put(c) {
+E47b
+# 48. (seventh flip) gmaps: kind `cmaps` of rule "typed library interfaces" (T2) declares an IdentityHashMap<K, V> place of a
+#    generic class as the typed interface MapT[K, V] and assigns it the wrapper of the erased map, mapAs_(kc, vc,
+#    Map(new_IdentityHashMap())), read with m.get_t(boxT_(k)) and written with m.put_t(k, v), where the sixth flip's
+#    translator wrote IdentityHashMapOf[K, V], new_IdentityHashMap(), cast_[V](m.get(boxT_(k))), m.put(boxT_(k), obj_(v)).
+#    The tool read only the second form, so LinkedIdentityHashMap's innerMap (keyed by its type parameter K) stayed a
+#    wrapper over the runtime's IdentityHashMap of boxes (sixth flip: *TMap[K, *LinkedIdentityHashMap_Entry[K, V]] with
+#    tconvIdT_[K]). That also left tconvT_ without an instantiation of the program, so optstr's call graph (step 553) took
+#    its equalsTT_[T] value at every signature of two parameters and could no longer prove Compiler.idGeneratorMap
+#    assigned before any read (the step refused to run). The rule: a field of a generic class declared MapT[K, V] whose
+#    only assignments are the class constructor's mapAs_(kc, vc, Map(new_IdentityHashMap())) (or of new_LinkedHashMap())
+#    is the gmaps candidate of the same kind, with m.get_t(key) / m.put_t(k, v) read as get / put (key a box of a K, or a
+#    K; v a V): the typed map's Get(k) / Put(k, v), whose values are typed already; any other use goes through the typed
+#    map's view for typed code, asMapT(). Proof obligation: the wrapper (rt_lg.go mapAs_ over a fresh erased map) holds no
+#    state of its own; get_t(x) is vc.unbox(m.get(x)) and put_t(k, v) is m.put(kc.box(k), vc.box(v)) with kc = tcT_[K]
+#    (boxT_ / junboxT_, as the erased code boxed K) and vc the class conversion of the entry (obj_ / cast_), so each read
+#    and write is the erased one the tool's rule already decides (fix-free gmaps: typed map with tconvIdT_ for an
+#    IdentityHashMap, insertion order kept by both); the wrapper's identity is not used anywhere else (every other use is
+#    the view).
+reflip_edit tools/postflip/gmaps/main.go reflip48 <<'E48'
+	view   string // asMap or asSet
+=====
+	view   string // asMap or asSet
+	t2     bool   // reflip48: declared MapT[K, V], assigned mapAs_(kc, vc, Map(new_X()))
+-----
+var aliasKinds = map[string]string{"MapOf": "map", "LinkedHashMapOf": "map", "IdentityHashMapOf": "idmap", "SetOf": "set", "LinkedHashSetOf": "set"}
+=====
+var aliasKinds = map[string]string{"MapOf": "map", "LinkedHashMapOf": "map", "IdentityHashMapOf": "idmap", "SetOf": "set", "LinkedHashSetOf": "set", "MapT": "map"} // reflip48: MapT
+-----
+					c := &cand{f: v, set: kind == "set", id: kind == "idmap", decl: fld, alias: alias, view: "asMap"}
+=====
+					c := &cand{f: v, set: kind == "set", id: kind == "idmap", decl: fld, alias: alias, view: "asMap"}
+					if alias == "MapT" { // reflip48
+						c.t2, c.view = true, "asMapT"
+					}
+-----
+				if !ok1 || !ok2 || len(call.Args) != 0 || funName(call) != ctorOf[kind] {
+=====
+				if c.t2 && ok1 && ok2 { // reflip48: mapAs_(kc, vc, Map(new_IdentityHashMap())) / Map(new_LinkedHashMap())
+					if k := reflip48Ctor(call); k != "" && (len(c.ctor) == 0 || c.id == (k == "idmap")) {
+						c.id = k == "idmap"
+						c.ctor = append(c.ctor, call)
+						continue
+					}
+				}
+				if !ok1 || !ok2 || len(call.Args) != 0 || funName(call) != ctorOf[kind] {
+-----
+	nm := m.Sel.Name
+=====
+	nm := m.Sel.Name
+	if c.t2 { // reflip48: the typed interface's get_t / put_t, whose values are typed already
+		switch {
+		case nm == "get_t" && len(args) == 1:
+			if k := keyArg(c, args[0], ck); k != nil {
+				rw.Rewrite[call] = typed("Get", k)
+				done["get_t -> Get"]++
+				return
+			}
+		case nm == "put_t" && len(args) == 2:
+			k := keyArg(c, args[0], ck)
+			v := keyArg(c, args[1], cv)
+			if k != nil && v != nil {
+				rw.Rewrite[call] = typed("Put", k, v)
+				done["put_t -> Put"]++
+				return
+			}
+		}
+	}
++++++
+
+// reflip48Ctor: call is mapAs_(kc, vc, Map(new_IdentityHashMap())) ("idmap") or of Map(new_LinkedHashMap()) ("map").
+func reflip48Ctor(call *ast.CallExpr) string {
+	if funName(call) != "mapAs_" || len(call.Args) != 3 {
+		return ""
+	}
+	m, ok := rw.Unparen(call.Args[2]).(*ast.CallExpr)
+	if !ok || funName(m) != "Map" || len(m.Args) != 1 {
+		return ""
+	}
+	n, ok := rw.Unparen(m.Args[0]).(*ast.CallExpr)
+	if !ok || len(n.Args) != 0 {
+		return ""
+	}
+	switch funName(n) {
+	case "new_IdentityHashMap":
+		return "idmap"
+	case "new_LinkedHashMap":
+		return "map"
+	}
+	return ""
+}
+E48
