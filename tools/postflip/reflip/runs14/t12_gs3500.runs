@@ -1,0 +1,24 @@
+  flags3500/CHECKS wjava wall=40.54 cpu=82.77 round=0 load=1.43 rss=3993M exit=0
+  flags3500/OPTIMIZATIONS wjava wall=42.44 cpu=87.32 round=0 load=1.57 rss=6034M exit=0
+  flags3500/FINALIZATIONS wjava wall=11.50 cpu=35.73 round=0 load=1.64 rss=1842M exit=0
+  flags3500 wjava wall=94.47 cpu=205.82 round=0 load=1.67 sha=72b57cd286c9
+  flags3500/CHECKS wflip4 wall=48.70 cpu=59.57 round=0 load=1.39 rss=2849M exit=0
+  flags3500/OPTIMIZATIONS wflip4 wall=37.37 cpu=42.23 round=0 load=1.35 rss=1884M exit=0
+  flags3500/FINALIZATIONS wflip4 wall=8.70 cpu=10.48 round=0 load=1.30 rss=526M exit=0
+  flags3500 wflip4 wall=94.77 cpu=112.29 round=0 load=1.30 sha=72b57cd286c9
+  flags3500/CHECKS wflip4i wall=53.74 cpu=67.58 round=0 load=1.19 rss=3245M exit=0
+  flags3500/OPTIMIZATIONS wflip4i wall=42.62 cpu=48.22 round=0 load=1.19 rss=2049M exit=0
+  flags3500/FINALIZATIONS wflip4i wall=10.20 cpu=12.37 round=0 load=1.39 rss=534M exit=0
+  flags3500 wflip4i wall=106.56 cpu=128.18 round=0 load=1.39 sha=72b57cd286c9
+  flags3500/CHECKS wflip4i wall=53.33 cpu=66.45 round=1 load=1.26 rss=3037M exit=0
+  flags3500/OPTIMIZATIONS wflip4i wall=42.93 cpu=48.72 round=1 load=1.21 rss=2053M exit=0
+  flags3500/FINALIZATIONS wflip4i wall=10.22 cpu=12.33 round=1 load=1.18 rss=492M exit=0
+  flags3500 wflip4i wall=106.48 cpu=127.51 round=1 load=1.18 sha=72b57cd286c9
+  flags3500/CHECKS wflip4 wall=48.57 cpu=60.08 round=1 load=1.35 rss=3023M exit=0
+  flags3500/OPTIMIZATIONS wflip4 wall=36.86 cpu=41.49 round=1 load=1.28 rss=1891M exit=0
+  flags3500/FINALIZATIONS wflip4 wall=8.73 cpu=10.60 round=1 load=1.26 rss=543M exit=0
+  flags3500 wflip4 wall=94.16 cpu=112.16 round=1 load=1.26 sha=72b57cd286c9
+  flags3500/CHECKS wjava wall=39.74 cpu=83.97 round=1 load=2.34 rss=3422M exit=0
+  flags3500/OPTIMIZATIONS wjava wall=42.97 cpu=90.13 round=1 load=2.46 rss=5231M exit=0
+  flags3500/FINALIZATIONS wjava wall=11.46 cpu=35.66 round=1 load=2.77 rss=1879M exit=0
+  flags3500 wjava wall=94.17 cpu=209.76 round=1 load=2.77 sha=72b57cd286c9

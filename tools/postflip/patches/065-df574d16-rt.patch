@@ -1,0 +1,272 @@
+diff --git a/go/closure/rt_base.go b/go/closure/rt_base.go
+index 521f0975..3884f2cf 100644
+--- a/go/closure/rt_base.go
++++ b/go/closure/rt_base.go
+@@ -529,91 +529,130 @@ func (this *Optional_base) toString() string {
+ 
+ // ---- java.util.Optional_base
+ 
+-// Optional is a value: the zero Optional is Java's null (a field never assigned), so that
+-// Optional.of and Optional.empty allocate nothing; every method of a null Optional throws
+-// NullPointerException as a call on null does.
+-type Optional struct {
+-	value any
+-	set   bool // not null
++// Optional is java.util.Optional<T> with its type argument: a value whose zero value is
++// Java's null (a field never assigned), so that Optional.of and Optional.empty allocate
++// nothing, and whose content is held as a T, so that an Optional<String> holds its string
++// without boxing it. Every method of a null Optional throws NullPointerException as a call on
++// null does. Erased code (raw types, wildcards) uses Optional[any]; optConv_ converts between
++// instantiations, which in Java are the same object.
++type Optional[T any] struct {
++	value   T
++	present bool
++	set     bool // not null
+ }
+ 
+-var optionalUtilEmpty_ = Optional{set: true}
+-
+-func (this Optional) nn_() {
++func (this Optional[T]) nn_() {
+ 	if !this.set {
+ 		panic(new_NullPointerException_0().self())
+ 	}
+ }
+ 
+-func Optional_empty() Optional { return optionalUtilEmpty_ }
++func Optional_empty[T any]() Optional[T] { return Optional[T]{set: true} }
+ 
+-func Optional_of(v any) Optional {
+-	if v == nil {
++func Optional_of[T any](v T) Optional[T] {
++	if isnull_(v) {
+ 		panic(new_NullPointerException_0().self())
+ 	}
+-	return Optional{v, true}
++	return Optional[T]{v, true, true}
+ }
+ 
+-func (this Optional) get() any {
+-	this.nn_()
+-	if this.value == nil {
+-		panic(new_NoSuchElementException_String("No value present").self())
++func Optional_ofNullable[T any](v T) Optional[T] {
++	if isnull_(v) {
++		return Optional[T]{set: true}
+ 	}
+-	return this.value
++	return Optional[T]{v, true, true}
+ }
+ 
+-func Optional_ofNullable(v any) Optional {
+-	if v == nil {
+-		return optionalUtilEmpty_
++// optConv_ is an Optional<S> seen as an Optional<T> (a cast or a widening in Java, where both
++// are the same object): f converts the content.
++func optConv_[S, T any](o Optional[S], f func(S) T) Optional[T] {
++	if !o.present {
++		return Optional[T]{set: o.set}
+ 	}
+-	return Optional{v, true}
++	return Optional[T]{f(o.value), true, true}
+ }
+ 
+-func (this Optional) orElse(other any) any {
++// optErase_ is an Optional<T> seen as a raw Optional, its content boxed as erased code boxes it.
++func optErase_[T any](o Optional[T]) Optional[any] { return optConv_(o, boxValue_[T]) }
++
++// content_ is the content as an object, nil when empty.
++func (this Optional[T]) content_() any {
++	if !this.present {
++		return nil
++	}
++	return boxValue_(this.value)
++}
++
++// optional_ is any instantiation of Optional, for equals across instantiations.
++type optional_ interface {
++	content_() any
++	isSet_() bool
++}
++
++func (this Optional[T]) isSet_() bool { return this.set }
++
++func (this Optional[T]) get() T {
+ 	this.nn_()
+-	if this.value == nil {
++	if !this.present {
++		panic(new_NoSuchElementException_String("No value present").self())
++	}
++	return this.value
++}
++
++func (this Optional[T]) orElse(other T) T {
++	this.nn_()
++	if !this.present {
+ 		return other
+ 	}
+ 	return this.value
+ }
+ 
+-func (this Optional) orElseThrow() any { return this.get() }
++func (this Optional[T]) orElseThrow() T { return this.get() }
+ 
+-func (this Optional) filter(p Predicate) Optional {
++func (this Optional[T]) filter(p Predicate) Optional[T] {
+ 	this.nn_()
+ 	if p == nil {
+ 		panic(new_NullPointerException_0().self())
+ 	}
+-	if this.value == nil || p.test(this.value) {
++	if !this.present || p.test(this.content_()) {
+ 		return this
+ 	}
+-	return optionalUtilEmpty_
++	return Optional[T]{set: true}
+ }
+ 
+-func (this Optional) ifPresent(c Consumer) {
++// filterFn_ is filter with a predicate that takes the content unboxed.
++func (this Optional[T]) filterFn_(p func(T) bool) Optional[T] {
+ 	this.nn_()
+-	if this.value != nil {
+-		c.accept(this.value)
++	if !this.present || p(this.value) {
++		return this
+ 	}
++	return Optional[T]{set: true}
+ }
+ 
+-func (this Optional) isEmpty() bool   { this.nn_(); return this.value == nil }
+-func (this Optional) isPresent() bool { this.nn_(); return this.value != nil }
++func (this Optional[T]) ifPresent(c Consumer) {
++	this.nn_()
++	if this.present {
++		c.accept(this.content_())
++	}
++}
++
++func (this Optional[T]) isEmpty() bool   { this.nn_(); return !this.present }
++func (this Optional[T]) isPresent() bool { this.nn_(); return this.present }
+ 
+-func (this Optional) equals(o any) bool {
++func (this Optional[T]) equals(o any) bool {
+ 	this.nn_()
+-	x, ok := o.(Optional)
+-	return ok && x.set && objequals_(this.value, x.value)
++	x, ok := o.(optional_)
++	return ok && x.isSet_() && objequals_(this.content_(), x.content_())
+ }
+ 
+-func (this Optional) hashCode() int32 { this.nn_(); return objhash_(this.value) }
++func (this Optional[T]) hashCode() int32 { this.nn_(); return objhash_(this.content_()) }
+ 
+-func (this Optional) toString() string {
++func (this Optional[T]) toString() string {
+ 	this.nn_()
+-	if this.value == nil {
++	if !this.present {
+ 		return "Optional.empty"
+ 	}
+-	return "Optional[" + objstr_(this.value) + "]"
++	return "Optional[" + objstr_(this.content_()) + "]"
+ }
+ 
+ // ---- Predicates, Functions, Suppliers
+diff --git a/go/closure/rt_core.go b/go/closure/rt_core.go
+index 8c7ba143..918d809e 100644
+--- a/go/closure/rt_core.go
++++ b/go/closure/rt_core.go
+@@ -6,6 +6,7 @@ package closure
+ import (
+ 	"fmt"
+ 	"math"
++	"reflect"
+ 	"strconv"
+ )
+ 
+@@ -52,6 +53,37 @@ func strobj_(s string) any {
+ 	return s
+ }
+ 
++// isnull_ is `v == null` for a value of a type argument, as the erased code would see it once
++// boxed: a String is null when it is nullstr_, a class pointer, handle or interface when it is
++// nil (obj_ and box_ make those nil); arrays and numbers box to non-null objects.
++func isnull_[T any](v T) bool {
++	if p, ok := any(&v).(*string); ok {
++		return *p == nullstr_
++	}
++	x := any(v)
++	if x == nil {
++		return true
++	}
++	if h, ok := x.(interface{ box_() any }); ok {
++		return h.box_() == nil
++	}
++	r := reflect.ValueOf(x)
++	return r.Kind() == reflect.Pointer && r.IsNil()
++}
++
++// boxValue_ is a value of a type argument boxed as the erased code boxes it: the most derived
++// object of a class, the handle's box, a String as itself (never null here).
++func boxValue_[T any](v T) any {
++	x := any(v)
++	if s, ok := x.(interface{ self() any }); ok {
++		return s.self()
++	}
++	if h, ok := x.(interface{ box_() any }); ok {
++		return h.box_()
++	}
++	return x
++}
++
+ func isstr_(v any) bool {
+ 	_, ok := v.(string)
+ 	return ok
+diff --git a/go/closure/rt_io.go b/go/closure/rt_io.go
+index 50fa5022..7d9faa66 100644
+--- a/go/closure/rt_io.go
++++ b/go/closure/rt_io.go
+@@ -99,11 +99,11 @@ func Io_utf8String(bytes []int8) string {
+ 	return string(out)
+ }
+ 
+-func Io_utf8StringStrict(bytes []int8) Optional {
++func Io_utf8StringStrict(bytes []int8) Optional[string] {
+ 	if b := u8_(bytes); utf8.Valid(b) {
+ 		return Optional_of(string(b))
+ 	}
+-	return Optional_empty()
++	return Optional_empty[string]()
+ }
+ 
+ // ---- Files and directories
+@@ -303,11 +303,11 @@ func Io_base64Decode(text string) []int8 {
+ // ---- Files bundled with the compiler; the report of an unexpected failure
+ 
+ // Io_readResource reads from the files embedded in the binary (rt_io_resources.go).
+-func Io_readResource(name string) Optional {
++func Io_readResource(name string) Optional[[]int8] {
+ 	if b, ok := resourceBytes_(name); ok {
+ 		return Optional_of(i8_(b))
+ 	}
+-	return Optional_empty()
++	return Optional_empty[[]int8]()
+ }
+ 
+ // Io_stackTraceText is the throwable and its causes, as the JVM
+diff --git a/go/closure/rt_io_test.go b/go/closure/rt_io_test.go
+index 611c4621..8d6593e2 100644
+--- a/go/closure/rt_io_test.go
++++ b/go/closure/rt_io_test.go
+@@ -99,8 +99,8 @@ func ioShow_(v any) string {
+ 		return strconv.FormatBool(x)
+ 	case int64:
+ 		return strconv.FormatInt(x, 10)
+-	case Optional:
+-		return ioShow_(x.orElse(nil))
++	case optional_:
++		return ioShow_(x.content_())
+ 	case *SimpleJsonValue:
+ 		return ioEsc_(x.toString())
+ 	case List:
