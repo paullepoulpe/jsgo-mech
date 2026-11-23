@@ -56,3 +56,42 @@ func TestNullListForEach(t *testing.T) {
 		t.Error("a nil slice should read as empty")
 	}
 }
+
+// TestNullMapReads: reading a null Map or Set throws NullPointerException in Java; a nil Go
+// map reads as an empty one, so the helpers of rt_native.go check for nil and
+// tools/postflip/nilmaps wraps the inline reads of a map that may be nil in mapNN_.
+func TestNullMapReads(t *testing.T) {
+	var m map[string]string
+	var s map[string]struct{}
+	for name, f := range map[string]func(){
+		"mapNN_":         func() { _ = mapNN_(m)["a"] },
+		"mapAt_":         func() { mapAt_(m, "a") },
+		"mapAt2_":        func() { mapAt2_(m, "a") },
+		"mapDelete_":     func() { mapDelete_(m, "a") },
+		"has_":           func() { has_(m, "a") },
+		"mapStr_":        func() { mapStr_(m, "a") },
+		"mapGetOr_":      func() { mapGetOr_(m, "a", "b") },
+		"mapRemove_":     func() { mapRemove_(tc_string, m, "a") },
+		"mapPut_":        func() { mapPut_(tc_string, m, "a", "b") },
+		"setAdd_":        func() { setAdd_(s, "a") },
+		"setRemove_":     func() { setRemove_(s, "a") },
+		"setAddAll_":     func() { setAddAll_(s, map[string]struct{}{}) },
+		"setAddAll_/2":   func() { setAddAll_(map[string]struct{}{}, s) },
+		"setAddAllFrom_": func() { setAddAllFrom_(tc_string, s, Collection(new_ArrayList_0())) },
+		"mapComputeIfAbsent_f": func() {
+			mapComputeIfAbsent_f(tc_string, tc_string, m, "a", func(any) any { t.Error("the function ran"); return nil })
+		},
+	} {
+		if !threwNPE(f) {
+			t.Errorf("%s of a null map should throw NullPointerException", name)
+		}
+	}
+	// The key is evaluated before the map is found null.
+	evaluated := false
+	if !threwNPE(func() { mapAt_(m, func() string { evaluated = true; return "a" }()) }) || !evaluated {
+		t.Error("mapAt_ should evaluate the key, then throw")
+	}
+	if mapNN_(map[string]string{"a": "b"})["a"] != "b" {
+		t.Error("mapNN_ should return the map")
+	}
+}
