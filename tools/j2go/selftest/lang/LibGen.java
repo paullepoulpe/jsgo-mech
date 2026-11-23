@@ -1,8 +1,13 @@
 package lang;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Iterators;
+import com.google.common.collect.PeekingIterator;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.collect.ImmutableMap;
@@ -1573,7 +1578,40 @@ public class LibGen {
     return r;
   }
 
+  static String pairs(PeekingIterator<Dog> it) {
+    String r = "";
+    while (it.hasNext()) {
+      Dog d = it.next();
+      r += d.name + (it.hasNext() ? it.peek().name : "-");
+    }
+    return r;
+  }
+
+  /** Kind `guava`: PeekingIterator and LoadingCache as typed interfaces (the runtime's objects through wrappers). */
+  static String guava() {
+    String r = "";
+    PeekingIterator<String> it = Iterators.peekingIterator(Arrays.asList("a", "b").iterator());
+    r += it.peek() + it.next() + it.peek() + it.hasNext() + it.next() + it.hasNext();
+    r += pairs(Iterators.peekingIterator(Arrays.asList(new Dog("d1"), new Dog("d2"), new Dog("d3")).iterator()));
+    Iterator<String> asIt = Iterators.peekingIterator(Arrays.asList("x").iterator());
+    r += asIt.next() + asIt.hasNext();
+    LoadingCache<String, Integer> cache = CacheBuilder.newBuilder().build(CacheLoader.from(s -> s.length()));
+    r += cache.getUnchecked("abc") + "," + cache.getUnchecked("abc") + "," + cache.size() + "," + cache.getUnchecked("z");
+    LoadingCache<Dog, String> names = CacheBuilder.newBuilder().maximumSize(1).build(new CacheLoader<Dog, String>() {
+      @Override
+      public String load(Dog d) {
+        return d.name + "!";
+      }
+    });
+    Dog k = new Dog("k");
+    r += names.getUnchecked(k) + names.getUnchecked(k) + names.size();
+    Object o = cache;
+    r += (o instanceof LoadingCache) + "" + (o == cache);
+    return r;
+  }
+
   public static String run() {
+    p(guava());
     p(deques());
     p(cmaps());
     p(enumSets());

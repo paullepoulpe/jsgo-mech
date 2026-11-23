@@ -22,7 +22,7 @@ import javax.lang.model.type.*;
  *
  * Kinds: `iter` (java.util.Iterator, java.lang.Iterable), `coll` (java.util.Collection), `list`
  * (java.util.List), `set` (java.util.Set), `map` (java.util.Map, java.util.Map.Entry), `deque`
- * (java.util.Queue, java.util.Deque: rule candidate T2).
+ * (java.util.Queue, java.util.Deque: rule candidate T2), `guava` (PeekingIterator, LoadingCache: T2).
  *
  * - Types: the interfaces of an enabled kind are typed declarations (Ctx.typedClasses).
  *   `Iterator<Node>` is `IteratorT[Node]`. A wildcard is its bound, an erased type variable what
@@ -57,6 +57,8 @@ final class LibGen {
     KINDS.put("map", List.of("java.util.Map", "java.util.Map.Entry"));
     // (rule candidate T2: Queue and Deque, with their typed methods in rt_lg_t2.go)
     KINDS.put("deque", List.of("java.util.Queue", "java.util.Deque"));
+    // (rule candidate T2: two Guava interfaces whose values the runtime makes erased)
+    KINDS.put("guava", List.of("com.google.common.collect.PeekingIterator", "com.google.common.cache.LoadingCache"));
   }
 
   /**
@@ -72,7 +74,9 @@ final class LibGen {
       "java.util.Map", Set.of("get/1", "keySet/0", "values/0", "entrySet/0"),
       "java.util.Map.Entry", Set.of("getKey/0", "getValue/0"),
       "java.util.Queue", Set.of("peek/0", "poll/0", "remove/0"),
-      "java.util.Deque", Set.of("pop/0", "push/1"));
+      "java.util.Deque", Set.of("pop/0", "push/1"),
+      "com.google.common.collect.PeekingIterator", Set.of("peek/0"),
+      "com.google.common.cache.LoadingCache", Set.of("getUnchecked/1", "get/1"));
 
   /**
    * Piece `meth` (J2GO_NOLIBGEN=meth is the translation without it): the methods that take or

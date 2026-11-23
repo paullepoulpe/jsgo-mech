@@ -428,6 +428,11 @@ type Map_EntryT[K any, V any] interface { Map_Entry; getKey_t() K; getValue_t() 
     `PriorityQueue`) enters through `dequeAs_` / `queueAs_`. Of the methods that `Deque`
     shares with `SequencedCollection` (`getFirst`, `addFirst` ...) none is typed: they are
     calls of the runtime's helpers on the erased object, as before.
+  - Kind `guava` (a kind of `LibGen.KINDS`): `PeekingIterator<X>` is `PeekingIteratorT[X]`
+    (typed `next` and `peek`), `LoadingCache<K, V>` is `LoadingCacheT[K, V]` (typed `get` and
+    `getUnchecked`). The runtime makes both erased (`Iterators.peekingIterator`,
+    `CacheBuilder.build`), so a value enters through `peekingIteratorAs_` / `loadingCacheAs_`,
+    one wrapper per value.
 
 Refused (`typed library interfaces: refused: File.java:line: ...`, nothing is written):
 
@@ -457,7 +462,7 @@ Refused (`typed library interfaces: refused: File.java:line: ...`, nothing is wr
 `tools/j2go/selftest/refused/RefusedLib.java` has one use of each kind (10); the self-test
 fails unless the translator refuses exactly those and writes nothing.
 
-Each kind and piece is a switch: `J2GO_NOLIBGEN=iter,coll,list,set,map,makers,views,place,cov,elems,wide,nncoll,readers,cls,meth,sorted,enumset,cmaps,deque`
+Each kind and piece is a switch: `J2GO_NOLIBGEN=iter,coll,list,set,map,makers,views,place,cov,elems,wide,nncoll,readers,cls,meth,sorted,enumset,cmaps,deque,guava`
 (`all`: every one). A translation with any of them off is built with `-tags j2go_nolibgen`
 (`tools/prune/verify.sh` and the self-test do that when `J2GO_NOLIBGEN` is set): the erased
 factories that only such a translation names are in `go/closure/rt_lg_erased.go`, outside the

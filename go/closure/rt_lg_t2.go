@@ -174,3 +174,83 @@ func (v *tdequeView_[T]) poll_t() T     { return v.d.poll() }
 func (v *tdequeView_[T]) remove_0_t() T { return v.d.pop() }
 func (v *tdequeView_[T]) pop_t() T      { return v.d.pop() }
 func (v *tdequeView_[T]) push_t(x T)    { v.d.push(x) }
+
+// ---- kind `guava`: PeekingIterator and LoadingCache as typed interfaces. The runtime makes
+// both erased (Iterators.peekingIterator, CacheBuilder.build), so every value is a wrapper.
+
+type PeekingIteratorT[T any] interface {
+	PeekingIterator
+	next_t() T
+	peek_t() T
+}
+
+// PeekingIterator_un_ is typed value x as erased code knows it.
+func PeekingIterator_un_(x PeekingIterator) PeekingIterator {
+	if w, ok := x.(lgWrap_); ok {
+		u, _ := w.unwrap_().(PeekingIterator)
+		return u
+	}
+	return x
+}
+
+type peekingIteratorAs[T any] struct {
+	PeekingIterator
+	c *tconv_[T]
+}
+
+func (w *peekingIteratorAs[T]) next_t() T { return w.c.unbox(w.PeekingIterator.next()) }
+func (w *peekingIteratorAs[T]) peek_t() T {
+	return w.c.unbox(w.PeekingIterator.(interface{ peek() any }).peek())
+}
+func (w *peekingIteratorAs[T]) unwrap_() any { return w.PeekingIterator }
+
+// peekingIteratorAs_ is erased v as a PeekingIterator of T: itself if it is one, else a wrapper.
+func peekingIteratorAs_[T any](c *tconv_[T], v PeekingIterator) PeekingIteratorT[T] {
+	if v == nil {
+		return nil
+	}
+	if t, ok := v.(PeekingIteratorT[T]); ok {
+		return t
+	}
+	return &peekingIteratorAs[T]{v, c}
+}
+
+type LoadingCacheT[K any, V any] interface {
+	LoadingCache
+	getUnchecked_t(k K) V
+	get_t(k K) V
+}
+
+// LoadingCache_un_ is typed value x as erased code knows it.
+func LoadingCache_un_(x LoadingCache) LoadingCache {
+	if w, ok := x.(lgWrap_); ok {
+		u, _ := w.unwrap_().(LoadingCache)
+		return u
+	}
+	return x
+}
+
+type loadingCacheAs[K any, V any] struct {
+	LoadingCache
+	kc *tconv_[K]
+	vc *tconv_[V]
+}
+
+func (w *loadingCacheAs[K, V]) getUnchecked_t(k K) V {
+	return w.vc.unbox(w.LoadingCache.(interface{ getUnchecked(any) any }).getUnchecked(w.kc.box(k)))
+}
+func (w *loadingCacheAs[K, V]) get_t(k K) V {
+	return w.vc.unbox(w.LoadingCache.(interface{ get(any) any }).get(w.kc.box(k)))
+}
+func (w *loadingCacheAs[K, V]) unwrap_() any { return w.LoadingCache }
+
+// loadingCacheAs_ is erased v as a LoadingCache of K and V: itself if it is one, else a wrapper.
+func loadingCacheAs_[K any, V any](kc *tconv_[K], vc *tconv_[V], v LoadingCache) LoadingCacheT[K, V] {
+	if v == nil {
+		return nil
+	}
+	if t, ok := v.(LoadingCacheT[K, V]); ok {
+		return t
+	}
+	return &loadingCacheAs[K, V]{v, kc, vc}
+}
