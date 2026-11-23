@@ -29,7 +29,7 @@ func ReportDecoder_parseMapping(mappingFileContent string) *Outcome_base[MapT[st
 	var mapping *TMap[string, *InstrumentationPoint] = newTMap_(tc_string, tc_p_InstrumentationPoint)
 	var linesOfFile *TList[string] = splitToListST_(tc_string, Splitter_on('\n').omitEmptyStrings(), mappingFileContent)
 	if ok_, a1_ := (linesOfFile.size() >= 3), linesOfFile.asListT(); !ok_ {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Malformed report %s", []any{a1_})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Malformed report %s", a1_)))
 	}
 	var fileNamesLine string = strings.Trim(linesOfFile.get(0), javaSpace_)
 	var functionNamesLine string = strings.Trim(linesOfFile.get(1), javaSpace_)

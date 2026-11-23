@@ -602,7 +602,7 @@ func (this *TypeValidator) registerMismatchAndReport(found *JSType, required *JS
 }
 
 func TypeValidator_formatNodeLocation(node Node) string {
-	return String_format("%s:%s:%s", []any{strobj_(node.getSourceFileName()), int32(node.getLineno()), int32(node.getCharno())})
+	return String_format("%s:%s:%s", strobj_(node.getSourceFileName()), int32(node.getLineno()), int32(node.getCharno()))
 }
 
 func TypeValidator_formatFoundRequired(description string, found *JSType, required *JSType, missing *TSet[string], mismatch *TSet[string]) string {
@@ -638,7 +638,7 @@ func TypeValidator_formatFoundRequired(description string, found *JSType, requir
 func (this *TypeValidator) getJSType(n Node) *JSType {
 	nn_ := n.getJSType()
 	if nn_ == nil {
-		panic(new_NullPointerException_String(Strings_lenientFormat("%s has no JSType attached", []any{n.box_()})))
+		panic(new_NullPointerException_String(Strings_lenientFormat("%s has no JSType attached", n.box_())))
 	}
 	return nn_
 }

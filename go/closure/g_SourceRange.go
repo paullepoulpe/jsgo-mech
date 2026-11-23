@@ -19,5 +19,5 @@ func new_SourceRange(start *SourcePosition_util, end *SourcePosition_util) *Sour
 }
 
 func (this *SourceRange) toString() string {
-	return String_format("<%s - %s>", []any{obj_(this.start_), obj_(this.end_)})
+	return String_format("<%s - %s>", obj_(this.start_), obj_(this.end_))
 }

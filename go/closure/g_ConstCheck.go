@@ -74,7 +74,7 @@ func (this *ConstCheck) visit_impl(t *NodeTraversal, n Node, parent Node) {
 
 func (this *ConstCheck) isConstant(var_ *Var, nameNode Node) bool {
 	if var_ == nil {
-		panic(new_NullPointerException_String(Strings_lenientFormat("Found unexpected undeclared name %s", []any{nameNode.box_()})))
+		panic(new_NullPointerException_String(Strings_lenientFormat("Found unexpected undeclared name %s", nameNode.box_())))
 	}
 	return (var_.isConst() || var_.isDeclaredOrInferredConst())
 }
