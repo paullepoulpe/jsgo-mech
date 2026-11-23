@@ -10,7 +10,7 @@ type JsMessageVisitor struct {
 	compiler_       *AbstractCompiler
 	messageNames    map[string]*JsMessageVisitor_MessageLocation
 	unnamedMessages map[varKey_]*JsMessage
-	googMsgNodes    *TSet[Node]
+	googMsgNodes    TSet[Node]
 }
 
 func (this *JsMessageVisitor) as_JsMessageVisitor() *JsMessageVisitor { return this }
@@ -32,7 +32,7 @@ func (this *JsMessageVisitor) up_NodeTraversal_AbstractPostOrderCallback() *Node
 func (this *JsMessageVisitor) finit_JsMessageVisitor() {
 	this.messageNames = map[string]*JsMessageVisitor_MessageLocation{}
 	this.unnamedMessages = map[varKey_]*JsMessage{}
-	this.googMsgNodes = newTSet_(tc_Node)
+	initTSet_(&this.googMsgNodes, tc_Node)
 }
 
 func (this *JsMessageVisitor) init_JsMessageVisitor(compiler *AbstractCompiler, idGenerator JsMessage_IdGenerator) {

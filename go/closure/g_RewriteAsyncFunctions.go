@@ -169,11 +169,11 @@ func (this *RewriteAsyncFunctions_SuperPropertyWrapperInfo) createWrapperFunctio
 
 type RewriteAsyncFunctions_SuperPropertyWrappers struct {
 	outer_                *RewriteAsyncFunctions
-	propertyNameToTypeMap *TMap[string, *RewriteAsyncFunctions_SuperPropertyWrapperInfo]
+	propertyNameToTypeMap TMap[string, *RewriteAsyncFunctions_SuperPropertyWrapperInfo]
 }
 
 func (this *RewriteAsyncFunctions_SuperPropertyWrappers) finit_RewriteAsyncFunctions_SuperPropertyWrappers() {
-	this.propertyNameToTypeMap = newTMap_(tc_string, tc_p_RewriteAsyncFunctions_SuperPropertyWrapperInfo)
+	initTMap_(&this.propertyNameToTypeMap, tc_string, tc_p_RewriteAsyncFunctions_SuperPropertyWrapperInfo)
 }
 
 func (this *RewriteAsyncFunctions_SuperPropertyWrappers) init_RewriteAsyncFunctions_SuperPropertyWrappers() {

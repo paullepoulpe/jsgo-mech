@@ -118,12 +118,12 @@ func (this *RescopeGlobalSymbols_RewriteGlobalClassFunctionDeclarationsToVarAssi
 type RescopeGlobalSymbols_FindCrossChunkNamesCallback struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_                                               *AbstractCompiler
-	crossChunkNames_                                        *TSet[string]
-	crossChunkNamesWithWriteFromOtherChunk_                 *TSet[string]
-	crossChunkNamesUsedInNonDependentChunk_                 *TSet[string]
-	globalNamesWithReadInDefiningChunk_                     *TSet[string]
-	globalNamesWithInnerScopeWriteInDefiningChunk_          *TSet[string]
-	globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_ *TSet[string]
+	crossChunkNames_                                        TSet[string]
+	crossChunkNamesWithWriteFromOtherChunk_                 TSet[string]
+	crossChunkNamesUsedInNonDependentChunk_                 TSet[string]
+	globalNamesWithReadInDefiningChunk_                     TSet[string]
+	globalNamesWithInnerScopeWriteInDefiningChunk_          TSet[string]
+	globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_ TSet[string]
 	renameHelperBuilder                                     RescopeGlobalSymbolsRenameHelper_HelperBuilder
 	assumeCrossChunkNames                                   bool
 	trackLocalAccessSets                                    bool
@@ -137,12 +137,12 @@ func (this *RescopeGlobalSymbols_FindCrossChunkNamesCallback) up_NodeTraversal_A
 }
 
 func (this *RescopeGlobalSymbols_FindCrossChunkNamesCallback) finit_RescopeGlobalSymbols_FindCrossChunkNamesCallback() {
-	this.crossChunkNames_ = newTSet_(tc_string)
-	this.crossChunkNamesWithWriteFromOtherChunk_ = newTSet_(tc_string)
-	this.crossChunkNamesUsedInNonDependentChunk_ = newTSet_(tc_string)
-	this.globalNamesWithReadInDefiningChunk_ = newTSet_(tc_string)
-	this.globalNamesWithInnerScopeWriteInDefiningChunk_ = newTSet_(tc_string)
-	this.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_ = newTSet_(tc_string)
+	initTSet_(&this.crossChunkNames_, tc_string)
+	initTSet_(&this.crossChunkNamesWithWriteFromOtherChunk_, tc_string)
+	initTSet_(&this.crossChunkNamesUsedInNonDependentChunk_, tc_string)
+	initTSet_(&this.globalNamesWithReadInDefiningChunk_, tc_string)
+	initTSet_(&this.globalNamesWithInnerScopeWriteInDefiningChunk_, tc_string)
+	initTSet_(&this.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_, tc_string)
 }
 
 func (this *RescopeGlobalSymbols_FindCrossChunkNamesCallback) init_RescopeGlobalSymbols_FindCrossChunkNamesCallback(compiler *AbstractCompiler, assumeCrossChunkNames bool, trackLocalAccessSets bool, renameHelperBuilder RescopeGlobalSymbolsRenameHelper_HelperBuilder) {
@@ -238,7 +238,7 @@ func RescopeGlobalSymbols_FindCrossChunkNamesCallback_isWriteSafeForLocalAliasMi
 
 type RescopeGlobalSymbols_FindNamesReferencingThis struct {
 	NodeTraversal_AbstractPostOrderCallback
-	maybeReferencesThis_ *TSet[string]
+	maybeReferencesThis_ TSet[string]
 }
 
 func (this *RescopeGlobalSymbols_FindNamesReferencingThis) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -249,7 +249,7 @@ func (this *RescopeGlobalSymbols_FindNamesReferencingThis) up_NodeTraversal_Abst
 }
 
 func (this *RescopeGlobalSymbols_FindNamesReferencingThis) finit_RescopeGlobalSymbols_FindNamesReferencingThis() {
-	this.maybeReferencesThis_ = newTSet_(tc_string)
+	initTSet_(&this.maybeReferencesThis_, tc_string)
 }
 
 func (this *RescopeGlobalSymbols_FindNamesReferencingThis) init_RescopeGlobalSymbols_FindNamesReferencingThis() {

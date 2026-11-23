@@ -6,7 +6,7 @@ type Es6RewriteBlockScopedDeclaration struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_        *AbstractCompiler
 	astFactory_      *AstFactory
-	letConsts        *TSet[Node]
+	letConsts        TSet[Node]
 	uniqueIdSupplier UniqueIdSupplier
 }
 
@@ -18,7 +18,7 @@ func (this *Es6RewriteBlockScopedDeclaration) up_NodeTraversal_AbstractPostOrder
 }
 
 func (this *Es6RewriteBlockScopedDeclaration) finit_Es6RewriteBlockScopedDeclaration() {
-	this.letConsts = newTSet_(tc_Node)
+	initTSet_(&this.letConsts, tc_Node)
 }
 
 func (this *Es6RewriteBlockScopedDeclaration) init_Es6RewriteBlockScopedDeclaration(compiler *AbstractCompiler) {
@@ -205,7 +205,7 @@ func Es6RewriteBlockScopedDeclaration_clinit() {
 type Es6RewriteBlockScopedDeclaration_LoopClosureTransformer struct {
 	NodeTraversal_AbstractPreOrderCallback
 	outer_                              *Es6RewriteBlockScopedDeclaration
-	loopObjectMap                       *TMap[Node, *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject]
+	loopObjectMap                       TMap[Node, *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject]
 	nodesRequiringLoopObjectsClosureMap *SimpleSetMultimap[Node, *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject]
 	nodesHandledForLoopObjectClosure    *SimpleSetMultimap[Node, string]
 	referenceMap                        *SimpleSetMultimap[*Var, Node]
@@ -219,7 +219,7 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) up_NodeTrav
 }
 
 func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) finit_Es6RewriteBlockScopedDeclaration_LoopClosureTransformer() {
-	this.loopObjectMap = newTMap_(tc_Node, tc_p_Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject)
+	initTMap_(&this.loopObjectMap, tc_Node, tc_p_Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject)
 	this.nodesRequiringLoopObjectsClosureMap = SimpleSetMultimap_createInsertionOrdered[Node, *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject]()
 	this.nodesHandledForLoopObjectClosure = SimpleSetMultimap_createInsertionOrdered[Node, string]()
 	this.referenceMap = SimpleSetMultimap_createInsertionOrdered[*Var, Node]()
@@ -532,7 +532,7 @@ const Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LOOP_OBJECT_NAME s
 
 type Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject struct {
 	name_ string
-	vars  *TSet[*Var]
+	vars  TSet[*Var]
 }
 
 func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject) zero_Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject() {
@@ -540,7 +540,7 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject) 
 }
 
 func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject) finit_Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject() {
-	this.vars = newTSet_(tch_p_Var)
+	initTSet_(&this.vars, tch_p_Var)
 }
 
 func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject) init_Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject(name string) {

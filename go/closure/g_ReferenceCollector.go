@@ -3,7 +3,7 @@
 package closure
 
 type ReferenceCollector struct {
-	referenceMap                            *TMap[*Var, *ReferenceCollection]
+	referenceMap                            TMap[*Var, *ReferenceCollection]
 	blockStack                              *[]*BasicBlock
 	behavior                                ReferenceCollector_Behavior
 	scopeCreator                            ScopeCreator
@@ -16,7 +16,7 @@ type ReferenceCollector struct {
 }
 
 func (this *ReferenceCollector) finit_ReferenceCollector() {
-	this.referenceMap = newTMap_(tch_p_Var, tc_p_ReferenceCollection)
+	initTMap_(&this.referenceMap, tch_p_Var, tc_p_ReferenceCollection)
 	this.blockStack = &[]*BasicBlock{}
 	this.callback = new_ReferenceCollector_CollectorCallback(this)
 	this.collectedHoistedFunctions = map[Node]struct{}{}

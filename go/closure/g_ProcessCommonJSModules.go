@@ -435,8 +435,8 @@ func new_ProcessCommonJSModules_ExportInfo(node Node, scope *Scope) *ProcessComm
 type ProcessCommonJSModules_FindImportsAndExports struct {
 	outer_                 *ProcessCommonJSModules
 	umdPatterns            *[]*ProcessCommonJSModules_UmdPattern
-	moduleExports          *TList[*ProcessCommonJSModules_ExportInfo]
-	exports                *TList[*ProcessCommonJSModules_ExportInfo]
+	moduleExports          TList[*ProcessCommonJSModules_ExportInfo]
+	exports                TList[*ProcessCommonJSModules_ExportInfo]
 	errors_                *[]*JSError
 	script_                Node
 	hasGoogProvideOrModule bool
@@ -446,8 +446,8 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) finit_ProcessCommonJSM
 	this.hasGoogProvideOrModule = false
 	this.script_ = 0
 	this.umdPatterns = &[]*ProcessCommonJSModules_UmdPattern{}
-	this.moduleExports = newTList_(tc_p_ProcessCommonJSModules_ExportInfo)
-	this.exports = newTList_(tc_p_ProcessCommonJSModules_ExportInfo)
+	initTList_(&this.moduleExports, tc_p_ProcessCommonJSModules_ExportInfo)
+	initTList_(&this.exports, tc_p_ProcessCommonJSModules_ExportInfo)
 	this.errors_ = &[]*JSError{}
 }
 
@@ -471,11 +471,11 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) report_2(ignoredLevel 
 }
 
 func (this *ProcessCommonJSModules_FindImportsAndExports) getModuleExports() *TList[*ProcessCommonJSModules_ExportInfo] {
-	return immutableListCopyOfT_(tc_p_ProcessCommonJSModules_ExportInfo, this.moduleExports)
+	return immutableListCopyOfT_(tc_p_ProcessCommonJSModules_ExportInfo, &this.moduleExports)
 }
 
 func (this *ProcessCommonJSModules_FindImportsAndExports) getExports() *TList[*ProcessCommonJSModules_ExportInfo] {
-	return immutableListCopyOfT_(tc_p_ProcessCommonJSModules_ExportInfo, this.exports)
+	return immutableListCopyOfT_(tc_p_ProcessCommonJSModules_ExportInfo, &this.exports)
 }
 
 func (this *ProcessCommonJSModules_FindImportsAndExports) shouldTraverse(nodeTraversal *NodeTraversal, n Node, parent Node) bool {

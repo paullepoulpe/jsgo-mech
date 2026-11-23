@@ -1917,7 +1917,7 @@ func (this *RegExpTree_Concatenation) simplify_impl(flags string) *RegExpTree {
 		case 1:
 			return s.simplified.get(0)
 		default:
-			return new_RegExpTree_Concatenation_List(s.simplified).up_RegExpTree()
+			return new_RegExpTree_Concatenation_List(&s.simplified).up_RegExpTree()
 		}
 	}()
 }
@@ -2577,11 +2577,11 @@ func (this *RegExpTree_1Parser) parseRepetition(body *RegExpTree) *RegExpTree {
 type RegExpTree_Concatenation_1Simplifier struct {
 	outer_     *RegExpTree_Concatenation
 	cap_flags  string
-	simplified *TList[*RegExpTree]
+	simplified TList[*RegExpTree]
 }
 
 func (this *RegExpTree_Concatenation_1Simplifier) finit_RegExpTree_Concatenation_1Simplifier() {
-	this.simplified = newTList_(tc_p_RegExpTree)
+	initTList_(&this.simplified, tc_p_RegExpTree)
 }
 
 func (this *RegExpTree_Concatenation_1Simplifier) init_RegExpTree_Concatenation_1Simplifier() {

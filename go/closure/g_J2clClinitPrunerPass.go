@@ -5,13 +5,13 @@ package closure
 import "strings"
 
 type J2clClinitPrunerPass struct {
-	emptiedClinitMethods     *TMap[string, Node]
+	emptiedClinitMethods     TMap[string, Node]
 	compiler_                *AbstractCompiler
 	initialChangedScopeNodes ListT[Node]
 }
 
 func (this *J2clClinitPrunerPass) finit_J2clClinitPrunerPass() {
-	this.emptiedClinitMethods = newTMap_(tc_string, tc_Node)
+	initTMap_(&this.emptiedClinitMethods, tc_string, tc_Node)
 }
 
 func (this *J2clClinitPrunerPass) init_J2clClinitPrunerPass(compiler *AbstractCompiler, initialChangedScopeNodes ListT[Node]) {
@@ -396,14 +396,14 @@ func (this *J2clClinitPrunerPass_EmptyClinitPruner) isAssignToEmptyFn(node Node,
 }
 
 type J2clClinitPrunerPass_HierarchicalSet[T comparable] struct {
-	currentSet *TSet[T]
+	currentSet TSet[T]
 	parent     *J2clClinitPrunerPass_HierarchicalSet[T]
 }
 
 func (this *J2clClinitPrunerPass_HierarchicalSet[T]) isa_J2clClinitPrunerPass_HierarchicalSet_() {}
 
 func (this *J2clClinitPrunerPass_HierarchicalSet[T]) finit_J2clClinitPrunerPass_HierarchicalSet() {
-	this.currentSet = newTSet_(tchT_[T]())
+	initTSet_(&this.currentSet, tchT_[T]())
 }
 
 func (this *J2clClinitPrunerPass_HierarchicalSet[T]) init_J2clClinitPrunerPass_HierarchicalSet(parent *J2clClinitPrunerPass_HierarchicalSet[T]) {

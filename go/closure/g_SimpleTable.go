@@ -3,13 +3,13 @@
 package closure
 
 type SimpleTable[R comparable, C comparable, V comparable] struct {
-	rows *TMap[R, MapT[C, V]]
+	rows TMap[R, MapT[C, V]]
 }
 
 func (this *SimpleTable[R, C, V]) isa_SimpleTable_() {}
 
 func (this *SimpleTable[R, C, V]) finit_SimpleTable() {
-	this.rows = newTMap_(tchT_[R](), tc_MapT_C__V_[C, V]())
+	initTMap_(&this.rows, tchT_[R](), tc_MapT_C__V_[C, V]())
 }
 
 func (this *SimpleTable[R, C, V]) init_SimpleTable() {

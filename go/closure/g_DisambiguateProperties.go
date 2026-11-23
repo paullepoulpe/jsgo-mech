@@ -6,11 +6,11 @@ type DisambiguateProperties struct {
 	compiler_                      *AbstractCompiler
 	propertiesThatMustDisambiguate *TSet[string]
 	registry                       *ColorRegistry
-	mayHavePropertySeenSet         *TSet[*Color]
+	mayHavePropertySeenSet         TSet[*Color]
 }
 
 func (this *DisambiguateProperties) finit_DisambiguateProperties() {
-	this.mayHavePropertySeenSet = newTSet_(tch_p_Color)
+	initTSet_(&this.mayHavePropertySeenSet, tch_p_Color)
 }
 
 func (this *DisambiguateProperties) init_DisambiguateProperties(compiler *AbstractCompiler, propertiesThatMustDisambiguate *TSet[string]) {

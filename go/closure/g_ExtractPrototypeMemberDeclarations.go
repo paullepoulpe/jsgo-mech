@@ -211,7 +211,7 @@ func new_ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo() *ExtractPro
 type ExtractPrototypeMemberDeclarations_GatherExtractionInfo struct {
 	NodeTraversal_AbstractShallowCallback
 	outer_           *ExtractPrototypeMemberDeclarations
-	instancesByChunk *TMap[*JSChunk, *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo]
+	instancesByChunk TMap[*JSChunk, *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo]
 }
 
 func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) up_NodeTraversal_AbstractShallowCallback() *NodeTraversal_AbstractShallowCallback {
@@ -222,7 +222,7 @@ func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) up_NodeTrav
 }
 
 func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) finit_ExtractPrototypeMemberDeclarations_GatherExtractionInfo() {
-	this.instancesByChunk = newTMap_(tc_p_JSChunk, tc_p_ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo)
+	initTMap_(&this.instancesByChunk, tc_p_JSChunk, tc_p_ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo)
 }
 
 func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) init_ExtractPrototypeMemberDeclarations_GatherExtractionInfo() {

@@ -5,7 +5,7 @@ package closure
 type FixingErrorManager struct {
 	BasicErrorManager
 	fixer           *ErrorToFixMapper
-	sureFixes       *TMap[*JSError, *SuggestedFix]
+	sureFixes       TMap[*JSError, *SuggestedFix]
 	multiFixes      *SimpleListMultimap[*JSError, *SuggestedFix]
 	unfixableErrors *TSet[*DiagnosticType]
 }
@@ -25,7 +25,7 @@ func (this *FixingErrorManager) up_SortingErrorManager() *SortingErrorManager {
 }
 
 func (this *FixingErrorManager) finit_FixingErrorManager() {
-	this.sureFixes = newTMap_(tch_p_JSError, tc_p_SuggestedFix)
+	initTMap_(&this.sureFixes, tch_p_JSError, tc_p_SuggestedFix)
 	this.multiFixes = SimpleListMultimap_create[*JSError, *SuggestedFix]()
 }
 
@@ -70,7 +70,7 @@ func (this *FixingErrorManager) report_2_impl(level CheckLevel, error_ *JSError)
 }
 
 func (this *FixingErrorManager) containsFixableShorthandModuleWarning() bool {
-	l_1 := this.sureFixes
+	l_1 := &this.sureFixes
 	for i_1 := l_1.first(); i_1 < len(l_1.keys); i_1++ {
 		if l_1.isDead(i_1) {
 			continue

@@ -155,13 +155,13 @@ func (this *OptimizeCalls_Builder) build() *OptimizeCalls {
 
 type OptimizeCalls_ReferenceMap struct {
 	globalScope *Scope
-	names_      *TMap[string, ListT[Node]]
-	props       *TMap[string, ListT[Node]]
+	names_      TMap[string, ListT[Node]]
+	props       TMap[string, ListT[Node]]
 }
 
 func (this *OptimizeCalls_ReferenceMap) finit_OptimizeCalls_ReferenceMap() {
-	this.names_ = newTMap_(tc_string, tc_ListT_Node_)
-	this.props = newTMap_(tc_string, tc_ListT_Node_)
+	initTMap_(&this.names_, tc_string, tc_ListT_Node_)
+	initTMap_(&this.props, tc_string, tc_ListT_Node_)
 }
 
 func (this *OptimizeCalls_ReferenceMap) init_OptimizeCalls_ReferenceMap() {
@@ -182,11 +182,11 @@ func (this *OptimizeCalls_ReferenceMap) addReference(data *TMap[string, ListT[No
 }
 
 func (this *OptimizeCalls_ReferenceMap) addNameReference(name string, n Node) {
-	this.addReference(this.names_, name, n)
+	this.addReference(&this.names_, name, n)
 }
 
 func (this *OptimizeCalls_ReferenceMap) addPropReference(name string, n Node) {
-	this.addReference(this.props, name, n)
+	this.addReference(&this.props, name, n)
 }
 
 func (this *OptimizeCalls_ReferenceMap) getGlobalScope() *Scope {

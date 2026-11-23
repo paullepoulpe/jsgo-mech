@@ -7,7 +7,7 @@ type PureFunctionIdentifier struct {
 	astAnalyzer                          *AstAnalyzer
 	summariesByName                      map[string]*PureFunctionIdentifier_AmbiguatedFunctionSummary
 	summariesForAllNamesOfFunctionByNode *SimpleListMultimap[Node, *PureFunctionIdentifier_AmbiguatedFunctionSummary]
-	artificiallyPureLiteralsForDebugging *TSet[Node]
+	artificiallyPureLiteralsForDebugging TSet[Node]
 	allFunctionCalls                     *[]Node
 	reverseCallGraph                     *LinkedDirectedGraph[*PureFunctionIdentifier_AmbiguatedFunctionSummary, *PureFunctionIdentifier_SideEffectPropagation]
 	unknownFunctionSummary               *PureFunctionIdentifier_AmbiguatedFunctionSummary
@@ -19,7 +19,7 @@ type PureFunctionIdentifier struct {
 func (this *PureFunctionIdentifier) finit_PureFunctionIdentifier() {
 	this.summariesByName = map[string]*PureFunctionIdentifier_AmbiguatedFunctionSummary{}
 	this.summariesForAllNamesOfFunctionByNode = SimpleListMultimap_create[Node, *PureFunctionIdentifier_AmbiguatedFunctionSummary]()
-	this.artificiallyPureLiteralsForDebugging = newTSet_(tc_Node)
+	initTSet_(&this.artificiallyPureLiteralsForDebugging, tc_Node)
 	this.allFunctionCalls = &[]Node{}
 	this.reverseCallGraph = LinkedDirectedGraph_createWithoutAnnotations[*PureFunctionIdentifier_AmbiguatedFunctionSummary, *PureFunctionIdentifier_SideEffectPropagation]()
 	this.unknownFunctionSummary = PureFunctionIdentifier_AmbiguatedFunctionSummary_createInGraph(this.reverseCallGraph.up_DiGraph(), "<unknown>").setMutatesGlobalStateAndAllOtherFlags(0)

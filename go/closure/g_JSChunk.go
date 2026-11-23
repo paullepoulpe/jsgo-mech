@@ -5,7 +5,7 @@ package closure
 type JSChunk struct {
 	name_  string
 	inputs *TMap[string, *CompilerInput]
-	deps   *TList[*JSChunk]
+	deps   TList[*JSChunk]
 	depth  int32
 	index_ int32
 }
@@ -16,7 +16,7 @@ func (this *JSChunk) zero_JSChunk() {
 
 func (this *JSChunk) finit_JSChunk() {
 	this.inputs = newTMap_(tc_string, tc_p_CompilerInput)
-	this.deps = newTList_(tc_p_JSChunk)
+	initTList_(&this.deps, tc_p_JSChunk)
 }
 
 func (this *JSChunk) init_JSChunk(name string) {
@@ -113,7 +113,7 @@ func (this *JSChunk) removeAll() {
 }
 
 func (this *JSChunk) getDependencies() *TList[*JSChunk] {
-	return immutableListCopyOfT_(tc_p_JSChunk, this.deps)
+	return immutableListCopyOfT_(tc_p_JSChunk, &this.deps)
 }
 
 func (this *JSChunk) getSortedDependencyNames() []string {
@@ -127,11 +127,11 @@ func (this *JSChunk) getSortedDependencyNames() []string {
 
 func (this *JSChunk) getAllDependencies() SetT[*JSChunk] {
 	var allDeps *TSet[*JSChunk] = newTSet_(tc_p_JSChunk)
-	tsetAddListT_(allDeps, this.deps)
+	tsetAddListT_(allDeps, &this.deps)
 	var stack *TList[*JSChunk] = tlistFromRev_(tc_p_JSChunk, Collection(this.deps.asList()))
 	for !stack.isEmpty() {
 		var chunk *JSChunk = stack.pop_()
-		var chunkDeps *TList[*JSChunk] = chunk.deps
+		var chunkDeps *TList[*JSChunk] = &chunk.deps
 		for dep := range chunkDeps.All() {
 			if allDeps.Add(dep) {
 				stack.push_(dep)

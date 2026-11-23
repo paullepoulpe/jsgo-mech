@@ -5,9 +5,9 @@ package closure
 type CheckNullabilityModifiers struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_             *AbstractCompiler
-	redundantCandidates   *TSet[Node]
-	missingCandidates     *TSet[Node]
-	nullMissingCandidates *TSet[Node]
+	redundantCandidates   TSet[Node]
+	missingCandidates     TSet[Node]
+	nullMissingCandidates TSet[Node]
 	templateTypeNames     map[string]struct{}
 }
 
@@ -19,9 +19,9 @@ func (this *CheckNullabilityModifiers) up_NodeTraversal_AbstractPostOrderCallbac
 }
 
 func (this *CheckNullabilityModifiers) finit_CheckNullabilityModifiers() {
-	this.redundantCandidates = newTSet_(tc_Node)
-	this.missingCandidates = newTSet_(tc_Node)
-	this.nullMissingCandidates = newTSet_(tc_Node)
+	initTSet_(&this.redundantCandidates, tc_Node)
+	initTSet_(&this.missingCandidates, tc_Node)
+	initTSet_(&this.nullMissingCandidates, tc_Node)
 	this.templateTypeNames = map[string]struct{}{}
 }
 

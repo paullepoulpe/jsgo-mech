@@ -9,13 +9,13 @@ import (
 
 type SourceMapGeneratorV3 struct {
 	mappings             *[]*SourceMapGeneratorV3_Mapping
-	sourceFileMap        *TMap[string, any]
+	sourceFileMap        TMap[string, any]
 	sourceFileContentMap map[string]string
-	originalNameMap      *TMap[string, any]
+	originalNameMap      TMap[string, any]
 	lastMapping          *SourceMapGeneratorV3_Mapping
 	offsetPosition       *FilePosition
 	prefixPosition       *FilePosition
-	extensions           *TMap[string, any]
+	extensions           TMap[string, any]
 	lastSourceFile       string
 	sourceRootPath       string
 	lastSourceFileIndex  int32
@@ -23,14 +23,14 @@ type SourceMapGeneratorV3 struct {
 
 func (this *SourceMapGeneratorV3) finit_SourceMapGeneratorV3() {
 	this.mappings = &[]*SourceMapGeneratorV3_Mapping{}
-	this.sourceFileMap = newTMap_(tc_string, tc_Integer)
+	initTMap_(&this.sourceFileMap, tc_string, tc_Integer)
 	this.sourceFileContentMap = map[string]string{}
-	this.originalNameMap = newTMap_(tc_string, tc_Integer)
+	initTMap_(&this.originalNameMap, tc_string, tc_Integer)
 	this.lastSourceFile = nullstr_
 	this.lastSourceFileIndex = -1
 	this.offsetPosition = new_FilePosition(0, 0)
 	this.prefixPosition = new_FilePosition(0, 0)
-	this.extensions = newTMap_(tc_string, tc_Object)
+	initTMap_(&this.extensions, tc_string, tc_Object)
 	this.sourceRootPath = nullstr_
 }
 
@@ -231,7 +231,7 @@ func (this *SourceMapGeneratorV3) getExtension(name string) any {
 }
 
 func (this *SourceMapGeneratorV3) addSourceNameMap(out Appendable) {
-	SourceMapGeneratorV3_addNameMap(out, this.sourceFileMap)
+	SourceMapGeneratorV3_addNameMap(out, &this.sourceFileMap)
 }
 
 func (this *SourceMapGeneratorV3) addSourcesContentMap(out Appendable) {
@@ -269,7 +269,7 @@ func (this *SourceMapGeneratorV3) addSourcesContentMap(out Appendable) {
 }
 
 func (this *SourceMapGeneratorV3) addSymbolNameMap(out Appendable) {
-	SourceMapGeneratorV3_addNameMap(out, this.originalNameMap)
+	SourceMapGeneratorV3_addNameMap(out, &this.originalNameMap)
 }
 
 func SourceMapGeneratorV3_addNameMap(out Appendable, map_ *TMap[string, any]) {

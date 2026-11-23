@@ -397,8 +397,8 @@ func (this *Tracer_Event) toString(prevEventTime int64, indent string, digitsCol
 
 type Tracer_ThreadTrace struct {
 	events                       *[]*Tracer_Event
-	outstandingEvents            *TSet[*Tracer]
-	stats                        *TMap[string, *Tracer_Stat]
+	outstandingEvents            TSet[*Tracer]
+	stats                        TMap[string, *Tracer_Stat]
 	defaultSilenceThreshold      int32
 	isOutstandingEventsTruncated bool
 	isEventsTruncated            bool
@@ -408,8 +408,8 @@ type Tracer_ThreadTrace struct {
 
 func (this *Tracer_ThreadTrace) finit_Tracer_ThreadTrace() {
 	this.events = &[]*Tracer_Event{}
-	this.outstandingEvents = newTSet_(tc_p_Tracer)
-	this.stats = newTMap_(tc_string, tc_p_Tracer_Stat)
+	initTSet_(&this.outstandingEvents, tc_p_Tracer)
+	initTMap_(&this.stats, tc_string, tc_p_Tracer_Stat)
 	this.isOutstandingEventsTruncated = false
 	this.isEventsTruncated = false
 	this.isInitializedField = false

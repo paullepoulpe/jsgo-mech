@@ -302,7 +302,7 @@ func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyE
 type J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_GatherJ2CLClassGetterSetters struct {
 	NodeTraversal_AbstractPostOrderCallback
 	outer_               *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner
-	j2clPropertiesByName *TMap[string, *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty]
+	j2clPropertiesByName TMap[string, *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty]
 }
 
 func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_GatherJ2CLClassGetterSetters) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -313,7 +313,7 @@ func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_GatherJ2CLCla
 }
 
 func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_GatherJ2CLClassGetterSetters) finit_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_GatherJ2CLClassGetterSetters() {
-	this.j2clPropertiesByName = newTMap_(tc_string, tc_p_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty)
+	initTMap_(&this.j2clPropertiesByName, tc_string, tc_p_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty)
 }
 
 func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_GatherJ2CLClassGetterSetters) init_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_GatherJ2CLClassGetterSetters() {
@@ -330,7 +330,7 @@ func new_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_GatherJ2CLClassG
 }
 
 func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_GatherJ2CLClassGetterSetters) getResults() *TMap[string, *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty] {
-	return this.j2clPropertiesByName
+	return &this.j2clPropertiesByName
 }
 
 func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_GatherJ2CLClassGetterSetters) visit_impl(t *NodeTraversal, n Node, parent Node) {

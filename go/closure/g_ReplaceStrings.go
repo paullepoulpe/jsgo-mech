@@ -10,7 +10,7 @@ type ReplaceStrings struct {
 	compiler_        *AbstractCompiler
 	functions        map[string]*ReplaceStrings_Config
 	nameGenerator    *DefaultNameGenerator
-	results          *TMap[string, *ReplaceStrings_Result]
+	results          TMap[string, *ReplaceStrings_Result]
 }
 
 func (this *ReplaceStrings) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -26,7 +26,7 @@ func (this *ReplaceStrings) zero_ReplaceStrings() {
 
 func (this *ReplaceStrings) finit_ReplaceStrings() {
 	this.functions = map[string]*ReplaceStrings_Config{}
-	this.results = newTMap_(tc_string, tc_p_ReplaceStrings_Result)
+	initTMap_(&this.results, tc_string, tc_p_ReplaceStrings_Result)
 }
 
 func (this *ReplaceStrings) init_ReplaceStrings(compiler *AbstractCompiler, placeholderToken string, functionsToInspect *TList[string]) {

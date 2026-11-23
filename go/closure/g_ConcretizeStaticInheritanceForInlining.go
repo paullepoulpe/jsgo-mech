@@ -123,13 +123,13 @@ func ConcretizeStaticInheritanceForInlining_clinit() {
 }
 
 type ConcretizeStaticInheritanceForInlining_JavascriptClass struct {
-	staticMembers     *TSet[Node]
+	staticMembers     TSet[Node]
 	staticMemberNames map[string]struct{}
 	definedProperties map[string]struct{}
 }
 
 func (this *ConcretizeStaticInheritanceForInlining_JavascriptClass) finit_ConcretizeStaticInheritanceForInlining_JavascriptClass() {
-	this.staticMembers = newTSet_(tc_Node)
+	initTSet_(&this.staticMembers, tc_Node)
 	this.staticMemberNames = map[string]struct{}{}
 	this.definedProperties = map[string]struct{}{}
 }

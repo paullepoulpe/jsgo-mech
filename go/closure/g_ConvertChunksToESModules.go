@@ -4,14 +4,14 @@ package closure
 
 type ConvertChunksToESModules struct {
 	compiler_              *AbstractCompiler
-	crossChunkExports      *TMap[*JSChunk, SetT[string]]
-	crossChunkImports      *TMap[*JSChunk, MapT[*JSChunk, SetT[string]]]
+	crossChunkExports      TMap[*JSChunk, SetT[string]]
+	crossChunkImports      TMap[*JSChunk, MapT[*JSChunk, SetT[string]]]
 	dynamicImportCallbacks *[]Node
 }
 
 func (this *ConvertChunksToESModules) finit_ConvertChunksToESModules() {
-	this.crossChunkExports = newTMap_(tc_p_JSChunk, tc_SetT_string_)
-	this.crossChunkImports = newTMap_(tc_p_JSChunk, tc_MapT_p_JSChunk__SetT_string__)
+	initTMap_(&this.crossChunkExports, tc_p_JSChunk, tc_SetT_string_)
+	initTMap_(&this.crossChunkImports, tc_p_JSChunk, tc_MapT_p_JSChunk__SetT_string__)
 	this.dynamicImportCallbacks = &[]Node{}
 }
 

@@ -4,12 +4,12 @@ package closure
 
 type VariableReferenceCheck struct {
 	compiler_              *AbstractCompiler
-	blocksWithDeclarations *TSet[*BasicBlock]
+	blocksWithDeclarations TSet[*BasicBlock]
 	checkUnusedLocals      bool
 }
 
 func (this *VariableReferenceCheck) finit_VariableReferenceCheck() {
-	this.blocksWithDeclarations = newTSet_(tc_p_BasicBlock)
+	initTSet_(&this.blocksWithDeclarations, tc_p_BasicBlock)
 }
 
 func (this *VariableReferenceCheck) init_VariableReferenceCheck(compiler *AbstractCompiler) {
@@ -80,7 +80,7 @@ func (this *VariableReferenceCheck) checkRedeclaration(v *Var, reference *Refere
 }
 
 func (this *VariableReferenceCheck) isRedeclaration(newDeclaration *BasicBlock) bool {
-	l_1 := this.blocksWithDeclarations
+	l_1 := &this.blocksWithDeclarations
 	for i_1 := l_1.first(); i_1 < len(l_1.keys); i_1++ {
 		if l_1.isDead(i_1) {
 			continue
@@ -235,9 +235,9 @@ func (this *VariableReferenceCheck_ReferenceCheckingBehavior) afterExitScope(t *
 				this.checkDefaultParam(v, scope, this.varsInFunctionBody)
 			}
 			if scope.getRootNode().isFunction() {
-				this.checkShadowParam(v, scope, referenceCollection.references)
+				this.checkShadowParam(v, scope, &referenceCollection.references)
 			}
-			this.checkVar(v, referenceCollection.references)
+			this.checkVar(v, &referenceCollection.references)
 		}
 	}
 	if scope.hasOwnImplicitSlot(AbstractScope_ImplicitVar_EXPORTS) {

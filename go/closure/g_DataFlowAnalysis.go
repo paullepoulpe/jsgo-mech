@@ -343,14 +343,14 @@ func (this *DataFlowAnalysis_LinearFlowState[L]) toString() string {
 }
 
 type DataFlowAnalysis_UniqueQueue[T comparable] struct {
-	seenSet *TSet[T]
+	seenSet TSet[T]
 	queue   QueueOf[T]
 }
 
 func (this *DataFlowAnalysis_UniqueQueue[T]) isa_DataFlowAnalysis_UniqueQueue_() {}
 
 func (this *DataFlowAnalysis_UniqueQueue[T]) finit_DataFlowAnalysis_UniqueQueue() {
-	this.seenSet = newTSet_(tchT_[T]())
+	initTSet_(&this.seenSet, tchT_[T]())
 }
 
 func (this *DataFlowAnalysis_UniqueQueue[T]) init_DataFlowAnalysis_UniqueQueue(priority Comparator[T]) {

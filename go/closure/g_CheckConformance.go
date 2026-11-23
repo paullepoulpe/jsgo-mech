@@ -7,12 +7,12 @@ import "strings"
 type CheckConformance struct {
 	compiler_       *AbstractCompiler
 	categories      *TList[*CheckConformance_Category]
-	mergedBehaviors *TMap[*Requirement, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior]
+	mergedBehaviors TMap[*Requirement, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior]
 	ruleToBehavior  map[CheckConformance_Rule]ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior
 }
 
 func (this *CheckConformance) finit_CheckConformance() {
-	this.mergedBehaviors = newTMap_(tch_p_Requirement, tc_p_ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior)
+	initTMap_(&this.mergedBehaviors, tch_p_Requirement, tc_p_ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior)
 	this.ruleToBehavior = map[CheckConformance_Rule]ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior{}
 }
 

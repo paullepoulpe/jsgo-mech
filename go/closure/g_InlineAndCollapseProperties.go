@@ -162,7 +162,7 @@ func InlineAndCollapseProperties_mayBeGlobalAlias(alias *GlobalNamespace_Ref) bo
 }
 
 func InlineAndCollapseProperties_referencesCollapsibleProperty(aliasRefs *ReferenceCollection, aliasedName *GlobalNamespace_Name, namespace *GlobalNamespace) bool {
-	l_1 := aliasRefs.references
+	l_1 := &aliasRefs.references
 	for i_1 := 0; i_1 < len(l_1.items); i_1++ {
 		var ref *Reference = l_1.items[i_1]
 		if ref.getParent() == 0 {
@@ -896,11 +896,11 @@ func (this *InlineAndCollapseProperties_RewriteSimpleDestructuringAliases) expan
 type InlineAndCollapseProperties_CollapseProperties struct {
 	outer_                     *InlineAndCollapseProperties
 	nameMap                    *TMap[string, *GlobalNamespace_Name]
-	dynamicallyImportedModules *TSet[string]
+	dynamicallyImportedModules TSet[string]
 }
 
 func (this *InlineAndCollapseProperties_CollapseProperties) finit_InlineAndCollapseProperties_CollapseProperties() {
-	this.dynamicallyImportedModules = newTSet_(tc_string)
+	initTSet_(&this.dynamicallyImportedModules, tc_string)
 }
 
 func (this *InlineAndCollapseProperties_CollapseProperties) init_InlineAndCollapseProperties_CollapseProperties() {
@@ -975,7 +975,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) canEliminate(name *G
 
 func (this *InlineAndCollapseProperties_CollapseProperties) checkNamespaces() *TSet[*GlobalNamespace_Name] {
 	var escaped *ImmutableSet_Builder[*GlobalNamespace_Name] = immutableSetBuilder_(tc_p_GlobalNamespace_Name)
-	var dynamicallyImportedModuleRefs *TSet[string] = tsetCopy_(tc_string, this.dynamicallyImportedModules)
+	var dynamicallyImportedModuleRefs *TSet[string] = tsetCopy_(tc_string, &this.dynamicallyImportedModules)
 	if !this.dynamicallyImportedModules.IsEmpty() {
 		for name := range this.nameMap.Values() {
 			if this.dynamicallyImportedModules.Has(name.getFullName()) {

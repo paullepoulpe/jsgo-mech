@@ -8,22 +8,22 @@ type SortedDependencies[InputT interface {
 	DependencyInfo_
 	comparable
 }] struct {
-	userOrderedInputs             *TList[InputT]
-	importOrderedInputs           *TList[InputT]
-	completedInputs               *TSet[InputT]
-	nonExportingInputs            *TMap[string, InputT]
-	exportingInputBySymbolName    *TMap[string, InputT]
+	userOrderedInputs             TList[InputT]
+	importOrderedInputs           TList[InputT]
+	completedInputs               TSet[InputT]
+	nonExportingInputs            TMap[string, InputT]
+	exportingInputBySymbolName    TMap[string, InputT]
 	importedInputByImportingInput *SimpleSetMultimap[InputT, InputT]
 }
 
 func (this *SortedDependencies[InputT]) isa_SortedDependencies_() {}
 
 func (this *SortedDependencies[InputT]) finit_SortedDependencies() {
-	this.userOrderedInputs = newTList_(tcT_[InputT]())
-	this.importOrderedInputs = newTList_(tcT_[InputT]())
-	this.completedInputs = newTSet_(tchT_[InputT]())
-	this.nonExportingInputs = newTMap_(tc_string, tcT_[InputT]())
-	this.exportingInputBySymbolName = newTMap_(tc_string, tcT_[InputT]())
+	initTList_(&this.userOrderedInputs, tcT_[InputT]())
+	initTList_(&this.importOrderedInputs, tcT_[InputT]())
+	initTSet_(&this.completedInputs, tchT_[InputT]())
+	initTMap_(&this.nonExportingInputs, tc_string, tcT_[InputT]())
+	initTMap_(&this.exportingInputBySymbolName, tc_string, tcT_[InputT]())
 	this.importedInputByImportingInput = SimpleSetMultimap_createInsertionOrdered[InputT, InputT]()
 }
 

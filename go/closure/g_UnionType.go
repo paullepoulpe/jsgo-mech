@@ -420,7 +420,7 @@ func UnionType_clinit() {
 type UnionType_Builder struct {
 	rebuildTarget                 *UnionType
 	registry                      *JSTypeRegistry
-	alternates                    *TList[*JSType]
+	alternates                    TList[*JSType]
 	finalAlternates               *TList[*JSType]
 	functionTypePosition          int32
 	containsVoidType              bool
@@ -431,7 +431,7 @@ type UnionType_Builder struct {
 }
 
 func (this *UnionType_Builder) finit_UnionType_Builder() {
-	this.alternates = newTList_(tc_p_JSType)
+	initTList_(&this.alternates, tc_p_JSType)
 	this.finalAlternates = nil
 	this.containsVoidType = false
 	this.isAllType_ = false
@@ -482,7 +482,7 @@ func (this *UnionType_Builder) addAlternate(alternate *JSType) *UnionType_Builde
 	}
 	if !alternate.isResolved() {
 		this.alternatesResolvedBeforeBuild = false
-		l_1 := this.alternates
+		l_1 := &this.alternates
 		for i_1 := 0; i_1 < len(l_1.items); i_1++ {
 			var current *JSType = l_1.items[i_1]
 			if current == alternate {
@@ -607,7 +607,7 @@ func (this *UnionType_Builder) buildInternal() *UnionType_Builder {
 	} else if this.alternates.size() > UnionType_MAX_UNION_SIZE {
 		this.finalAlternates = immutableListOf_[*JSType](tc_p_JSType, this.registry.getNativeType(JSTypeNative_UNKNOWN_TYPE))
 	} else {
-		this.finalAlternates = immutableListCopyOfT_(tc_p_JSType, this.alternates)
+		this.finalAlternates = immutableListCopyOfT_(tc_p_JSType, &this.alternates)
 	}
 	if this.finalAlternates == nil {
 		panic(new_NullPointerException_0())
