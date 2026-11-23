@@ -74,7 +74,7 @@ func TestLgT2Deque(t *testing.T) {
 	}
 }
 
-// Kind `guava`: wrappers of the runtime's erased PeekingIterator and LoadingCache.
+// Kind `guava`: the wrapper of the runtime's erased PeekingIterator (LoadingCache: rt_lg_t2_fn_test.go).
 func TestLgT2Guava(t *testing.T) {
 	l := new_ArrayList_0()
 	l.add("a")
@@ -83,10 +83,5 @@ func TestLgT2Guava(t *testing.T) {
 	w := peekingIteratorAs_(tc_string, pi)
 	if w.peek_t() != "a" || w.next_t() != "a" || w.peek_t() != "b" || PeekingIterator_un_(w) != pi || lgBox_(w) != any(pi) || peekingIteratorAs_(tc_string, PeekingIterator(w)) != w {
 		t.Fatal("the wrapper of a PeekingIterator")
-	}
-	lc := CacheBuilder_newBuilder().build(CacheLoader_from(func(k any) any { return k.(string) + "!" }))
-	c := loadingCacheAs_(tc_string, tc_string, lc)
-	if c.getUnchecked_t("x") != "x!" || c.get_t("y") != "y!" || LoadingCache_un_(c) != lc || lgBox_(c) != any(lc) {
-		t.Fatal("the wrapper of a LoadingCache")
 	}
 }
