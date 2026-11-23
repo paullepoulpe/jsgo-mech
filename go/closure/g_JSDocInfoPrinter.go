@@ -63,10 +63,10 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 	if info.isFinal() {
 		parts.add("@final")
 	}
-	var description Optional[string] = info.getDescription()
-	if description.isPresent() {
+	var description string = info.getDescription()
+	if description != nullstr_ {
 		multiline = true
-		parts.add(("@desc " + sstr_(description.get())))
+		parts.add(("@desc " + sstr_(optstrGet_(description))))
 	}
 	if info.getReferences() != nil {
 		multiline = true
@@ -173,7 +173,7 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 			if (boundRoot.ns_().token == tokOrd1_QMARK) && !boundRoot.hasChildren() {
 				parts.add(("@template " + sstr_(name)))
 			} else {
-				parts.add(this.buildAnnotationWithType_3("template", boundExpr, Optional_of[string](name)))
+				parts.add(this.buildAnnotationWithType_3("template", boundExpr, optstrOf_(name)))
 			}
 		}))
 	}
@@ -229,10 +229,10 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 		multiline = true
 	}
 	if info.isDeprecated() {
-		var deprecationReason Optional[string] = info.getDeprecationReason()
+		var deprecationReason string = info.getDeprecationReason()
 		parts.add(("@deprecated" + sstr_(func() string {
-			if deprecationReason.isPresent() {
-				return (" " + sstr_(deprecationReason.get()))
+			if deprecationReason != nullstr_ {
+				return (" " + sstr_(optstrGet_(deprecationReason)))
 			}
 			return ""
 		}())))
@@ -258,8 +258,8 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 		multiline = true
 		parts.add("@customElement")
 	}
-	if info.getClosurePrimitiveId().isPresent() {
-		parts.add(("@closurePrimitive {" + sstr_(info.getClosurePrimitiveId().get()) + "}"))
+	if info.getClosurePrimitiveId() != nullstr_ {
+		parts.add(("@closurePrimitive {" + sstr_(optstrGet_(info.getClosurePrimitiveId())) + "}"))
 	}
 	if info.isNgInject() {
 		parts.add("@ngInject")
@@ -270,8 +270,8 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 	for tsType := range info.getTsTypes().All() {
 		parts.add(("@tsType " + sstr_(tsType)))
 	}
-	if this.printDesc && info.getBlockDescription().isPresent() {
-		var cleaned string = JSDocInfoPrinter_DESCRIPTION_LINE_START_PATTERN.matcher_s(info.getBlockDescription().get()).replaceAll("\n")
+	if this.printDesc && info.getBlockDescription() != nullstr_ {
+		var cleaned string = JSDocInfoPrinter_DESCRIPTION_LINE_START_PATTERN.matcher_s(optstrGet_(info.getBlockDescription())).replaceAll("\n")
 		if cleaned != "" {
 			multiline = true
 			cleaned = strings.Trim(cleaned, javaSpace_)
@@ -305,37 +305,37 @@ func (this *JSDocInfoPrinter) stripBang(typeNode Node) Node {
 }
 
 func (this *JSDocInfoPrinter) buildAnnotationWithTypeJSTypeExpression(annotation string, type_ *JSTypeExpression) string {
-	return this.buildAnnotationWithType_3(annotation, type_, Optional_empty[string]())
+	return this.buildAnnotationWithType_3(annotation, type_, nullstr_)
 }
 
-func (this *JSDocInfoPrinter) buildAnnotationWithType_3(annotation string, type_ *JSTypeExpression, description Optional[string]) string {
+func (this *JSDocInfoPrinter) buildAnnotationWithType_3(annotation string, type_ *JSTypeExpression, description string) string {
 	return this.buildAnnotationWithTypeNode(annotation, type_.getRoot(), description)
 }
 
 func (this *JSDocInfoPrinter) buildAnnotationWithType(annotation string, type_ Node) string {
-	return this.buildAnnotationWithTypeNode(annotation, type_, Optional_empty[string]())
+	return this.buildAnnotationWithTypeNode(annotation, type_, nullstr_)
 }
 
-func (this *JSDocInfoPrinter) buildAnnotationWithTypeNode(annotation string, type_ Node, description Optional[string]) string {
+func (this *JSDocInfoPrinter) buildAnnotationWithTypeNode(annotation string, type_ Node, description string) string {
 	var sb strBuilder_
 	sb.append("@")
 	sb.append(annotation)
 	sb.append(" {")
 	this.appendTypeNode(&sb, type_)
 	sb.append("}")
-	if description.isPresent() {
+	if description != nullstr_ {
 		sb.append(" ")
-		sb.append(description.get())
+		sb.append(optstrGet_(description))
 	}
 	return sb.toString()
 }
 
 func (this *JSDocInfoPrinter) buildParamType(info *JSDocInfo, name string) string {
-	var type_ *JSTypeExpression = info.getParameterType(Optional_of[string](name))
+	var type_ *JSTypeExpression = info.getParameterType(optstrOf_(name))
 	if type_ != nil {
 		var p string = ("{" + sstr_(this.typeNode(type_.getRoot())) + "} " + sstr_(name) + sstr_(func() string {
-			if this.printDesc && info.getDescriptionForParameter(name).isPresent() {
-				return info.getDescriptionForParameter(name).get()
+			if this.printDesc && info.getDescriptionForParameter(name) != nullstr_ {
+				return optstrGet_(info.getDescriptionForParameter(name))
 			}
 			return ""
 		}()))

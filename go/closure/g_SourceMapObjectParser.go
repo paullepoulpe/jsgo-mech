@@ -21,7 +21,7 @@ func SourceMapObjectParser_parse(contents string) *Outcome_base[*SourceMapObject
 	var builder *SourceMapObject_Builder = SourceMapObject_builder()
 	var parsed *Outcome_base[*SimpleJsonValue] = Json_parse(contents)
 	if parsed.isErr() {
-		return Outcome_base_err[*SourceMapObject](new_SourceMapParseException(("JSON parse exception: " + sstr_(parsed.errorMessage().orElse("null")))).up_Throwable())
+		return Outcome_base_err[*SourceMapObject](new_SourceMapParseException(("JSON parse exception: " + sstr_(optstrOr_(parsed.errorMessage(), "null")))).up_Throwable())
 	}
 	var sourceMapRoot *SimpleJsonValue = parsed.get()
 	if sourceMapRoot.kind() != SimpleJsonValue_Kind_OBJECT {
@@ -36,7 +36,7 @@ func SourceMapObjectParser_parse(contents string) *Outcome_base[*SourceMapObject
 	if file.isErr() {
 		return Outcome_base_err[*SourceMapObject](file.error())
 	}
-	builder.setFile(Optional_ofNullable[string](file.get()))
+	builder.setFile(file.get())
 	var lineCount int32 = -1
 	if sourceMapRoot.get("lineCount") != nil {
 		var lineCountOutcome *Outcome_base[any] = SourceMapObjectParser_getInt(sourceMapRoot, "lineCount")
@@ -50,12 +50,12 @@ func SourceMapObjectParser_parse(contents string) *Outcome_base[*SourceMapObject
 	if mappings.isErr() {
 		return Outcome_base_err[*SourceMapObject](mappings.error())
 	}
-	builder.setMappings(Optional_ofNullable[string](mappings.get()))
+	builder.setMappings(mappings.get())
 	var sourceRoot *Outcome_base[string] = SourceMapObjectParser_getStringOrNull(sourceMapRoot, "sourceRoot")
 	if sourceRoot.isErr() {
 		return Outcome_base_err[*SourceMapObject](sourceRoot.error())
 	}
-	builder.setSourceRoot(Optional_ofNullable[string](sourceRoot.get()))
+	builder.setSourceRoot(sourceRoot.get())
 	if sourceMapRoot.get("sections") != nil {
 		var sections *Outcome_base[ListT[*SourceMapSection]] = SourceMapObjectParser_buildSections(sourceMapRoot.get("sections"))
 		if sections.isErr() {
@@ -125,7 +125,7 @@ func SourceMapObjectParser_parseFastInto(builder *SourceMapObject_Builder, conte
 			if file.isErr() {
 				return Outcome_base_err[any](file.error())
 			}
-			builder.setFile(Optional_ofNullable[string](file.get()))
+			builder.setFile(file.get())
 		case "lineCount":
 			var lineCount *Outcome_base[any] = lexer.nextInt()
 			if lineCount.isErr() {
@@ -137,13 +137,13 @@ func SourceMapObjectParser_parseFastInto(builder *SourceMapObject_Builder, conte
 			if mappings.isErr() {
 				return Outcome_base_err[any](mappings.error())
 			}
-			builder.setMappings(Optional_ofNullable[string](mappings.get()))
+			builder.setMappings(mappings.get())
 		case "sourceRoot":
 			var sourceRoot *Outcome_base[string] = lexer.nextStringOrNull()
 			if sourceRoot.isErr() {
 				return Outcome_base_err[any](sourceRoot.error())
 			}
-			builder.setSourceRoot(Optional_ofNullable[string](sourceRoot.get()))
+			builder.setSourceRoot(sourceRoot.get())
 		case "sections":
 			var rawSections *Outcome_base[string] = lexer.nextRawValue()
 			if rawSections.isErr() {
@@ -151,7 +151,7 @@ func SourceMapObjectParser_parseFastInto(builder *SourceMapObject_Builder, conte
 			}
 			var sectionsArray *Outcome_base[*SimpleJsonValue] = Json_parse(rawSections.get())
 			if sectionsArray.isErr() {
-				return Outcome_base_err[any](new_SourceMapParseException(sectionsArray.errorMessage().orElse(nullstr_)).up_Throwable())
+				return Outcome_base_err[any](new_SourceMapParseException(sectionsArray.errorMessage()).up_Throwable())
 			}
 			var sections *Outcome_base[ListT[*SourceMapSection]] = SourceMapObjectParser_buildSections(sectionsArray.get())
 			if sections.isErr() {
@@ -184,7 +184,7 @@ func SourceMapObjectParser_parseFastInto(builder *SourceMapObject_Builder, conte
 				}
 				var value *Outcome_base[*SimpleJsonValue] = Json_parse(rawValue.get())
 				if value.isErr() {
-					return Outcome_base_err[any](new_SourceMapParseException(value.errorMessage().orElse(nullstr_)).up_Throwable())
+					return Outcome_base_err[any](new_SourceMapParseException(value.errorMessage()).up_Throwable())
 				}
 				extensions.Put(name, obj_(value.get()))
 			} else {

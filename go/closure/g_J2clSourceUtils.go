@@ -17,15 +17,15 @@ func new_J2clSourceUtils() *J2clSourceUtils {
 	return this
 }
 
-func J2clSourceUtils_isJ2clSourceString(sourceFileName Optional[string]) bool {
-	return (sourceFileName.isPresent() && strings.HasSuffix(sourceFileName.get(), ".java.js"))
+func J2clSourceUtils_isJ2clSourceString(sourceFileName string) bool {
+	return (sourceFileName != nullstr_ && strings.HasSuffix(optstrGet_(sourceFileName), ".java.js"))
 }
 
 func J2clSourceUtils_isJ2clSource(scriptNode Node) bool {
 	if !scriptNode.isScript() {
 		panic(new_IllegalArgumentException_0())
 	}
-	return J2clSourceUtils_isJ2clSourceString(Optional_of[string](scriptNode.getSourceFileName()).filterFn_(func(s string) bool {
+	return J2clSourceUtils_isJ2clSourceString(optstrFilter_(optstrOf_(scriptNode.getSourceFileName()), func(s string) bool {
 		return s != ""
 	}))
 }
@@ -43,6 +43,6 @@ func J2clSourceUtils_isInsideJ2clSource(node Node) bool {
 	return J2clSourceUtils_isJ2clSource(scriptNode)
 }
 
-func J2clSourceUtils_isJ2clHeaderSource(sourceFileName Optional[string]) bool {
-	return ((sourceFileName.isPresent() && strings.HasSuffix(sourceFileName.get(), ".java.js")) && !strings.HasSuffix(sourceFileName.get(), ".impl.java.js"))
+func J2clSourceUtils_isJ2clHeaderSource(sourceFileName string) bool {
+	return ((sourceFileName != nullstr_ && strings.HasSuffix(optstrGet_(sourceFileName), ".java.js")) && !strings.HasSuffix(optstrGet_(sourceFileName), ".impl.java.js"))
 }

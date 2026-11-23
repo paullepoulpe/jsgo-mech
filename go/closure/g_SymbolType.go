@@ -75,8 +75,8 @@ func (this *SymbolType) matchesObjectContext_impl() bool {
 	return true
 }
 
-func (this *SymbolType) getDisplayName_impl() Optional[string] {
-	return Optional_of[string]("symbol")
+func (this *SymbolType) getDisplayName_impl() string {
+	return "symbol"
 }
 
 func (this *SymbolType) autoboxesTo_impl() *JSType {
@@ -144,7 +144,7 @@ func (this *SymbolType) matchesObjectContext() bool {
 }
 
 // getDisplayName: an object that is exactly a SymbolType calls its getDisplayName_impl directly (post-flip); others dispatch.
-func (this *SymbolType) getDisplayName() Optional[string] {
+func (this *SymbolType) getDisplayName() string {
 	if p, _ := this.self_.(*SymbolType); p == this {
 		return this.getDisplayName_impl()
 	}

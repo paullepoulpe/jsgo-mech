@@ -32,18 +32,18 @@ func new_ProductionCoverageInstrumentationCallback(compiler *AbstractCompiler, i
 }
 
 func (this *ProductionCoverageInstrumentationCallback) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
-	if !n.isRoot() && !(t.getSourceName().orElse("") == n.getSourceFileName()) {
+	if !n.isRoot() && !(optstrOr_(t.getSourceName(), "") == n.getSourceFileName()) {
 		return false
 	}
 	if n.isFunction() {
-		var fnName Optional[string] = NodeUtil_getBestLValueName(NodeUtil_getBestLValue(n))
-		fnName = func() Optional[string] {
-			if fnName.isEmpty() {
-				return Optional_of[string](ProductionCoverageInstrumentationCallback_ANONYMOUS_FUNCTION_NAME)
+		var fnName string = NodeUtil_getBestLValueName(NodeUtil_getBestLValue(n))
+		fnName = func() string {
+			if fnName == nullstr_ {
+				return optstrOf_(ProductionCoverageInstrumentationCallback_ANONYMOUS_FUNCTION_NAME)
 			}
 			return fnName
 		}()
-		*this.functionNameStack = append(*this.functionNameStack, fnName.orElse(nullstr_))
+		*this.functionNameStack = append(*this.functionNameStack, fnName)
 	}
 	if len(*this.functionNameStack) == 0 {
 		*this.functionNameStack = append(*this.functionNameStack, ProductionCoverageInstrumentationCallback_ANONYMOUS_FUNCTION_NAME)
@@ -52,13 +52,13 @@ func (this *ProductionCoverageInstrumentationCallback) shouldTraverse(t *NodeTra
 }
 
 func (this *ProductionCoverageInstrumentationCallback) visit(traversal *NodeTraversal, node Node, parent Node) {
-	var fileName Optional[string] = traversal.getSourceName()
+	var fileName string = traversal.getSourceName()
 	var sourceFileName string = node.getSourceFileName()
 	var functionName string = slicePeekTop_(tc_string, *this.functionNameStack)
 	switch node.ns_().token {
 	case tokOrd1_FUNCTION:
 		slicePop_(tc_string, this.functionNameStack)
-		this.instrumentBlockNode(node.getLastChild(), fileName.orElse(nullstr_), functionName, ProductionCoverageInstrumentationCallback_Type_FUNCTION)
+		this.instrumentBlockNode(node.getLastChild(), fileName, functionName, ProductionCoverageInstrumentationCallback_Type_FUNCTION)
 	case tokOrd1_IF:
 		var ifTrueNode Node = node.getSecondChild()
 		this.instrumentBlockNode(ifTrueNode, sourceFileName, functionName, ProductionCoverageInstrumentationCallback_Type_BRANCH)
@@ -286,7 +286,7 @@ func ProductionCoverageInstrumentationCallback_ParameterMapping_toJsonArray(stri
 	writer.setSerializeNulls(false)
 	writer.beginArray()
 	for string_ := range elemsT_(strings) {
-		writer.stringValue(Optional_of[string](string_))
+		writer.stringValue(optstrOf_(string_))
 	}
 	writer.endArray()
 	return writer.toString()

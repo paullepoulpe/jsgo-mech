@@ -24,24 +24,24 @@ func (this *JsonErrorReportGenerator) generateReport(manager *SortingErrorManage
 		jsonWriter.beginArray()
 		var sourceExcerptU16 utf16_
 		for message := range elemsT_(manager.getSortedDiagnostics()) {
-			var sourceName Optional[string] = message.error_.sourceName()
+			var sourceName string = message.error_.sourceName()
 			var lineNumber int32 = message.error_.getLineNumber()
 			var charno int32 = message.error_.charno()
 			jsonWriter.beginObject()
-			jsonWriter.name("level").stringValue(func() Optional[string] {
+			jsonWriter.name("level").stringValue(func() string {
 				if message.level_ == CheckLevel_ERROR {
-					return Optional_of[string]("error")
+					return "error"
 				}
-				return Optional_of[string]("warning")
+				return "warning"
 			}())
-			jsonWriter.name("description").stringValue(Optional_of[string](message.error_.description()))
-			jsonWriter.name("key").stringValue(Optional_of[string](message.error_.type_().key_))
+			jsonWriter.name("description").stringValue(optstrOf_(message.error_.description()))
+			jsonWriter.name("key").stringValue(optstrOf_(message.error_.type_().key_))
 			if message.error_.requirement() != nil {
 				jsonWriter.name("requirement").beginObject()
-				jsonWriter.name("ruleId").stringValue(Optional_ofNullable[string](message.error_.requirement().getRuleId()))
+				jsonWriter.name("ruleId").stringValue(message.error_.requirement().getRuleId())
 				jsonWriter.name("configFiles").beginArray()
 				for configFile := range elemsBy_(message.error_.requirement().getConfigFileList(), str_) {
-					jsonWriter.stringValue(Optional_of[string](configFile))
+					jsonWriter.stringValue(optstrOf_(configFile))
 				}
 				jsonWriter.endArray()
 				jsonWriter.endObject()
@@ -54,14 +54,14 @@ func (this *JsonErrorReportGenerator) generateReport(manager *SortingErrorManage
 			if (node != 0) && (regionLength > 0) {
 				jsonWriter.name("length").longValue(int64(message.error_.length()))
 			}
-			var sourceExcerpt Optional[string] = SourceExcerptProvider_SourceExcerpt_LINE.get(this.sourceExcerptProvider, sourceName, lineNumber, LightweightMessageFormatter_LineNumberingFormatter_as_SourceExcerptProvider_ExcerptFormatter(JsonErrorReportGenerator_excerptFormatter))
-			if sourceExcerpt.isPresent() {
+			var sourceExcerpt string = SourceExcerptProvider_SourceExcerpt_LINE.get(this.sourceExcerptProvider, sourceName, lineNumber, LightweightMessageFormatter_LineNumberingFormatter_as_SourceExcerptProvider_ExcerptFormatter(JsonErrorReportGenerator_excerptFormatter))
+			if sourceExcerpt != nullstr_ {
 				var b strBuilder_
-				b.append(sourceExcerpt.get())
+				b.append(optstrGet_(sourceExcerpt))
 				b.append("\n")
-				if (0 <= charno) && (charno <= sourceExcerptU16.of(sourceExcerpt.get()).length()) {
+				if (0 <= charno) && (charno <= sourceExcerptU16.of(optstrGet_(sourceExcerpt)).length()) {
 					for i := int32(0); i < charno; i++ {
-						var c uint16 = sourceExcerptU16.of(sourceExcerpt.get()).charAt(i)
+						var c uint16 = sourceExcerptU16.of(optstrGet_(sourceExcerpt)).charAt(i)
 						if TokenUtil_isWhitespace(int32(c)) {
 							b.append_char(c)
 						} else {
@@ -71,18 +71,18 @@ func (this *JsonErrorReportGenerator) generateReport(manager *SortingErrorManage
 					if node == 0 {
 						b.append("^")
 					} else {
-						var length int32 = Math_max(1, Math_min(regionLength, (sourceExcerptU16.of(sourceExcerpt.get()).length()-charno)))
+						var length int32 = Math_max(1, Math_min(regionLength, (sourceExcerptU16.of(optstrGet_(sourceExcerpt)).length()-charno)))
 						for i := int32(0); i < length; i++ {
 							b.append("^")
 						}
 					}
 				}
-				jsonWriter.name("context").stringValue(Optional_of[string](b.toString()))
+				jsonWriter.name("context").stringValue(optstrOf_(b.toString()))
 			}
 			var mapping *Mapping_OriginalMapping = this.sourceExcerptProvider.getSourceMapping_Optional_int_int(sourceName, message.error_.getLineNumber(), message.error_.charno())
 			if mapping != nil {
 				jsonWriter.name("originalLocation").beginObject()
-				jsonWriter.name("source").stringValue(Optional_ofNullable[string](mapping.getOriginalFile()))
+				jsonWriter.name("source").stringValue(mapping.getOriginalFile())
 				jsonWriter.name("line").longValue(int64(mapping.getLineNumber()))
 				jsonWriter.name("column").longValue(int64(mapping.getColumnPosition()))
 				jsonWriter.endObject()
@@ -96,8 +96,8 @@ func (this *JsonErrorReportGenerator) generateReport(manager *SortingErrorManage
 			summaryBuilder.append((istr_(int64(int32(manager.getErrorCount()))) + " error(s), " + istr_(int64(int32(manager.getWarningCount()))) + " warning(s)"))
 		}
 		jsonWriter.beginObject()
-		jsonWriter.name("level").stringValue(Optional_of[string]("info"))
-		jsonWriter.name("description").stringValue(Optional_of[string](summaryBuilder.toString()))
+		jsonWriter.name("level").stringValue("info")
+		jsonWriter.name("description").stringValue(optstrOf_(summaryBuilder.toString()))
 		jsonWriter.endObject()
 		jsonWriter.endArray()
 	}

@@ -96,7 +96,7 @@ func (this *InferJSDocInfo) inferJSDocForName(n Node, parent Node) {
 	}
 	var objType *ObjectType = InferJSDocInfo_dereferenced(inferredType)
 	if InferJSDocInfo_shouldAttachJSDocToNominalTypeOrShape(objType, aliasedType) {
-		InferJSDocInfo_attachJSDocInfoToNominalTypeOrShape(objType, typeDoc, Optional_of[string](n.getString()))
+		InferJSDocInfo_attachJSDocInfoToNominalTypeOrShape(objType, typeDoc, optstrOf_(n.getString()))
 	}
 }
 
@@ -170,7 +170,7 @@ func (this *InferJSDocInfo) inferJSDocForProperty(n Node, parent Node) {
 	}
 	var propType *ObjectType = InferJSDocInfo_dereferenced(lhsType.getPropertyType(propName))
 	if InferJSDocInfo_shouldAttachJSDocToNominalTypeOrShape(propType, aliasedType) {
-		InferJSDocInfo_attachJSDocInfoToNominalTypeOrShape(propType, typeDoc, Optional_of[string](n.getQualifiedName()).filterFn_(func(s string) bool {
+		InferJSDocInfo_attachJSDocInfoToNominalTypeOrShape(propType, typeDoc, optstrFilter_(optstrOf_(n.getQualifiedName()), func(s string) bool {
 			return s != ""
 		}))
 	}
@@ -189,7 +189,7 @@ func InferJSDocInfo_shouldAttachJSDocToNominalTypeOrShape(type_ *ObjectType, ali
 	return (((type_ != nil) && (type_.getJSDocInfo() == nil)) && !type_.equals_JSType(aliasedType))
 }
 
-func InferJSDocInfo_attachJSDocInfoToNominalTypeOrShape(objType *ObjectType, docInfo *JSDocInfo, qName Optional[string]) {
+func InferJSDocInfo_attachJSDocInfoToNominalTypeOrShape(objType *ObjectType, docInfo *JSDocInfo, qName string) {
 	if objType.isConstructor() || objType.isInterface() {
 		if !InferJSDocInfo_isReferenceNameOf(objType, qName) {
 			return
@@ -208,8 +208,8 @@ func InferJSDocInfo_attachJSDocInfoToNominalTypeOrShape(objType *ObjectType, doc
 	}
 }
 
-func InferJSDocInfo_isReferenceNameOf(type_ *ObjectType, name Optional[string]) bool {
-	return (type_.hasReferenceName() && optEquals_(type_.getReferenceName(), name))
+func InferJSDocInfo_isReferenceNameOf(type_ *ObjectType, name string) bool {
+	return (type_.hasReferenceName() && type_.getReferenceName() == name)
 }
 
 // visit: an object that is exactly a InferJSDocInfo calls its visit_impl directly (post-flip); others dispatch.

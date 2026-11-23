@@ -36,26 +36,26 @@ func (this *VerboseMessageFormatter) formatWarning_impl(warning *JSError) string
 
 func (this *VerboseMessageFormatter) format(message *JSError) string {
 	var description string = message.description()
-	var sourceName Optional[string] = message.sourceName()
+	var sourceName string = message.sourceName()
 	var lineNumber int32 = message.getLineNumber()
 	var sourceRegion Region = this.getSource().getSourceRegion(sourceName, lineNumber)
-	var lineSource Optional[string] = Optional_empty[string]()
+	var lineSource string = nullstr_
 	if sourceRegion != nil {
-		lineSource = Optional_of[string](sourceRegion.getSourceExcerpt())
+		lineSource = optstrOf_(sourceRegion.getSourceExcerpt())
 	}
 	return String_format("%s at %s line %s %s", strobj_(description), func() any {
-		if sourceName.orElse("") == "" {
+		if optstrOr_(sourceName, "") == "" {
 			return strobj_("(unknown source)")
 		}
-		return strobj_(sourceName.get())
+		return strobj_(optstrGet_(sourceName))
 	}(), func() any {
 		if lineNumber < 0 {
 			return strobj_("(unknown line)")
 		}
 		return strobj_(strconv.Itoa(int(lineNumber)))
 	}(), func() any {
-		if lineSource.isPresent() {
-			return strobj_((":\n\n" + sstr_(lineSource.get())))
+		if lineSource != nullstr_ {
+			return strobj_((":\n\n" + sstr_(optstrGet_(lineSource))))
 		}
 		return strobj_(".")
 	}())

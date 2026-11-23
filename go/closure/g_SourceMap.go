@@ -8,7 +8,7 @@ type SourceMap struct {
 	generator                SourceMapGenerator
 	prefixMappings           *TList[SourceMap_LocationMapping]
 	sourceLocationFixupCache map[string]string
-	mapping                  func(Optional[string], int32, int32) *Mapping_OriginalMapping
+	mapping                  func(string, int32, int32) *Mapping_OriginalMapping
 }
 
 func (this *SourceMap) finit_SourceMap() {
@@ -36,10 +36,10 @@ func (this *SourceMap) addMapping_3(node Node, outputStartPosition *FilePosition
 	if (sourceFile == nil) || (node.getLineno() < 0) {
 		return
 	}
-	var sourceFileName Optional[string] = Optional_of[string](sourceFile.getName())
+	var sourceFileName string = optstrOf_(sourceFile.getName())
 	var lineNo int32 = node.getLineno()
 	var charNo int32 = node.getCharno()
-	var originalName Optional[string] = Optional_of[string](SourceMap_getOriginalName(node)).filterFn_(func(s string) bool {
+	var originalName string = optstrFilter_(optstrOf_(SourceMap_getOriginalName(node)), func(s string) bool {
 		return s != ""
 	})
 	if this.mapping != nil {
@@ -48,22 +48,22 @@ func (this *SourceMap) addMapping_3(node Node, outputStartPosition *FilePosition
 		} else if equalsBy_(sourceMapping, obj_(Mapping_OriginalMapping_getDefaultInstance()), (*Mapping_OriginalMapping).equals) {
 			return
 		} else {
-			sourceFileName = Optional_ofNullable[string](sourceMapping.getOriginalFile())
+			sourceFileName = sourceMapping.getOriginalFile()
 			lineNo = sourceMapping.getLineNumber()
 			charNo = sourceMapping.getColumnPosition()
 			var identifier string = sourceMapping.getIdentifier()
 			if sourceMapping.hasIdentifier() && identifier != "" {
-				originalName = Optional_of[string](identifier)
+				originalName = optstrOf_(identifier)
 			}
 		}
 	}
 	sourceFileName = this.fixupSourceLocation(sourceFileName)
 	var lineBaseOffset int32 = 1
-	this.generator.addMapping(sourceFileName.orElse(""), originalName.orElse(""), new_FilePosition((lineNo-lineBaseOffset), charNo), outputStartPosition, outputEndPosition)
+	this.generator.addMapping(optstrOr_(sourceFileName, ""), optstrOr_(originalName, ""), new_FilePosition((lineNo-lineBaseOffset), charNo), outputStartPosition, outputEndPosition)
 }
 
 func (this *SourceMap) addSourceFile(name string, code string) {
-	this.generator.addSourcesContent(this.fixupSourceLocation(Optional_of[string](name)).orElse(nullstr_), code)
+	this.generator.addSourcesContent(this.fixupSourceLocation(optstrOf_(name)), code)
 }
 
 func SourceMap_getOriginalName(node Node) string {
@@ -82,33 +82,33 @@ func SourceMap_getOriginalName(node Node) string {
 	return ""
 }
 
-func (this *SourceMap) fixupSourceLocation(sourceFile Optional[string]) Optional[string] {
+func (this *SourceMap) fixupSourceLocation(sourceFile string) string {
 	if this.prefixMappings.isEmpty() {
 		return sourceFile
 	}
-	var fixed Optional[string] = func() Optional[string] {
-		if sourceFile.isPresent() {
-			return Optional_ofNullable[string](mapStr_(this.sourceLocationFixupCache, sourceFile.get()))
+	var fixed string = func() string {
+		if sourceFile != nullstr_ {
+			return mapStr_(this.sourceLocationFixupCache, optstrGet_(sourceFile))
 		}
-		return Optional_empty[string]()
+		return nullstr_
 	}()
-	if fixed.isPresent() {
+	if fixed != nullstr_ {
 		return fixed
 	}
 	for mapping := range this.prefixMappings.All() {
 		fixed = mapping.map_(sourceFile)
-		if fixed.isPresent() {
+		if fixed != nullstr_ {
 			break
 		}
 	}
-	if fixed.isEmpty() {
+	if fixed == nullstr_ {
 		fixed = sourceFile
 	}
-	this.sourceLocationFixupCache[sourceFile.orElse(nullstr_)] = fixed.orElse(nullstr_)
+	this.sourceLocationFixupCache[sourceFile] = fixed
 	return fixed
 }
 
-func (this *SourceMap) appendTo(out Appendable, name Optional[string]) {
+func (this *SourceMap) appendTo(out Appendable, name string) {
 	this.generator.appendTo(out, this.fixupSourceLocation(name))
 }
 
@@ -133,7 +133,7 @@ func (this *SourceMap) setPrefixMappings(sourceMapLocationMappings *TList[Source
 	this.prefixMappings = sourceMapLocationMappings
 }
 
-func (this *SourceMap) setSourceFileMapping(mapping func(Optional[string], int32, int32) *Mapping_OriginalMapping) {
+func (this *SourceMap) setSourceFileMapping(mapping func(string, int32, int32) *Mapping_OriginalMapping) {
 	this.mapping = mapping
 }
 
@@ -290,14 +290,14 @@ func SourceMap_DetailLevel_clinit() {
 }
 
 type SourceMap_LocationMapping interface {
-	map_(Optional[string]) Optional[string]
+	map_(string) string
 }
 
 type SourceMap_LocationMapping_fn struct {
-	f func(Optional[string]) Optional[string]
+	f func(string) string
 }
 
-func (this *SourceMap_LocationMapping_fn) map_(p0 Optional[string]) Optional[string] {
+func (this *SourceMap_LocationMapping_fn) map_(p0 string) string {
 	return this.f(p0)
 }
 
@@ -324,11 +324,11 @@ func new_SourceMap_PrefixLocationMapping(prefix string, replacement string) *Sou
 	return this
 }
 
-func (this *SourceMap_PrefixLocationMapping) map_(location Optional[string]) Optional[string] {
-	if strings.HasPrefix(location.get(), this.prefix_) {
-		return Optional_of[string]((sstr_(this.replacement_) + sstr_(location.get()[len(this.prefix_):])))
+func (this *SourceMap_PrefixLocationMapping) map_(location string) string {
+	if strings.HasPrefix(optstrGet_(location), this.prefix_) {
+		return optstrOf_((sstr_(this.replacement_) + sstr_(optstrGet_(location)[len(this.prefix_):])))
 	}
-	return Optional_empty[string]()
+	return nullstr_
 }
 
 func (this *SourceMap_PrefixLocationMapping) toString() string {

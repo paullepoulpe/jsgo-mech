@@ -454,7 +454,7 @@ func (this *AstFactory) createQNameString(scope StaticScope, qname string) Node 
 }
 
 func (this *AstFactory) createQNameIterable(scope StaticScope, names IterableT[string]) Node {
-	var baseName string = Optional_ofNullable[string](Iterables_getFirstT_[string](names, nullstr_)).orElseThrow()
+	var baseName string = optstrGet_(Iterables_getFirstT_[string](names, nullstr_))
 	var propertyNames IterableT[string] = iterableAs_(tc_string, Iterables_skip(Iterable_un_(names), 1))
 	return this.createQName_3(scope, baseName, propertyNames)
 }
@@ -490,7 +490,7 @@ func (this *AstFactory) createQName_4(scope StaticScope, baseName string, baseNa
 func (this *AstFactory) createQName(scope StaticScope, field RuntimeJsLibManager_JsLibField) Node {
 	var qname string = field.assertInjected().qualifiedName()
 	var parts *TList[string] = splitToListST_(tc_string, AstFactory_DOT_SPLITTER, qname)
-	var baseName string = Optional_ofNullable[string](Iterables_getFirstT_[string](parts.asIterable(), nullstr_)).orElseThrow()
+	var baseName string = optstrGet_(Iterables_getFirstT_[string](parts.asIterable(), nullstr_))
 	if !strings.HasPrefix(baseName, "$jscomp") {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected Field name %s", baseName)))
 	}
@@ -513,7 +513,7 @@ func (this *AstFactory) createQNameWithUnknownType(qname string) Node {
 
 func (this *AstFactory) createQNameWithUnknownTypeJsLibField(field RuntimeJsLibManager_JsLibField) Node {
 	var parts *TList[string] = splitToListST_(tc_string, AstFactory_DOT_SPLITTER, field.assertInjected().qualifiedName())
-	var baseName string = Optional_ofNullable[string](Iterables_getFirstT_[string](parts.asIterable(), nullstr_)).orElseThrow()
+	var baseName string = optstrGet_(Iterables_getFirstT_[string](parts.asIterable(), nullstr_))
 	if !strings.HasPrefix(baseName, "$jscomp") {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected Field name %s", baseName)))
 	}
@@ -531,7 +531,7 @@ func (this *AstFactory) createQNameWithUnknownTypeJsLibField(field RuntimeJsLibM
 }
 
 func (this *AstFactory) createQNameWithUnknownTypeIterable(names IterableT[string]) Node {
-	var baseName string = Optional_ofNullable[string](Iterables_getFirstT_[string](names, nullstr_)).orElseThrow()
+	var baseName string = optstrGet_(Iterables_getFirstT_[string](names, nullstr_))
 	var propertyNames IterableT[string] = iterableAs_(tc_string, Iterables_skip(Iterable_un_(names), 1))
 	return this.createQNameWithUnknownType_2(baseName, propertyNames)
 }

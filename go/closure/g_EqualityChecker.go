@@ -85,7 +85,7 @@ func (this *EqualityChecker) areEqualInternal(left *JSType, right *JSType) bool 
 		return false
 	}
 	if left.isNoResolvedType() && right.isNoResolvedType() {
-		return optEquals_(left.toObjectType().getReferenceName(), right.toObjectType().getReferenceName())
+		return left.toObjectType().getReferenceName() == right.toObjectType().getReferenceName()
 	}
 	var leftUnknown bool = left.isUnknownType()
 	var rightUnknown bool = right.isUnknownType()
@@ -140,8 +140,8 @@ func (this *EqualityChecker) areEqualInternal(left *JSType, right *JSType) bool 
 		if left.isResolved() && right.isResolved() {
 			return (leftUnwrapped == rightUnwrapped)
 		} else {
-			var nameOfleft string = leftUnwrapped.getReferenceName().orElseThrow()
-			var nameOfright string = rightUnwrapped.getReferenceName().orElseThrow()
+			var nameOfleft string = optstrGet_(leftUnwrapped.getReferenceName())
+			var nameOfright string = optstrGet_(rightUnwrapped.getReferenceName())
 			var googModuleIdOfLeft string = EqualityChecker_getGoogModuleId(leftUnwrapped)
 			var googModuleIdOfRight string = EqualityChecker_getGoogModuleId(rightUnwrapped)
 			return ((nameOfleft == nameOfright) && (googModuleIdOfLeft == googModuleIdOfRight))

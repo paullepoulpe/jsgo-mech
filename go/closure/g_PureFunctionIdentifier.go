@@ -208,10 +208,10 @@ func (this *PureFunctionIdentifier) getSummariesForCallee(invocation Node) *TLis
 			}
 			results.addAll(summariesForFunction)
 		} else {
-			var calleeName Optional[string] = PureFunctionIdentifier_nameForReference(callee)
+			var calleeName string = PureFunctionIdentifier_nameForReference(callee)
 			results.add(func() *PureFunctionIdentifier_AmbiguatedFunctionSummary {
-				if calleeName.isPresent() {
-					return mapGetOr_(this.summariesByName, calleeName.get(), this.unknownFunctionSummary)
+				if calleeName != nullstr_ {
+					return mapGetOr_(this.summariesByName, optstrGet_(calleeName), this.unknownFunctionSummary)
 				}
 				return this.unknownFunctionSummary
 			}())
@@ -283,10 +283,10 @@ func (this *PureFunctionIdentifier) populateFunctionDefinitions(name string, ref
 					this.summariesForAllNamesOfFunctionByNode.put(rvalue, summaryForName)
 				} else if NodeUtil_isUndefined(rvalue) {
 				} else {
-					var rvalueName Optional[string] = PureFunctionIdentifier_nameForReference(rvalue)
+					var rvalueName string = PureFunctionIdentifier_nameForReference(rvalue)
 					var rvalueSummary *PureFunctionIdentifier_AmbiguatedFunctionSummary = func() *PureFunctionIdentifier_AmbiguatedFunctionSummary {
-						if rvalueName.isPresent() {
-							return mapGetOr_(this.summariesByName, rvalueName.get(), this.unknownFunctionSummary)
+						if rvalueName != nullstr_ {
+							return mapGetOr_(this.summariesByName, optstrGet_(rvalueName), this.unknownFunctionSummary)
 						}
 						return this.unknownFunctionSummary
 					}()
@@ -379,13 +379,13 @@ func PureFunctionIdentifier_isCallOrTaggedTemplateLit(invocation Node) bool {
 	return ((invocation.isCall() || invocation.isOptChainCall()) || invocation.isTaggedTemplateLit())
 }
 
-func PureFunctionIdentifier_nameForReference(nameRef Node) Optional[string] {
-	return func() Optional[string] {
+func PureFunctionIdentifier_nameForReference(nameRef Node) string {
+	return func() string {
 		switch nameRef.ns_().token {
 		case tokOrd1_NAME:
-			return Optional_of[string](nameRef.getString())
+			return optstrOf_(nameRef.getString())
 		case tokOrd1_GETPROP, tokOrd1_OPTCHAIN_GETPROP:
-			return Optional_of[string]((sstr_(PureFunctionIdentifier_PROP_NAME_PREFIX) + sstr_(nameRef.getString())))
+			return optstrOf_((sstr_(PureFunctionIdentifier_PROP_NAME_PREFIX) + sstr_(nameRef.getString())))
 		default:
 			panic(new_IllegalStateException_String(("Unexpected name reference: " + tostrH_(nameRef))))
 		}

@@ -62,8 +62,8 @@ func (this *BigIntType) matchesObjectContext_impl() bool {
 	return true
 }
 
-func (this *BigIntType) getDisplayName_impl() Optional[string] {
-	return Optional_of[string]("bigint")
+func (this *BigIntType) getDisplayName_impl() string {
+	return "bigint"
 }
 
 func (this *BigIntType) getPossibleToBooleanOutcomes_impl() BooleanLiteralSet {
@@ -123,7 +123,7 @@ func (this *BigIntType) matchesObjectContext() bool {
 }
 
 // getDisplayName: an object that is exactly a BigIntType calls its getDisplayName_impl directly (post-flip); others dispatch.
-func (this *BigIntType) getDisplayName() Optional[string] {
+func (this *BigIntType) getDisplayName() string {
 	if p, _ := this.self_.(*BigIntType); p == this {
 		return this.getDisplayName_impl()
 	}

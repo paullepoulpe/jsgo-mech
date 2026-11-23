@@ -5,7 +5,7 @@ package closure
 type NonJSDocComment struct {
 	startPosition     *SourcePosition_util
 	endPosition       *SourcePosition_util
-	contents          Optional[string]
+	contents          string
 	endsAsLineComment bool
 	isInlineField     bool
 }
@@ -13,7 +13,7 @@ type NonJSDocComment struct {
 func (this *NonJSDocComment) init_NonJSDocComment(start *SourcePosition_util, end *SourcePosition_util, s string) {
 	this.startPosition = start
 	this.endPosition = end
-	this.contents = Optional_of[string](s)
+	this.contents = optstrOf_(s)
 	this.endsAsLineComment = false
 	this.isInlineField = false
 }
@@ -25,10 +25,10 @@ func new_NonJSDocComment(start *SourcePosition_util, end *SourcePosition_util, s
 }
 
 func (this *NonJSDocComment) getCommentString() string {
-	if this.contents.isEmpty() {
+	if this.contents == nullstr_ {
 		return ""
 	}
-	return this.contents.get()
+	return optstrGet_(this.contents)
 }
 
 func (this *NonJSDocComment) getStartPosition() *SourcePosition_util {
