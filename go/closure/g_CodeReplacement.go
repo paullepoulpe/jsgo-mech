@@ -92,6 +92,6 @@ func CodeReplacement_clinit() {
 		return
 	}
 	CodeReplacement_clinit_done = true
-	CodeReplacement_APPLICATION_ORDER = Comparator_comparingInt[*CodeReplacement](ToIntFunction[*CodeReplacement](func(p0 *CodeReplacement) int32 { return p0.getStartPosition() })).thenComparingInt(ToIntFunction[*CodeReplacement](func(p0 *CodeReplacement) int32 { return p0.getLength() })).thenComparing(Function[*CodeReplacement, any](func(p0 *CodeReplacement) any { return strobj_(p0.getSortKey()) })).thenComparing(Function[*CodeReplacement, any](func(p0 *CodeReplacement) any { return strobj_(p0.getNewContent()) }))
+	CodeReplacement_APPLICATION_ORDER = Comparator_comparingInt[*CodeReplacement](ToIntFunction[*CodeReplacement]((*CodeReplacement).getStartPosition)).thenComparingInt(ToIntFunction[*CodeReplacement]((*CodeReplacement).getLength)).thenComparing(Function[*CodeReplacement, any](func(p0 *CodeReplacement) any { return strobj_(p0.getSortKey()) })).thenComparing(Function[*CodeReplacement, any](func(p0 *CodeReplacement) any { return strobj_(p0.getNewContent()) }))
 
 }

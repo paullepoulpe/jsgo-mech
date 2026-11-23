@@ -98,7 +98,7 @@ type FunctionRewriter_ReductionGatherer struct {
 }
 
 func (this *FunctionRewriter_ReductionGatherer) init_FunctionRewriter_ReductionGatherer(reducers *TList[*FunctionRewriter_Reducer], reductions *SimpleSetMultimap[*FunctionRewriter_Reducer, *FunctionRewriter_Reduction]) {
-	this.reducers = arrmap_(reducers.asListT().toArray(arrmap_(make([]*FunctionRewriter_Reducer, 0), func(v_ *FunctionRewriter_Reducer) any { return v_.self() })), func(v_ any) *FunctionRewriter_Reducer { return to_FunctionRewriter_Reducer(v_) })
+	this.reducers = arrmap_(reducers.asListT().toArray(arrmap_(make([]*FunctionRewriter_Reducer, 0), (*FunctionRewriter_Reducer).self)), to_FunctionRewriter_Reducer)
 	this.reductions = reductions
 }
 

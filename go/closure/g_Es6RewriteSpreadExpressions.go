@@ -117,7 +117,7 @@ func (this *Es6RewriteSpreadExpressions) visitArrayLitContainingSpread(spreadPar
 		joinedGroups = baseArrayLit
 	} else {
 		var concat Node = this.astFactory_.createGetProp(baseArrayLit, "concat", Es6RewriteSpreadExpressions_concatFnType)
-		joinedGroups = this.astFactory_.createCall(concat, AstFactory_type_Node(spreadParent), arrmap_(sliceView_(tc_Node, groups).toArray(arrmap_(make([]Node, 0), func(v_ Node) any { return v_.box_() })), func(v_ any) Node { return Node_of_(v_) }))
+		joinedGroups = this.astFactory_.createCall(concat, AstFactory_type_Node(spreadParent), arrmap_(sliceView_(tc_Node, groups).toArray(arrmap_(make([]Node, 0), (Node).box_)), Node_of_))
 	}
 	joinedGroups.srcrefTreeIfMissing(spreadParent)
 	spreadParent.replaceWith(joinedGroups)
@@ -155,7 +155,7 @@ func (this *Es6RewriteSpreadExpressions) visitCallContainingSpread(t *NodeTraver
 				return this.astFactory_.createArraylit([]Node{})
 			}()
 			var concat Node = this.astFactory_.createGetProp(baseArrayLit, "concat", Es6RewriteSpreadExpressions_concatFnType)
-			joinedGroups = this.astFactory_.createCall(concat, Es6RewriteSpreadExpressions_arrayType, arrmap_(sliceView_(tc_Node, groups).toArray(arrmap_(make([]Node, 0), func(v_ Node) any { return v_.box_() })), func(v_ any) Node { return Node_of_(v_) }))
+			joinedGroups = this.astFactory_.createCall(concat, Es6RewriteSpreadExpressions_arrayType, arrmap_(sliceView_(tc_Node, groups).toArray(arrmap_(make([]Node, 0), (Node).box_)), Node_of_))
 		}
 	}
 	var isFreeCall bool = spreadParent.getBooleanProp(Node_FREE_CALL)
@@ -204,7 +204,7 @@ func (this *Es6RewriteSpreadExpressions) visitNewWithSpread(spreadParent Node) {
 		if len(groups) == 0 {
 			return baseArrayLit
 		}
-		return this.astFactory_.createCall(this.astFactory_.createGetProp(baseArrayLit, "concat", Es6RewriteSpreadExpressions_concatFnType), Es6RewriteSpreadExpressions_arrayType, arrmap_(sliceView_(tc_Node, groups).toArray(arrmap_(make([]Node, 0), func(v_ Node) any { return v_.box_() })), func(v_ any) Node { return Node_of_(v_) }))
+		return this.astFactory_.createCall(this.astFactory_.createGetProp(baseArrayLit, "concat", Es6RewriteSpreadExpressions_concatFnType), Es6RewriteSpreadExpressions_arrayType, arrmap_(sliceView_(tc_Node, groups).toArray(arrmap_(make([]Node, 0), (Node).box_)), Node_of_))
 	}()
 	if FeatureSet_ES3.containsFeatureSet(this.compiler_.getOptions().getOutputFeatureSet()) {
 		TranspilationUtil_cannotConvert(this.compiler_, spreadParent, "\"...\" passed to a constructor (consider using --language_out=ES5)")
