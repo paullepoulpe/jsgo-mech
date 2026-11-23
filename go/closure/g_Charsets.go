@@ -87,7 +87,8 @@ func Charsets_decodeUtf16(bytes []int8, canonical string, strict bool) Optional[
 			start = 2
 		}
 	}
-	var text *StringBuilder = new_StringBuilder_int(((int32(len(bytes)) / 2) + 1))
+	var text strBuilder_
+	text.grow(((int32(len(bytes)) / 2) + 1))
 	for i := int32(start); (i + 1) < int32(len(bytes)); i += 2 {
 		var first int32 = (int32(bytes[func() int32 {
 			if little {
@@ -119,7 +120,7 @@ func Charsets_decodeUtf16(bytes []int8, canonical string, strict bool) Optional[
 	if strict && !valid {
 		return Optional_empty[string]()
 	}
-	return Optional_of[string](tostrR_(text))
+	return Optional_of[string](text.toString())
 }
 
 func Charsets_encode(text string, charset string) []int8 {

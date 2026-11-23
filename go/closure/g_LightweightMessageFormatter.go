@@ -88,8 +88,8 @@ func (this *LightweightMessageFormatter) format(error_ *JSError, warning bool) s
 	var sourceName Optional[string] = error_.sourceName()
 	var lineNumber int32 = error_.getLineNumber()
 	var charno int32 = error_.charno()
-	var b *StringBuilder = new_StringBuilder()
-	var boldLine *StringBuilder = new_StringBuilder()
+	var b strBuilder_
+	var boldLine strBuilder_
 	var mapping *Mapping_OriginalMapping = func() *Mapping_OriginalMapping {
 		if source == nil {
 			return nil
@@ -98,13 +98,13 @@ func (this *LightweightMessageFormatter) format(error_ *JSError, warning bool) s
 	}()
 	if this.includeLocation {
 		if mapping != nil {
-			LightweightMessageFormatter_appendPosition(b, sourceName, lineNumber, charno)
+			LightweightMessageFormatter_appendPosition(&b, sourceName, lineNumber, charno)
 			sourceName = Optional_ofNullable[string](mapping.getOriginalFile())
 			lineNumber = mapping.getLineNumber()
 			charno = mapping.getColumnPosition()
 			b.append("\nOriginally at:\n")
 		}
-		LightweightMessageFormatter_appendPosition(boldLine, sourceName, lineNumber, charno)
+		LightweightMessageFormatter_appendPosition(&boldLine, sourceName, lineNumber, charno)
 	}
 	if this.includeLevel {
 		boldLine.append(this.getLevelName(func() CheckLevel {
@@ -118,7 +118,7 @@ func (this *LightweightMessageFormatter) format(error_ *JSError, warning bool) s
 		boldLine.append("] ")
 	}
 	boldLine.append(error_.description())
-	b.append(this.maybeEmbolden(tostrR_(boldLine)))
+	b.append(this.maybeEmbolden(boldLine.toString()))
 	b.append_char('\n')
 	var sourceExcerptWithPosition Optional[string] = this.getExcerptWithPosition_5(error_, sourceName, lineNumber, charno, func() SourceExcerptProvider_SourceExcerpt {
 		if mapping != nil {
@@ -129,7 +129,7 @@ func (this *LightweightMessageFormatter) format(error_ *JSError, warning bool) s
 	if sourceExcerptWithPosition.isPresent() {
 		b.append(sourceExcerptWithPosition.get())
 	}
-	return tostrR_(b)
+	return b.toString()
 }
 
 func (this *LightweightMessageFormatter) getExcerptWithPosition(error_ *JSError) string {
@@ -142,7 +142,7 @@ func (this *LightweightMessageFormatter) getExcerptWithPosition_5(error_ *JSErro
 }
 
 func (this *LightweightMessageFormatter) getExcerptWithPosition_6(error_ *JSError, sourceName Optional[string], lineNumber int32, charno int32, length int32, format SourceExcerptProvider_SourceExcerpt) string {
-	var b *StringBuilder = new_StringBuilder()
+	var b strBuilder_
 	var source SourceExcerptProvider = this.getSource()
 	var cookedLength int32 = func() int32 {
 		if (charno >= 0) && (length >= 0) {
@@ -159,15 +159,15 @@ func (this *LightweightMessageFormatter) getExcerptWithPosition_6(error_ *JSErro
 	if sourceExcerpt.isEmpty() {
 		return ""
 	}
-	var success bool = this.padSourceExcerpt(error_, sourceExcerpt.get(), charno, length, format, b)
+	var success bool = this.padSourceExcerpt(error_, sourceExcerpt.get(), charno, length, format, &b)
 	if success {
-		return tostrR_(b)
+		return b.toString()
 	}
 	var message string = "Source excerpt could not be formatted. This may indicate a bug in the compiler."
 	return message
 }
 
-func (this *LightweightMessageFormatter) padSourceExcerpt(error_ *JSError, sourceExcerpt string, charno int32, length int32, format SourceExcerptProvider_SourceExcerpt, b *StringBuilder) bool {
+func (this *LightweightMessageFormatter) padSourceExcerpt(error_ *JSError, sourceExcerpt string, charno int32, length int32, format SourceExcerptProvider_SourceExcerpt, b *strBuilder_) bool {
 	if equalsId_(format, SourceExcerptProvider_SourceExcerpt_FULL) {
 		if charno >= 0 {
 			var success bool = this.padMultipleLines(charno, sourceExcerpt, b, error_.node())
@@ -191,20 +191,20 @@ func (this *LightweightMessageFormatter) padSourceExcerpt(error_ *JSError, sourc
 	return true
 }
 
-func LightweightMessageFormatter_appendPosition(b *StringBuilder, sourceName Optional[string], lineNumber int32, charno int32) {
+func LightweightMessageFormatter_appendPosition(b *strBuilder_, sourceName Optional[string], lineNumber int32, charno int32) {
 	if sourceName.isPresent() {
 		b.append(sourceName.get())
 		if lineNumber > 0 {
-			cast_[*StringBuilder](b.append_char(':')).append_int(lineNumber)
+			b.append_char(':').append_int(lineNumber)
 			if charno >= 0 {
-				cast_[*StringBuilder](b.append_char(':')).append_int(charno)
+				b.append_char(':').append_int(charno)
 			}
 		}
 		b.append(": ")
 	}
 }
 
-func (this *LightweightMessageFormatter) padLine(charno int32, sourceExcerpt string, b *StringBuilder, errLength int32, errorNode Node) bool {
+func (this *LightweightMessageFormatter) padLine(charno int32, sourceExcerpt string, b *strBuilder_, errLength int32, errorNode Node) bool {
 	if charno > String_length(sourceExcerpt) {
 		return false
 	}
@@ -228,7 +228,7 @@ func (this *LightweightMessageFormatter) padLine(charno int32, sourceExcerpt str
 	return true
 }
 
-func (this *LightweightMessageFormatter) padMultipleLines(startCharno int32, sourceExcerpt string, b *StringBuilder, errorNode Node) bool {
+func (this *LightweightMessageFormatter) padMultipleLines(startCharno int32, sourceExcerpt string, b *strBuilder_, errorNode Node) bool {
 	if errorNode == 0 {
 		b.append(sourceExcerpt)
 		b.append("\n")
@@ -303,7 +303,8 @@ func (this *LightweightMessageFormatter_LineNumberingFormatter) formatRegion(reg
 		return Optional_empty[string]()
 	}
 	var numberLength int32 = int32(len(Integer_toString(region.getEndingLineNumber())))
-	var builder *StringBuilder = new_StringBuilder_int((String_length(code) * 2))
+	var builder strBuilder_
+	builder.grow((String_length(code) * 2))
 	var start int32 = 0
 	var end int32 = String_indexOf_int_int(code, 10, start)
 	var lineNumber int32 = region.getBeginningLineNumber()
@@ -333,7 +334,7 @@ func (this *LightweightMessageFormatter_LineNumberingFormatter) formatRegion(reg
 			lineNumber++
 		}
 	}
-	return Optional_of[string](tostrR_(builder))
+	return Optional_of[string](builder.toString())
 }
 
 // formatError: an object that is exactly a LightweightMessageFormatter calls its formatError_impl directly (post-flip); others dispatch.
