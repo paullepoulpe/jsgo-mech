@@ -77,8 +77,8 @@ func (this *NullType) testForEquality_impl(that *JSType) Tri {
 	return Tri_FALSE
 }
 
-func (this *NullType) getDisplayName_impl() Optional[string] {
-	return Optional_of[string]("null")
+func (this *NullType) getDisplayName_impl() string {
+	return "null"
 }
 
 func (this *NullType) getPossibleToBooleanOutcomes_impl() BooleanLiteralSet {
@@ -158,7 +158,7 @@ func (this *NullType) testForEquality(p0 *JSType) Tri {
 }
 
 // getDisplayName: an object that is exactly a NullType calls its getDisplayName_impl directly (post-flip); others dispatch.
-func (this *NullType) getDisplayName() Optional[string] {
+func (this *NullType) getDisplayName() string {
 	if p, _ := this.self_.(*NullType); p == this {
 		return this.getDisplayName_impl()
 	}

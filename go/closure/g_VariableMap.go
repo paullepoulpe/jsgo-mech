@@ -16,12 +16,12 @@ func new_VariableMap(map_ *TMap[string, string]) *VariableMap {
 	return this
 }
 
-func (this *VariableMap) lookupNewName(sourceName string) Optional[string] {
-	return Optional_ofNullable[string](this.map__.get(sourceName))
+func (this *VariableMap) lookupNewName(sourceName string) string {
+	return this.map__.get(sourceName)
 }
 
-func (this *VariableMap) lookupSourceName(newName Optional[string]) string {
-	return str_(Map_get_s(Map_un_(this.map__.inverse()), newName.orElse(nullstr_)))
+func (this *VariableMap) lookupSourceName(newName string) string {
+	return str_(Map_get_s(Map_un_(this.map__.inverse()), newName))
 }
 
 func (this *VariableMap) getOriginalNameToNewNameMap() MapT[string, string] {

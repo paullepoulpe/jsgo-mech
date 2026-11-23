@@ -6,12 +6,12 @@ type Binding struct {
 	metadata_          *ModuleMetadataMap_ModuleMetadata
 	originatingExport_ *Export
 	createdBy_         Binding_CreatedBy
-	closureNamespace_  Optional[string]
+	closureNamespace_  string
 	sourceNode_        Node
 	isModuleNamespace_ bool
 }
 
-func (this *Binding) init_Binding(metadata *ModuleMetadataMap_ModuleMetadata, sourceNode Node, originatingExport *Export, isModuleNamespace bool, closureNamespace Optional[string], createdBy Binding_CreatedBy) {
+func (this *Binding) init_Binding(metadata *ModuleMetadataMap_ModuleMetadata, sourceNode Node, originatingExport *Export, isModuleNamespace bool, closureNamespace string, createdBy Binding_CreatedBy) {
 	if metadata == nil {
 		panic(new_NullPointerException_String("metadata"))
 	}
@@ -26,7 +26,7 @@ func (this *Binding) init_Binding(metadata *ModuleMetadataMap_ModuleMetadata, so
 	this.createdBy_ = createdBy
 }
 
-func new_Binding(metadata *ModuleMetadataMap_ModuleMetadata, sourceNode Node, originatingExport *Export, isModuleNamespace bool, closureNamespace Optional[string], createdBy Binding_CreatedBy) *Binding {
+func new_Binding(metadata *ModuleMetadataMap_ModuleMetadata, sourceNode Node, originatingExport *Export, isModuleNamespace bool, closureNamespace string, createdBy Binding_CreatedBy) *Binding {
 	this := &Binding{}
 	this.init_Binding(metadata, sourceNode, originatingExport, isModuleNamespace, closureNamespace, createdBy)
 	return this
@@ -40,10 +40,10 @@ func Binding_from_ModuleMetadata_Node_String_CreatedBy(metadata *ModuleMetadataM
 	if !createdBy.isClosureImport() {
 		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected goog.require(Type) or goog.forwardDeclare, got %s", createdBy)))
 	}
-	return new_Binding(metadata, sourceNode, nil, true, Optional_of[string](closureNamespace), createdBy)
+	return new_Binding(metadata, sourceNode, nil, true, optstrOf_(closureNamespace), createdBy)
 }
 
-func Binding_from_ModuleMetadata_Optional_Node(metadataOfBoundModule *ModuleMetadataMap_ModuleMetadata, closureNamespace Optional[string], sourceNode Node) *Binding {
+func Binding_from_ModuleMetadata_Optional_Node(metadataOfBoundModule *ModuleMetadataMap_ModuleMetadata, closureNamespace string, sourceNode Node) *Binding {
 	return new_Binding(metadataOfBoundModule, sourceNode, nil, true, closureNamespace, Binding_CreatedBy_IMPORT)
 }
 
@@ -54,7 +54,7 @@ func (this *Binding) copy(sourceNode Node, createdBy Binding_CreatedBy) *Binding
 	return new_Binding(this.metadata(), sourceNode, this.originatingExport(), this.isModuleNamespace(), this.closureNamespace(), createdBy)
 }
 
-func (this *Binding) boundName() Optional[string] {
+func (this *Binding) boundName() string {
 	if this.isModuleNamespace() {
 		panic(new_IllegalStateException_0())
 	}
@@ -93,7 +93,7 @@ func (this *Binding) isModuleNamespace() bool {
 	return this.isModuleNamespace_
 }
 
-func (this *Binding) closureNamespace() Optional[string] {
+func (this *Binding) closureNamespace() string {
 	return this.closureNamespace_
 }
 
@@ -106,7 +106,7 @@ func (this *Binding) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && objequalsBy_(this.metadata_, obj_(o.metadata_), (*ModuleMetadataMap_ModuleMetadata).equals) && this.sourceNode_ == o.sourceNode_ && objequalsBy_(this.originatingExport_, obj_(o.originatingExport_), (*Export).equals) && this.isModuleNamespace_ == o.isModuleNamespace_ && optEqualsNull_(this.closureNamespace_, o.closureNamespace_) && this.createdBy_ == o.createdBy_
+	return true && objequalsBy_(this.metadata_, obj_(o.metadata_), (*ModuleMetadataMap_ModuleMetadata).equals) && this.sourceNode_ == o.sourceNode_ && objequalsBy_(this.originatingExport_, obj_(o.originatingExport_), (*Export).equals) && this.isModuleNamespace_ == o.isModuleNamespace_ && this.closureNamespace_ == o.closureNamespace_ && this.createdBy_ == o.createdBy_
 }
 
 func (this *Binding) hashCode() int32 {
@@ -115,13 +115,13 @@ func (this *Binding) hashCode() int32 {
 	h = h*31 + objhashId_(this.sourceNode_)
 	h = h*31 + objhashBy_(this.originatingExport_, (*Export).hashCode)
 	h = h*31 + boolhash_(this.isModuleNamespace_)
-	h = h*31 + optHash_(this.closureNamespace_)
+	h = h*31 + optstrHash_(this.closureNamespace_)
 	h = h*31 + objhashId_(this.createdBy_)
 	return h
 }
 
 func (this *Binding) toString() string {
-	return "Binding[" + "metadata=" + jtostr_(this.metadata_) + ", sourceNode=" + tostrH_(this.sourceNode_) + ", originatingExport=" + jtostr_(this.originatingExport_) + ", isModuleNamespace=" + boolstr_(this.isModuleNamespace_) + ", closureNamespace=" + objstr_(this.closureNamespace_.box_()) + ", createdBy=" + jtostr_(this.createdBy_) + "]"
+	return "Binding[" + "metadata=" + jtostr_(this.metadata_) + ", sourceNode=" + tostrH_(this.sourceNode_) + ", originatingExport=" + jtostr_(this.originatingExport_) + ", isModuleNamespace=" + boolstr_(this.isModuleNamespace_) + ", closureNamespace=" + objstr_(optstrBox_(this.closureNamespace_)) + ", createdBy=" + jtostr_(this.createdBy_) + "]"
 }
 
 type Binding_CreatedBy uint8

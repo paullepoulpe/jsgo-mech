@@ -8,16 +8,16 @@ type Tracer struct {
 	startTimeMs        int64
 	stopTimeMs         int64
 	startThread        *Thread
-	type__             Optional[string]
+	type__             string
 }
 
 func (this *Tracer) zero_Tracer() {
 	this.comment = nullstr_
 }
 
-func (this *Tracer) init_Tracer_Optional_Optional(type_ Optional[string], comment Optional[string]) {
+func (this *Tracer) init_Tracer_Optional_Optional(type_ string, comment string) {
 	this.type__ = type_
-	this.comment = comment.orElse("")
+	this.comment = optstrOr_(comment, "")
 	this.startTimeMs = Tracer_clock()
 	this.startThread = Thread_currentThread()
 	if !Tracer_extraTracingStatistics.isEmpty() {
@@ -44,7 +44,7 @@ func (this *Tracer) init_Tracer_Optional_Optional(type_ Optional[string], commen
 	trace.startEvent(this)
 }
 
-func new_Tracer_Optional_Optional(type_ Optional[string], comment Optional[string]) *Tracer {
+func new_Tracer_Optional_Optional(type_ string, comment string) *Tracer {
 	this := &Tracer{}
 	this.zero_Tracer()
 	this.init_Tracer_Optional_Optional(type_, comment)
@@ -52,7 +52,7 @@ func new_Tracer_Optional_Optional(type_ Optional[string], comment Optional[strin
 }
 
 func (this *Tracer) init_Tracer_String(comment string) {
-	this.init_Tracer_Optional_Optional(Optional_empty[string](), Optional_of[string](comment))
+	this.init_Tracer_Optional_Optional(nullstr_, optstrOf_(comment))
 }
 
 func new_Tracer_String(comment string) *Tracer {
@@ -140,10 +140,10 @@ func (this *Tracer) stop() int64 {
 }
 
 func (this *Tracer) toString() string {
-	if this.type__.isEmpty() {
+	if this.type__ == nullstr_ {
 		return this.comment
 	} else {
-		return ("[" + sstr_(this.type__.get()) + "] " + sstr_(this.comment))
+		return ("[" + sstr_(optstrGet_(this.type__)) + "] " + sstr_(this.comment))
 	}
 }
 
@@ -474,22 +474,22 @@ func (this *Tracer_ThreadTrace) endEvent(t *Tracer, silenceThreshold int32) {
 	} else {
 		*this.events = append(*this.events, new_Tracer_Event(false, t))
 	}
-	if t.type__.isPresent() {
-		var stat *Tracer_Stat = this.stats.Get(t.type__.get())
+	if t.type__ != nullstr_ {
+		var stat *Tracer_Stat = this.stats.Get(optstrGet_(t.type__))
 		if stat == nil {
 			stat = new_Tracer_Stat()
 			if !Tracer_extraTracingStatistics.isEmpty() {
 				stat.extraInfo = make([]int32, Tracer_extraTracingStatistics.size())
 			}
-			this.stats.Put(t.type__.get(), stat)
+			this.stats.Put(optstrGet_(t.type__), stat)
 		}
 		stat.count_++
 		if Tracer_typeToCountMap != nil {
-			Tracer_typeToCountMap.incrementBy(t.type__.get(), 1)
+			Tracer_typeToCountMap.incrementBy(optstrGet_(t.type__), 1)
 		}
 		stat.clockTime = int32((int64(stat.clockTime) + elapsed))
 		if Tracer_typeToTimeMap != nil {
-			Tracer_typeToTimeMap.incrementBy(t.type__.get(), elapsed)
+			Tracer_typeToTimeMap.incrementBy(optstrGet_(t.type__), elapsed)
 		}
 		if (stat.extraInfo != nil) && (t.extraTracingValues != nil) {
 			var overlapLength int32 = Math_min(int32(len(stat.extraInfo)), int32(len(t.extraTracingValues)))
@@ -497,14 +497,14 @@ func (this *Tracer_ThreadTrace) endEvent(t *Tracer, silenceThreshold int32) {
 				stat.extraInfo[i] = int32((int64(stat.extraInfo[i]) + t.extraTracingValues[i]))
 				var map_ *Tracer_AtomicTracerStatMap = Tracer_extraTracingStatistics.get_t(i).getTracingStat()
 				if map_ != nil {
-					map_.incrementBy(t.type__.get(), t.extraTracingValues[i])
+					map_.incrementBy(optstrGet_(t.type__), t.extraTracingValues[i])
 				}
 			}
 		}
 		if elapsed < int64(silenceThreshold) {
 			stat.silent++
 			if Tracer_typeToSilentMap != nil {
-				Tracer_typeToSilentMap.incrementBy(t.type__.get(), 1)
+				Tracer_typeToSilentMap.incrementBy(optstrGet_(t.type__), 1)
 			}
 		}
 	}

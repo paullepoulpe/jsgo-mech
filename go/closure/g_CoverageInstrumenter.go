@@ -24,8 +24,8 @@ func new_CoverageInstrumenter(compilerSupplier *CompilerBasedTransformer_Compile
 	return this
 }
 
-func (this *CoverageInstrumenter) getRuntime_impl() Optional[string] {
-	return Optional_empty[string]()
+func (this *CoverageInstrumenter) getRuntime_impl() string {
+	return nullstr_
 }
 
 func (this *CoverageInstrumenter) getTranformationName_impl() string {
@@ -76,7 +76,7 @@ func (this *CoverageInstrumenter_CompilerSupplier) setOptions_impl(options *Comp
 	options.setLanguageOut(CompilerOptions_LanguageMode_ECMASCRIPT5)
 	options.setLanguageIn(CompilerOptions_LanguageMode_ECMASCRIPT_NEXT)
 	options.setStrictModeInput(false)
-	options.setSourceMapOutputPath(Optional_of[string]("/dev/null"))
+	options.setSourceMapOutputPath("/dev/null")
 	options.setVariableRenaming(VariableRenamingPolicy_OFF)
 	options.setInstrumentForCoverageOption(CompilerOptions_InstrumentOption_LINE_ONLY)
 	options.setInstrumentForCoverageOnly(true)
@@ -87,7 +87,7 @@ func (this *CoverageInstrumenter_CompilerSupplier) transformed_impl(result *Resu
 }
 
 // getRuntime: an object that is exactly a CoverageInstrumenter calls its getRuntime_impl directly (post-flip); others dispatch.
-func (this *CoverageInstrumenter) getRuntime() Optional[string] {
+func (this *CoverageInstrumenter) getRuntime() string {
 	if p, _ := this.self_.(*CoverageInstrumenter); p == this {
 		return this.getRuntime_impl()
 	}

@@ -468,7 +468,7 @@ func (this *SubtypeChecker) meetVarianceConstraint(variance SubtypeChecker_Varia
 
 func SubtypeChecker_isBivariantType(type_ *JSType) bool {
 	var unwrapped *ObjectType = SubtypeChecker_getObjectTypeIfNative(type_)
-	return (((unwrapped != nil) && unwrapped.hasReferenceName()) && SubtypeChecker_BIVARIANT_TYPES.Has(unwrapped.getReferenceName().orElseThrow()))
+	return (((unwrapped != nil) && unwrapped.hasReferenceName()) && SubtypeChecker_BIVARIANT_TYPES.Has(optstrGet_(unwrapped.getReferenceName())))
 }
 
 func SubtypeChecker_getTemplateKeyIfCovariantType(type_ *JSType) *TemplateType {
@@ -479,17 +479,17 @@ func SubtypeChecker_getTemplateKeyIfCovariantType(type_ *JSType) *TemplateType {
 		}
 	}
 	var unwrapped *ObjectType = SubtypeChecker_getObjectTypeIfNative(type_)
-	var unwrappedTypeName Optional[string] = func() Optional[string] {
+	var unwrappedTypeName string = func() string {
 		if unwrapped == nil {
-			return Optional_empty[string]()
+			return nullstr_
 		}
 		return unwrapped.getReferenceName()
 	}()
-	if unwrappedTypeName.isEmpty() {
+	if unwrappedTypeName == nullstr_ {
 		return nil
 	}
 	return func() *TemplateType {
-		switch unwrappedTypeName.get() {
+		switch optstrGet_(unwrappedTypeName) {
 		case "ReadonlyArray":
 			return unwrapped.registry.getReadonlyArrayElementKey()
 		case "IteratorLike":

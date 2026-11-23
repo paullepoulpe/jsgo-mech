@@ -107,11 +107,11 @@ func (this *EnumType) appendTo_impl(sb *TypeStringBuilder) {
 		if sb.isForAnnotations() {
 			return "!Object"
 		}
-		return this.getReferenceName().orElse(nullstr_)
+		return this.getReferenceName()
 	}())
 }
 
-func (this *EnumType) getDisplayName_impl() Optional[string] {
+func (this *EnumType) getDisplayName_impl() string {
 	return this.elementType.getDisplayName()
 }
 
@@ -161,12 +161,12 @@ type EnumType_Builder struct {
 	PrototypeObjectType_Builder
 	googModuleId string
 	elementType  *JSType
-	elementName  Optional[string]
+	elementName  string
 	source       Node
 }
 
 // setNameT_ is setName for a EnumType_Builder receiver: setName returns its receiver (Java's self type T = EnumType_Builder), so the result is this (selftype).
-func (this *EnumType_Builder) setNameT_(p0 Optional[string]) *EnumType_Builder {
+func (this *EnumType_Builder) setNameT_(p0 string) *EnumType_Builder {
 	this.setName(p0)
 	return this
 }
@@ -183,7 +183,7 @@ func (this *EnumType_Builder) zero_EnumType_Builder() {
 }
 
 func (this *EnumType_Builder) finit_EnumType_Builder() {
-	this.elementName = Optional_empty[string]()
+	this.elementName = nullstr_
 	this.googModuleId = ""
 }
 
@@ -200,8 +200,8 @@ func new_EnumType_Builder(registry *JSTypeRegistry) *EnumType_Builder {
 	return this
 }
 
-func (this *EnumType_Builder) setName_impl(x Optional[string]) *PrototypeObjectType_Builder {
-	this.PrototypeObjectType_Builder.setName_impl(Optional_of[string](("enum{" + sstr_(x.orElse("null")) + "}")))
+func (this *EnumType_Builder) setName_impl(x string) *PrototypeObjectType_Builder {
+	this.PrototypeObjectType_Builder.setName_impl(optstrOf_(("enum{" + sstr_(optstrOr_(x, "null")) + "}")))
 	this.elementName = x
 	return this.up_PrototypeObjectType_Builder()
 }
@@ -279,7 +279,7 @@ func (this *EnumType) appendTo(p0 *TypeStringBuilder) {
 }
 
 // getDisplayName: an object that is exactly a EnumType calls its getDisplayName_impl directly (post-flip); others dispatch.
-func (this *EnumType) getDisplayName() Optional[string] {
+func (this *EnumType) getDisplayName() string {
 	if p, _ := this.self_.(*EnumType); p == this {
 		return this.getDisplayName_impl()
 	}
@@ -327,7 +327,7 @@ func (this *EnumType) resolveInternal(p0 ErrorReporter_rhino) *JSType {
 }
 
 // setName: an object that is exactly a EnumType_Builder calls its setName_impl directly (post-flip); others dispatch.
-func (this *EnumType_Builder) setName(p0 Optional[string]) *PrototypeObjectType_Builder {
+func (this *EnumType_Builder) setName(p0 string) *PrototypeObjectType_Builder {
 	if p, _ := this.self_.(*EnumType_Builder); p == this {
 		return this.setName_impl(p0)
 	}

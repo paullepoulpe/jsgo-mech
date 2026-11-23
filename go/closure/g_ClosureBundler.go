@@ -9,7 +9,7 @@ type ClosureBundler struct {
 	path_               string
 	sourceMapCache      MapT[string, string]
 	minifier            any
-	sourceUrl_          Optional[string]
+	sourceUrl_          string
 	embedSourcemapField bool
 }
 
@@ -40,7 +40,7 @@ func new_ClosureBundler_Transpiler(transpiler Transpiler_transpile) *ClosureBund
 }
 
 func (this *ClosureBundler) init_ClosureBundler_Transpiler_Transpiler(transpiler Transpiler_transpile, es6ModuleTranspiler Transpiler_transpile) {
-	this.init_ClosureBundler_Transpiler_Transpiler_EvalMode_Optional_String_Object_Map_boolean(transpiler, es6ModuleTranspiler, ClosureBundler_EvalMode_NORMAL, Optional_empty[string](), "unknown_source", nil, mapAs_(tc_string, tc_string, Map(new_ConcurrentHashMap())), false)
+	this.init_ClosureBundler_Transpiler_Transpiler_EvalMode_Optional_String_Object_Map_boolean(transpiler, es6ModuleTranspiler, ClosureBundler_EvalMode_NORMAL, nullstr_, "unknown_source", nil, mapAs_(tc_string, tc_string, Map(new_ConcurrentHashMap())), false)
 }
 
 func new_ClosureBundler_Transpiler_Transpiler(transpiler Transpiler_transpile, es6ModuleTranspiler Transpiler_transpile) *ClosureBundler {
@@ -50,7 +50,7 @@ func new_ClosureBundler_Transpiler_Transpiler(transpiler Transpiler_transpile, e
 	return this
 }
 
-func (this *ClosureBundler) init_ClosureBundler_Transpiler_Transpiler_EvalMode_Optional_String_Object_Map_boolean(transpiler Transpiler_transpile, es6ModuleTranspiler Transpiler_transpile, mode ClosureBundler_EvalMode, sourceUrl Optional[string], path string, minifier any, sourceMapCache MapT[string, string], embedSourcemap bool) {
+func (this *ClosureBundler) init_ClosureBundler_Transpiler_Transpiler_EvalMode_Optional_String_Object_Map_boolean(transpiler Transpiler_transpile, es6ModuleTranspiler Transpiler_transpile, mode ClosureBundler_EvalMode, sourceUrl string, path string, minifier any, sourceMapCache MapT[string, string], embedSourcemap bool) {
 	this.transpiler = transpiler
 	this.mode_ = mode
 	this.sourceUrl_ = sourceUrl
@@ -61,7 +61,7 @@ func (this *ClosureBundler) init_ClosureBundler_Transpiler_Transpiler_EvalMode_O
 	this.embedSourcemapField = embedSourcemap
 }
 
-func new_ClosureBundler_Transpiler_Transpiler_EvalMode_Optional_String_Object_Map_boolean(transpiler Transpiler_transpile, es6ModuleTranspiler Transpiler_transpile, mode ClosureBundler_EvalMode, sourceUrl Optional[string], path string, minifier any, sourceMapCache MapT[string, string], embedSourcemap bool) *ClosureBundler {
+func new_ClosureBundler_Transpiler_Transpiler_EvalMode_Optional_String_Object_Map_boolean(transpiler Transpiler_transpile, es6ModuleTranspiler Transpiler_transpile, mode ClosureBundler_EvalMode, sourceUrl string, path string, minifier any, sourceMapCache MapT[string, string], embedSourcemap bool) *ClosureBundler {
 	this := &ClosureBundler{}
 	this.zero_ClosureBundler()
 	this.init_ClosureBundler_Transpiler_Transpiler_EvalMode_Optional_String_Object_Map_boolean(transpiler, es6ModuleTranspiler, mode, sourceUrl, path, minifier, sourceMapCache, embedSourcemap)
@@ -95,7 +95,7 @@ func (this *ClosureBundler) useEval(useEval bool) *ClosureBundler {
 }
 
 func (this *ClosureBundler) withSourceUrl(newSourceUrl string) *ClosureBundler {
-	return new_ClosureBundler_Transpiler_Transpiler_EvalMode_Optional_String_Object_Map_boolean(this.transpiler, this.es6ModuleTranspiler, this.mode_, Optional_of[string](newSourceUrl), this.path_, this.minifier, this.sourceMapCache, this.embedSourcemapField)
+	return new_ClosureBundler_Transpiler_Transpiler_EvalMode_Optional_String_Object_Map_boolean(this.transpiler, this.es6ModuleTranspiler, this.mode_, optstrOf_(newSourceUrl), this.path_, this.minifier, this.sourceMapCache, this.embedSourcemapField)
 }
 
 func (this *ClosureBundler) withPath(newPath string) *ClosureBundler {
@@ -124,22 +124,22 @@ func (this *ClosureBundler) appendTo(out Appendable, info DependencyInfo_, conte
 func (this *ClosureBundler) appendRuntimeTo(out Appendable) {
 	var runtime string = this.transpiler.runtime()
 	if runtime != "" {
-		this.mode_.appendTraditional(runtime, out, Optional_empty[string]())
+		this.mode_.appendTraditional(runtime, out, nullstr_)
 	}
 	if this.transpiler == Transpiler_transpile_NULL {
-		this.mode_.appendTraditional(this.es6ModuleTranspiler.runtime(), out, Optional_empty[string]())
+		this.mode_.appendTraditional(this.es6ModuleTranspiler.runtime(), out, nullstr_)
 	}
-	this.mode_.appendTraditional("this.CLOSURE_EVAL_PREFILTER = function(s) { return s; };", out, Optional_empty[string]())
-	this.mode_.appendTraditional("(function(thisValue){", out, Optional_empty[string]())
-	this.mode_.appendTraditional("var isChrome87 = false; try {isChrome87 =  eval(trustedTypes.emptyScript) !== trustedTypes.emptyScript } catch (e) {} if (typeof trustedTypes !== 'undefined' && trustedTypes.createPolicy &&isChrome87 ) {", out, Optional_empty[string]())
-	this.mode_.appendTraditional("  var policy = trustedTypes.createPolicy('goog#devserver',{ createScript: function(s){ return s; }});", out, Optional_empty[string]())
-	this.mode_.appendTraditional("  thisValue.CLOSURE_EVAL_PREFILTER = policy.createScript.bind(policy);", out, Optional_empty[string]())
-	this.mode_.appendTraditional("}", out, Optional_empty[string]())
-	this.mode_.appendTraditional("})(this);", out, Optional_empty[string]())
+	this.mode_.appendTraditional("this.CLOSURE_EVAL_PREFILTER = function(s) { return s; };", out, nullstr_)
+	this.mode_.appendTraditional("(function(thisValue){", out, nullstr_)
+	this.mode_.appendTraditional("var isChrome87 = false; try {isChrome87 =  eval(trustedTypes.emptyScript) !== trustedTypes.emptyScript } catch (e) {} if (typeof trustedTypes !== 'undefined' && trustedTypes.createPolicy &&isChrome87 ) {", out, nullstr_)
+	this.mode_.appendTraditional("  var policy = trustedTypes.createPolicy('goog#devserver',{ createScript: function(s){ return s; }});", out, nullstr_)
+	this.mode_.appendTraditional("  thisValue.CLOSURE_EVAL_PREFILTER = policy.createScript.bind(policy);", out, nullstr_)
+	this.mode_.appendTraditional("}", out, nullstr_)
+	this.mode_.appendTraditional("})(this);", out, nullstr_)
 }
 
 func (this *ClosureBundler) getSourceMap(path string) string {
-	return Optional_ofNullable[string](str_(Map_get_s(Map_un_(this.sourceMapCache), path))).orElse("")
+	return optstrOr_(str_(Map_get_s(Map_un_(this.sourceMapCache), path)), "")
 }
 
 func (this *ClosureBundler) transpile_2(s string, t Transpiler_transpile) string {
@@ -164,11 +164,11 @@ func (this *ClosureBundler) transpileEs6Module(s string) string {
 	return this.transpile_2(s, this.es6ModuleTranspiler)
 }
 
-func ClosureBundler_appendSourceUrl(out Appendable, mode ClosureBundler_EscapeMode, sourceUrl Optional[string]) {
-	if sourceUrl.isEmpty() {
+func ClosureBundler_appendSourceUrl(out Appendable, mode ClosureBundler_EscapeMode, sourceUrl string) {
+	if sourceUrl == nullstr_ {
 		return
 	}
-	var toAppend string = ("\n//# sourceURL=" + sstr_(sourceUrl.get()) + "\n")
+	var toAppend string = ("\n//# sourceURL=" + sstr_(optstrGet_(sourceUrl)) + "\n")
 	mode.append(toAppend, out)
 }
 
@@ -209,7 +209,7 @@ func (this ClosureBundler_EvalMode) as_ClosureBundler_EvalMode() ClosureBundler_
 	return this
 }
 
-func (this ClosureBundler_EvalMode) appendTraditional(s string, out Appendable, sourceUrl Optional[string]) {
+func (this ClosureBundler_EvalMode) appendTraditional(s string, out Appendable, sourceUrl string) {
 	switch this {
 	case ClosureBundler_EvalMode_EVAL:
 		Appendable_append_s(out, "eval(this.CLOSURE_EVAL_PREFILTER(\"")
@@ -224,7 +224,7 @@ func (this ClosureBundler_EvalMode) appendTraditional(s string, out Appendable, 
 	}
 }
 
-func (this ClosureBundler_EvalMode) appendGoogModule(s string, out Appendable, sourceUrl Optional[string]) {
+func (this ClosureBundler_EvalMode) appendGoogModule(s string, out Appendable, sourceUrl string) {
 	switch this {
 	case ClosureBundler_EvalMode_EVAL:
 		Appendable_append_s(out, "goog.loadModule(\"")

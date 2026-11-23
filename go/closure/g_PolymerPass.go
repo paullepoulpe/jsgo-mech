@@ -96,7 +96,7 @@ func (this *PolymerPass) rewritePolymer1ClassDefinition(node Node, parent Node, 
 	}
 	var def *PolymerClassDefinition = PolymerClassDefinition_extractFromCallNode(node, this.compiler_, this.getModuleMetadata(traversal), this.behaviorExtractor)
 	if def != nil {
-		if def.nativeBaseElement.isPresent() {
+		if def.nativeBaseElement != nullstr_ {
 			this.appendPolymerElementExterns(def)
 		}
 		var rewriter *PolymerClassRewriter = new_PolymerClassRewriter(this.compiler_)
@@ -125,24 +125,24 @@ func (this *PolymerPass) normalizePolymerExport(nameDecl Node, export Node) {
 }
 
 func (this *PolymerPass) appendPolymerElementExterns(def *PolymerClassDefinition) {
-	if !setAdd_(this.nativeExternsAdded, def.nativeBaseElement.orElse(nullstr_)) {
+	if !setAdd_(this.nativeExternsAdded, def.nativeBaseElement) {
 		return
 	}
 	var block Node = IR_block_0()
 	var baseExterns Node = this.polymerElementExterns.cloneTree()
 	var polymerElementType string = PolymerPassStaticUtils_getPolymerElementType(def)
 	baseExterns.getFirstChild().setString(polymerElementType)
-	var elementType Optional[string] = func() Optional[string] {
-		if def.nativeBaseElement.isPresent() {
-			return Optional_ofNullable[string](this.tagNameMap.Get(def.nativeBaseElement.get()))
+	var elementType string = func() string {
+		if def.nativeBaseElement != nullstr_ {
+			return this.tagNameMap.Get(optstrGet_(def.nativeBaseElement))
 		}
-		return Optional_empty[string]()
+		return nullstr_
 	}()
-	if elementType.isEmpty() {
-		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(def.descriptor, PolymerPassErrors_POLYMER_INVALID_EXTENDS, []string{def.nativeBaseElement.orElse("null")}))
+	if elementType == nullstr_ {
+		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(def.descriptor, PolymerPassErrors_POLYMER_INVALID_EXTENDS, []string{optstrOr_(def.nativeBaseElement, "null")}))
 		return
 	}
-	var elementBaseType *JSTypeExpression = new_JSTypeExpression(new_Node_Token_Node(Token_rhino_BANG, IR_string(elementType.get()).srcrefTree(this.polymerElementExterns)), PolymerPass_VIRTUAL_FILE)
+	var elementBaseType *JSTypeExpression = new_JSTypeExpression(new_Node_Token_Node(Token_rhino_BANG, IR_string(optstrGet_(elementType)).srcrefTree(this.polymerElementExterns)), PolymerPass_VIRTUAL_FILE)
 	var baseDocs *JSDocInfo_Builder = JSDocInfo_Builder_copyFrom(baseExterns.getJSDocInfo())
 	baseDocs.changeBaseType(elementBaseType)
 	baseExterns.setJSDocInfo(baseDocs.build())

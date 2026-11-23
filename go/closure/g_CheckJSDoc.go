@@ -42,7 +42,7 @@ func (this *CheckJSDoc) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(this))
 }
 
-func (this *CheckJSDoc) checkJsDocInBlockComments(fileName Optional[string]) {
+func (this *CheckJSDoc) checkJsDocInBlockComments(fileName string) {
 	if !this.compiler_.getOptions().preservesDetailedSourceInfo() {
 		return
 	}
@@ -57,7 +57,7 @@ func (this *CheckJSDoc) checkJsDocInBlockComments(fileName Optional[string]) {
 
 func (this *CheckJSDoc) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	if n.isScript() {
-		this.checkJsDocInBlockComments(Optional_of[string](n.getSourceFileName()).filterFn_(func(s string) bool {
+		this.checkJsDocInBlockComments(optstrFilter_(optstrOf_(n.getSourceFileName()), func(s string) bool {
 			return s != ""
 		}))
 	}
@@ -299,8 +299,8 @@ func (this *CheckJSDoc) validateMsgJsDoc(n Node, info *JSDocInfo) {
 	if info == nil {
 		return
 	}
-	var hasNonDescMsgTag bool = (info.getMeaning().isPresent() || info.getAlternateMessageId().isPresent())
-	if hasNonDescMsgTag || (info.getDescription().isPresent() && !CheckJSDoc_isFromTs(n)) {
+	var hasNonDescMsgTag bool = (info.getMeaning() != nullstr_ || info.getAlternateMessageId() != nullstr_)
+	if hasNonDescMsgTag || (info.getDescription() != nullstr_ && !CheckJSDoc_isFromTs(n)) {
 		var descOkay bool = false
 		switch n.ns_().token {
 		case tokOrd1_ASSIGN, tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST:
@@ -399,7 +399,7 @@ func (this *CheckJSDoc) validateRestParameter(restParam Node) {
 	} else if functionInfo != nil {
 		if restParam.getFirstChild().isName() {
 			var paramName string = restParam.getFirstChild().getString()
-			paramTypeAnnotation = functionInfo.getParameterType(Optional_of[string](paramName))
+			paramTypeAnnotation = functionInfo.getParameterType(optstrOf_(paramName))
 		} else {
 			var indexOfRest int32 = paramList.getIndexOfChild(restParam)
 			paramTypeAnnotation = func() *JSTypeExpression {

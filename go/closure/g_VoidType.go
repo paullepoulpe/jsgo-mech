@@ -77,8 +77,8 @@ func (this *VoidType) isExplicitlyVoidable_impl() bool {
 	return true
 }
 
-func (this *VoidType) getDisplayName_impl() Optional[string] {
-	return Optional_of[string]("undefined")
+func (this *VoidType) getDisplayName_impl() string {
+	return "undefined"
 }
 
 func (this *VoidType) getPossibleToBooleanOutcomes_impl() BooleanLiteralSet {
@@ -166,7 +166,7 @@ func (this *VoidType) isExplicitlyVoidable() bool {
 }
 
 // getDisplayName: an object that is exactly a VoidType calls its getDisplayName_impl directly (post-flip); others dispatch.
-func (this *VoidType) getDisplayName() Optional[string] {
+func (this *VoidType) getDisplayName() string {
 	if p, _ := this.self_.(*VoidType); p == this {
 		return this.getDisplayName_impl()
 	}
