@@ -40,6 +40,10 @@
 // call-graph over-approximation; interface calls reach every implementation, calls of
 // function values every function stored where they are called from).
 //
+// A range-over-func loop over a list (`for x := range l.All()`, tools/postflip/ranges -loops)
+// is a range loop over the slice when the loop cannot change its length, else ranges over
+// sliceAll_(&l) (sliceAllRev_ for AllRev), which reads the slice anew at every step as All did.
+//
 // An explicit iterator over a list, it := l.asList().iterator() used only for hasNext and
 // next, becomes a range loop (the canonical `for it.hasNext() { var x T = it.next(); ...}`)
 // or an int cursor (sliceNext_) when the list does not change while it is in use; one that
@@ -610,7 +614,7 @@ func valueOf(e ast.Expr) value {
 		switch {
 		case newFns[n]:
 			return value{kind: vNew}
-		case n == "tlistImm_", n == "tlistOfT_" && rw.HasFunc("sliceOfT_"): // reflip44a
+		case n == "tlistImm_":
 			return value{kind: vImm}
 		}
 		if fl, ok := rw.Unparen(x.Fun).(*ast.FuncLit); ok {
@@ -715,13 +719,6 @@ func newValue(n *node, call *ast.CallExpr) {
 		edit(n, call, func() string { return "make([]" + et + ", 0, " + rw.Render(call.Args[1]) + ")" })
 	case "tlistFrom_":
 		edit(n, call, func() string { return "sliceFrom_(" + rw.Render(call.Args[0]) + ", " + rw.Render(call.Args[1]) + ")" })
-	case "tlistOfT_": // reflip44a
-		edit(n, call, func() string {
-			if cls(n).ptr {
-				return "slicePtrOfT_(" + rw.Render(call.Args[0]) + ", " + rw.Render(call.Args[1]) + ")"
-			}
-			return "sliceOfT_(" + rw.Render(call.Args[0]) + ", " + rw.Render(call.Args[1]) + ")"
-		})
 	case "tlistImm_":
 		edit(n, call, func() string { return "sliceImm_(" + rw.Render(call.Args[0]) + ", " + rw.Render(call.Args[1]) + ")" })
 	}
@@ -1047,6 +1044,17 @@ func use(n *node, recv ast.Expr, m string, call *ast.CallExpr) {
 				poison(n, "for-each cursor not followed by its loop")
 			}
 		}
+	case (m == "All" || m == "AllRev") && len(args) == 0:
+		// for x := range X.All() (tools/postflip/ranges -loops): over the slice.
+		rs, ok := rw.Parent[call].(*ast.RangeStmt)
+		if !ok || rs.X != call || m == "AllRev" && !addr {
+			poison(n, "method "+m)
+			return
+		}
+		if n.local {
+			n.loops = append(n.loops, rs.Body)
+		}
+		rloops = append(rloops, rloopSite{n, recv, call, rs, m == "AllRev"})
 	case (m == "asList" || m == "asListT" || m == "asCollT" || m == "asIterable") && len(args) == 0: // reflip41a
 		view(n, recv, call)
 	default:
@@ -1379,6 +1387,17 @@ type loopSite struct {
 }
 
 var loops []loopSite
+
+// rloopSite is `for x := range X.All()` (or AllRev) over list X, the value of slot n.
+type rloopSite struct {
+	n    *node
+	recv ast.Expr
+	call *ast.CallExpr
+	rs   *ast.RangeStmt
+	rev  bool
+}
+
+var rloops []rloopSite
 
 func loop(n *node, recv ast.Expr, call *ast.CallExpr) {
 	as, ok := rw.Parent[call].(*ast.AssignStmt)
@@ -1909,6 +1928,39 @@ func main() {
 		recv := l.recv
 		rw.Rewrite[l.call] = func() string { return "eachOf_(&" + rw.Render(recv) + ")" }
 		pendingField = append(pendingField, fieldSite{as, recv})
+		nEach++
+	}
+	// Range-over-func loops over converted lists: a plain range loop over the slice when the
+	// loop cannot change its length, else sliceAll_/sliceAllRev_, which read it anew at every
+	// step as X.All() did.
+	for _, l := range rloops {
+		c := cls(l.n)
+		if !conv[c] {
+			continue
+		}
+		recv, rs := l.recv, l.rs
+		exact := !l.rev
+		if exact && l.n.mutated != "" {
+			exact = l.n.local && !changedIn(l.n.v, rs.Body) && !capturedAnywhere(l.n)
+		}
+		if exact {
+			if rs.Key != nil {
+				key := rs.Key
+				rw.Rewrite[rs.Key] = func() string { return "_, " + rw.Render(key) }
+			}
+			rw.Rewrite[l.call] = func() string { return rw.Render(recv) }
+			nRange++
+			continue
+		}
+		if v, _ := varOf(recv); v == nil {
+			fmt.Fprintf(os.Stderr, "loop over a changed list that is not a variable: %s\n", rw.Fset.Position(l.call.Pos()))
+			os.Exit(1)
+		}
+		h := "sliceAll_"
+		if l.rev {
+			h = "sliceAllRev_"
+		}
+		rw.Rewrite[l.call] = func() string { return h + "(&" + rw.Render(recv) + ")" }
 		nEach++
 	}
 	// ImmutableList reads and loops, unboxed where the code unboxes the element.
