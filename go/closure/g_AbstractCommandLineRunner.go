@@ -2716,19 +2716,19 @@ func (this AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption) enum_(
 }
 
 func (this AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption) name() string {
-	return AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption) ordinal() int32 {
-	return AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption) toString() string {
-	return AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption) compareTo(o any) int32 {
-	return AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption) self() any {
@@ -2915,19 +2915,19 @@ func (this AbstractCommandLineRunner_JsSourceType) enum_() *Enum {
 }
 
 func (this AbstractCommandLineRunner_JsSourceType) name() string {
-	return AbstractCommandLineRunner_JsSourceType_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this AbstractCommandLineRunner_JsSourceType) ordinal() int32 {
-	return AbstractCommandLineRunner_JsSourceType_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this AbstractCommandLineRunner_JsSourceType) toString() string {
-	return AbstractCommandLineRunner_JsSourceType_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this AbstractCommandLineRunner_JsSourceType) compareTo(o any) int32 {
-	return AbstractCommandLineRunner_JsSourceType_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this AbstractCommandLineRunner_JsSourceType) self() any {

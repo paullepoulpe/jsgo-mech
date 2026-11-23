@@ -292,19 +292,19 @@ func (this AbstractScope_ImplicitVar) enum_() *Enum {
 }
 
 func (this AbstractScope_ImplicitVar) name() string {
-	return AbstractScope_ImplicitVar_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this AbstractScope_ImplicitVar) ordinal() int32 {
-	return AbstractScope_ImplicitVar_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this AbstractScope_ImplicitVar) toString() string {
-	return AbstractScope_ImplicitVar_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this AbstractScope_ImplicitVar) compareTo(o any) int32 {
-	return AbstractScope_ImplicitVar_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this AbstractScope_ImplicitVar) self() any {
