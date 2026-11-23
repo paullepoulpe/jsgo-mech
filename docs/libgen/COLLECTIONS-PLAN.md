@@ -1776,3 +1776,43 @@ runtime lines of the default build: 20373  off-mode extras (build-tagged files):
   `DequeT[`, `PeekingIteratorT[`, `LoadingCacheT[`, `queueAs_`, `dequeAs_`,
   `peekingIteratorAs_`, `loadingCacheAs_`, `tenumSet*_`, `asDequeT()` / `asQueueT()` where
   `asDeque()` was) and fewer `XOf[` aliases (7.3).
+
+## 8. The merge of T1 and T2 (branch `main-libgen-t12`, worktree `/mnt/data/ubuntu/jm/wt/libt12`, 2026-11-23)
+
+main 697100e9, then `main-libgen-t1` (915c0e06) and `main-libgen-t2` (43cfd88f) merged in that order.
+Conflicts: this file (both appended a section 6; T2's is section 7 here) and `tools/j2go/README.md`
+(both bullets kept; the switch list ends `fns,sorted,enumset,cmaps,deque,guava`). The Java sources
+merged without conflict (`Ctx.java`, `ExprEmitter.java`, `selftest/run.sh`); no edit was made beyond
+the two conflicts. Scratch: `/mnt/data/tmp/claude-1000/-home-ubuntu-work/9db246f3-01a3-48c8-9bf5-1c94d1ed78d6/scratchpad/t12/`
+(`pipe.sh`, `cross.sh`, their `.out`).
+
+md5 of `cat go/closure/g_*.go`, the merged translator, the merged runtime in the output directory:
+
+| translation | md5 | must equal |
+|---|---|---|
+| everything off (`J2GO_NOFNTYPES=1 J2GO_NOLIBGEN=all`) | 973b5b6d3e4f71ab1cc82872360f9759 | main's all-off: equal |
+| fns and the five T2 kinds off | f630308fb905a07052ac0ea004b9214c | main's default: equal |
+| fns off | c7100373dd7ddbf3c4bb8fb4a6dba29c | T2's default (7.1): equal |
+| the five T2 kinds off | 88d6f66b25b35b59b1ed0b8e6ef4a9c3 | T1's default (6.4): equal |
+| default | 4440048ae31591b5be2bc353c8655e43 | (new) |
+
+So each piece off gives
+exactly the other branch's translation. Gate of the default translation, `$B/gate.sh libt12 t12_a`:
+`GATE OK t12_a`
+
+```
+selftest: PASS
+removed 0 declarations in 0 rounds
+ok  	jsgomech/closure	(cached)
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+runtime lines: 20941  test lines: 4626
+runtime lines of the default build: 20697  off-mode extras (build-tagged files): 244
+```
+
+(`ok ... 1.975s` in the first gate run, which is kept as `$B/logs/gate-t12_a.first-failed.log`: its
+self-test line was `... 2 more`, the tail of a Java stack trace, not `selftest: PASS`; the self-test run
+alone right after printed `selftest: PASS`, and so did the gate run again. The cause of the first
+output was not found.) The switches-off translations were compared by md5 only, not gated again.
