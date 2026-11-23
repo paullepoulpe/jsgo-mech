@@ -489,7 +489,7 @@ func (this *ClosureCheckModule_1) visit(node Node) {
 
 // enterModule: an object that is exactly a ClosureCheckModule calls its enterModule_impl directly (post-flip); others dispatch.
 func (this *ClosureCheckModule) enterModule(p0 *ModuleMetadataMap_ModuleMetadata, p1 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ClosureCheckModule); p == this {
 		this.enterModule_impl(p0, p1)
 		return
 	}
@@ -498,7 +498,7 @@ func (this *ClosureCheckModule) enterModule(p0 *ModuleMetadataMap_ModuleMetadata
 
 // exitModule: an object that is exactly a ClosureCheckModule calls its exitModule_impl directly (post-flip); others dispatch.
 func (this *ClosureCheckModule) exitModule(p0 *ModuleMetadataMap_ModuleMetadata, p1 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ClosureCheckModule); p == this {
 		this.exitModule_impl(p0, p1)
 		return
 	}
@@ -507,7 +507,7 @@ func (this *ClosureCheckModule) exitModule(p0 *ModuleMetadataMap_ModuleMetadata,
 
 // visit_4: an object that is exactly a ClosureCheckModule calls its visit_4_impl directly (post-flip); others dispatch.
 func (this *ClosureCheckModule) visit_4(p0 *NodeTraversal, p1 Node, p2 *ModuleMetadataMap_ModuleMetadata, p3 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ClosureCheckModule); p == this {
 		this.visit_4_impl(p0, p1, p2, p3)
 		return
 	}

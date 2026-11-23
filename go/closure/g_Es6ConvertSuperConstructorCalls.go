@@ -584,7 +584,7 @@ func (this *Es6ConvertSuperConstructorCalls_UndefinedReturnValueCheck_1) visit_i
 
 // visit: an object that is exactly a Es6ConvertSuperConstructorCalls_UndefinedReturnValueCheck_1 calls its visit_impl directly (post-flip); others dispatch.
 func (this *Es6ConvertSuperConstructorCalls_UndefinedReturnValueCheck_1) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Es6ConvertSuperConstructorCalls_UndefinedReturnValueCheck_1); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}

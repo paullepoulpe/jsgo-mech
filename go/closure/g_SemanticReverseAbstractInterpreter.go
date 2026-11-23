@@ -613,7 +613,7 @@ func (this *SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope) getO
 
 // getPreciserScopeKnowingConditionOutcome: an object that is exactly a SemanticReverseAbstractInterpreter calls its getPreciserScopeKnowingConditionOutcome_impl directly (post-flip); others dispatch.
 func (this *SemanticReverseAbstractInterpreter) getPreciserScopeKnowingConditionOutcome(p0 Node, p1 FlowScope, p2 *Outcome_rhino) FlowScope {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*SemanticReverseAbstractInterpreter); p == this {
 		return this.getPreciserScopeKnowingConditionOutcome_impl(p0, p1, p2)
 	}
 	return this.self_.getPreciserScopeKnowingConditionOutcome_impl(p0, p1, p2)
@@ -621,7 +621,7 @@ func (this *SemanticReverseAbstractInterpreter) getPreciserScopeKnowingCondition
 
 // caseTopType: an object that is exactly a SemanticReverseAbstractInterpreter_RestrictByTrueInstanceOfResultVisitor calls its caseTopType_impl directly (post-flip); others dispatch.
 func (this *SemanticReverseAbstractInterpreter_RestrictByTrueInstanceOfResultVisitor) caseTopType(p0 *JSType) *JSType {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*SemanticReverseAbstractInterpreter_RestrictByTrueInstanceOfResultVisitor); p == this {
 		return this.caseTopType_impl(p0)
 	}
 	return this.self_.caseTopType_impl(p0)
@@ -629,7 +629,7 @@ func (this *SemanticReverseAbstractInterpreter_RestrictByTrueInstanceOfResultVis
 
 // caseUnknownType: an object that is exactly a SemanticReverseAbstractInterpreter_RestrictByTrueInstanceOfResultVisitor calls its caseUnknownType_impl directly (post-flip); others dispatch.
 func (this *SemanticReverseAbstractInterpreter_RestrictByTrueInstanceOfResultVisitor) caseUnknownType() any {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*SemanticReverseAbstractInterpreter_RestrictByTrueInstanceOfResultVisitor); p == this {
 		return this.caseUnknownType_impl()
 	}
 	return this.self_.caseUnknownType_impl()
@@ -637,7 +637,7 @@ func (this *SemanticReverseAbstractInterpreter_RestrictByTrueInstanceOfResultVis
 
 // caseObjectType: an object that is exactly a SemanticReverseAbstractInterpreter_RestrictByTrueInstanceOfResultVisitor calls its caseObjectType_impl directly (post-flip); others dispatch.
 func (this *SemanticReverseAbstractInterpreter_RestrictByTrueInstanceOfResultVisitor) caseObjectType(p0 *ObjectType) any {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*SemanticReverseAbstractInterpreter_RestrictByTrueInstanceOfResultVisitor); p == this {
 		return this.caseObjectType_impl(p0)
 	}
 	return this.self_.caseObjectType_impl(p0)
@@ -645,7 +645,7 @@ func (this *SemanticReverseAbstractInterpreter_RestrictByTrueInstanceOfResultVis
 
 // caseUnionType: an object that is exactly a SemanticReverseAbstractInterpreter_RestrictByTrueInstanceOfResultVisitor calls its caseUnionType_impl directly (post-flip); others dispatch.
 func (this *SemanticReverseAbstractInterpreter_RestrictByTrueInstanceOfResultVisitor) caseUnionType(p0 *UnionType) any {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*SemanticReverseAbstractInterpreter_RestrictByTrueInstanceOfResultVisitor); p == this {
 		return this.caseUnionType_impl(p0)
 	}
 	return this.self_.caseUnionType_impl(p0)
@@ -653,7 +653,7 @@ func (this *SemanticReverseAbstractInterpreter_RestrictByTrueInstanceOfResultVis
 
 // caseFunctionType: an object that is exactly a SemanticReverseAbstractInterpreter_RestrictByTrueInstanceOfResultVisitor calls its caseFunctionType_impl directly (post-flip); others dispatch.
 func (this *SemanticReverseAbstractInterpreter_RestrictByTrueInstanceOfResultVisitor) caseFunctionType(p0 *FunctionType) any {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*SemanticReverseAbstractInterpreter_RestrictByTrueInstanceOfResultVisitor); p == this {
 		return this.caseFunctionType_impl(p0)
 	}
 	return this.self_.caseFunctionType_impl(p0)
@@ -661,7 +661,7 @@ func (this *SemanticReverseAbstractInterpreter_RestrictByTrueInstanceOfResultVis
 
 // caseObjectType: an object that is exactly a SemanticReverseAbstractInterpreter_RestrictByFalseInstanceOfResultVisitor calls its caseObjectType_impl directly (post-flip); others dispatch.
 func (this *SemanticReverseAbstractInterpreter_RestrictByFalseInstanceOfResultVisitor) caseObjectType(p0 *ObjectType) any {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*SemanticReverseAbstractInterpreter_RestrictByFalseInstanceOfResultVisitor); p == this {
 		return this.caseObjectType_impl(p0)
 	}
 	return this.self_.caseObjectType_impl(p0)
@@ -669,7 +669,7 @@ func (this *SemanticReverseAbstractInterpreter_RestrictByFalseInstanceOfResultVi
 
 // caseUnionType: an object that is exactly a SemanticReverseAbstractInterpreter_RestrictByFalseInstanceOfResultVisitor calls its caseUnionType_impl directly (post-flip); others dispatch.
 func (this *SemanticReverseAbstractInterpreter_RestrictByFalseInstanceOfResultVisitor) caseUnionType(p0 *UnionType) any {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*SemanticReverseAbstractInterpreter_RestrictByFalseInstanceOfResultVisitor); p == this {
 		return this.caseUnionType_impl(p0)
 	}
 	return this.self_.caseUnionType_impl(p0)
@@ -677,7 +677,7 @@ func (this *SemanticReverseAbstractInterpreter_RestrictByFalseInstanceOfResultVi
 
 // caseFunctionType: an object that is exactly a SemanticReverseAbstractInterpreter_RestrictByFalseInstanceOfResultVisitor calls its caseFunctionType_impl directly (post-flip); others dispatch.
 func (this *SemanticReverseAbstractInterpreter_RestrictByFalseInstanceOfResultVisitor) caseFunctionType(p0 *FunctionType) any {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*SemanticReverseAbstractInterpreter_RestrictByFalseInstanceOfResultVisitor); p == this {
 		return this.caseFunctionType_impl(p0)
 	}
 	return this.self_.caseFunctionType_impl(p0)

@@ -305,7 +305,7 @@ func (this *JsFileFullParser_1) printSummary_impl() {
 
 // println: an object that is exactly a JsFileFullParser_1 calls its println_impl directly (post-flip); others dispatch.
 func (this *JsFileFullParser_1) println(p0 CheckLevel, p1 *JSError) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*JsFileFullParser_1); p == this {
 		this.println_impl(p0, p1)
 		return
 	}
@@ -314,7 +314,7 @@ func (this *JsFileFullParser_1) println(p0 CheckLevel, p1 *JSError) {
 
 // printSummary: an object that is exactly a JsFileFullParser_1 calls its printSummary_impl directly (post-flip); others dispatch.
 func (this *JsFileFullParser_1) printSummary() {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*JsFileFullParser_1); p == this {
 		this.printSummary_impl()
 		return
 	}

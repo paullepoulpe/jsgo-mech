@@ -184,7 +184,7 @@ const ComposeWarningsGuard_GuardComparator_serialVersionUID int64 = 1
 
 // level: an object that is exactly a ComposeWarningsGuard calls its level_impl directly (post-flip); others dispatch.
 func (this *ComposeWarningsGuard) level(p0 *JSError) CheckLevel {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ComposeWarningsGuard); p == this {
 		return this.level_impl(p0)
 	}
 	return this.self_.level_impl(p0)
@@ -192,7 +192,7 @@ func (this *ComposeWarningsGuard) level(p0 *JSError) CheckLevel {
 
 // mustRunChecks: an object that is exactly a ComposeWarningsGuard calls its mustRunChecks_impl directly (post-flip); others dispatch.
 func (this *ComposeWarningsGuard) mustRunChecks(p0 *DiagnosticGroup) Tri {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ComposeWarningsGuard); p == this {
 		return this.mustRunChecks_impl(p0)
 	}
 	return this.self_.mustRunChecks_impl(p0)

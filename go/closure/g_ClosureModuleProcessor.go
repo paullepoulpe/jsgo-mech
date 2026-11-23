@@ -319,7 +319,7 @@ func (this *ClosureModuleProcessor_ModuleProcessingCallback) maybeInitializeRequ
 
 // resolveExport: an object that is exactly a ClosureModuleProcessor_UnresolvedGoogModule calls its resolveExport_impl directly (post-flip); others dispatch.
 func (this *ClosureModuleProcessor_UnresolvedGoogModule) resolveExport(p0 ModuleRequestResolver, p1 Optional[string]) *ResolveExportResult {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ClosureModuleProcessor_UnresolvedGoogModule); p == this {
 		return this.resolveExport_impl(p0, p1)
 	}
 	return this.self_.resolveExport_impl(p0, p1)
@@ -327,7 +327,7 @@ func (this *ClosureModuleProcessor_UnresolvedGoogModule) resolveExport(p0 Module
 
 // resolveExport_5: an object that is exactly a ClosureModuleProcessor_UnresolvedGoogModule calls its resolveExport_5_impl directly (post-flip); others dispatch.
 func (this *ClosureModuleProcessor_UnresolvedGoogModule) resolveExport_5(p0 ModuleRequestResolver, p1 Optional[string], p2 Optional[string], p3 *JTSet[*ExportTrace], p4 *JTSet[*UnresolvedModule]) *ResolveExportResult {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ClosureModuleProcessor_UnresolvedGoogModule); p == this {
 		return this.resolveExport_5_impl(p0, p1, p2, p3, p4)
 	}
 	return this.self_.resolveExport_5_impl(p0, p1, p2, p3, p4)
@@ -335,7 +335,7 @@ func (this *ClosureModuleProcessor_UnresolvedGoogModule) resolveExport_5(p0 Modu
 
 // resolve_2: an object that is exactly a ClosureModuleProcessor_UnresolvedGoogModule calls its resolve_2_impl directly (post-flip); others dispatch.
 func (this *ClosureModuleProcessor_UnresolvedGoogModule) resolve_2(p0 ModuleRequestResolver, p1 Optional[string]) *Module {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ClosureModuleProcessor_UnresolvedGoogModule); p == this {
 		return this.resolve_2_impl(p0, p1)
 	}
 	return this.self_.resolve_2_impl(p0, p1)
@@ -343,7 +343,7 @@ func (this *ClosureModuleProcessor_UnresolvedGoogModule) resolve_2(p0 ModuleRequ
 
 // metadata: an object that is exactly a ClosureModuleProcessor_UnresolvedGoogModule calls its metadata_impl directly (post-flip); others dispatch.
 func (this *ClosureModuleProcessor_UnresolvedGoogModule) metadata() *ModuleMetadataMap_ModuleMetadata {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ClosureModuleProcessor_UnresolvedGoogModule); p == this {
 		return this.metadata_impl()
 	}
 	return this.self_.metadata_impl()
@@ -351,7 +351,7 @@ func (this *ClosureModuleProcessor_UnresolvedGoogModule) metadata() *ModuleMetad
 
 // getExportedNames: an object that is exactly a ClosureModuleProcessor_UnresolvedGoogModule calls its getExportedNames_impl directly (post-flip); others dispatch.
 func (this *ClosureModuleProcessor_UnresolvedGoogModule) getExportedNames(p0 ModuleRequestResolver) *JTSet[string] {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ClosureModuleProcessor_UnresolvedGoogModule); p == this {
 		return this.getExportedNames_impl(p0)
 	}
 	return this.self_.getExportedNames_impl(p0)
@@ -359,7 +359,7 @@ func (this *ClosureModuleProcessor_UnresolvedGoogModule) getExportedNames(p0 Mod
 
 // getExportedNames_2: an object that is exactly a ClosureModuleProcessor_UnresolvedGoogModule calls its getExportedNames_2_impl directly (post-flip); others dispatch.
 func (this *ClosureModuleProcessor_UnresolvedGoogModule) getExportedNames_2(p0 ModuleRequestResolver, p1 *JTSet[*UnresolvedModule]) *JTSet[string] {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ClosureModuleProcessor_UnresolvedGoogModule); p == this {
 		return this.getExportedNames_2_impl(p0, p1)
 	}
 	return this.self_.getExportedNames_2_impl(p0, p1)
@@ -367,7 +367,7 @@ func (this *ClosureModuleProcessor_UnresolvedGoogModule) getExportedNames_2(p0 M
 
 // reset: an object that is exactly a ClosureModuleProcessor_UnresolvedGoogModule calls its reset_impl directly (post-flip); others dispatch.
 func (this *ClosureModuleProcessor_UnresolvedGoogModule) reset() {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ClosureModuleProcessor_UnresolvedGoogModule); p == this {
 		this.reset_impl()
 		return
 	}
@@ -376,7 +376,7 @@ func (this *ClosureModuleProcessor_UnresolvedGoogModule) reset() {
 
 // shouldTraverse: an object that is exactly a ClosureModuleProcessor_ModuleProcessingCallback calls its shouldTraverse_impl directly (post-flip); others dispatch.
 func (this *ClosureModuleProcessor_ModuleProcessingCallback) shouldTraverse(p0 *NodeTraversal, p1 Node, p2 Node) bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ClosureModuleProcessor_ModuleProcessingCallback); p == this {
 		return this.shouldTraverse_impl(p0, p1, p2)
 	}
 	return this.self_.shouldTraverse_impl(p0, p1, p2)
