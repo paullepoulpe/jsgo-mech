@@ -68,7 +68,7 @@ func (this *InstrumentAsyncContext) visit(t *NodeTraversal, n Node, parent Node)
 		this.hasSuper.add(t.getEnclosingFunction())
 	} else if this.isReentrance(n) {
 		this.instrumentReentrance(t, n, parent)
-	} else if equalsRH_(n, this.tryFunctionStack.peek().box_()) {
+	} else if equalsId_(n, this.tryFunctionStack.peek()) {
 		this.tryFunctionStack.pop()
 		if this.alreadyInstrumented.contains(n) {
 			return
@@ -475,10 +475,10 @@ func (this *InstrumentAsyncContext_FunctionContext) equals(p0 any) bool {
 func (this *InstrumentAsyncContext_FunctionContext) hashCode() int32 {
 	var h int32
 	h = h*31 + strhash_(this.uniqueSuffix_)
-	h = h*31 + hashH_(this.suspendName_)
-	h = h*31 + hashH_(this.resumeName_)
-	h = h*31 + hashH_(this.factoryName_)
-	h = h*31 + hash_(this.astFactory_)
+	h = h*31 + objhashId_(this.suspendName_)
+	h = h*31 + objhashId_(this.resumeName_)
+	h = h*31 + objhashId_(this.factoryName_)
+	h = h*31 + objhashId_(this.astFactory_)
 	return h
 }
 

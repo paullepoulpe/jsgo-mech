@@ -121,7 +121,7 @@ func (this *ScopedName) equals(other any) bool {
 	}()) {
 		return false
 	}
-	return ((this.getName() == scopedName.getName()) && equalsRRH_(this.getScopeRoot(), scopedName.getScopeRoot()))
+	return ((this.getName() == scopedName.getName()) && equalsId_(this.getScopeRoot(), scopedName.getScopeRoot()))
 }
 
 func (this *ScopedName) hashCode() int32 {
@@ -129,7 +129,7 @@ func (this *ScopedName) hashCode() int32 {
 	var root Node = this.getScopeRoot()
 	var result int32 = 1
 	result = ((31 * result) + String_hashCode(name))
-	result = ((31 * result) + hashRH_(root))
+	result = ((31 * result) + hashId_(root))
 	return result
 }
 

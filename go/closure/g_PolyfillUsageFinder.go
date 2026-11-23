@@ -403,8 +403,12 @@ func (this *PolyfillUsageFinder_PolyfillUsage) zero_PolyfillUsageFinder_Polyfill
 }
 
 func (this *PolyfillUsageFinder_PolyfillUsage) init_PolyfillUsageFinder_PolyfillUsage(polyfill *PolyfillUsageFinder_Polyfill, node Node, name string, isExplicitGlobal bool) {
-	Objects_requireNonNull_T(polyfill, "polyfill")
-	Objects_requireNonNull_T(node, "node")
+	if polyfill == nil {
+		panic(new_NullPointerException_String("polyfill").self())
+	}
+	if node == 0 {
+		panic(new_NullPointerException_String("node").self())
+	}
 	this.polyfill_ = polyfill
 	this.node_ = node
 	this.name_ = name
@@ -452,8 +456,8 @@ func (this *PolyfillUsageFinder_PolyfillUsage) equals(p0 any) bool {
 
 func (this *PolyfillUsageFinder_PolyfillUsage) hashCode() int32 {
 	var h int32
-	h = h*31 + hash_(this.polyfill_)
-	h = h*31 + hashH_(this.node_)
+	h = h*31 + objhashId_(this.polyfill_)
+	h = h*31 + objhashId_(this.node_)
 	h = h*31 + strhash_(this.name_)
 	h = h*31 + boolhash_(this.isExplicitGlobal_)
 	return h

@@ -289,7 +289,7 @@ func (this *EqualityChecker) areArrowParameterEqual(left *ArrowType, right *Arro
 func (this *EqualityChecker) areRecordEqual(left *RecordType, right *RecordType) bool {
 	var leftKeys SetT[string] = left.getOwnPropertyNames()
 	var rightKeys SetT[string] = right.getOwnPropertyNames()
-	if !Object_equals(lgBox_(rightKeys), lgBox_(leftKeys)) {
+	if !equalsDyn_(lgBox_(rightKeys), lgBox_(leftKeys)) {
 		return false
 	}
 	it_1 := jeachOf_(leftKeys)
