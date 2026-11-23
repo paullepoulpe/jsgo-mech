@@ -379,7 +379,7 @@ func (this *FunctionTypeBuilder) inferParameterTypes_2(paramsParent Node, info *
 			} else if param.isDefaultValue() {
 				paramLhs = param.getFirstChild()
 				if paramLhs == 0 {
-					panic(new_NullPointerException_String(objstr_(param.box_())).self())
+					panic(new_NullPointerException_String(tostr_(param)).self())
 				}
 				isOptionalParam = true
 			} else {

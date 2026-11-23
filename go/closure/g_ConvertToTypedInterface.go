@@ -352,7 +352,7 @@ func new_ConvertToTypedInterface_PropagateConstJsdoc(currentFile *FileInfo) *Con
 
 func (this *ConvertToTypedInterface_PropagateConstJsdoc) processConstWithRhs_impl(t *NodeTraversal, nameNode Node) {
 	if !(((nameNode.isQualifiedName() || nameNode.isStringKey()) || nameNode.isDestructuringLhs()) || nameNode.isMemberFieldDef()) {
-		panic(new_IllegalArgumentException_String(objstr_(nameNode.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(nameNode)).self())
 	}
 	var jsdocNode Node = NodeUtil_getBestJSDocInfoNode(nameNode)
 	var originalJsdoc *JSDocInfo = jsdocNode.getJSDocInfo()
