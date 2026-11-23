@@ -631,6 +631,26 @@ func (it *tmapIter_[K, V]) next() any {
 	return it.out(it.m, it.last)
 }
 
+// cursor is s.asSet().iterator() as a typed pointer, without the views (post-flip step iters):
+// the same iterator over the keys, from the first live position. A null set throws
+// NullPointerException here, as asSet().iterator() did.
+func (s *TSet[K]) cursor() *tmapIter_[K, struct{}] {
+	if s == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return &tmapIter_[K, struct{}]{m: &s.TMap, i: s.first(), out: keyOut_[K, struct{}]}
+}
+
+// nextKey is next of a key iterator without boxing the key (the code unboxed it).
+func (it *tmapIter_[K, V]) nextKey() K {
+	if !it.hasNext() {
+		panic(new_NoSuchElementException_0().self())
+	}
+	it.last = int32(it.i)
+	it.i++
+	return it.m.keys[it.last]
+}
+
 func (it *tmapIter_[K, V]) remove() {
 	if it.m.imm {
 		throwUOE_()
