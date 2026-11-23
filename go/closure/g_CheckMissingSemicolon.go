@@ -87,3 +87,14 @@ func CheckMissingSemicolon_clinit() {
 	CheckMissingSemicolon_MISSING_SEMICOLON = DiagnosticType_disabled("JSC_MISSING_SEMICOLON", "Missing semicolon")
 
 }
+
+// visit: an object that is exactly a CheckMissingSemicolon calls its visit_impl directly (post-flip); others dispatch.
+func (this *CheckMissingSemicolon) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}

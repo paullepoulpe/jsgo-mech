@@ -88,3 +88,99 @@ func (this *NullType) getPossibleToBooleanOutcomes_impl() *BooleanLiteralSet {
 func (this *NullType) visitUntyped_impl(visitor Visitor) any {
 	return visitor.caseNullType()
 }
+
+// getTypeClass: an object that is exactly a NullType calls its getTypeClass_impl directly (post-flip); others dispatch.
+func (this *NullType) getTypeClass() *JSTypeClass {
+	if this.self_ == any(this) {
+		return this.getTypeClass_impl()
+	}
+	return this.self_.(interface{ getTypeClass_impl() *JSTypeClass }).getTypeClass_impl()
+}
+
+// isNullType: an object that is exactly a NullType calls its isNullType_impl directly (post-flip); others dispatch.
+func (this *NullType) isNullType() bool {
+	if this.self_ == any(this) {
+		return this.isNullType_impl()
+	}
+	return this.self_.(interface{ isNullType_impl() bool }).isNullType_impl()
+}
+
+// isNullable: an object that is exactly a NullType calls its isNullable_impl directly (post-flip); others dispatch.
+func (this *NullType) isNullable() bool {
+	if this.self_ == any(this) {
+		return this.isNullable_impl()
+	}
+	return this.self_.(interface{ isNullable_impl() bool }).isNullable_impl()
+}
+
+// matchesNumberContext: an object that is exactly a NullType calls its matchesNumberContext_impl directly (post-flip); others dispatch.
+func (this *NullType) matchesNumberContext() bool {
+	if this.self_ == any(this) {
+		return this.matchesNumberContext_impl()
+	}
+	return this.self_.(interface{ matchesNumberContext_impl() bool }).matchesNumberContext_impl()
+}
+
+// matchesObjectContext: an object that is exactly a NullType calls its matchesObjectContext_impl directly (post-flip); others dispatch.
+func (this *NullType) matchesObjectContext() bool {
+	if this.self_ == any(this) {
+		return this.matchesObjectContext_impl()
+	}
+	return this.self_.(interface{ matchesObjectContext_impl() bool }).matchesObjectContext_impl()
+}
+
+// matchesStringContext: an object that is exactly a NullType calls its matchesStringContext_impl directly (post-flip); others dispatch.
+func (this *NullType) matchesStringContext() bool {
+	if this.self_ == any(this) {
+		return this.matchesStringContext_impl()
+	}
+	return this.self_.(interface{ matchesStringContext_impl() bool }).matchesStringContext_impl()
+}
+
+// restrictByNotNullOrUndefined: an object that is exactly a NullType calls its restrictByNotNullOrUndefined_impl directly (post-flip); others dispatch.
+func (this *NullType) restrictByNotNullOrUndefined() *JSType {
+	if this.self_ == any(this) {
+		return this.restrictByNotNullOrUndefined_impl()
+	}
+	return this.self_.(interface{ restrictByNotNullOrUndefined_impl() *JSType }).restrictByNotNullOrUndefined_impl()
+}
+
+// restrictByNotNull: an object that is exactly a NullType calls its restrictByNotNull_impl directly (post-flip); others dispatch.
+func (this *NullType) restrictByNotNull() *JSType {
+	if this.self_ == any(this) {
+		return this.restrictByNotNull_impl()
+	}
+	return this.self_.(interface{ restrictByNotNull_impl() *JSType }).restrictByNotNull_impl()
+}
+
+// testForEquality: an object that is exactly a NullType calls its testForEquality_impl directly (post-flip); others dispatch.
+func (this *NullType) testForEquality(p0 *JSType) *Tri {
+	if this.self_ == any(this) {
+		return this.testForEquality_impl(p0)
+	}
+	return this.self_.(interface{ testForEquality_impl(*JSType) *Tri }).testForEquality_impl(p0)
+}
+
+// getDisplayName: an object that is exactly a NullType calls its getDisplayName_impl directly (post-flip); others dispatch.
+func (this *NullType) getDisplayName() Optional[string] {
+	if this.self_ == any(this) {
+		return this.getDisplayName_impl()
+	}
+	return this.self_.(interface{ getDisplayName_impl() Optional[string] }).getDisplayName_impl()
+}
+
+// getPossibleToBooleanOutcomes: an object that is exactly a NullType calls its getPossibleToBooleanOutcomes_impl directly (post-flip); others dispatch.
+func (this *NullType) getPossibleToBooleanOutcomes() *BooleanLiteralSet {
+	if this.self_ == any(this) {
+		return this.getPossibleToBooleanOutcomes_impl()
+	}
+	return this.self_.(interface{ getPossibleToBooleanOutcomes_impl() *BooleanLiteralSet }).getPossibleToBooleanOutcomes_impl()
+}
+
+// visitUntyped: an object that is exactly a NullType calls its visitUntyped_impl directly (post-flip); others dispatch.
+func (this *NullType) visitUntyped(p0 Visitor) any {
+	if this.self_ == any(this) {
+		return this.visitUntyped_impl(p0)
+	}
+	return this.self_.(interface{ visitUntyped_impl(Visitor) any }).visitUntyped_impl(p0)
+}

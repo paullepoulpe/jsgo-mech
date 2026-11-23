@@ -103,3 +103,11 @@ func TemplateLiteralToken_ErrorLevel_clinit() {
 	registerEnum_("com.google.javascript.jscomp.parsing.parser.TemplateLiteralToken.ErrorLevel", enumValues_(TemplateLiteralToken_ErrorLevel_values_))
 
 }
+
+// toString: an object that is exactly a TemplateLiteralToken calls its toString_impl directly (post-flip); others dispatch.
+func (this *TemplateLiteralToken) toString() string {
+	if this.self_ == any(this) {
+		return this.toString_impl()
+	}
+	return this.self_.(interface{ toString_impl() string }).toString_impl()
+}
