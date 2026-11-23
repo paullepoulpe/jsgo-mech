@@ -651,7 +651,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler) transpileSwi
 		this.transpileUnmarkedNode(n)
 		return
 	}
-	var detachedCases ArrayListOf[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_1SwitchCase] = new_ArrayList_0()
+	var detachedCases *TList[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_1SwitchCase] = newTList_(tc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_1SwitchCase)
 	var canSkipUnmarkedCases bool = true
 	{
 		var caseSection Node = switchBody.getFirstChild()
@@ -671,7 +671,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler) transpileSwi
 			newBody.setIsAddedBlock(true)
 			newBody.setGeneratorSafe(true)
 			body.replaceWith(newBody)
-			detachedCases.add(new_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_1SwitchCase(this, generatedCase, body))
+			detachedCases.add(cast_[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_1SwitchCase](new_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_1SwitchCase(this, generatedCase, body)))
 			caseSection.setGeneratorMarker(false)
 		}
 	}
@@ -681,9 +681,9 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler) transpileSwi
 	this.transpileUnmarkedNode(n)
 	this.context.writeJumpTo(endCase, n)
 	this.context.pushBreakContext(endCase)
-	it_3 := foreach_(detachedCases.self())
+	it_3 := detachedCases.each()
 	for it_3.next() {
-		var detachedCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_1SwitchCase = cast_[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_1SwitchCase](it_3.v)
+		var detachedCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_1SwitchCase = it_3.v
 		var generatedCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case = detachedCase.generatedCase
 		this.context.switchCaseTo(generatedCase)
 		this.transpileStatement(detachedCase.body)
