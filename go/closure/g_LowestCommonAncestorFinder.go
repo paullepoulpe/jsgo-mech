@@ -48,7 +48,7 @@ func (this *LowestCommonAncestorFinder[N, E]) findAll(roots SetT[N]) SetT[N] {
 		bitForRoot = (bitForRoot << 1)
 	}
 	Map_forEach(Map_un_(this.searchColoring.asMapT()), BiConsumer[any, any](func(node_ any, color_ any) {
-		var node DiGraph_DiGraphNode[N, E] = cast_[DiGraph_DiGraphNode[N, E]](node_)
+		var node DiGraph_DiGraphNode[N, E] = gcast_DiGraph_DiGraphNode_N_E[N, E](node_)
 		_ = node
 		var color *LowestCommonAncestorFinder_Color = cast_[*LowestCommonAncestorFinder_Color](color_)
 		_ = color
@@ -58,7 +58,7 @@ func (this *LowestCommonAncestorFinder[N, E]) findAll(roots SetT[N]) SetT[N] {
 	}))
 	var results *ImmutableSet_Builder[N] = immutableSetBuilder_(tchT_[N]())
 	Map_forEach(Map_un_(this.searchColoring.asMapT()), BiConsumer[any, any](func(node_ any, color_ any) {
-		var node DiGraph_DiGraphNode[N, E] = cast_[DiGraph_DiGraphNode[N, E]](node_)
+		var node DiGraph_DiGraphNode[N, E] = gcast_DiGraph_DiGraphNode_N_E[N, E](node_)
 		_ = node
 		var color *LowestCommonAncestorFinder_Color = cast_[*LowestCommonAncestorFinder_Color](color_)
 		_ = color
@@ -79,7 +79,7 @@ func (this *LowestCommonAncestorFinder[N, E]) paintAncestors(root DiGraph_DiGrap
 	for !this.searchQueue.isEmpty() {
 		var curr DiGraph_DiGraphNode[N, E] = this.searchQueue.pop()
 		var parentEdges ListOf[DiGraph_DiGraphEdge[N, E]] = curr.getInEdges()
-		for parentEdge := range elemsAs_[DiGraph_DiGraphEdge[N, E]](parentEdges) {
+		for parentEdge := range elemsBy_(parentEdges, gcast_DiGraph_DiGraphEdge_N_E[N, E]) {
 			var parent DiGraph_DiGraphNode[N, E] = parentEdge.getSource()
 			if equalsId_(parent, root) {
 				continue

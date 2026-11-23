@@ -161,7 +161,7 @@ func (this *GraphColoring_GreedyGraphColoring[N, E]) color_impl() int32 {
 		if f_ == nil {
 			return nil
 		}
-		return func(p0 any, p1 any) int32 { return f_(cast_[GraphNode[N, E]](p0), cast_[GraphNode[N, E]](p1)) }
+		return func(p0 any, p1 any) int32 { return f_(gcast_GraphNode_N_E[N, E](p0), gcast_GraphNode_N_E[N, E](p1)) }
 	}())
 	var count int32 = 0
 	for do_2 := true; do_2; do_2 = !worklist.isEmpty() {
