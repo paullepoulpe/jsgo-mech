@@ -213,7 +213,7 @@ func (this *SourceMapConsumerV3) getOriginalMappingForEntry(index int32, precisi
 		if nameId != SourceMapConsumerV3_UNMAPPED {
 			x.setIdentifier(this.names_[nameId])
 		}
-		return cast_[*Mapping_OriginalMapping](x.build())
+		return x.buildT_()
 	}
 }
 
@@ -235,7 +235,7 @@ func (this *SourceMapConsumerV3) createReverseMapping() {
 				}
 				var mappingsLine CollectionT[*Mapping_OriginalMapping] = lineToCollectionMap.get_t(int32(sourceLine))
 				var builder *Mapping_OriginalMapping_Builder = Mapping_OriginalMapping_newBuilder().setLineNumber(targetLine).setColumnPosition(this.mappings.getGeneratedColumn(i))
-				mappingsLine.add_t(cast_[*Mapping_OriginalMapping](builder.build()))
+				mappingsLine.add_t(builder.buildT_())
 			}
 		}
 	}
