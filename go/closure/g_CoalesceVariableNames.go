@@ -93,7 +93,7 @@ func (this *CoalesceVariableNames) enterScopeWithCfg_impl(t *NodeTraversal) {
 	this.liveness.analyze()
 	this.liveAnalyses.push(this.liveness)
 	var interferenceGraph *UndiGraph[*Var, any] = this.computeVariableNamesInterferenceGraph(cfg, this.liveness.getEscapedLocals())
-	var coloring *GraphColoring[*Var, any] = new_GraphColoring_GreedyGraphColoring_AdjacencyGraph_Comparator[*Var, any](cast_[AdjacencyGraph[*Var, any]](interferenceGraph.self()), this.coloringTieBreaker).up_GraphColoring()
+	var coloring *GraphColoring[*Var, any] = new_GraphColoring_GreedyGraphColoring_AdjacencyGraph_Comparator[*Var, any](icast_AdjacencyGraph_Var_any(interferenceGraph.self()), this.coloringTieBreaker).up_GraphColoring()
 	coloring.color()
 	this.colorings.push(coloring)
 }
@@ -199,7 +199,7 @@ func (this *CoalesceVariableNames) computeVariableNamesInterferenceGraph(cfg *Co
 		interferenceGraphNodes.set(vIndex)
 	}
 	for el_4 := range elemsT_(cfg.getNodes_rCollectionOf_DiGraphNode_rCollectionOf_LinkedDiGraphNode()) {
-		var cfgNode DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]](el_4.self())
+		var cfgNode DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch] = icast_DiGraph_DiGraphNode_Node_ControlFlowGraph_Branch(el_4.self())
 		if cfg.isImplicitReturn(cfgNode) {
 			continue
 		}
@@ -343,7 +343,7 @@ func (this *CoalesceVariableNames) isUninitializedLetNameInLoopBodyAndLive(nameN
 	if nn_ == nil {
 		panic(new_NullPointerException_0())
 	}
-	var cfgNode DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]](nn_.self())
+	var cfgNode DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch] = icast_DiGraph_DiGraphNode_Node_ControlFlowGraph_Branch(nn_.self())
 	var state *DataFlowAnalysis_LinearFlowState[*LiveVariablesAnalysis_LiveVariableLattice] = cast_[*DataFlowAnalysis_LinearFlowState[*LiveVariablesAnalysis_LiveVariableLattice]](Annotatable_getAnnotation(Annotatable(cfgNode)))
 	if state == nil {
 		panic(new_NullPointerException_0())

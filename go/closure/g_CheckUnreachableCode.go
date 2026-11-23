@@ -34,7 +34,7 @@ func (this *CheckUnreachableCode) enterScopeWithCfg_impl(t *NodeTraversal) {
 
 func (this *CheckUnreachableCode) shouldTraverse_impl(t *NodeTraversal, n Node, parent Node) bool {
 	var cfg *ControlFlowGraph[Node] = this.getControlFlowGraph(this.compiler_)
-	var gNode GraphNode[Node, ControlFlowGraph_Branch] = cast_[GraphNode[Node, ControlFlowGraph_Branch]](cfg.getNode_Object_rDiGraphNode_rLinkedDiGraphNode(n).self())
+	var gNode GraphNode[Node, ControlFlowGraph_Branch] = icast_GraphNode_Node_ControlFlowGraph_Branch(cfg.getNode_Object_rDiGraphNode_rLinkedDiGraphNode(n).self())
 	if (gNode != nil) && (Annotatable_getAnnotation(Annotatable(gNode)) != GraphReachability_REACHABLE) {
 		if ((n.getLineno() != -1) && !n.isEmpty()) && !n.isBreak() {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, CheckUnreachableCode_UNREACHABLE_CODE, []string{}))
