@@ -10,11 +10,6 @@ type Timeline[T comparable] struct {
 
 func (this *Timeline[T]) isa_Timeline_() {}
 
-func is_Timeline(v any) bool {
-	_, ok := v.(interface{ isa_Timeline_() })
-	return ok
-}
-
 func (this *Timeline[T]) finit_Timeline() {
 	this.eventsByTime = jnewTMap_(tce_p_Timeline_Time, tc_p_Timeline_Event)
 	this.eventsByValue = jnewTMap_(tceT_[T](), tc_p_Timeline_Event)

@@ -21,18 +21,6 @@ type ModuleResolver_I interface {
 
 func (this *ModuleResolver) as_ModuleResolver() *ModuleResolver { return this }
 
-func to_ModuleResolver(v any) *ModuleResolver {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_ModuleResolver() *ModuleResolver }).as_ModuleResolver()
-}
-
-func is_ModuleResolver(v any) bool {
-	_, ok := v.(interface{ as_ModuleResolver() *ModuleResolver })
-	return ok
-}
-
 func (this *ModuleResolver) self() any {
 	if this == nil {
 		return nil
