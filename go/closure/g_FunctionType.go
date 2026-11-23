@@ -111,7 +111,7 @@ func (this *FunctionType) init_FunctionType(builder *FunctionType_Builder) {
 			var typeOfThisBuilder *InstanceObjectType_Builder = InstanceObjectType_builderForCtor(this)
 			var ctorKeys *TSet[*TemplateType] = builder.constructorOnlyKeys
 			if !ctorKeys.IsEmpty() {
-				cast_[*InstanceObjectType_Builder](typeOfThisBuilder.setTemplateTypeMap(this.templateTypeMap.copyWithoutKeys(ctorKeys)).self()).setTemplateParamCount((this.getTemplateParamCount() - ctorKeys.Len()))
+				typeOfThisBuilder.setTemplateTypeMapT_(this.templateTypeMap.copyWithoutKeys(ctorKeys)).setTemplateParamCount((this.getTemplateParamCount() - ctorKeys.Len()))
 			}
 			this.typeOfThis = typeOfThisBuilder.build_rInstanceObjectType().up_JSType()
 		case FunctionType_Kind_ORDINARY:
@@ -1020,7 +1020,7 @@ func FunctionType_builder(registry *JSTypeRegistry) *FunctionType_Builder {
 }
 
 func (this *FunctionType) toBuilder() *FunctionType_Builder {
-	var builder *FunctionType_Builder = cast_[*FunctionType_Builder](cast_[*FunctionType_Builder](cast_[*FunctionType_Builder](cast_[*FunctionType_Builder](FunctionType_builder(this.registry).setGoogModuleId(this.getGoogModuleId()).setName(this.getReferenceName()).self()).setNative(this.isNativeObjectType()).self()).setTemplateTypeMap(this.getTemplateTypeMap()).self()).withCanonicalRepresentation(this.getCanonicalRepresentation()).setIsKnownAmbiguous((this.constructorAmbiguity == FunctionType_ConstructorAmbiguity_IS_AMBIGUOUS_CONSTRUCTOR)).withClosurePrimitiveId(this.getClosurePrimitive()).withIsAbstract(this.isAbstract()).withKind(this.getKind()).withParameters_1(this.getParameters()).withReturnType_2(this.getReturnType(), this.isReturnTypeInferred()).withSourceNode(this.getSource()).withTypeOfThis(this.getTypeOfThis()).setTemplateParamCount(this.getTemplateParamCount()).self())
+	var builder *FunctionType_Builder = FunctionType_builder(this.registry).setGoogModuleId(this.getGoogModuleId()).setNameT_(this.getReferenceName()).setNativeT_(this.isNativeObjectType()).setTemplateTypeMapT_(this.getTemplateTypeMap()).withCanonicalRepresentation(this.getCanonicalRepresentation()).setIsKnownAmbiguous((this.constructorAmbiguity == FunctionType_ConstructorAmbiguity_IS_AMBIGUOUS_CONSTRUCTOR)).withClosurePrimitiveId(this.getClosurePrimitive()).withIsAbstract(this.isAbstract()).withKind(this.getKind()).withParameters_1(this.getParameters()).withReturnType_2(this.getReturnType(), this.isReturnTypeInferred()).withSourceNode(this.getSource()).withTypeOfThis(this.getTypeOfThis()).setTemplateParamCountT_(this.getTemplateParamCount())
 	if this.isConstructor() {
 		builder.withConstructorTemplateKeys(this.getConstructorOnlyTemplateParameters().asIterable())
 	}
@@ -1269,6 +1269,30 @@ type FunctionType_Builder struct {
 	returnsOwnInstanceType  bool
 }
 
+// setNameT_ is setName for a FunctionType_Builder receiver: setName returns its receiver (Java's self type T = FunctionType_Builder), so the result is this (selftype).
+func (this *FunctionType_Builder) setNameT_(p0 Optional[string]) *FunctionType_Builder {
+	this.setName(p0)
+	return this
+}
+
+// setNativeT_ is setNative for a FunctionType_Builder receiver: setNative returns its receiver (Java's self type T = FunctionType_Builder), so the result is this (selftype).
+func (this *FunctionType_Builder) setNativeT_(p0 bool) *FunctionType_Builder {
+	this.setNative(p0)
+	return this
+}
+
+// setTemplateParamCountT_ is setTemplateParamCount for a FunctionType_Builder receiver: setTemplateParamCount returns its receiver (Java's self type T = FunctionType_Builder), so the result is this (selftype).
+func (this *FunctionType_Builder) setTemplateParamCountT_(p0 int32) *FunctionType_Builder {
+	this.setTemplateParamCount(p0)
+	return this
+}
+
+// setTemplateTypeMapT_ is setTemplateTypeMap for a FunctionType_Builder receiver: setTemplateTypeMap returns its receiver (Java's self type T = FunctionType_Builder), so the result is this (selftype).
+func (this *FunctionType_Builder) setTemplateTypeMapT_(p0 *TemplateTypeMap) *FunctionType_Builder {
+	this.setTemplateTypeMap(p0)
+	return this
+}
+
 func (this *FunctionType_Builder) up_PrototypeObjectType_Builder() *PrototypeObjectType_Builder {
 	if this == nil {
 		return nil
@@ -1313,7 +1337,7 @@ func new_FunctionType_Builder(registry *JSTypeRegistry) *FunctionType_Builder {
 }
 
 func (this *FunctionType_Builder) withName(name Optional[string]) *FunctionType_Builder {
-	return cast_[*FunctionType_Builder](this.setName(name).self())
+	return this.setNameT_(name)
 }
 
 func (this *FunctionType_Builder) withSourceNode(sourceNode Node) *FunctionType_Builder {
@@ -1367,7 +1391,7 @@ func (this *FunctionType_Builder) withTemplateKeysImmutableList(templateKeys *TL
 	if templateKeys == nil {
 		templateKeys = tlistEmptyImm_(tc_p_TemplateType)
 	}
-	return cast_[*FunctionType_Builder](cast_[*FunctionType_Builder](this.setTemplateTypeMap(this.registry.getEmptyTemplateTypeMap().copyWithExtension_2(templateKeys, tlistEmptyImm_(tc_p_JSType))).self()).setTemplateParamCount(templateKeys.size()).self())
+	return this.setTemplateTypeMapT_(this.registry.getEmptyTemplateTypeMap().copyWithExtension_2(templateKeys, tlistEmptyImm_(tc_p_JSType))).setTemplateParamCountT_(templateKeys.size())
 }
 
 func (this *FunctionType_Builder) withTemplateKeys(templateKeys []*TemplateType) *FunctionType_Builder {
@@ -1396,7 +1420,7 @@ func (this *FunctionType_Builder) forInterface() *FunctionType_Builder {
 }
 
 func (this *FunctionType_Builder) forNativeType() *FunctionType_Builder {
-	return cast_[*FunctionType_Builder](this.setNative(true).self())
+	return this.setNativeT_(true)
 }
 
 func (this *FunctionType_Builder) withIsAbstract(isAbstract bool) *FunctionType_Builder {
