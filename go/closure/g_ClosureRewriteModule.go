@@ -486,7 +486,7 @@ func (this *ClosureRewriteModule) updateGoogRequireDynamicCallInThen(call Node) 
 	Preconditions_checkState_boolean_Object((objectPatternOrNameNode.isObjectPattern() || objectPatternOrNameNode.isName()), "parameter of callback function must be object pattern or name")
 	objectPatternOrNameNode.detach()
 	paramListNode.removeChildren()
-	var languageIn *CompilerOptions_LanguageMode = this.compiler_.getOptions().getLanguageIn()
+	var languageIn CompilerOptions_LanguageMode = this.compiler_.getOptions().getLanguageIn()
 	if !languageIn.toFeatureSet().contains(FeatureSet_Feature_CONST_DECLARATIONS) {
 		Preconditions_checkState_boolean_String_Object_Object(false, "'%s' does not contain '%s'", languageIn, FeatureSet_Feature_CONST_DECLARATIONS)
 	}
@@ -795,7 +795,7 @@ func (this *ClosureRewriteModule) popScript() {
 	this.currentScript = this.scriptStack.peek()
 }
 
-func (this *ClosureRewriteModule) exportTheEmptyBinaryNamespaceAt(atNode Node, addAt *ClosureRewriteModule_AddAt, t *NodeTraversal) {
+func (this *ClosureRewriteModule) exportTheEmptyBinaryNamespaceAt(atNode Node, addAt ClosureRewriteModule_AddAt, t *NodeTraversal) {
 	if this.currentScript.declareLegacyNamespace {
 		return
 	}
@@ -1006,7 +1006,7 @@ func ClosureRewriteModule_updateSourceInfoForExportedTopLevelVariable(assign Nod
 	getProp.srcrefTree(sourceName)
 }
 
-func (this *ClosureRewriteModule) isTopLevel(t *NodeTraversal, n Node, scopeType *ClosureRewriteModule_ScopeType) bool {
+func (this *ClosureRewriteModule) isTopLevel(t *NodeTraversal, n Node, scopeType ClosureRewriteModule_ScopeType) bool {
 	if scopeType == ClosureRewriteModule_ScopeType_EXEC_CONTEXT {
 		return (t.inGlobalScope() || (t.getClosestHoistScopeRoot() == this.currentScript.rootNode_))
 	} else {
@@ -1146,44 +1146,61 @@ func ClosureRewriteModule_clinit() {
 
 }
 
-type ClosureRewriteModule_AddAt struct {
-	Enum
+type ClosureRewriteModule_AddAt uint8
+
+// ClosureRewriteModule_AddAt_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var ClosureRewriteModule_AddAt_enum_ = [2]Enum{
+	{self_: ClosureRewriteModule_AddAt_BEFORE, name_: "BEFORE", ordinal_: 0},
+	{self_: ClosureRewriteModule_AddAt_AFTER, name_: "AFTER", ordinal_: 1},
 }
 
-func (this *ClosureRewriteModule_AddAt) up_Enum() *Enum {
-	if this == nil {
+func (this ClosureRewriteModule_AddAt) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &ClosureRewriteModule_AddAt_enum_[this-1]
 }
 
-func (this *ClosureRewriteModule_AddAt) init_ClosureRewriteModule_AddAt(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this ClosureRewriteModule_AddAt) name() string {
+	return ClosureRewriteModule_AddAt_enum_[this-1].name_
 }
 
-func new_ClosureRewriteModule_AddAt(name_ string, ordinal_ int32) *ClosureRewriteModule_AddAt {
-	this := &ClosureRewriteModule_AddAt{}
-	this.self_ = this
-	this.init_ClosureRewriteModule_AddAt(name_, ordinal_)
+func (this ClosureRewriteModule_AddAt) ordinal() int32 {
+	return ClosureRewriteModule_AddAt_enum_[this-1].ordinal_
+}
+
+func (this ClosureRewriteModule_AddAt) toString() string {
+	return ClosureRewriteModule_AddAt_enum_[this-1].name_
+}
+
+func (this ClosureRewriteModule_AddAt) compareTo(o any) int32 {
+	return ClosureRewriteModule_AddAt_enum_[this-1].compareTo(o)
+}
+
+func (this ClosureRewriteModule_AddAt) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func ClosureRewriteModule_AddAt_values() []*ClosureRewriteModule_AddAt {
-	return append([]*ClosureRewriteModule_AddAt(nil), ClosureRewriteModule_AddAt_values_...)
+func ClosureRewriteModule_AddAt_values() []ClosureRewriteModule_AddAt {
+	return append([]ClosureRewriteModule_AddAt(nil), ClosureRewriteModule_AddAt_values_...)
 }
 
-func ClosureRewriteModule_AddAt_valueOf(name string) *ClosureRewriteModule_AddAt {
+func ClosureRewriteModule_AddAt_valueOf(name string) ClosureRewriteModule_AddAt {
 	for _, v := range ClosureRewriteModule_AddAt_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("AddAt", name))
 }
 
-var ClosureRewriteModule_AddAt_BEFORE *ClosureRewriteModule_AddAt
-var ClosureRewriteModule_AddAt_AFTER *ClosureRewriteModule_AddAt
-var ClosureRewriteModule_AddAt_values_ []*ClosureRewriteModule_AddAt
+const ClosureRewriteModule_AddAt_BEFORE ClosureRewriteModule_AddAt = 1
+const ClosureRewriteModule_AddAt_AFTER ClosureRewriteModule_AddAt = 2
+
+var ClosureRewriteModule_AddAt_values_ []ClosureRewriteModule_AddAt
 
 var ClosureRewriteModule_AddAt_clinit_done bool
 
@@ -1192,51 +1209,66 @@ func ClosureRewriteModule_AddAt_clinit() {
 		return
 	}
 	ClosureRewriteModule_AddAt_clinit_done = true
-	ClosureRewriteModule_AddAt_BEFORE = new_ClosureRewriteModule_AddAt("BEFORE", 0)
-	ClosureRewriteModule_AddAt_AFTER = new_ClosureRewriteModule_AddAt("AFTER", 1)
-	ClosureRewriteModule_AddAt_values_ = []*ClosureRewriteModule_AddAt{ClosureRewriteModule_AddAt_BEFORE, ClosureRewriteModule_AddAt_AFTER}
+	ClosureRewriteModule_AddAt_values_ = []ClosureRewriteModule_AddAt{ClosureRewriteModule_AddAt_BEFORE, ClosureRewriteModule_AddAt_AFTER}
 	registerEnum_("com.google.javascript.jscomp.ClosureRewriteModule.AddAt", enumValues_(ClosureRewriteModule_AddAt_values_))
 
 }
 
-type ClosureRewriteModule_ScopeType struct {
-	Enum
+type ClosureRewriteModule_ScopeType uint8
+
+// ClosureRewriteModule_ScopeType_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var ClosureRewriteModule_ScopeType_enum_ = [2]Enum{
+	{self_: ClosureRewriteModule_ScopeType_EXEC_CONTEXT, name_: "EXEC_CONTEXT", ordinal_: 0},
+	{self_: ClosureRewriteModule_ScopeType_BLOCK, name_: "BLOCK", ordinal_: 1},
 }
 
-func (this *ClosureRewriteModule_ScopeType) up_Enum() *Enum {
-	if this == nil {
+func (this ClosureRewriteModule_ScopeType) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &ClosureRewriteModule_ScopeType_enum_[this-1]
 }
 
-func (this *ClosureRewriteModule_ScopeType) init_ClosureRewriteModule_ScopeType(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this ClosureRewriteModule_ScopeType) name() string {
+	return ClosureRewriteModule_ScopeType_enum_[this-1].name_
 }
 
-func new_ClosureRewriteModule_ScopeType(name_ string, ordinal_ int32) *ClosureRewriteModule_ScopeType {
-	this := &ClosureRewriteModule_ScopeType{}
-	this.self_ = this
-	this.init_ClosureRewriteModule_ScopeType(name_, ordinal_)
+func (this ClosureRewriteModule_ScopeType) ordinal() int32 {
+	return ClosureRewriteModule_ScopeType_enum_[this-1].ordinal_
+}
+
+func (this ClosureRewriteModule_ScopeType) toString() string {
+	return ClosureRewriteModule_ScopeType_enum_[this-1].name_
+}
+
+func (this ClosureRewriteModule_ScopeType) compareTo(o any) int32 {
+	return ClosureRewriteModule_ScopeType_enum_[this-1].compareTo(o)
+}
+
+func (this ClosureRewriteModule_ScopeType) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func ClosureRewriteModule_ScopeType_values() []*ClosureRewriteModule_ScopeType {
-	return append([]*ClosureRewriteModule_ScopeType(nil), ClosureRewriteModule_ScopeType_values_...)
+func ClosureRewriteModule_ScopeType_values() []ClosureRewriteModule_ScopeType {
+	return append([]ClosureRewriteModule_ScopeType(nil), ClosureRewriteModule_ScopeType_values_...)
 }
 
-func ClosureRewriteModule_ScopeType_valueOf(name string) *ClosureRewriteModule_ScopeType {
+func ClosureRewriteModule_ScopeType_valueOf(name string) ClosureRewriteModule_ScopeType {
 	for _, v := range ClosureRewriteModule_ScopeType_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("ScopeType", name))
 }
 
-var ClosureRewriteModule_ScopeType_EXEC_CONTEXT *ClosureRewriteModule_ScopeType
-var ClosureRewriteModule_ScopeType_BLOCK *ClosureRewriteModule_ScopeType
-var ClosureRewriteModule_ScopeType_values_ []*ClosureRewriteModule_ScopeType
+const ClosureRewriteModule_ScopeType_EXEC_CONTEXT ClosureRewriteModule_ScopeType = 1
+const ClosureRewriteModule_ScopeType_BLOCK ClosureRewriteModule_ScopeType = 2
+
+var ClosureRewriteModule_ScopeType_values_ []ClosureRewriteModule_ScopeType
 
 var ClosureRewriteModule_ScopeType_clinit_done bool
 
@@ -1245,9 +1277,7 @@ func ClosureRewriteModule_ScopeType_clinit() {
 		return
 	}
 	ClosureRewriteModule_ScopeType_clinit_done = true
-	ClosureRewriteModule_ScopeType_EXEC_CONTEXT = new_ClosureRewriteModule_ScopeType("EXEC_CONTEXT", 0)
-	ClosureRewriteModule_ScopeType_BLOCK = new_ClosureRewriteModule_ScopeType("BLOCK", 1)
-	ClosureRewriteModule_ScopeType_values_ = []*ClosureRewriteModule_ScopeType{ClosureRewriteModule_ScopeType_EXEC_CONTEXT, ClosureRewriteModule_ScopeType_BLOCK}
+	ClosureRewriteModule_ScopeType_values_ = []ClosureRewriteModule_ScopeType{ClosureRewriteModule_ScopeType_EXEC_CONTEXT, ClosureRewriteModule_ScopeType_BLOCK}
 	registerEnum_("com.google.javascript.jscomp.ClosureRewriteModule.ScopeType", enumValues_(ClosureRewriteModule_ScopeType_values_))
 
 }
@@ -1352,7 +1382,7 @@ func (this *ClosureRewriteModule_ExportDefinition) getLocalName() Optional[strin
 	}()
 }
 
-var ClosureRewriteModule_ExportDefinition_INLINABLE_NAME_PARENTS *JTSet[*Token_rhino]
+var ClosureRewriteModule_ExportDefinition_INLINABLE_NAME_PARENTS *JTSet[Token_rhino]
 
 var ClosureRewriteModule_ExportDefinition_clinit_done bool
 
@@ -1361,7 +1391,7 @@ func ClosureRewriteModule_ExportDefinition_clinit() {
 		return
 	}
 	ClosureRewriteModule_ExportDefinition_clinit_done = true
-	ClosureRewriteModule_ExportDefinition_INLINABLE_NAME_PARENTS = tsetImm_(tc_p_Token_rhino, Sets_immutableEnumSet(Token_rhino_VAR.up_Enum(), []*Enum{Token_rhino_CONST.up_Enum(), Token_rhino_LET.up_Enum(), Token_rhino_FUNCTION.up_Enum(), Token_rhino_CLASS.up_Enum()}))
+	ClosureRewriteModule_ExportDefinition_INLINABLE_NAME_PARENTS = tsetImm_(tc_p_Token_rhino, Sets_immutableEnumSet(Token_rhino_VAR.enum_(), []*Enum{Token_rhino_CONST.enum_(), Token_rhino_LET.enum_(), Token_rhino_FUNCTION.enum_(), Token_rhino_CLASS.enum_()}))
 
 }
 
@@ -1540,7 +1570,7 @@ func (this *ClosureRewriteModule_ScriptRecorder) shouldTraverse(t *NodeTraversal
 			this.outer_.recordTopLevelClassOrFunctionName(n)
 		}
 	case tokOrd1_CONST, tokOrd1_LET, tokOrd1_VAR:
-		if this.outer_.isTopLevel(t, n, func() *ClosureRewriteModule_ScopeType {
+		if this.outer_.isTopLevel(t, n, func() ClosureRewriteModule_ScopeType {
 			if n.isVar() {
 				return ClosureRewriteModule_ScopeType_EXEC_CONTEXT
 			}

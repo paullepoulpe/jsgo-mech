@@ -2,122 +2,210 @@
 
 package closure
 
-type Annotation_parsing struct {
-	Enum
+type Annotation_parsing uint8
+
+// Annotation_parsing_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var Annotation_parsing_enum_ = [79]Enum{
+	{self_: Annotation_parsing_ABSTRACT, name_: "ABSTRACT", ordinal_: 0},
+	{self_: Annotation_parsing_ALTERNATE_MESSAGE_ID, name_: "ALTERNATE_MESSAGE_ID", ordinal_: 1},
+	{self_: Annotation_parsing_AUTHOR, name_: "AUTHOR", ordinal_: 2},
+	{self_: Annotation_parsing_CLOSURE_PRIMITIVE, name_: "CLOSURE_PRIMITIVE", ordinal_: 3},
+	{self_: Annotation_parsing_COLLAPSIBLE_OR_BREAK_MY_CODE, name_: "COLLAPSIBLE_OR_BREAK_MY_CODE", ordinal_: 4},
+	{self_: Annotation_parsing_CONSTANT, name_: "CONSTANT", ordinal_: 5},
+	{self_: Annotation_parsing_CONSTRUCTOR, name_: "CONSTRUCTOR", ordinal_: 6},
+	{self_: Annotation_parsing_CUSTOM_ELEMENT, name_: "CUSTOM_ELEMENT", ordinal_: 7},
+	{self_: Annotation_parsing_RECORD, name_: "RECORD", ordinal_: 8},
+	{self_: Annotation_parsing_DEFINE, name_: "DEFINE", ordinal_: 9},
+	{self_: Annotation_parsing_DEPRECATED, name_: "DEPRECATED", ordinal_: 10},
+	{self_: Annotation_parsing_DESC, name_: "DESC", ordinal_: 11},
+	{self_: Annotation_parsing_DICT, name_: "DICT", ordinal_: 12},
+	{self_: Annotation_parsing_ENCOURAGE_INLINING, name_: "ENCOURAGE_INLINING", ordinal_: 13},
+	{self_: Annotation_parsing_ENHANCE, name_: "ENHANCE", ordinal_: 14},
+	{self_: Annotation_parsing_ENUM, name_: "ENUM", ordinal_: 15},
+	{self_: Annotation_parsing_EXTENDS, name_: "EXTENDS", ordinal_: 16},
+	{self_: Annotation_parsing_EXTERNS, name_: "EXTERNS", ordinal_: 17},
+	{self_: Annotation_parsing_EXPORT, name_: "EXPORT", ordinal_: 18},
+	{self_: Annotation_parsing_FILE_OVERVIEW, name_: "FILE_OVERVIEW", ordinal_: 19},
+	{self_: Annotation_parsing_FINAL, name_: "FINAL", ordinal_: 20},
+	{self_: Annotation_parsing_IDGENERATOR, name_: "IDGENERATOR", ordinal_: 21},
+	{self_: Annotation_parsing_IMPLEMENTS, name_: "IMPLEMENTS", ordinal_: 22},
+	{self_: Annotation_parsing_IMPLICIT_CAST, name_: "IMPLICIT_CAST", ordinal_: 23},
+	{self_: Annotation_parsing_INHERIT_DOC, name_: "INHERIT_DOC", ordinal_: 24},
+	{self_: Annotation_parsing_INTERFACE, name_: "INTERFACE", ordinal_: 25},
+	{self_: Annotation_parsing_JSX, name_: "JSX", ordinal_: 26},
+	{self_: Annotation_parsing_JSX_FRAGMENT, name_: "JSX_FRAGMENT", ordinal_: 27},
+	{self_: Annotation_parsing_LEGACY_NAMED_TS_EXPORT, name_: "LEGACY_NAMED_TS_EXPORT", ordinal_: 28},
+	{self_: Annotation_parsing_LENDS, name_: "LENDS", ordinal_: 29},
+	{self_: Annotation_parsing_LICENSE, name_: "LICENSE", ordinal_: 30},
+	{self_: Annotation_parsing_LOG_TYPE_IN_COMPILER, name_: "LOG_TYPE_IN_COMPILER", ordinal_: 31},
+	{self_: Annotation_parsing_MAY_HAVE_EXTRA_EDGE, name_: "MAY_HAVE_EXTRA_EDGE", ordinal_: 32},
+	{self_: Annotation_parsing_MEANING, name_: "MEANING", ordinal_: 33},
+	{self_: Annotation_parsing_MIXIN_CLASS, name_: "MIXIN_CLASS", ordinal_: 34},
+	{self_: Annotation_parsing_MIXIN_FUNCTION, name_: "MIXIN_FUNCTION", ordinal_: 35},
+	{self_: Annotation_parsing_MODIFIES, name_: "MODIFIES", ordinal_: 36},
+	{self_: Annotation_parsing_MODS, name_: "MODS", ordinal_: 37},
+	{self_: Annotation_parsing_NG_INJECT, name_: "NG_INJECT", ordinal_: 38},
+	{self_: Annotation_parsing_NO_COLLAPSE, name_: "NO_COLLAPSE", ordinal_: 39},
+	{self_: Annotation_parsing_NO_COMPILE, name_: "NO_COMPILE", ordinal_: 40},
+	{self_: Annotation_parsing_NO_COVERAGE, name_: "NO_COVERAGE", ordinal_: 41},
+	{self_: Annotation_parsing_NO_DTS, name_: "NO_DTS", ordinal_: 42},
+	{self_: Annotation_parsing_NO_INLINE, name_: "NO_INLINE", ordinal_: 43},
+	{self_: Annotation_parsing_NO_SIDE_EFFECTS, name_: "NO_SIDE_EFFECTS", ordinal_: 44},
+	{self_: Annotation_parsing_NOT_IMPLEMENTED, name_: "NOT_IMPLEMENTED", ordinal_: 45},
+	{self_: Annotation_parsing_OVERRIDE, name_: "OVERRIDE", ordinal_: 46},
+	{self_: Annotation_parsing_PACKAGE, name_: "PACKAGE", ordinal_: 47},
+	{self_: Annotation_parsing_PARAM, name_: "PARAM", ordinal_: 48},
+	{self_: Annotation_parsing_POLYMER, name_: "POLYMER", ordinal_: 49},
+	{self_: Annotation_parsing_POLYMER_BEHAVIOR, name_: "POLYMER_BEHAVIOR", ordinal_: 50},
+	{self_: Annotation_parsing_PRESERVE, name_: "PRESERVE", ordinal_: 51},
+	{self_: Annotation_parsing_PRIVATE, name_: "PRIVATE", ordinal_: 52},
+	{self_: Annotation_parsing_PROTECTED, name_: "PROTECTED", ordinal_: 53},
+	{self_: Annotation_parsing_PROVIDE_GOOG, name_: "PROVIDE_GOOG", ordinal_: 54},
+	{self_: Annotation_parsing_PROVIDE_ALREADY_PROVIDED, name_: "PROVIDE_ALREADY_PROVIDED", ordinal_: 55},
+	{self_: Annotation_parsing_PUBLIC, name_: "PUBLIC", ordinal_: 56},
+	{self_: Annotation_parsing_PURE_OR_BREAK_MY_CODE, name_: "PURE_OR_BREAK_MY_CODE", ordinal_: 57},
+	{self_: Annotation_parsing_REQUIRE_INLINING, name_: "REQUIRE_INLINING", ordinal_: 58},
+	{self_: Annotation_parsing_RETURN, name_: "RETURN", ordinal_: 59},
+	{self_: Annotation_parsing_SASS_GENERATED_CSS_TS, name_: "SASS_GENERATED_CSS_TS", ordinal_: 60},
+	{self_: Annotation_parsing_SEE, name_: "SEE", ordinal_: 61},
+	{self_: Annotation_parsing_SOY_MODULE, name_: "SOY_MODULE", ordinal_: 62},
+	{self_: Annotation_parsing_SOY_TEMPLATE, name_: "SOY_TEMPLATE", ordinal_: 63},
+	{self_: Annotation_parsing_STRUCT, name_: "STRUCT", ordinal_: 64},
+	{self_: Annotation_parsing_SUPPRESS, name_: "SUPPRESS", ordinal_: 65},
+	{self_: Annotation_parsing_TEMPLATE, name_: "TEMPLATE", ordinal_: 66},
+	{self_: Annotation_parsing_CLOSURE_UNAWARE_CODE, name_: "CLOSURE_UNAWARE_CODE", ordinal_: 67},
+	{self_: Annotation_parsing_THIS, name_: "THIS", ordinal_: 68},
+	{self_: Annotation_parsing_THROWS, name_: "THROWS", ordinal_: 69},
+	{self_: Annotation_parsing_TYPE, name_: "TYPE", ordinal_: 70},
+	{self_: Annotation_parsing_TYPEDEF, name_: "TYPEDEF", ordinal_: 71},
+	{self_: Annotation_parsing_TYPE_SUMMARY, name_: "TYPE_SUMMARY", ordinal_: 72},
+	{self_: Annotation_parsing_UNRESTRICTED, name_: "UNRESTRICTED", ordinal_: 73},
+	{self_: Annotation_parsing_USED_VIA_DOT_CONSTRUCTOR, name_: "USED_VIA_DOT_CONSTRUCTOR", ordinal_: 74},
+	{self_: Annotation_parsing_WIZACTION, name_: "WIZACTION", ordinal_: 75},
+	{self_: Annotation_parsing_TS_TYPE, name_: "TS_TYPE", ordinal_: 76},
+	{self_: Annotation_parsing_WIZ_ANALYZER, name_: "WIZ_ANALYZER", ordinal_: 77},
+	{self_: Annotation_parsing_WIZCALLBACK, name_: "WIZCALLBACK", ordinal_: 78},
 }
 
-func (this *Annotation_parsing) up_Enum() *Enum {
-	if this == nil {
+func (this Annotation_parsing) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &Annotation_parsing_enum_[this-1]
 }
 
-func (this *Annotation_parsing) init_Annotation_parsing(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this Annotation_parsing) name() string { return Annotation_parsing_enum_[this-1].name_ }
+
+func (this Annotation_parsing) ordinal() int32 { return Annotation_parsing_enum_[this-1].ordinal_ }
+
+func (this Annotation_parsing) toString() string { return Annotation_parsing_enum_[this-1].name_ }
+
+func (this Annotation_parsing) compareTo(o any) int32 {
+	return Annotation_parsing_enum_[this-1].compareTo(o)
 }
 
-func new_Annotation_parsing(name_ string, ordinal_ int32) *Annotation_parsing {
-	this := &Annotation_parsing{}
-	this.self_ = this
-	this.init_Annotation_parsing(name_, ordinal_)
+func (this Annotation_parsing) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func Annotation_parsing_values() []*Annotation_parsing {
-	return append([]*Annotation_parsing(nil), Annotation_parsing_values_...)
+func Annotation_parsing_values() []Annotation_parsing {
+	return append([]Annotation_parsing(nil), Annotation_parsing_values_...)
 }
 
-func Annotation_parsing_valueOf(name string) *Annotation_parsing {
+func Annotation_parsing_valueOf(name string) Annotation_parsing {
 	for _, v := range Annotation_parsing_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Annotation", name))
 }
 
-var Annotation_parsing_ABSTRACT *Annotation_parsing
-var Annotation_parsing_ALTERNATE_MESSAGE_ID *Annotation_parsing
-var Annotation_parsing_AUTHOR *Annotation_parsing
-var Annotation_parsing_CLOSURE_PRIMITIVE *Annotation_parsing
-var Annotation_parsing_COLLAPSIBLE_OR_BREAK_MY_CODE *Annotation_parsing
-var Annotation_parsing_CONSTANT *Annotation_parsing
-var Annotation_parsing_CONSTRUCTOR *Annotation_parsing
-var Annotation_parsing_CUSTOM_ELEMENT *Annotation_parsing
-var Annotation_parsing_RECORD *Annotation_parsing
-var Annotation_parsing_DEFINE *Annotation_parsing
-var Annotation_parsing_DEPRECATED *Annotation_parsing
-var Annotation_parsing_DESC *Annotation_parsing
-var Annotation_parsing_DICT *Annotation_parsing
-var Annotation_parsing_ENCOURAGE_INLINING *Annotation_parsing
-var Annotation_parsing_ENHANCE *Annotation_parsing
-var Annotation_parsing_ENUM *Annotation_parsing
-var Annotation_parsing_EXTENDS *Annotation_parsing
-var Annotation_parsing_EXTERNS *Annotation_parsing
-var Annotation_parsing_EXPORT *Annotation_parsing
-var Annotation_parsing_FILE_OVERVIEW *Annotation_parsing
-var Annotation_parsing_FINAL *Annotation_parsing
-var Annotation_parsing_IDGENERATOR *Annotation_parsing
-var Annotation_parsing_IMPLEMENTS *Annotation_parsing
-var Annotation_parsing_IMPLICIT_CAST *Annotation_parsing
-var Annotation_parsing_INHERIT_DOC *Annotation_parsing
-var Annotation_parsing_INTERFACE *Annotation_parsing
-var Annotation_parsing_JSX *Annotation_parsing
-var Annotation_parsing_JSX_FRAGMENT *Annotation_parsing
-var Annotation_parsing_LEGACY_NAMED_TS_EXPORT *Annotation_parsing
-var Annotation_parsing_LENDS *Annotation_parsing
-var Annotation_parsing_LICENSE *Annotation_parsing
-var Annotation_parsing_LOG_TYPE_IN_COMPILER *Annotation_parsing
-var Annotation_parsing_MAY_HAVE_EXTRA_EDGE *Annotation_parsing
-var Annotation_parsing_MEANING *Annotation_parsing
-var Annotation_parsing_MIXIN_CLASS *Annotation_parsing
-var Annotation_parsing_MIXIN_FUNCTION *Annotation_parsing
-var Annotation_parsing_MODIFIES *Annotation_parsing
-var Annotation_parsing_MODS *Annotation_parsing
-var Annotation_parsing_NG_INJECT *Annotation_parsing
-var Annotation_parsing_NO_COLLAPSE *Annotation_parsing
-var Annotation_parsing_NO_COMPILE *Annotation_parsing
-var Annotation_parsing_NO_COVERAGE *Annotation_parsing
-var Annotation_parsing_NO_DTS *Annotation_parsing
-var Annotation_parsing_NO_INLINE *Annotation_parsing
-var Annotation_parsing_NO_SIDE_EFFECTS *Annotation_parsing
-var Annotation_parsing_NOT_IMPLEMENTED *Annotation_parsing
-var Annotation_parsing_OVERRIDE *Annotation_parsing
-var Annotation_parsing_PACKAGE *Annotation_parsing
-var Annotation_parsing_PARAM *Annotation_parsing
-var Annotation_parsing_POLYMER *Annotation_parsing
-var Annotation_parsing_POLYMER_BEHAVIOR *Annotation_parsing
-var Annotation_parsing_PRESERVE *Annotation_parsing
-var Annotation_parsing_PRIVATE *Annotation_parsing
-var Annotation_parsing_PROTECTED *Annotation_parsing
-var Annotation_parsing_PROVIDE_GOOG *Annotation_parsing
-var Annotation_parsing_PROVIDE_ALREADY_PROVIDED *Annotation_parsing
-var Annotation_parsing_PUBLIC *Annotation_parsing
-var Annotation_parsing_PURE_OR_BREAK_MY_CODE *Annotation_parsing
-var Annotation_parsing_REQUIRE_INLINING *Annotation_parsing
-var Annotation_parsing_RETURN *Annotation_parsing
-var Annotation_parsing_SASS_GENERATED_CSS_TS *Annotation_parsing
-var Annotation_parsing_SEE *Annotation_parsing
-var Annotation_parsing_SOY_MODULE *Annotation_parsing
-var Annotation_parsing_SOY_TEMPLATE *Annotation_parsing
-var Annotation_parsing_STRUCT *Annotation_parsing
-var Annotation_parsing_SUPPRESS *Annotation_parsing
-var Annotation_parsing_TEMPLATE *Annotation_parsing
-var Annotation_parsing_CLOSURE_UNAWARE_CODE *Annotation_parsing
-var Annotation_parsing_THIS *Annotation_parsing
-var Annotation_parsing_THROWS *Annotation_parsing
-var Annotation_parsing_TYPE *Annotation_parsing
-var Annotation_parsing_TYPEDEF *Annotation_parsing
-var Annotation_parsing_TYPE_SUMMARY *Annotation_parsing
-var Annotation_parsing_UNRESTRICTED *Annotation_parsing
-var Annotation_parsing_USED_VIA_DOT_CONSTRUCTOR *Annotation_parsing
-var Annotation_parsing_WIZACTION *Annotation_parsing
-var Annotation_parsing_TS_TYPE *Annotation_parsing
-var Annotation_parsing_WIZ_ANALYZER *Annotation_parsing
-var Annotation_parsing_WIZCALLBACK *Annotation_parsing
-var Annotation_parsing_values_ []*Annotation_parsing
-var Annotation_parsing_recognizedAnnotations *JTMap[string, *Annotation_parsing]
+const Annotation_parsing_ABSTRACT Annotation_parsing = 1
+const Annotation_parsing_ALTERNATE_MESSAGE_ID Annotation_parsing = 2
+const Annotation_parsing_AUTHOR Annotation_parsing = 3
+const Annotation_parsing_CLOSURE_PRIMITIVE Annotation_parsing = 4
+const Annotation_parsing_COLLAPSIBLE_OR_BREAK_MY_CODE Annotation_parsing = 5
+const Annotation_parsing_CONSTANT Annotation_parsing = 6
+const Annotation_parsing_CONSTRUCTOR Annotation_parsing = 7
+const Annotation_parsing_CUSTOM_ELEMENT Annotation_parsing = 8
+const Annotation_parsing_RECORD Annotation_parsing = 9
+const Annotation_parsing_DEFINE Annotation_parsing = 10
+const Annotation_parsing_DEPRECATED Annotation_parsing = 11
+const Annotation_parsing_DESC Annotation_parsing = 12
+const Annotation_parsing_DICT Annotation_parsing = 13
+const Annotation_parsing_ENCOURAGE_INLINING Annotation_parsing = 14
+const Annotation_parsing_ENHANCE Annotation_parsing = 15
+const Annotation_parsing_ENUM Annotation_parsing = 16
+const Annotation_parsing_EXTENDS Annotation_parsing = 17
+const Annotation_parsing_EXTERNS Annotation_parsing = 18
+const Annotation_parsing_EXPORT Annotation_parsing = 19
+const Annotation_parsing_FILE_OVERVIEW Annotation_parsing = 20
+const Annotation_parsing_FINAL Annotation_parsing = 21
+const Annotation_parsing_IDGENERATOR Annotation_parsing = 22
+const Annotation_parsing_IMPLEMENTS Annotation_parsing = 23
+const Annotation_parsing_IMPLICIT_CAST Annotation_parsing = 24
+const Annotation_parsing_INHERIT_DOC Annotation_parsing = 25
+const Annotation_parsing_INTERFACE Annotation_parsing = 26
+const Annotation_parsing_JSX Annotation_parsing = 27
+const Annotation_parsing_JSX_FRAGMENT Annotation_parsing = 28
+const Annotation_parsing_LEGACY_NAMED_TS_EXPORT Annotation_parsing = 29
+const Annotation_parsing_LENDS Annotation_parsing = 30
+const Annotation_parsing_LICENSE Annotation_parsing = 31
+const Annotation_parsing_LOG_TYPE_IN_COMPILER Annotation_parsing = 32
+const Annotation_parsing_MAY_HAVE_EXTRA_EDGE Annotation_parsing = 33
+const Annotation_parsing_MEANING Annotation_parsing = 34
+const Annotation_parsing_MIXIN_CLASS Annotation_parsing = 35
+const Annotation_parsing_MIXIN_FUNCTION Annotation_parsing = 36
+const Annotation_parsing_MODIFIES Annotation_parsing = 37
+const Annotation_parsing_MODS Annotation_parsing = 38
+const Annotation_parsing_NG_INJECT Annotation_parsing = 39
+const Annotation_parsing_NO_COLLAPSE Annotation_parsing = 40
+const Annotation_parsing_NO_COMPILE Annotation_parsing = 41
+const Annotation_parsing_NO_COVERAGE Annotation_parsing = 42
+const Annotation_parsing_NO_DTS Annotation_parsing = 43
+const Annotation_parsing_NO_INLINE Annotation_parsing = 44
+const Annotation_parsing_NO_SIDE_EFFECTS Annotation_parsing = 45
+const Annotation_parsing_NOT_IMPLEMENTED Annotation_parsing = 46
+const Annotation_parsing_OVERRIDE Annotation_parsing = 47
+const Annotation_parsing_PACKAGE Annotation_parsing = 48
+const Annotation_parsing_PARAM Annotation_parsing = 49
+const Annotation_parsing_POLYMER Annotation_parsing = 50
+const Annotation_parsing_POLYMER_BEHAVIOR Annotation_parsing = 51
+const Annotation_parsing_PRESERVE Annotation_parsing = 52
+const Annotation_parsing_PRIVATE Annotation_parsing = 53
+const Annotation_parsing_PROTECTED Annotation_parsing = 54
+const Annotation_parsing_PROVIDE_GOOG Annotation_parsing = 55
+const Annotation_parsing_PROVIDE_ALREADY_PROVIDED Annotation_parsing = 56
+const Annotation_parsing_PUBLIC Annotation_parsing = 57
+const Annotation_parsing_PURE_OR_BREAK_MY_CODE Annotation_parsing = 58
+const Annotation_parsing_REQUIRE_INLINING Annotation_parsing = 59
+const Annotation_parsing_RETURN Annotation_parsing = 60
+const Annotation_parsing_SASS_GENERATED_CSS_TS Annotation_parsing = 61
+const Annotation_parsing_SEE Annotation_parsing = 62
+const Annotation_parsing_SOY_MODULE Annotation_parsing = 63
+const Annotation_parsing_SOY_TEMPLATE Annotation_parsing = 64
+const Annotation_parsing_STRUCT Annotation_parsing = 65
+const Annotation_parsing_SUPPRESS Annotation_parsing = 66
+const Annotation_parsing_TEMPLATE Annotation_parsing = 67
+const Annotation_parsing_CLOSURE_UNAWARE_CODE Annotation_parsing = 68
+const Annotation_parsing_THIS Annotation_parsing = 69
+const Annotation_parsing_THROWS Annotation_parsing = 70
+const Annotation_parsing_TYPE Annotation_parsing = 71
+const Annotation_parsing_TYPEDEF Annotation_parsing = 72
+const Annotation_parsing_TYPE_SUMMARY Annotation_parsing = 73
+const Annotation_parsing_UNRESTRICTED Annotation_parsing = 74
+const Annotation_parsing_USED_VIA_DOT_CONSTRUCTOR Annotation_parsing = 75
+const Annotation_parsing_WIZACTION Annotation_parsing = 76
+const Annotation_parsing_TS_TYPE Annotation_parsing = 77
+const Annotation_parsing_WIZ_ANALYZER Annotation_parsing = 78
+const Annotation_parsing_WIZCALLBACK Annotation_parsing = 79
+
+var Annotation_parsing_values_ []Annotation_parsing
+var Annotation_parsing_recognizedAnnotations *JTMap[string, Annotation_parsing]
 
 var Annotation_parsing_clinit_done bool
 
@@ -126,86 +214,7 @@ func Annotation_parsing_clinit() {
 		return
 	}
 	Annotation_parsing_clinit_done = true
-	Annotation_parsing_ABSTRACT = new_Annotation_parsing("ABSTRACT", 0)
-	Annotation_parsing_ALTERNATE_MESSAGE_ID = new_Annotation_parsing("ALTERNATE_MESSAGE_ID", 1)
-	Annotation_parsing_AUTHOR = new_Annotation_parsing("AUTHOR", 2)
-	Annotation_parsing_CLOSURE_PRIMITIVE = new_Annotation_parsing("CLOSURE_PRIMITIVE", 3)
-	Annotation_parsing_COLLAPSIBLE_OR_BREAK_MY_CODE = new_Annotation_parsing("COLLAPSIBLE_OR_BREAK_MY_CODE", 4)
-	Annotation_parsing_CONSTANT = new_Annotation_parsing("CONSTANT", 5)
-	Annotation_parsing_CONSTRUCTOR = new_Annotation_parsing("CONSTRUCTOR", 6)
-	Annotation_parsing_CUSTOM_ELEMENT = new_Annotation_parsing("CUSTOM_ELEMENT", 7)
-	Annotation_parsing_RECORD = new_Annotation_parsing("RECORD", 8)
-	Annotation_parsing_DEFINE = new_Annotation_parsing("DEFINE", 9)
-	Annotation_parsing_DEPRECATED = new_Annotation_parsing("DEPRECATED", 10)
-	Annotation_parsing_DESC = new_Annotation_parsing("DESC", 11)
-	Annotation_parsing_DICT = new_Annotation_parsing("DICT", 12)
-	Annotation_parsing_ENCOURAGE_INLINING = new_Annotation_parsing("ENCOURAGE_INLINING", 13)
-	Annotation_parsing_ENHANCE = new_Annotation_parsing("ENHANCE", 14)
-	Annotation_parsing_ENUM = new_Annotation_parsing("ENUM", 15)
-	Annotation_parsing_EXTENDS = new_Annotation_parsing("EXTENDS", 16)
-	Annotation_parsing_EXTERNS = new_Annotation_parsing("EXTERNS", 17)
-	Annotation_parsing_EXPORT = new_Annotation_parsing("EXPORT", 18)
-	Annotation_parsing_FILE_OVERVIEW = new_Annotation_parsing("FILE_OVERVIEW", 19)
-	Annotation_parsing_FINAL = new_Annotation_parsing("FINAL", 20)
-	Annotation_parsing_IDGENERATOR = new_Annotation_parsing("IDGENERATOR", 21)
-	Annotation_parsing_IMPLEMENTS = new_Annotation_parsing("IMPLEMENTS", 22)
-	Annotation_parsing_IMPLICIT_CAST = new_Annotation_parsing("IMPLICIT_CAST", 23)
-	Annotation_parsing_INHERIT_DOC = new_Annotation_parsing("INHERIT_DOC", 24)
-	Annotation_parsing_INTERFACE = new_Annotation_parsing("INTERFACE", 25)
-	Annotation_parsing_JSX = new_Annotation_parsing("JSX", 26)
-	Annotation_parsing_JSX_FRAGMENT = new_Annotation_parsing("JSX_FRAGMENT", 27)
-	Annotation_parsing_LEGACY_NAMED_TS_EXPORT = new_Annotation_parsing("LEGACY_NAMED_TS_EXPORT", 28)
-	Annotation_parsing_LENDS = new_Annotation_parsing("LENDS", 29)
-	Annotation_parsing_LICENSE = new_Annotation_parsing("LICENSE", 30)
-	Annotation_parsing_LOG_TYPE_IN_COMPILER = new_Annotation_parsing("LOG_TYPE_IN_COMPILER", 31)
-	Annotation_parsing_MAY_HAVE_EXTRA_EDGE = new_Annotation_parsing("MAY_HAVE_EXTRA_EDGE", 32)
-	Annotation_parsing_MEANING = new_Annotation_parsing("MEANING", 33)
-	Annotation_parsing_MIXIN_CLASS = new_Annotation_parsing("MIXIN_CLASS", 34)
-	Annotation_parsing_MIXIN_FUNCTION = new_Annotation_parsing("MIXIN_FUNCTION", 35)
-	Annotation_parsing_MODIFIES = new_Annotation_parsing("MODIFIES", 36)
-	Annotation_parsing_MODS = new_Annotation_parsing("MODS", 37)
-	Annotation_parsing_NG_INJECT = new_Annotation_parsing("NG_INJECT", 38)
-	Annotation_parsing_NO_COLLAPSE = new_Annotation_parsing("NO_COLLAPSE", 39)
-	Annotation_parsing_NO_COMPILE = new_Annotation_parsing("NO_COMPILE", 40)
-	Annotation_parsing_NO_COVERAGE = new_Annotation_parsing("NO_COVERAGE", 41)
-	Annotation_parsing_NO_DTS = new_Annotation_parsing("NO_DTS", 42)
-	Annotation_parsing_NO_INLINE = new_Annotation_parsing("NO_INLINE", 43)
-	Annotation_parsing_NO_SIDE_EFFECTS = new_Annotation_parsing("NO_SIDE_EFFECTS", 44)
-	Annotation_parsing_NOT_IMPLEMENTED = new_Annotation_parsing("NOT_IMPLEMENTED", 45)
-	Annotation_parsing_OVERRIDE = new_Annotation_parsing("OVERRIDE", 46)
-	Annotation_parsing_PACKAGE = new_Annotation_parsing("PACKAGE", 47)
-	Annotation_parsing_PARAM = new_Annotation_parsing("PARAM", 48)
-	Annotation_parsing_POLYMER = new_Annotation_parsing("POLYMER", 49)
-	Annotation_parsing_POLYMER_BEHAVIOR = new_Annotation_parsing("POLYMER_BEHAVIOR", 50)
-	Annotation_parsing_PRESERVE = new_Annotation_parsing("PRESERVE", 51)
-	Annotation_parsing_PRIVATE = new_Annotation_parsing("PRIVATE", 52)
-	Annotation_parsing_PROTECTED = new_Annotation_parsing("PROTECTED", 53)
-	Annotation_parsing_PROVIDE_GOOG = new_Annotation_parsing("PROVIDE_GOOG", 54)
-	Annotation_parsing_PROVIDE_ALREADY_PROVIDED = new_Annotation_parsing("PROVIDE_ALREADY_PROVIDED", 55)
-	Annotation_parsing_PUBLIC = new_Annotation_parsing("PUBLIC", 56)
-	Annotation_parsing_PURE_OR_BREAK_MY_CODE = new_Annotation_parsing("PURE_OR_BREAK_MY_CODE", 57)
-	Annotation_parsing_REQUIRE_INLINING = new_Annotation_parsing("REQUIRE_INLINING", 58)
-	Annotation_parsing_RETURN = new_Annotation_parsing("RETURN", 59)
-	Annotation_parsing_SASS_GENERATED_CSS_TS = new_Annotation_parsing("SASS_GENERATED_CSS_TS", 60)
-	Annotation_parsing_SEE = new_Annotation_parsing("SEE", 61)
-	Annotation_parsing_SOY_MODULE = new_Annotation_parsing("SOY_MODULE", 62)
-	Annotation_parsing_SOY_TEMPLATE = new_Annotation_parsing("SOY_TEMPLATE", 63)
-	Annotation_parsing_STRUCT = new_Annotation_parsing("STRUCT", 64)
-	Annotation_parsing_SUPPRESS = new_Annotation_parsing("SUPPRESS", 65)
-	Annotation_parsing_TEMPLATE = new_Annotation_parsing("TEMPLATE", 66)
-	Annotation_parsing_CLOSURE_UNAWARE_CODE = new_Annotation_parsing("CLOSURE_UNAWARE_CODE", 67)
-	Annotation_parsing_THIS = new_Annotation_parsing("THIS", 68)
-	Annotation_parsing_THROWS = new_Annotation_parsing("THROWS", 69)
-	Annotation_parsing_TYPE = new_Annotation_parsing("TYPE", 70)
-	Annotation_parsing_TYPEDEF = new_Annotation_parsing("TYPEDEF", 71)
-	Annotation_parsing_TYPE_SUMMARY = new_Annotation_parsing("TYPE_SUMMARY", 72)
-	Annotation_parsing_UNRESTRICTED = new_Annotation_parsing("UNRESTRICTED", 73)
-	Annotation_parsing_USED_VIA_DOT_CONSTRUCTOR = new_Annotation_parsing("USED_VIA_DOT_CONSTRUCTOR", 74)
-	Annotation_parsing_WIZACTION = new_Annotation_parsing("WIZACTION", 75)
-	Annotation_parsing_TS_TYPE = new_Annotation_parsing("TS_TYPE", 76)
-	Annotation_parsing_WIZ_ANALYZER = new_Annotation_parsing("WIZ_ANALYZER", 77)
-	Annotation_parsing_WIZCALLBACK = new_Annotation_parsing("WIZCALLBACK", 78)
-	Annotation_parsing_values_ = []*Annotation_parsing{Annotation_parsing_ABSTRACT, Annotation_parsing_ALTERNATE_MESSAGE_ID, Annotation_parsing_AUTHOR, Annotation_parsing_CLOSURE_PRIMITIVE, Annotation_parsing_COLLAPSIBLE_OR_BREAK_MY_CODE, Annotation_parsing_CONSTANT, Annotation_parsing_CONSTRUCTOR, Annotation_parsing_CUSTOM_ELEMENT, Annotation_parsing_RECORD, Annotation_parsing_DEFINE, Annotation_parsing_DEPRECATED, Annotation_parsing_DESC, Annotation_parsing_DICT, Annotation_parsing_ENCOURAGE_INLINING, Annotation_parsing_ENHANCE, Annotation_parsing_ENUM, Annotation_parsing_EXTENDS, Annotation_parsing_EXTERNS, Annotation_parsing_EXPORT, Annotation_parsing_FILE_OVERVIEW, Annotation_parsing_FINAL, Annotation_parsing_IDGENERATOR, Annotation_parsing_IMPLEMENTS, Annotation_parsing_IMPLICIT_CAST, Annotation_parsing_INHERIT_DOC, Annotation_parsing_INTERFACE, Annotation_parsing_JSX, Annotation_parsing_JSX_FRAGMENT, Annotation_parsing_LEGACY_NAMED_TS_EXPORT, Annotation_parsing_LENDS, Annotation_parsing_LICENSE, Annotation_parsing_LOG_TYPE_IN_COMPILER, Annotation_parsing_MAY_HAVE_EXTRA_EDGE, Annotation_parsing_MEANING, Annotation_parsing_MIXIN_CLASS, Annotation_parsing_MIXIN_FUNCTION, Annotation_parsing_MODIFIES, Annotation_parsing_MODS, Annotation_parsing_NG_INJECT, Annotation_parsing_NO_COLLAPSE, Annotation_parsing_NO_COMPILE, Annotation_parsing_NO_COVERAGE, Annotation_parsing_NO_DTS, Annotation_parsing_NO_INLINE, Annotation_parsing_NO_SIDE_EFFECTS, Annotation_parsing_NOT_IMPLEMENTED, Annotation_parsing_OVERRIDE, Annotation_parsing_PACKAGE, Annotation_parsing_PARAM, Annotation_parsing_POLYMER, Annotation_parsing_POLYMER_BEHAVIOR, Annotation_parsing_PRESERVE, Annotation_parsing_PRIVATE, Annotation_parsing_PROTECTED, Annotation_parsing_PROVIDE_GOOG, Annotation_parsing_PROVIDE_ALREADY_PROVIDED, Annotation_parsing_PUBLIC, Annotation_parsing_PURE_OR_BREAK_MY_CODE, Annotation_parsing_REQUIRE_INLINING, Annotation_parsing_RETURN, Annotation_parsing_SASS_GENERATED_CSS_TS, Annotation_parsing_SEE, Annotation_parsing_SOY_MODULE, Annotation_parsing_SOY_TEMPLATE, Annotation_parsing_STRUCT, Annotation_parsing_SUPPRESS, Annotation_parsing_TEMPLATE, Annotation_parsing_CLOSURE_UNAWARE_CODE, Annotation_parsing_THIS, Annotation_parsing_THROWS, Annotation_parsing_TYPE, Annotation_parsing_TYPEDEF, Annotation_parsing_TYPE_SUMMARY, Annotation_parsing_UNRESTRICTED, Annotation_parsing_USED_VIA_DOT_CONSTRUCTOR, Annotation_parsing_WIZACTION, Annotation_parsing_TS_TYPE, Annotation_parsing_WIZ_ANALYZER, Annotation_parsing_WIZCALLBACK}
+	Annotation_parsing_values_ = []Annotation_parsing{Annotation_parsing_ABSTRACT, Annotation_parsing_ALTERNATE_MESSAGE_ID, Annotation_parsing_AUTHOR, Annotation_parsing_CLOSURE_PRIMITIVE, Annotation_parsing_COLLAPSIBLE_OR_BREAK_MY_CODE, Annotation_parsing_CONSTANT, Annotation_parsing_CONSTRUCTOR, Annotation_parsing_CUSTOM_ELEMENT, Annotation_parsing_RECORD, Annotation_parsing_DEFINE, Annotation_parsing_DEPRECATED, Annotation_parsing_DESC, Annotation_parsing_DICT, Annotation_parsing_ENCOURAGE_INLINING, Annotation_parsing_ENHANCE, Annotation_parsing_ENUM, Annotation_parsing_EXTENDS, Annotation_parsing_EXTERNS, Annotation_parsing_EXPORT, Annotation_parsing_FILE_OVERVIEW, Annotation_parsing_FINAL, Annotation_parsing_IDGENERATOR, Annotation_parsing_IMPLEMENTS, Annotation_parsing_IMPLICIT_CAST, Annotation_parsing_INHERIT_DOC, Annotation_parsing_INTERFACE, Annotation_parsing_JSX, Annotation_parsing_JSX_FRAGMENT, Annotation_parsing_LEGACY_NAMED_TS_EXPORT, Annotation_parsing_LENDS, Annotation_parsing_LICENSE, Annotation_parsing_LOG_TYPE_IN_COMPILER, Annotation_parsing_MAY_HAVE_EXTRA_EDGE, Annotation_parsing_MEANING, Annotation_parsing_MIXIN_CLASS, Annotation_parsing_MIXIN_FUNCTION, Annotation_parsing_MODIFIES, Annotation_parsing_MODS, Annotation_parsing_NG_INJECT, Annotation_parsing_NO_COLLAPSE, Annotation_parsing_NO_COMPILE, Annotation_parsing_NO_COVERAGE, Annotation_parsing_NO_DTS, Annotation_parsing_NO_INLINE, Annotation_parsing_NO_SIDE_EFFECTS, Annotation_parsing_NOT_IMPLEMENTED, Annotation_parsing_OVERRIDE, Annotation_parsing_PACKAGE, Annotation_parsing_PARAM, Annotation_parsing_POLYMER, Annotation_parsing_POLYMER_BEHAVIOR, Annotation_parsing_PRESERVE, Annotation_parsing_PRIVATE, Annotation_parsing_PROTECTED, Annotation_parsing_PROVIDE_GOOG, Annotation_parsing_PROVIDE_ALREADY_PROVIDED, Annotation_parsing_PUBLIC, Annotation_parsing_PURE_OR_BREAK_MY_CODE, Annotation_parsing_REQUIRE_INLINING, Annotation_parsing_RETURN, Annotation_parsing_SASS_GENERATED_CSS_TS, Annotation_parsing_SEE, Annotation_parsing_SOY_MODULE, Annotation_parsing_SOY_TEMPLATE, Annotation_parsing_STRUCT, Annotation_parsing_SUPPRESS, Annotation_parsing_TEMPLATE, Annotation_parsing_CLOSURE_UNAWARE_CODE, Annotation_parsing_THIS, Annotation_parsing_THROWS, Annotation_parsing_TYPE, Annotation_parsing_TYPEDEF, Annotation_parsing_TYPE_SUMMARY, Annotation_parsing_UNRESTRICTED, Annotation_parsing_USED_VIA_DOT_CONSTRUCTOR, Annotation_parsing_WIZACTION, Annotation_parsing_TS_TYPE, Annotation_parsing_WIZ_ANALYZER, Annotation_parsing_WIZCALLBACK}
 	registerEnum_("com.google.javascript.jscomp.parsing.Annotation", enumValues_(Annotation_parsing_values_))
 	Annotation_parsing_recognizedAnnotations = newTMapBuilder_(jtc_string, tc_p_Annotation_parsing).put("ngInject", Annotation_parsing_NG_INJECT).put("abstract", Annotation_parsing_ABSTRACT).put("alternateMessageId", Annotation_parsing_ALTERNATE_MESSAGE_ID).put("argument", Annotation_parsing_PARAM).put("author", Annotation_parsing_AUTHOR).put("closurePrimitive", Annotation_parsing_CLOSURE_PRIMITIVE).put("closureUnaware", Annotation_parsing_CLOSURE_UNAWARE_CODE).put("const", Annotation_parsing_CONSTANT).put("collapsibleOrBreakMyCode", Annotation_parsing_COLLAPSIBLE_OR_BREAK_MY_CODE).put("constant", Annotation_parsing_CONSTANT).put("constructor", Annotation_parsing_CONSTRUCTOR).put("customElement", Annotation_parsing_CUSTOM_ELEMENT).put("copyright", Annotation_parsing_LICENSE).put("define", Annotation_parsing_DEFINE).put("deprecated", Annotation_parsing_DEPRECATED).put("desc", Annotation_parsing_DESC).put("dict", Annotation_parsing_DICT).put("requireInlining", Annotation_parsing_REQUIRE_INLINING).put("encourageInlining", Annotation_parsing_ENCOURAGE_INLINING).put("enum", Annotation_parsing_ENUM).put("enhance", Annotation_parsing_ENHANCE).put("export", Annotation_parsing_EXPORT).put("extends", Annotation_parsing_EXTENDS).put("externs", Annotation_parsing_EXTERNS).put("fileoverview", Annotation_parsing_FILE_OVERVIEW).put("final", Annotation_parsing_FINAL).put("idGenerator", Annotation_parsing_IDGENERATOR).put("implements", Annotation_parsing_IMPLEMENTS).put("implicitCast", Annotation_parsing_IMPLICIT_CAST).put("inheritDoc", Annotation_parsing_INHERIT_DOC).put("interface", Annotation_parsing_INTERFACE).put("record", Annotation_parsing_RECORD).put("legacyNamedTsExport", Annotation_parsing_LEGACY_NAMED_TS_EXPORT).put("lends", Annotation_parsing_LENDS).put("license", Annotation_parsing_LICENSE).put("logTypeInCompiler", Annotation_parsing_LOG_TYPE_IN_COMPILER).put("mayhaveextraedge", Annotation_parsing_MAY_HAVE_EXTRA_EDGE).put("meaning", Annotation_parsing_MEANING).put("mixinClass", Annotation_parsing_MIXIN_CLASS).put("mixinFunction", Annotation_parsing_MIXIN_FUNCTION).put("modifies", Annotation_parsing_MODIFIES).put("mods", Annotation_parsing_MODS).put("nocollapse", Annotation_parsing_NO_COLLAPSE).put("nocompile", Annotation_parsing_NO_COMPILE).put("nocoverage", Annotation_parsing_NO_COVERAGE).put("nodts", Annotation_parsing_NO_DTS).put("noinline", Annotation_parsing_NO_INLINE).put("nosideeffects", Annotation_parsing_NO_SIDE_EFFECTS).put("override", Annotation_parsing_OVERRIDE).put("owner", Annotation_parsing_AUTHOR).put("package", Annotation_parsing_PACKAGE).put("param", Annotation_parsing_PARAM).put("polymer", Annotation_parsing_POLYMER).put("polymerBehavior", Annotation_parsing_POLYMER_BEHAVIOR).put("preserve", Annotation_parsing_PRESERVE).put("private", Annotation_parsing_PRIVATE).put("protected", Annotation_parsing_PROTECTED).put("provideGoog", Annotation_parsing_PROVIDE_GOOG).put("provideAlreadyProvided", Annotation_parsing_PROVIDE_ALREADY_PROVIDED).put("public", Annotation_parsing_PUBLIC).put("pureOrBreakMyCode", Annotation_parsing_PURE_OR_BREAK_MY_CODE).put("return", Annotation_parsing_RETURN).put("returns", Annotation_parsing_RETURN).put("sassGeneratedCssTs", Annotation_parsing_SASS_GENERATED_CSS_TS).put("see", Annotation_parsing_SEE).put("soyModule", Annotation_parsing_SOY_MODULE).put("soyTemplate", Annotation_parsing_SOY_TEMPLATE).put("struct", Annotation_parsing_STRUCT).put("suppress", Annotation_parsing_SUPPRESS).put("template", Annotation_parsing_TEMPLATE).put("this", Annotation_parsing_THIS).put("throws", Annotation_parsing_THROWS).put("type", Annotation_parsing_TYPE).put("typedef", Annotation_parsing_TYPEDEF).put("typeSummary", Annotation_parsing_TYPE_SUMMARY).put("unrestricted", Annotation_parsing_UNRESTRICTED).put("usedViaDotConstructor", Annotation_parsing_USED_VIA_DOT_CONSTRUCTOR).put("wizaction", Annotation_parsing_WIZACTION).put("tsType", Annotation_parsing_TS_TYPE).put("wizAnalyzer", Annotation_parsing_WIZ_ANALYZER).put("wizcallback", Annotation_parsing_WIZCALLBACK).buildOrThrow()
 

@@ -9,7 +9,7 @@ type TypeValidator struct {
 	nullOrUndefined         *JSType
 	promiseOfUnknownType    *JSType
 	iterableOrAsyncIterable *JSType
-	subtypingMode           *JSType_SubtypingMode
+	subtypingMode           JSType_SubtypingMode
 	mismatches              *TypeMismatch_Accumulator
 }
 
@@ -22,7 +22,7 @@ func (this *TypeValidator) init_TypeValidator(compiler *AbstractCompiler) {
 	this.finit_TypeValidator()
 	this.compiler_ = compiler
 	this.typeRegistry = compiler.getTypeRegistry()
-	this.allBitwisableValueTypes = this.typeRegistry.createUnionTypeJSTypeNativeVarargs([]*JSTypeNative{JSTypeNative_STRING_TYPE, JSTypeNative_NUMBER_TYPE, JSTypeNative_BOOLEAN_TYPE, JSTypeNative_NULL_TYPE, JSTypeNative_VOID_TYPE})
+	this.allBitwisableValueTypes = this.typeRegistry.createUnionTypeJSTypeNativeVarargs([]JSTypeNative{JSTypeNative_STRING_TYPE, JSTypeNative_NUMBER_TYPE, JSTypeNative_BOOLEAN_TYPE, JSTypeNative_NULL_TYPE, JSTypeNative_VOID_TYPE})
 	this.nullOrUndefined = this.typeRegistry.getNativeType(JSTypeNative_NULL_VOID)
 	this.promiseOfUnknownType = this.typeRegistry.createTemplatizedType(this.typeRegistry.getNativeObjectType(JSTypeNative_PROMISE_TYPE), []*JSType{this.typeRegistry.getNativeType(JSTypeNative_UNKNOWN_TYPE)}).up_JSType()
 	this.iterableOrAsyncIterable = this.typeRegistry.createUnionType([]*JSType{this.typeRegistry.getNativeObjectType(JSTypeNative_ITERATOR_TYPE).up_JSType(), this.typeRegistry.getNativeObjectType(JSTypeNative_ASYNC_ITERATOR_TYPE).up_JSType()})
@@ -49,7 +49,7 @@ func (this *TypeValidator) getMismatches() IterableT[*TypeMismatch] {
 	return this.mismatches.getMismatches()
 }
 
-func (this *TypeValidator) setSubtypingMode(mode *JSType_SubtypingMode) {
+func (this *TypeValidator) setSubtypingMode(mode JSType_SubtypingMode) {
 	this.subtypingMode = mode
 }
 
@@ -282,7 +282,7 @@ func (this *TypeValidator) expectIndexMatch(n Node, objType *JSType, indexType *
 	} else if objType.matchesObjectContext() {
 		this.expectStringOrSymbol(indexNode, indexType, "property access")
 	} else {
-		this.mismatchJSType(n, "only arrays or objects can be accessed", objType, this.typeRegistry.createUnionTypeJSTypeNativeVarargs([]*JSTypeNative{JSTypeNative_ARRAY_TYPE, JSTypeNative_OBJECT_TYPE}))
+		this.mismatchJSType(n, "only arrays or objects can be accessed", objType, this.typeRegistry.createUnionTypeJSTypeNativeVarargs([]JSTypeNative{JSTypeNative_ARRAY_TYPE, JSTypeNative_OBJECT_TYPE}))
 	}
 }
 
@@ -552,7 +552,7 @@ func (this *TypeValidator) expectAbstractMethodsImplemented(n Node, ctorType *Fu
 	}
 }
 
-func (this *TypeValidator) mismatch(n Node, msg string, found *JSType, required *JSTypeNative) {
+func (this *TypeValidator) mismatch(n Node, msg string, found *JSType, required JSTypeNative) {
 	this.mismatchJSType(n, msg, found, this.getNativeType(required))
 }
 
@@ -646,12 +646,12 @@ func (this *TypeValidator) getJSType(n Node) *JSType {
 	return Preconditions_checkNotNull_Object_String_Object_T(n.getJSType(), "%s has no JSType attached", n.box_())
 }
 
-func (this *TypeValidator) getNativeType(typeId *JSTypeNative) *JSType {
+func (this *TypeValidator) getNativeType(typeId JSTypeNative) *JSType {
 	return this.typeRegistry.getNativeType(typeId)
 }
 
 func TypeValidator_hasDuplicateDeclarationSuppression(compiler *AbstractCompiler, decl Node) bool {
-	var originalDeclLevel *CheckLevel = compiler.getErrorLevel(JSError_make_Node_DiagnosticType_StringArr(decl, TypeValidator_DUP_VAR_DECLARATION, []string{"dummy", "dummy"}))
+	var originalDeclLevel CheckLevel = compiler.getErrorLevel(JSError_make_Node_DiagnosticType_StringArr(decl, TypeValidator_DUP_VAR_DECLARATION, []string{"dummy", "dummy"}))
 	return (originalDeclLevel == CheckLevel_OFF)
 }
 

@@ -67,7 +67,7 @@ func SemanticReverseAbstractInterpreter_ineq(p *JSType_TypePair) *JSType_TypePai
 }
 
 func (this *SemanticReverseAbstractInterpreter) getPreciserScopeKnowingConditionOutcome_impl(condition Node, blindScope FlowScope, outcome *Outcome_rhino) FlowScope {
-	var operatorToken *Token_rhino = condition.getToken()
+	var operatorToken Token_rhino = condition.getToken()
 	switch operatorToken {
 	case Token_rhino_EQ, Token_rhino_NE, Token_rhino_SHEQ, Token_rhino_SHNE, Token_rhino_CASE:
 		var left Node

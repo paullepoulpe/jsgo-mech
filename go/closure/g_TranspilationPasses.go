@@ -69,7 +69,7 @@ func TranspilationPasses_addTranspilationPasses(passes *PassListBuilder, options
 	if options.needsTranspilationOf(FeatureSet_Feature_CLASSES) {
 		passes.maybeAdd(TranspilationPasses_es6ConvertSuper)
 	}
-	if options.needsTranspilationFrom(FeatureSet_BARE_MINIMUM.withFeatureVarargs([]*FeatureSet_Feature{FeatureSet_Feature_ARRAY_DESTRUCTURING, FeatureSet_Feature_OBJECT_DESTRUCTURING})) {
+	if options.needsTranspilationFrom(FeatureSet_BARE_MINIMUM.withFeatureVarargs([]FeatureSet_Feature{FeatureSet_Feature_ARRAY_DESTRUCTURING, FeatureSet_Feature_OBJECT_DESTRUCTURING})) {
 		passes.maybeAdd(TranspilationPasses_getEs6RewriteDestructuring(Es6RewriteDestructuring_ObjectDestructuringRewriteMode_REWRITE_ALL_OBJECT_PATTERNS))
 	}
 	if options.needsTranspilationOf(FeatureSet_Feature_ARROW_FUNCTIONS) {
@@ -84,7 +84,7 @@ func TranspilationPasses_addTranspilationPasses(passes *PassListBuilder, options
 	if options.needsTranspilationOf(FeatureSet_Feature_SPREAD_EXPRESSIONS) {
 		passes.maybeAdd(TranspilationPasses_es6RewriteSpreadExpressions)
 	}
-	if options.needsTranspilationFrom(FeatureSet_BARE_MINIMUM.withFeatureVarargs([]*FeatureSet_Feature{FeatureSet_Feature_COMPUTED_PROPERTIES, FeatureSet_Feature_MEMBER_DECLARATIONS, FeatureSet_Feature_TEMPLATE_LITERALS})) {
+	if options.needsTranspilationFrom(FeatureSet_BARE_MINIMUM.withFeatureVarargs([]FeatureSet_Feature{FeatureSet_Feature_COMPUTED_PROPERTIES, FeatureSet_Feature_MEMBER_DECLARATIONS, FeatureSet_Feature_TEMPLATE_LITERALS})) {
 		passes.maybeAdd(TranspilationPasses_lateConvertEs6ToEs3)
 	}
 	if options.needsTranspilationOf(FeatureSet_Feature_FOR_OF) {
@@ -93,7 +93,7 @@ func TranspilationPasses_addTranspilationPasses(passes *PassListBuilder, options
 	if options.needsTranspilationOf(FeatureSet_Feature_BLOCK_SCOPED_FUNCTION_DECLARATION) {
 		passes.maybeAdd(TranspilationPasses_rewriteBlockScopedFunctionDeclaration)
 	}
-	if options.needsTranspilationFrom(FeatureSet_BARE_MINIMUM.withFeatureVarargs([]*FeatureSet_Feature{FeatureSet_Feature_LET_DECLARATIONS, FeatureSet_Feature_CONST_DECLARATIONS})) {
+	if options.needsTranspilationFrom(FeatureSet_BARE_MINIMUM.withFeatureVarargs([]FeatureSet_Feature{FeatureSet_Feature_LET_DECLARATIONS, FeatureSet_Feature_CONST_DECLARATIONS})) {
 		passes.maybeAdd(TranspilationPasses_rewriteBlockScopedDeclaration)
 	}
 	if options.needsTranspilationOf(FeatureSet_Feature_GENERATORS) {
@@ -106,7 +106,7 @@ func TranspilationPasses_addRewritePolyfillPass(passes *PassListBuilder) {
 	passes.maybeAdd(TranspilationPasses_rewritePolyfills)
 }
 
-func TranspilationPasses_getEs6RewriteDestructuring(rewriteMode *Es6RewriteDestructuring_ObjectDestructuringRewriteMode) *PassFactory {
+func TranspilationPasses_getEs6RewriteDestructuring(rewriteMode Es6RewriteDestructuring_ObjectDestructuringRewriteMode) *PassFactory {
 	return PassFactory_builder().setName("Es6RewriteDestructuring").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(compiler *AbstractCompiler) CompilerPass {
 		return Es6RewriteDestructuring_as_CompilerPass(new_Es6RewriteDestructuring_Builder(compiler).setDestructuringRewriteMode(rewriteMode).build())
 	})).build()
@@ -135,7 +135,7 @@ func TranspilationPasses_processTranspile(compiler *AbstractCompiler, combinedRo
 	}
 }
 
-func TranspilationPasses_maybeMarkFeatureAsTranspiledAway(compiler *AbstractCompiler, root Node, feature *FeatureSet_Feature) {
+func TranspilationPasses_maybeMarkFeatureAsTranspiledAway(compiler *AbstractCompiler, root Node, feature FeatureSet_Feature) {
 	if !compiler.hasHaltingErrors() {
 		compiler.markFeatureNotAllowed(feature)
 		NodeUtil_removeFeatureFromAllScripts(root, feature, compiler)
@@ -152,7 +152,7 @@ func TranspilationPasses_postTranspileCheckUnsupportedFeaturesRemoved(compiler *
 	var outputFeatures *FeatureSet = compiler.getOptions().getOutputFeatureSet()
 	var currentFeatures *FeatureSet = compiler.getAllowableFeatures()
 	if compiler.getOptions().getChunkOutputType() == CompilerOptions_ChunkOutputType_ES_MODULES {
-		currentFeatures = currentFeatures.without_2(FeatureSet_Feature_MODULES, []*FeatureSet_Feature{}).without_2(FeatureSet_Feature_IMPORT_META, []*FeatureSet_Feature{}).without_2(FeatureSet_Feature_DYNAMIC_IMPORT, []*FeatureSet_Feature{})
+		currentFeatures = currentFeatures.without_2(FeatureSet_Feature_MODULES, []FeatureSet_Feature{}).without_2(FeatureSet_Feature_IMPORT_META, []FeatureSet_Feature{}).without_2(FeatureSet_Feature_DYNAMIC_IMPORT, []FeatureSet_Feature{})
 	}
 	if outputFeatures.getFeatures().isEmpty() {
 		return
@@ -195,14 +195,14 @@ func TranspilationPasses_createUnifiedFeatureRemovalPass(passName string, option
 		featuresToMarkRemoved = featuresToMarkRemoved.with(FeatureSet_Feature_IMPORT_META)
 		featuresToMarkRemoved = featuresToMarkRemoved.with(FeatureSet_Feature_DYNAMIC_IMPORT)
 	}
-	if options.needsTranspilationFrom(FeatureSet_BARE_MINIMUM.withFeatureVarargs([]*FeatureSet_Feature{FeatureSet_Feature_BINARY_LITERALS, FeatureSet_Feature_OCTAL_LITERALS, FeatureSet_Feature_REGEXP_FLAG_U, FeatureSet_Feature_REGEXP_FLAG_Y})) {
-		featuresToMarkRemoved = featuresToMarkRemoved.withFeatureVarargs([]*FeatureSet_Feature{FeatureSet_Feature_BINARY_LITERALS, FeatureSet_Feature_OCTAL_LITERALS, FeatureSet_Feature_REGEXP_FLAG_U, FeatureSet_Feature_REGEXP_FLAG_Y})
+	if options.needsTranspilationFrom(FeatureSet_BARE_MINIMUM.withFeatureVarargs([]FeatureSet_Feature{FeatureSet_Feature_BINARY_LITERALS, FeatureSet_Feature_OCTAL_LITERALS, FeatureSet_Feature_REGEXP_FLAG_U, FeatureSet_Feature_REGEXP_FLAG_Y})) {
+		featuresToMarkRemoved = featuresToMarkRemoved.withFeatureVarargs([]FeatureSet_Feature{FeatureSet_Feature_BINARY_LITERALS, FeatureSet_Feature_OCTAL_LITERALS, FeatureSet_Feature_REGEXP_FLAG_U, FeatureSet_Feature_REGEXP_FLAG_Y})
 	}
 	if options.needsTranspilationFrom(FeatureSet_ES5) {
-		featuresToMarkRemoved = featuresToMarkRemoved.withFeatureVarargs([]*FeatureSet_Feature{FeatureSet_Feature_ES3_KEYWORDS_AS_IDENTIFIERS, FeatureSet_Feature_KEYWORDS_AS_PROPERTIES, FeatureSet_Feature_GETTER, FeatureSet_Feature_SETTER})
+		featuresToMarkRemoved = featuresToMarkRemoved.withFeatureVarargs([]FeatureSet_Feature{FeatureSet_Feature_ES3_KEYWORDS_AS_IDENTIFIERS, FeatureSet_Feature_KEYWORDS_AS_PROPERTIES, FeatureSet_Feature_GETTER, FeatureSet_Feature_SETTER})
 	}
-	featuresToMarkRemoved = featuresToMarkRemoved.withFeatureVarargs([]*FeatureSet_Feature{FeatureSet_Feature_STRING_CONTINUATION, FeatureSet_Feature_TRAILING_COMMA})
-	featuresToMarkRemoved = featuresToMarkRemoved.withFeatureVarargs([]*FeatureSet_Feature{FeatureSet_Feature_ES_NEXT_RUNTIME, FeatureSet_Feature_ES_UNSTABLE_RUNTIME})
+	featuresToMarkRemoved = featuresToMarkRemoved.withFeatureVarargs([]FeatureSet_Feature{FeatureSet_Feature_STRING_CONTINUATION, FeatureSet_Feature_TRAILING_COMMA})
+	featuresToMarkRemoved = featuresToMarkRemoved.withFeatureVarargs([]FeatureSet_Feature{FeatureSet_Feature_ES_NEXT_RUNTIME, FeatureSet_Feature_ES_UNSTABLE_RUNTIME})
 	return TranspilationPasses_createFeatureRemovalPass(passName, featuresToMarkRemoved)
 }
 

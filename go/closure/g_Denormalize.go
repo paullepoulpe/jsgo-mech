@@ -123,7 +123,7 @@ func (this *Denormalize) maybeCollapseAssignShorthand(n Node, parent Node) {
 		return
 	}
 	var op Node = n.getLastChild()
-	var assignOp *Token_rhino = this.getAssignOpFromOp(op)
+	var assignOp Token_rhino = this.getAssignOpFromOp(op)
 	if n.getFirstChild().getString() == op.getFirstChild().getString() {
 		op.setToken(assignOp)
 		var opDetached Node = op.detach()
@@ -138,7 +138,7 @@ func (this *Denormalize) maybeCollapseLogicalAssignShorthand(t *NodeTraversal, n
 		return
 	}
 	var op Node = n.getLastChild()
-	var assignOp *Token_rhino = this.getAssignOpFromOp(n)
+	var assignOp Token_rhino = this.getAssignOpFromOp(n)
 	if n.getFirstChild().getString() == op.getFirstChild().getString() {
 		op.setToken(assignOp)
 		var opDetached Node = op.detach()
@@ -157,8 +157,8 @@ func (this *Denormalize) isCollapsableLogicalAssign(n Node) bool {
 	return ((((this.outputFeatureSet.has(FeatureSet_Feature_LOGICAL_ASSIGNMENT) && ((n.isOr() || n.isAnd()) || n.isNullishCoalesce())) && n.getFirstChild().isName()) && n.getLastChild().isAssign()) && n.getLastChild().getFirstChild().isName())
 }
 
-func (this *Denormalize) getAssignOpFromOp(n Node) *Token_rhino {
-	return func() *Token_rhino {
+func (this *Denormalize) getAssignOpFromOp(n Node) Token_rhino {
+	return func() Token_rhino {
 		switch n.ns_().token {
 		case tokOrd1_BITOR:
 			return Token_rhino_ASSIGN_BITOR

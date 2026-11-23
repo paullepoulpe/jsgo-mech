@@ -49,7 +49,7 @@ func (this *FindExportableNodes) visit_impl(t *NodeTraversal, n Node, parent Nod
 			return
 		}
 	}
-	var mode *FindExportableNodes_Mode = nil
+	var mode FindExportableNodes_Mode = 0
 	var export Optional[string] = Optional_empty[string]()
 	var context Node = 0
 	switch n.ns_().token {
@@ -178,44 +178,61 @@ func FindExportableNodes_clinit() {
 
 }
 
-type FindExportableNodes_Mode struct {
-	Enum
+type FindExportableNodes_Mode uint8
+
+// FindExportableNodes_Mode_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var FindExportableNodes_Mode_enum_ = [2]Enum{
+	{self_: FindExportableNodes_Mode_EXPORT, name_: "EXPORT", ordinal_: 0},
+	{self_: FindExportableNodes_Mode_EXTERN, name_: "EXTERN", ordinal_: 1},
 }
 
-func (this *FindExportableNodes_Mode) up_Enum() *Enum {
-	if this == nil {
+func (this FindExportableNodes_Mode) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &FindExportableNodes_Mode_enum_[this-1]
 }
 
-func (this *FindExportableNodes_Mode) init_FindExportableNodes_Mode(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this FindExportableNodes_Mode) name() string {
+	return FindExportableNodes_Mode_enum_[this-1].name_
 }
 
-func new_FindExportableNodes_Mode(name_ string, ordinal_ int32) *FindExportableNodes_Mode {
-	this := &FindExportableNodes_Mode{}
-	this.self_ = this
-	this.init_FindExportableNodes_Mode(name_, ordinal_)
+func (this FindExportableNodes_Mode) ordinal() int32 {
+	return FindExportableNodes_Mode_enum_[this-1].ordinal_
+}
+
+func (this FindExportableNodes_Mode) toString() string {
+	return FindExportableNodes_Mode_enum_[this-1].name_
+}
+
+func (this FindExportableNodes_Mode) compareTo(o any) int32 {
+	return FindExportableNodes_Mode_enum_[this-1].compareTo(o)
+}
+
+func (this FindExportableNodes_Mode) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func FindExportableNodes_Mode_values() []*FindExportableNodes_Mode {
-	return append([]*FindExportableNodes_Mode(nil), FindExportableNodes_Mode_values_...)
+func FindExportableNodes_Mode_values() []FindExportableNodes_Mode {
+	return append([]FindExportableNodes_Mode(nil), FindExportableNodes_Mode_values_...)
 }
 
-func FindExportableNodes_Mode_valueOf(name string) *FindExportableNodes_Mode {
+func FindExportableNodes_Mode_valueOf(name string) FindExportableNodes_Mode {
 	for _, v := range FindExportableNodes_Mode_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Mode", name))
 }
 
-var FindExportableNodes_Mode_EXPORT *FindExportableNodes_Mode
-var FindExportableNodes_Mode_EXTERN *FindExportableNodes_Mode
-var FindExportableNodes_Mode_values_ []*FindExportableNodes_Mode
+const FindExportableNodes_Mode_EXPORT FindExportableNodes_Mode = 1
+const FindExportableNodes_Mode_EXTERN FindExportableNodes_Mode = 2
+
+var FindExportableNodes_Mode_values_ []FindExportableNodes_Mode
 
 var FindExportableNodes_Mode_clinit_done bool
 
@@ -224,9 +241,7 @@ func FindExportableNodes_Mode_clinit() {
 		return
 	}
 	FindExportableNodes_Mode_clinit_done = true
-	FindExportableNodes_Mode_EXPORT = new_FindExportableNodes_Mode("EXPORT", 0)
-	FindExportableNodes_Mode_EXTERN = new_FindExportableNodes_Mode("EXTERN", 1)
-	FindExportableNodes_Mode_values_ = []*FindExportableNodes_Mode{FindExportableNodes_Mode_EXPORT, FindExportableNodes_Mode_EXTERN}
+	FindExportableNodes_Mode_values_ = []FindExportableNodes_Mode{FindExportableNodes_Mode_EXPORT, FindExportableNodes_Mode_EXTERN}
 	registerEnum_("com.google.javascript.jscomp.FindExportableNodes.Mode", enumValues_(FindExportableNodes_Mode_values_))
 
 }

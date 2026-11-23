@@ -8,7 +8,7 @@ type GatherModuleMetadata struct {
 	currentModule          *GatherModuleMetadata_ModuleMetadataBuilder
 	parentModule           *GatherModuleMetadata_ModuleMetadataBuilder
 	compiler_              *AbstractCompiler
-	moduleResolutionMode   *ModuleLoader_ResolutionMode
+	moduleResolutionMode   ModuleLoader_ResolutionMode
 	loadModuleCall         Node
 	processCommonJsModules bool
 }
@@ -18,14 +18,14 @@ func (this *GatherModuleMetadata) finit_GatherModuleMetadata() {
 	this.modulesByGoogNamespace = jnewTMap_(jtc_string, jtc_p_ModuleMetadataMap_ModuleMetadata)
 }
 
-func (this *GatherModuleMetadata) init_GatherModuleMetadata(compiler *AbstractCompiler, processCommonJsModules bool, moduleResolutionMode *ModuleLoader_ResolutionMode) {
+func (this *GatherModuleMetadata) init_GatherModuleMetadata(compiler *AbstractCompiler, processCommonJsModules bool, moduleResolutionMode ModuleLoader_ResolutionMode) {
 	this.finit_GatherModuleMetadata()
 	this.compiler_ = compiler
 	this.processCommonJsModules = processCommonJsModules
 	this.moduleResolutionMode = moduleResolutionMode
 }
 
-func new_GatherModuleMetadata(compiler *AbstractCompiler, processCommonJsModules bool, moduleResolutionMode *ModuleLoader_ResolutionMode) *GatherModuleMetadata {
+func new_GatherModuleMetadata(compiler *AbstractCompiler, processCommonJsModules bool, moduleResolutionMode ModuleLoader_ResolutionMode) *GatherModuleMetadata {
 	this := &GatherModuleMetadata{}
 	this.init_GatherModuleMetadata(compiler, processCommonJsModules, moduleResolutionMode)
 	return this
@@ -143,7 +143,7 @@ func new_GatherModuleMetadata_ModuleMetadataBuilder(outer_ *GatherModuleMetadata
 	return this
 }
 
-func (this *GatherModuleMetadata_ModuleMetadataBuilder) moduleType(type_ *ModuleMetadataMap_ModuleType, t *NodeTraversal, n Node) {
+func (this *GatherModuleMetadata_ModuleMetadataBuilder) moduleType(type_ ModuleMetadataMap_ModuleType, t *NodeTraversal, n Node) {
 	Preconditions_checkNotNull_T(type_)
 	if this.metadataBuilder.moduleType() == type_ {
 		return
@@ -153,7 +153,7 @@ func (this *GatherModuleMetadata_ModuleMetadataBuilder) moduleType(type_ *Module
 		return
 	}
 	this.ambiguous = true
-	t.report(n, GatherModuleMetadata_MIXED_MODULE_TYPE, []string{this.metadataBuilder.moduleType().description_, type_.description_})
+	t.report(n, GatherModuleMetadata_MIXED_MODULE_TYPE, []string{ModuleMetadataMap_ModuleType_description__[this.metadataBuilder.moduleType()-1], ModuleMetadataMap_ModuleType_description__[type_-1]})
 }
 
 func (this *GatherModuleMetadata_ModuleMetadataBuilder) recordDeclareModuleId(declaredModuleId Node) {
@@ -457,7 +457,7 @@ func (this *GatherModuleMetadata_Finder) addToggle(t *NodeTraversal, n Node, nam
 	}
 }
 
-func (this *GatherModuleMetadata_Finder) addNamespace(module *GatherModuleMetadata_ModuleMetadataBuilder, moduleType *ModuleMetadataMap_ModuleType, namespace string, t *NodeTraversal, n Node) {
+func (this *GatherModuleMetadata_Finder) addNamespace(module *GatherModuleMetadata_ModuleMetadataBuilder, moduleType ModuleMetadataMap_ModuleType, namespace string, t *NodeTraversal, n Node) {
 	if eqR_(moduleType, ModuleMetadataMap_ModuleType_GOOG_PROVIDE) || eqR_(moduleType, ModuleMetadataMap_ModuleType_LEGACY_GOOG_MODULE) {
 		if !NodeUtil_isValidQualifiedName(this.outer_.compiler_.getOptions().getLanguageIn().toFeatureSet(), namespace) {
 			this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, GatherModuleMetadata_INVALID_NAMESPACE_OR_MODULE_ID, []string{namespace}))
@@ -468,7 +468,7 @@ func (this *GatherModuleMetadata_Finder) addNamespace(module *GatherModuleMetada
 			this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, GatherModuleMetadata_INVALID_NAMESPACE_OR_MODULE_ID, []string{namespace}))
 		}
 	}
-	var existingType *ModuleMetadataMap_ModuleType = nil
+	var existingType ModuleMetadataMap_ModuleType = 0
 	var existingFileSource Optional[string] = Optional_empty[string]()
 	if module.googNamespaces_.contains(namespace) {
 		existingType = module.metadataBuilder.moduleType()
@@ -483,7 +483,7 @@ func (this *GatherModuleMetadata_Finder) addNamespace(module *GatherModuleMetada
 		}
 	}
 	this.outer_.currentModule.googNamespaces_.add(namespace)
-	if existingType != nil {
+	if existingType != 0 {
 		switch existingType {
 		case ModuleMetadataMap_ModuleType_ES6_MODULE, ModuleMetadataMap_ModuleType_GOOG_MODULE, ModuleMetadataMap_ModuleType_LEGACY_GOOG_MODULE:
 			var diagnostic *DiagnosticType = func() *DiagnosticType {

@@ -42,7 +42,7 @@ type CodingConventions_Proxy struct {
 // object (self_); every class of the hierarchy implements them (post-flip).
 type CodingConventions_Proxy_I interface {
 	applySingletonGetter_impl(*NominalTypeBuilder, *FunctionType)
-	applySubclassRelationship_impl(*NominalTypeBuilder, *NominalTypeBuilder, *CodingConvention_SubclassType)
+	applySubclassRelationship_impl(*NominalTypeBuilder, *NominalTypeBuilder, CodingConvention_SubclassType)
 	describeCachingCall_impl(Node) *CodingConvention_Cache
 	describeFunctionBind_impl(Node, bool) *CodingConvention_Bind
 	extractClassNameIfProvide_impl(Node, Node) Optional[string]
@@ -187,7 +187,7 @@ func (this *CodingConventions_Proxy) identifyTypeDeclarationCall_impl(n Node) *J
 	return this.nextConvention.identifyTypeDeclarationCall(n)
 }
 
-func (this *CodingConventions_Proxy) applySubclassRelationship_impl(parent *NominalTypeBuilder, child *NominalTypeBuilder, type_ *CodingConvention_SubclassType) {
+func (this *CodingConventions_Proxy) applySubclassRelationship_impl(parent *NominalTypeBuilder, child *NominalTypeBuilder, type_ CodingConvention_SubclassType) {
 	this.nextConvention.applySubclassRelationship(parent, child, type_)
 }
 
@@ -239,7 +239,7 @@ func (this *CodingConventions_Proxy) applySingletonGetter(p0 *NominalTypeBuilder
 	this.self_.applySingletonGetter_impl(p0, p1)
 }
 
-func (this *CodingConventions_Proxy) applySubclassRelationship(p0 *NominalTypeBuilder, p1 *NominalTypeBuilder, p2 *CodingConvention_SubclassType) {
+func (this *CodingConventions_Proxy) applySubclassRelationship(p0 *NominalTypeBuilder, p1 *NominalTypeBuilder, p2 CodingConvention_SubclassType) {
 	this.self_.applySubclassRelationship_impl(p0, p1, p2)
 }
 
@@ -450,7 +450,7 @@ func (this *CodingConventions_DefaultCodingConvention) identifyTypeDeclarationCa
 	return jtlistEmptyImm_(jtc_string)
 }
 
-func (this *CodingConventions_DefaultCodingConvention) applySubclassRelationship(parent *NominalTypeBuilder, child *NominalTypeBuilder, type_ *CodingConvention_SubclassType) {
+func (this *CodingConventions_DefaultCodingConvention) applySubclassRelationship(parent *NominalTypeBuilder, child *NominalTypeBuilder, type_ CodingConvention_SubclassType) {
 
 }
 
