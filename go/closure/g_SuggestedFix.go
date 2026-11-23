@@ -41,7 +41,7 @@ func (this *SuggestedFix) getAlternatives() *JTList[*SuggestedFix] {
 }
 
 func (this *SuggestedFix) getNonDefaultAlternatives() *JTList[*SuggestedFix] {
-	return jtlistImm_(jtc_p_SuggestedFix, cast_[*ImmutableList](this.alternatives.asImm().subList(1, this.alternatives.size())))
+	return jtlistImm_(jtc_p_SuggestedFix, cast_[*ErasedImmutableList](this.alternatives.asImm().subList(1, this.alternatives.size())))
 }
 
 func (this *SuggestedFix) isNoOp() bool {

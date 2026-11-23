@@ -954,42 +954,42 @@ func ImmutableCollection_as_Collection(v *ImmutableCollection) Collection {
 	return v
 }
 
-func ImmutableList_as_Collection(v *ImmutableList) Collection {
+func ImmutableList_as_Collection(v *ErasedImmutableList) Collection {
 	if v == nil {
 		return nil
 	}
 	return v
 }
 
-func ImmutableList_as_Iterable(v *ImmutableList) Iterable {
+func ImmutableList_as_Iterable(v *ErasedImmutableList) Iterable {
 	if v == nil {
 		return nil
 	}
 	return v
 }
 
-func ImmutableList_as_List(v *ImmutableList) List {
+func ImmutableList_as_List(v *ErasedImmutableList) List {
 	if v == nil {
 		return nil
 	}
 	return v
 }
 
-func ImmutableMap_as_Map(v *ImmutableMap) Map {
+func ImmutableMap_as_Map(v *ErasedImmutableMap) Map {
 	if v == nil {
 		return nil
 	}
 	return v
 }
 
-func ImmutableSet_as_Collection(v *ImmutableSet) Collection {
+func ImmutableSet_as_Collection(v *ErasedImmutableSet) Collection {
 	if v == nil {
 		return nil
 	}
 	return v
 }
 
-func ImmutableSet_as_Set(v *ImmutableSet) Set {
+func ImmutableSet_as_Set(v *ErasedImmutableSet) Set {
 	if v == nil {
 		return nil
 	}

@@ -583,11 +583,11 @@ func (this *JSDocInfo) getDeprecationReason() Optional[string] {
 }
 
 func (this *JSDocInfo) getSuppressions() *JTSet[string] {
-	var suppressions ImmutableMapOf[SetT[string], string] = cast_[*ImmutableMap](JSDocInfo_SUPPRESSIONS.get(this))
+	var suppressions ImmutableMapOf[SetT[string], string] = cast_[*ErasedImmutableMap](JSDocInfo_SUPPRESSIONS.get(this))
 	if suppressions == nil {
 		return jtsetEmptyImm_(jtc_string)
 	}
-	var nameSets ImmutableSetOf[SetT[string]] = cast_[*ImmutableSet](suppressions.keySet())
+	var nameSets ImmutableSetOf[SetT[string]] = cast_[*ErasedImmutableSet](suppressions.keySet())
 	var names *JTSet[string] = jnewTSet_(jtc_string)
 	for _, el_1 := range immElems_(nameSets) {
 		var nameSet SetT[string] = setAs_(jtc_string, icast_Set(el_1))
@@ -597,8 +597,8 @@ func (this *JSDocInfo) getSuppressions() *JTSet[string] {
 }
 
 func (this *JSDocInfo) getSuppressionsAndTheirDescription() ImmutableMapOf[SetT[string], string] {
-	var suppressions ImmutableMapOf[SetT[string], string] = cast_[*ImmutableMap](JSDocInfo_SUPPRESSIONS.get(this))
-	return func() *ImmutableMap {
+	var suppressions ImmutableMapOf[SetT[string], string] = cast_[*ErasedImmutableMap](JSDocInfo_SUPPRESSIONS.get(this))
+	return func() *ErasedImmutableMap {
 		if suppressions != nil {
 			return suppressions
 		}
@@ -607,7 +607,7 @@ func (this *JSDocInfo) getSuppressionsAndTheirDescription() ImmutableMapOf[SetT[
 }
 
 func (this *JSDocInfo) getModifies() *JTSet[string] {
-	var modifies *JTSet[string] = tsetImm_(jtc_string, cast_[*ImmutableSet](JSDocInfo_MODIFIES.get(this)))
+	var modifies *JTSet[string] = tsetImm_(jtc_string, cast_[*ErasedImmutableSet](JSDocInfo_MODIFIES.get(this)))
 	return func() *JTSet[string] {
 		if modifies != nil {
 			return modifies
@@ -2408,7 +2408,7 @@ func (this *JSDocInfo_Builder) isDeprecationReasonRecorded() bool {
 func (this *JSDocInfo_Builder) recordSuppressions_2(suppressions *JTSet[string], description string) {
 	this.populated = true
 	var mapBuilder ImmutableMap_BuilderOf[SetT[string], string] = ImmutableMap_builder()
-	var current ImmutableMapOf[SetT[string], string] = cast_[*ImmutableMap](this.getProp(JSDocInfo_SUPPRESSIONS))
+	var current ImmutableMapOf[SetT[string], string] = cast_[*ErasedImmutableMap](this.getProp(JSDocInfo_SUPPRESSIONS))
 	if current != nil {
 		if current.containsKey(suppressions.asSet()) {
 			return
