@@ -172,7 +172,7 @@ func (this *JSTypeReconserializer) getOrCreateRecord(id *ColorId, jstype *JSType
 }
 
 func (this *JSTypeReconserializer) reconcileUnionTypes(seen *JSTypeReconserializer_SeenTypeRecord) *TypeProto {
-	return TypeProto_newBuilder().setUnion(UnionTypeProto_newBuilder().addAllUnionMember(Iterable(JSTypeReconserializer_sortedPointersOf(seen.unionMembers.asCollT()).asList())).buildT_()).buildT_()
+	return TypeProto_newBuilder().setUnion(UnionTypeProto_newBuilder().addAllUnionMember(Iterable(JSTypeReconserializer_sortedPointersOf(seen.unionMembers.asCollT()).asList())).buildLastT_()).buildLastT_()
 }
 
 func JSTypeReconserializer_sortedPointersOf(records CollectionT[*JSTypeReconserializer_SeenTypeRecord]) *TList[any] {
@@ -227,8 +227,8 @@ func (this *JSTypeReconserializer) reconcileObjectTypes(seen *JSTypeReconseriali
 		isInvalidating = bor_(isInvalidating, this.invalidatingTypes.isInvalidating(objType.up_JSType()))
 		propertiesKeepOriginalName = bor_(propertiesKeepOriginalName, objType.isEnumType())
 	}
-	var objectProto *ObjectTypeProto = ObjectTypeProto_newBuilder().addAllInstanceType(Iterable(instancePointers.asSet())).addAllOwnProperty(Iterable(ownProperties.asSet())).addAllPrototype(Iterable(prototypePointers.asSet())).setClosureAssert(isClosureAssert).setIsInvalidating(isInvalidating).setMarkedConstructor(isConstructor).setPropertiesKeepOriginalName(propertiesKeepOriginalName).setUuid(seen.colorId.asByteString()).buildT_()
-	return TypeProto_newBuilder().setObject(objectProto).buildT_()
+	var objectProto *ObjectTypeProto = ObjectTypeProto_newBuilder().addAllInstanceType(Iterable(instancePointers.asSet())).addAllOwnProperty(Iterable(ownProperties.asSet())).addAllPrototype(Iterable(prototypePointers.asSet())).setClosureAssert(isClosureAssert).setIsInvalidating(isInvalidating).setMarkedConstructor(isConstructor).setPropertiesKeepOriginalName(propertiesKeepOriginalName).setUuid(seen.colorId.asByteString()).buildLastT_()
+	return TypeProto_newBuilder().setObject(objectProto).buildLastT_()
 }
 
 func (this *JSTypeReconserializer) ownAncestorInterfacesOf(type_ *ObjectType) *TList[any] {
@@ -314,7 +314,7 @@ func (this *JSTypeReconserializer) generateTypePool() *TypePool {
 	}
 	this.state = JSTypeReconserializer_State_FINISHED
 	this.checkValidLinearTime()
-	return builder.buildT_()
+	return builder.buildLastT_()
 }
 
 func (this *JSTypeReconserializer) getColorIdToJSTypeMapForDebugging() *SimpleListMultimap[string, *JSType] {
