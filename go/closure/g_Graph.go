@@ -28,11 +28,6 @@ type Graph_vt_[N comparable, E comparable] interface {
 
 func (this *Graph[N, E]) isa_Graph_() {}
 
-func is_Graph(v any) bool {
-	_, ok := v.(interface{ isa_Graph_() })
-	return ok
-}
-
 func (this *Graph[N, E]) as_Graph() *Graph[N, E] { return this }
 
 func (this *Graph[N, E]) as_Graph_() any { return this }
@@ -244,11 +239,6 @@ type Graph_SimpleSubGraph[N comparable, E comparable] struct {
 }
 
 func (this *Graph_SimpleSubGraph[N, E]) isa_Graph_SimpleSubGraph_() {}
-
-func is_Graph_SimpleSubGraph(v any) bool {
-	_, ok := v.(interface{ isa_Graph_SimpleSubGraph_() })
-	return ok
-}
 
 func (this *Graph_SimpleSubGraph[N, E]) finit_Graph_SimpleSubGraph() {
 	this.nodes_ = jnewTList_(tc_GraphNode_N__E_[N, E]())

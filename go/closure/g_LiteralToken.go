@@ -7,6 +7,12 @@ type LiteralToken struct {
 	value_ string
 }
 
+// LiteralToken_as is implemented by LiteralToken and the classes that extend it: a cast to LiteralToken asserts to it
+// (post-flip).
+type LiteralToken_as interface {
+	as_LiteralToken() *LiteralToken
+}
+
 func (this *LiteralToken) as_LiteralToken() *LiteralToken { return this }
 
 func to_LiteralToken(v any) *LiteralToken {
@@ -20,12 +26,7 @@ func to_LiteralToken(v any) *LiteralToken {
 	case nil:
 		return nil
 	}
-	return v.(interface{ as_LiteralToken() *LiteralToken }).as_LiteralToken()
-}
-
-func is_LiteralToken(v any) bool {
-	_, ok := v.(interface{ as_LiteralToken() *LiteralToken })
-	return ok
+	return v.(LiteralToken_as).as_LiteralToken()
 }
 
 func (this *LiteralToken) self() any {

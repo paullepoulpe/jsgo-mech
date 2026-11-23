@@ -140,29 +140,6 @@ func (this *InlineVariables_VarExpert) as_InlineVariables_VarExpert() *InlineVar
 	return this
 }
 
-func to_InlineVariables_VarExpert(v any) *InlineVariables_VarExpert {
-	switch p := v.(type) {
-	case *InlineVariables_1:
-		return p.as_InlineVariables_VarExpert()
-	case *InlineVariables_2:
-		return p.as_InlineVariables_VarExpert()
-	case *InlineVariables_InliningBehavior_StandardVarExpert:
-		return p.as_InlineVariables_VarExpert()
-	case nil:
-		return nil
-	}
-	return v.(interface {
-		as_InlineVariables_VarExpert() *InlineVariables_VarExpert
-	}).as_InlineVariables_VarExpert()
-}
-
-func is_InlineVariables_VarExpert(v any) bool {
-	_, ok := v.(interface {
-		as_InlineVariables_VarExpert() *InlineVariables_VarExpert
-	})
-	return ok
-}
-
 func (this *InlineVariables_VarExpert) self() any {
 	if this == nil {
 		return nil
@@ -200,6 +177,12 @@ type InlineVariables_InlineVarAnalysis_I interface {
 	shouldWaitForAliasedVar_impl() bool
 }
 
+// InlineVariables_InlineVarAnalysis_as is implemented by InlineVariables_InlineVarAnalysis and the classes that extend it: a cast to InlineVariables_InlineVarAnalysis asserts to it
+// (post-flip).
+type InlineVariables_InlineVarAnalysis_as interface {
+	as_InlineVariables_InlineVarAnalysis() *InlineVariables_InlineVarAnalysis
+}
+
 func (this *InlineVariables_InlineVarAnalysis) as_InlineVariables_InlineVarAnalysis() *InlineVariables_InlineVarAnalysis {
 	return this
 }
@@ -208,16 +191,7 @@ func to_InlineVariables_InlineVarAnalysis(v any) *InlineVariables_InlineVarAnaly
 	if v == nil {
 		return nil
 	}
-	return v.(interface {
-		as_InlineVariables_InlineVarAnalysis() *InlineVariables_InlineVarAnalysis
-	}).as_InlineVariables_InlineVarAnalysis()
-}
-
-func is_InlineVariables_InlineVarAnalysis(v any) bool {
-	_, ok := v.(interface {
-		as_InlineVariables_InlineVarAnalysis() *InlineVariables_InlineVarAnalysis
-	})
-	return ok
+	return v.(InlineVariables_InlineVarAnalysis_as).as_InlineVariables_InlineVarAnalysis()
 }
 
 func (this *InlineVariables_InlineVarAnalysis) self() any {
@@ -982,11 +956,6 @@ type InlineVariables_InitiallyUnknown[T comparable] struct {
 }
 
 func (this *InlineVariables_InitiallyUnknown[T]) isa_InlineVariables_InitiallyUnknown_() {}
-
-func is_InlineVariables_InitiallyUnknown(v any) bool {
-	_, ok := v.(interface{ isa_InlineVariables_InitiallyUnknown_() })
-	return ok
-}
 
 func (this *InlineVariables_InitiallyUnknown[T]) zero_InlineVariables_InitiallyUnknown() {
 	this.value_ = jnull_[T]()

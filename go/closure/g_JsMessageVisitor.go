@@ -13,18 +13,6 @@ type JsMessageVisitor struct {
 
 func (this *JsMessageVisitor) as_JsMessageVisitor() *JsMessageVisitor { return this }
 
-func to_JsMessageVisitor(v any) *JsMessageVisitor {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_JsMessageVisitor() *JsMessageVisitor }).as_JsMessageVisitor()
-}
-
-func is_JsMessageVisitor(v any) bool {
-	_, ok := v.(interface{ as_JsMessageVisitor() *JsMessageVisitor })
-	return ok
-}
-
 func (this *JsMessageVisitor) self() any {
 	if this == nil {
 		return nil

@@ -9,11 +9,6 @@ type LinkedIdentityHashMap[K comparable, V comparable] struct {
 
 func (this *LinkedIdentityHashMap[K, V]) isa_LinkedIdentityHashMap_() {}
 
-func is_LinkedIdentityHashMap(v any) bool {
-	_, ok := v.(interface{ isa_LinkedIdentityHashMap_() })
-	return ok
-}
-
 func (this *LinkedIdentityHashMap[K, V]) finit_LinkedIdentityHashMap() {
 	this.innerMap = mapAs_(tcT_[K](), tc_p_LinkedIdentityHashMap_Entry_K__V_[K, V](), Map(new_IdentityHashMap()))
 	this.iterationOrder = jnewTList_(tc_p_LinkedIdentityHashMap_Entry_K__V_[K, V]())
@@ -89,11 +84,6 @@ type LinkedIdentityHashMap_Entry[K comparable, V comparable] struct {
 }
 
 func (this *LinkedIdentityHashMap_Entry[K, V]) isa_LinkedIdentityHashMap_Entry_() {}
-
-func is_LinkedIdentityHashMap_Entry(v any) bool {
-	_, ok := v.(interface{ isa_LinkedIdentityHashMap_Entry_() })
-	return ok
-}
 
 func (this *LinkedIdentityHashMap_Entry[K, V]) zero_LinkedIdentityHashMap_Entry() {
 	this.key_ = jnull_[K]()
