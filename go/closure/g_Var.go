@@ -32,7 +32,7 @@ func (this *Var) init_Var(name string, nameNode Node, scope *Scope, index int32,
 		switch nameNode.ns_().token {
 		case tokOrd1_MODULE_BODY, tokOrd1_NAME, tokOrd1_IMPORT_STAR:
 		default:
-			panic(new_IllegalArgumentException_String(("Invalid name node " + tostrH_(nameNode))).self())
+			panic(new_IllegalArgumentException_String(("Invalid name node " + tostrH_(nameNode))))
 		}
 	}
 }
@@ -124,7 +124,7 @@ func (this *Var) declarationType_impl() Token_rhino {
 		}
 	}
 	if ok_, a1_, a2_ := this.isImplicit(), this, AbstractVar_DECLARATION_TYPES.asSetT(); !ok_ {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("The nameNode for %s must be a descendant of one of: %s", []any{a1_, a2_})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("The nameNode for %s must be a descendant of one of: %s", []any{a1_, a2_})))
 	}
 	return 0
 }

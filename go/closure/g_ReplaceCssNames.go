@@ -88,7 +88,7 @@ func (this *ReplaceCssNames) validateGetCssNameCall(callNode Node) *JSError {
 func (this *ReplaceCssNames) validateSingleArgGetCssNameCall(callNode Node) *JSError {
 	var stringLiteralArg Node = callNode.getLastChild()
 	if stringLiteralArg == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if !stringLiteralArg.isStringLit() {
 		return JSError_make_Node_DiagnosticType_StringArr(callNode, ReplaceCssNames_STRING_LITERAL_EXPECTED_ERROR, []string{tostrR_(stringLiteralArg.getToken())})
@@ -99,11 +99,11 @@ func (this *ReplaceCssNames) validateSingleArgGetCssNameCall(callNode Node) *JSE
 func (this *ReplaceCssNames) validateTwoArgGetCssNameCall(callNode Node) *JSError {
 	var firstArg Node = callNode.getSecondChild()
 	if firstArg == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	var secondArg Node = firstArg.getNext()
 	if secondArg == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if !secondArg.isStringLit() {
 		return JSError_make_Node_DiagnosticType_StringArr(callNode, ReplaceCssNames_STRING_LITERAL_EXPECTED_ERROR, []string{tostrR_(secondArg.getToken())})
@@ -373,17 +373,17 @@ func (this *ReplaceCssNames_GetCssNameInstance) isValid() bool {
 
 func (this *ReplaceCssNames_GetCssNameInstance) getValidationError() *JSError {
 	if this.validationError == nil {
-		panic(new_NullPointerException_String(Strings_lenientFormat("No validation error found: %s", []any{this.callNode_.box_()})).self())
+		panic(new_NullPointerException_String(Strings_lenientFormat("No validation error found: %s", []any{this.callNode_.box_()})))
 	}
 	return this.validationError
 }
 
 func (this *ReplaceCssNames_GetCssNameInstance) replaceWithExpression() {
 	if !this.isValid() {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("not a valid goog.getCssName() call: %s", []any{this.callNode_.box_()})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("not a valid goog.getCssName() call: %s", []any{this.callNode_.box_()})))
 	}
 	if this.callNode_.getParent() == 0 {
-		panic(new_NullPointerException_String(Strings_lenientFormat("already replaced: %s", []any{this.callNode_.box_()})).self())
+		panic(new_NullPointerException_String(Strings_lenientFormat("already replaced: %s", []any{this.callNode_.box_()})))
 	}
 	var childCount int32 = this.callNode_.getChildCount()
 	switch childCount {
@@ -392,17 +392,17 @@ func (this *ReplaceCssNames_GetCssNameInstance) replaceWithExpression() {
 	case 3:
 		this.replaceWithConcatenatedArgs()
 	default:
-		panic(new_IllegalStateException_String(String_format("invalid number of children: %s for: %s", []any{int32(childCount), this.callNode_.box_()})).self())
+		panic(new_IllegalStateException_String(String_format("invalid number of children: %s for: %s", []any{int32(childCount), this.callNode_.box_()})))
 	}
 }
 
 func (this *ReplaceCssNames_GetCssNameInstance) replaceWithConvertedSingleArg() {
 	var stringLitArg Node = this.callNode_.getSecondChild()
 	if stringLitArg == 0 {
-		panic(new_NullPointerException_String(tostr_(this.callNode_)).self())
+		panic(new_NullPointerException_String(tostr_(this.callNode_)))
 	}
 	if !stringLitArg.isStringLit() {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("not a string literal: %s", []any{stringLitArg.box_()})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("not a string literal: %s", []any{stringLitArg.box_()})))
 	}
 	stringLitArg.detach()
 	this.outer_.processStringNode(stringLitArg)
@@ -413,11 +413,11 @@ func (this *ReplaceCssNames_GetCssNameInstance) replaceWithConvertedSingleArg() 
 func (this *ReplaceCssNames_GetCssNameInstance) replaceWithConcatenatedArgs() {
 	var firstArg Node = this.callNode_.getSecondChild()
 	if firstArg == 0 {
-		panic(new_NullPointerException_String(tostr_(this.callNode_)).self())
+		panic(new_NullPointerException_String(tostr_(this.callNode_)))
 	}
 	var secondArg Node = firstArg.getNext()
 	if secondArg == 0 {
-		panic(new_NullPointerException_String(tostr_(firstArg)).self())
+		panic(new_NullPointerException_String(tostr_(firstArg)))
 	}
 	firstArg.detach()
 	secondArg.detach()
@@ -434,14 +434,14 @@ func (this *ReplaceCssNames_GetCssNameInstance) isCssClosureFileClassesMember() 
 
 func (this *ReplaceCssNames_GetCssNameInstance) getCssClosureClassesQualifiedName() Optional[string] {
 	if !this.cssClosureClassesQualifiedName.isPresent() {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Not a css closure file classes object: %s", []any{this.callNode_.box_()})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Not a css closure file classes object: %s", []any{this.callNode_.box_()})))
 	}
 	return this.cssClosureClassesQualifiedName
 }
 
 func (this *ReplaceCssNames_GetCssNameInstance) getCssClosureClassesMemberName() Optional[string] {
 	if !this.cssClosureClassesQualifiedName.isPresent() {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Not a css closure file classes object: %s", []any{this.callNode_.box_()})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Not a css closure file classes object: %s", []any{this.callNode_.box_()})))
 	}
 	var ancestors *Node_AncestorIterable = this.callNode_.getAncestors()
 	it_1 := foreach_(obj_(ancestors))
@@ -451,40 +451,40 @@ func (this *ReplaceCssNames_GetCssNameInstance) getCssClosureClassesMemberName()
 			return Optional_of[string]((sstr_(this.cssClosureClassesQualifiedName.get()) + "." + sstr_(ancestor.getString())))
 		}
 	}
-	panic(new_IllegalStateException_String(("No css closure classes member name found: " + tostr_(this.callNode_))).self())
+	panic(new_IllegalStateException_String(("No css closure classes member name found: " + tostr_(this.callNode_))))
 }
 
 func (this *ReplaceCssNames_GetCssNameInstance) getCssClassName() Optional[string] {
 	if !this.isValid() {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("not a valid goog.getCssName() call: %s", []any{this.callNode_.box_()})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("not a valid goog.getCssName() call: %s", []any{this.callNode_.box_()})))
 	}
 	if this.callNode_.getParent() == 0 {
-		panic(new_NullPointerException_String(Strings_lenientFormat("already replaced: %s", []any{this.callNode_.box_()})).self())
+		panic(new_NullPointerException_String(Strings_lenientFormat("already replaced: %s", []any{this.callNode_.box_()})))
 	}
 	var childCount int32 = this.callNode_.getChildCount()
 	nn_ := this.callNode_.getSecondChild()
 	if nn_ == 0 {
-		panic(new_NullPointerException_String(tostr_(this.callNode_)).self())
+		panic(new_NullPointerException_String(tostr_(this.callNode_)))
 	}
 	var firstArg Node = nn_
 	return func() Optional[string] {
 		switch childCount {
 		case 2:
 			if !firstArg.isStringLit() {
-				panic(new_IllegalStateException_String(Strings_lenientFormat("not a string literal: %s", []any{firstArg.box_()})).self())
+				panic(new_IllegalStateException_String(Strings_lenientFormat("not a string literal: %s", []any{firstArg.box_()})))
 			}
 			return Optional_of[string](firstArg.getString())
 		case 3:
 			var secondArg Node = firstArg.getNext()
 			if secondArg == 0 {
-				panic(new_NullPointerException_String(tostr_(firstArg)).self())
+				panic(new_NullPointerException_String(tostr_(firstArg)))
 			}
 			if !secondArg.isStringLit() {
-				panic(new_IllegalStateException_String(Strings_lenientFormat("not a string literal: %s", []any{secondArg.box_()})).self())
+				panic(new_IllegalStateException_String(Strings_lenientFormat("not a string literal: %s", []any{secondArg.box_()})))
 			}
 			return Optional_of[string](secondArg.getString())
 		default:
-			panic(new_IllegalStateException_String(String_format("invalid number of children: %s for: %s", []any{int32(childCount), this.callNode_.box_()})).self())
+			panic(new_IllegalStateException_String(String_format("invalid number of children: %s for: %s", []any{int32(childCount), this.callNode_.box_()})))
 		}
 	}()
 }

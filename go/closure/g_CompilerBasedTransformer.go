@@ -27,7 +27,7 @@ func (this *CompilerBasedTransformer) self() any {
 
 func (this *CompilerBasedTransformer) init_CompilerBasedTransformer(compilerSupplier *CompilerBasedTransformer_CompilerSupplier) {
 	if compilerSupplier == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.compilerSupplierField = compilerSupplier
 }
@@ -42,7 +42,7 @@ func (this *CompilerBasedTransformer) transform(input *Source) *Source {
 			var error_ *JSError = it_1.v
 			message.append(formatter.formatError(error_))
 		}
-		panic(new_IllegalStateException_String(message.toString()).self())
+		panic(new_IllegalStateException_String(message.toString()))
 	}
 	if !result.transformed_ {
 		return input
@@ -213,7 +213,7 @@ func (this *CompilerBasedTransformer_CompileResult) zero_CompilerBasedTransforme
 func (this *CompilerBasedTransformer_CompileResult) init_CompilerBasedTransformer_CompileResult(source string, errors *JTList[*JSError], transformed bool, sourceMap string) {
 	this.source = source
 	if errors == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.errors_ = errors
 	this.transformed_ = transformed

@@ -54,7 +54,7 @@ func (this *PolymerClassRewriter) insertGeneratedDeclarationCodeToGlobalScope(en
 	case tokOrd1_CALL:
 		{
 			if !PolymerClassRewriter_isIIFE(enclosingNode) {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 			var enclosingNodeForIIFE Node = NodeUtil_getEnclosingNode(enclosingNode.getParent(), Predicate_base[Node](func(node Node) bool {
 				return (node.isScript() || node.isModuleBody())
@@ -64,7 +64,7 @@ func (this *PolymerClassRewriter) insertGeneratedDeclarationCodeToGlobalScope(en
 				this.compiler_.reportChangeToChangeScope(NodeUtil_getEnclosingScript(enclosingNodeForIIFE))
 			} else {
 				if !enclosingNodeForIIFE.isModuleBody() {
-					panic(new_IllegalStateException_0().self())
+					panic(new_IllegalStateException_0())
 				}
 				var insertionPoint Node = this.getNodeForInsertion(enclosingNodeForIIFE.getParent())
 				insertionPoint.addChildToFront(declarationCode)
@@ -74,7 +74,7 @@ func (this *PolymerClassRewriter) insertGeneratedDeclarationCodeToGlobalScope(en
 	case tokOrd1_FUNCTION:
 		{
 			if !PolymerClassRewriter_isFunctionArgInGoogLoadModule(enclosingNode) {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 			var enclosingScript Node = NodeUtil_getEnclosingScript(enclosingNode)
 			var insertionPoint Node = this.getNodeForInsertion(enclosingScript)
@@ -82,7 +82,7 @@ func (this *PolymerClassRewriter) insertGeneratedDeclarationCodeToGlobalScope(en
 			this.compiler_.reportChangeToChangeScope(insertionPoint)
 		}
 	default:
-		panic(new_RuntimeException_String("Enclosing node for Polymer is incorrect").self())
+		panic(new_RuntimeException_String("Enclosing node for Polymer is incorrect"))
 	}
 }
 
@@ -111,7 +111,7 @@ func (this *PolymerClassRewriter) insertGeneratedPropsAndBehaviorCode(enclosingN
 	case tokOrd1_CALL:
 		{
 			if !PolymerClassRewriter_isIIFE(enclosingNode) {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 			var functionNode Node = enclosingNode.getFirstChild()
 			var functionBlock Node = functionNode.getLastChild()
@@ -119,7 +119,7 @@ func (this *PolymerClassRewriter) insertGeneratedPropsAndBehaviorCode(enclosingN
 		}
 	case tokOrd1_FUNCTION:
 		if !PolymerClassRewriter_isFunctionArgInGoogLoadModule(enclosingNode) {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		var functionBlock Node = enclosingNode.getLastChild()
 		var insertionPoint Node = PolymerClassRewriter_getInsertionPointForGoogModule(functionBlock)
@@ -139,10 +139,10 @@ func (this *PolymerClassRewriter) rewritePolymerCall(cls *PolymerClassDefinition
 		return callParent.getParent()
 	}()
 	if ok_, a1_ := NodeUtil_isStatementParent(exprRoot.getParent()), exprRoot.getParent(); !ok_ {
-		panic(new_IllegalStateException_String(tostr_(a1_)).self())
+		panic(new_IllegalStateException_String(tostr_(a1_)))
 	}
 	if cls.descriptor == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	var objLit Node = cls.descriptor
 	var objLitDoc *JSDocInfo_Builder = JSDocInfo_builder().parseDocumentation()
@@ -296,10 +296,10 @@ func PolymerClassRewriter_addReturnTypeIfMissing(cls *PolymerClassDefinition, ge
 
 func (this *PolymerClassRewriter) addPropertiesConfigObjectReflection(cls *PolymerClassDefinition, propertiesLiteral Node) {
 	if propertiesLiteral == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if !propertiesLiteral.isObjectLit() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var parent Node = propertiesLiteral.getParent()
 	var objReflectCall Node = IR_call(NodeUtil_newQName_AbstractCompiler_String(this.compiler_, "$jscomp.reflectObject"), []Node{cls.target.cloneTree(), propertiesLiteral.detach()}).srcrefTreeIfMissing(propertiesLiteral)
@@ -310,7 +310,7 @@ func (this *PolymerClassRewriter) addPropertiesConfigObjectReflection(cls *Polym
 
 func (this *PolymerClassRewriter) addTypesToFunctions(objLit Node, thisType string, defType PolymerClassDefinition_DefinitionType) {
 	if !objLit.isObjectLit() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	{
 		var keyNode Node = objLit.getFirstChild()
@@ -786,7 +786,7 @@ func (this *PolymerClassRewriter) validateComplexObserverReflectionCalls(cls *Po
 
 func (this *PolymerClassRewriter) validateReflectedString(methodSignature Node) {
 	if !methodSignature.isStringLit() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var methodSignatureString string = strings.Trim(methodSignature.getString(), javaSpace_)
 	var openParenIndex int32 = String_indexOf(methodSignatureString, 40)

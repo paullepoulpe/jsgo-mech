@@ -58,7 +58,7 @@ func (this *ConcretizeStaticInheritanceForInlining) copyStaticMembers(superClass
 	for it_1.next() {
 		var staticMember Node = it_1.v
 		if !staticMember.isAssign() {
-			panic(new_IllegalStateException_String(tostr_(staticMember)).self())
+			panic(new_IllegalStateException_String(tostr_(staticMember)))
 		}
 		var memberName string = staticMember.getFirstChild().getString()
 		if superClass.definedProperties.contains(memberName) {
@@ -233,7 +233,7 @@ func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) visitFunct
 
 func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) setAlias(original string, alias string) {
 	if !this.outer_.classByAlias.containsKey(original) {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	this.outer_.classByAlias.put(alias, this.outer_.classByAlias.get(original))
 }

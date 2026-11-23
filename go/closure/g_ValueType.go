@@ -34,7 +34,7 @@ func (this *ValueType) init_ValueType(registry *JSTypeRegistry) {
 }
 
 func (this *ValueType) resolveInternal_impl(reporter ErrorReporter_rhino) *JSType {
-	panic(new_AssertionError_0().self())
+	panic(new_AssertionError_0())
 }
 
 func (this *ValueType) appendTo_impl(sb *TypeStringBuilder) {

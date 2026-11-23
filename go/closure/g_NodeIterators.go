@@ -26,7 +26,7 @@ func (this *NodeIterators_FunctionlessLocalScope) finit_NodeIterators_Functionle
 func (this *NodeIterators_FunctionlessLocalScope) init_NodeIterators_FunctionlessLocalScope(ancestors []Node) {
 	this.finit_NodeIterators_FunctionlessLocalScope()
 	if int32(len(ancestors)) <= 0 {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	for _, n := range ancestors {
 		if n.isFunction() {
@@ -75,7 +75,7 @@ func (this *NodeIterators_FunctionlessLocalScope) next() any {
 }
 
 func (this *NodeIterators_FunctionlessLocalScope) remove() {
-	panic(new_UnsupportedOperationException_String("Not implemented").self())
+	panic(new_UnsupportedOperationException_String("Not implemented"))
 }
 
 func (this *NodeIterators_FunctionlessLocalScope) current() Node {
@@ -111,11 +111,11 @@ func (this *NodeIterators_LocalVarMotion) zero_NodeIterators_LocalVarMotion() {
 
 func (this *NodeIterators_LocalVarMotion) init_NodeIterators_LocalVarMotion(compiler *AbstractCompiler, nameNode Node, iterator *NodeIterators_FunctionlessLocalScope) {
 	if !nameNode.isName() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var valueNode Node = NodeUtil_getAssignedValue(nameNode)
 	if compiler == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.compiler_ = compiler
 	this.varName_ = nameNode.getString()
@@ -133,20 +133,20 @@ func new_NodeIterators_LocalVarMotion(compiler *AbstractCompiler, nameNode Node,
 
 func NodeIterators_LocalVarMotion_forVar(compiler *AbstractCompiler, name Node, var_ Node, block Node) *NodeIterators_LocalVarMotion {
 	if !NodeUtil_isNameDeclaration(var_) {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	if !NodeUtil_isStatement(var_) {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	return new_NodeIterators_LocalVarMotion(compiler, name, new_NodeIterators_FunctionlessLocalScope([]Node{name, var_, block}))
 }
 
 func NodeIterators_LocalVarMotion_forAssign(compiler *AbstractCompiler, name Node, assign Node, expr Node, block Node) *NodeIterators_LocalVarMotion {
 	if !assign.isAssign() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	if !expr.isExprResult() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	return new_NodeIterators_LocalVarMotion(compiler, name, new_NodeIterators_FunctionlessLocalScope([]Node{assign, expr, block}))
 }
@@ -166,7 +166,7 @@ func (this *NodeIterators_LocalVarMotion) next() any {
 }
 
 func (this *NodeIterators_LocalVarMotion) remove() {
-	panic(new_UnsupportedOperationException_String("Not implemented").self())
+	panic(new_UnsupportedOperationException_String("Not implemented"))
 }
 
 func (this *NodeIterators_LocalVarMotion) advanceLookAhead(atStart bool) {

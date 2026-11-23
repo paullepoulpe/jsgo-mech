@@ -69,7 +69,7 @@ func (this *AbstractScope) self() any {
 
 func (this *AbstractScope) init_AbstractScope(rootNode Node) {
 	if rootNode == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.rootNode_ = rootNode
 }
@@ -79,11 +79,11 @@ func (this *AbstractScope) toString() string {
 }
 
 func (this *AbstractScope) untyped_impl() *Scope {
-	panic(new_IllegalStateException_String("untyped() called, but not an untyped scope.").self())
+	panic(new_IllegalStateException_String("untyped() called, but not an untyped scope."))
 }
 
 func (this *AbstractScope) typed_impl() *TypedScope {
-	panic(new_IllegalStateException_String("typed() called, but not a typed scope.").self())
+	panic(new_IllegalStateException_String("typed() called, but not a typed scope."))
 }
 
 func (this *AbstractScope) getRootNode() Node {
@@ -144,7 +144,7 @@ func (this *AbstractScope) isHoistScope() bool {
 
 func (this *AbstractScope) checkRootScope() {
 	if !((NodeUtil_createsScope(this.rootNode_) || this.rootNode_.isScript()) || this.rootNode_.isRoot()) {
-		panic(new_IllegalArgumentException_String(tostr_(this.rootNode_)).self())
+		panic(new_IllegalArgumentException_String(tostr_(this.rootNode_)))
 	}
 }
 

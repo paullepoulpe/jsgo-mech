@@ -74,7 +74,7 @@ func DestructuredTarget_createTargetJSType(registry *JSTypeRegistry, destructuri
 
 func DestructuredTarget_createTarget(registry *JSTypeRegistry, destructuringPatternType Supplier_base[*JSType], destructuringChild Node) *DestructuredTarget {
 	if !destructuringChild.getParent().isDestructuringPattern() {
-		panic(new_IllegalArgumentException_String(tostr_(destructuringChild)).self())
+		panic(new_IllegalArgumentException_String(tostr_(destructuringChild)))
 	}
 	var builder *DestructuredTarget_Builder = new_DestructuredTarget_Builder(registry, destructuringChild.getParent(), destructuringPatternType)
 	var value Node
@@ -106,7 +106,7 @@ func DestructuredTarget_createTarget(registry *JSTypeRegistry, destructuringPatt
 		builder.setNode(destructuringChild.getFirstChild())
 		builder.setIsRest(true)
 	default:
-		panic(new_IllegalArgumentException_String(("Unexpected child of destructuring pattern " + tostrH_(destructuringChild))).self())
+		panic(new_IllegalArgumentException_String(("Unexpected child of destructuring pattern " + tostrH_(destructuringChild))))
 	}
 	return builder.build()
 }
@@ -119,7 +119,7 @@ func DestructuredTarget_createAllNonEmptyTargetsInPattern(registry *JSTypeRegist
 
 func DestructuredTarget_createAllNonEmptyTargetsInPatternSupplier(registry *JSTypeRegistry, patternType Supplier_base[*JSType], pattern Node) *JTList[*DestructuredTarget] {
 	if !pattern.isDestructuringPattern() {
-		panic(new_IllegalArgumentException_String(tostr_(pattern)).self())
+		panic(new_IllegalArgumentException_String(tostr_(pattern)))
 	}
 	var builder *TListBuilder[*DestructuredTarget] = newTListBuilder_(jtc_p_DestructuredTarget)
 	{
@@ -181,7 +181,7 @@ func (this *DestructuredTarget) inferObjectPatternKeyType() *JSType {
 				return this.registry.getNativeType(JSTypeNative_UNKNOWN_TYPE)
 			}()
 		default:
-			panic(new_IllegalStateException_String(("Unexpected key " + tostrH_(this.objectPatternKey))).self())
+			panic(new_IllegalStateException_String(("Unexpected key " + tostrH_(this.objectPatternKey))))
 		}
 	}()
 }
@@ -247,7 +247,7 @@ func (this *DestructuredTarget_Builder) setIsRest(isRest bool) *DestructuredTarg
 
 func (this *DestructuredTarget_Builder) build() *DestructuredTarget {
 	if this.node_ == 0 {
-		panic(new_NullPointerException_String("Must set a node").self())
+		panic(new_NullPointerException_String("Must set a node"))
 	}
 	return new_DestructuredTarget(this.pattern, this.node_, this.defaultValue, this.objectPatternKey, this.registry, this.patternTypeSupplier, this.isRest_)
 }

@@ -20,7 +20,7 @@ func new_ResolveExportResult(binding *Binding, state ResolveExportResult_State) 
 
 func (this *ResolveExportResult) copy(sourceNode Node, createdBy Binding_CreatedBy) *ResolveExportResult {
 	if sourceNode == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if this.binding == nil {
 		return this
@@ -50,7 +50,7 @@ func (this *ResolveExportResult) getBinding() *Binding {
 
 func ResolveExportResult_of(binding *Binding) *ResolveExportResult {
 	if binding == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	return new_ResolveExportResult(binding, ResolveExportResult_State_RESOLVED)
 }

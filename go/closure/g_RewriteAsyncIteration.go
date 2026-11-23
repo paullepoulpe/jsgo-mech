@@ -22,15 +22,15 @@ func (this *RewriteAsyncIteration) finit_RewriteAsyncIteration() {
 func (this *RewriteAsyncIteration) init_RewriteAsyncIteration(compiler *AbstractCompiler, astFactory *AstFactory, namespace StaticScope) {
 	this.finit_RewriteAsyncIteration()
 	if compiler == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.compiler_ = compiler
 	if astFactory == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.astFactory_ = astFactory
 	if namespace == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.namespace_ = namespace
 	this.contextStack = newTDeque_(jtc_p_RewriteAsyncIteration_LexicalContext)
@@ -56,17 +56,17 @@ func RewriteAsyncIteration_create(compiler *AbstractCompiler) *RewriteAsyncItera
 
 func (this *RewriteAsyncIteration) process_2(externs Node, root Node) {
 	if !this.contextStack.isEmpty() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.contextStack.push(RewriteAsyncIteration_LexicalContext_newGlobalContext(root))
 	TranspilationPasses_processTranspile(this.compiler_, root, RewriteAsyncIteration_transpiledFeatures, []NodeTraversal_Callback{NodeTraversal_Callback(this)})
 	TranspilationPasses_maybeMarkFeaturesAsTranspiledAway(this.compiler_, root, RewriteAsyncIteration_transpiledFeatures)
 	if cast_[*RewriteAsyncIteration_LexicalContext](SequencedCollection_getFirst(SequencedCollection(Deque_un_(this.contextStack.asDequeT())))).function != 0 {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.contextStack.pop()
 	if !this.contextStack.isEmpty() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 }
 
@@ -84,12 +84,12 @@ func (this *RewriteAsyncIteration) visit(t *NodeTraversal, n Node, parent Node) 
 	switch n.ns_().token {
 	case tokOrd1_PARAM_LIST:
 		if !equalsId_(n, ctx.contextRoot) {
-			panic(new_IllegalStateException_String(tostr_(n)).self())
+			panic(new_IllegalStateException_String(tostr_(n)))
 		}
 		this.contextStack.pop()
 	case tokOrd1_FUNCTION:
 		if !equalsId_(n, ctx.contextRoot) {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		if n.isAsyncGeneratorFunction() {
 			this.convertAsyncGenerator(n)
@@ -98,31 +98,31 @@ func (this *RewriteAsyncIteration) visit(t *NodeTraversal, n Node, parent Node) 
 		this.contextStack.pop()
 	case tokOrd1_AWAIT:
 		if ctx.function == 0 {
-			panic(new_NullPointerException_0().self())
+			panic(new_NullPointerException_0())
 		}
 		if ctx.function.isAsyncGeneratorFunction() {
 			this.convertAwaitOfAsyncGenerator(ctx, n)
 		}
 	case tokOrd1_YIELD:
 		if ctx.function == 0 {
-			panic(new_NullPointerException_0().self())
+			panic(new_NullPointerException_0())
 		}
 		if ctx.function.isAsyncGeneratorFunction() {
 			this.convertYieldOfAsyncGenerator(ctx, n)
 		}
 	case tokOrd1_RETURN:
 		if ctx.function == 0 {
-			panic(new_NullPointerException_0().self())
+			panic(new_NullPointerException_0())
 		}
 		if ctx.function.isAsyncGeneratorFunction() {
 			this.convertReturnOfAsyncGenerator(ctx, n)
 		}
 	case tokOrd1_FOR_AWAIT_OF:
 		if ctx.function == 0 {
-			panic(new_NullPointerException_0().self())
+			panic(new_NullPointerException_0())
 		}
 		if !ctx.function.isAsyncFunction() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		this.replaceForAwaitOf(ctx, n)
 		NodeUtil_addFeatureToScript(t.getCurrentScript(), FeatureSet_Feature_CONST_DECLARATIONS, this.compiler_)
@@ -144,10 +144,10 @@ func (this *RewriteAsyncIteration) visit(t *NodeTraversal, n Node, parent Node) 
 
 func (this *RewriteAsyncIteration) convertAsyncGenerator(originalFunction Node) {
 	if originalFunction == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if !originalFunction.isAsyncGeneratorFunction() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var asyncGeneratorWrapperRef Node = this.astFactory_.createQName(this.namespace_, this.asyncGeneratorWrapper)
 	var innerFunction Node = this.astFactory_.createEmptyAsyncGeneratorWrapperArgument(nil)
@@ -165,20 +165,20 @@ func (this *RewriteAsyncIteration) convertAsyncGenerator(originalFunction Node) 
 
 func (this *RewriteAsyncIteration) convertAwaitOfAsyncGenerator(ctx *RewriteAsyncIteration_LexicalContext, awaitNode Node) {
 	if awaitNode == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if !awaitNode.isAwait() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if ctx == nil || ctx.function == 0 {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !ctx.function.isAsyncGeneratorFunction() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var expression Node = awaitNode.removeFirstChild()
 	if expression == 0 {
-		panic(new_NullPointerException_String("await needs an expression").self())
+		panic(new_NullPointerException_String("await needs an expression"))
 	}
 	var newActionRecord Node = this.astFactory_.createNewNode(this.astFactory_.createQName(this.namespace_, this.actionRecordName), []Node{this.astFactory_.createQName(this.namespace_, this.actionEnumAwait), expression})
 	newActionRecord.srcrefTreeIfMissing(awaitNode)
@@ -188,22 +188,22 @@ func (this *RewriteAsyncIteration) convertAwaitOfAsyncGenerator(ctx *RewriteAsyn
 
 func (this *RewriteAsyncIteration) convertYieldOfAsyncGenerator(ctx *RewriteAsyncIteration_LexicalContext, yieldNode Node) {
 	if yieldNode == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if !yieldNode.isYield() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if ctx == nil || ctx.function == 0 {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !ctx.function.isAsyncGeneratorFunction() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var expression Node = yieldNode.removeFirstChild()
 	var newActionRecord Node = this.astFactory_.createNewNode(this.astFactory_.createQName(this.namespace_, this.actionRecordName), []Node{})
 	if yieldNode.isYieldAll() {
 		if expression == 0 {
-			panic(new_NullPointerException_0().self())
+			panic(new_NullPointerException_0())
 		}
 		newActionRecord.addChildToBack(this.astFactory_.createQName(this.namespace_, this.actionEnumYieldStar))
 		newActionRecord.addChildToBack(expression)
@@ -221,16 +221,16 @@ func (this *RewriteAsyncIteration) convertYieldOfAsyncGenerator(ctx *RewriteAsyn
 
 func (this *RewriteAsyncIteration) convertReturnOfAsyncGenerator(ctx *RewriteAsyncIteration_LexicalContext, returnNode Node) {
 	if returnNode == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if !returnNode.isReturn() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if ctx == nil || ctx.function == 0 {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !ctx.function.isAsyncGeneratorFunction() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var expression Node = returnNode.removeFirstChild()
 	var newActionRecord Node = this.astFactory_.createNewNode(this.astFactory_.createQName(this.namespace_, this.actionRecordName), []Node{})
@@ -252,13 +252,13 @@ func (this *RewriteAsyncIteration) replaceForAwaitOf(ctx *RewriteAsyncIteration_
 	var catchErrorParamTempName string = (sstr_(RewriteAsyncIteration_FOR_AWAIT_CATCH_PARAM_TEMP_NAME) + istr_(int64(forAwaitId)))
 	var returnFuncTempName string = (sstr_(RewriteAsyncIteration_FOR_AWAIT_RETURN_FN_TEMP_NAME) + istr_(int64(forAwaitId)))
 	if !forAwaitOf.hasParent() {
-		panic(new_IllegalStateException_String(objstr_("Cannot replace parentless for-await-of")).self())
+		panic(new_IllegalStateException_String(objstr_("Cannot replace parentless for-await-of")))
 	}
 	var forAwaitOfParent Node = forAwaitOf.getParent()
 	var replacementPoint Node
 	if forAwaitOfParent.isLabel() {
 		if !forAwaitOf.isSecondChildOf(forAwaitOfParent) {
-			panic(new_IllegalStateException_String(tostr_(forAwaitOfParent)).self())
+			panic(new_IllegalStateException_String(tostr_(forAwaitOfParent)))
 		}
 		replacementPoint = forAwaitOfParent
 	} else {
@@ -282,7 +282,7 @@ func (this *RewriteAsyncIteration) replaceForAwaitOf(ctx *RewriteAsyncIteration_
 			declarationTarget.addChildToBack(this.astFactory_.createGetProp(this.astFactory_.createName(resultTempName, iterableResultType), "value", resultType))
 		} else {
 			if !declarationTarget.isDestructuringLhs() {
-				panic(new_IllegalStateException_String(tostr_(declarationTarget)).self())
+				panic(new_IllegalStateException_String(tostr_(declarationTarget)))
 			}
 			var destructuringPattern Node = declarationTarget.getOnlyChild()
 			resultType = AstFactory_type_Node(destructuringPattern)
@@ -290,7 +290,7 @@ func (this *RewriteAsyncIteration) replaceForAwaitOf(ctx *RewriteAsyncIteration_
 		}
 		lhsAssignment = lhs
 	} else {
-		panic(new_AssertionError_Object("unexpected for-await-of lhs").self())
+		panic(new_AssertionError_Object("unexpected for-await-of lhs"))
 	}
 	lhsAssignment.srcrefTreeIfMissing(lhs)
 	var errorResDecl Node = this.astFactory_.createSingleVarNameDeclaration(errorResultTempName).srcrefTreeIfMissing(forAwaitOf)
@@ -369,7 +369,7 @@ func (this *RewriteAsyncIteration) ensureBlock(possiblyBlock Node) Node {
 
 func (this *RewriteAsyncIteration) constructAwaitNextResult(ctx *RewriteAsyncIteration_LexicalContext, iteratorTempName string, iteratorType AstFactory_Type, iterableResultType AstFactory_Type) Node {
 	if ctx.function == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	var result Node
 	var iteratorTemp Node = this.astFactory_.createName(iteratorTempName, iteratorType)
@@ -383,16 +383,16 @@ func (this *RewriteAsyncIteration) constructAwaitNextResult(ctx *RewriteAsyncIte
 
 func (this *RewriteAsyncIteration) replaceThis(ctx *RewriteAsyncIteration_LexicalContext, n Node) {
 	if !n.isThis() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	if ctx == nil || !ctx.mustReplaceThisSuperArgs() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	if ctx.function == 0 {
-		panic(new_IllegalArgumentException_String(objstr_("Cannot prepend declarations to root scope")).self())
+		panic(new_IllegalArgumentException_String(objstr_("Cannot prepend declarations to root scope")))
 	}
 	if ctx.thisSuperArgsContext == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	n.replaceWith(this.astFactory_.createName((sstr_(RewriteAsyncIteration_THIS_VAR_NAME) + sstr_(ctx.thisSuperArgsContext.uniqueId)), AstFactory_type_Node(n)).srcref(n))
 	ctx.thisSuperArgsContext.thisNodeToAdd = this.astFactory_.createThis(AstFactory_type_Node(n))
@@ -401,16 +401,16 @@ func (this *RewriteAsyncIteration) replaceThis(ctx *RewriteAsyncIteration_Lexica
 
 func (this *RewriteAsyncIteration) replaceArguments(ctx *RewriteAsyncIteration_LexicalContext, n Node) {
 	if !n.isName() || "arguments" != n.getString() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	if ctx == nil || !ctx.mustReplaceThisSuperArgs() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	if ctx.function == 0 {
-		panic(new_IllegalArgumentException_String(objstr_("Cannot prepend declarations to root scope")).self())
+		panic(new_IllegalArgumentException_String(objstr_("Cannot prepend declarations to root scope")))
 	}
 	if ctx.thisSuperArgsContext == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	n.replaceWith(this.astFactory_.createName(RewriteAsyncIteration_ARGUMENTS_VAR_NAME, AstFactory_type_Node(n)).srcref(n))
 	ctx.thisSuperArgsContext.usedArguments = true
@@ -423,16 +423,16 @@ func (this *RewriteAsyncIteration) replaceSuper(ctx *RewriteAsyncIteration_Lexic
 		return
 	}
 	if !n.isSuper() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	if ctx == nil || !ctx.mustReplaceThisSuperArgs() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	if ctx.function == 0 {
-		panic(new_IllegalArgumentException_String(objstr_("Cannot prepend declarations to root scope")).self())
+		panic(new_IllegalArgumentException_String(objstr_("Cannot prepend declarations to root scope")))
 	}
 	if ctx.thisSuperArgsContext == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	var propertyName string = parent.getString()
 	var propertyReplacementNameText string = (sstr_(RewriteAsyncIteration_SUPER_PROP_GETTER_PREFIX) + sstr_(propertyName))
@@ -456,19 +456,19 @@ func (this *RewriteAsyncIteration) replaceSuper(ctx *RewriteAsyncIteration_Lexic
 
 func (this *RewriteAsyncIteration) prependTempVarDeclarations(ctx *RewriteAsyncIteration_LexicalContext, t *NodeTraversal) {
 	if ctx == nil {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	if ctx.function == 0 {
-		panic(new_IllegalArgumentException_String(objstr_("Cannot prepend declarations to root scope")).self())
+		panic(new_IllegalArgumentException_String(objstr_("Cannot prepend declarations to root scope")))
 	}
 	if ctx.thisSuperArgsContext == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	var thisSuperArgsCtx *RewriteAsyncIteration_ThisSuperArgsContext = ctx.thisSuperArgsContext
 	var function Node = ctx.function
 	var block Node = function.getLastChild()
 	if block == 0 {
-		panic(new_NullPointerException_String(tostr_(function)).self())
+		panic(new_NullPointerException_String(tostr_(function)))
 	}
 	var prefixBlock Node = this.astFactory_.createBlock([]Node{})
 	if thisSuperArgsCtx.thisNodeToAdd != 0 {
@@ -533,7 +533,7 @@ type RewriteAsyncIteration_LexicalContext struct {
 
 func (this *RewriteAsyncIteration_LexicalContext) init_RewriteAsyncIteration_LexicalContext_Node(contextRoot Node) {
 	if contextRoot == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.contextRoot = contextRoot
 	this.function = 0
@@ -548,19 +548,19 @@ func new_RewriteAsyncIteration_LexicalContext_Node(contextRoot Node) *RewriteAsy
 
 func (this *RewriteAsyncIteration_LexicalContext) init_RewriteAsyncIteration_LexicalContext_LexicalContext_Node_Node_AbstractCompiler(parent *RewriteAsyncIteration_LexicalContext, contextRoot Node, function Node, compiler *AbstractCompiler) {
 	if parent == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if contextRoot == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if contextRoot != function && !contextRoot.isParamList() {
-		panic(new_IllegalArgumentException_String(tostr_(contextRoot)).self())
+		panic(new_IllegalArgumentException_String(tostr_(contextRoot)))
 	}
 	if function == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if !function.isFunction() {
-		panic(new_IllegalArgumentException_String(tostr_(function)).self())
+		panic(new_IllegalArgumentException_String(tostr_(function)))
 	}
 	this.contextRoot = contextRoot
 	this.function = function

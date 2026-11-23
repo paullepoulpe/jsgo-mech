@@ -75,7 +75,7 @@ func (this *Es6ForOfConverter) visitForOf(t *NodeTraversal, node Node) {
 		var type_ AstFactory_Type = AstFactory_type_Node(variable.getFirstChild())
 		var declarationType Token_rhino = variable.getToken()
 		if eqR_(declarationType, Token_rhino_VAR) {
-			panic(new_IllegalStateException_String(objstr_("var initializers must've gotten moved out of the loop during normalize")).self())
+			panic(new_IllegalStateException_String(objstr_("var initializers must've gotten moved out of the loop during normalize")))
 		}
 		declarationOrAssign = this.astFactory_.createSingleNameDeclaration(declarationType, variable.getFirstChild().getString(), this.astFactory_.createGetProp(iterResult.cloneTree(), "value", type_))
 		if variable.getFirstChild().getBooleanProp(Node_IS_CONSTANT_NAME) {
