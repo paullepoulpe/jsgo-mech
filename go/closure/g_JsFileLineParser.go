@@ -206,12 +206,12 @@ func (this *JsFileLineParser) parseJsString(jsStringLiteral string) *Outcome_bas
 
 func (this *JsFileLineParser) parseJsStringArray(input string) *Outcome_base[ListT[string]] {
 	var results *JTList[string] = jnewTList_(jtc_string)
-	var indexStart int32 = String_indexOf(input, 91)
-	var indexEnd int32 = String_lastIndexOf(input, 93)
+	var indexStart int32 = int32(strings.IndexByte(input, '['))
+	var indexEnd int32 = int32(strings.LastIndexByte(input, ']'))
 	if (indexStart == -1) || (indexEnd == -1) {
 		return Outcome_base_err[ListT[string]](new_JsFileLineParser_ParseException("Syntax error when parsing JS array", true).up_Throwable())
 	}
-	var innerValues string = String_substring(input, (indexStart + 1), indexEnd)
+	var innerValues string = cutBytes_(input, (indexStart + 1), indexEnd)
 	if strings.Trim(innerValues, javaSpace_) != "" {
 		this.valueMatcher.reset_s(innerValues)
 		for {

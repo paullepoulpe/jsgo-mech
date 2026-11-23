@@ -48,7 +48,7 @@ func (this *RequireAliasGenerator) iterator() Iterator {
 }
 
 func RequireAliasGenerator_captializeFirstChar(w string) string {
-	if w == "" || Ascii_isUpperCase(String_charAt(w, 0)) {
+	if w == "" || Ascii_isUpperCase(uint16(byteAt_(w, 0))) {
 		return w
 	}
 	return (chrstr_(Ascii_toUpperCase_char(String_charAt(w, 0))) + sstr_(String_substring_int(w, 1)))

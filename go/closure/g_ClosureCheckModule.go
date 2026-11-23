@@ -308,9 +308,9 @@ func ClosureCheckModule_checkShortName(t *NodeTraversal, shortNameNode Node, nam
 	if (nextQnamePart == lastSegment) || lastSegment == "" {
 		return
 	}
-	if Ascii_isUpperCase(String_charAt(nextQnamePart, 0)) != Ascii_isUpperCase(String_charAt(lastSegment, 0)) {
+	if Ascii_isUpperCase(uint16(byteAt_(nextQnamePart, 0))) != Ascii_isUpperCase(uint16(byteAt_(lastSegment, 0))) {
 		var newStartChar uint16 = func() uint16 {
-			if Ascii_isUpperCase(String_charAt(nextQnamePart, 0)) {
+			if Ascii_isUpperCase(uint16(byteAt_(nextQnamePart, 0))) {
 				return Ascii_toLowerCase_char(String_charAt(nextQnamePart, 0))
 			}
 			return Ascii_toUpperCase_char(String_charAt(nextQnamePart, 0))
@@ -492,12 +492,12 @@ func (this *ClosureCheckModule_1) visit(node Node) {
 	var qname string = node.getString()
 	var nextQnamePart Optional[string] = Optional_empty[string]()
 	for this.outer_.checkImproperReferenceToImport(this.cap_t, node, Optional_of[string](qname), nextQnamePart) {
-		var lastDot int32 = String_lastIndexOf(qname, 46)
+		var lastDot int32 = int32(strings.LastIndexByte(qname, '.'))
 		if lastDot < 0 {
 			return
 		}
-		nextQnamePart = Optional_of[string](String_substring_int(qname, (lastDot + 1)))
-		qname = String_substring(qname, 0, lastDot)
+		nextQnamePart = Optional_of[string](qname[(lastDot + 1):])
+		qname = qname[:lastDot]
 	}
 }
 
