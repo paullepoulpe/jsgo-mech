@@ -2541,7 +2541,7 @@ func (this *Compiler) getInstrumentationMapping() *VariableMap {
 }
 
 func (this *Compiler) addExportedNames_impl(exportedNames *TSet[string]) {
-	this.exportedNames.asSetT().addAll(Collection(exportedNames.asSetT()))
+	tsetAddSetT_(this.exportedNames, exportedNames)
 }
 
 func (this *Compiler) getExportedNames_impl() *TSet[string] {
@@ -2998,7 +2998,7 @@ func (this *Compiler) restoreFromState(compilerState *JSCompilerStateProto) {
 	this.uniqueNameId = compilerState.getUniqueNameId()
 	this.uniqueIdSupplier = UniqueIdSupplier_fromProto(listAs_(tc_p_UniqueIdProto, compilerState.getUniqueIdSupplierList()))
 	this.exportedNames.Clear()
-	this.exportedNames.asSetT().addAll(Collection(compilerState.getExportedNamesList()))
+	tsetAddAllOfT_(this.exportedNames, Collection(compilerState.getExportedNamesList()))
 	if compilerState.getHasCssNames() {
 		this.cssNames = tsetFrom_(tc_string, Collection(compilerState.getCssNamesList()), false)
 	} else {
@@ -3605,7 +3605,7 @@ func (this *Compiler_ChunkGraphAwareLicenseTracker) trackLicensesForNode(node No
 
 func (this *Compiler_ChunkGraphAwareLicenseTracker) emitLicenses() *TSet[string] {
 	var licensesNewInFile *TSet[string] = immutableSetCopyOfT_(tc_string, this.licensesNewInCurrentFile)
-	this.licensesNewInCurrentChunk.asSetT().addAll(Collection(licensesNewInFile.asSetT()))
+	tsetAddSetT_(this.licensesNewInCurrentChunk, licensesNewInFile)
 	this.licensesNewInCurrentFile.Clear()
 	return licensesNewInFile
 }

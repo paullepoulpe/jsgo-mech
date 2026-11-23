@@ -70,7 +70,7 @@ func (this *ExternExportsPass) process_2(externs Node, root Node) {
 			return f_(to_ExternExportsPass_Export(p0), to_ExternExportsPass_Export(p1))
 		}
 	}())
-	sorted.asSetT().addAll(Collection(sliceViewP_(tc_p_ExternExportsPass_Export, this.exports)))
+	tsetAddAllOfT_(sorted, Collection(sliceViewP_(tc_p_ExternExportsPass_Export, this.exports)))
 	for export := range sorted.All() {
 		export.generateExterns()
 	}

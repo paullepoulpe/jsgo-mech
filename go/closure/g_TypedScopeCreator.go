@@ -149,7 +149,7 @@ func (this *TypedScopeCreator) createScopeInternal(root Node, typedParent *Typed
 		newScope = this.createInitialScope(root)
 	} else {
 		var reservedNames *TSet[string] = newTSet_(tc_string)
-		reservedNames.asSetT().addAll(Collection(List_un_(this.reservedNamesForScope.removeAll(root))))
+		tsetAddAllOfT_(reservedNames, Collection(List_un_(this.reservedNamesForScope.removeAll(root))))
 		if (module != nil) && module.metadata().isGoogModule() {
 			reservedNames.Add("exports")
 		} else if root.isFunction() && NodeUtil_isBundledGoogModuleCall(root.getParent()) {
@@ -2351,8 +2351,8 @@ func (this *TypedScopeCreator_FunctionScopeBuilder) declareTemplatesInFunctionBo
 		}
 	}
 	if info != nil {
-		templateNames.asSetT().addAll(Collection(info.getTemplateTypeNames().asList()))
-		templateNames.asSetT().addAll(Collection(info.getTypeTransformations().asImm().keySet()))
+		tsetAddListT_(templateNames, info.getTemplateTypeNames())
+		tsetAddAllOfT_(templateNames, Collection(info.getTypeTransformations().asImm().keySet()))
 	}
 	if templateNames.IsEmpty() {
 		return
