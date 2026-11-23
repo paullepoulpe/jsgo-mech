@@ -181,6 +181,9 @@ func collect() {
 				}
 				sig := fn.Type().(*types.Signature)
 				results[x] = sig
+				if x.Recv == nil && x.Name.Name == reflipAsAppendable_ { // reflip22: its parameter is no slot
+					return true
+				}
 				fieldList(x.Type.Params, func(i int) *types.Var { return sig.Params().At(i) }, g, "")
 				fieldList(x.Type.Results, func(i int) *types.Var { return sig.Results().At(i) }, g, "")
 			case *ast.FuncLit:
@@ -465,6 +468,35 @@ func variant(c *ast.CallExpr) (string, int) {
 }
 
 var variantCalls = map[key][]*ast.CallExpr{}
+
+// appendArgs are the builders passed to a parameter of type Appendable: a *strBuilder_ goes
+// as appendable_(b), whose Appendable methods append to it (rt_strbuf.go). Nothing in the
+// package asserts an Appendable to *StringBuilder, so the callee cannot tell them apart.
+var appendArgs = map[key][]appArg{}
+
+type appArg struct {
+	e     ast.Expr
+	local bool
+	v     *types.Var
+}
+
+// reflipAsAppendable_ is the translator's upcast of a *StringBuilder to Appendable (reflip22); reflipUpcasts_ are its calls
+// around a builder of each class.
+const reflipAsAppendable_ = "StringBuilder_as_Appendable"
+
+var reflipUpcasts_ = map[key][]*ast.CallExpr{}
+
+func appendArg(k key, e ast.Expr, local bool, v *types.Var) {
+	appendArgs[k] = append(appendArgs[k], appArg{e, local, v})
+	if local {
+		argUses[v] = append(argUses[v], rootIdent(e))
+	}
+}
+
+func isAppendable(t types.Type) bool {
+	n, ok := t.(*types.Named)
+	return ok && n.Obj().Name() == "Appendable" && n.Obj().Pkg() == rw.Pkg
+}
 
 var newCtors = map[string]bool{"new_StringBuilder": true, "new_StringBuilder_int": true, "new_StringBuilder_String": true}
 
@@ -769,6 +801,11 @@ func context(k key, e ast.Expr) {
 					}
 					return
 				}
+				if fn.Name() == reflipAsAppendable_ && len(x.Args) == 1 && rw.Unparen(x.Args[0]) == e { // reflip22
+					appendArg(k, e, local, v)
+					reflipUpcasts_[k] = append(reflipUpcasts_[k], x)
+					return
+				}
 				for i, a := range x.Args {
 					if rw.Unparen(a) == e {
 						if pv := paramVar(fn, i); pv != nil && isSlot[pv] {
@@ -779,7 +816,19 @@ func context(k key, e ast.Expr) {
 							}
 							return
 						}
+						if pv := paramVar(fn, i); pv != nil && isAppendable(pv.Type()) {
+							appendArg(k, e, local, v)
+							return
+						}
 						block(k, "passed to "+fn.Name())
+						return
+					}
+				}
+			}
+			if sig, ok := rw.Info.Types[x.Fun].Type.(*types.Signature); ok && !sig.Variadic() {
+				for i, a := range x.Args {
+					if rw.Unparen(a) == e && i < sig.Params().Len() && isAppendable(sig.Params().At(i).Type()) {
+						appendArg(k, e, local, v)
 						return
 					}
 				}
@@ -1404,6 +1453,38 @@ func convert(report bool) {
 			rw.Rewrite[id] = func() string { return "&" + id.Name }
 		}
 	}
+	nApp := 0
+	for k, as := range appendArgs {
+		if !conv[k] {
+			continue
+		}
+		for _, a := range as {
+			a := a
+			prev := rw.Rewrite[a.e]
+			rw.Rewrite[a.e] = func() string {
+				inner := rw.Text(a.e)
+				if a.local && value[a.v] {
+					inner = "&" + inner
+				} else if prev != nil {
+					inner = prev()
+				}
+				return "appendable_(" + inner + ")"
+			}
+			nApp++
+		}
+	}
+	for k, cs := range reflipUpcasts_ { // reflip22: the upcast helper around a converted builder goes
+		if !conv[k] {
+			continue
+		}
+		for _, c := range cs {
+			c := c
+			rw.Rewrite[c] = func() string { return rw.Render(c.Args[0]) }
+		}
+	}
+	if nApp > 0 {
+		fmt.Fprintf(os.Stderr, "builders passed as an Appendable (appendable_): %d\n", nApp)
+	}
 	var ks []string
 	left := 0
 	for k, c := range why {
@@ -1446,4 +1527,3 @@ func rewriteValueLocal(v *types.Var) {
 		}
 	}
 }
-// reflip22: jtostr_ only (this version has no Appendable arguments)
