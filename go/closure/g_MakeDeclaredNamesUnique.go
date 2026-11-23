@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type MakeDeclaredNamesUnique struct {
 	NodeTraversal_AbstractScopedCallback
 	renamerStack    *TDeque[MakeDeclaredNamesUnique_Renamer]
@@ -769,7 +771,7 @@ func (this *MakeDeclaredNamesUnique_InlineRenamer) getUniqueName(name string) st
 		return name
 	}
 	if JString_contains_s(name, MakeDeclaredNamesUnique_ContextualRenamer_UNIQUE_ID_SEPARATOR) {
-		name = String_substring(name, 0, String_lastIndexOf_String(name, MakeDeclaredNamesUnique_ContextualRenamer_UNIQUE_ID_SEPARATOR))
+		name = cutBytes_(name, 0, int32(strings.LastIndex(name, MakeDeclaredNamesUnique_ContextualRenamer_UNIQUE_ID_SEPARATOR)))
 	}
 	if this.convention.isExported(name) {
 		name = ("JSCompiler_" + sstr_(name))
