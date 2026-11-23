@@ -291,6 +291,15 @@ func (this *ImmutableCollection) contains_s(v string) bool {
 }
 
 func (this *ImmutableCollection) containsAll(c Collection) bool {
+	if e, ok := c.(*EnumSet); ok && this.byOrd != nil {
+		// An immutable enum set and an EnumSet: each constant of e is the one at its ordinal here.
+		for it := e.iter(); it.hasNext(); {
+			if !this.contains(it.next()) {
+				return false
+			}
+		}
+		return true
+	}
 	for it := c.iterator(); it.hasNext(); {
 		if this.find_(it.next()) < 0 {
 			return false
@@ -494,7 +503,33 @@ func ImmutableSet_copyOf(p0 Collection) *ImmutableSet {
 	if c, ok := p0.(*ImmutableCollection); ok && c.kind == icSet_ {
 		return c
 	}
+	if e, ok := p0.(*EnumSet); ok {
+		return immEnumSet_(e)
+	}
 	return immSet_(copySlice_(p0))
+}
+
+// immEnumSet_ is Guava's copy of an EnumSet, an ImmutableEnumSet: the constants in ordinal order
+// (the EnumSet's iteration order), looked up by ordinal.
+func immEnumSet_(e *EnumSet) *ImmutableSet {
+	return withOrdinals_(immSet_(e.items()))
+}
+
+// withOrdinals_ indexes a non-empty immutable set of enum constants of one enum by ordinal, for
+// contains and containsAll; the set is otherwise unchanged.
+func withOrdinals_(set *ImmutableSet) *ImmutableSet {
+	if len(set.items) == 0 {
+		return set // the shared empty set
+	}
+	last := int32(0)
+	for _, x := range set.items {
+		last = max(last, x.(interface{ ordinal() int32 }).ordinal())
+	}
+	set.byOrd = make([]any, last+1)
+	for _, x := range set.items {
+		set.byOrd[x.(interface{ ordinal() int32 }).ordinal()] = x
+	}
+	return set
 }
 
 func ImmutableSet_copyOf_ObjectArr(p0 []any) *ImmutableSet {
