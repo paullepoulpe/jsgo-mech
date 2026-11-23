@@ -3,7 +3,13 @@
 package closure
 
 type Scanner_refactoring struct {
-	self_ any
+	self_ Scanner_refactoring_I
+}
+
+// Scanner_refactoring_I holds the methods the dispatchers of Scanner_refactoring's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type Scanner_refactoring_I interface {
+	processMatch_Match_impl(*Match) *JTList[*SuggestedFix]
 }
 
 func (this *Scanner_refactoring) as_Scanner_refactoring() *Scanner_refactoring { return this }
@@ -44,7 +50,5 @@ func (this *Scanner_refactoring) matches(p0 Node, p1 *NodeMetadata) bool {
 }
 
 func (this *Scanner_refactoring) processMatch_Match(p0 *Match) *JTList[*SuggestedFix] {
-	return this.self_.(interface {
-		processMatch_Match_impl(*Match) *JTList[*SuggestedFix]
-	}).processMatch_Match_impl(p0)
+	return this.self_.processMatch_Match_impl(p0)
 }
