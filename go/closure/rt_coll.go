@@ -7,7 +7,7 @@ package closure
 // insertion order (the Java tree has been prepared not to depend on hash order).
 
 import (
-	"maps"
+	"hash/maphash"
 	"sort"
 	"strings"
 	"sync/atomic"
@@ -714,14 +714,31 @@ func (t *htable_) firstLive() int {
 const hsmall_ = 8
 
 type hindex_ struct {
-	strs   map[string]int32 // string keys
-	prim   map[any]int32    // keys compared by identity or by Go equality
-	custom map[int32]int32  // keys with their own hashCode/equals: hash code -> first position
-	// next is beside keys once two such keys share a hash code: 1 + the position of the next
-	// key with the same hash code, 0 for the last.
-	next []int32
-	ents []*hmapEntry_ // beside keys once entrySet has handed out an entry; else nil
+	// hash is beside keys once the table is indexed: the hash of each key (hashOf), so that
+	// growing or compacting the index never hashes a key again.
+	hash []uint32
+	// slots is an open-addressed table (linear probing, a power of two long): 1 + the position
+	// of a key, 0 for a free slot. A removed key keeps its slot (find skips removed positions)
+	// until the index is rebuilt.
+	slots []int32
+	ents  []*hmapEntry_ // beside keys once entrySet has handed out an entry; else nil
 }
+
+var hseed_ = maphash.MakeSeed()
+
+// hashOf is the hash a key is indexed by: a string's (Go's string hash), a key with its own
+// equals/hashCode its hashCode (mixed), any other key Go's hash of the interface value.
+func (t *htable_) hashOf(k any) uint32 {
+	if s, ok := k.(string); ok {
+		return uint32(maphash.String(hseed_, s))
+	}
+	if h, ok := t.customKey_(k); ok {
+		return hmix_(h.hashCode())
+	}
+	return uint32(maphash.Comparable(hseed_, k))
+}
+
+func hmix_(hc int32) uint32 { return uint32((uint64(uint32(hc)) * 0x9E3779B97F4A7C15) >> 32) }
 
 // customKey_ returns k as a key with its own hashCode/equals, if the table should use them.
 func (t *htable_) customKey_(k any) (hashed_, bool) {
@@ -752,20 +769,30 @@ func (t *htable_) find(k any) int {
 	}
 	x := t.x
 	if h, ok := t.customKey_(k); ok {
-		i, ok := x.custom[h.hashCode()]
-		for ok {
-			if t.keys[i] == k || h.equals(t.keys[i]) { // identity first, as java.util.HashMap
+		hv := hmix_(h.hashCode())
+		for j, m := hv&uint32(len(x.slots)-1), uint32(len(x.slots)-1); x.slots[j] != 0; j = (j + 1) & m {
+			i := x.slots[j] - 1
+			if x.hash[i] != hv {
+				continue
+			}
+			e := t.keys[i]
+			if e == k { // identity first, as java.util.HashMap
 				return int(i)
 			}
-			if x.next == nil || x.next[i] == 0 {
-				break
+			if _, isStr := e.(string); isStr || e == dead_ {
+				continue
 			}
-			i = x.next[i] - 1
+			if _, c := t.customKey_(e); c && h.equals(e) {
+				return int(i)
+			}
 		}
 		return -1
 	}
-	if i, ok := x.prim[k]; ok {
-		return int(i)
+	hv := uint32(maphash.Comparable(hseed_, k))
+	for j, m := hv&uint32(len(x.slots)-1), uint32(len(x.slots)-1); x.slots[j] != 0; j = (j + 1) & m {
+		if i := x.slots[j] - 1; x.hash[i] == hv && t.keys[i] == k {
+			return int(i)
+		}
 	}
 	return -1
 }
@@ -780,8 +807,14 @@ func (t *htable_) findStr(s string) int {
 		}
 		return -1
 	}
-	if i, ok := t.x.strs[s]; ok {
-		return int(i)
+	x := t.x
+	hv := uint32(maphash.String(hseed_, s))
+	for j, m := hv&uint32(len(x.slots)-1), uint32(len(x.slots)-1); x.slots[j] != 0; j = (j + 1) & m {
+		if i := x.slots[j] - 1; x.hash[i] == hv {
+			if xs, ok := t.keys[i].(string); ok && xs == s {
+				return int(i)
+			}
+		}
 	}
 	return -1
 }
@@ -866,9 +899,6 @@ func (t *htable_) insertPlain(k any) {
 		if x.ents != nil {
 			x.ents = append(x.ents, nil)
 		}
-		if x.next != nil {
-			x.next = append(x.next, 0)
-		}
 	}
 	if t.indexed {
 		t.index(k, int32(i))
@@ -895,11 +925,8 @@ func (t *htable_) copyFrom(s *htable_, vals bool) bool {
 	}
 	t.live = s.live
 	if s.indexed {
-		x := &hindex_{strs: maps.Clone(s.x.strs), prim: maps.Clone(s.x.prim), custom: maps.Clone(s.x.custom)}
-		if s.x.next != nil {
-			x.next = append(make([]int32, 0, n), s.x.next...)
-		}
-		t.x, t.indexed = x, true
+		t.x = &hindex_{hash: append(make([]uint32, 0, n), s.x.hash...), slots: append([]int32(nil), s.x.slots...)}
+		t.indexed = true
 	}
 	return true
 }
@@ -908,77 +935,57 @@ func (t *htable_) buildIndex() {
 	if t.x == nil {
 		t.x = &hindex_{}
 	}
+	x := t.x
 	t.indexed = true
+	x.hash = make([]uint32, len(t.keys), cap(t.keys))
 	for i, k := range t.keys {
 		if k != dead_ {
-			t.index(k, int32(i))
+			x.hash[i] = t.hashOf(k)
+		}
+	}
+	t.rebuildSlots()
+}
+
+// rebuildSlots makes the slots anew from the stored hashes, with room for the table to double.
+func (t *htable_) rebuildSlots() {
+	x := t.x
+	n := 16
+	for n*3 < len(t.keys)*8 {
+		n *= 2
+	}
+	if len(x.slots) == n {
+		clear(x.slots)
+	} else {
+		x.slots = make([]int32, n)
+	}
+	for i, k := range t.keys {
+		if k != dead_ {
+			t.place(x.hash[i], int32(i))
 		}
 	}
 }
 
-// index records that key k is at position i.
+// place puts position i, of a key with hash hv, in a free slot.
+func (t *htable_) place(hv uint32, i int32) {
+	x := t.x
+	m := uint32(len(x.slots) - 1)
+	j := hv & m
+	for x.slots[j] != 0 {
+		j = (j + 1) & m
+	}
+	x.slots[j] = i + 1
+}
+
+// index records that key k is at position i, the last one.
 func (t *htable_) index(k any, i int32) {
 	x := t.x
-	if s, ok := k.(string); ok {
-		if x.strs == nil {
-			x.strs = map[string]int32{}
-		}
-		x.strs[s] = i
+	hv := t.hashOf(k)
+	x.hash = append(x.hash, hv)
+	if len(t.keys)*4 > len(x.slots)*3 {
+		t.rebuildSlots() // places i as well
 		return
 	}
-	if h, ok := t.customKey_(k); ok {
-		if x.custom == nil {
-			x.custom = map[int32]int32{}
-		}
-		hc := h.hashCode()
-		j, shared := x.custom[hc]
-		if !shared {
-			x.custom[hc] = i
-			return
-		}
-		// Append to the chain of the keys with this hash code.
-		if x.next == nil {
-			x.next = make([]int32, len(t.keys), cap(t.keys))
-		}
-		for x.next[j] != 0 {
-			j = x.next[j] - 1
-		}
-		x.next[j] = i + 1
-		return
-	}
-	if x.prim == nil {
-		x.prim = map[any]int32{}
-	}
-	x.prim[k] = i
-}
-
-// unindex forgets that key k is at position i.
-func (t *htable_) unindex(k any, i int) {
-	x := t.x
-	if s, ok := k.(string); ok {
-		delete(x.strs, s)
-	} else if h, ok := t.customKey_(k); ok {
-		hc := h.hashCode()
-		var after int32 // what follows position i in its chain
-		if x.next != nil {
-			after = x.next[i]
-			x.next[i] = 0
-		}
-		if j := x.custom[hc]; int(j) == i {
-			if after == 0 {
-				delete(x.custom, hc)
-			} else {
-				x.custom[hc] = after - 1
-			}
-		} else {
-			for int(x.next[j]) != i+1 {
-				j = x.next[j] - 1
-			}
-			x.next[j] = after
-		}
-	} else {
-		delete(x.prim, k)
-	}
+	t.place(hv, i)
 }
 
 // removeAt removes the entry at position i. Positions of the other entries change only if
@@ -987,9 +994,6 @@ func (t *htable_) removeAt(i int) (moved bool) {
 	k := t.keys[i]
 	if k == dead_ {
 		return false
-	}
-	if t.indexed {
-		t.unindex(k, i)
 	}
 	t.keys[i] = dead_
 	if t.vals != nil {
@@ -1007,9 +1011,10 @@ func (t *htable_) removeAt(i int) (moved bool) {
 		if t.vals != nil {
 			t.vals = t.vals[:0]
 		}
-		if t.x != nil {
-			t.x.ents = nil
-			t.x.next = t.x.next[:0]
+		if x := t.x; x != nil {
+			x.ents = nil
+			x.hash = x.hash[:0]
+			clear(x.slots)
 		}
 		return true
 	}
@@ -1024,8 +1029,12 @@ func (t *htable_) removeAt(i int) (moved bool) {
 func (t *htable_) compact() {
 	keys, vals := t.keys, t.vals
 	var ents []*hmapEntry_
+	var hash []uint32
 	if t.x != nil {
 		ents = t.x.ents
+		if t.indexed {
+			hash = t.x.hash
+		}
 	}
 	t.keys = make([]any, 0, t.live)
 	t.head = 0
@@ -1033,8 +1042,14 @@ func (t *htable_) compact() {
 		t.vals = make([]any, 0, t.live)
 	}
 	t.x, t.indexed = nil, false
-	if ents != nil {
-		t.x = &hindex_{ents: make([]*hmapEntry_, 0, t.live)}
+	if ents != nil || hash != nil {
+		t.x = &hindex_{}
+		if ents != nil {
+			t.x.ents = make([]*hmapEntry_, 0, t.live)
+		}
+		if hash != nil {
+			t.x.hash = make([]uint32, 0, t.live)
+		}
 	}
 	custom := false
 	for i, k := range keys {
@@ -1048,11 +1063,17 @@ func (t *htable_) compact() {
 		if ents != nil {
 			t.x.ents = append(t.x.ents, ents[i])
 		}
+		if hash != nil {
+			t.x.hash = append(t.x.hash, hash[i])
+		}
 		if _, c := t.customKey_(k); c {
 			custom = true
 		}
 	}
-	if custom || len(t.keys) > hsmall_ {
+	if hash != nil {
+		t.indexed = true
+		t.rebuildSlots()
+	} else if custom || len(t.keys) > hsmall_ {
 		t.buildIndex()
 	}
 }
