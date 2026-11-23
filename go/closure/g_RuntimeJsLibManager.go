@@ -111,7 +111,7 @@ func (this *RuntimeJsLibManager) injectLibForField(fieldName string) {
 	if this.mode_ == RuntimeJsLibManager_RuntimeLibraryMode_EXTERN_FIELD_NAMES {
 		var externRoot Node = this.nodeForCodeInsertion.get()
 		if !externRoot.isFromExterns() {
-			panic(new_IllegalStateException_String(objstr_(externRoot.box_())).self())
+			panic(new_IllegalStateException_String(tostr_(externRoot)).self())
 		}
 		var declaration Node = IR_var_Node(IR_name(field.qualifiedName()))
 		declaration.getFirstChild().putBooleanProp(Node_IS_CONSTANT_NAME, true)

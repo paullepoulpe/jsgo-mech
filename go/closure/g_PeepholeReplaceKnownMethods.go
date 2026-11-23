@@ -44,13 +44,13 @@ func (this *PeepholeReplaceKnownMethods) optimizeSubtree_impl(subtree Node) Node
 
 func (this *PeepholeReplaceKnownMethods) tryFoldKnownMethods(subtree Node) Node {
 	if !subtree.isCall() {
-		panic(new_IllegalArgumentException_String(objstr_(subtree.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(subtree)).self())
 	}
 	subtree = this.tryFoldArrayJoin(subtree)
 	if subtree.isCall() {
 		subtree = this.tryToFoldArrayConcat(subtree)
 		if !subtree.isCall() {
-			panic(new_IllegalStateException_String(objstr_(subtree.box_())).self())
+			panic(new_IllegalStateException_String(tostr_(subtree)).self())
 		}
 		var callTarget Node = subtree.getFirstChild()
 		if callTarget == 0 {
@@ -779,7 +779,7 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringAt(n Node, stringNode Node
 
 func (this *PeepholeReplaceKnownMethods) tryFoldArrayJoin(n Node) Node {
 	if !n.isCall() {
-		panic(new_IllegalStateException_String(objstr_(n.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(n)).self())
 	}
 	var callTarget Node = n.getFirstChild()
 	if (callTarget == 0) || !callTarget.isGetProp() {
@@ -1186,7 +1186,7 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringSplit(n Node, stringNode N
 
 func (this *PeepholeReplaceKnownMethods) tryToFoldArrayConcat(n Node) Node {
 	if !n.isCall() {
-		panic(new_IllegalArgumentException_String(objstr_(n.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(n)).self())
 	}
 	if !this.isASTNormalized() || !this.useTypes {
 		return n
@@ -1256,7 +1256,7 @@ func (this *PeepholeReplaceKnownMethods) tryToFoldConcatChaining(concatFunctionC
 
 func PeepholeReplaceKnownMethods_createConcatFunctionCallForNode(n Node) *PeepholeReplaceKnownMethods_ConcatFunctionCall {
 	if !n.isCall() {
-		panic(new_IllegalArgumentException_String(objstr_(n.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(n)).self())
 	}
 	var callTarget Node = n.getFirstChild()
 	if callTarget == 0 {

@@ -3368,7 +3368,7 @@ func (this *Compiler) resetAndIntitializeSourceMap() {
 
 func Compiler_checkNotModule(script Node, msg string, args []any) Node {
 	if !script.isScript() {
-		panic(new_IllegalArgumentException_String(objstr_(script.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(script)).self())
 	}
 	if !script.hasOneChild() {
 		return script

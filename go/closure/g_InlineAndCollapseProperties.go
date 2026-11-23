@@ -97,7 +97,7 @@ func InlineAndCollapseProperties_maybeGetInnerNameNode(maybeFunctionOrClassNode 
 	if NodeUtil_isFunctionExpression(maybeFunctionOrClassNode) {
 		var nameNode Node = maybeFunctionOrClassNode.getFirstChild()
 		if !nameNode.isName() {
-			panic(new_IllegalStateException_String(objstr_(nameNode.box_())).self())
+			panic(new_IllegalStateException_String(tostr_(nameNode)).self())
 		}
 		return func() Node {
 			if nameNode.getString() == "" {
@@ -216,7 +216,7 @@ func InlineAndCollapseProperties_isUnsafelyReassigned(name *GlobalNamespace_Name
 func InlineAndCollapseProperties_getSubclassForEs6Superclass(superclass Node) Node {
 	var classNode Node = superclass.getParent()
 	if !classNode.isClass() {
-		panic(new_IllegalArgumentException_String(objstr_(classNode.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(classNode)).self())
 	}
 	if NodeUtil_isNameDeclaration(classNode.getGrandparent()) {
 		return classNode.getParent()
@@ -598,7 +598,7 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) replaceAliasing
 	var assignment Node = aliasLhsNode.getParent()
 	if !NodeUtil_isNameDeclaration(assignment) && NodeUtil_isExpressionResultUsed(assignment) {
 		if !assignment.isAssign() {
-			panic(new_IllegalStateException_String(objstr_(assignment.box_())).self())
+			panic(new_IllegalStateException_String(tostr_(assignment)).self())
 		}
 		var assignmentParent Node = assignment.getParent()
 		var rhs Node = alias.getNode().detach()
@@ -618,7 +618,7 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) replaceAliasRef
 	var originalRefNode Node = alias.getNode()
 	var nodeToReplace Node = aliasRef.getNode()
 	if !nodeToReplace.isQualifiedName() {
-		panic(new_IllegalStateException_String(objstr_(nodeToReplace.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(nodeToReplace)).self())
 	}
 	var newNode Node = func() Node {
 		if originalRefNode.isName() {
@@ -665,7 +665,7 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) inlineGlobalAli
 			var aliasInitialization *GlobalNamespace_Ref = aliasingName.getInitialization()
 			if aliasInitialization.isTwin() {
 				if !aliasParent.isAssign() {
-					panic(new_IllegalStateException_String(objstr_(aliasParent.box_())).self())
+					panic(new_IllegalStateException_String(tostr_(aliasParent)).self())
 				}
 				var aliasGrandparent Node = aliasParent.getParent()
 				aliasParent.replaceWith(alias.getNode().detach())
@@ -1224,7 +1224,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) collapseDeclarationO
 	var canCollapseChildNames bool
 	if !childNameInlinability.canCollapse() {
 		this.logDecisionForNameSupplier(n, Supplier[string](func() string {
-			return ("child name inlinability: " + objstr_(obj_(childNameInlinability)) + ": will not collapse child names")
+			return ("child name inlinability: " + tostr_(childNameInlinability) + ": will not collapse child names")
 		}))
 		canCollapseChildNames = false
 	} else if escaped.contains(n) {
@@ -1454,7 +1454,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) updateGlobalNameDecl
 	var declaration *GlobalNamespace_Ref = n.getDeclaration_rRef()
 	var classNode Node = declaration.getNode().getGrandparent()
 	if !classNode.isClass() {
-		panic(new_IllegalStateException_String(objstr_(classNode.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(classNode)).self())
 	}
 	var enclosingStatement Node = NodeUtil_getEnclosingStatement(classNode)
 	if canCollapseChildNames {
@@ -1551,7 +1551,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) addStubsForUndeclare
 		panic(new_IllegalStateException_String(objstr_(n)).self())
 	}
 	if !NodeUtil_isStatementBlock(parent) {
-		panic(new_IllegalArgumentException_String(objstr_(parent.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(parent)).self())
 	}
 	if addAfter == 0 {
 		panic(new_NullPointerException_0().self())

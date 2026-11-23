@@ -92,7 +92,7 @@ func (this *DevirtualizeMethods) isPrototypeOrStaticMethodDefinition(node Node) 
 			return false
 		case tokOrd1_STRING_KEY:
 			if !parent.isObjectLit() {
-				panic(new_IllegalArgumentException_String(objstr_(parent.box_())).self())
+				panic(new_IllegalArgumentException_String(tostr_(parent)).self())
 			}
 			return (DevirtualizeMethods_isPrototypeObjectLit(parent) && node.getFirstChild().isFunction())
 		default:
@@ -103,7 +103,7 @@ func (this *DevirtualizeMethods) isPrototypeOrStaticMethodDefinition(node Node) 
 
 func DevirtualizeMethods_isPrototypeObjectLit(objectLit Node) bool {
 	if !objectLit.isObjectLit() {
-		panic(new_IllegalArgumentException_String(objstr_(objectLit.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(objectLit)).self())
 	}
 	var parent Node = objectLit.getParent()
 	return (objectLit.isSecondChildOf(parent) && NodeUtil_isPrototypeAssignment(parent.getFirstChild()))
@@ -181,7 +181,7 @@ func (this *DevirtualizeMethods) isEligibleDefinitionSite(name string, definitio
 
 func (this *DevirtualizeMethods) isEligibleDefinitionFunction(definitionFunction Node) bool {
 	if !definitionFunction.isFunction() {
-		panic(new_IllegalArgumentException_String(objstr_(definitionFunction.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(definitionFunction)).self())
 	}
 	if definitionFunction.isArrowFunction() {
 		return false
@@ -229,7 +229,7 @@ func (this *DevirtualizeMethods) allDefinitionsEquivalent(definitions Collection
 	}
 	var definition Node = Node_of_(Iterables_get(Iterable(Collection_un_(definitions)), 0))
 	if !definition.isFunction() {
-		panic(new_IllegalArgumentException_String(objstr_(definition.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(definition)).self())
 	}
 	it_1 := jeachOf_(definitions)
 	for it_1.next() {
@@ -243,11 +243,11 @@ func (this *DevirtualizeMethods) allDefinitionsEquivalent(definitions Collection
 
 func (this *DevirtualizeMethods) rewriteCall(getprop Node, newMethodName string, isConstantName bool) {
 	if !getprop.isGetProp() {
-		panic(new_IllegalArgumentException_String(objstr_(getprop.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(getprop)).self())
 	}
 	var call Node = getprop.getParent()
 	if !call.isCall() {
-		panic(new_IllegalArgumentException_String(objstr_(call.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(call)).self())
 	}
 	var receiver Node = getprop.getFirstChild()
 	receiver.detach()
@@ -350,7 +350,7 @@ func DevirtualizeMethods_isScopingOrBranchingConstruct(node Node) bool {
 
 func DevirtualizeMethods_localNameIsDeclaredByClass(clazz Node) bool {
 	if !clazz.isClass() {
-		panic(new_IllegalArgumentException_String(objstr_(clazz.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(clazz)).self())
 	}
 	if clazz.getFirstChild().isEmpty() {
 		return false

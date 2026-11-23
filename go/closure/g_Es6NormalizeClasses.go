@@ -171,7 +171,7 @@ func (this *Es6NormalizeClasses) shouldExtractExtends(classNode Node) bool {
 func (this *Es6NormalizeClasses) canExtractExtendsSimply(classNode Node) bool {
 	var enclosingStatement Node = NodeUtil_getEnclosingStatement(classNode)
 	if enclosingStatement == 0 {
-		panic(new_NullPointerException_String(objstr_(classNode.box_())).self())
+		panic(new_NullPointerException_String(tostr_(classNode)).self())
 	}
 	if enclosingStatement == classNode {
 		return true
@@ -419,7 +419,7 @@ func (this *Es6NormalizeClasses) findPrivateMember(name string) *Es6NormalizeCla
 
 func (this *Es6NormalizeClasses) rewritePrivateIn(t *NodeTraversal, inNode Node) {
 	if !inNode.isIn() {
-		panic(new_IllegalArgumentException_String(objstr_(inNode.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(inNode)).self())
 	}
 	var left Node = inNode.getFirstChild()
 	var name string = left.getString()
@@ -711,7 +711,7 @@ func (this *Es6NormalizeClasses) rewriteSideEffectedComputedProps(t *NodeTravers
 
 func (this *Es6NormalizeClasses) extractExpressionFromCompField(t *NodeTraversal, record *Es6NormalizeClasses_ClassRecord, memberField Node, insertionPoint Node) {
 	if !memberField.isComputedFieldDef() && !memberField.isComputedProp() {
-		panic(new_IllegalArgumentException_String(objstr_(memberField.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(memberField)).self())
 	}
 	var compExpression Node = memberField.removeFirstChild()
 	var compFieldVar Node = this.astFactory_.createSingleVarNameDeclaration_2(this.generateUniqueCompFieldVarName(t), compExpression).srcrefTreeIfMissing(record.classNode)
@@ -761,7 +761,7 @@ func (this *Es6NormalizeClasses) rewriteInstanceMembers(t *NodeTraversal, record
 	for !instanceMembers.isEmpty() {
 		var instanceMember Node = instanceMembers.pop()
 		if !instanceMember.isMemberFieldDef() && !instanceMember.isComputedFieldDef() {
-			panic(new_IllegalStateException_String(objstr_(instanceMember.box_())).self())
+			panic(new_IllegalStateException_String(tostr_(instanceMember)).self())
 		}
 		if instanceMember.isPrivateIdentifier() {
 			if this.transpilePrivateClassFields {
@@ -834,7 +834,7 @@ func (this *Es6NormalizeClasses) moveConstructorParamDefaultsAfterFields(t *Node
 					lhs.setJSDocInfo(jsDoc)
 				} else {
 					if !lhs.isDestructuringPattern() {
-						panic(new_IllegalStateException_String(objstr_(lhs.box_())).self())
+						panic(new_IllegalStateException_String(tostr_(lhs)).self())
 					}
 					var tempParam Node = this.astFactory_.createName(this.generateUniqueTmpVarName(t), AstFactory_type_Node(lhs))
 					var rhs Node = this.createDefaultValueHook(tempParam, defaultValue)
@@ -931,7 +931,7 @@ func (this *Es6NormalizeClasses) convNonCompFieldToGetProp(receiver Node, noncom
 		panic(new_IllegalArgumentException_0().self())
 	}
 	if receiver.getParent() != 0 {
-		panic(new_IllegalArgumentException_String(objstr_(receiver.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(receiver)).self())
 	}
 	var fieldValue Node = 0
 	if isStatic || this.transpileClassFields {
@@ -948,10 +948,10 @@ func (this *Es6NormalizeClasses) convNonCompFieldToGetProp(receiver Node, noncom
 
 func (this *Es6NormalizeClasses) convCompFieldToGetElem(receiver Node, computedField Node, isStatic bool) Node {
 	if !computedField.isComputedFieldDef() {
-		panic(new_IllegalArgumentException_String(objstr_(computedField.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(computedField)).self())
 	}
 	if receiver.getParent() != 0 {
-		panic(new_IllegalArgumentException_String(objstr_(receiver.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(receiver)).self())
 	}
 	var fieldValue Node = 0
 	if (computedField.getChildCount() == 2) && (isStatic || this.transpileClassFields) {
@@ -1711,7 +1711,7 @@ type Es6NormalizeClasses_NormalizedNames struct {
 
 func (this *Es6NormalizeClasses_NormalizedNames) init_Es6NormalizeClasses_NormalizedNames(classNameNode Node, superClassNode Optional[Node], shouldExtractClass bool, shouldExtractExtends bool) {
 	if !classNameNode.isQualifiedName() {
-		panic(new_IllegalArgumentException_String(objstr_(classNameNode.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(classNameNode)).self())
 	}
 	if !superClassNode.isEmpty() && !superClassNode.get().isQualifiedName() {
 		panic(new_IllegalArgumentException_String(objstr_(superClassNode.box_())).self())

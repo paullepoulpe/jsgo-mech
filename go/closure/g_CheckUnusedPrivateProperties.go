@@ -123,7 +123,7 @@ func (this *CheckUnusedPrivateProperties) isCheckablePrivatePropDecl(n Node) boo
 
 func (this *CheckUnusedPrivateProperties) isCandidatePropertyDefinition(n Node) bool {
 	if !n.isGetProp() {
-		panic(new_IllegalStateException_String(objstr_(n.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(n)).self())
 	}
 	var target Node = n.getFirstChild()
 	return ((target.isThis() || this.constructorsAndInterfaces.contains(target.getQualifiedName())) || (target.isGetProp() && (target.getString() == "prototype")))

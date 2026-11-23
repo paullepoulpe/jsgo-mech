@@ -189,7 +189,7 @@ func (this *CheckExtraRequires) addUsagesOfAllPrefixes(qualifiedName *QualifiedN
 
 func (this *CheckExtraRequires) visitQualifiedName(n Node) {
 	if !n.isQualifiedName() {
-		panic(new_IllegalArgumentException_String(objstr_(n.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(n)).self())
 	}
 	this.addUsagesOfAllPrefixes(n.getQualifiedNameObject())
 }

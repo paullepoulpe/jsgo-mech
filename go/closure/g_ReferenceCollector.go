@@ -130,7 +130,7 @@ func (this *ReferenceCollector) pushNewBlock(root Node) {
 func (this *ReferenceCollector) popLastBlock(root Node) {
 	var last *BasicBlock = cast_[*BasicBlock](SequencedCollection_removeLast(SequencedCollection(this.blockStack.asDeque())))
 	if root != last.getRoot() {
-		panic(new_IllegalStateException_String(objstr_(root.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(root)).self())
 	}
 }
 

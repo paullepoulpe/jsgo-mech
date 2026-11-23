@@ -133,7 +133,7 @@ func (this *GenerateExports) recordExportSymbol(qname string) {
 
 func (this *GenerateExports) addExportForEs6Method(memberFunction Node, ownerName string) {
 	if !memberFunction.isMemberFunctionDef() {
-		panic(new_IllegalArgumentException_String(objstr_(memberFunction.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(memberFunction)).self())
 	}
 	if ownerName == "" {
 		panic(new_IllegalArgumentException_String(objstr_(ownerName)).self())
