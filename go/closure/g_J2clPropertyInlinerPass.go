@@ -147,7 +147,7 @@ func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner) looksLikeAJ2
 	if !strings.HasPrefix(candidate, className) {
 		return false
 	}
-	var candidateAfterClassName string = String_substring_int(candidate, String_length(className))
+	var candidateAfterClassName string = candidate[len(className):]
 	return ((candidateAfterClassName == "$$0clinit") || (candidateAfterClassName == ".$clinit"))
 }
 
@@ -155,7 +155,7 @@ func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner) looksLikeAJ2
 	if !strings.HasPrefix(candidate, className) {
 		return false
 	}
-	var candidateAfterClassName string = String_substring_int(candidate, String_length(className))
+	var candidateAfterClassName string = candidate[len(className):]
 	return (strings.HasPrefix(candidateAfterClassName, "$$0") || strings.HasPrefix(candidateAfterClassName, ".$"))
 }
 

@@ -51,7 +51,7 @@ func FilePaths_isAbsolute(path string) bool {
 
 func FilePaths_fileName(path string) string {
 	var plain string = FilePaths_clean(path)
-	return String_substring_int(plain, (String_lastIndexOf(plain, 47) + 1))
+	return plain[strings.LastIndexByte(plain, '/')+1:]
 }
 
 func FilePaths_parent(path string) Optional[string] {

@@ -2914,7 +2914,7 @@ func (this *Parser_CommentRecorder) recordComment(type_ Comment_Type, range_ *So
 	if (this.lastCommentEndPosition == nil) || (range_.end_.offset > this.lastCommentEndPosition.offset) {
 		value = strings.Trim(value, javaSpace_)
 		if strings.HasPrefix(value, Parser_SOURCE_MAPPING_URL_PREFIX) {
-			this.outer_.sourceMapURL = Optional_of[string](String_substring_int(value, int32(len(Parser_SOURCE_MAPPING_URL_PREFIX))))
+			this.outer_.sourceMapURL = Optional_of[string](value[len(Parser_SOURCE_MAPPING_URL_PREFIX):])
 		}
 		this.comments.add(new_Comment(value, range_, type_))
 		this.lastCommentEndPosition = range_.end_
