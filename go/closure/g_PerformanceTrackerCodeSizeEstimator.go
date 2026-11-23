@@ -47,10 +47,11 @@ func PerformanceTrackerCodeSizeEstimator_estimate(jsRoot Node, trackGzSize bool)
 }
 
 func (this *PerformanceTrackerCodeSizeEstimator) append_impl(str string) {
-	var len_ int32 = String_length(str)
+	strU16 := utf16Of_(str)
+	var len_ int32 = strU16.length()
 	if len_ > 0 {
 		this.size_ += len_
-		this.lastChar = String_charAt(str, (len_ - 1))
+		this.lastChar = strU16.charAt((len_ - 1))
 		if this.trackGzSize {
 			this.output.add_t(Io_utf8Bytes(str))
 		}
