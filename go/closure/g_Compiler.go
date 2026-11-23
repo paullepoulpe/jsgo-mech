@@ -3569,9 +3569,9 @@ func (this *Compiler_ChunkGraphAwareLicenseTracker) trackLicensesForNode(node No
 		}
 		this.haveInitializedCurrentChunkLicenses = true
 	}
-	var license Optional[string] = Compiler_getLicenseForFile(this.compiler_, Optional_of[string](node.getSourceFileName()).filter(Predicate[string](func(s string) bool {
+	var license Optional[string] = Compiler_getLicenseForFile(this.compiler_, Optional_of[string](node.getSourceFileName()).filterFn_(func(s string) bool {
 		return s != ""
-	})))
+	}))
 	if license.isEmpty() {
 		return
 	}

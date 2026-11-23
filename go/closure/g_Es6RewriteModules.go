@@ -133,9 +133,9 @@ func (this *Es6RewriteModules) visitImport(t *NodeTraversal, importDecl Node, pa
 			}
 		}
 	} else {
-		var modulePath *ModuleLoader_ModulePath = t.getInput().getPath().resolveJsModule(importName, Optional_of[string](importDecl.getSourceFileName()).filter(Predicate[string](func(s string) bool {
+		var modulePath *ModuleLoader_ModulePath = t.getInput().getPath().resolveJsModule(importName, Optional_of[string](importDecl.getSourceFileName()).filterFn_(func(s string) bool {
 			return s != ""
-		})), importDecl.getLineno(), importDecl.getCharno())
+		}), importDecl.getLineno(), importDecl.getCharno())
 		if modulePath == nil {
 			modulePath = t.getInput().getPath().resolveModuleAsPath(importName)
 		}
