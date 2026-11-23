@@ -312,13 +312,13 @@ func (this *AstValidator) validatePseudoExpression(n Node, allowedPseudoexpressi
 	switch n.ns_().token {
 	case tokOrd1_EMPTY:
 		if !allowedTokensSet.Has(Token_rhino_EMPTY) {
-			panic(new_IllegalArgumentException_String(Strings_lenientFormat("Unexpected pseudoexpression %s", []any{n.box_()})))
+			panic(new_IllegalArgumentException_String(Strings_lenientFormat("Unexpected pseudoexpression %s", n.box_())))
 		}
 		this.validateProperties(n)
 		this.validateChildless(n)
 	case tokOrd1_ITER_SPREAD:
 		if !allowedTokensSet.Has(Token_rhino_ITER_SPREAD) {
-			panic(new_IllegalArgumentException_String(Strings_lenientFormat("Unexpected pseudoexpression %s", []any{n.box_()})))
+			panic(new_IllegalArgumentException_String(Strings_lenientFormat("Unexpected pseudoexpression %s", n.box_())))
 		}
 		this.validateProperties(n)
 		this.validateChildCount(n)
@@ -358,7 +358,7 @@ func (this *AstValidator) validateCallType(callNode Node) {
 		var callee Node = callNode.getFirstChild()
 		nn_, nn1_ := callee.getJSType(), callNode.toStringTree()
 		if nn_ == nil {
-			panic(new_NullPointerException_String(Strings_lenientFormat("Callee of\n\n%s\nhas no type.", []any{nn1_})))
+			panic(new_NullPointerException_String(Strings_lenientFormat("Callee of\n\n%s\nhas no type.", nn1_)))
 		}
 		var calleeType *JSType = nn_
 		if calleeType.isFunctionType() {
@@ -371,7 +371,7 @@ func (this *AstValidator) validateCallType(callNode Node) {
 	case AstValidator_TypeInfoValidation_COLOR:
 		var callee Node = callNode.getFirstChild()
 		if v_, a1_ := callee.getColor(), callNode.toStringTree(); v_ == nil {
-			panic(new_NullPointerException_String(Strings_lenientFormat("Callee of\n\n%s\nhas no color.", []any{a1_})))
+			panic(new_NullPointerException_String(Strings_lenientFormat("Callee of\n\n%s\nhas no color.", a1_)))
 		}
 	case AstValidator_TypeInfoValidation_NONE:
 		panic(new_AssertionError_0())
@@ -461,7 +461,7 @@ func (this *AstValidator) isInParameterListOfFunction(child Node, functionNode N
 		var parent Node = child.getParent()
 		for ; parent != functionNode; parent = parent.getParent() {
 			if parent == 0 {
-				panic(new_NullPointerException_String(Strings_lenientFormat("%s not contained in function %s", []any{child.box_(), functionNode.box_()})))
+				panic(new_NullPointerException_String(Strings_lenientFormat("%s not contained in function %s", child.box_(), functionNode.box_())))
 			}
 			if parent == paramList {
 				return true

@@ -252,7 +252,7 @@ func (this *ConvertToTypedInterface_RemoveNonDeclarations) visit(t *NodeTraversa
 	case tokOrd1_SWITCH:
 		if n.hasParent() {
 			if ok_, a1_ := n.hasOneChild(), n.toStringTree(); !ok_ {
-				panic(new_IllegalStateException_String(Strings_lenientFormat("malfrmed sWITCH %s", []any{a1_})))
+				panic(new_IllegalStateException_String(Strings_lenientFormat("malfrmed sWITCH %s", a1_)))
 			}
 			var children Node = n.getFirstChild().removeChildren()
 			parent.addChildrenAfter(children, n)
@@ -465,7 +465,7 @@ func (this *ConvertToTypedInterface_SimplifyDeclarations) processClass(n Node) {
 				this.processFunction(member.getLastChild())
 			case tokOrd1_COMPUTED_PROP:
 				if !member.getSecondChild().isFunction() {
-					panic(new_IllegalStateException_String(Strings_lenientFormat("Non-function computed class member: %s", []any{member.box_()})))
+					panic(new_IllegalStateException_String(Strings_lenientFormat("Non-function computed class member: %s", member.box_())))
 				}
 				this.processFunction(member.getSecondChild())
 			default:

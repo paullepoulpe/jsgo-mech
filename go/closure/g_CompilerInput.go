@@ -247,10 +247,10 @@ func (this *CompilerInput) getDependencyInfo() DependencyInfo_ {
 
 func (this *CompilerInput) generateDependencyInfo() DependencyInfo_ {
 	if this.compiler_ == nil {
-		panic(new_NullPointerException_String(Strings_lenientFormat("Expected setCompiler to be called first: %s", []any{this})))
+		panic(new_NullPointerException_String(Strings_lenientFormat("Expected setCompiler to be called first: %s", this)))
 	}
 	if this.compiler_.getErrorManager() == nil {
-		panic(new_NullPointerException_String(Strings_lenientFormat("Expected compiler to call an error manager: %s", []any{this})))
+		panic(new_NullPointerException_String(Strings_lenientFormat("Expected compiler to call an error manager: %s", this)))
 	}
 	if JsFileRegexParser_isSupported() && this.compiler_.preferRegexParser() {
 		var codeRes *Outcome_base[string] = this.getSourceFile().readCode()

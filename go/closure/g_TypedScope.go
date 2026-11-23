@@ -86,7 +86,7 @@ func (this *TypedScope) typed_impl() *TypedScope {
 
 func (this *TypedScope) validateCompletelyBuilt() {
 	if ok_, a1_, a2_ := this.reservedNames.IsEmpty(), this, this.reservedNames.asSetT(); !ok_ {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected %s to have no reserved names, found: %s. This probably indicates a bug in TypedScopeCreator where it is failing to declare a variable.", []any{a1_, a2_})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected %s to have no reserved names, found: %s. This probably indicates a bug in TypedScopeCreator where it is failing to declare a variable.", a1_, a2_)))
 	}
 	this.reservedNames = tsetEmptyImm_(tc_string)
 }
@@ -295,7 +295,7 @@ func (this *TypedScope) undeclareInteral(var_ *TypedVar) {
 
 func (this *TypedScope) declareInternal(name string, var_ *TypedVar) {
 	if ok_, a1_ := (this.hasOwnSlot(name) || this.canDeclare(name)), var_.getNode(); !ok_ {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Illegal shadow: %s", []any{a1_.box_()})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Illegal shadow: %s", a1_.box_())))
 	}
 	var emptySentinel *TMap[string, *TypedVar] = tmapEmptyImm_(tc_string, tc_p_TypedVar)
 	if this.vars == emptySentinel {
@@ -448,7 +448,7 @@ func (this *TypedScope) checkChildScope(parent *TypedScope) {
 		panic(new_IllegalArgumentException_String(tostr_(this.rootNode_)))
 	}
 	if this.rootNode_ == parent.getRootNode() {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("rootNode should not be the parent's root node: %s", []any{this.rootNode_.box_()})))
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("rootNode should not be the parent's root node: %s", this.rootNode_.box_())))
 	}
 }
 
