@@ -99,9 +99,7 @@ func (this *J2clClinitPrunerPass) cleanEmptyClinitReferences(clinitReferences *S
 		var clinitName string = clinitReplacementEntry.getKey()
 		var replacement Node = clinitReplacementEntry.getValue()
 		var references CollectionT[Node] = clinitReferences.removeAll(clinitName)
-		it_3 := jeachOf_(references)
-		for it_3.next() {
-			var reference Node = it_3.v
+		for reference := range elemsT_(references) {
 			var changedScope Node = ChangeTracker_getEnclosingChangeScopeRoot(reference.getParent())
 			if replacement == 0 {
 				NodeUtil_deleteFunctionCall(reference, this.compiler_)

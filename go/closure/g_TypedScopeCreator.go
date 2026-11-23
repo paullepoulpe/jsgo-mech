@@ -82,9 +82,7 @@ func (this *TypedScopeCreator) getScope_StaticSlot_rTypedScope(var_ *TypedVar) *
 
 func (this *TypedScopeCreator) getAllSymbols() IterableT[*TypedVar] {
 	var vars *JTList[*TypedVar] = jnewTList_(jtc_p_TypedVar)
-	it_1 := jeachOf_(this.memoized.values_t())
-	for it_1.next() {
-		var s *TypedScope = it_1.v
+	for s := range elemsT_(this.memoized.values_t()) {
 		Iterables_addAll(Collection(vars.asList()), Iterable_un_(s.getAllSymbols_rIterableOf_TypedVar()))
 	}
 	return vars.asIterable()
@@ -312,12 +310,8 @@ func (this *TypedScopeCreator) finishAndFreeze() {
 		var resolved *JSType = node.getJSType().resolve(this.typeParsingErrorReporter)
 		node.setJSType(resolved)
 	}
-	it_3 := jeachOf_(this.getAllMemoizedScopes())
-	for it_3.next() {
-		var scope *TypedScope = it_3.v
-		it_5 := jeachOf_(scope.getVarIterable_rIterableOf_TypedVar())
-		for it_5.next() {
-			var var_ *TypedVar = it_5.v
+	for scope := range elemsT_(this.getAllMemoizedScopes()) {
+		for var_ := range elemsT_(scope.getVarIterable_rIterableOf_TypedVar()) {
 			var_.resolveType(this.typeParsingErrorReporter)
 		}
 		scope.validateCompletelyBuilt()
@@ -1477,9 +1471,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) findOverriddenProperty(owner
 	if (propType != nil) && !propType.isUnknownType() {
 		result = propType
 	} else {
-		it_1 := jeachOf_(ownerType.getCtorImplementedInterfaces())
-		for it_1.next() {
-			var iface *ObjectType = it_1.v
+		for iface := range elemsT_(ownerType.getCtorImplementedInterfaces()) {
 			propType = iface.getPropertyType(propName)
 			if (propType != nil) && !propType.isUnknownType() {
 				result = propType
@@ -2263,9 +2255,7 @@ func (this *TypedScopeCreator_NormalScopeBuilder) visitPostorder_impl(t *NodeTra
 	case tokOrd1_EXPR_RESULT:
 		var names CollectionT[*ProcessClosureProvidesAndRequires_ProvidedName] = this.outer_.providedNamesFromCall.get(n)
 		if names != nil {
-			it_2 := jeachOf_(names)
-			for it_2.next() {
-				var name *ProcessClosureProvidesAndRequires_ProvidedName = it_2.v
+			for name := range elemsT_(names) {
 				this.declareProvidedNs(n, name)
 			}
 		}
@@ -2660,9 +2650,7 @@ func new_TypedScopeCreator_FirstOrderFunctionAnalyzer(outer_ *TypedScopeCreator)
 func (this *TypedScopeCreator_FirstOrderFunctionAnalyzer) enterScope_impl(t *NodeTraversal) {
 	var scope *Scope = t.getScope()
 	var root Node = scope.getRootNode()
-	it_1 := jeachOf_(scope.getVarIterable_rIterableOf_Var())
-	for it_1.next() {
-		var symbol *Var = it_1.v
+	for symbol := range elemsT_(scope.getVarIterable_rIterableOf_Var()) {
 		this.outer_.reservedNamesForScope.put(root, symbol.getName())
 	}
 }

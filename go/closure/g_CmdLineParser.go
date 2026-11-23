@@ -626,9 +626,7 @@ func (this *CmdLineParser_Option) printDefaultValue() Optional[string] {
 	if (values != nil) && !values.isEmpty() {
 		var buf strBuilder_
 		if values.size() > 1 {
-			it_1 := foreach_(values)
-			for it_1.next() {
-				var v any = it_1.v
+			for v := range elems_(values) {
 				buf.append_char(func() uint16 {
 					if buf.length() == 0 {
 						return '['

@@ -98,9 +98,7 @@ func (this *InvocationTemplateTypeMatcher) matchTemplateTypesRecursive(paramType
 			var argObjectType *ObjectType = argType.restrictByNotNullOrUndefined().toObjectType()
 			if ((argObjectType != nil) && !argObjectType.isUnknownType()) && !argObjectType.isEmptyType() {
 				var names SetT[string] = paramRecordType.getPropertyNames()
-				it_5 := jeachOf_(names)
-				for it_5.next() {
-					var name string = it_5.v
+				for name := range elemsT_(names) {
 					if paramRecordType.hasOwnProperty(name) && argObjectType.hasProperty(name) {
 						this.matchTemplateTypesRecursive(paramRecordType.getPropertyType(name), argObjectType.getPropertyType(name))
 					}

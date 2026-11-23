@@ -95,9 +95,7 @@ func (this *DataFlowAnalysis[N, L]) analyze() {
 				}
 				return List_un_(this.cfg.getDirectedPredNodesDiGraphNode_DiGraphNode_rListOf_LinkedDiGraphNode(curNode))
 			}()
-			it_2 := foreach_(nextNodes)
-			for it_2.next() {
-				var nextNode DiGraph_DiGraphNode[N, ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphNode[N, ControlFlowGraph_Branch]](it_2.v)
+			for nextNode := range elemsAs_[DiGraph_DiGraphNode[N, ControlFlowGraph_Branch]](nextNodes) {
 				if nextNode != this.cfg.getImplicitReturn() {
 					this.workQueue.add(nextNode)
 				}
@@ -111,18 +109,16 @@ func (this *DataFlowAnalysis[N, L]) analyze() {
 
 func (this *DataFlowAnalysis[N, L]) initialize() {
 	this.workQueue.clear()
-	it_1 := jeachOf_(this.cfg.getNodes_rCollectionOf_DiGraphNode_rCollectionOf_LinkedDiGraphNode())
-	for it_1.next() {
-		var node DiGraph_DiGraphNode[N, ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphNode[N, ControlFlowGraph_Branch]](it_1.v.self())
+	for el_1 := range elemsT_(this.cfg.getNodes_rCollectionOf_DiGraphNode_rCollectionOf_LinkedDiGraphNode()) {
+		var node DiGraph_DiGraphNode[N, ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphNode[N, ControlFlowGraph_Branch]](el_1.self())
 		node.setAnnotation(Annotation_graph(new_DataFlowAnalysis_LinearFlowState(boxT_(this.createInitialEstimateLattice()), boxT_(this.createInitialEstimateLattice()))))
 		if node != this.cfg.getImplicitReturn() {
 			this.workQueue.add(node)
 		}
 	}
 	if this.isBranched() {
-		it_3 := jeachOf_(this.cfg.getEdges_rListOf_DiGraphEdge_rListOf_LinkedDiGraphEdge())
-		for it_3.next() {
-			var edge DiGraph_DiGraphEdge[N, ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphEdge[N, ControlFlowGraph_Branch]](it_3.v.self())
+		for el_3 := range elemsT_(this.cfg.getEdges_rListOf_DiGraphEdge_rListOf_LinkedDiGraphEdge()) {
+			var edge DiGraph_DiGraphEdge[N, ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphEdge[N, ControlFlowGraph_Branch]](el_3.self())
 			edge.setAnnotation(icast_Annotation_graph(boxT_(this.createInitialEstimateLattice())))
 		}
 	}
@@ -136,9 +132,7 @@ func (this *DataFlowAnalysis[N, L]) flow(node DiGraph_DiGraphNode[N, ControlFlow
 		var changed bool = !equalsTT_(outBefore, junboxT_[L](state.getOut()))
 		if this.isBranched() {
 			var brancher DataFlowAnalysis_FlowBrancher[L] = this.createFlowBrancher(node.getValue(), junboxT_[L](state.getOut()))
-			it_1 := foreach_(node.getOutEdges())
-			for it_1.next() {
-				var outEdge DiGraph_DiGraphEdge[N, ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphEdge[N, ControlFlowGraph_Branch]](it_1.v)
+			for outEdge := range elemsAs_[DiGraph_DiGraphEdge[N, ControlFlowGraph_Branch]](node.getOutEdges()) {
 				var outBranchBefore L = junboxT_[L](Annotatable_getAnnotation(Annotatable(outEdge)))
 				outEdge.setAnnotation(icast_Annotation_graph(boxT_(brancher.branchFlow(outEdge.getValue()))))
 				if !changed {
@@ -174,9 +168,7 @@ func (this *DataFlowAnalysis[N, L]) joinInputs(node DiGraph_DiGraphNode[N, Contr
 		result = this.getInputFromEdge(cast_[DiGraph_DiGraphEdge[N, ControlFlowGraph_Branch]](inEdges.get(0)))
 	default:
 		var joiner DataFlowAnalysis_FlowJoiner[L] = this.createFlowJoiner()
-		it_2 := foreach_(inEdges)
-		for it_2.next() {
-			var inEdge DiGraph_DiGraphEdge[N, ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphEdge[N, ControlFlowGraph_Branch]](it_2.v)
+		for inEdge := range elemsAs_[DiGraph_DiGraphEdge[N, ControlFlowGraph_Branch]](inEdges) {
 			joiner.joinFlow(this.getInputFromEdge(inEdge))
 		}
 		result = joiner.finish()

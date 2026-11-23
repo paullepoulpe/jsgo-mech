@@ -950,9 +950,7 @@ func (this *ProcessCommonJSModules_RewriteModule) visit_impl(t *NodeTraversal, n
 				functionExpr.detach().insertAfter(insertionPoint)
 			}
 		}
-		it_6 := jeachOf_(this.exports)
-		for it_6.next() {
-			var export *ProcessCommonJSModules_ExportInfo = it_6.v
+		for export := range elemsT_(this.exports) {
 			this.visitExport(t, export)
 		}
 		it_8 := this.imports.each()
@@ -1031,9 +1029,7 @@ func (this *ProcessCommonJSModules_RewriteModule) visit_impl(t *NodeTraversal, n
 func (this *ProcessCommonJSModules_RewriteModule) fixTypeAnnotationsForNode(t *NodeTraversal, n Node) {
 	var info *JSDocInfo = n.getJSDocInfo()
 	if info != nil {
-		it_1 := jeachOf_(info.getTypeNodes())
-		for it_1.next() {
-			var typeNode Node = it_1.v
+		for typeNode := range elemsT_(info.getTypeNodes()) {
 			this.fixTypeNode(t, typeNode)
 		}
 	}

@@ -38,9 +38,7 @@ func (this *RecordType) init_RecordType(registry *JSTypeRegistry, properties Map
 	this.finit_RecordType()
 	this.setPrettyPrint(true)
 	this.declared = declared
-	it_1 := jeachOf_(properties.keySet_t())
-	for it_1.next() {
-		var property string = it_1.v
+	for property := range elemsT_(properties.keySet_t()) {
 		var prop *RecordTypeBuilder_RecordProperty = Map_get_sT_[*RecordTypeBuilder_RecordProperty](properties, property)
 		if prop == nil {
 			panic(new_IllegalStateException_String("RecordProperty associated with a property should not be null!").self())
@@ -103,9 +101,7 @@ func (this *RecordType) getGreatestSubtypeHelper(that *JSType) *JSType {
 			}
 			builder.addProperty(property, propType, this.getPropertyNode(property))
 		}
-		it_3 := jeachOf_(thatRecord.getOwnPropertyNames())
-		for it_3.next() {
-			var property string = it_3.v
+		for property := range elemsT_(thatRecord.getOwnPropertyNames()) {
 			if !this.hasProperty(property) {
 				builder.addProperty(property, thatRecord.getPropertyType(property), thatRecord.getPropertyNode(property))
 			}
@@ -115,14 +111,10 @@ func (this *RecordType) getGreatestSubtypeHelper(that *JSType) *JSType {
 	var greatestSubtype *JSType = this.registry.getNativeType(JSTypeNative_NO_OBJECT_TYPE)
 	var thatRestrictedToObj *JSType = this.registry.getNativeType(JSTypeNative_OBJECT_TYPE).getGreatestSubtype(that)
 	if !thatRestrictedToObj.isEmptyType() {
-		it_5 := jeachOf_(this.getOwnPropertyNames())
-		for it_5.next() {
-			var propName string = it_5.v
+		for propName := range elemsT_(this.getOwnPropertyNames()) {
 			var propType *JSType = this.getPropertyType(propName)
 			var builder *UnionType_Builder = UnionType_builder(this.registry)
-			it_7 := jeachOf_(this.registry.getEachReferenceTypeWithProperty(propName))
-			for it_7.next() {
-				var alt *ObjectType = it_7.v
+			for alt := range elemsT_(this.registry.getEachReferenceTypeWithProperty(propName)) {
 				var altPropType *JSType = alt.getPropertyType(propName)
 				if (((altPropType != nil) && !alt.equals(obj_(this))) && alt.isSubtypeOf(that)) && altPropType.isSubtypeOf(propType) {
 					builder.addAlternate(alt.up_JSType())

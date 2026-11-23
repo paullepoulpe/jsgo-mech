@@ -375,9 +375,7 @@ func (this FeatureSet_LangVersion) self() any {
 
 func (this FeatureSet_LangVersion) features() SetT[FeatureSet_Feature] {
 	var set SetT[FeatureSet_Feature] = tenumSetNoneOf_(jtc_p_FeatureSet_Feature, classOf_("com.google.javascript.jscomp.parsing.parser.FeatureSet.Feature")).asSetT()
-	it_1 := foreach_(obj_(EnumSet_allOf(classOf_("com.google.javascript.jscomp.parsing.parser.FeatureSet.Feature"))))
-	for it_1.next() {
-		var feature FeatureSet_Feature = cast_[FeatureSet_Feature](it_1.v)
+	for feature := range elemsAs_[FeatureSet_Feature](obj_(EnumSet_allOf(classOf_("com.google.javascript.jscomp.parsing.parser.FeatureSet.Feature")))) {
 		if FeatureSet_Feature_version__[feature-1] == this {
 			set.add_t(feature)
 		}

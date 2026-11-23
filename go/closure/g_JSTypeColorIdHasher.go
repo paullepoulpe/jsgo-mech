@@ -40,9 +40,7 @@ func (this *JSTypeColorIdHasher) hashObjectType(type_ *ObjectType) *ColorId {
 	if type_.hasReferenceName() {
 		this.putReferenceNameType(hasher, type_)
 	} else {
-		it_1 := jeachOf_(type_.getOwnPropertyNames())
-		for it_1.next() {
-			var prop string = it_1.v
+		for prop := range elemsT_(type_.getOwnPropertyNames()) {
 			JSTypeColorIdHasher_putUtf8(hasher, prop)
 		}
 	}

@@ -62,9 +62,7 @@ func (this *DisambiguateProperties) process_2(externs Node, root Node) {
 	}
 	this.logForDiagnostics("graph", Supplier_base[any](func() any {
 		var result *JTList[*DisambiguateProperties_TypeNodeJson] = jnewTList_(jtc_p_DisambiguateProperties_TypeNodeJson)
-		it_5 := jeachOf_(graph.getNodes_rCollectionOf_DiGraphNode())
-		for it_5.next() {
-			var n DiGraph_DiGraphNode[*ColorGraphNode, any] = it_5.v
+		for n := range elemsT_(graph.getNodes_rCollectionOf_DiGraphNode()) {
 			result.add(new_DisambiguateProperties_TypeNodeJson(n))
 		}
 		List_sortT_[*DisambiguateProperties_TypeNodeJson](result.asListT(), Comparator_comparingInt[*DisambiguateProperties_TypeNodeJson](ToIntFunction[*DisambiguateProperties_TypeNodeJson](func(x *DisambiguateProperties_TypeNodeJson) int32 {
@@ -337,9 +335,7 @@ func (this *DisambiguateProperties_PropertyReferenceIndexJson) writeJson(writer 
 	writer.beginObject()
 	writer.name("name").stringValue(Optional_of[string](this.name_))
 	writer.name("refs").beginArray()
-	it_1 := jeachOf_(this.refs)
-	for it_1.next() {
-		var ref *DisambiguateProperties_PropertyReferenceJson = it_1.v
+	for ref := range elemsT_(this.refs) {
 		ref.writeJson(writer)
 	}
 	writer.endArray()
@@ -404,9 +400,7 @@ func (this *DisambiguateProperties_TypeNodeJson) init_DisambiguateProperties_Typ
 	this.colorId = t.getColor().getId().toString()
 	this.invalidating = t.getColor().isInvalidating()
 	var edgesBuilder ImmutableSortedSet_BuilderOf[*DisambiguateProperties_TypeEdgeJson] = ImmutableSortedSet_naturalOrder()
-	it_1 := foreach_(n.getOutEdges())
-	for it_1.next() {
-		var e DiGraph_DiGraphEdge[*ColorGraphNode, any] = cast_[DiGraph_DiGraphEdge[*ColorGraphNode, any]](it_1.v)
+	for e := range elemsAs_[DiGraph_DiGraphEdge[*ColorGraphNode, any]](n.getOutEdges()) {
 		edgesBuilder.add(new_DisambiguateProperties_TypeEdgeJson(e))
 	}
 	this.edges = setAs_(tc_p_DisambiguateProperties_TypeEdgeJson, ImmutableCollection_as_Set(edgesBuilder.build()))
@@ -494,9 +488,7 @@ func (this *DisambiguateProperties_1) writeJson(writer *SimpleJsonWriter) {
 	}
 	var propRefsJson SetT[*DisambiguateProperties_PropertyReferenceIndexJson] = setAs_(tc_p_DisambiguateProperties_PropertyReferenceIndexJson, ImmutableCollection_as_Set(propRefsJsonBuilder.build()))
 	writer.beginObject()
-	it_3 := jeachOf_(propRefsJson)
-	for it_3.next() {
-		var propRef *DisambiguateProperties_PropertyReferenceIndexJson = it_3.v
+	for propRef := range elemsT_(propRefsJson) {
 		propRef.writeJson(writer)
 	}
 	writer.endObject()

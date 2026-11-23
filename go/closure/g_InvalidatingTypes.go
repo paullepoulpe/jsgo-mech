@@ -110,9 +110,7 @@ func (this *InvalidatingTypes_Builder) build() *InvalidatingTypes {
 }
 
 func (this *InvalidatingTypes_Builder) addAllTypeMismatches(mismatches IterableT[*TypeMismatch]) *InvalidatingTypes_Builder {
-	it_1 := jeachOf_(mismatches)
-	for it_1.next() {
-		var mismatch *TypeMismatch = it_1.v
+	for mismatch := range elemsT_(mismatches) {
 		this.addTypeWithReason(mismatch.found(), mismatch.location())
 		this.addTypeWithReason(mismatch.required(), mismatch.location())
 	}
@@ -122,9 +120,7 @@ func (this *InvalidatingTypes_Builder) addAllTypeMismatches(mismatches IterableT
 func (this *InvalidatingTypes_Builder) addTypeWithReason(type_ *JSType, location Node) {
 	type_ = type_.restrictByNotNullOrUndefined()
 	if type_.isUnionType() {
-		it_1 := jeachOf_(type_.getUnionMembers())
-		for it_1.next() {
-			var alt *JSType = it_1.v
+		for alt := range elemsT_(type_.getUnionMembers()) {
 			this.addTypeWithReason(alt, location)
 		}
 		return
