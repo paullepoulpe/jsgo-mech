@@ -130,10 +130,10 @@ func (this *PolyfillUsageFinder) isDisjointFromIterator_2(getPropNode Node, owne
 
 func (this *PolyfillUsageFinder) isDisjointFromIterator(receiver *Color) bool {
 	var iteratorColor *Color = this.registry.get(StandardColors_ITERATOR_ID)
-	if receiver.equals(obj_(iteratorColor)) {
+	if receiver.equals_Color(iteratorColor) {
 		return false
 	}
-	if receiver.getId().equals(obj_(StandardColors_GENERATOR_ID)) {
+	if receiver.getId().equals_ColorId(StandardColors_GENERATOR_ID) {
 		return false
 	}
 	if receiver.isUnion() {
@@ -164,7 +164,7 @@ func (this *PolyfillUsageFinder) hasInSupertypesList(subCtor *Color, superCtor *
 		defer func() {
 			this.hasInSupertypesListSeenSet.remove(subCtor)
 		}()
-		if subCtor.equals(obj_(superCtor)) {
+		if subCtor.equals_Color(superCtor) {
 			ret_1 = true
 			return 1
 		}
