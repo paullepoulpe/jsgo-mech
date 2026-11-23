@@ -298,7 +298,7 @@ of this one. getJSType's cost (to_JSType's assertion, ~0.6 s flat here) is left 
       runtime lines of the default build: 26129  off-mode extras (build-tagged files): 0
       tests after: 101
 
-The list now: 272 commits replayed (+ step 561), 166 with tool runs, 122 runtime patches, 1 manual patch.
+The list now: 272 commits (the 271 above + step 561; the replay from the base printed 272), 166 with tool runs, 122 runtime patches, 1 manual patch.
 Not done: the replay from the base with step 561 (the tail replay resumes on replay6b's commits, whose
 overlay e7d680ff1 differs from this one by the 143 note, step 561 and this record only).
 
@@ -367,7 +367,7 @@ pay for itself in time on this subset.
       runtime lines of the default build: 26156  off-mode extras (build-tagged files): 0
       tests after: 102
 
-The list now: 272 commits replayed (+ steps 561, 562), 167 with tool runs, 123 runtime patches, 1 manual patch.
+The list now: 273 commits (271 + steps 561, 562), 167 with tool runs, 123 runtime patches, 1 manual patch (recounted from steps.txt: 273 distinct commits, 167 with a run line, 124 patch lines).
 Not done: the replay from the base with steps 561 and 562; a CPU profile of the step (only gast totals and
 malloc counts were taken); whether the heap kept alive by an interior pointer (a list that outlives its
 holder now keeps the holder) costs anything on the full benchmark.
