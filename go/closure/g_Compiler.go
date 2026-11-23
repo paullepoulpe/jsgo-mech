@@ -1089,7 +1089,8 @@ func (this *Compiler) getCurrentJsSource() string {
 		if this.jsRoot == 0 {
 			panic(new_NullPointerException_0().self())
 		}
-		for r := range elemsBy_(obj_(ImmutableList_of_Object_Object(this.externsRoot.box_(), this.jsRoot.box_())), Node_of_) {
+		for _, el := range immElems_(ImmutableList_of_Object_Object(this.externsRoot.box_(), this.jsRoot.box_())) {
+			r := Node_of_(el)
 			{
 				var fileNode Node = r.getFirstChild()
 				for ; fileNode != 0; fileNode = fileNode.getNext() {
@@ -1805,7 +1806,8 @@ func (this *Compiler) markExterns(originalInputs *JTList[*CompilerInput]) {
 func (this *Compiler) hoistNoCompileFiles() {
 	var staleInputs bool = false
 	this.maybeDoThreadedParsing()
-	for input := range elemsAs_[*CompilerInput](obj_(ImmutableList_copyOf_Iterable(Iterable_un_(this.chunkGraph.getAllInputs())))) {
+	for _, el := range immElems_(ImmutableList_copyOf_Iterable(Iterable_un_(this.chunkGraph.getAllInputs()))) {
+		input := cast_[*CompilerInput](el)
 		if input.getHasNoCompileAnnotation() {
 			input.getChunk().remove(input)
 			staleInputs = true
