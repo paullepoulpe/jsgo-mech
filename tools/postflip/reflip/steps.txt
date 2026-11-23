@@ -645,3 +645,7 @@ d7ca4e2e patch 446-d7ca4e2e-rt.patch
 3fd072c4 run t opteq && f
 # 448. postflip step (re-flip): an if / else-if chain of tests of one value's class is a type switch (tool 65e033b7)
 f8f365f2 run t tswitch && f
+# 449. postflip step (re-flip): JSType.visit is a generic function with a type switch, the visitors return their own type (tool 8ee3d6fd)
+c44d5926 run t visit && f
+# 450. postflip step (re-flip): value classes are comparable structs used by value, without equals and hashCode (tool c932f0a6)
+036a41a1 run t valcls && f
