@@ -364,9 +364,7 @@ func (this *ExternExportsPass_Export) createExternsParamListFromFunctionType(fun
 func (this *ExternExportsPass_Export) createExternsParamListFromOriginalParamList(originalParamNames ListT[string]) Node {
 	var paramList Node = IR_paramList([]Node{})
 	var nameGenerator NameGenerator = NameGenerator(new_DefaultNameGenerator_Set_String_Set(jimmutableSetCopyOf_(jtc_string, Collection(List_un_(originalParamNames))).asSetT(), "", jtsetEmptyImm_(tc_Character)))
-	it_1 := jeachOf_(originalParamNames)
-	for it_1.next() {
-		var originalParamName string = it_1.v
+	for originalParamName := range elemsT_(originalParamNames) {
 		var externParamName string = func() string {
 			if originalParamName == "" {
 				return nameGenerator.generateNextName()

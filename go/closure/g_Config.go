@@ -70,9 +70,7 @@ func Config_builder() *Config_Builder {
 func Config_buildAnnotations(allowlist IterableT[string]) *JTMap[string, Annotation_parsing] {
 	var annotationsBuilder *TMapBuilder[string, Annotation_parsing] = newTMapBuilder_(jtc_string, tc_p_Annotation_parsing)
 	annotationsBuilder.putAll(Annotation_parsing_recognizedAnnotations.asMapT())
-	it_1 := jeachOf_(allowlist)
-	for it_1.next() {
-		var unrecognizedAnnotation string = it_1.v
+	for unrecognizedAnnotation := range elemsT_(allowlist) {
 		if unrecognizedAnnotation != "" && !Annotation_parsing_recognizedAnnotations.containsKey(unrecognizedAnnotation) {
 			annotationsBuilder.put(unrecognizedAnnotation, Annotation_parsing_NOT_IMPLEMENTED)
 		}

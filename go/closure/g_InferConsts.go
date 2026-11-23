@@ -19,15 +19,11 @@ func new_InferConsts(compiler *AbstractCompiler) *InferConsts {
 func (this *InferConsts) process_2(externs Node, js Node) {
 	var collector *ReferenceCollector = new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator(this.compiler_, ReferenceCollector_DO_NOTHING_BEHAVIOR, ScopeCreator(new_SyntacticScopeCreator_AbstractCompiler(this.compiler_)))
 	collector.process(js)
-	it_1 := jeachOf_(collector.getAllSymbols())
-	for it_1.next() {
-		var v *Var = it_1.v
+	for v := range elemsT_(collector.getAllSymbols()) {
 		this.considerVar(v, collector.getReferences_Var(v))
 	}
 	var globalExternsScope *Scope = new_SyntacticScopeCreator_AbstractCompiler(this.compiler_).createScope(externs, nil)
-	it_3 := jeachOf_(globalExternsScope.getAllSymbols_rIterableOf_Var())
-	for it_3.next() {
-		var v *Var = it_3.v
+	for v := range elemsT_(globalExternsScope.getAllSymbols_rIterableOf_Var()) {
 		this.considerVar(v, nil)
 	}
 }

@@ -347,9 +347,7 @@ func (this *InlineFunctions) decomposeExpressions() {
 	for it_1.next() {
 		var functionState *InlineFunctions_FunctionState = it_1.v
 		if functionState.canInline() {
-			it_3 := jeachOf_(functionState.getReferences())
-			for it_3.next() {
-				var ref *InlineFunctions_Reference = it_3.v
+			for ref := range elemsT_(functionState.getReferences()) {
 				if ref.requiresDecomposition {
 					this.injector.maybePrepareCall(ref.up_FunctionInjector_Reference())
 				}
@@ -380,9 +378,7 @@ func (this *InlineFunctions) removeInlinedFunctions() {
 }
 
 func (this *InlineFunctions) verifyAllReferencesInlined(name string, functionState *InlineFunctions_FunctionState) {
-	it_1 := jeachOf_(functionState.getReferences())
-	for it_1.next() {
-		var ref *InlineFunctions_Reference = it_1.v
+	for ref := range elemsT_(functionState.getReferences()) {
 		if !ref.inlined {
 			var parent Node = ref.callNode_.getParent()
 			panic(new_IllegalStateException_String(("Call site missed (" + sstr_(name) + ").\n call: " + sstr_(ref.callNode_.toStringTree()) + "\n parent:  " + sstr_(func() string {

@@ -57,9 +57,7 @@ func SimpleSetMultimap_createSorted[K comparable, V comparable]() *SimpleSetMult
 
 func (this *SimpleSetMultimap[K, V]) immutableCopy() *SimpleSetMultimap[K, V] {
 	var copy_ *SimpleSetMultimap[K, V] = new_SimpleSetMultimap[K, V](false, false)
-	it_1 := jeachOf_(this.map__.entrySet_t())
-	for it_1.next() {
-		var e Map_EntryT[K, SetT[V]] = it_1.v
+	for e := range elemsT_(this.map__.entrySet_t()) {
 		copy_.map__.put_t(e.getKey_t(), jtsetFrom_(tceT_[V](), Collection(Set_un_(e.getValue_t()))).asSetT())
 	}
 	copy_.frozen = true
@@ -68,12 +66,8 @@ func (this *SimpleSetMultimap[K, V]) immutableCopy() *SimpleSetMultimap[K, V] {
 
 func (this *SimpleSetMultimap[K, V]) inverse() *SimpleSetMultimap[V, K] {
 	var inverse *SimpleSetMultimap[V, K] = new_SimpleSetMultimap[V, K](false, false)
-	it_1 := jeachOf_(this.map__.entrySet_t())
-	for it_1.next() {
-		var e Map_EntryT[K, SetT[V]] = it_1.v
-		it_3 := jeachOf_(e.getValue_t())
-		for it_3.next() {
-			var value V = it_3.v
+	for e := range elemsT_(this.map__.entrySet_t()) {
+		for value := range elemsT_(e.getValue_t()) {
 			inverse.put(value, e.getKey_t())
 		}
 	}
@@ -105,9 +99,7 @@ func (this *SimpleSetMultimap[K, V]) put(key K, value V) bool {
 }
 
 func (this *SimpleSetMultimap[K, V]) putAll_2(key K, values IterableT[V]) {
-	it_1 := jeachOf_(values)
-	for it_1.next() {
-		var value V = it_1.v
+	for value := range elemsT_(values) {
 		this.put(key, value)
 	}
 }
@@ -120,9 +112,7 @@ func SimpleSetMultimap_putAll_SimpleSetMultimap[K comparable, V comparable, K2 c
 			this.put(junboxT_[K](e.key()), junboxT_[V](e.value()))
 		}
 	} else {
-		it_3 := jeachOf_(other.map__.entrySet_t())
-		for it_3.next() {
-			var e Map_EntryT[K2, SetT[V2]] = it_3.v
+		for e := range elemsT_(other.map__.entrySet_t()) {
 			this.putAll_2(junboxT_[K](boxT_(e.getKey_t())), iterableAs_(tcT_[V](), Iterable(Set_un_(e.getValue_t()))))
 		}
 	}
@@ -156,9 +146,7 @@ func (this *SimpleSetMultimap[K, V]) removeAll(key K) SetT[V] {
 		return jtsetEmptyImm_(tceT_[V]()).asSetT()
 	}
 	if this.entryOrder != nil {
-		it_1 := jeachOf_(values)
-		for it_1.next() {
-			var value V = it_1.v
+		for value := range elemsT_(values) {
 			this.entryOrder.remove(new_SimpleSetMultimap_Entry(boxT_(key), boxT_(value)))
 		}
 	}
@@ -193,9 +181,7 @@ func (this *SimpleSetMultimap[K, V]) untypedMap() MapOf[any, any] {
 
 func (this *SimpleSetMultimap[K, V]) size() int32 {
 	var size int32 = 0
-	it_1 := jeachOf_(this.map__.values_t())
-	for it_1.next() {
-		var values SetT[V] = it_1.v
+	for values := range elemsT_(this.map__.values_t()) {
 		size += values.size()
 	}
 	return size

@@ -24,9 +24,7 @@ func new_StandardUnionFind_0[E comparable]() *StandardUnionFind[E] {
 
 func (this *StandardUnionFind[E]) init_StandardUnionFind_UnionFind(other UnionFind[E]) {
 	this.finit_StandardUnionFind()
-	it_1 := jeachOf_(other.elements())
-	for it_1.next() {
-		var elem E = it_1.v
+	for elem := range elemsT_(other.elements()) {
 		this.union(other.find(elem), elem)
 	}
 }
@@ -42,9 +40,7 @@ func (this *StandardUnionFind[E]) add(e E) {
 }
 
 func (this *StandardUnionFind[E]) addAll(es IterableT[E]) {
-	it_1 := jeachOf_(es)
-	for it_1.next() {
-		var e E = it_1.v
+	for e := range elemsT_(es) {
 		this.add(e)
 	}
 }
@@ -96,9 +92,7 @@ func (this *StandardUnionFind[E]) allEquivalenceClasses() ListT[SetT[E]] {
 		groupsTmp.put(this.findRoot(elem), elem.element)
 	}
 	var result *TListBuilder[SetT[E]] = newTListBuilder_(tc_SetT_E_[E]())
-	it_3 := jeachOf_(groupsTmp.asMap().values_t())
-	for it_3.next() {
-		var group SetT[E] = it_3.v
+	for group := range elemsT_(groupsTmp.asMap().values_t()) {
 		result.add(jimmutableSetCopyOf_(tceT_[E](), Collection(Set_un_(group))).asSetT())
 	}
 	return result.build().asListT()

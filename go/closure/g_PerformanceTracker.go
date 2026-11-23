@@ -365,18 +365,14 @@ func (this *PerformanceTracker) setPruningAnalysisSummary(summary string) {
 }
 
 func (this *PerformanceTracker) recordPrePruningInputCount(originalInputs IterableT[*CompilerInput], originalExterns IterableT[*CompilerInput]) {
-	it_1 := jeachOf_(originalExterns)
-	for it_1.next() {
-		var input *CompilerInput = it_1.v
+	for input := range elemsT_(originalExterns) {
 		var name string = input.getSourceFile().getName()
 		if strings.HasSuffix(name, ".i.js") {
 			this.transitiveSummarySourcesParsed += 1
 			this.transitiveSummaryLinesParsed += input.getSourceFile().getNumLines()
 		}
 	}
-	it_3 := jeachOf_(originalInputs)
-	for it_3.next() {
-		var input *CompilerInput = it_3.v
+	for input := range elemsT_(originalInputs) {
 		var name string = input.getSourceFile().getName()
 		if strings.HasSuffix(name, ".i.js") {
 			this.transitiveSummarySourcesParsed += 1
@@ -438,9 +434,7 @@ func (this *PerformanceTracker) outputTracerReport(output *Output) {
 	if this.astManifest != nil {
 		output.println(JSCompStrings_lines([]string{"", "Input AST Manifest:", "token,count"}))
 		var manifestLines *JTList[string] = jnewTList_(jtc_string)
-		it_5 := jeachOf_(this.astManifest.entrySet())
-		for it_5.next() {
-			var e Map_EntryT[Token_rhino, any] = it_5.v
+		for e := range elemsT_(this.astManifest.entrySet()) {
 			manifestLines.add(String_format("%s,%d", []any{e.getKey(), e.getValue()}))
 		}
 		Collections_sort(manifestLines.asList())

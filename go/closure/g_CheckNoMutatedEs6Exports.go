@@ -26,12 +26,8 @@ func new_CheckNoMutatedEs6Exports(compiler *AbstractCompiler) *CheckNoMutatedEs6
 
 func (this *CheckNoMutatedEs6Exports) checkNoMutations() {
 	var mutatedExports SetT[string] = setAs_(jtc_string, Sets_SetView_as_Set(Sets_intersection(Set_un_(this.mutatedNames.keySet()), this.exportedLocalNames.asSet())))
-	it_1 := jeachOf_(mutatedExports)
-	for it_1.next() {
-		var mutatedExport string = it_1.v
-		it_3 := jeachOf_(this.mutatedNames.get(mutatedExport))
-		for it_3.next() {
-			var mutation Node = it_3.v
+	for mutatedExport := range elemsT_(mutatedExports) {
+		for mutation := range elemsT_(this.mutatedNames.get(mutatedExport)) {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(mutation, CheckNoMutatedEs6Exports_MUTATED_EXPORT, []string{mutatedExport}))
 		}
 	}

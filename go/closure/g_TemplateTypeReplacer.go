@@ -175,9 +175,7 @@ func (this *TemplateTypeReplacer) caseObjectTypeUnguarded(objType *ObjectType) *
 	}
 	var changed bool = false
 	var builder *RecordTypeBuilder = new_RecordTypeBuilder(this.registry)
-	it_1 := jeachOf_(objType.getOwnPropertyNames())
-	for it_1.next() {
-		var prop string = it_1.v
+	for prop := range elemsT_(objType.getOwnPropertyNames()) {
 		var propertyNode Node = objType.getPropertyNode(prop)
 		var beforeType *JSType = objType.getPropertyType(prop)
 		var afterType *JSType = to_JSType(beforeType.visit(Visitor(this)))

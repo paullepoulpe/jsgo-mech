@@ -35,9 +35,7 @@ func ImplicitNullabilityCheck_findImplicitNullabilityResults(info *JSDocInfo, t 
 		return jtlistEmptyImm_(jtc_p_ImplicitNullabilityCheck_Result)
 	}
 	var builder *TListBuilder[*ImplicitNullabilityCheck_Result] = newTListBuilder_(jtc_p_ImplicitNullabilityCheck_Result)
-	it_1 := jeachOf_(info.getTypeNodes())
-	for it_1.next() {
-		var typeRoot Node = it_1.v
+	for typeRoot := range elemsT_(info.getTypeNodes()) {
 		NodeUtil_visitPreOrder_Node_Visitor_Predicate(typeRoot, NodeUtil_Visitor(new_ImplicitNullabilityCheck_1(t, builder)), Predicates_alwaysTrue[Node]())
 	}
 	return builder.build()

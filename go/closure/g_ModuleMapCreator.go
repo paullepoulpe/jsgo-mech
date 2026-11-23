@@ -50,9 +50,7 @@ func (this *ModuleMapCreator) resolve() *ModuleMap {
 			var key string = it_3.v
 			var resolved *Module = this.unresolvedModules.get(key).resolve(requestResolver)
 			resolvedModules.put(key, resolved)
-			it_5 := foreach_(obj_(resolved.metadata().googNamespaces()))
-			for it_5.next() {
-				var namespace string = str_(it_5.v)
+			for namespace := range elemsBy_(obj_(resolved.metadata().googNamespaces()), str_) {
 				resolvedClosureModules.put(namespace, resolved)
 			}
 		}
@@ -88,9 +86,7 @@ func (this *ModuleMapCreator) process(moduleMetadata *ModuleMetadataMap_ModuleMe
 	if moduleMetadata.path() != nil {
 		this.unresolvedModules.put(moduleMetadata.path().toModuleName(), module)
 	}
-	it_2 := foreach_(obj_(moduleMetadata.googNamespaces()))
-	for it_2.next() {
-		var namespace string = str_(it_2.v)
+	for namespace := range elemsBy_(obj_(moduleMetadata.googNamespaces()), str_) {
 		this.unresolvedModulesByClosureNamespace.put(namespace, module)
 	}
 }

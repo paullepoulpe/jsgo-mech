@@ -777,9 +777,7 @@ func JSTypeRegistry_isObjectLiteralThatCanBeSkipped(t *JSType) bool {
 
 func (this *JSTypeRegistry) registerDroppedPropertiesInUnion(subtype *RecordType, supertype *RecordType) {
 	var foundDroppedProperty bool = false
-	it_1 := jeachOf_(subtype.getPropertyMap().getOwnPropertyNames())
-	for it_1.next() {
-		var pname string = it_1.v
+	for pname := range elemsT_(subtype.getPropertyMap().getOwnPropertyNames()) {
 		if !supertype.hasProperty(pname) {
 			foundDroppedProperty = true
 			this.droppedPropertiesOfUnions.add(pname)
@@ -864,9 +862,7 @@ func (this *JSTypeRegistry) canPropertyBeDefined(type_ *JSType, propertyName str
 		if type_.toMaybeRecordType() != nil {
 			var rec *RecordType = type_.toMaybeRecordType()
 			var mayBeInUnion bool = false
-			it_5 := jeachOf_(rec.getPropertyMap().getOwnPropertyNames())
-			for it_5.next() {
-				var pname string = it_5.v
+			for pname := range elemsT_(rec.getPropertyMap().getOwnPropertyNames()) {
 				if this.propertiesOfSupertypesInUnions.contains(pname) {
 					mayBeInUnion = true
 					break
@@ -1215,9 +1211,7 @@ func (this *JSTypeRegistry) buildRecordTypeFromObject(objType *ObjectType) *JSTy
 		return this.getNativeType(JSTypeNative_OBJECT_TYPE)
 	}
 	var props *TMapBuilder[string, *JSType] = newTMapBuilder_(jtc_string, jtc_p_JSType)
-	it_1 := jeachOf_(propNames)
-	for it_1.next() {
-		var propName string = it_1.v
+	for propName := range elemsT_(propNames) {
 		props.put(propName, objType.getPropertyType(propName))
 	}
 	return this.createRecordType(props.buildOrThrow().asMapT())
@@ -1226,9 +1220,7 @@ func (this *JSTypeRegistry) buildRecordTypeFromObject(objType *ObjectType) *JSTy
 func (this *JSTypeRegistry) createRecordType(props MapT[string, *JSType]) *JSType {
 	var propMap MapT[string, *JSType] = props
 	var builder *RecordTypeBuilder = new_RecordTypeBuilder(this)
-	it_1 := jeachOf_(propMap.entrySet_t())
-	for it_1.next() {
-		var e Map_EntryT[string, *JSType] = it_1.v
+	for e := range elemsT_(propMap.entrySet_t()) {
 		builder.addProperty(e.getKey_t(), e.getValue_t(), 0)
 	}
 	return builder.build()
@@ -1550,9 +1542,7 @@ func (this *JSTypeRegistry) createRecordTypeFromNodes(n Node, sourceName Optiona
 }
 
 func (this *JSTypeRegistry) registerTemplateTypeNamesInScope(keys IterableT[*TemplateType], scopeRoot Node) {
-	it_1 := jeachOf_(keys)
-	for it_1.next() {
-		var key *TemplateType = it_1.v
+	for key := range elemsT_(keys) {
 		this.scopedNameTable.put(scopeRoot, key.getReferenceName().orElseThrow(), key.up_JSType())
 	}
 }
@@ -1706,9 +1696,7 @@ func (this *JSTypeRegistry_SyntheticTemplateScope) init_JSTypeRegistry_Synthetic
 			return nil
 		}()
 	}()
-	it_1 := jeachOf_(templates)
-	for it_1.next() {
-		var key *TemplateType = it_1.v
+	for key := range elemsT_(templates) {
 		types = types.plus_Object_Object(key.getReferenceName().orElseThrow(), key)
 	}
 	this.types = types

@@ -124,9 +124,7 @@ func (this *LateEs6ToEs3Converter) visitObjectWithComputedProperty(t *NodeTraver
 	var objName string = (sstr_(LateEs6ToEs3Converter_FRESH_COMP_PROP_VAR) + sstr_(this.compiler_.getUniqueIdSupplier().getUniqueId(t.getInput())))
 	props = listAs_(jtc_Node, Lists_reverse(List_un_(props)))
 	var result Node = this.astFactory_.createName(objName, objectType)
-	it_2 := jeachOf_(props)
-	for it_2.next() {
-		var propdef Node = it_2.v
+	for propdef := range elemsT_(props) {
 		if propdef.isComputedProp() {
 			var propertyExpression Node = propdef.removeFirstChild()
 			var value Node = propdef.removeFirstChild()

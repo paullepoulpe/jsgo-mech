@@ -56,9 +56,7 @@ func (this *DependencyFile) loadGraph() {
 	it_1 := depInfos.each()
 	for it_1.next() {
 		var depInfo DependencyInfo_ = it_1.v
-		it_3 := jeachOf_(depInfo.getProvides())
-		for it_3.next() {
-			var provide string = it_3.v
+		for provide := range elemsT_(depInfo.getProvides()) {
 			var existing DependencyInfo_ = this.dependencies.get(provide)
 			if (existing != nil) && !equalsDyn_(existing, depInfo) {
 				panic(obj_(new_ServiceException(("Duplicate provide of " + sstr_(provide) + ". Was provided by " + sstr_(existing.getPathRelativeToClosureBase()) + " and " + sstr_(depInfo.getPathRelativeToClosureBase())))))

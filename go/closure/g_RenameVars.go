@@ -343,9 +343,7 @@ func (this *RenameVars_ProcessVars) enterScope(t *NodeTraversal) {
 		return
 	}
 	var scope *Scope = t.getScope()
-	it_1 := jeachOf_(scope.getVarIterable_rIterableOf_Var())
-	for it_1.next() {
-		var current *Var = it_1.v
+	for current := range elemsT_(scope.getVarIterable_rIterableOf_Var()) {
 		if current.isBleedingFunction() {
 			this.outer_.localBleedingFunctions.add(current)
 			this.outer_.localBleedingFunctionsPerScope.put(scope.getParent_rScope(), current)

@@ -43,9 +43,7 @@ func (this *PruningAnalysis) calculateBottlenecks() *JTMap[string, any] {
 	var graph *DiGraph[string, string] = this.buildGraph()
 	var dominatorTree *DominatorTree[string] = DominatorTree_compute[string, string](graph, PruningAnalysis_VIRTUAL_ROOT)
 	var bottleneckBlame *JTMap[string, any] = jnewTMap_(jtc_string, tc_Integer)
-	it_1 := jeachOf_(dominatorTree.getAllSubtreeSizes().entrySet_t())
-	for it_1.next() {
-		var entry Map_EntryT[string, any] = it_1.v
+	for entry := range elemsT_(dominatorTree.getAllSubtreeSizes().entrySet_t()) {
 		var node string = entry.getKey_t()
 		var retainedCount int32 = unbox_[int32](entry.getValue_t())
 		if !(node == PruningAnalysis_VIRTUAL_ROOT) && (retainedCount > 1) {
@@ -75,9 +73,7 @@ func (this *PruningAnalysis) calculateBottlenecks() *JTMap[string, any] {
 func (this *PruningAnalysis) buildGraph() *DiGraph[string, string] {
 	var graph *DiGraph[string, string] = LinkedDirectedGraph_create[string, string]().up_DiGraph()
 	graph.createNode_Object_rDiGraphNode(PruningAnalysis_VIRTUAL_ROOT)
-	it_1 := jeachOf_(this.sorter_.getSortedList())
-	for it_1.next() {
-		var input *CompilerInput = it_1.v
+	for input := range elemsT_(this.sorter_.getSortedList()) {
 		graph.createNode_Object_rDiGraphNode(input.getName())
 	}
 	it_3 := this.entryPoints_.each()
@@ -85,14 +81,10 @@ func (this *PruningAnalysis) buildGraph() *DiGraph[string, string] {
 		var input *CompilerInput = it_3.v
 		graph.connect(PruningAnalysis_VIRTUAL_ROOT, nullstr_, input.getName())
 	}
-	it_5 := jeachOf_(this.sorter_.getSortedList())
-	for it_5.next() {
-		var input *CompilerInput = it_5.v
+	for input := range elemsT_(this.sorter_.getSortedList()) {
 		var name string = input.getName()
 		var depSymbols *JTSet[string] = jnewTSet_(jtc_string)
-		it_7 := jeachOf_(input.getRequires())
-		for it_7.next() {
-			var req *DependencyInfo_Require = it_7.v
+		for req := range elemsT_(input.getRequires()) {
 			depSymbols.add(req.getSymbol())
 		}
 		depSymbols.asSetT().addAll(Collection(List_un_(input.getTypeRequires())))

@@ -132,14 +132,10 @@ func (this *CheckMissingRequires) visitJsDocInfo(t *NodeTraversal, currentModule
 	if info.hasBaseType() {
 		this.visitJsDocExpr(t, currentModule, info.getBaseType(), CheckMissingRequires_Strength_IMPLEMENTS_EXTENDS)
 	}
-	it_3 := jeachOf_(info.getExtendedInterfaces())
-	for it_3.next() {
-		var expr *JSTypeExpression = it_3.v
+	for expr := range elemsT_(info.getExtendedInterfaces()) {
 		this.visitJsDocExpr(t, currentModule, expr, CheckMissingRequires_Strength_IMPLEMENTS_EXTENDS)
 	}
-	it_5 := jeachOf_(info.getImplementedInterfaces())
-	for it_5.next() {
-		var expr *JSTypeExpression = it_5.v
+	for expr := range elemsT_(info.getImplementedInterfaces()) {
 		this.visitJsDocExpr(t, currentModule, expr, CheckMissingRequires_Strength_IMPLEMENTS_EXTENDS)
 	}
 }

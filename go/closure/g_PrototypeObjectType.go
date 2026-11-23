@@ -196,15 +196,11 @@ func (this *PrototypeObjectType) appendTo_impl(sb *TypeStringBuilder) {
 			if current.isNativeObjectType() || (properties.size() > PrototypeObjectType_MAX_PRETTY_PRINTED_PROPERTIES) {
 				break
 			}
-			it_2 := jeachOf_(current.getOwnPropertyNames())
-			for it_2.next() {
-				var stringKey string = it_2.v
+			for stringKey := range elemsT_(current.getOwnPropertyNames()) {
 				var key *Property_StringKey = new_Property_StringKey(stringKey)
 				properties.add(new_PrototypeObjectType_PropertyForPrettyPrinting(Property_StringKey_as_Property_Key(key), current.getPropertyTypeKey(Property_StringKey_as_Property_Key(key))))
 			}
-			it_4 := jeachOf_(current.getOwnPropertyKnownSymbols())
-			for it_4.next() {
-				var symbolKey *KnownSymbolType = it_4.v
+			for symbolKey := range elemsT_(current.getOwnPropertyKnownSymbols()) {
 				var key *Property_SymbolKey = new_Property_SymbolKey(symbolKey)
 				properties.add(new_PrototypeObjectType_PropertyForPrettyPrinting(Property_SymbolKey_as_Property_Key(key), current.getPropertyTypeKey(Property_SymbolKey_as_Property_Key(key))))
 			}
@@ -324,9 +320,7 @@ func (this *PrototypeObjectType) resolveInternal_impl(reporter ErrorReporter_rhi
 	if implicitPrototype != nil {
 		this.implicitPrototypeFallback = to_ObjectType(implicitPrototype.resolve(reporter).self())
 	}
-	it_1 := jeachOf_(this.properties.values())
-	for it_1.next() {
-		var prop *Property = it_1.v
+	for prop := range elemsT_(this.properties.values()) {
 		prop.setType(JSType_safeResolve(prop.getType(), reporter))
 	}
 	return this.up_JSType()
@@ -350,9 +344,7 @@ func (this *PrototypeObjectType) matchConstraint_impl(constraint *JSType) {
 }
 
 func (this *PrototypeObjectType) matchRecordTypeConstraint(constraintObj *ObjectType) {
-	it_1 := jeachOf_(constraintObj.getOwnPropertyNames())
-	for it_1.next() {
-		var prop string = it_1.v
+	for prop := range elemsT_(constraintObj.getOwnPropertyNames()) {
 		var propType *JSType = constraintObj.getPropertyType(prop)
 		if !this.isPropertyTypeDeclared(prop) {
 			var typeToInfer *JSType = propType

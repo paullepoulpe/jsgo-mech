@@ -45,9 +45,7 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 	}
 	if info.getAuthors() != nil {
 		multiline = true
-		it_1 := jeachOf_(info.getAuthors())
-		for it_1.next() {
-			var name string = it_1.v
+		for name := range elemsT_(info.getAuthors()) {
 			parts.add(("@author " + sstr_(name)))
 		}
 	}
@@ -70,9 +68,7 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 	}
 	if info.getReferences() != nil {
 		multiline = true
-		it_3 := jeachOf_(info.getReferences())
-		for it_3.next() {
-			var desc string = it_3.v
+		for desc := range elemsT_(info.getReferences()) {
 			parts.add(("@see " + sstr_(desc)))
 		}
 	}
@@ -138,16 +134,12 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 		var typeNode Node = this.stripBang(info.getBaseType().getRoot())
 		parts.add(this.buildAnnotationWithType("extends", typeNode))
 	}
-	it_5 := jeachOf_(info.getExtendedInterfaces())
-	for it_5.next() {
-		var type_ *JSTypeExpression = it_5.v
+	for type_ := range elemsT_(info.getExtendedInterfaces()) {
 		multiline = true
 		var typeNode Node = this.stripBang(type_.getRoot())
 		parts.add(this.buildAnnotationWithType("extends", typeNode))
 	}
-	it_7 := jeachOf_(info.getImplementedInterfaces())
-	for it_7.next() {
-		var type_ *JSTypeExpression = it_7.v
+	for type_ := range elemsT_(info.getImplementedInterfaces()) {
 		multiline = true
 		var typeNode Node = this.stripBang(type_.getRoot())
 		parts.add(this.buildAnnotationWithType("implements", typeNode))
@@ -227,9 +219,7 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 	}
 	var suppressions ImmutableMapOf[SetT[string], string] = info.getSuppressionsAndTheirDescription()
 	if !suppressions.isEmpty() {
-		it_13 := foreach_(suppressions.entrySet())
-		for it_13.next() {
-			var suppression Map_Entry = icast_Map_Entry(it_13.v)
+		for suppression := range elemsBy_(suppressions.entrySet(), icast_Map_Entry) {
 			var warnings []string = arrmap_(setAs_(jtc_string, icast_Set(suppression.getKey())).toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })
 			func() {
 				arr_15 := warnings
