@@ -14,7 +14,9 @@ type OptionalChainRewriter struct {
 }
 
 func (this *OptionalChainRewriter) init_OptionalChainRewriter(builder *OptionalChainRewriter_Builder, wholeChain Node) {
-	Preconditions_checkArgument_boolean_Object_H(NodeUtil_isEndOfFullOptChain(wholeChain), wholeChain)
+	if !NodeUtil_isEndOfFullOptChain(wholeChain) {
+		Preconditions_checkArgument_boolean_Object_H(false, wholeChain)
+	}
 	this.compiler_ = builder.compiler_
 	this.astFactory_ = builder.astFactory_
 	this.tmpVarNameCreator = Preconditions_checkNotNull_T(builder.tmpVarNameCreator)
@@ -41,7 +43,9 @@ func OptionalChainRewriter_builder(compiler *AbstractCompiler) *OptionalChainRew
 }
 
 func (this *OptionalChainRewriter) rewrite() {
-	Preconditions_checkState_boolean_String_Object_H(NodeUtil_isOptChainNode(this.wholeChain), "already rewritten: %s", this.wholeChain)
+	if !NodeUtil_isOptChainNode(this.wholeChain) {
+		Preconditions_checkState_boolean_String_Object_H(false, "already rewritten: %s", this.wholeChain)
+	}
 	var startNodeStack *TDeque[Node] = newTDeque_(jtc_Node)
 	var subchainEnd Node = this.wholeChain
 	for NodeUtil_isOptChainNode(subchainEnd) {
@@ -66,7 +70,9 @@ func (this *OptionalChainRewriter) rewrite() {
 	if this.chainParent.isDelProp() {
 		for !this.deletesToDelete.isEmpty() {
 			var delete_ Node = this.deletesToDelete.pop()
-			Preconditions_checkState_boolean_Object_H(delete_.getFirstChild().isHook(), delete_)
+			if !delete_.getFirstChild().isHook() {
+				Preconditions_checkState_boolean_Object_H(false, delete_)
+			}
 			var hook Node = delete_.getFirstChild()
 			hook.detach()
 			delete_.replaceWith(hook)
@@ -84,7 +90,9 @@ func (this *OptionalChainRewriter) rewriteInitialSegment(fullChainStart Node, fu
 	if isBeingDeleted {
 		this.deletesToDelete.add(fullChainEnd.getParent())
 	}
-	Preconditions_checkArgument_boolean_Object_H(!NodeUtil_isOptChainNode(receiverNode), receiverNode)
+	if NodeUtil_isOptChainNode(receiverNode) {
+		Preconditions_checkArgument_boolean_Object_H(false, receiverNode)
+	}
 	NodeUtil_convertToNonOptionalChainSegment(initialChainEnd)
 	var placeholder Node = IR_empty()
 	fullChainEnd.replaceWith(placeholder)

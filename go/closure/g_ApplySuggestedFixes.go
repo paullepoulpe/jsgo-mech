@@ -103,7 +103,9 @@ func ApplySuggestedFixes_applySuggestedFixesToCode(fixes IterableT[*SuggestedFix
 
 func ApplySuggestedFixes_applyCodeReplacements(replacements CollectionT[*CodeReplacement], code string) string {
 	var sortedReplacements ImmutableSortedSetOf[*CodeReplacement] = ImmutableSortedSet_copyOf(Collection_un_(replacements))
-	Preconditions_checkArgument_boolean_String_Object(!ApplySuggestedFixes_containsOverlaps(sortedReplacements), "Found overlap between code replacements:\n%s", ApplySuggestedFixes_DOUBLE_LINE_JOINER.join(ImmutableSortedSet_as_Iterable(sortedReplacements)))
+	if ok_, a1_ := !ApplySuggestedFixes_containsOverlaps(sortedReplacements), ApplySuggestedFixes_DOUBLE_LINE_JOINER.join(ImmutableSortedSet_as_Iterable(sortedReplacements)); !ok_ {
+		Preconditions_checkArgument_boolean_String_Object(false, "Found overlap between code replacements:\n%s", a1_)
+	}
 	var sb *StringBuilder = new_StringBuilder()
 	var lastIndex int32 = 0
 	it_1 := foreach_(obj_(sortedReplacements))

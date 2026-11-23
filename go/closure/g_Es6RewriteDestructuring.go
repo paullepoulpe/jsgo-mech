@@ -178,11 +178,15 @@ func (this *Es6RewriteDestructuring) replacePatternParamWithTempVar(function Nod
 }
 
 func (this *Es6RewriteDestructuring) rewriteVarDestructuringDeclaration(destructuringLhs Node) Node {
-	Preconditions_checkState_boolean_Object_H(destructuringLhs.isDestructuringLhs(), destructuringLhs)
+	if !destructuringLhs.isDestructuringLhs() {
+		Preconditions_checkState_boolean_Object_H(false, destructuringLhs)
+	}
 	Preconditions_checkState_boolean_Object(!destructuringLhs.getGrandparent().isExport(), "Export destructuring declarations not expected inside a function body.")
 	var var_ Node = destructuringLhs.getParent()
 	NodeUtil_visitLhsNodesInNode(destructuringLhs, Consumer[Node](func(name Node) {
-		Preconditions_checkState_boolean_String_Object_H(name.isName(), "lhs in destructuring declaration should be a simple name. (%s)", name)
+		if !name.isName() {
+			Preconditions_checkState_boolean_String_Object_H(false, "lhs in destructuring declaration should be a simple name. (%s)", name)
+		}
 		var newName Node = IR_name(name.getString()).srcref(name)
 		if name.getBooleanProp(Node_IS_CONSTANT_NAME) {
 			newName.putBooleanProp(Node_IS_CONSTANT_NAME, true)
@@ -191,7 +195,9 @@ func (this *Es6RewriteDestructuring) rewriteVarDestructuringDeclaration(destruct
 		newVar.insertBefore(var_)
 	}))
 	var destructuringPattern Node = destructuringLhs.removeFirstChild()
-	Preconditions_checkState_boolean_String_Object(destructuringPattern.isDestructuringPattern(), "Expected destructuring pattern but got %s", destructuringPattern.toStringTree())
+	if ok_, a1_ := destructuringPattern.isDestructuringPattern(), destructuringPattern.toStringTree(); !ok_ {
+		Preconditions_checkState_boolean_String_Object(false, "Expected destructuring pattern but got %s", a1_)
+	}
 	var rhs Node = destructuringLhs.removeFirstChild()
 	var assign Node = this.astFactory_.createAssign(destructuringPattern, rhs)
 	assign.srcref(var_)
@@ -243,7 +249,9 @@ func (this *Es6RewriteDestructuring) visitPattern(t *NodeTraversal, pattern Node
 }
 
 func (this *Es6RewriteDestructuring) replacePattern(t *NodeTraversal, pattern Node, rhs Node, parent Node, nodeToDetach Node) {
-	Preconditions_checkArgument_boolean_Object_H(NodeUtil_isStatement(nodeToDetach), nodeToDetach)
+	if !NodeUtil_isStatement(nodeToDetach) {
+		Preconditions_checkArgument_boolean_Object_H(false, nodeToDetach)
+	}
 	switch pattern.ns_().token {
 	case tokOrd1_ARRAY_PATTERN:
 		this.replaceArrayPattern(t, pattern, rhs, parent, nodeToDetach)
@@ -352,7 +360,9 @@ func (this *Es6RewriteDestructuring) replaceObjectPattern(t *NodeTraversal, obje
 				restTempDecl.insertBefore(nodeToDetach)
 				var restName Node = child.getOnlyChild()
 				if String_startsWith(restName.getString(), Es6RewriteDestructuring_DESTRUCTURING_TEMP_VAR) {
-					Preconditions_checkState_boolean_Object_H(restName.isName(), restName)
+					if !restName.isName() {
+						Preconditions_checkState_boolean_Object_H(false, restName)
+					}
 					newLHS = this.createTempVarNameNode(restName.getString(), AstFactory_type_Node(restName))
 				} else {
 					newLHS = restName.detach()
@@ -500,7 +510,9 @@ func (this *Es6RewriteDestructuring) validateNoAwaitOrYieldInNestedAssignmentPat
 	var hasAwaitOrYieldInLhs bool = (NodeUtil_findPreorder(pattern, Predicate_base[Node](func(n Node) bool {
 		return (n.isAwait() || n.isYield())
 	}), NodeUtil_MATCH_NOT_FUNCTION) != 0)
-	Preconditions_checkState_boolean_String_Object_H(!hasAwaitOrYieldInLhs, "Cannot transpile yet: destructuring assignment referencing await or yield in lhs, in nested sub-expression: %s", pattern)
+	if hasAwaitOrYieldInLhs {
+		Preconditions_checkState_boolean_String_Object_H(false, "Cannot transpile yet: destructuring assignment referencing await or yield in lhs, in nested sub-expression: %s", pattern)
+	}
 }
 
 func (this *Es6RewriteDestructuring) visitDestructuringPatternInVanillaForInnerVars(t *NodeTraversal, pattern Node) {

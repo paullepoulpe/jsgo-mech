@@ -966,7 +966,9 @@ func (this *FunctionType) forgetParameterAndReturnTypes() *FunctionType {
 }
 
 func (this *FunctionType) getConstructorOnlyTemplateParameters() *JTList[*TemplateType] {
-	Preconditions_checkState_boolean_Object(this.isConstructor(), this)
+	if !this.isConstructor() {
+		Preconditions_checkState_boolean_Object(false, this)
+	}
 	if this.source == 0 {
 		return jtlistEmptyImm_(jtc_p_TemplateType)
 	}

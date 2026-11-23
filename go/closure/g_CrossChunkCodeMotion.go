@@ -72,7 +72,9 @@ func (this *CrossChunkCodeMotion) moveGlobalSymbols(globalSymbols CollectionT[*C
 }
 
 func (this *CrossChunkCodeMotion) addGuardToInstanceofReference(referenceNode Node) {
-	Preconditions_checkState_boolean_String_Object_H(this.isUnguardedInstanceofReference(referenceNode), "instanceof Reference is already guarded: %s", referenceNode)
+	if !this.isUnguardedInstanceofReference(referenceNode) {
+		Preconditions_checkState_boolean_String_Object_H(false, "instanceof Reference is already guarded: %s", referenceNode)
+	}
 	var instanceofNode Node = Preconditions_checkNotNull_T(referenceNode.getParent())
 	var referenceForTypeOf Node = referenceNode.cloneNode()
 	var tmp Node = IR_block_0()
@@ -337,7 +339,9 @@ func (this *CrossChunkCodeMotion_GlobalSymbolCycle) moveDeclarationStatements() 
 	it_1 := this.symbols.each()
 	for it_1.next() {
 		var symbol *CrossChunkCodeMotion_GlobalSymbol = it_1.v
-		Preconditions_checkState_boolean_String_Object(!symbol.isMoveDeclarationStatementsDone, "duplicate attempt to move %s", symbol)
+		if symbol.isMoveDeclarationStatementsDone {
+			Preconditions_checkState_boolean_String_Object(false, "duplicate attempt to move %s", symbol)
+		}
 	}
 	var chunksWithImmovableReferences *BitSet = new_BitSet_int(this.outer_.graph.getChunkCount())
 	var cyclesLatestFirst *JTList[*CrossChunkCodeMotion_DeclarationStatementGroupCycle] = this.getDsgCyclesLatestFirst()
@@ -449,7 +453,9 @@ func (this *CrossChunkCodeMotion_DeclarationStatementGroup) makeReferencesImmova
 	it_1 := this.referencedGlobalSymbols.each()
 	for it_1.next() {
 		var symbol *CrossChunkCodeMotion_GlobalSymbol = it_1.v
-		Preconditions_checkState_boolean_String_Object_Object(!symbol.isMoveDeclarationStatementsDone, "symbol %s moved before referring symbol %s", symbol, this.declaredGlobalSymbol)
+		if symbol.isMoveDeclarationStatementsDone {
+			Preconditions_checkState_boolean_String_Object_Object(false, "symbol %s moved before referring symbol %s", symbol, this.declaredGlobalSymbol)
+		}
 		symbol.addImmovableReference(this.currentChunk)
 	}
 }
@@ -494,7 +500,9 @@ func (this *CrossChunkCodeMotion_OrderAndCombineGlobalSymbols) orderAndCombine()
 }
 
 func (this *CrossChunkCodeMotion_OrderAndCombineGlobalSymbols) processGlobalSymbol(symbol *CrossChunkCodeMotion_GlobalSymbol) {
-	Preconditions_checkState_boolean_String_Object((symbol.preorderNumber < 0), "already processed: %s", symbol)
+	if !(symbol.preorderNumber < 0) {
+		Preconditions_checkState_boolean_String_Object(false, "already processed: %s", symbol)
+	}
 	symbol.preorderNumber = this.preorderCounter
 	this.preorderCounter++
 	this.componentRoots.push(symbol)

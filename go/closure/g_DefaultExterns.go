@@ -20,14 +20,18 @@ func DefaultExterns_prepareExterns(env *CompilerOptions_Environment, externs *JT
 	it_1 := DefaultExterns_BUILTIN_LANG_EXTERNS.each()
 	for it_1.next() {
 		var key string = it_1.v
-		Preconditions_checkState_boolean_String_Object(externs.containsKey(key), "Externs must contain builtin: %s", key)
+		if !externs.containsKey(key) {
+			Preconditions_checkState_boolean_String_Object(false, "Externs must contain builtin: %s", key)
+		}
 		out.add(externs.remove(key))
 	}
 	if env == CompilerOptions_Environment_BROWSER {
 		it_3 := DefaultExterns_BROWSER_EXTERN_DEP_ORDER.each()
 		for it_3.next() {
 			var key string = it_3.v
-			Preconditions_checkState_boolean_String_Object_Object(externs.containsKey(key), "Externs must contain builtin for env %s: %s", env, key)
+			if !externs.containsKey(key) {
+				Preconditions_checkState_boolean_String_Object_Object(false, "Externs must contain builtin for env %s: %s", env, key)
+			}
 			out.add(externs.remove(key))
 		}
 		out.asListT().addAll(Collection_un_(externs.valuesT()))

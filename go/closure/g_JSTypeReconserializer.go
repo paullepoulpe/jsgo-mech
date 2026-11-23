@@ -117,7 +117,9 @@ func (this *JSTypeReconserializer) recordUnionType(type_ *UnionType) *JSTypeReco
 	if record.unionMembers == nil {
 		record.unionMembers = immutableSetCopyOfT_(jtc_p_JSTypeReconserializer_SeenTypeRecord, altRecords)
 	} else if this.serializationMode.runValidation() {
-		Preconditions_checkState_boolean_String_Object_Object_Object(Object_equals(lgBox_(altRecords.asSetT()), record.unionMembers.asSet()), "Unions with same ID must have same members: %s => %s == %s", unionId, JSTypeReconserializer_colorIdsOf(altRecords.asCollT()).asSet(), JSTypeReconserializer_colorIdsOf(record.unionMembers.asCollT()).asSet())
+		if ok_, a1_, a2_, a3_ := Object_equals(lgBox_(altRecords.asSetT()), record.unionMembers.asSet()), unionId, JSTypeReconserializer_colorIdsOf(altRecords.asCollT()).asSet(), JSTypeReconserializer_colorIdsOf(record.unionMembers.asCollT()).asSet(); !ok_ {
+			Preconditions_checkState_boolean_String_Object_Object_Object(false, "Unions with same ID must have same members: %s => %s == %s", a1_, a2_, a3_)
+		}
 	}
 	return record
 }
@@ -188,7 +190,9 @@ func (this *JSTypeReconserializer) serializeInvolvedTypes(types CollectionT[*JST
 	it_1 := jeachOf_(types)
 	for it_1.next() {
 		var t *JSType = it_1.v
-		Preconditions_checkState_boolean_Object(!t.isUnionType(), t)
+		if t.isUnionType() {
+			Preconditions_checkState_boolean_Object(false, t)
+		}
 		distinctPointers.add(int32(this.serializeType(t)))
 	}
 	var result *JTList[any] = jtlistFrom_(tc_Integer, Collection(distinctPointers.asSet()))
@@ -274,7 +278,9 @@ func (this *JSTypeReconserializer) checkValidLinearTime() {
 		var seen *JSTypeReconserializer_SeenTypeRecord = it_1.v
 		var offset int32 = seen.pointer
 		Preconditions_checkState((offset >= 0))
-		Preconditions_checkState_boolean_String_int_int((offset <= totalTypeCount), "Found invalid pointer %s, out of a total of %s user-defined types", offset, totalTypeCount)
+		if !(offset <= totalTypeCount) {
+			Preconditions_checkState_boolean_String_int_int(false, "Found invalid pointer %s, out of a total of %s user-defined types", offset, totalTypeCount)
+		}
 	}
 }
 
@@ -297,7 +303,9 @@ func (this *JSTypeReconserializer) generateTypePool() *TypePool {
 	for it_1.next() {
 		var seen *JSTypeReconserializer_SeenTypeRecord = it_1.v
 		if StandardColors_AXIOMATIC_COLORS.containsKey(seen.colorId) {
-			Preconditions_checkState_boolean_String_Object(TypePointers_isAxiomatic(seen.pointer), "Missing .type for SeenTypeRecord %s", seen)
+			if !TypePointers_isAxiomatic(seen.pointer) {
+				Preconditions_checkState_boolean_String_Object(false, "Missing .type for SeenTypeRecord %s", seen)
+			}
 			continue
 		}
 		builder.addType(func() *TypeProto {

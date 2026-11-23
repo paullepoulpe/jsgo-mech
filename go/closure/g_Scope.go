@@ -82,7 +82,9 @@ func (this *Scope) declare(name string, nameNode Node, input *CompilerInput) *Va
 
 func (this *Scope) declareImplicitGoogNamespaceIfAbsent(name string, definition Node) *Var {
 	Preconditions_checkArgument(!String_isEmpty(name))
-	Preconditions_checkState_boolean_String_Object(this.isGlobal(), "Cannot declare implicit goog namespace in local scope %s", this)
+	if !this.isGlobal() {
+		Preconditions_checkState_boolean_String_Object(false, "Cannot declare implicit goog namespace in local scope %s", this)
+	}
 	var var_ *Var = this.getOwnSlot_String_rAbstractVar_rVar(name)
 	if var_ == nil {
 		var_ = Var_createImplicitGoogNamespace(name, this, definition)
@@ -131,7 +133,9 @@ func (this *Scope) undeclareInteral(var_ *Var) {
 }
 
 func (this *Scope) declareInternal(name string, var_ *Var) {
-	Preconditions_checkState_boolean_String_Object_H((this.hasOwnSlot(name) || this.canDeclare(name)), "Illegal shadow: %s", var_.getNode())
+	if ok_, a1_ := (this.hasOwnSlot(name) || this.canDeclare(name)), var_.getNode(); !ok_ {
+		Preconditions_checkState_boolean_String_Object_H(false, "Illegal shadow: %s", a1_)
+	}
 	var emptySentinel *JTMap[string, *Var] = jtmapEmptyImm_(jtc_string, jtc_p_Var)
 	if this.vars == emptySentinel {
 		this.vars = newTMapN_(jtc_string, jtc_p_Var, 1)
@@ -270,15 +274,21 @@ func (this *Scope) getClosestContainerScope_rScope() *Scope {
 	var scope *Scope = this.getClosestHoistScope_rScope()
 	if scope.isFunctionBlockScope() {
 		scope = scope.getParent_rScope()
-		Preconditions_checkState_boolean_Object(!scope.isBlockScope(), scope)
+		if scope.isBlockScope() {
+			Preconditions_checkState_boolean_Object(false, scope)
+		}
 	}
 	return scope
 }
 
 func (this *Scope) checkChildScope(parent *Scope) {
 	Preconditions_checkNotNull_T(parent)
-	Preconditions_checkArgument_boolean_Object_H(NodeUtil_createsScope(this.rootNode_), this.rootNode_)
-	Preconditions_checkArgument_boolean_String_Object_H((this.rootNode_ != parent.getRootNode()), "rootNode should not be the parent's root node: %s", this.rootNode_)
+	if !NodeUtil_createsScope(this.rootNode_) {
+		Preconditions_checkArgument_boolean_Object_H(false, this.rootNode_)
+	}
+	if !(this.rootNode_ != parent.getRootNode()) {
+		Preconditions_checkArgument_boolean_String_Object_H(false, "rootNode should not be the parent's root node: %s", this.rootNode_)
+	}
 }
 
 func (this *Scope) getCommonParent(other *Scope) *Scope {
