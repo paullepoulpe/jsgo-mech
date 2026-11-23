@@ -73,17 +73,17 @@ func JSTypeExpression_baseName(name string) string {
 }
 
 func (this *JSTypeExpression) getAllTypeNodes() *JTList[Node] {
-	var builder ImmutableList_BuilderOf[Node] = ImmutableList_builder()
-	JSTypeExpression_visitAllTypeNodes(this.root, Consumer[Node](func(p0 Node) { builder.add(p0.box_()) }))
-	return jtlistImm_(jtc_Node, builder.build())
+	var builder *ImmutableList_Builder[Node] = immutableListBuilder_(tc_Node)
+	JSTypeExpression_visitAllTypeNodes(this.root, Consumer[Node](func(p0 Node) { builder.add(p0) }))
+	return jtlistImm_(jtc_Node, builder.buildErased())
 }
 
 func (this *JSTypeExpression) getAllTypeNames() *JTSet[string] {
-	var builder ImmutableSet_BuilderOf[string] = ImmutableSet_builder()
+	var builder *ImmutableSet_Builder[string] = immutableSetBuilder_(tc_string)
 	JSTypeExpression_visitAllTypeNodes(this.root, Consumer[Node](func(n Node) {
-		builder.add(strobj_(n.getString()))
+		builder.add(n.getString())
 	}))
-	return tsetImm_(jtc_string, builder.build())
+	return tsetImm_(jtc_string, builder.buildErased())
 }
 
 func JSTypeExpression_visitAllTypeNodes(n Node, visitor Consumer[Node]) {

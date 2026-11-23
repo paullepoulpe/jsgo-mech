@@ -17,6 +17,9 @@ type tconv_[T any] struct {
 	box   func(T) any
 	unbox func(any) T
 	null  T // Java's null as a T (the null string for strings, else the zero value)
+	// isnull: set for an element type that Go cannot compare (a func type of the translator's
+	// rule "function types"): whether v is null.
+	isnull func(T) bool
 	// For a key of a typed map or set compared by equals (a class with its own equals and
 	// hashCode, or an interface such classes implement): Java's hashCode of a non-null key, and
 	// a.equals(b) for a non-null a. Nil for keys compared by ==.
