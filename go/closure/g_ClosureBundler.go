@@ -181,7 +181,12 @@ func (this *ClosureBundler_EvalMode) as_ClosureBundler_EvalMode() *ClosureBundle
 }
 
 func to_ClosureBundler_EvalMode(v any) *ClosureBundler_EvalMode {
-	if v == nil {
+	switch p := v.(type) {
+	case *ClosureBundler_EvalMode_1:
+		return p.as_ClosureBundler_EvalMode()
+	case *ClosureBundler_EvalMode_2:
+		return p.as_ClosureBundler_EvalMode()
+	case nil:
 		return nil
 	}
 	return v.(interface {
@@ -266,7 +271,12 @@ func (this *ClosureBundler_EscapeMode) as_ClosureBundler_EscapeMode() *ClosureBu
 }
 
 func to_ClosureBundler_EscapeMode(v any) *ClosureBundler_EscapeMode {
-	if v == nil {
+	switch p := v.(type) {
+	case *ClosureBundler_EscapeMode_1:
+		return p.as_ClosureBundler_EscapeMode()
+	case *ClosureBundler_EscapeMode_2:
+		return p.as_ClosureBundler_EscapeMode()
+	case nil:
 		return nil
 	}
 	return v.(interface {
