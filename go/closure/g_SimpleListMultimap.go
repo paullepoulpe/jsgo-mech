@@ -161,11 +161,6 @@ type SimpleListMultimap_1[K comparable, V comparable] struct {
 
 func (this *SimpleListMultimap_1[K, V]) isa_SimpleListMultimap_1_() {}
 
-func is_SimpleListMultimap_1(v any) bool {
-	_, ok := v.(interface{ isa_SimpleListMultimap_1_() })
-	return ok
-}
-
 func (this *SimpleListMultimap_1[K, V]) up_AbstractCollection() *AbstractCollection {
 	if this == nil {
 		return nil

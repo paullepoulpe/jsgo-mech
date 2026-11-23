@@ -20,6 +20,12 @@ type FunctionType struct {
 	isAbstractField            bool
 }
 
+// FunctionType_as is implemented by FunctionType and the classes that extend it: a cast to FunctionType asserts to it
+// (post-flip).
+type FunctionType_as interface {
+	as_FunctionType() *FunctionType
+}
+
 func (this *FunctionType) as_FunctionType() *FunctionType { return this }
 
 func to_FunctionType(v any) *FunctionType {
@@ -33,11 +39,11 @@ func to_FunctionType(v any) *FunctionType {
 	case nil:
 		return nil
 	}
-	return v.(interface{ as_FunctionType() *FunctionType }).as_FunctionType()
+	return v.(FunctionType_as).as_FunctionType()
 }
 
 func is_FunctionType(v any) bool {
-	_, ok := v.(interface{ as_FunctionType() *FunctionType })
+	_, ok := v.(FunctionType_as)
 	return ok
 }
 

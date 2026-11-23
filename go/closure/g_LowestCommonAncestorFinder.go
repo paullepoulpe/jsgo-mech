@@ -10,11 +10,6 @@ type LowestCommonAncestorFinder[N comparable, E comparable] struct {
 
 func (this *LowestCommonAncestorFinder[N, E]) isa_LowestCommonAncestorFinder_() {}
 
-func is_LowestCommonAncestorFinder(v any) bool {
-	_, ok := v.(interface{ isa_LowestCommonAncestorFinder_() })
-	return ok
-}
-
 func (this *LowestCommonAncestorFinder[N, E]) finit_LowestCommonAncestorFinder() {
 	this.searchColoring = jnewTMap_(tce_DiGraph_DiGraphNode_N__E_[N, E](), jtc_p_LowestCommonAncestorFinder_Color)
 	this.searchQueue = newTDeque_(tc_DiGraph_DiGraphNode_N__E_[N, E]())

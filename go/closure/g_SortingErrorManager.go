@@ -34,18 +34,6 @@ func (this *SortingErrorManager) println_impl(CheckLevel, *JSError) {
 
 func (this *SortingErrorManager) as_SortingErrorManager() *SortingErrorManager { return this }
 
-func to_SortingErrorManager(v any) *SortingErrorManager {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_SortingErrorManager() *SortingErrorManager }).as_SortingErrorManager()
-}
-
-func is_SortingErrorManager(v any) bool {
-	_, ok := v.(interface{ as_SortingErrorManager() *SortingErrorManager })
-	return ok
-}
-
 func (this *SortingErrorManager) self() any {
 	if this == nil {
 		return nil

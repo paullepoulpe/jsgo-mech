@@ -39,18 +39,6 @@ func (this Outcome_type) self() any {
 
 func (this Outcome_type) as_Outcome_type() Outcome_type { return this }
 
-func to_Outcome_type(v any) Outcome_type {
-	if v == nil {
-		return 0
-	}
-	return v.(interface{ as_Outcome_type() Outcome_type }).as_Outcome_type()
-}
-
-func is_Outcome_type(v any) bool {
-	_, ok := v.(interface{ as_Outcome_type() Outcome_type })
-	return ok
-}
-
 func Outcome_type_forBoolean(val bool) Outcome_type {
 	return func() Outcome_type {
 		if val {

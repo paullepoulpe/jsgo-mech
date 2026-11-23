@@ -9,11 +9,6 @@ type Outcome_base[T any] struct {
 
 func (this *Outcome_base[T]) isa_Outcome_base_() {}
 
-func is_Outcome_base(v any) bool {
-	_, ok := v.(interface{ isa_Outcome_base_() })
-	return ok
-}
-
 func (this *Outcome_base[T]) zero_Outcome_base() {
 	this.value_ = jnull_[T]()
 }

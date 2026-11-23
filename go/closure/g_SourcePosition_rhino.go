@@ -19,18 +19,6 @@ type SourcePosition_rhino_I interface {
 
 func (this *SourcePosition_rhino) as_SourcePosition_rhino() *SourcePosition_rhino { return this }
 
-func to_SourcePosition_rhino(v any) *SourcePosition_rhino {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_SourcePosition_rhino() *SourcePosition_rhino }).as_SourcePosition_rhino()
-}
-
-func is_SourcePosition_rhino(v any) bool {
-	_, ok := v.(interface{ as_SourcePosition_rhino() *SourcePosition_rhino })
-	return ok
-}
-
 func (this *SourcePosition_rhino) self() any {
 	if this == nil {
 		return nil
