@@ -568,7 +568,7 @@ func CommandLineRunner_loadConformanceConfig(configFile string) *Outcome_base[*C
 		}()
 		TextFormat_merge(strobj_(textProto), ConformanceConfig_Builder_as_Message_Builder(builder))
 	}()
-	return Outcome_base_ok_Object[*ConformanceConfig](cast_[*ConformanceConfig](builder.build()))
+	return Outcome_base_ok_Object[*ConformanceConfig](builder.buildT_())
 }
 
 func CommandLineRunner_getDefaultExterns() *Outcome_base[ListT[*SourceFile_jscomp]] {
