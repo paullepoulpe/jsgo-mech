@@ -552,11 +552,11 @@ func (this *TypedScope) getParentScope_rStaticTypedScope() StaticTypedScope {
 }
 
 func (this *TypedScope) getSlot_String_rStaticTypedSlot(p0 string) StaticTypedSlot {
-	return icast_StaticTypedSlot(obj_(this.getSlot_String_rAbstractVar_rTypedVar(p0)))
+	return iup_StaticTypedSlot(this.getSlot_String_rAbstractVar_rTypedVar(p0))
 }
 
 func (this *TypedScope) getOwnSlot_String_rStaticTypedSlot(p0 string) StaticTypedSlot {
-	return icast_StaticTypedSlot(obj_(this.getOwnSlot_String_rAbstractVar_rTypedVar(p0)))
+	return iup_StaticTypedSlot(this.getOwnSlot_String_rAbstractVar_rTypedVar(p0))
 }
 
 // typed: an object that is exactly a TypedScope calls its typed_impl directly (post-flip); others dispatch.
