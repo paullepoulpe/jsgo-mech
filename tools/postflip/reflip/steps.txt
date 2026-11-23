@@ -623,7 +623,7 @@ b6e39a43 patch 429-b6e39a43-rt.patch
 3798ad00 patch 436-3798ad00-manual.patch
 # 437. postflip step (re-flip): tfnargs re-run, parameters that pass the function on take the typed function too
 fec23265 run t tfnargs && f
-# 438. postflip step (re-flip): equals and hashCode methods that nothing can call are deleted (86dbb30a of reflip-javaisms, re-run; tool 186fce84)
+# 438. postflip step (re-flip): equals and hashCode methods that nothing can call are deleted (86dbb30a of reflip-javaisms, re-run; tool 63e6ad9d)
 6dcd650f run t deadeq && f
 # 439. postflip step (re-flip): binding instanceof patterns are comma-ok type assertions (0ada6163 of reflip-javaisms, re-run; tool 12b3337c)
 96bc7cac run t patinst && f
@@ -631,3 +631,5 @@ fec23265 run t tfnargs && f
 bccfa30b run t varargs && fa
 # 441. postflip step (re-flip): instanceof tests of a local variable inside && / || are comma-ok assertions before the condition (7a93c38f of reflip-javaisms, re-run; tool d65cc397)
 e19b8f97 run t instof && f
+# 442. postflip step (re-flip): casts to an interface that mentions a type parameter try the classes of the code's type parameters first (icasts' 63 left; tool d4c32151)
+34f27fc5 run t gcasts && f
