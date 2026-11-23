@@ -50,30 +50,10 @@ func (this *CrossChunkMethodMotion) moveMethods(allNameInfo CollectionT[*Analyze
 		var declarations IteratorT[AnalyzePrototypeProperties_Symbol] = iteratorAs_(tc_AnalyzePrototypeProperties_Symbol, nameInfo.getDeclarations().asDequeT().descendingIterator())
 		for declarations.hasNext() {
 			var symbol AnalyzePrototypeProperties_Symbol = declarations.next_t()
-			var prototypeProperty AnalyzePrototypeProperties_PrototypeProperty
-			_ = prototypeProperty
-			if func() bool {
-				v_ := any(symbol)
-				p, ok := v_.(AnalyzePrototypeProperties_PrototypeProperty)
-				if !ok {
-					return false
-				}
-				prototypeProperty = p
-				return true
-			}() {
+			if prototypeProperty, ok := any(symbol).(AnalyzePrototypeProperties_PrototypeProperty); ok {
 				this.tryToMovePrototypeMethod(nameInfo, deepestCommonChunkRef, prototypeProperty)
 			} else {
-				var classMemberFunction *AnalyzePrototypeProperties_ClassMemberFunction
-				_ = classMemberFunction
-				if func() bool {
-					v_ := any(symbol)
-					p2, ok2 := v_.(*AnalyzePrototypeProperties_ClassMemberFunction)
-					if !ok2 {
-						return false
-					}
-					classMemberFunction = p2
-					return true
-				}() {
+				if classMemberFunction, ok2 := any(symbol).(*AnalyzePrototypeProperties_ClassMemberFunction); ok2 {
 					this.tryToMoveMemberFunction(nameInfo, deepestCommonChunkRef, classMemberFunction)
 				}
 			}
@@ -346,17 +326,7 @@ func CrossChunkMethodMotion_hasUnmovableRedeclaration(nameInfo *AnalyzePrototype
 	it_1 := nameInfo.getDeclarations().each()
 	for it_1.next() {
 		var symbol AnalyzePrototypeProperties_Symbol = it_1.v
-		var otherProp AnalyzePrototypeProperties_Property
-		_ = otherProp
-		if func() bool {
-			v_ := any(symbol)
-			p, ok := v_.(AnalyzePrototypeProperties_Property)
-			if !ok {
-				return false
-			}
-			otherProp = p
-			return true
-		}() {
+		if otherProp, ok := any(symbol).(AnalyzePrototypeProperties_Property); ok {
 			if ((prop != otherProp) && (prop.getRootVar() == otherProp.getRootVar())) && (prop.getChunk() != otherProp.getChunk()) {
 				return true
 			}

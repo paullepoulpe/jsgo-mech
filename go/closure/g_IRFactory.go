@@ -2244,17 +2244,7 @@ func (this *IRFactory_TransformDispatcher) processBinaryExpressionHelper(exprTre
 		if previous != 0 {
 			previous.addChildToFront(current)
 		}
-		var binaryOperatorTree *BinaryOperatorTree
-		_ = binaryOperatorTree
-		if func() bool {
-			v_ := exprTree.left.self()
-			p, ok := v_.(*BinaryOperatorTree)
-			if !ok {
-				return false
-			}
-			binaryOperatorTree = p
-			return true
-		}() {
+		if binaryOperatorTree, ok := exprTree.left.self().(*BinaryOperatorTree); ok {
 			exprTree = binaryOperatorTree
 		} else {
 			var leftNode Node = this.transformLhsOfBinaryTree(exprTree)

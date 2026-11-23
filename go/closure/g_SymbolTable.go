@@ -1004,51 +1004,21 @@ func (this *SymbolTable) getType(sym StaticSlot) *JSType {
 		}
 		return sym.getJSDocInfo().getTypedefType().evaluate(TypedScope_as_StaticTypedScope(this.compiler_.getTopScope()), this.registry)
 	}
-	var staticTypedSlot StaticTypedSlot
-	_ = staticTypedSlot
-	if func() bool {
-		v_ := any(sym)
-		p, ok := v_.(StaticTypedSlot)
-		if !ok {
-			return false
-		}
-		staticTypedSlot = p
-		return true
-	}() {
+	if staticTypedSlot, ok := any(sym).(StaticTypedSlot); ok {
 		return staticTypedSlot.getType()
 	}
 	return nil
 }
 
 func (this *SymbolTable) getTypeOfThis(s StaticScope) *JSType {
-	var staticTypedScope StaticTypedScope
-	_ = staticTypedScope
-	if func() bool {
-		v_ := any(s)
-		p, ok := v_.(StaticTypedScope)
-		if !ok {
-			return false
-		}
-		staticTypedScope = p
-		return true
-	}() {
+	if staticTypedScope, ok := any(s).(StaticTypedScope); ok {
 		return staticTypedScope.getTypeOfThis()
 	}
 	return nil
 }
 
 func (this *SymbolTable) isTypeInferred(sym StaticSlot) bool {
-	var staticTypedSlot StaticTypedSlot
-	_ = staticTypedSlot
-	if func() bool {
-		v_ := any(sym)
-		p, ok := v_.(StaticTypedSlot)
-		if !ok {
-			return false
-		}
-		staticTypedSlot = p
-		return true
-	}() {
+	if staticTypedSlot, ok := any(sym).(StaticTypedSlot); ok {
 		return staticTypedSlot.isTypeInferred()
 	}
 	return true
