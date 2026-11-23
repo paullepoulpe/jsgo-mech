@@ -66,7 +66,7 @@ func comparatorOf_(v any) Comparator_e {
 	case *TreeMap:
 		return x.cmp
 	case *ImmutableCollection:
-		return x.cmp
+		return x.cmp_()
 	case *ErasedImmutableMap:
 		return x.cmp
 	case interface{ comparator() Comparator_e }:
@@ -103,16 +103,57 @@ const (
 type ImmutableCollection struct {
 	kind   int8
 	hashed bool
-	total  int32        // multiset: size
-	hash_  int32        // plain set: the hash code, once computed (Guava computes it at construction)
-	items  []any        // list: the elements; otherwise the distinct elements in iteration order
-	idx    *htable_     // set, multiset: element -> position in items (built on demand)
+	hash_  int32     // plain set: the hash code, once computed (Guava computes it at construction)
+	items  []any     // list: the elements; otherwise the distinct elements in iteration order
+	idx    *htable_  // set, multiset: element -> position in items (built on demand)
+	typed_ immTyped_ // its typed copy (post-flip typed collections), made on first use
+	// What only some kinds have, nil otherwise: most immutable collections are short lists
+	// and plain sets, made in great numbers, and stay 80 bytes instead of 192.
+	rare *immRare_
+}
+
+// immRare_ holds the fields of an ImmutableCollection that a list or a plain set does not use
+// (a set only once its asList() is asked for).
+type immRare_ struct {
 	counts []int32      // multiset: occurrences of items[i]
+	total  int32        // multiset: size
 	cmp    Comparator_e // sorted set (nil: natural ordering)
 	list_  *ImmutableCollection
-	all_   []any     // multiset: the elements with repetition
-	typed_ immTyped_ // its typed copy (post-flip typed collections), made on first use
-	byOrd  []any     // immutable enum set: the element with ordinal i at i (nil where absent)
+	all_   []any // multiset: the elements with repetition
+	byOrd  []any // immutable enum set: the element with ordinal i at i (nil where absent)
+}
+
+// rare_ is the collection's immRare_, made if it has none yet.
+func (this *ImmutableCollection) rare_() *immRare_ {
+	if this.rare == nil {
+		this.rare = &immRare_{}
+	}
+	return this.rare
+}
+
+// cmp_ is the comparator of a sorted set (nil: natural ordering).
+func (this *ImmutableCollection) cmp_() Comparator_e {
+	if this.rare == nil {
+		return nil
+	}
+	return this.rare.cmp
+}
+
+// byOrd_ is the by-ordinal table of an immutable enum set, nil for any other collection.
+func (this *ImmutableCollection) byOrd_() []any {
+	if this.rare == nil {
+		return nil
+	}
+	return this.rare.byOrd
+}
+
+// immSortedOf_ is a sorted set of items (in order) under cmp.
+func immSortedOf_(items []any, cmp Comparator_e) *ImmutableCollection {
+	this := &ImmutableCollection{kind: icSorted_, items: items}
+	if cmp != nil {
+		this.rare = &immRare_{cmp: cmp}
+	}
+	return this
 }
 
 type ErasedImmutableList = ImmutableCollection
@@ -164,22 +205,22 @@ func immSorted_(items []any, cmp Comparator_e) *ImmutableSortedSet {
 			out = append(out, v)
 		}
 	}
-	return &ImmutableCollection{kind: icSorted_, items: out, cmp: cmp}
+	return immSortedOf_(out, cmp)
 }
 
 func immMultiset_(items []any) *ImmutableMultiset {
 	checkNoNulls_(items)
-	this := &ImmutableCollection{kind: icMultiset_, idx: &htable_{}}
+	this := &ImmutableCollection{kind: icMultiset_, idx: &htable_{}, rare: &immRare_{}}
 	for _, v := range items {
 		if i := this.idx.find(v); i >= 0 {
-			this.counts[i]++
+			this.rare.counts[i]++
 		} else {
 			this.idx.add(v)
 			this.items = append(this.items, v)
-			this.counts = append(this.counts, 1)
+			this.rare.counts = append(this.rare.counts, 1)
 		}
 	}
-	this.total = int32(len(items))
+	this.rare.total = int32(len(items))
 	return this
 }
 
@@ -197,7 +238,7 @@ func (this *ImmutableCollection) find_(v any) int {
 		}
 		return -1
 	case icSorted_:
-		c := cmpOrNatural_(this.cmp)
+		c := cmpOrNatural_(this.cmp_())
 		lo, hi := 0, len(this.items)
 		for lo < hi {
 			mid := (lo + hi) / 2
@@ -231,35 +272,35 @@ func (this *ImmutableCollection) elems_() []any {
 	if this.kind != icMultiset_ {
 		return this.items
 	}
-	if this.all_ == nil && this.total > 0 {
-		all := make([]any, 0, this.total)
+	if r := this.rare; r.all_ == nil && r.total > 0 {
+		all := make([]any, 0, r.total)
 		for i, v := range this.items {
-			for j := int32(0); j < this.counts[i]; j++ {
+			for j := int32(0); j < r.counts[i]; j++ {
 				all = append(all, v)
 			}
 		}
-		this.all_ = all
+		r.all_ = all
 	}
-	return this.all_
+	return this.rare.all_
 }
 
 func (this *ImmutableCollection) size() int32 {
 	if this.kind == icMultiset_ {
-		return this.total
+		return this.rare.total
 	}
 	return int32(len(this.items))
 }
 
 func (this *ImmutableCollection) isEmpty() bool { return len(this.items) == 0 }
 func (this *ImmutableCollection) contains(v any) bool {
-	if this.byOrd != nil {
+	if byOrd := this.byOrd_(); byOrd != nil {
 		// Enum constants are equal only to themselves.
 		e, ok := v.(interface{ ordinal() int32 })
 		if !ok {
 			return false
 		}
 		o := int(e.ordinal())
-		return o < len(this.byOrd) && this.byOrd[o] == v
+		return o < len(byOrd) && byOrd[o] == v
 	}
 	return this.find_(v) >= 0
 }
@@ -286,7 +327,7 @@ func (this *ImmutableCollection) contains_s(v string) bool {
 }
 
 func (this *ImmutableCollection) containsAll(c Collection) bool {
-	if e, ok := c.(*EnumSet); ok && this.byOrd != nil {
+	if e, ok := c.(*EnumSet); ok && this.byOrd_() != nil {
 		// An immutable enum set and an EnumSet: each constant of e is the one at its ordinal here.
 		for it := e.iter(); it.hasNext(); {
 			if !this.contains(it.next()) {
@@ -323,10 +364,11 @@ func (this *ImmutableCollection) asList() *ErasedImmutableList {
 	if this.kind == icList_ {
 		return this
 	}
-	if this.list_ == nil {
-		this.list_ = &ImmutableCollection{kind: icList_, items: this.elems_()}
+	r := this.rare_()
+	if r.list_ == nil {
+		r.list_ = &ImmutableCollection{kind: icList_, items: this.elems_()}
 	}
-	return this.list_
+	return r.list_
 }
 
 // isListLike_ tells a java.util.List from the other collections (in Go every
@@ -346,7 +388,7 @@ func (this *ImmutableCollection) hashCode() int32 {
 	case icMultiset_:
 		var h int32
 		for i, v := range this.items {
-			h += objhash_(v) ^ this.counts[i]
+			h += objhash_(v) ^ this.rare.counts[i]
 		}
 		return h
 	}
@@ -371,8 +413,8 @@ func (this *ImmutableCollection) toString() string {
 			sb.WriteString(", ")
 		}
 		sb.WriteString(objstr_(v))
-		if this.kind == icMultiset_ && this.counts[i] != 1 {
-			sb.WriteString(" x " + istr_(int64(this.counts[i])))
+		if this.kind == icMultiset_ && this.rare.counts[i] != 1 {
+			sb.WriteString(" x " + istr_(int64(this.rare.counts[i])))
 		}
 	}
 	sb.WriteByte(']')
@@ -520,9 +562,10 @@ func withOrdinals_(set *ErasedImmutableSet) *ErasedImmutableSet {
 	for _, x := range set.items {
 		last = max(last, x.(interface{ ordinal() int32 }).ordinal())
 	}
-	set.byOrd = make([]any, last+1)
+	byOrd := make([]any, last+1)
+	set.rare_().byOrd = byOrd
 	for _, x := range set.items {
-		set.byOrd[x.(interface{ ordinal() int32 }).ordinal()] = x
+		byOrd[x.(interface{ ordinal() int32 }).ordinal()] = x
 	}
 	return set
 }
@@ -536,7 +579,7 @@ func ImmutableSet_copyOf_ObjectArr(p0 []any) *ErasedImmutableSet {
 func ImmutableSortedSet_of() *ImmutableSortedSet { return emptyImmSorted_ }
 
 func ImmutableSortedSet_copyOf(p0 Collection) *ImmutableSortedSet {
-	if c, ok := p0.(*ImmutableCollection); ok && c.kind == icSorted_ && c.cmp == nil {
+	if c, ok := p0.(*ImmutableCollection); ok && c.kind == icSorted_ && c.cmp_() == nil {
 		return c
 	}
 	return immSorted_(toSlice_(p0), nil)
@@ -556,19 +599,19 @@ func ImmutableSortedSet_copyOfSorted(p0 SortedSet) *ImmutableSortedSet {
 	return immSorted_(toSlice_(p0), comparatorOf_(p0))
 }
 
-func (this *ImmutableSortedSet) comparator() Comparator_e { return cmpOrNatural_(this.cmp) }
+func (this *ImmutableSortedSet) comparator() Comparator_e { return cmpOrNatural_(this.cmp_()) }
 
 func (this *ImmutableSortedSet) descendingSet() NavigableSet {
 	out := make([]any, len(this.items))
 	for i, v := range this.items {
 		out[len(out)-1-i] = v
 	}
-	return &ImmutableCollection{kind: icSorted_, items: out, cmp: cmpReversed_(cmpOrNatural_(this.cmp))}
+	return immSortedOf_(out, cmpReversed_(cmpOrNatural_(this.cmp_())))
 }
 
 func (this *ImmutableSortedSet) tailSet(from any, inclusive bool) NavigableSet {
 	i := this.lowerBound_(from, inclusive)
-	return &ImmutableCollection{kind: icSorted_, items: this.items[i:], cmp: this.cmp}
+	return immSortedOf_(this.items[i:], this.cmp_())
 }
 
 // ---- ImmutableMultiset
@@ -698,7 +741,7 @@ func (this *ImmutableMultiset) entrySet() Set {
 	for i, v := range this.items {
 		var n int32 = 1
 		if this.kind == icMultiset_ {
-			n = this.counts[i]
+			n = this.rare.counts[i]
 		}
 		out[i] = &msEntry_{elem: v, count: n}
 	}
@@ -710,7 +753,7 @@ func (this *ImmutableSortedSet) lowerBound_(v any, inclusive bool) int {
 	if v == nil {
 		throwNPE_("null")
 	}
-	c := cmpOrNatural_(this.cmp)
+	c := cmpOrNatural_(this.cmp_())
 	return sort.Search(len(this.items), func(i int) bool {
 		r := c.compare(this.items[i], v)
 		if inclusive {

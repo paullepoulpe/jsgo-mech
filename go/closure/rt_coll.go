@@ -86,7 +86,7 @@ func foreach_(c any) each_ {
 	case *ImmutableCollection:
 		if x.kind == icMultiset_ {
 			x.elems_()
-			return each_{src: &x.all_}
+			return each_{src: &x.rare.all_}
 		}
 		return each_{src: &x.items}
 	case *LinkedHashSet:
