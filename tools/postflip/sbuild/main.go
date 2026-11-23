@@ -759,6 +759,11 @@ func context(k key, e ast.Expr) {
 				return
 			}
 			if fn := callee(x); fn != nil {
+				// tostr_/tostrNN_ (the tostr step's String.valueOf / toString) are generic over
+				// any comparable type with toString(): a *strBuilder_ passes unchanged.
+				if (fn.Name() == "tostr_" || fn.Name() == "tostrNN_" || fn.Name() == "tostrR_" || fn.Name() == "jtostr_") && len(x.Args) == 1 && rw.Unparen(x.Args[0]) == e {
+					return
+				}
 				for i, a := range x.Args {
 					if rw.Unparen(a) == e {
 						if pv := paramVar(fn, i); pv != nil && isSlot[pv] {
@@ -1436,3 +1441,4 @@ func rewriteValueLocal(v *types.Var) {
 		}
 	}
 }
+// reflip22: jtostr_ only (this version has no Appendable arguments)
