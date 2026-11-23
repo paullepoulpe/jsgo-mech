@@ -166,6 +166,18 @@ lookup reads the field and does not use the runtime's identity map. Same output;
 within noise. An unattended replay from the flip base (272 commits, step 561 included) gives
 the gated tree exactly (go/ tree 04cbc7cf).
 
+Step 562 (post-flip tool inlinefld, overlay 31d08658, tree flip6-tree-i 11ae55ab): a typed
+collection field assigned once, by its class's field initializer, is stored in the object
+(168 fields in 117 classes; 372 refused, counted by reason in REFLIP6.md). Gated, tail
+replay identical. Mallocs on the subset 269.9M to 260.0M (-3.7%); CPU 120.00 to 120.15 s
+(three alternating rounds): no time gain. Fewer objects alone does not buy time here.
+
+Java-ism accounting redone on flip6-tree-h (docs/javaisms6/JAVAISMS6.md): 9,253 census
+matches; same form as jsgo 6,725, rule would remove 886, reason 425, not a site 670, not
+split 547. Largest rules not yet written: T1 (generic static library functions, 283) and T2
+(the 34 remaining library types, 228); both started as translator kinds (branches
+main-libgen-t1, main-libgen-t2).
+
 ## Open
 
 - Speed: not met in bounds (0.77 on the full benchmark, 2026-11-23). No in-bounds step so far has moved the
