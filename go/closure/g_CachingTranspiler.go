@@ -24,19 +24,6 @@ func new_CachingTranspiler(delegate Transpiler_transpile, builder CacheBuilderOf
 func (this *CachingTranspiler) transpile(path string, code string) *TranspileResult {
 	var ret_1 *TranspileResult
 	code_1 := func() (code_ int) {
-		defer func() {
-			if r_ := recover(); r_ != nil {
-				ex_ := catch_(r_)
-				if e, ok := ex_.(*UncheckedExecutionException); ok {
-					if _, ok2 := e.getCause().self().(*TranspilationException); ok2 {
-						panic(obj_(new_TranspilationException_Exception(e.up_Exception())))
-					} else {
-						panic(e.self())
-					}
-				}
-				panic(r_)
-			}
-		}()
 		ret_1 = this.cache.getUnchecked_t(new_CachingTranspiler_Key(path, code))
 		return 1
 	}()
