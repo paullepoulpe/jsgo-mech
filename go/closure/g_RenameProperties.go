@@ -50,7 +50,7 @@ func (this *RenameProperties) init_RenameProperties_AbstractCompiler_boolean_Var
 	this.reservedNonFirstCharacters = reservedNonFirstCharacters
 	this.nameGenerator = nameGenerator
 	this.propertyRenameEligibilityFilter = propertyRenameEligibilityFilter
-	this.externedNames.asSetT().addAll(Collection(compiler.getExternProperties().asSet()))
+	tsetAddSetT_(this.externedNames, compiler.getExternProperties())
 }
 
 func new_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGenerator_Predicate(compiler *AbstractCompiler, generatePseudoNames bool, prevUsedPropertyMap *VariableMap, reservedFirstCharacters *TSet[any], reservedNonFirstCharacters *TSet[any], nameGenerator NameGenerator, propertyRenameEligibilityFilter Predicate[Node]) *RenameProperties {
@@ -65,10 +65,10 @@ func (this *RenameProperties) process_2(externs Node, root Node) {
 	}
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(new_RenameProperties_ProcessProperties(this)))
 	var reservedNames *TSet[string] = newTSetN_(tc_string, (this.externedNames.Len() + this.quotedNames.Len()))
-	reservedNames.asSetT().addAll(Collection(this.externedNames.asSetT()))
-	reservedNames.asSetT().addAll(Collection(this.quotedNames.asSetT()))
+	tsetAddSetT_(reservedNames, this.externedNames)
+	tsetAddSetT_(reservedNames, this.quotedNames)
 	var propsByFreq *TSet[*RenameProperties_Property] = newTSortedSetCT_(tc_p_RenameProperties_Property, RenameProperties_FREQUENCY_COMPARATOR)
-	propsByFreq.asSetT().addAll(Collection_un_(this.propertyMap.valuesT()))
+	tsetAddAllOfT_(propsByFreq, Collection_un_(this.propertyMap.valuesT()))
 	if this.prevUsedPropertyMap != nil {
 		this.reusePropertyNames(reservedNames, propsByFreq.asCollT())
 	}

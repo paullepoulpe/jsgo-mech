@@ -427,9 +427,9 @@ func (this *FunctionType) addRelatedInterfaces(instance *ObjectType, set *TSet[*
 func (this *FunctionType) getAncestorInterfaces() CollectionT[*ObjectType] {
 	var result *TSet[*ObjectType] = newTSet_(tch_p_ObjectType)
 	if this.isConstructor() {
-		result.asSetT().addAll(Collection_un_(this.getImplementedInterfaces().asCollT()))
+		tsetAddListT_(result, this.getImplementedInterfaces())
 	} else {
-		result.asSetT().addAll(Collection_un_(this.getExtendedInterfaces().asCollT()))
+		tsetAddListT_(result, this.getExtendedInterfaces())
 	}
 	return result.asCollT()
 }
