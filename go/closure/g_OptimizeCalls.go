@@ -26,7 +26,7 @@ func OptimizeCalls_builder() *OptimizeCalls_Builder {
 
 func (this *OptimizeCalls) process_2(externs Node, root Node) {
 	if !this.compiler_.getLifeCycleStage().isNormalized() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if this.passes.isEmpty() {
 		return
@@ -82,7 +82,7 @@ func OptimizeCalls_isAllowedReference(n Node) bool {
 			return false
 		} else {
 			if !n.isSecondChildOf(parent) {
-				panic(new_IllegalStateException_String(tostr_(parent)).self())
+				panic(new_IllegalStateException_String(tostr_(parent)))
 			}
 			if NodeUtil_getEs6ClassConstructorMemberFunctionDef(parent) == 0 {
 				return false
@@ -147,10 +147,10 @@ func (this *OptimizeCalls_Builder) addPass(pass OptimizeCalls_CallGraphCompilerP
 
 func (this *OptimizeCalls_Builder) build() *OptimizeCalls {
 	if this.compiler_ == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if this.considerExterns == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	return new_OptimizeCalls(this.compiler_, this.passes.build(), unbox_[bool](this.considerExterns))
 }
@@ -235,7 +235,7 @@ func OptimizeCalls_ReferenceMap_definitionFunctionNodesFor(definitionSite Node) 
 			fns.add(definitionSite.getLastChild())
 		} else {
 			if !definitionSite.isMemberFieldDef() {
-				panic(new_IllegalArgumentException_String(tostr_(definitionSite)).self())
+				panic(new_IllegalArgumentException_String(tostr_(definitionSite)))
 			}
 			var value Node = definitionSite.getFirstChild()
 			if value != 0 {
@@ -244,7 +244,7 @@ func OptimizeCalls_ReferenceMap_definitionFunctionNodesFor(definitionSite Node) 
 		}
 	case tokOrd1_OBJECTLIT:
 		if !definitionSite.isStringKey() && !definitionSite.isMemberFunctionDef() {
-			panic(new_IllegalArgumentException_String(tostr_(definitionSite)).self())
+			panic(new_IllegalArgumentException_String(tostr_(definitionSite)))
 		}
 		OptimizeCalls_ReferenceMap_addValueFunctionNodes(fns, definitionSite.getLastChild())
 	case tokOrd1_ASSIGN:
@@ -315,7 +315,7 @@ func OptimizeCalls_ReferenceMap_isNewTarget(n Node) bool {
 func OptimizeCalls_ReferenceMap_getCallOrNewNodeForTarget(n Node) Node {
 	var maybeCall Node = n.getParent()
 	if !n.isFirstChildOf(maybeCall) {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("%s\n\n%s", []any{maybeCall.box_(), n.box_()})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("%s\n\n%s", []any{maybeCall.box_(), n.box_()})))
 	}
 	if NodeUtil_isCallOrNew(maybeCall) {
 		return maybeCall
@@ -323,13 +323,13 @@ func OptimizeCalls_ReferenceMap_getCallOrNewNodeForTarget(n Node) Node {
 		var child Node = maybeCall
 		maybeCall = child.getParent()
 		if !NodeUtil_isNormalOrOptChainGetProp(child) {
-			panic(new_IllegalStateException_String(tostr_(child)).self())
+			panic(new_IllegalStateException_String(tostr_(child)))
 		}
 		if !NodeUtil_isNormalOrOptChainCall(maybeCall) {
-			panic(new_IllegalStateException_String(tostr_(maybeCall)).self())
+			panic(new_IllegalStateException_String(tostr_(maybeCall)))
 		}
 		if !child.isFirstChildOf(maybeCall) {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("%s\n\n%s", []any{maybeCall.box_(), child.box_()})).self())
+			panic(new_IllegalStateException_String(Strings_lenientFormat("%s\n\n%s", []any{maybeCall.box_(), child.box_()})))
 		}
 		return maybeCall
 	}
@@ -405,11 +405,11 @@ func (this *OptimizeCalls_ReferenceMapBuildingCallback) visitSuper(superNode Nod
 	if parent.isCall() && superNode.isFirstChildOf(parent) {
 		var enclosingClass Node = NodeUtil_getEnclosingClass(parent)
 		if enclosingClass == 0 {
-			panic(new_NullPointerException_0().self())
+			panic(new_NullPointerException_0())
 		}
 		var extendsNode Node = enclosingClass.getSecondChild()
 		if extendsNode.isEmpty() {
-			panic(new_IllegalStateException_String(objstr_("super call appears in class without extends clause")).self())
+			panic(new_IllegalStateException_String(objstr_("super call appears in class without extends clause")))
 		}
 		if extendsNode.isName() {
 			this.maybeAddNameReference(extendsNode.getString(), superNode)

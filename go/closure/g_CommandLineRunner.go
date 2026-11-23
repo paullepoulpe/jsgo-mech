@@ -238,7 +238,7 @@ func (this *CommandLineRunner) initConfigFromFlags(args []string, out *Output, e
 		this.flags.processClosurePrimitives = true
 	}
 	if (unbox_[int32](this.flags.browserFeaturesetYear) != 0) && (this.flags.languageOut != "ECMASCRIPT_NEXT") {
-		panic(obj_(new_FlagUsageException("ERROR - both flags `--browser_featureset_year` and `--language_out` specified.")))
+		panic(new_FlagUsageException("ERROR - both flags `--browser_featureset_year` and `--language_out` specified."))
 	}
 	if this.flags.outputWrapper.isEmpty() {
 		this.flags.outputWrapper = Optional_of[string]("")
@@ -301,7 +301,7 @@ func (this *CommandLineRunner) initConfigFromFlags(args []string, out *Output, e
 		switch segmentOfCompilationToRun {
 		case CompilerOptions_SegmentOfCompilationToRun_CHECKS:
 			if !this.flags.filenameToRestoreFrom.isEmpty() {
-				panic(new_IllegalStateException_String(objstr_("Cannot restore and run CHECKS segment of compilation")).self())
+				panic(new_IllegalStateException_String(objstr_("Cannot restore and run CHECKS segment of compilation")))
 			}
 			config.setSaveCompilationStateToFilename(this.flags.filenameToSaveTo, 1)
 		case CompilerOptions_SegmentOfCompilationToRun_OPTIMIZATIONS:
@@ -309,12 +309,12 @@ func (this *CommandLineRunner) initConfigFromFlags(args []string, out *Output, e
 			config.setSaveCompilationStateToFilename(this.flags.filenameToSaveTo, 2)
 		case CompilerOptions_SegmentOfCompilationToRun_FINALIZATIONS:
 			if !this.flags.filenameToSaveTo.isEmpty() {
-				panic(new_IllegalStateException_String(objstr_("Cannot run FINALIZATIONS segment of compilation and then save the result")).self())
+				panic(new_IllegalStateException_String(objstr_("Cannot run FINALIZATIONS segment of compilation and then save the result")))
 			}
 			config.setContinueSavedCompilationFileName(this.flags.filenameToRestoreFrom, 2)
 		case CompilerOptions_SegmentOfCompilationToRun_ENTIRE_COMPILATION:
 		default:
-			panic(new_IllegalStateException_String(("Cannot run %s segment of compilation: " + jtostr_(this.flags.segmentOfCompilationToRun))).self())
+			panic(new_IllegalStateException_String(("Cannot run %s segment of compilation: " + jtostr_(this.flags.segmentOfCompilationToRun))))
 		}
 	}
 	this.errorStream = nil
@@ -416,7 +416,7 @@ func (this *CommandLineRunner) createOptions_impl() *Outcome_base[*CompilerOptio
 	if this.flags.translationsFile != "" {
 		var xtb *Outcome_base[[]int8] = Io_readBytes(this.flags.translationsFile)
 		if xtb.isErr() {
-			panic(new_RuntimeException_String_Throwable("Reading XTB file", xtb.error()).self())
+			panic(new_RuntimeException_String_Throwable("Reading XTB file", xtb.error()))
 		}
 		options.setMessageBundle(MessageBundle(new_XtbMessageBundle(xtb.get(), this.flags.translationsProject)))
 	} else if CompilationLevel_ADVANCED_OPTIMIZATIONS == level {
@@ -536,7 +536,7 @@ func CommandLineRunner_loadConformanceConfigs(configPaths ListT[string]) *JTList
 	for configPath := range elemsT_(configPaths) {
 		var config *Outcome_base[*ConformanceConfig] = CommandLineRunner_loadConformanceConfig(configPath)
 		if config.isErr() {
-			panic(new_RuntimeException_String_Throwable("Error loading conformance config", config.error()).self())
+			panic(new_RuntimeException_String_Throwable("Error loading conformance config", config.error()))
 		}
 		configs.add(config.get())
 	}
@@ -559,7 +559,7 @@ func CommandLineRunner_loadConformanceConfig(configFile string) *Outcome_base[*C
 				ex_ := catch_(r_)
 				if p, ok := ex_.(Exception_as); ok {
 					var e *Exception = p.as_Exception()
-					panic(new_RuntimeException_Throwable(e.up_Throwable()).self())
+					panic(new_RuntimeException_Throwable(e.up_Throwable()))
 				}
 				panic(r_)
 			}

@@ -82,7 +82,7 @@ func (this *InlineObjectLiterals_InliningBehavior) isInlinableObject(refs *JTLis
 		var grandparent Node = ref.getGrandparent()
 		if NodeUtil_isNormalOrOptChainGetProp(parent) {
 			if parent.getFirstChild() != name {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 			if NodeUtil_isInvocationTarget(parent) {
 				return false
@@ -121,7 +121,7 @@ func (this *InlineObjectLiterals_InliningBehavior) isInlinableObject(refs *JTLis
 					return false
 				case tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_STRING_KEY:
 				default:
-					panic(new_IllegalStateException_String(("Unexpected child of OBJECTLIT: " + sstr_(child.toStringTree()))).self())
+					panic(new_IllegalStateException_String(("Unexpected child of OBJECTLIT: " + sstr_(child.toStringTree()))))
 				}
 				validProperties.add(child.getString())
 				var childVal Node = child.getFirstChild()
@@ -157,7 +157,7 @@ func (this *InlineObjectLiterals_InliningBehavior) computeVarList(referenceInfo 
 			var val Node = ref.getAssignedValue()
 			if val != 0 {
 				if !val.isObjectLit() {
-					panic(new_IllegalStateException_String(tostr_(val)).self())
+					panic(new_IllegalStateException_String(tostr_(val)))
 				}
 				{
 					var child Node = val.getFirstChild()
@@ -179,7 +179,7 @@ func (this *InlineObjectLiterals_InliningBehavior) computeVarList(referenceInfo 
 		} else {
 			var getprop Node = ref.getParent()
 			if !NodeUtil_isNormalOrOptChainGetProp(getprop) {
-				panic(new_IllegalStateException_String(tostr_(getprop)).self())
+				panic(new_IllegalStateException_String(tostr_(getprop)))
 			}
 			var varname string = getprop.getString()
 			if varmap.containsKey(varname) {
@@ -195,7 +195,7 @@ func (this *InlineObjectLiterals_InliningBehavior) computeVarList(referenceInfo 
 func (this *InlineObjectLiterals_InliningBehavior) fillInitialValues(init_ *Reference, initvals *JTMap[string, Node]) {
 	var object Node = init_.getAssignedValue()
 	if !object.isObjectLit() {
-		panic(new_IllegalStateException_String(tostr_(object)).self())
+		panic(new_IllegalStateException_String(tostr_(object)))
 	}
 	{
 		var key Node = object.getFirstChild()
@@ -210,7 +210,7 @@ func (this *InlineObjectLiterals_InliningBehavior) replaceAssignmentExpression(v
 	var val Node = ref.getAssignedValue()
 	this.recordStaleVarReferencesInTree(val, v.getScope_rAbstractScope_rScope())
 	if !val.isObjectLit() {
-		panic(new_IllegalStateException_String(tostr_(val)).self())
+		panic(new_IllegalStateException_String(tostr_(val)))
 	}
 	var all *JTSet[string] = jtsetFrom_(jtc_string, Collection(Set_un_(varmap.keySetT())))
 	{
@@ -278,7 +278,7 @@ func (this *InlineObjectLiterals_InliningBehavior) splitObject(v *Var, init_ *Re
 		vnode = v.getScope_rAbstractScope_rScope().getClosestHoistScope_rScope().getRootNode().getFirstChild()
 	}
 	if !NodeUtil_isStatement(vnode) {
-		panic(new_IllegalStateException_String(tostr_(vnode)).self())
+		panic(new_IllegalStateException_String(tostr_(vnode)))
 	}
 	if isBlockScoped && !varmap.isEmpty() {
 		var script Node = NodeUtil_getEnclosingScript(vnode)
@@ -325,11 +325,11 @@ func (this *InlineObjectLiterals_InliningBehavior) splitObject(v *Var, init_ *Re
 		} else {
 			var getprop Node = ref.getParent()
 			if !NodeUtil_isNormalOrOptChainGetProp(getprop) {
-				panic(new_IllegalStateException_String(tostr_(getprop)).self())
+				panic(new_IllegalStateException_String(tostr_(getprop)))
 			}
 			var var_ string = getprop.getString()
 			if !varmap.containsKey(var_) {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 			var replacement Node = IR_name(varmap.get(var_))
 			replacement.srcrefIfMissing(getprop)

@@ -108,13 +108,13 @@ func (this *TypedScopeCreator) createScope(n Node) *TypedScope {
 
 func (this *TypedScopeCreator) createScopeAbstractScope_Node_AbstractScope_rTypedScope(root Node, parent *AbstractScope) *TypedScope {
 	if parent != nil && !is_[*TypedScope](parent.self()) {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var typedParent *TypedScope = cast_[*TypedScope](parent.self())
 	var scope *TypedScope = this.memoized.get_t(root.box_())
 	if scope != nil {
 		if typedParent != scope.getParent_rTypedScope() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 	} else {
 		scope = this.createScopeInternal(root, typedParent)
@@ -125,22 +125,22 @@ func (this *TypedScopeCreator) createScopeAbstractScope_Node_AbstractScope_rType
 
 func (this *TypedScopeCreator) createScopeInternal(root Node, typedParent *TypedScope) *TypedScope {
 	if !eqR_(this.stage, TypedScopeCreator_Stage_BUILDING) {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Cannot create scope for %s after TypedScopeCreator is frozen", []any{root.box_()})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Cannot create scope for %s after TypedScopeCreator is frozen", []any{root.box_()})))
 	}
 	var newScope *TypedScope = nil
 	var scopeBuilder *TypedScopeCreator_AbstractScopeBuilder = nil
 	var module *Module = ModuleImportResolver_getModuleFromScopeRoot(this.moduleMap, icast_CompilerInputProvider(this.compiler_.self()), root)
 	if typedParent == nil {
 		if !root.isRoot() {
-			panic(new_IllegalStateException_String(tostr_(root)).self())
+			panic(new_IllegalStateException_String(tostr_(root)))
 		}
 		var externsRoot Node = root.getFirstChild()
 		var jsRoot Node = root.getSecondChild()
 		if !externsRoot.isRoot() {
-			panic(new_IllegalStateException_String(tostr_(externsRoot)).self())
+			panic(new_IllegalStateException_String(tostr_(externsRoot)))
 		}
 		if !jsRoot.isRoot() {
-			panic(new_IllegalStateException_String(tostr_(jsRoot)).self())
+			panic(new_IllegalStateException_String(tostr_(jsRoot)))
 		}
 		var globalThis *JSType = this.typeRegistry.getNativeObjectType(JSTypeNative_GLOBAL_THIS).up_JSType()
 		root.setJSType(globalThis)
@@ -166,11 +166,11 @@ func (this *TypedScopeCreator) createScopeInternal(root Node, typedParent *Typed
 		if root.isModuleBody() {
 			var inputId *InputId = NodeUtil_getInputId(root)
 			if inputId == nil {
-				panic(new_NullPointerException_0().self())
+				panic(new_NullPointerException_0())
 			}
 			var compilerInput *CompilerInput = this.compiler_.getInput(inputId)
 			if compilerInput == nil {
-				panic(new_NullPointerException_0().self())
+				panic(new_NullPointerException_0())
 			}
 			compilerInput.setTypedScope(newScope)
 		}
@@ -239,7 +239,7 @@ func (this *TypedScopeCreator) gatherAllProvides(root Node) {
 
 func (this *TypedScopeCreator) createInitialScope(root Node) *TypedScope {
 	if !root.isRoot() {
-		panic(new_IllegalArgumentException_String(tostr_(root)).self())
+		panic(new_IllegalArgumentException_String(tostr_(root)))
 	}
 	var scopeCreator *MemoizedScopeCreator = new_MemoizedScopeCreator(new_SyntacticScopeCreator_AbstractCompiler(this.compiler_).createScopeAbstractScope_Node_AbstractScope)
 	NodeTraversal_builder().setCompiler(this.compiler_).setCallback(NodeTraversal_Callback(new_TypedScopeCreator_FirstOrderFunctionAnalyzer(this))).setScopeCreator(MemoizedScopeCreator_as_ScopeCreator(scopeCreator)).traverseRoots(root.getFirstChild(), root.getLastChild())
@@ -348,7 +348,7 @@ func TypedScopeCreator_containingGoogModuleIdOf(scope *TypedScope) Optional[stri
 	}
 	var metadata *ModuleMetadataMap_ModuleMetadata = module.metadata()
 	if !metadata.isModule() {
-		panic(new_IllegalStateException_String(objstr_(metadata)).self())
+		panic(new_IllegalStateException_String(objstr_(metadata)))
 	}
 	return Optional_ofNullable[string](str_(Iterables_getFirst(icast_Iterable(obj_(metadata.googNamespaces())), nil)))
 }
@@ -489,7 +489,7 @@ type TypedScopeCreator_WeakModuleImport struct {
 
 func (this *TypedScopeCreator_WeakModuleImport) init_TypedScopeCreator_WeakModuleImport(moduleLocalNode Node, scopedImport *ScopedName, localModuleScope *TypedScope) {
 	if !moduleLocalNode.isName() && !moduleLocalNode.isImportStar() {
-		panic(new_IllegalStateException_String(tostr_(moduleLocalNode)).self())
+		panic(new_IllegalStateException_String(tostr_(moduleLocalNode)))
 	}
 	this.moduleLocalNode = moduleLocalNode
 	this.scopedImport = scopedImport
@@ -685,7 +685,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) initializeModuleScope(module
 			this.outer_.weakImports.add(new_TypedScopeCreator_WeakModuleImport(this.outer_, entry.getKey(), entry.getValue(), this.currentScope))
 		}
 	default:
-		panic(new_IllegalStateException_String(String_format("Unexpected module type %s in module %s", []any{obj_(moduleType), obj_(this.getModule())})).self())
+		panic(new_IllegalStateException_String(String_format("Unexpected module type %s in module %s", []any{obj_(moduleType), obj_(this.getModule())})))
 	}
 }
 
@@ -712,7 +712,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) finishDeclaringGoogModule() 
 	}
 	var exportsVar *TypedVar = this.currentScope.getSlot_String_rAbstractVar_rTypedVar("exports")
 	if exportsVar == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if this.getModule().metadata().isLegacyGoogModule() {
 		this.outer_.typeRegistry.registerLegacyClosureNamespace(this.getModule().closureNamespace().orElse(nullstr_))
@@ -734,7 +734,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) finishDeclaringGoogModule() 
 		rootNode.setJSType(exportsVar.getType())
 	} else {
 		if !rootNode.isBlock() {
-			panic(new_IllegalStateException_String(tostr_(rootNode)).self())
+			panic(new_IllegalStateException_String(tostr_(rootNode)))
 		}
 		var fn Node = rootNode.getParent()
 		var paramList Node = NodeUtil_getFunctionParameters(fn)
@@ -746,7 +746,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) shouldTraverse(t *NodeTraver
 	this.inputId = t.getInputId()
 	if (n.isFunction() || n.isScript()) || ((parent == 0) && (this.inputId != nil)) {
 		if this.inputId == nil {
-			panic(new_NullPointerException_0().self())
+			panic(new_NullPointerException_0())
 		}
 		this.sourceName_ = Optional_of[string](NodeUtil_getSourceName(n)).filter(Predicate[string](func(s string) bool {
 			return s != ""
@@ -903,7 +903,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) processObjectLitProperties(o
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) getDeclaredTypeInAnnotation(node Node, info *JSDocInfo) *JSType {
 	if !info.hasType() {
-		panic(new_IllegalArgumentException_String(objstr_(info)).self())
+		panic(new_IllegalArgumentException_String(objstr_(info)))
 	}
 	var ownerTypeKeys *JTList[*TemplateType] = this.findOwnerTypeKeys(node)
 	var templateScope StaticTypedScope = func() StaticTypedScope {
@@ -939,10 +939,10 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) findOwnerTypeKeys(node Node)
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) assertDefinitionNode(n Node, type_ Token_rhino) {
 	if !this.sourceName_.isPresent() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if n.getToken() != type_ {
-		panic(new_IllegalStateException_String(tostr_(n)).self())
+		panic(new_IllegalStateException_String(tostr_(n)))
 	}
 }
 
@@ -958,7 +958,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) defineAssignAsIfVarDeclarati
 	var info *JSDocInfo = assignment.getJSDocInfo()
 	var name Node = assignment.getFirstChild()
 	if !name.isName() {
-		panic(new_IllegalArgumentException_String(tostr_(name)).self())
+		panic(new_IllegalArgumentException_String(tostr_(name)))
 	}
 	var rvalue Node = assignment.getSecondChild()
 	this.defineName(name, rvalue, this.currentScope.getClosestHoistScope_rTypedScope(), info)
@@ -966,10 +966,10 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) defineAssignAsIfVarDeclarati
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) defineVars(n Node) {
 	if !this.sourceName_.isPresent() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !NodeUtil_isNameDeclaration(n) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var info *JSDocInfo = n.getJSDocInfo()
 	var scope *TypedScope = func() *TypedScope {
@@ -1000,7 +1000,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) defineVarChild(declarationIn
 		this.defineName(child, child.getFirstChild(), scope, declarationInfo)
 	} else {
 		if !child.isDestructuringLhs() {
-			panic(new_IllegalStateException_String(tostr_(child)).self())
+			panic(new_IllegalStateException_String(tostr_(child)))
 		}
 		var pattern Node = child.getFirstChild()
 		var value Node = child.getSecondChild()
@@ -1062,7 +1062,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) defineDestructuringPatternIn
 		} else {
 			var name Node = target.getNode()
 			if !name.isName() {
-				panic(new_IllegalStateException_String(Strings_lenientFormat("This method is only for declaring variables: %s", []any{name.box_()})).self())
+				panic(new_IllegalStateException_String(Strings_lenientFormat("This method is only for declaring variables: %s", []any{name.box_()})))
 			}
 			var type_ *JSType = this.getDeclaredType(name.getJSDocInfo(), name, 0, typeSupplier)
 			if type_ == nil {
@@ -1088,7 +1088,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) defineClassLiteral(n Node) {
 	this.outer_.setDeferredType(n, classType.up_JSType())
 	if NodeUtil_isClassDeclaration(n) {
 		if !className.isPresent() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		new_TypedScopeCreator_AbstractScopeBuilder_SlotDefiner(this).forDeclarationNode(n.getFirstChild()).forVariableName(className).inScope(this.currentScope).withType(classType.up_JSType()).allowLaterTypeInference((classType == nil)).defineSlot()
 	}
@@ -1181,7 +1181,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) shouldUseFunctionLiteralType
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) createClassTypeFromNodes(clazz Node, name Optional[string], syntacticName Optional[string], info *JSDocInfo, lvalueNode Node) *FunctionType {
 	if !clazz.isClass() {
-		panic(new_IllegalArgumentException_String(tostr_(clazz)).self())
+		panic(new_IllegalArgumentException_String(tostr_(clazz)))
 	}
 	var builder *FunctionTypeBuilder = new_FunctionTypeBuilder(name, this.outer_.compiler_, clazz, this.currentScope).usingClassSyntax().setSyntacticFunctionName(syntacticName).setContents(FunctionTypeBuilder_FunctionContents(new_FunctionTypeBuilder_AstFunctionContents(clazz))).setDeclarationScope(func() *TypedScope {
 		if lvalueNode != 0 {
@@ -1369,7 +1369,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) createFunctionTypeFromNodes(
 		}
 		if ownerName.isPresent() && name.isPresent() {
 			if ok_, a1_, a2_ := strings.HasPrefix(name.get(), ownerName.get()), name.get(), ownerName.get(); !ok_ {
-				panic(new_IllegalStateException_String(Strings_lenientFormat("Expected \"%s\" to start with \"%s\"", []any{strobj_(a1_), strobj_(a2_)})).self())
+				panic(new_IllegalStateException_String(Strings_lenientFormat("Expected \"%s\" to start with \"%s\"", []any{strobj_(a1_), strobj_(a2_)})))
 			}
 			propName = Optional_of[string](String_substring_int(name.get(), (String_length(ownerName.get()) + 1)))
 		}
@@ -1482,13 +1482,13 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) findOverriddenProperty(owner
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) createEnumTypeFromNodes(rValue Node, name Optional[string], lValue Node, info *JSDocInfo) *EnumType {
 	if info == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if !info.hasEnumParameterType() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if lValue == 0 && rValue == 0 {
-		panic(new_IllegalStateException_String(objstr_("An enum initializer should come from either an lvalue or rvalue")).self())
+		panic(new_IllegalStateException_String(objstr_("An enum initializer should come from either an lvalue or rvalue")))
 	}
 	var enumType *EnumType = nil
 	if (rValue != 0) && rValue.isQualifiedName() {
@@ -1567,7 +1567,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) getLValueRootScope(n Node) *
 				return this.currentScope
 			case tokOrd1_ITER_REST, tokOrd1_OBJECT_REST:
 				if !nameParent.getParent().isParamList() {
-					panic(new_IllegalStateException_String(tostr_(nameParent)).self())
+					panic(new_IllegalStateException_String(tostr_(nameParent)))
 				}
 				return this.currentScope
 			default:
@@ -1813,7 +1813,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) checkForClassDefiningCalls(n
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) maybeDeclareGetElem(info *JSDocInfo, n Node, rhsValue Node) {
 	if !n.isGetElem() {
-		panic(new_IllegalArgumentException_String(tostr_(n)).self())
+		panic(new_IllegalArgumentException_String(tostr_(n)))
 	}
 	var ownerNode Node = n.getFirstChild()
 	var key Node = n.getSecondChild()
@@ -1843,7 +1843,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) maybeDeclareQualifiedName(t 
 	var qName string = n.getQualifiedName()
 	var propName string = n.getString()
 	if qName == "" || ownerName == "" {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var valueType *JSType = this.getDeclaredType(info, n, rhsValue, nil)
 	if (valueType == nil) && (rhsValue != 0) {
@@ -2083,11 +2083,11 @@ func (this *TypedScopeCreator_AbstractScopeBuilder_SlotDefiner) readVariableName
 	var parent Node = this.declarationNode.getParent()
 	if this.declarationNode.isName() {
 		if !(((((parent.isFunction() || parent.isClass()) || NodeUtil_isNameDeclaration(parent)) || parent.isParamList()) || (parent.isRest() && parent.getParent().isParamList())) || parent.isCatch()) {
-			panic(new_IllegalArgumentException_0().self())
+			panic(new_IllegalArgumentException_0())
 		}
 	} else {
 		if !(this.declarationNode.isGetProp() && (parent.isAssign() || parent.isExprResult())) {
-			panic(new_IllegalArgumentException_0().self())
+			panic(new_IllegalArgumentException_0())
 		}
 	}
 	this.variableName = Optional_of[string](this.declarationNode.getQualifiedName()).filter(Predicate[string](func(s string) bool {
@@ -2103,7 +2103,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder_SlotDefiner) forVariableName(
 
 func (this *TypedScopeCreator_AbstractScopeBuilder_SlotDefiner) inScope(scope *TypedScope) *TypedScopeCreator_AbstractScopeBuilder_SlotDefiner {
 	if scope == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.scope_ = scope
 	return this
@@ -2126,22 +2126,22 @@ func (this *TypedScopeCreator_AbstractScopeBuilder_SlotDefiner) forGoogProvidedN
 
 func (this *TypedScopeCreator_AbstractScopeBuilder_SlotDefiner) defineSlot() {
 	if this.declarationNode == 0 {
-		panic(new_NullPointerException_String("declarationNode not set").self())
+		panic(new_NullPointerException_String("declarationNode not set"))
 	}
 	if !(((((this.declarationNode.isName() || this.declarationNode.isGetProp()) || NodeUtil_mayBeObjectLitKey(this.declarationNode)) || this.declarationNode.isModuleBody()) || this.declarationNode.isExport()) || (this.forGoogProvidedNameField && NodeUtil_isExprCall(this.declarationNode))) {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("declaration node must be an lvalue or goog.provide call, found %s", []any{this.declarationNode.box_()})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("declaration node must be an lvalue or goog.provide call, found %s", []any{this.declarationNode.box_()})))
 	}
 	if !this.variableName.isPresent() {
-		panic(new_IllegalStateException_String(objstr_("variableName not set")).self())
+		panic(new_IllegalStateException_String(objstr_("variableName not set")))
 	}
 	if !this.allowLaterTypeInferenceField && this.type__ == nil {
-		panic(new_IllegalStateException_String(objstr_("null type but inference not allowed")).self())
+		panic(new_IllegalStateException_String(objstr_("null type but inference not allowed")))
 	}
 	if this.variableName.get() == "" {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if this.scope_ == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	var parent Node = this.declarationNode.getParent()
 	var scopeToDeclareIn *TypedScope = this.scope_
@@ -2427,7 +2427,7 @@ func (this *TypedScopeCreator_FunctionScopeBuilder) declareNamesInPositionalPara
 	case tokOrd1_ARRAY_PATTERN, tokOrd1_OBJECT_PATTERN:
 		this.declareDestructuringParameter(isInferred, astParameter, paramType)
 	default:
-		panic(new_IllegalStateException_String(("Unexpected function parameter node " + tostrH_(astParameter))).self())
+		panic(new_IllegalStateException_String(("Unexpected function parameter node " + tostrH_(astParameter))))
 	}
 }
 
@@ -2441,7 +2441,7 @@ func (this *TypedScopeCreator_FunctionScopeBuilder) declareDestructuringParamete
 		} else {
 			var paramName Node = target.getNode()
 			if !paramName.isName() {
-				panic(new_IllegalStateException_String(Strings_lenientFormat("Expected all parameters to be names, got %s", []any{paramName.box_()})).self())
+				panic(new_IllegalStateException_String(Strings_lenientFormat("Expected all parameters to be names, got %s", []any{paramName.box_()})))
 			}
 			if (parameterType == nil) || parameterType.isUnknownType() {
 				var paramJSDoc *JSDocInfo = paramName.getJSDocInfo()
@@ -2500,7 +2500,7 @@ func (this *TypedScopeCreator_ClassScopeBuilder) visitPreorder_impl(t *NodeTrave
 func (this *TypedScopeCreator_ClassScopeBuilder) visitPostorder_impl(t *NodeTraversal, n Node, parent Node) {
 	if (n.isName() && (parent == this.currentScope.getRootNode())) && NodeUtil_isClassExpression(parent) {
 		if n.getString() == "" {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		new_TypedScopeCreator_AbstractScopeBuilder_SlotDefiner(this.up_TypedScopeCreator_AbstractScopeBuilder()).forDeclarationNode(n).readVariableNameFromDeclarationNode().inScope(this.currentScope).withType(parent.getJSType()).allowLaterTypeInference(false).defineSlot()
 	} else if NodeUtil_isEs6ConstructorMemberFunctionDef(n) {
@@ -2593,7 +2593,7 @@ func (this *TypedScopeCreator_ClassScopeBuilder) defineGetterSetter(n Node) {
 				return methodType.getParameters().get(0).getJSType()
 			}()
 		default:
-			panic(new_AssertionError_Object(strobj_(n.toStringTree())).self())
+			panic(new_AssertionError_Object(strobj_(n.toStringTree())))
 		}
 	}()
 	var ownerType *ObjectType = this.determineOwnerTypeForClassMember(n)
@@ -2603,7 +2603,7 @@ func (this *TypedScopeCreator_ClassScopeBuilder) defineGetterSetter(n Node) {
 func (this *TypedScopeCreator_ClassScopeBuilder) determineOwnerTypeForClassMember(member Node) *ObjectType {
 	var ownerNode Node = member.getGrandparent()
 	if !ownerNode.isClass() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var ownerType *FunctionType = ownerNode.getJSType().toMaybeFunctionType()
 	if member.isStaticMember() {
@@ -2612,7 +2612,7 @@ func (this *TypedScopeCreator_ClassScopeBuilder) determineOwnerTypeForClassMembe
 		return ownerType.getInstanceType()
 	} else {
 		if !((((member.isMemberFunctionDef() || member.isGetterDef()) || member.isSetterDef()) || member.isComputedProp()) || member.isComputedFieldDef()) {
-			panic(new_IllegalStateException_String(tostr_(member)).self())
+			panic(new_IllegalStateException_String(tostr_(member)))
 		}
 		return ownerType.getPrototype()
 	}

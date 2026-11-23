@@ -32,20 +32,20 @@ func (this *FunctionInjector) finit_FunctionInjector() {
 func (this *FunctionInjector) init_FunctionInjector(builder *FunctionInjector_Builder) {
 	this.finit_FunctionInjector()
 	if builder.compiler_ == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.compiler_ = builder.compiler_
 	this.safeNameIdSupplier_ = func() Supplier[string] {
 		f_ := builder.safeNameIdSupplierField
 		if f_ == nil {
-			panic(new_NullPointerException_0().self())
+			panic(new_NullPointerException_0())
 		}
 		return f_
 	}()
 	this.assumeStrictThis_ = builder.assumeStrictThisField
 	this.allowDecomposition_ = builder.allowDecompositionField
 	if builder.functionArgumentInjectorField == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.functionArgumentInjector_ = builder.functionArgumentInjectorField
 }
@@ -114,7 +114,7 @@ func (this *FunctionInjector) isSupportedCallType(callNode Node, fnNode Node) bo
 
 func FunctionInjector_hasSpreadCallArgument(callNode Node) bool {
 	if !NodeUtil_isNormalOrOptChainCall(callNode) {
-		panic(new_IllegalArgumentException_String(tostr_(callNode)).self())
+		panic(new_IllegalArgumentException_String(tostr_(callNode)))
 	}
 	{
 		var arg Node = callNode.getSecondChild()
@@ -129,7 +129,7 @@ func FunctionInjector_hasSpreadCallArgument(callNode Node) bool {
 
 func (this *FunctionInjector) inline(ref *FunctionInjector_Reference, fnName Optional[string], fnNode Node) Node {
 	if !this.compiler_.getLifeCycleStage().isNormalized() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return this.internalInline(ref, fnName, fnNode)
 }
@@ -166,12 +166,12 @@ func (this *FunctionInjector) inlineReturnValue(ref *FunctionInjector_Reference,
 	} else {
 		var returnNode Node = block.getFirstChild()
 		if !returnNode.isReturn() {
-			panic(new_IllegalArgumentException_String(tostr_(returnNode)).self())
+			panic(new_IllegalArgumentException_String(tostr_(returnNode)))
 		}
 		var safeReturnNode Node = returnNode.cloneTree()
 		var inlineResult Node = this.functionArgumentInjector_.inject(nil, safeReturnNode, 0, paramReplacements)
 		if safeReturnNode != inlineResult {
-			panic(new_IllegalArgumentException_0().self())
+			panic(new_IllegalArgumentException_0())
 		}
 		newExpression = safeReturnNode.removeFirstChild()
 		NodeUtil_markNewScopesChanged(newExpression, this.compiler_)
@@ -228,7 +228,7 @@ func (this *FunctionInjector) inlineFunction(ref *FunctionInjector_Reference, fn
 	var grandParent Node = parent.getParent()
 	var callSiteType FunctionInjector_CallSiteType = this.classifyCallSite(ref)
 	if callSiteType == FunctionInjector_CallSiteType_UNSUPPORTED {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var resultName Optional[string] = Optional_empty[string]()
 	var needsDefaultReturnResult bool = true
@@ -243,11 +243,11 @@ func (this *FunctionInjector) inlineFunction(ref *FunctionInjector_Reference, fn
 		resultName = Optional_empty[string]()
 		needsDefaultReturnResult = false
 	case FunctionInjector_CallSiteType_EXPRESSION:
-		panic(new_IllegalStateException_String("Movable expressions must be moved before inlining.").self())
+		panic(new_IllegalStateException_String("Movable expressions must be moved before inlining."))
 	case FunctionInjector_CallSiteType_DECOMPOSABLE_EXPRESSION:
-		panic(new_IllegalStateException_String("Decomposable expressions must be decomposed before inlining.").self())
+		panic(new_IllegalStateException_String("Decomposable expressions must be decomposed before inlining."))
 	default:
-		panic(new_IllegalStateException_String("Unexpected call site type.").self())
+		panic(new_IllegalStateException_String("Unexpected call site type."))
 	}
 	var mutator *FunctionToBlockMutator = new_FunctionToBlockMutator(this.compiler_, this.safeNameIdSupplier_)
 	var isCallInLoop bool = NodeUtil_isWithinLoop(callNode)
@@ -258,23 +258,23 @@ func (this *FunctionInjector) inlineFunction(ref *FunctionInjector_Reference, fn
 		var firstChild Node = parent.removeFirstChild()
 		NodeUtil_markFunctionsDeleted(firstChild, this.compiler_)
 		if parent.hasChildren() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		newBlock.insertAfter(grandParent)
 	case FunctionInjector_CallSiteType_SIMPLE_ASSIGNMENT:
 		if !grandParent.isExprResult() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		grandParent.replaceWith(newBlock)
 		NodeUtil_markFunctionsDeleted(grandParent, this.compiler_)
 	case FunctionInjector_CallSiteType_SIMPLE_CALL:
 		if !parent.isExprResult() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		parent.replaceWith(newBlock)
 		NodeUtil_markFunctionsDeleted(parent, this.compiler_)
 	default:
-		panic(new_IllegalStateException_String("Unexpected call site type.").self())
+		panic(new_IllegalStateException_String("Unexpected call site type."))
 	}
 	return newBlock
 }
@@ -327,7 +327,7 @@ func (this *FunctionInjector) canInlineReferenceAsStatementBlock(ref *FunctionIn
 
 func (this *FunctionInjector) referencesEval(fn Node) bool {
 	if !fn.isFunction() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var cached any = this.referencesEvalCache.get(fn)
 	if cached != nil {
@@ -344,7 +344,7 @@ func (this *FunctionInjector) referencesEval(fn Node) bool {
 
 func (this *FunctionInjector) innerFunctionOf(containerFn Node) Node {
 	if !containerFn.isFunction() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var cached Node = this.innerFunctionCache.get(containerFn)
 	if cached != 0 {
@@ -433,7 +433,7 @@ func (this *FunctionInjector) canInlineReferenceDirectly(ref *FunctionInjector_R
 			}
 		} else {
 			if NodeUtil_isFunctionObjectApply(callNode) {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 		}
 	}
@@ -556,7 +556,7 @@ func FunctionInjector_inlineCostDelta(fnNode Node, namesToAlias *JTSet[string], 
 
 func (this *FunctionInjector) setKnownConstantFunctions(knownConstantFunctions *JTSet[string]) {
 	if !this.knownConstantFunctions.isEmpty() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.knownConstantFunctions = knownConstantFunctions
 }
@@ -599,7 +599,7 @@ func (this *FunctionInjector_Builder) finit_FunctionInjector_Builder() {
 func (this *FunctionInjector_Builder) init_FunctionInjector_Builder(compiler *AbstractCompiler) {
 	this.finit_FunctionInjector_Builder()
 	if compiler == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.compiler_ = compiler
 }
@@ -614,7 +614,7 @@ func (this *FunctionInjector_Builder) safeNameIdSupplier(safeNameIdSupplier Supp
 	this.safeNameIdSupplierField = func() Supplier[string] {
 		f_ := safeNameIdSupplier
 		if f_ == nil {
-			panic(new_NullPointerException_0().self())
+			panic(new_NullPointerException_0())
 		}
 		return f_
 	}()
@@ -633,7 +633,7 @@ func (this *FunctionInjector_Builder) assumeStrictThis(assumeStrictThis bool) *F
 
 func (this *FunctionInjector_Builder) functionArgumentInjector(functionArgumentInjector *FunctionArgumentInjector) *FunctionInjector_Builder {
 	if functionArgumentInjector == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.functionArgumentInjectorField = functionArgumentInjector
 	return this
@@ -646,7 +646,7 @@ func (this *FunctionInjector_Builder) build() *FunctionInjector {
 	if this.functionArgumentInjectorField == nil {
 		nn_ := this.compiler_.getAstAnalyzer()
 		if nn_ == nil {
-			panic(new_NullPointerException_0().self())
+			panic(new_NullPointerException_0())
 		}
 		this.functionArgumentInjectorField = new_FunctionArgumentInjector(nn_)
 	}
@@ -825,7 +825,7 @@ func (this FunctionInjector_CallSiteType) as_FunctionInjector_CallSiteType() Fun
 func (this FunctionInjector_CallSiteType) prepare(injector *FunctionInjector, ref *FunctionInjector_Reference) {
 	switch this {
 	case FunctionInjector_CallSiteType_UNSUPPORTED:
-		panic(new_IllegalStateException_String(("unexpected: " + objstr_(ref.self()))).self())
+		panic(new_IllegalStateException_String(("unexpected: " + objstr_(ref.self()))))
 	case FunctionInjector_CallSiteType_SIMPLE_CALL, FunctionInjector_CallSiteType_SIMPLE_ASSIGNMENT, FunctionInjector_CallSiteType_VAR_DECL_SIMPLE_ASSIGNMENT:
 
 	case FunctionInjector_CallSiteType_EXPRESSION:
@@ -833,7 +833,7 @@ func (this FunctionInjector_CallSiteType) prepare(injector *FunctionInjector, re
 		injector.getDecomposer(ref.scope_).moveExpression(callNode)
 		var callSiteType FunctionInjector_CallSiteType = injector.classifyCallSite(ref)
 		if this == callSiteType {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		callSiteType.prepare(injector, ref)
 	case FunctionInjector_CallSiteType_DECOMPOSABLE_EXPRESSION:
@@ -841,11 +841,11 @@ func (this FunctionInjector_CallSiteType) prepare(injector *FunctionInjector, re
 		injector.getDecomposer(ref.scope_).maybeExposeExpression(callNode)
 		var callSiteType FunctionInjector_CallSiteType = injector.classifyCallSite(ref)
 		if this == callSiteType {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		callSiteType.prepare(injector, ref)
 	default:
-		panic(new_NullPointerException_0().self()) // a call on null
+		panic(new_NullPointerException_0()) // a call on null
 	}
 }
 

@@ -64,19 +64,19 @@ func (this *JSChunk) getTypeRequires() ListT[string] {
 }
 
 func (this *JSChunk) getPathRelativeToClosureBase() string {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
 func (this *JSChunk) getLoadFlags() MapT[string, string] {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
 func (this *JSChunk) isGoogModule() bool {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
 func (this *JSChunk) isEs6Module() bool {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
 func (this *JSChunk) add(file *SourceFile_jscomp) {
@@ -87,17 +87,17 @@ func (this *JSChunk) addCompilerInput(input *CompilerInput) {
 	var inputName string = input.getName()
 	var previous *CompilerInput = this.inputs.put(inputName, input)
 	if ok_, a1_, a2_ := (previous == nil), inputName, this.getName(); !ok_ {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("%s already exist in chunk %s", []any{a1_, a2_})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("%s already exist in chunk %s", []any{a1_, a2_})))
 	}
 	input.setChunk(this)
 }
 
 func (this *JSChunk) addDependency(dep *JSChunk) {
 	if dep == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if dep == this {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Cannot add dependency on self (%s)", []any{this})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Cannot add dependency on self (%s)", []any{this})))
 	}
 	this.deps.add(dep)
 }
@@ -207,7 +207,7 @@ func (this *JSChunk) sortInputsByDeps(compiler *AbstractCompiler) {
 
 func (this *JSChunk) setDepth(dep int32) {
 	if dep < 0 {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("invalid depth: %s", []any{dep})).self())
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("invalid depth: %s", []any{dep})))
 	}
 	this.depth = dep
 }
@@ -218,7 +218,7 @@ func (this *JSChunk) getDepth() int32 {
 
 func (this *JSChunk) setIndex(index int32) {
 	if index < 0 {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Invalid chunk index: %s", []any{index})).self())
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Invalid chunk index: %s", []any{index})))
 	}
 	this.index_ = index
 }

@@ -51,7 +51,7 @@ func (this *DependencyFile) loadGraph() {
 	var parser *DepsFileRegexParser = new_DepsFileRegexParser_ErrorManager(errorManager)
 	var depInfos *JTList[DependencyInfo_] = parser.parseFile_2(this.getName(), this.getContent())
 	if !parser.didParseSucceed() {
-		panic(obj_(new_ServiceException(("Problem parsing " + sstr_(this.getName()) + ". See logs for details."))))
+		panic(new_ServiceException(("Problem parsing " + sstr_(this.getName()) + ". See logs for details.")))
 	}
 	it_1 := depInfos.each()
 	for it_1.next() {
@@ -59,7 +59,7 @@ func (this *DependencyFile) loadGraph() {
 		for provide := range elemsT_(depInfo.getProvides()) {
 			var existing DependencyInfo_ = this.dependencies.get(provide)
 			if (existing != nil) && !equalsDyn_(existing, depInfo) {
-				panic(obj_(new_ServiceException(("Duplicate provide of " + sstr_(provide) + ". Was provided by " + sstr_(existing.getPathRelativeToClosureBase()) + " and " + sstr_(depInfo.getPathRelativeToClosureBase())))))
+				panic(new_ServiceException(("Duplicate provide of " + sstr_(provide) + ". Was provided by " + sstr_(existing.getPathRelativeToClosureBase()) + " and " + sstr_(depInfo.getPathRelativeToClosureBase()))))
 			}
 			this.dependencies.put(provide, depInfo)
 		}

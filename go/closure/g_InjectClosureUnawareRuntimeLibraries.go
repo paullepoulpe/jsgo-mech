@@ -58,7 +58,7 @@ func (this *InjectClosureUnawareRuntimeLibraries) injectAll(callSite *InjectClos
 	var parameterParent Node = NodeUtil_getFunctionParameters(callSite.closureUnawareFunction())
 	var argumentParent Node = callSite.callNode()
 	if parameterParent.hasChildren() && parameterParent.getLastChild().isRest() {
-		panic(new_IllegalStateException_String(("rest parameters not allowed in closureUnaware function parameters, found " + tostrH_(parameterParent.getLastChild()))).self())
+		panic(new_IllegalStateException_String(("rest parameters not allowed in closureUnaware function parameters, found " + tostrH_(parameterParent.getLastChild()))))
 	}
 	it_1 := toInject.each()
 	for it_1.next() {
@@ -94,10 +94,10 @@ type InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite struct {
 
 func (this *InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite) init_InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite(callNode Node, closureUnawareFunction Node) {
 	if !callNode.isCall() {
-		panic(new_IllegalArgumentException_String(tostr_(callNode)).self())
+		panic(new_IllegalArgumentException_String(tostr_(callNode)))
 	}
 	if !closureUnawareFunction.isFunction() {
-		panic(new_IllegalArgumentException_String(tostr_(closureUnawareFunction)).self())
+		panic(new_IllegalArgumentException_String(tostr_(closureUnawareFunction)))
 	}
 	this.callNode_ = callNode
 	this.closureUnawareFunction_ = closureUnawareFunction
