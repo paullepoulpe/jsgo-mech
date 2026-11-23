@@ -32,8 +32,8 @@ func (this *RewriteObjectSpread) shouldTraverse(t *NodeTraversal, n Node, parent
 }
 
 func (this *RewriteObjectSpread) visit(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_OBJECTLIT:
+	switch n.ns_().token {
+	case tokOrd1_OBJECTLIT:
 		this.visitObject(n)
 	default:
 	}

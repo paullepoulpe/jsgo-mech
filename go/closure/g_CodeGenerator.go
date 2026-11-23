@@ -1363,8 +1363,8 @@ func CodeGenerator_isBlockDeclOrDo(n Node) bool {
 		}
 	} else {
 		return func() bool {
-			switch n.getToken() {
-			case Token_rhino_LET, Token_rhino_CONST, Token_rhino_FUNCTION, Token_rhino_CLASS, Token_rhino_DO:
+			switch n.ns_().token {
+			case tokOrd1_LET, tokOrd1_CONST, tokOrd1_FUNCTION, tokOrd1_CLASS, tokOrd1_DO:
 				return true
 			default:
 				return false
@@ -1830,32 +1830,32 @@ func CodeGenerator_getContextForArrowFunctionBody(context *CodeGenerator_Context
 }
 
 func (this *CodeGenerator) processEnd(n Node, context *CodeGenerator_Context) {
-	switch n.getToken() {
-	case Token_rhino_CLASS, Token_rhino_INTERFACE, Token_rhino_ENUM, Token_rhino_NAMESPACE:
+	switch n.ns_().token {
+	case tokOrd1_CLASS, tokOrd1_INTERFACE, tokOrd1_ENUM, tokOrd1_NAMESPACE:
 		this.cc.endClass((context == CodeGenerator_Context_STATEMENT))
-	case Token_rhino_FUNCTION:
+	case tokOrd1_FUNCTION:
 		if n.getLastChild().isEmpty() {
 			this.cc.endStatement_2(true, false)
 		} else {
 			this.cc.endFunction((context == CodeGenerator_Context_STATEMENT))
 		}
-	case Token_rhino_DECLARE:
+	case tokOrd1_DECLARE:
 		if n.getParent().getToken() != Token_rhino_NAMESPACE_ELEMENTS {
 			this.processEnd(n.getFirstChild(), context)
 		}
-	case Token_rhino_EXPORT:
+	case tokOrd1_EXPORT:
 		if (n.getParent().getToken() != Token_rhino_NAMESPACE_ELEMENTS) && !n.getFirstChild().isDeclare() {
 			this.processEnd(n.getFirstChild(), context)
 		}
-	case Token_rhino_COMPUTED_PROP:
+	case tokOrd1_COMPUTED_PROP:
 		if n.hasOneChild() {
 			this.cc.endStatement_2(true, false)
 		}
-	case Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF:
+	case tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF:
 		if n.getFirstChild().getLastChild().isEmpty() {
 			this.cc.endStatement_2(true, false)
 		}
-	case Token_rhino_MEMBER_VARIABLE_DEF:
+	case tokOrd1_MEMBER_VARIABLE_DEF:
 		this.cc.endStatement_2(true, false)
 	default:
 		if context == CodeGenerator_Context_STATEMENT {

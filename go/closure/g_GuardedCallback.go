@@ -179,53 +179,53 @@ func (this *GuardedCallback_Context) propagate(newSafe bool) *GuardedCallback_Co
 
 func (this *GuardedCallback_Context) descend(compiler *AbstractCompiler, parent Node, child Node) *GuardedCallback_Context {
 	var first bool = (child == parent.getFirstChild())
-	switch parent.getToken() {
-	case Token_rhino_CAST:
+	switch parent.ns_().token {
+	case tokOrd1_CAST:
 		return this
-	case Token_rhino_COMMA:
+	case tokOrd1_COMMA:
 		return func() *GuardedCallback_Context {
 			if child == parent.getLastChild() {
 				return this
 			}
 			return this.propagate(true)
 		}()
-	case Token_rhino_AND:
+	case tokOrd1_AND:
 		return func() *GuardedCallback_Context {
 			if first {
 				return this.link(parent, true)
 			}
 			return this
 		}()
-	case Token_rhino_OR, Token_rhino_COALESCE:
+	case tokOrd1_OR, tokOrd1_COALESCE:
 		return func() *GuardedCallback_Context {
 			if first {
 				return this.link(parent, false)
 			}
 			return this
 		}()
-	case Token_rhino_HOOK:
+	case tokOrd1_HOOK:
 		return func() *GuardedCallback_Context {
 			if first {
 				return this.link(parent, true)
 			}
 			return this
 		}()
-	case Token_rhino_IF:
+	case tokOrd1_IF:
 		return func() *GuardedCallback_Context {
 			if first {
 				return this.link(parent, true)
 			}
 			return GuardedCallback_Context_EMPTY
 		}()
-	case Token_rhino_INSTANCEOF, Token_rhino_ASSIGN:
+	case tokOrd1_INSTANCEOF, tokOrd1_ASSIGN:
 		return this.propagate(first)
-	case Token_rhino_TYPEOF, Token_rhino_NOT, Token_rhino_EQ, Token_rhino_NE, Token_rhino_SHEQ, Token_rhino_SHNE:
+	case tokOrd1_TYPEOF, tokOrd1_NOT, tokOrd1_EQ, tokOrd1_NE, tokOrd1_SHEQ, tokOrd1_SHNE:
 		return this.propagate(true)
-	case Token_rhino_CALL:
+	case tokOrd1_CALL:
 		return this.propagate((!first && GuardedCallback_isPropertyTestFunction(compiler, parent)))
-	case Token_rhino_ROOT:
+	case tokOrd1_ROOT:
 		return GuardedCallback_Context_EMPTY
-	case Token_rhino_OPTCHAIN_CALL, Token_rhino_OPTCHAIN_GETELEM, Token_rhino_OPTCHAIN_GETPROP:
+	case tokOrd1_OPTCHAIN_CALL, tokOrd1_OPTCHAIN_GETELEM, tokOrd1_OPTCHAIN_GETPROP:
 		if first {
 			return this.link(parent, parent.isOptionalChainStart())
 		} else {

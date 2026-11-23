@@ -51,13 +51,13 @@ func new_Es6RelativizeImportPaths_Rewriter() *Es6RelativizeImportPaths_Rewriter 
 
 func (this *Es6RelativizeImportPaths_Rewriter) shouldTraverse_impl(nodeTraversal *NodeTraversal, n Node, parent Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_ROOT, Token_rhino_MODULE_BODY, Token_rhino_SCRIPT:
+		switch n.ns_().token {
+		case tokOrd1_ROOT, tokOrd1_MODULE_BODY, tokOrd1_SCRIPT:
 			return true
-		case Token_rhino_IMPORT:
+		case tokOrd1_IMPORT:
 			this.visitImport(nodeTraversal, n)
 			return false
-		case Token_rhino_EXPORT:
+		case tokOrd1_EXPORT:
 			this.visitExport(nodeTraversal, n)
 			return false
 		default:

@@ -185,18 +185,18 @@ func (this *ImplicitNullabilityCheck_1) visit(node Node) {
 	}
 	var parent Node = node.getParent()
 	if parent != 0 {
-		switch parent.getToken() {
-		case Token_rhino_BANG, Token_rhino_QMARK, Token_rhino_THIS, Token_rhino_NEW, Token_rhino_TYPEOF:
+		switch parent.ns_().token {
+		case tokOrd1_BANG, tokOrd1_QMARK, tokOrd1_THIS, tokOrd1_NEW, tokOrd1_TYPEOF:
 			return
-		case Token_rhino_PIPE:
+		case tokOrd1_PIPE:
 			var gp Node = parent.getParent()
-			if (gp != 0) && (gp.getToken() == Token_rhino_QMARK) {
+			if (gp != 0) && (gp.ns_().token == tokOrd1_QMARK) {
 				return
 			}
 			{
 				var child Node = parent.getFirstChild()
 				for ; child != 0; child = child.getNext() {
-					if (child.isStringLit() && (child.getString() == "null")) || (child.getToken() == Token_rhino_QMARK) {
+					if (child.isStringLit() && (child.getString() == "null")) || (child.ns_().token == tokOrd1_QMARK) {
 						return
 					}
 				}
