@@ -10,6 +10,7 @@ package closure
 
 import (
 	"encoding/binary"
+	"iter"
 	"strconv"
 	"strings"
 	"sync/atomic"
@@ -224,6 +225,49 @@ func String_length(s string) int32 {
 }
 
 func String_isEmpty(s string) bool { return len(s) == 0 }
+
+// stringUnits_ is the UTF-16 units of s with their indexes, for a loop over a string that the
+// loop does not change (post-flip step strunits): for i, c := range stringUnits_(s) { ... } is
+// Java's for (int i = 0; i < s.length(); i++) { char c = s.charAt(i); ... }, reading s once
+// instead of locating unit i from the start of s for each charAt and counting the units for
+// each length.
+func stringUnits_(s string) iter.Seq2[int32, uint16] {
+	return func(yield func(int32, uint16) bool) {
+		var i int32
+		for off := 0; off < len(s); i++ {
+			if b := s[off]; b < 0x80 {
+				if !yield(i, uint16(b)) {
+					return
+				}
+				off++
+				continue
+			}
+			// The units of the code point (or lone surrogate) at off, as String_charAt has them.
+			cp, size := decode_(s, off)
+			off += size
+			if cp >= 0x10000 {
+				cp -= 0x10000
+				if !yield(i, uint16(0xD800+cp>>10)) {
+					return
+				}
+				i++
+				cp = 0xDC00 + cp&0x3FF
+			}
+			if !yield(i, uint16(cp)) {
+				return
+			}
+		}
+	}
+}
+
+// asciiCharAt_ is String_charAt of a constant string that is all ASCII (post-flip step
+// strunits): unit i is byte i.
+func asciiCharAt_(s string, i int32) uint16 {
+	if i < 0 || int(i) >= len(s) {
+		panic(new_StringIndexOutOfBoundsException_String("index " + istr_(int64(i)) + ", length " + istr_(int64(len(s)))).self())
+	}
+	return uint16(s[i])
+}
 
 func String_charAt(s string, i int32) uint16 {
 	if len(s) < 256 {
