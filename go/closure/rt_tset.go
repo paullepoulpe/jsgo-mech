@@ -447,6 +447,7 @@ type teq_ struct {
 	// in the order of cmp (nil: their natural ordering); hs, first and next are not used.
 	sorted bool
 	cmp    Comparator_e
+	cmpT   any // the comparator at the key type, a func(K, K) int32 (newTSortedSetCT_), or nil: cmp
 	view   any // the sorted collection as erased code sees it, once that is needed
 }
 

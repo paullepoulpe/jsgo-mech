@@ -25,6 +25,9 @@ var sortedMapMark_ = &timmMap_{}
 // tsortCmp_ compares two keys of a sorted collection: with its comparator, or by natural
 // ordering (a null key throws NullPointerException there, through compareNatural_).
 func tsortCmp_[K any](x *teq_, c *tconv_[K], a, b K) int32 {
+	if x.cmpT != nil {
+		return x.cmpT.(func(K, K) int32)(a, b)
+	}
 	if x.cmp != nil {
 		return x.cmp.compare(c.box(a), c.box(b))
 	}
