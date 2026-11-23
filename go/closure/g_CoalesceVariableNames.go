@@ -205,7 +205,7 @@ func (this *CoalesceVariableNames) computeVariableNamesInterferenceGraph(cfg *Co
 		if cfg.isImplicitReturn(cfgNode) {
 			continue
 		}
-		var state *DataFlowAnalysis_LinearFlowState = cast_[*DataFlowAnalysis_LinearFlowState](Annotatable_getAnnotation(Annotatable(cfgNode)))
+		var state *DataFlowAnalysis_LinearFlowState[any] = cast_[*DataFlowAnalysis_LinearFlowState[any]](Annotatable_getAnnotation(Annotatable(cfgNode)))
 		var livein *LiveVariablesAnalysis_LiveVariableLattice = cast_[*LiveVariablesAnalysis_LiveVariableLattice](state.getIn())
 		for i := int32(livein.nextSetBit(0)); i >= 0; i = livein.nextSetBit((i + 1)) {
 			for j := int32(livein.nextSetBit(i)); j >= 0; j = livein.nextSetBit((j + 1)) {
@@ -346,7 +346,7 @@ func (this *CoalesceVariableNames) isUninitializedLetNameInLoopBodyAndLive(nameN
 		panic(new_NullPointerException_0().self())
 	}
 	var cfgNode DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]](nn_.self())
-	var state *DataFlowAnalysis_LinearFlowState = cast_[*DataFlowAnalysis_LinearFlowState](Annotatable_getAnnotation(Annotatable(cfgNode)))
+	var state *DataFlowAnalysis_LinearFlowState[any] = cast_[*DataFlowAnalysis_LinearFlowState[any]](Annotatable_getAnnotation(Annotatable(cfgNode)))
 	if state == nil {
 		panic(new_NullPointerException_0().self())
 	}
@@ -355,7 +355,7 @@ func (this *CoalesceVariableNames) isUninitializedLetNameInLoopBodyAndLive(nameN
 }
 
 type CoalesceVariableNames_LiveRangeChecker struct {
-	state            *DataFlowAnalysis_LinearFlowState
+	state            *DataFlowAnalysis_LinearFlowState[any]
 	orderedVariables []*Var
 	isAssignToList   *JTList[any]
 	isReadFromList   *JTList[any]
@@ -367,14 +367,14 @@ func (this *CoalesceVariableNames_LiveRangeChecker) finit_CoalesceVariableNames_
 	this.isReadFromList = jnewTList_(tc_Integer)
 }
 
-func (this *CoalesceVariableNames_LiveRangeChecker) init_CoalesceVariableNames_LiveRangeChecker(root Node, orderedVariables []*Var, state *DataFlowAnalysis_LinearFlowState) {
+func (this *CoalesceVariableNames_LiveRangeChecker) init_CoalesceVariableNames_LiveRangeChecker(root Node, orderedVariables []*Var, state *DataFlowAnalysis_LinearFlowState[any]) {
 	this.finit_CoalesceVariableNames_LiveRangeChecker()
 	this.root = root
 	this.orderedVariables = orderedVariables
 	this.state = state
 }
 
-func new_CoalesceVariableNames_LiveRangeChecker(root Node, orderedVariables []*Var, state *DataFlowAnalysis_LinearFlowState) *CoalesceVariableNames_LiveRangeChecker {
+func new_CoalesceVariableNames_LiveRangeChecker(root Node, orderedVariables []*Var, state *DataFlowAnalysis_LinearFlowState[any]) *CoalesceVariableNames_LiveRangeChecker {
 	this := &CoalesceVariableNames_LiveRangeChecker{}
 	this.init_CoalesceVariableNames_LiveRangeChecker(root, orderedVariables, state)
 	return this
