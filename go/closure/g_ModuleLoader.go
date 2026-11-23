@@ -91,25 +91,25 @@ func (this *ModuleLoader) createRootPaths(roots IterableT[string]) *TList[string
 }
 
 func (this *ModuleLoader) resolvePaths(inputs IterableT[DependencyInfo_]) *TSet[string] {
-	var sortedModulePaths *TList[string] = newTList_(tc_string)
+	var sortedModulePaths *[]string = &[]string{}
 	for input := range elemsT_(inputs) {
 		var p string = this.pathEscaper.escape(this.pathResolver.apply(input.getName()))
 		var n string = ModuleLoader_normalize(p, this.moduleRootPaths.asIterable())
-		sortedModulePaths.add(func() string {
+		*sortedModulePaths = append(*sortedModulePaths, func() string {
 			if ModuleLoader_isAmbiguousIdentifier(n) {
 				return (sstr_(ModuleLoader_MODULE_SLASH) + sstr_(n))
 			}
 			return n
 		}())
 	}
-	List_sort(List_un_(sortedModulePaths.asListT()), func() Comparator[any] {
+	List_sort(List_un_(sliceViewP_(tc_string, sortedModulePaths)), func() Comparator[any] {
 		f_ := ModuleLoader_BEST_MATCH_PATH_ORDERING
 		if f_ == nil {
 			return nil
 		}
 		return func(p0 any, p1 any) int32 { return f_(str_(p0), str_(p1)) }
 	}())
-	var dupeModulePaths *SimpleMultiset[string] = SimpleMultiset_copyOf[string](sortedModulePaths.asIterable())
+	var dupeModulePaths *SimpleMultiset[string] = SimpleMultiset_copyOf[string](slicePtrViewT_(tc_string, sortedModulePaths))
 	if dupeModulePaths.size() != dupeModulePaths.elementSet().size() {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("Duplicate module paths after resolving: %s", []any{dupeModulePaths})))
 	}

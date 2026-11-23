@@ -8,7 +8,7 @@ type CheckNullabilityModifiers struct {
 	redundantCandidates   *TSet[Node]
 	missingCandidates     *TSet[Node]
 	nullMissingCandidates *TSet[Node]
-	templateTypeNames     *TSet[string]
+	templateTypeNames     map[string]struct{}
 }
 
 func (this *CheckNullabilityModifiers) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -22,7 +22,7 @@ func (this *CheckNullabilityModifiers) finit_CheckNullabilityModifiers() {
 	this.redundantCandidates = newTSet_(tc_Node)
 	this.missingCandidates = newTSet_(tc_Node)
 	this.nullMissingCandidates = newTSet_(tc_Node)
-	this.templateTypeNames = newTSet_(tc_string)
+	this.templateTypeNames = map[string]struct{}{}
 }
 
 func (this *CheckNullabilityModifiers) init_CheckNullabilityModifiers(compiler *AbstractCompiler) {
@@ -45,8 +45,8 @@ func (this *CheckNullabilityModifiers) process_2(externs Node, root Node) {
 func (this *CheckNullabilityModifiers) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	var info *JSDocInfo = n.getJSDocInfo()
 	if info != nil {
-		this.templateTypeNames.asSetT().addAll(Collection(info.getTemplateTypeNames().asList()))
-		this.templateTypeNames.asSetT().addAll(Collection(info.getTypeTransformations().asImm().keySet()))
+		setAddAllFrom_(tc_string, this.templateTypeNames, Collection(info.getTemplateTypeNames().asList()))
+		setAddAllFrom_(tc_string, this.templateTypeNames, Collection(info.getTypeTransformations().asImm().keySet()))
 		if info.hasType() {
 			this.handleHasType(info.getType(), n)
 		}
@@ -75,7 +75,7 @@ func (this *CheckNullabilityModifiers) visit_impl(t *NodeTraversal, n Node, pare
 		this.redundantCandidates.Clear()
 		this.missingCandidates.Clear()
 		this.nullMissingCandidates.Clear()
-		this.templateTypeNames.Clear()
+		clear(this.templateTypeNames)
 		return
 	}
 }
@@ -116,7 +116,7 @@ func (this *CheckNullabilityModifiers) report(t *NodeTraversal) {
 }
 
 func (this *CheckNullabilityModifiers) shouldReport(n Node) bool {
-	return (!n.isStringLit() || !this.templateTypeNames.Has(n.getString()))
+	return (!n.isStringLit() || !has_(this.templateTypeNames, n.getString()))
 }
 
 func (this *CheckNullabilityModifiers) visitTypeExpression(expr *JSTypeExpression, hasArtificialTopLevelBang bool) {

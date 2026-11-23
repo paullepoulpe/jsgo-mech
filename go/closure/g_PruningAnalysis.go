@@ -50,8 +50,8 @@ func (this *PruningAnalysis) calculateBottlenecks() *TMap[string, any] {
 			bottleneckBlame.Put(node, int32(retainedCount))
 		}
 	}
-	var sortedBlame *TList[Map_EntryT[string, any]] = tlistFrom_(tc_Map_EntryT_string__any_, Collection(Set_un_(bottleneckBlame.entrySetT())))
-	List_sort(List_un_(sortedBlame.asListT()), func() Comparator[any] {
+	var sortedBlame []Map_EntryT[string, any] = sliceFrom_(tc_Map_EntryT_string__any_, Collection(Set_un_(bottleneckBlame.entrySetT())))
+	List_sort(List_un_(sliceView_(tc_Map_EntryT_string__any_, sortedBlame)), func() Comparator[any] {
 		f_ := Comparator_comparingInt[Map_EntryT[string, any]](ToIntFunction[Map_EntryT[string, any]](func(entry Map_EntryT[string, any]) int32 {
 			return unbox_[int32](entry.getValue_t())
 		})).reversed()
@@ -63,8 +63,8 @@ func (this *PruningAnalysis) calculateBottlenecks() *TMap[string, any] {
 		}
 	}())
 	var result *ImmutableMap_Builder[string, any] = immutableMapBuilder_(tc_string, tc_Integer)
-	for i := int32(0); (i < sortedBlame.size()) && (i < PruningAnalysis_BOTTLENECK_THRESHOLD); i++ {
-		var entry Map_EntryT[string, any] = sortedBlame.get(i)
+	for i := int32(0); (i < int32(len(sortedBlame))) && (i < PruningAnalysis_BOTTLENECK_THRESHOLD); i++ {
+		var entry Map_EntryT[string, any] = sliceAt_(sortedBlame, i)
 		result.put(entry.getKey_t(), entry.getValue())
 	}
 	return result.buildOrThrow()

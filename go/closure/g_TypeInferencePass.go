@@ -63,13 +63,11 @@ func (this *TypeInferencePass) inferAllScopes(inferenceRoot Node) *TypedScope {
 			defer closeResource_(histogram.self())
 			histogram.logString("step_count token population")
 			var totals []int32 = []int32{0, 0}
-			var stepCounts *TList[any] = tlistFrom_(tc_Integer, Collection(Set_un_(this.stepCountHistogram.keySetT())))
-			List_sort(List_un_(stepCounts.asListT()), Comparator_naturalOrder[any]().reversed())
-			it_5 := stepCounts.each()
-			for it_5.next() {
-				var stepCount any = it_5.v
-				var entries *TList[Map_EntryT[Token_rhino, any]] = tlistFrom_(tc_Map_EntryT_p_Token_rhino__any_, Collection(Set_un_(this.stepCountHistogram.Get(stepCount).entrySet())))
-				List_sort(List_un_(entries.asListT()), func() Comparator[any] {
+			var stepCounts []any = sliceFrom_(tc_Integer, Collection(Set_un_(this.stepCountHistogram.keySetT())))
+			List_sort(List_un_(sliceView_(tc_any, stepCounts)), Comparator_naturalOrder[any]().reversed())
+			for _, stepCount := range stepCounts {
+				var entries []Map_EntryT[Token_rhino, any] = sliceFrom_(tc_Map_EntryT_p_Token_rhino__any_, Collection(Set_un_(this.stepCountHistogram.Get(stepCount).entrySet())))
+				List_sort(List_un_(sliceView_(tc_Map_EntryT_p_Token_rhino__any_, entries)), func() Comparator[any] {
 					f_ := Comparator_comparingInt[Map_EntryT[Token_rhino, any]](ToIntFunction[Map_EntryT[Token_rhino, any]](func(p0 Map_EntryT[Token_rhino, any]) int32 { return unbox_[int32](p0.getValue_t()) }))
 					if f_ == nil {
 						return nil
@@ -78,9 +76,7 @@ func (this *TypeInferencePass) inferAllScopes(inferenceRoot Node) *TypedScope {
 						return f_(map_EntryAs_(tc_p_Token_rhino, tc_Integer, icast_Map_Entry(p0)), map_EntryAs_(tc_p_Token_rhino, tc_Integer, icast_Map_Entry(p1)))
 					}
 				}())
-				it_7 := entries.each()
-				for it_7.next() {
-					var e Map_EntryT[Token_rhino, any] = it_7.v
+				for _, e := range entries {
 					totals[0] += (unbox_[int32](stepCount) * unbox_[int32](e.getValue_t()))
 					totals[1] += unbox_[int32](e.getValue_t())
 					histogram.log_2("%s %s %s", []any{stepCount, e.getKey(), e.getValue()})

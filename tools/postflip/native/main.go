@@ -2760,7 +2760,23 @@ func mapUse(n *node, recv ast.Expr, m string, call *ast.CallExpr) {
 			edit(n, call, func() string { return "mapRemove_(" + vc + ", " + R() + ", " + A(0) + ")" })
 		}
 	case !set && m == "getOrDefault" && len(args) == 2:
-		edit(n, call, func() string { return "mapGetOr_(" + R() + ", " + A(0) + ", " + A(1) + ")" })
+		// The default is converted to the value type where it has another type (an
+		// *ErasedImmutableSet for a Set): the method's parameter converted it; a generic
+		// function's argument must have the type itself.
+		conv := ""
+		if sig, ok := rw.Info.Types[call.Fun].Type.(*types.Signature); ok && sig.Params().Len() == 2 {
+			if vt, at := sig.Params().At(1).Type(), rw.Info.Types[args[1]]; at.Type != nil && !at.IsNil() && !types.Identical(vt, at.Type) {
+				if _, basic := at.Type.(*types.Basic); !basic {
+					conv = tstr(vt)
+				}
+			}
+		}
+		edit(n, call, func() string {
+			if conv != "" {
+				return "mapGetOr_(" + R() + ", " + A(0) + ", " + conv + "(" + A(1) + "))"
+			}
+			return "mapGetOr_(" + R() + ", " + A(0) + ", " + A(1) + ")"
+		})
 	case !set && m == "putIfAbsent" && len(args) == 2:
 		changes()
 		edit(n, call, func() string { return "mapPutIfAbsent_(" + vc + ", " + R() + ", " + A(0) + ", " + A(1) + ")" })

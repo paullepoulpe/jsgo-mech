@@ -64,7 +64,7 @@ type CompilerOptions struct {
 	tracer                                       CompilerOptions_TracerMode
 	errorFormat                                  ErrorFormat
 	warningsGuard                                *ComposeWarningsGuard
-	extraReportGenerators                        *TList[SortingErrorManager_ErrorReportGenerator]
+	extraReportGenerators                        *[]SortingErrorManager_ErrorReportGenerator
 	sourceMapDetailLevel                         SourceMap_DetailLevel
 	sourceMapFormat                              SourceMap_Format
 	sourceMapLocationMappings                    *TList[SourceMap_LocationMapping]
@@ -272,7 +272,7 @@ func (this *CompilerOptions) finit_CompilerOptions() {
 	this.lineLengthThreshold = CompilerOptions_DEFAULT_LINE_LENGTH_THRESHOLD
 	this.useOriginalNamesInOutput = false
 	this.externExportsPath = Optional_empty[string]()
-	this.extraReportGenerators = newTList_(tc_SortingErrorManager_ErrorReportGenerator)
+	this.extraReportGenerators = &[]SortingErrorManager_ErrorReportGenerator{}
 	this.sourceMapOutputPath = Optional_empty[string]()
 	this.shouldAlwaysGatherSourceMapInfo_ = false
 	this.sourceMapDetailLevel = SourceMap_DetailLevel_ALL
@@ -675,12 +675,12 @@ func (this *CompilerOptions) setTracerOutput(out Optional[string]) {
 	this.tracerOutput = out
 }
 
-func (this *CompilerOptions) getExtraReportGenerators() *TList[SortingErrorManager_ErrorReportGenerator] {
+func (this *CompilerOptions) getExtraReportGenerators() *[]SortingErrorManager_ErrorReportGenerator {
 	return this.extraReportGenerators
 }
 
 func (this *CompilerOptions) addReportGenerator(generator SortingErrorManager_ErrorReportGenerator) {
-	this.extraReportGenerators.add(generator)
+	*this.extraReportGenerators = append(*this.extraReportGenerators, generator)
 }
 
 func (this *CompilerOptions) setProtectHiddenSideEffects(enable bool) {
@@ -878,8 +878,8 @@ func (this *CompilerOptions) setUnknownDefinesToIgnore(unknownDefinesToIgnore *T
 	this.unknownDefinesToIgnore = unknownDefinesToIgnore
 }
 
-func (this *CompilerOptions) addUnknownDefinesToIgnore(unknownDefinesToIgnore *TList[string]) {
-	this.unknownDefinesToIgnore = immutableListBuilder_(tc_string).addAll(this.unknownDefinesToIgnore.asIterable()).addAll(unknownDefinesToIgnore.asIterable()).build()
+func (this *CompilerOptions) addUnknownDefinesToIgnore(unknownDefinesToIgnore []string) {
+	this.unknownDefinesToIgnore = immutableListBuilder_(tc_string).addAll(this.unknownDefinesToIgnore.asIterable()).addAll(sliceView_(tc_string, unknownDefinesToIgnore)).build()
 }
 
 func (this *CompilerOptions) getUnknownDefinesToIgnore() *TList[string] {
@@ -3642,20 +3642,20 @@ func (this CompilerOptions_LanguageMode) isDefaultStrict() bool {
 	}()
 }
 
-func CompilerOptions_LanguageMode_validCommandLineNames() *TList[string] {
-	var names *TList[string] = newTList_(tc_string)
+func CompilerOptions_LanguageMode_validCommandLineNames() []string {
+	var names []string = []string{}
 	for mode := range elemsAs_[CompilerOptions_LanguageMode](obj_(EnumSet_allOf(classOf_("com.google.javascript.jscomp.CompilerOptions.LanguageMode")))) {
 		if mode != CompilerOptions_LanguageMode_UNSUPPORTED {
-			names.add(mode.name())
+			names = append(names, mode.name())
 			if strings.HasPrefix(mode.name(), "ECMASCRIPT") {
-				names.add(CompilerOptions_ECMASCRIPT_PATTERN.matcher_s(mode.name()).replaceFirst("ES"))
+				names = append(names, CompilerOptions_ECMASCRIPT_PATTERN.matcher_s(mode.name()).replaceFirst("ES"))
 			}
 		}
 	}
-	names.add("ECMASCRIPT6")
-	names.add("ES6")
-	names.add("ECMASCRIPT6_STRICT")
-	names.add("ES6_STRICT")
+	names = append(names, "ECMASCRIPT6")
+	names = append(names, "ES6")
+	names = append(names, "ECMASCRIPT6_STRICT")
+	names = append(names, "ES6_STRICT")
 	return names
 }
 
