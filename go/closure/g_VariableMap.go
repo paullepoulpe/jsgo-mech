@@ -76,7 +76,7 @@ func VariableMap_fromStreamBytes(bytes []int8) *Outcome_base[*VariableMap] {
 	it_1 := TextFiles_splitLines(Io_utf8String(bytes)).each()
 	for it_1.next() {
 		var line string = it_1.v
-		if String_isEmpty(line) {
+		if line == "" {
 			continue
 		}
 		var pos int32 = VariableMap_findIndexOfUnescapedChar(line, VariableMap_SEPARATOR)
@@ -107,7 +107,7 @@ func VariableMap_fromLines(string_ string) *Outcome_base[*VariableMap] {
 		}
 		var line string = String_substring(string_, startOfLine, newLine)
 		startOfLine = (endOfLine + 1)
-		if String_isEmpty(line) {
+		if line == "" {
 			continue
 		}
 		var pos int32 = VariableMap_findIndexOfUnescapedChar(line, VariableMap_SEPARATOR)

@@ -97,7 +97,7 @@ func (this *CheckMissingRequires) visitNode(t *NodeTraversal, n Node, currentMod
 		}
 		this.visitQualifiedName(t, n, currentModule, qualifiedName, CheckMissingRequires_Strength_CODE)
 	}
-	if n.isName() && !String_isEmpty(n.getString()) {
+	if n.isName() && n.getString() != "" {
 		this.visitMaybeDeclaration(t, n, currentModule)
 	}
 	if n.isCall() && (this.controlFlowScopeDepth == 0) {

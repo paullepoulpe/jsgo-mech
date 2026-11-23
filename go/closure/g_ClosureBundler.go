@@ -123,7 +123,7 @@ func (this *ClosureBundler) appendTo(out Appendable, info DependencyInfo_, conte
 
 func (this *ClosureBundler) appendRuntimeTo(out Appendable) {
 	var runtime string = this.transpiler.runtime()
-	if !String_isEmpty(runtime) {
+	if runtime != "" {
 		this.mode_.appendTraditional(runtime, out, Optional_empty[string]())
 	}
 	if this.transpiler == Transpiler_transpile_NULL {

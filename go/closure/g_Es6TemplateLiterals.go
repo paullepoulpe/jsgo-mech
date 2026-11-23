@@ -45,9 +45,9 @@ func (this *Es6TemplateLiterals) visitTemplateLiteral(t *NodeTraversal, n Node) 
 					if !child.getCookedString().isPresent() {
 						panic(new_IllegalStateException_0().self())
 					}
-					if String_isEmpty(child.getCookedString().get()) {
+					if child.getCookedString().get() == "" {
 						continue
-					} else if (i == 2) && String_isEmpty(first.getCookedString().get()) {
+					} else if (i == 2) && first.getCookedString().get() == "" {
 						add = add.getSecondChild().detach()
 					}
 				}

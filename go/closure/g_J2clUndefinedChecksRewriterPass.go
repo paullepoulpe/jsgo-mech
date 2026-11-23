@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type J2clUndefinedChecksRewriterPass struct {
 	AbstractPeepholeOptimization
 	shouldRunJ2clPasses bool
@@ -91,7 +93,7 @@ func J2clUndefinedChecksRewriterPass_isUtilCall(node Node, methodName string) bo
 		return false
 	}
 	var qualifiedName string = node.getFirstChild().getOriginalQualifiedName()
-	return (JString_contains_s(qualifiedName, "nativebootstrap$Util") && String_endsWith(qualifiedName, methodName))
+	return (JString_contains_s(qualifiedName, "nativebootstrap$Util") && strings.HasSuffix(qualifiedName, methodName))
 }
 
 // beginTraversal: an object that is exactly a J2clUndefinedChecksRewriterPass calls its beginTraversal_impl directly (post-flip); others dispatch.

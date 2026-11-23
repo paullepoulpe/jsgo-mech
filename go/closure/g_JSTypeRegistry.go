@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type JSTypeRegistry struct {
 	iObjectIndexTemplateKey         *TemplateType
 	iObjectElementTemplateKey       *TemplateType
@@ -549,9 +551,9 @@ func (this *JSTypeRegistry) initializeRegistry() {
 }
 
 func JSTypeRegistry_getRootElementOfName(name string) string {
-	var index int32 = String_indexOf(name, 46)
+	var index int32 = int32(strings.IndexByte(name, '.'))
 	if index != -1 {
-		return String_substring(name, 0, index)
+		return name[:index]
 	}
 	return name
 }
@@ -623,7 +625,7 @@ func (this *JSTypeRegistry) getTypeInternal(scope StaticScope, name string) *JST
 func (this *JSTypeRegistry) resolveViaComponents(scope StaticScope, qualifiedName string) *JSType {
 	var resolutionScope StaticTypedScope
 	_ = resolutionScope
-	if String_isEmpty(qualifiedName) || !(func() bool {
+	if qualifiedName == "" || !(func() bool {
 		v_ := any(scope)
 		p, ok := v_.(StaticTypedScope)
 		if !ok {
@@ -672,7 +674,7 @@ func (this *JSTypeRegistry) resolveViaClosureNamespace(reference string) *JSType
 }
 
 func (this *JSTypeRegistry) resolveViaProperties(declarationScope StaticTypedScope, qualifiedName string) *JSType {
-	if String_isEmpty(qualifiedName) {
+	if qualifiedName == "" {
 		panic(new_IllegalArgumentException_0().self())
 	}
 	var rootName string = JSTypeRegistry_getRootElementOfName(qualifiedName)
@@ -698,7 +700,7 @@ func (this *JSTypeRegistry) resolveViaPropertyGivenSlot(slotType *JSType, defini
 	for i := int32(0); i < componentNames.size(); i++ {
 		var component string = componentNames.get(i)
 		var parentObj *ObjectType = ObjectType_cast(slotType)
-		if ((parentObj == nil) || String_isEmpty(component)) || !parentObj.hasOwnProperty(component) {
+		if ((parentObj == nil) || component == "") || !parentObj.hasOwnProperty(component) {
 			return nil
 		}
 		if i == (componentNames.size() - 1) {
@@ -917,7 +919,7 @@ func JSTypeRegistry_getSuperStack(a *ObjectType) *JTList[*ObjectType] {
 }
 
 func (this *JSTypeRegistry) declareType(scope StaticScope, name string, type_ *JSType) bool {
-	if String_isEmpty(name) {
+	if name == "" {
 		panic(new_IllegalStateException_0().self())
 	}
 	if this.getTypeForScopeInternal(JSTypeRegistry_getLookupScope(scope, name), name) != nil {
@@ -928,7 +930,7 @@ func (this *JSTypeRegistry) declareType(scope StaticScope, name string, type_ *J
 }
 
 func (this *JSTypeRegistry) declareTypeForExactScope(scope StaticScope, name string, type_ *JSType) bool {
-	if String_isEmpty(name) {
+	if name == "" {
 		panic(new_IllegalStateException_0().self())
 	}
 	if this.getTypeForScopeInternal(scope, name) != nil {
@@ -974,7 +976,7 @@ func JSTypeRegistry_getSimpleReadableJSTypeName(type_ *JSType) Optional[string] 
 				panic(new_IllegalStateException_String(objstr_(source.box_())).self())
 			}
 			var readable string = source.getFirstChild().getOriginalName()
-			if !String_isEmpty(readable) {
+			if readable != "" {
 				return Optional_of[string](readable)
 			}
 		}
@@ -1025,7 +1027,7 @@ func (this *JSTypeRegistry) getReadableJSTypeName(n Node, dereference bool) Opti
 	}
 	if n.isQualifiedName() {
 		return Optional_of[string](n.getQualifiedName()).filter(Predicate[string](func(s string) bool {
-			return !String_isEmpty(s)
+			return s != ""
 		}))
 	} else if type_.isFunctionType() {
 		return Optional_of[string]("function")
@@ -1323,7 +1325,7 @@ func (this *JSTypeRegistry) isNonNullableName(scope StaticScope, name string) bo
 
 func (this *JSTypeRegistry) evaluateTypeExpression(expr *JSTypeExpression, scope StaticTypedScope) *JSType {
 	return this.createTypeFromCommentNode_3(expr.getRoot(), Optional_of[string](expr.getSourceName()).filter(Predicate[string](func(s string) bool {
-		return !String_isEmpty(s)
+		return s != ""
 	})), scope)
 }
 
@@ -1540,7 +1542,7 @@ func (this *JSTypeRegistry) createRecordTypeFromNodes(n Node, sourceName Optiona
 				hasType = true
 			}
 			var fieldName string = fieldNameNode.getString()
-			if String_startsWith(fieldName, "'") || String_startsWith(fieldName, "\"") {
+			if strings.HasPrefix(fieldName, "'") || strings.HasPrefix(fieldName, "\"") {
 				fieldName = String_substring(fieldName, 1, (String_length(fieldName) - 1))
 			}
 			var fieldType *JSType = nil

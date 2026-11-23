@@ -24,7 +24,7 @@ func JSCompStrings_linesIterable(lines IterableT[string]) string {
 }
 
 func JSCompStrings_parseIntOrNull(s Optional[string]) any {
-	if s.isEmpty() || String_isEmpty(s.get()) {
+	if s.isEmpty() || s.get() == "" {
 		return nil
 	}
 	var negative bool = (String_charAt(s.get(), 0) == '-')

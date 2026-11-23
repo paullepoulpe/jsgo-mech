@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type J2clChecksPass struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_ *AbstractCompiler
@@ -62,7 +64,7 @@ func (this *J2clChecksPass) isType(jsType *JSType, fileName string) bool {
 		return false
 	}
 	var sourceName Optional[string] = this.getSourceName(jsType)
-	return (sourceName.isPresent() && String_endsWith(sourceName.get(), fileName))
+	return (sourceName.isPresent() && strings.HasSuffix(sourceName.get(), fileName))
 }
 
 func (this *J2clChecksPass) getSourceName(jsType *JSType) Optional[string] {
@@ -71,7 +73,7 @@ func (this *J2clChecksPass) getSourceName(jsType *JSType) Optional[string] {
 		return Optional_of[string]("")
 	}
 	return Optional_of[string](NodeUtil_getSourceName(constructor.getSource())).filter(Predicate[string](func(s string) bool {
-		return !String_isEmpty(s)
+		return s != ""
 	}))
 }
 

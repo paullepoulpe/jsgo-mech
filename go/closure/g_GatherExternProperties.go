@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type GatherExternProperties struct {
 	compiler_        *AbstractCompiler
 	externProperties *JTSet[string]
@@ -98,7 +100,7 @@ func (this *GatherExternProperties) gatherPropertiesFromJsDocRecordType(jsDocRec
 				panic(new_IllegalStateException_String(objstr_(fieldNameNode.box_())).self())
 			}
 			var fieldName string = fieldNameNode.getString()
-			if String_startsWith(fieldName, "'") || String_startsWith(fieldName, "\"") {
+			if strings.HasPrefix(fieldName, "'") || strings.HasPrefix(fieldName, "\"") {
 				fieldName = String_substring(fieldName, 1, (String_length(fieldName) - 1))
 			}
 			this.externProperties.add(fieldName)

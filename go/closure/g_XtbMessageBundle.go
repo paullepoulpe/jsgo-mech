@@ -130,7 +130,7 @@ func (this *XtbMessageBundle_Handler) startElement(uri string, localName string,
 			panic(new_IllegalStateException_0().self())
 		}
 		this.lang = Optional_ofNullable[string](atts.getValue(XtbMessageBundle_Handler_LANG_ATT_NAME))
-		if !this.lang.isPresent() || String_isEmpty(this.lang.get()) {
+		if !this.lang.isPresent() || this.lang.get() == "" {
 			panic(new_IllegalStateException_0().self())
 		}
 	case XtbMessageBundle_Handler_TRANSLATION_ELEM_NAME:
@@ -138,7 +138,7 @@ func (this *XtbMessageBundle_Handler) startElement(uri string, localName string,
 			panic(new_IllegalStateException_0().self())
 		}
 		var id Optional[string] = Optional_ofNullable[string](atts.getValue(XtbMessageBundle_Handler_MESSAGE_ID_ATT_NAME))
-		if !id.isPresent() || String_isEmpty(id.get()) {
+		if !id.isPresent() || id.get() == "" {
 			panic(new_IllegalStateException_0().self())
 		}
 		this.msgBuilder = new_JsMessage_Builder().setKey(id.get()).setId(id)
