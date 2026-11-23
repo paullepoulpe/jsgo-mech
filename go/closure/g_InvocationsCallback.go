@@ -50,7 +50,5 @@ func (this *InvocationsCallback) visit_impl(t *NodeTraversal, n Node, parent Nod
 }
 
 func (this *InvocationsCallback) visit_4(p0 *NodeTraversal, p1 Node, p2 Node, p3 string) {
-	this.self_.(interface {
-		visit_4_impl(*NodeTraversal, Node, Node, string)
-	}).visit_4_impl(p0, p1, p2, p3)
+	this.self_.(*InlineSimpleMethods_InlineTrivialAccessors).visit_4_impl(p0, p1, p2, p3)
 }
