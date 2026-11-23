@@ -145,30 +145,30 @@ func (this *ReplaceStrings) doSubstitutions(t *NodeTraversal, config *ReplaceStr
 
 func (this *ReplaceStrings) replaceExpression(t *NodeTraversal, expr Node) Node {
 	var replacement Node
-	var key Optional[string] = Optional_empty[string]()
+	var key string = nullstr_
 	var replacementString string
 	switch expr.ns_().token {
 	case tokOrd1_STRINGLIT:
-		key = Optional_of[string](expr.getString())
-		replacementString = this.getReplacement(key.orElse(nullstr_))
+		key = optstrOf_(expr.getString())
+		replacementString = this.getReplacement(key)
 		replacement = IR_string(replacementString)
 	case tokOrd1_TEMPLATELIT, tokOrd1_ADD, tokOrd1_NAME:
 		var keyBuilder strBuilder_
 		var keyNode Node = IR_string("")
 		replacement = this.buildReplacement(t, expr, keyNode, &keyBuilder)
-		key = Optional_of[string](keyBuilder.toString())
-		if key.get() == this.placeholderToken {
+		key = optstrOf_(keyBuilder.toString())
+		if optstrGet_(key) == this.placeholderToken {
 			return expr
 		}
-		replacementString = this.getReplacement(key.orElse(nullstr_))
+		replacementString = this.getReplacement(key)
 		keyNode.setString(replacementString)
 	default:
 		return expr
 	}
-	if !key.isPresent() {
+	if key == nullstr_ {
 		panic(new_IllegalStateException_0())
 	}
-	this.recordReplacement(key.get())
+	this.recordReplacement(optstrGet_(key))
 	replacement.srcrefTreeIfMissing(expr)
 	expr.replaceWith(replacement)
 	t.reportCodeChange()
@@ -207,7 +207,7 @@ func (this *ReplaceStrings) buildReplacement(t *NodeTraversal, expr Node, prefix
 			for ; child != 0; child = child.getNext() {
 				switch child.ns_().token {
 				case tokOrd1_TEMPLATELIT_STRING:
-					keyBuilder.append(child.getCookedString().orElse("null"))
+					keyBuilder.append(optstrOr_(child.getCookedString(), "null"))
 				case tokOrd1_TEMPLATELIT_SUB:
 					prefix = this.buildReplacement(t, child.getFirstChild(), prefix, keyBuilder)
 				default:

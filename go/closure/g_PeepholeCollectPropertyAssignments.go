@@ -212,18 +212,18 @@ func (this *PeepholeCollectPropertyAssignments) collectObjectProperty(objectLite
 	if !lhs.isGetProp() && !lhs.isGetElem() {
 		panic(new_IllegalStateException_String(tostr_(lhs)))
 	}
-	var propertyName Optional[string]
+	var propertyName string
 	if lhs.isGetElem() {
 		var property Node = obj.getNext()
 		if property.isNumber() {
 			propertyName = this.getSideEffectFreeStringValue(property)
 		} else if property.isStringLit() {
-			propertyName = Optional_of[string](property.getString())
+			propertyName = optstrOf_(property.getString())
 		} else {
 			return false
 		}
 	} else if lhs.isGetProp() {
-		propertyName = Optional_of[string](lhs.getString())
+		propertyName = optstrOf_(lhs.getString())
 	} else {
 		return false
 	}
@@ -234,7 +234,7 @@ func (this *PeepholeCollectPropertyAssignments) collectObjectProperty(objectLite
 			if currentProperty.isStringKey() || currentProperty.isMemberFunctionDef() {
 				var currentPropertyName string = currentProperty.getString()
 				var currentValue Node = currentProperty.getFirstChild()
-				if optEquals_(Optional_of[string](currentPropertyName), propertyName) {
+				if optstrOf_(currentPropertyName) == propertyName {
 					existingProperty = currentProperty
 					var isCurrentValueSideEffect bool = NodeUtil_canBeSideEffected_Node(currentValue)
 					var isNewValueSideEffect bool = NodeUtil_canBeSideEffected_Node(rhs)
@@ -245,18 +245,18 @@ func (this *PeepholeCollectPropertyAssignments) collectObjectProperty(objectLite
 				}
 			} else if currentProperty.isGetterDef() || currentProperty.isSetterDef() {
 				var currentPropertyName string = currentProperty.getString()
-				if optEquals_(Optional_of[string](currentPropertyName), propertyName) {
+				if optstrOf_(currentPropertyName) == propertyName {
 					return false
 				}
 			} else if currentProperty.isComputedProp() {
 				var keyNode Node = currentProperty.getFirstChild()
-				if !keyNode.isStringLit() || optEquals_(Optional_of[string](keyNode.getString()), propertyName) {
+				if !keyNode.isStringLit() || optstrOf_(keyNode.getString()) == propertyName {
 					return false
 				}
 			}
 		}
 	}
-	var newProperty Node = IR_stringKey_String(propertyName.get()).srcrefIfMissing(propertyCandidate)
+	var newProperty Node = IR_stringKey_String(optstrGet_(propertyName)).srcrefIfMissing(propertyCandidate)
 	if lhs.isGetElem() {
 		newProperty.setQuotedStringKey()
 	}

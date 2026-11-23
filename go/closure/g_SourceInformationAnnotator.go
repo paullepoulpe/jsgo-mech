@@ -4,7 +4,7 @@ package closure
 
 type SourceInformationAnnotator struct {
 	NodeTraversal_AbstractPostOrderCallback
-	sourceFileToCheck Optional[string]
+	sourceFileToCheck string
 }
 
 func (this *SourceInformationAnnotator) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -14,12 +14,12 @@ func (this *SourceInformationAnnotator) up_NodeTraversal_AbstractPostOrderCallba
 	return &this.NodeTraversal_AbstractPostOrderCallback
 }
 
-func (this *SourceInformationAnnotator) init_SourceInformationAnnotator(sourceFileToCheck Optional[string]) {
+func (this *SourceInformationAnnotator) init_SourceInformationAnnotator(sourceFileToCheck string) {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 	this.sourceFileToCheck = sourceFileToCheck
 }
 
-func new_SourceInformationAnnotator(sourceFileToCheck Optional[string]) *SourceInformationAnnotator {
+func new_SourceInformationAnnotator(sourceFileToCheck string) *SourceInformationAnnotator {
 	this := &SourceInformationAnnotator{}
 	this.self_ = this
 	this.init_SourceInformationAnnotator(sourceFileToCheck)
@@ -27,16 +27,16 @@ func new_SourceInformationAnnotator(sourceFileToCheck Optional[string]) *SourceI
 }
 
 func SourceInformationAnnotator_create() *SourceInformationAnnotator {
-	return new_SourceInformationAnnotator(Optional_empty[string]())
+	return new_SourceInformationAnnotator(nullstr_)
 }
 
 func SourceInformationAnnotator_createWithAnnotationChecks(sourceFile string) *SourceInformationAnnotator {
-	return new_SourceInformationAnnotator(Optional_of[string](sourceFile))
+	return new_SourceInformationAnnotator(optstrOf_(sourceFile))
 }
 
 func (this *SourceInformationAnnotator) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	if this.sourceFileToCheck.isPresent() {
-		if this.sourceFileToCheck.get() != n.getSourceFileName() {
+	if this.sourceFileToCheck != nullstr_ {
+		if optstrGet_(this.sourceFileToCheck) != n.getSourceFileName() {
 			panic(new_IllegalStateException_0())
 		}
 	}
@@ -45,9 +45,9 @@ func (this *SourceInformationAnnotator) visit_impl(t *NodeTraversal, n Node, par
 		return
 	}
 	if n.isFunction() {
-		var functionName Optional[string] = NodeUtil_getNearestFunctionName(n)
-		if functionName.isPresent() {
-			SourceInformationAnnotator_setOriginalNameString(n, functionName.get())
+		var functionName string = NodeUtil_getNearestFunctionName(n)
+		if functionName != nullstr_ {
+			SourceInformationAnnotator_setOriginalNameString(n, optstrGet_(functionName))
 		}
 	}
 }

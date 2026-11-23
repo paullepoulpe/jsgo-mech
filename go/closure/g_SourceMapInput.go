@@ -30,7 +30,7 @@ func (this *SourceMapInput) getSourceMap(errorManager ErrorManager) *SourceMapCo
 		var sourceMapPath string = this.sourceFile.getName()
 		var codeRes *Outcome_base[string] = this.sourceFile.readCode()
 		if codeRes.isErr() {
-			var error_ *JSError = JSError_make_DiagnosticType_StringArr(SourceMapInput_SOURCEMAP_RESOLVE_FAILED, []string{sourceMapPath, codeRes.errorMessage().orElse("null")})
+			var error_ *JSError = JSError_make_DiagnosticType_StringArr(SourceMapInput_SOURCEMAP_RESOLVE_FAILED, []string{sourceMapPath, optstrOr_(codeRes.errorMessage(), "null")})
 			errorManager.report_2(error_.defaultLevel(), error_)
 			return this.parsedSourceMap
 		}
@@ -43,7 +43,7 @@ func (this *SourceMapInput) getSourceMap(errorManager ErrorManager) *SourceMapCo
 			errorManager.report_2(error_.defaultLevel(), error_)
 			return this.parsedSourceMap
 		}
-		if (((((consumer.getFile().isPresent() && consumer.getFile().get() != "") && (consumer.getOriginalSources().size() == 1)) && Collection_contains_s(Collection_un_(consumer.getOriginalSources()), consumer.getFile().get())) && (consumer.getOriginalSourcesContent().size() == 1)) && consumer.getOriginalNames().isEmpty()) && (consumer.getLineCount() == -1) {
+		if (((((consumer.getFile() != nullstr_ && optstrGet_(consumer.getFile()) != "") && (consumer.getOriginalSources().size() == 1)) && Collection_contains_s(Collection_un_(consumer.getOriginalSources()), optstrGet_(consumer.getFile()))) && (consumer.getOriginalSourcesContent().size() == 1)) && consumer.getOriginalNames().isEmpty()) && (consumer.getLineCount() == -1) {
 			consumer = nil
 		}
 		this.parsedSourceMap = consumer
@@ -55,12 +55,12 @@ func (this *SourceMapInput) getOriginalPath() string {
 	return this.sourceFile.getName()
 }
 
-func (this *SourceMapInput) getRawSourceMapContents() Optional[string] {
+func (this *SourceMapInput) getRawSourceMapContents() string {
 	var codeRes *Outcome_base[string] = this.sourceFile.readCode()
 	if codeRes.isErr() {
-		return Optional_empty[string]()
+		return nullstr_
 	}
-	return Optional_ofNullable[string](codeRes.get())
+	return codeRes.get()
 }
 
 var SourceMapInput_SOURCEMAP_RESOLVE_FAILED *DiagnosticType

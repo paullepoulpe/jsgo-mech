@@ -28,11 +28,11 @@ func LogsGson_write(out *SimpleJsonWriter, value any) {
 		out.nullValue()
 	} else {
 		if able, ok := value.(LogsGson_Able); ok {
-			out.rawValue(Optional_of[string](LogsGson_toJson(able.toLogsGson())))
+			out.rawValue(optstrOf_(LogsGson_toJson(able.toLogsGson())))
 		} else if (is_SimpleListMultimap(value) || is_SimpleSetMultimap(value)) || is_SimpleBiMap(value) {
-			out.rawValue(Optional_of[string](LogsGson_toJson(value.(SimpleCollection).untypedMap())))
+			out.rawValue(optstrOf_(LogsGson_toJson(value.(SimpleCollection).untypedMap())))
 		} else if _, ok6 := value.(interface{ isa_SimpleMultiset_() }); ok6 {
-			out.rawValue(Optional_of[string](LogsGson_toJson(obj_(ImmutableList_copyOf_Iterable(value.(Iterable))))))
+			out.rawValue(optstrOf_(LogsGson_toJson(obj_(ImmutableList_copyOf_Iterable(value.(Iterable))))))
 		} else {
 			if map_, ok2 := value.(Map); ok2 {
 				out.beginObject()
@@ -59,7 +59,7 @@ func LogsGson_write(out *SimpleJsonWriter, value any) {
 						string_ = str_(v_)
 						return true
 					}() {
-						out.stringValue(Optional_of[string](string_))
+						out.stringValue(optstrOf_(string_))
 					} else {
 						var bool_ any
 						_ = bool_
@@ -85,7 +85,7 @@ func LogsGson_write(out *SimpleJsonWriter, value any) {
 								enumValue = to_Enum(v_)
 								return true
 							}() {
-								out.stringValue(Optional_of[string](enumValue.name()))
+								out.stringValue(optstrOf_(enumValue.name()))
 							} else {
 								panic(new_IllegalArgumentException_String(("Cannot log a " + sstr_(Object_getClass(value).getName()) + "; it must implement LogsGson.Able")))
 							}

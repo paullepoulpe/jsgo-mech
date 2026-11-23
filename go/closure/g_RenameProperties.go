@@ -87,12 +87,12 @@ func (this *RenameProperties) process_2(externs Node, root Node) {
 			continue
 		}
 		var p *RenameProperties_Property = this.propertyMap.Get(oldName)
-		if (p != nil) && p.newName.isPresent() {
+		if (p != nil) && p.newName != nullstr_ {
 			if oldName != p.oldName {
 				panic(new_IllegalStateException_0())
 			}
-			n.setString(p.newName.get())
-			if !(p.newName.get() == oldName) {
+			n.setString(optstrGet_(p.newName))
+			if !(optstrGet_(p.newName) == oldName) {
 				this.compiler_.reportChangeToEnclosingScope(n)
 			}
 		}
@@ -106,14 +106,14 @@ func (this *RenameProperties) process_2(externs Node, root Node) {
 		for oldName := range elemsBy_(RenameProperties_DOT_SPLITTER.split_s(firstArg.getString()), str_) {
 			var p *RenameProperties_Property = this.propertyMap.Get(oldName)
 			var replacement string
-			if (p != nil) && p.newName.isPresent() {
+			if (p != nil) && p.newName != nullstr_ {
 				if oldName != p.oldName {
 					panic(new_IllegalStateException_0())
 				}
 				if has_(this.filteredOutNames, oldName) {
 					replacement = oldName
 				} else {
-					replacement = p.newName.get()
+					replacement = optstrGet_(p.newName)
 				}
 			} else {
 				replacement = oldName
@@ -141,13 +141,13 @@ func (this *RenameProperties) process_2(externs Node, root Node) {
 
 func (this *RenameProperties) reusePropertyNames(reservedNames *TSet[string], allProps CollectionT[*RenameProperties_Property]) {
 	for prop := range elemsT_(allProps) {
-		var prevName Optional[string] = this.prevUsedPropertyMap.lookupNewName(prop.oldName)
-		if !this.generatePseudoNames && prevName.isPresent() {
-			if reservedNames.Has(prevName.get()) {
+		var prevName string = this.prevUsedPropertyMap.lookupNewName(prop.oldName)
+		if !this.generatePseudoNames && prevName != nullstr_ {
+			if reservedNames.Has(optstrGet_(prevName)) {
 				continue
 			}
 			prop.newName = prevName
-			reservedNames.Add(prevName.get())
+			reservedNames.Add(optstrGet_(prevName))
 		}
 	}
 }
@@ -156,21 +156,21 @@ func (this *RenameProperties) generateNames(props *TSet[*RenameProperties_Proper
 	this.nameGenerator.reset_4(reservedNames.asSetT(), "", this.reservedFirstCharacters, this.reservedNonFirstCharacters)
 	for p := range props.All() {
 		if this.generatePseudoNames {
-			p.newName = Optional_of[string](("$" + sstr_(p.oldName) + "$"))
+			p.newName = optstrOf_(("$" + sstr_(p.oldName) + "$"))
 		} else {
-			if p.newName.isEmpty() {
-				p.newName = Optional_of[string](this.nameGenerator.generateNextName())
+			if p.newName == nullstr_ {
+				p.newName = optstrOf_(this.nameGenerator.generateNextName())
 			}
 		}
-		reservedNames.Add(p.newName.orElse(nullstr_))
+		reservedNames.Add(p.newName)
 	}
 }
 
 func (this *RenameProperties) getPropertyMap() *VariableMap {
 	var map_ *ImmutableMap_Builder[string, string] = immutableMapBuilder_(tc_string, tc_string)
 	for p := range this.propertyMap.Values() {
-		if p.newName.isPresent() {
-			map_.put(p.oldName, p.newName.get())
+		if p.newName != nullstr_ {
+			map_.put(p.oldName, optstrGet_(p.newName))
 		}
 	}
 	return new_VariableMap(map_.buildOrThrow())
@@ -317,7 +317,7 @@ func (this *RenameProperties_ProcessProperties) countPropertyOccurrence(name str
 
 type RenameProperties_Property struct {
 	oldName        string
-	newName        Optional[string]
+	newName        string
 	numOccurrences int32
 }
 
@@ -326,7 +326,7 @@ func (this *RenameProperties_Property) zero_RenameProperties_Property() {
 }
 
 func (this *RenameProperties_Property) finit_RenameProperties_Property() {
-	this.newName = Optional_empty[string]()
+	this.newName = nullstr_
 }
 
 func (this *RenameProperties_Property) init_RenameProperties_Property(name string) {

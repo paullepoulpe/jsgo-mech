@@ -41,8 +41,8 @@ func (this *PassConfig) getTranspileOnlyPasses_impl() *PassListBuilder {
 func (this *PassConfig) getPassGraph() GraphvizGraph {
 	var graph *LinkedDirectedGraph[string, string] = LinkedDirectedGraph_createWithoutAnnotations[string, string]()
 	var allPasses IterableT[*PassFactory] = iterableAs_(tc_p_PassFactory, Iterables_concat(Iterable(this.getChecks().build().asList()), Iterable(this.getOptimizations().build().asList())))
-	var lastPass Optional[string] = Optional_empty[string]()
-	var loopStart Optional[string] = Optional_empty[string]()
+	var lastPass string = nullstr_
+	var loopStart string = nullstr_
 	for pass := range elemsT_(allPasses) {
 		var passName string = pass.getName()
 		var i int32 = 1
@@ -51,16 +51,16 @@ func (this *PassConfig) getPassGraph() GraphvizGraph {
 			i++
 		}
 		graph.createNode_Object_rDiGraphNode_rLinkedDiGraphNode(passName)
-		if loopStart.isEmpty() && pass.isRunInFixedPointLoop() {
-			loopStart = Optional_of[string](passName)
-		} else if loopStart.isPresent() && !pass.isRunInFixedPointLoop() {
-			graph.connect(lastPass.orElse(nullstr_), "loop", loopStart.get())
-			loopStart = Optional_empty[string]()
+		if loopStart == nullstr_ && pass.isRunInFixedPointLoop() {
+			loopStart = optstrOf_(passName)
+		} else if loopStart != nullstr_ && !pass.isRunInFixedPointLoop() {
+			graph.connect(lastPass, "loop", optstrGet_(loopStart))
+			loopStart = nullstr_
 		}
-		if lastPass.isPresent() {
-			graph.connect(lastPass.get(), "", passName)
+		if lastPass != nullstr_ {
+			graph.connect(optstrGet_(lastPass), "", passName)
 		}
-		lastPass = Optional_of[string](passName)
+		lastPass = optstrOf_(passName)
 	}
 	return icast_GraphvizGraph(graph.self())
 }

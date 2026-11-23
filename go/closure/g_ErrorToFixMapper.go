@@ -147,7 +147,7 @@ func (this *ErrorToFixMapper) getFixForReferenceToShortImportByLongName(error_ *
 	var fix *SuggestedFix_Builder = new_SuggestedFix_Builder().attachMatchedNodeInfo(error_.node(), this.compiler_)
 	var metadata *NodeMetadata = new_NodeMetadata_AbstractCompiler(this.compiler_)
 	var match *Match = new_Match(error_.node(), metadata)
-	var script Node = this.compiler_.getScriptNode(error_.sourceName().orElseThrow())
+	var script Node = this.compiler_.getScriptNode(optstrGet_(error_.sourceName()))
 	var scriptMetadata *ScriptMetadata = this.getMetadataForScript(script)
 	var fullNameMatcher *Matcher_re2j = ErrorToFixMapper_FULLY_QUALIFIED_NAME.matcher_s(error_.description())
 	if ok_, a1_ := fullNameMatcher.matches(), error_.description(); !ok_ {
@@ -155,22 +155,22 @@ func (this *ErrorToFixMapper) getFixForReferenceToShortImportByLongName(error_ *
 	}
 	var fullName string = fullNameMatcher.group(1)
 	var shortNameMatcher *Matcher_re2j = ErrorToFixMapper_USE_SHORT_NAME.matcher_s(error_.description())
-	var shortName Optional[string]
+	var shortName string
 	if shortNameMatcher.matches() {
-		shortName = Optional_ofNullable[string](shortNameMatcher.group(1))
+		shortName = shortNameMatcher.group(1)
 	} else {
 		fix.addGoogRequire(match, fullName, scriptMetadata)
 		shortName = scriptMetadata.getAlias(fullName)
 	}
-	var oldName Optional[string] = func() Optional[string] {
+	var oldName string = func() string {
 		if error_.node().isQualifiedName() {
-			return Optional_of[string](error_.node().getQualifiedName()).filterFn_(func(s string) bool {
+			return optstrFilter_(optstrOf_(error_.node().getQualifiedName()), func(s string) bool {
 				return s != ""
 			})
 		}
-		return Optional_of[string](error_.node().getString())
+		return optstrOf_(error_.node().getString())
 	}()
-	return fix.replace(error_.node(), NodeUtil_newQName_AbstractCompiler_String(this.compiler_, JString_replace_s(oldName.get(), fullName, shortName.get())), this.compiler_).build()
+	return fix.replace(error_.node(), NodeUtil_newQName_AbstractCompiler_String(this.compiler_, JString_replace_s(optstrGet_(oldName), fullName, optstrGet_(shortName))), this.compiler_).build()
 }
 
 func (this *ErrorToFixMapper) getFixesForImplicitNullabilityErrors(error_ *JSError) ListT[*SuggestedFix] {
@@ -212,7 +212,7 @@ func (this *ErrorToFixMapper) getFixForMissingSuper(error_ *JSError) *SuggestedF
 func (this *ErrorToFixMapper) getFixForInvalidSuper(error_ *JSError) *SuggestedFix {
 	var m *Matcher_re2j = ErrorToFixMapper_DID_YOU_MEAN.matcher_s(error_.description())
 	if m.matches() {
-		var superDotSuggestion string = Optional_ofNullable[string](m.group(1)).orElseThrow()
+		var superDotSuggestion string = optstrGet_(m.group(1))
 		return new_SuggestedFix_Builder().attachMatchedNodeInfo(error_.node(), this.compiler_).setDescription(("Call '" + sstr_(superDotSuggestion) + "' instead")).replace(error_.node(), NodeUtil_newQName_AbstractCompiler_String(this.compiler_, superDotSuggestion), this.compiler_).build()
 	}
 	return nil
@@ -233,25 +233,25 @@ func (this *ErrorToFixMapper) getFixForMissingRequire(error_ *JSError, importTyp
 		panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected error description: %s", a1_)))
 	}
 	var namespaceToRequire string = regexMatcher.group(1)
-	var qName Optional[string] = func() Optional[string] {
+	var qName string = func() string {
 		if error_.node().isQualifiedName() {
-			return Optional_of[string](error_.node().getQualifiedName()).filterFn_(func(s string) bool {
+			return optstrFilter_(optstrOf_(error_.node().getQualifiedName()), func(s string) bool {
 				return s != ""
 			})
 		}
-		return Optional_of[string](error_.node().getString())
+		return optstrOf_(error_.node().getString())
 	}()
-	if ok_, a1_, a2_ := strings.HasPrefix(qName.get(), namespaceToRequire), error_.node(), namespaceToRequire; !ok_ {
+	if ok_, a1_, a2_ := strings.HasPrefix(optstrGet_(qName), namespaceToRequire), error_.node(), namespaceToRequire; !ok_ {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected error location %s to start with namespace <%s>", a1_.box_(), a2_)))
 	}
-	var script Node = this.compiler_.getScriptNode(error_.sourceName().orElseThrow())
+	var script Node = this.compiler_.getScriptNode(optstrGet_(error_.sourceName()))
 	var scriptMetadata *ScriptMetadata = this.getMetadataForScript(script)
 	var metadata *NodeMetadata = new_NodeMetadata_AbstractCompiler(this.compiler_)
 	var match *Match = new_Match(error_.node(), metadata)
 	var fix *SuggestedFix_Builder = new_SuggestedFix_Builder().attachMatchedNodeInfo(error_.node(), this.compiler_).addImport(match, namespaceToRequire, importType, scriptMetadata)
-	var alias Optional[string] = scriptMetadata.getAlias(namespaceToRequire)
-	if alias.isPresent() {
-		fix.replace(error_.node(), NodeUtil_newQName_AbstractCompiler_String(this.compiler_, JString_replace_s(qName.get(), namespaceToRequire, alias.get())), this.compiler_)
+	var alias string = scriptMetadata.getAlias(namespaceToRequire)
+	if alias != nullstr_ {
+		fix.replace(error_.node(), NodeUtil_newQName_AbstractCompiler_String(this.compiler_, JString_replace_s(optstrGet_(qName), namespaceToRequire, optstrGet_(alias))), this.compiler_)
 	}
 	return fix.build()
 }
@@ -284,7 +284,7 @@ func (this *ErrorToFixMapper) getFixForUnsortedRequires(error_ *JSError) *Sugges
 	if !callback.needsFix() {
 		return nil
 	}
-	return new_SuggestedFix_Builder().attachMatchedNodeInfo(callback.getFirstNode(), this.compiler_).replaceRange(callback.getFirstNode(), callback.getLastNode(), callback.getReplacement().orElseThrow()).build()
+	return new_SuggestedFix_Builder().attachMatchedNodeInfo(callback.getFirstNode(), this.compiler_).replaceRange(callback.getFirstNode(), callback.getLastNode(), optstrGet_(callback.getReplacement())).build()
 }
 
 func (this *ErrorToFixMapper) getFixForUnsortedProvides(error_ *JSError) *SuggestedFix {
@@ -294,7 +294,7 @@ func (this *ErrorToFixMapper) getFixForUnsortedProvides(error_ *JSError) *Sugges
 	if !callback.needsFix() {
 		return nil
 	}
-	return new_SuggestedFix_Builder().attachMatchedNodeInfo(callback.getFirstNode(), this.compiler_).replaceRange(callback.getFirstNode(), callback.getLastNode(), callback.getReplacement().orElseThrow()).build()
+	return new_SuggestedFix_Builder().attachMatchedNodeInfo(callback.getFirstNode(), this.compiler_).replaceRange(callback.getFirstNode(), callback.getLastNode(), optstrGet_(callback.getReplacement())).build()
 }
 
 func (this *ErrorToFixMapper) getFixForRedundantNullabilityModifierJsDoc(error_ *JSError) *SuggestedFix {

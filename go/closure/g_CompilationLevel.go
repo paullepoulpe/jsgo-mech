@@ -38,12 +38,12 @@ func (this CompilationLevel) self() any {
 	return this
 }
 
-func CompilationLevel_fromString(value Optional[string]) CompilationLevel {
-	if value.isEmpty() {
+func CompilationLevel_fromString(value string) CompilationLevel {
+	if value == nullstr_ {
 		return 0
 	}
 	return func() CompilationLevel {
-		switch value.get() {
+		switch optstrGet_(value) {
 		case "BUNDLE":
 			return CompilationLevel_BUNDLE
 		case "WHITESPACE_ONLY", "WHITESPACE":
