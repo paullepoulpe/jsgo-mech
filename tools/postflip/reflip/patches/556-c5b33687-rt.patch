@@ -267,6 +267,28 @@ index f13290cfb..fc69e9483 100644
  		}
  	}
  	return tmapImm_(kc, vc, cast_[*ErasedImmutableMap](lgBox_(x)))
+diff --git a/go/closure/rt_lgfn.go b/go/closure/rt_lgfn.go
+index eab6904d8..c31ea3cac 100644
+--- a/go/closure/rt_lgfn.go
++++ b/go/closure/rt_lgfn.go
+@@ -243,7 +243,7 @@ func Map_getOrDefaultT_[K, V any](m MapT[K, V], k any, def V) V {
+ // typed map's own lookup, else the erased helper's and the cast of erased code.
+ func Map_get_sT_[V any](m MapT[string, V], k string) V {
+ 	if v, ok := m.(*tmapView_[string, V]); ok && k != nullstr_ {
+-		return v.m.Get(k)
++		return v.tm().Get(k)
+ 	}
+ 	return junboxT_[V](Map_get_s(Map_un_(m), k))
+ }
+@@ -252,7 +252,7 @@ func Map_get_sT_[V any](m MapT[string, V], k string) V {
+ // (Map_getOrDefault_s).
+ func Map_getOrDefault_sT_[V any](m MapT[string, V], k string, def V) V {
+ 	if v, ok := m.(*tmapView_[string, V]); ok && k != nullstr_ {
+-		return v.m.GetOr(k, def)
++		return v.tm().GetOr(k, def)
+ 	}
+ 	u := Map_un_(m)
+ 	if v := Map_get_s(u, k); v != nil || Map_containsKey_s(u, k) {
 diff --git a/go/closure/rt_timm.go b/go/closure/rt_timm.go
 index d3b3ac77d..202e97eca 100644
 --- a/go/closure/rt_timm.go

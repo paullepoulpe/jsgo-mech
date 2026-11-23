@@ -1027,6 +1027,7 @@ a106f72e patch 554b-a106f72e-rt.patch
 # 556. postflip (runtime, in-bounds line): a typed map or set is its own erased view, as lists are since 554b: asMap/asSet make neither a view nor the side structure (branch inb-mapview c5b33687; CPU neutral, CHECKS peak memory -3% on the 18% subset)
 #=5 c5b33687 patch regenerated (fifth flip): one conflict in rt_tsorted.go (descendingSet: the patch reads the map through v.tm(); the next line is this flip 402 text with cmpReversed_ / Comparator_of_)
 #=6 c5b33687 regenerated (sixth flip): rt_lg.go's typed views follow the sorted collections' change of the patch (8 files, 214 changed lines)
+#=7 c5b33687 regenerated (seventh flip): the sixth flip's patch and rt_lgfn.go (piece fns) following it: the typed map's view is the map itself (tmapView_ of TMap), so Map_get_sT_ / Map_getOrDefault_sT_ read v.tm() where they read v.m (9 files, 4 changed lines more). Runtime tests ok after the step
 c5b33687 patch 556-c5b33687-rt.patch
 # 557. postflip step (in-bounds line): eqhash re-run at the end of the list: the hash and equality functions of the typed key conversions that step 402 writes are decided from their static types (rewritten: 66, left: 55; branch inb-eqhash2 c6da7700)
 c6da7700 run bash tools/postflip/eqhash/run.sh
