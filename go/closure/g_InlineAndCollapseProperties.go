@@ -48,27 +48,24 @@ func (this *InlineAndCollapseProperties) process_2(externs Node, root Node) {
 	if this.testAggressiveInliningOnly_ && this.propertyCollapseLevel != CompilerOptions_PropertyCollapseLevel_ALL {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("testAggressiveInlining is invalid for: %s", []any{this.propertyCollapseLevel})))
 	}
-	_ = func() (code_ int) {
-		defer func() {
-			this.decisionsLog = nil
-		}()
-		var logFile *LogFile = this.compiler_.createOrReopenIndexedLog(Object_getClass(this), "decisions.log", []string{})
-		defer closeResource_(logFile.self())
-		this.decisionsLog = logFile
-		switch this.propertyCollapseLevel {
-		case CompilerOptions_PropertyCollapseLevel_NONE:
-			this.performMinimalInliningAndNoCollapsing(externs, root)
-		case CompilerOptions_PropertyCollapseLevel_MODULE_EXPORT:
-			this.performMinimalInliningAndModuleExportCollapsing(externs, root)
-		case CompilerOptions_PropertyCollapseLevel_ALL:
-			if this.testAggressiveInliningOnly_ {
-				this.performAggressiveInliningForTest(externs, root)
-			} else {
-				this.performAggressiveInliningAndCollapsing(externs, root)
-			}
-		}
-		return 0
+	defer func() {
+		this.decisionsLog = nil
 	}()
+	var logFile *LogFile = this.compiler_.createOrReopenIndexedLog(Object_getClass(this), "decisions.log", []string{})
+	defer closeResource_(logFile.self())
+	this.decisionsLog = logFile
+	switch this.propertyCollapseLevel {
+	case CompilerOptions_PropertyCollapseLevel_NONE:
+		this.performMinimalInliningAndNoCollapsing(externs, root)
+	case CompilerOptions_PropertyCollapseLevel_MODULE_EXPORT:
+		this.performMinimalInliningAndModuleExportCollapsing(externs, root)
+	case CompilerOptions_PropertyCollapseLevel_ALL:
+		if this.testAggressiveInliningOnly_ {
+			this.performAggressiveInliningForTest(externs, root)
+		} else {
+			this.performAggressiveInliningAndCollapsing(externs, root)
+		}
+	}
 }
 
 func (this *InlineAndCollapseProperties) performMinimalInliningAndNoCollapsing(externs Node, root Node) {

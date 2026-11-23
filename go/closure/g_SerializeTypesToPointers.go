@@ -58,23 +58,19 @@ func (this *SerializeTypesToPointers) getTypePool() *TypePool {
 }
 
 func (this *SerializeTypesToPointers) logSerializationDebugInfo(serializer *JSTypeReconserializer, typePool *TypePool) {
-	_ = func() (code_ int) {
+	func() {
 		var log *LogFile = this.compiler_.createOrReopenLog(Object_getClass(this), "object_uuids.log", []string{})
 		defer closeResource_(log.self())
 		if log.isLogging() {
 			var allSerializedTypes MapT[string, ListT[*JSType]] = serializer.getColorIdToJSTypeMapForDebugging().asMap()
 			log.logJson(new_SerializeTypesToPointers_StreamObjectUuidsJson(allSerializedTypes).writeJson)
 		}
-		return 0
 	}()
-	_ = func() (code_ int) {
-		var log *LogFile = this.compiler_.createOrReopenLog(Object_getClass(this), "mismatches.log", []string{})
-		defer closeResource_(log.self())
-		log.log(Supplier[string](func() string {
-			return SerializeTypesToPointers_typeMismatchesToJson(this.logTypeMismatches(this.compiler_.getTypeMismatches(), serializer, typePool))
-		}))
-		return 0
-	}()
+	var log *LogFile = this.compiler_.createOrReopenLog(Object_getClass(this), "mismatches.log", []string{})
+	defer closeResource_(log.self())
+	log.log(Supplier[string](func() string {
+		return SerializeTypesToPointers_typeMismatchesToJson(this.logTypeMismatches(this.compiler_.getTypeMismatches(), serializer, typePool))
+	}))
 }
 
 func (this *SerializeTypesToPointers) logTypeMismatches(typeMismatches IterableT[*TypeMismatch], serializer *JSTypeReconserializer, typePool *TypePool) ImmutableSortedSetOf[*SerializeTypesToPointers_TypeMismatchJson] {
