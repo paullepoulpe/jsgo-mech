@@ -97,7 +97,7 @@ func InlineAndCollapseProperties_maybeGetInnerNameNode(maybeFunctionOrClassNode 
 			panic(new_IllegalStateException_String(tostr_(nameNode)))
 		}
 		return func() Node {
-			if nameNode.getString() == "" {
+			if nameNode.getStringIs_(sidx_) {
 				return 0
 			}
 			return nameNode

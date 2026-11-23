@@ -309,7 +309,7 @@ func (this *GatherModuleMetadata_Finder) visit(t *NodeTraversal, n Node, parent 
 
 func (this *GatherModuleMetadata_Finder) isFromGoogImport(goog *Var) bool {
 	var nameNode Node = goog.getNameNode()
-	return (((((nameNode != 0) && nameNode.isImportStar()) && (nameNode.getString() == "goog")) && nameNode.getParent().getFirstChild().isEmpty()) && strings.HasSuffix(nameNode.getParent().getLastChild().getString(), "/goog.js"))
+	return (((((nameNode != 0) && nameNode.isImportStar()) && (nameNode.getStringIs_(sid_goog))) && nameNode.getParent().getFirstChild().isEmpty()) && strings.HasSuffix(nameNode.getParent().getLastChild().getString(), "/goog.js"))
 }
 
 func (this *GatherModuleMetadata_Finder) visitName(t *NodeTraversal, n Node) {
@@ -344,7 +344,7 @@ func (this *GatherModuleMetadata_Finder) visitGoogCall(t *NodeTraversal, n Node)
 	for firstProp.isGetProp() {
 		firstProp = firstProp.getFirstChild()
 	}
-	if !firstProp.isName() || !(firstProp.getString() == "goog") {
+	if !firstProp.isName() || !(firstProp.getStringIs_(sid_goog)) {
 		return
 	}
 	var root *Var = t.getScope().getVar_String_rVar("goog")

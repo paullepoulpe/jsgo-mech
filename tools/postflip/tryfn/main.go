@@ -32,14 +32,6 @@
 // block only completes normally or by a return that j2go wrote as `return 0`, and no catch
 // clause sets code_) is a function literal without a result: func() { ... }().
 //
-// 3. A try with a finally block and no catch clause that never completes normally (its block
-// ends in `return 1`, every return of it is `return 1`, and `if code_N == 1 { return ret_N }`
-// follows it) leaves the function wherever it stands, so the function itself can defer the
-// finally block from the place where the try starts: nothing of the function runs after the
-// try, and the deferred call runs when the function returns or panics, as it did when the
-// literal did. `ret_N = x; return 1` becomes `return x` (the finally block cannot change the
-// value: the result is not named). jsgo: SubtypeChecker.isSubtypeCaching.
-//
 // Left and counted: tries whose code is read where they are not the end of the function (a
 // return, break or continue from inside the try block leaves code around the literal, which
 // Go cannot do from inside a function literal), and the shapes the step does not know.
@@ -172,9 +164,6 @@ func visit(lit *ast.FuncLit) {
 	}
 	lhs := rw.Text(stmt.Lhs[0])
 	if tryEndsFunction(lit, stmt, lhs) {
-		return
-	}
-	if tryAlwaysReturns(lit, stmt, lhs) {
 		return
 	}
 	if lhs != "_" {
@@ -369,124 +358,6 @@ func tryEndsFunction(lit *ast.FuncLit, stmt *ast.AssignStmt, lhs string) bool {
 		}
 		return strings.Join(out, "\n")
 	}
-	return true
-}
-
-// tryAlwaysReturns rewrites case 3.
-func tryAlwaysReturns(lit *ast.FuncLit, stmt *ast.AssignStmt, lhs string) bool {
-	if lhs == "_" || len(codeUses(lit)) > 0 || strings.Contains(rw.Text(lit.Body), "recover()") {
-		return false
-	}
-	block, ok := rw.Parent[stmt].(*ast.BlockStmt)
-	if !ok {
-		return false
-	}
-	// The function around the try: one unnamed result, not a deferred literal.
-	var ft *ast.FuncType
-	for n := rw.Parent[stmt]; n != nil && ft == nil; n = rw.Parent[n] {
-		switch fn := n.(type) {
-		case *ast.FuncDecl:
-			ft = fn.Type
-		case *ast.FuncLit:
-			if c, ok := rw.Parent[fn].(*ast.CallExpr); ok {
-				if _, ok := rw.Parent[c].(*ast.DeferStmt); ok {
-					return false
-				}
-			}
-			ft = fn.Type
-		}
-	}
-	if ft == nil || ft.Results.NumFields() != 1 || len(ft.Results.List[0].Names) > 0 {
-		return false
-	}
-	// The block: defers of plain literals first, a last statement `return 1`, every return `return 1`.
-	n := len(lit.Body.List)
-	if n < 2 {
-		return false
-	}
-	if r, ok := lit.Body.List[n-1].(*ast.ReturnStmt); !ok || len(r.Results) != 1 || rw.Text(r.Results[0]) != "1" {
-		return false
-	}
-	rs := returns(lit)
-	for _, r := range rs {
-		if len(r.Results) != 1 || rw.Text(r.Results[0]) != "1" {
-			return false
-		}
-	}
-	// var ret_N T right before, if code_N == 1 { return ret_N } right after.
-	idx := -1
-	for i, s := range block.List {
-		if s == ast.Stmt(stmt) {
-			idx = i
-		}
-	}
-	if idx < 1 || idx+1 >= len(block.List) {
-		return false
-	}
-	test, ok := block.List[idx+1].(*ast.IfStmt)
-	if !ok || test.Init != nil || test.Else != nil || rw.Text(test.Cond) != lhs+" == 1" || len(test.Body.List) != 1 {
-		return false
-	}
-	tr, ok := test.Body.List[0].(*ast.ReturnStmt)
-	if !ok || len(tr.Results) != 1 {
-		return false
-	}
-	id, ok := tr.Results[0].(*ast.Ident)
-	if !ok {
-		return false
-	}
-	retVar, _ := rw.Info.Uses[id].(*types.Var)
-	if retVar == nil || !types.Identical(retVar.Type(), rw.Info.Types[ft.Results.List[0].Type].Type) {
-		return false
-	}
-	d, ok := block.List[idx-1].(*ast.DeclStmt)
-	if !ok {
-		return false
-	}
-	g := d.Decl.(*ast.GenDecl)
-	vs, ok := g.Specs[0].(*ast.ValueSpec)
-	if !ok || len(g.Specs) != 1 || len(vs.Names) != 1 || vs.Values != nil || rw.Info.Defs[vs.Names[0]] != retVar {
-		return false
-	}
-	// The code is read by the test only; the variable is set before each return and read by the test only.
-	if o := rw.Info.Defs[stmt.Lhs[0].(*ast.Ident)]; o == nil || len(rw.UsesOf[o]) != 1 {
-		return false
-	}
-	type pair struct {
-		as *ast.AssignStmt
-		r  *ast.ReturnStmt
-	}
-	var pairs []pair
-	for _, r := range rs {
-		as, ok := before(r).(*ast.AssignStmt)
-		if !ok || as.Tok != token.ASSIGN || len(as.Lhs) != 1 || len(as.Rhs) != 1 || mentions(as.Rhs[0], retVar) {
-			return false
-		}
-		if l, ok := as.Lhs[0].(*ast.Ident); !ok || rw.Info.Uses[l] != retVar {
-			return false
-		}
-		pairs = append(pairs, pair{as, r})
-	}
-	if len(rw.UsesOf[retVar]) != len(pairs)+1 {
-		return false
-	}
-	for _, p := range pairs {
-		p := p
-		rw.Rewrite[p.as] = func() string { return rw.Del }
-		rw.Rewrite[p.r] = func() string { return "return " + rw.Render(p.as.Rhs[0]) }
-	}
-	rw.Rewrite[ast.Stmt(d)] = func() string { return rw.Del }
-	rw.Rewrite[ast.Stmt(test)] = func() string { return rw.Del }
-	rw.Rewrite[stmt] = func() string {
-		var out []string
-		for _, s := range lit.Body.List {
-			if txt := rw.Render(s); txt != rw.Del {
-				out = append(out, txt)
-			}
-		}
-		return strings.Join(out, "\n")
-	}
-	note("try with a finally block that always returns: the function defers the finally block", lit)
 	return true
 }
 
