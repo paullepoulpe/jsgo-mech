@@ -229,12 +229,12 @@ func (this *CmdLineParser) expandAtFiles(args []string) *Outcome_base[[]string] 
 }
 
 func (this *CmdLineParser) findOptionOfKeyValuePair(name string) *CmdLineParser_Option {
-	var pos int32 = String_indexOf_String(name, " ")
+	var pos int32 = int32(strings.Index(name, " "))
 	if pos < 0 {
-		pos = String_indexOf(name, 61)
+		pos = int32(strings.IndexByte(name, '='))
 	}
 	if pos > 0 {
-		name = String_substring(name, 0, pos)
+		name = name[:pos]
 	}
 	return this.findOptionByName(name)
 }
