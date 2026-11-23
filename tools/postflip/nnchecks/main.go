@@ -24,7 +24,6 @@ import (
 	"fmt"
 	"go/ast"
 	"go/token"
-	"go/types"
 	"os"
 	"sort"
 	"strings"
@@ -37,33 +36,14 @@ func main() {
 	rw.Load(os.Args[len(os.Args)-1])
 	left := map[string]int{}
 	done := 0
-	leave := func(why string) { left[why]++ }
-
-	simple := func(e ast.Expr) bool { // a variable, or a field of this
-		switch x := rw.Unparen(e).(type) {
-		case *ast.Ident:
-			_, isVar := rw.Info.Uses[x].(*types.Var)
-			return isVar
-		case *ast.SelectorExpr:
-			id, ok := x.X.(*ast.Ident)
-			return ok && id.Name == "this"
+	var at ast.Node
+	leave := func(why string) {
+		left[why]++
+		if os.Getenv("NNCHECKS_VERBOSE") != "" {
+			fmt.Fprintf(os.Stderr, "%s: %s\n", rw.Fset.Position(at.Pos()), why)
 		}
-		return false
 	}
-	zero := func(t types.Type) (string, bool) {
-		switch u := t.Underlying().(type) {
-		case *types.Pointer, *types.Interface, *types.Map, *types.Slice, *types.Chan, *types.Signature:
-			return "nil", true
-		case *types.Basic:
-			if u.Info()&types.IsString != 0 {
-				return "", false
-			}
-			if u.Info()&types.IsNumeric != 0 {
-				return "0", true
-			}
-		}
-		return "", false
-	}
+	markModified()
 
 	for _, f := range rw.Files {
 		name := rw.Fset.Position(f.Pos()).Filename
@@ -75,6 +55,7 @@ func main() {
 			if !ok {
 				return true
 			}
+			at = c
 			var fname string
 			switch fn := c.Fun.(type) {
 			case *ast.Ident:
@@ -83,6 +64,18 @@ func main() {
 				if id, ok := fn.X.(*ast.Ident); ok {
 					fname = id.Name
 				}
+			}
+			if strings.HasPrefix(fname, "Preconditions_checkNotNull") && nested(c) {
+				leave("a check inside the arguments of another check")
+				return true
+			}
+			if fname == "Preconditions_checkNotNull" || fname == "Preconditions_checkNotNull_Object_Object" {
+				if why := erased(c, fname); why != "" {
+					leave(why)
+				} else {
+					hoisted++
+				}
+				return true
 			}
 			if !strings.HasPrefix(fname, "Preconditions_checkNotNullT") {
 				return true
@@ -93,7 +86,12 @@ func main() {
 			}
 			v := rw.Unparen(c.Args[0])
 			if !simple(v) {
-				leave("checked value is not a variable or a field of this")
+				// The value is computed: hoisted into a temporary when the statement computes it first.
+				if why := hoist(c, c.Args[0], c.Args[1:], variant); why != "" {
+					leave(why)
+				} else {
+					hoisted++
+				}
 				return true
 			}
 			zv, ok := zero(rw.Info.Types[v].Type)
@@ -102,24 +100,13 @@ func main() {
 				return true
 			}
 			for _, a := range c.Args[1:] {
-				if !msgOKInner(a) {
-					leave("a message argument is not a constant or a variable")
+				if !msgRead(a) {
+					leave("a message argument computes something (Java computes it before the test)")
 					return true
 				}
 			}
-			var throw string
-			switch variant {
-			case "":
-				throw = "panic(new_NullPointerException_0().self())"
-			case "_Object":
-				throw = "nullFail_(objstr_(" + rw.Render(c.Args[1]) + "))"
-			case "_String_Object", "_String_Object_Object":
-				ps := []string{}
-				for _, a := range c.Args[2:] {
-					ps = append(ps, rw.Render(a))
-				}
-				throw = "nullFail_(Strings_lenientFormat(" + rw.Render(c.Args[1]) + ", []any{" + strings.Join(ps, ", ") + "}))"
-			default:
+			throw, ok := throwOf(variant, c.Args[1:])
+			if !ok {
 				leave("variant " + variant)
 				return true
 			}
@@ -146,8 +133,12 @@ func main() {
 					}
 				}
 			}
-			if stmt == nil {
-				leave("not the value of a statement, assignment, declaration or return")
+			if stmt == nil { // inside an expression: tested before the statement when it reads only before
+				if why := hoist(c, c.Args[0], c.Args[1:], variant); why != "" {
+					leave(why)
+				} else {
+					hoisted++
+				}
 				return true
 			}
 			switch rw.Parent[stmt].(type) {
@@ -178,28 +169,10 @@ func main() {
 		fmt.Fprintf(os.Stderr, "  left: %4d %s\n", left[k], k)
 	}
 	if report {
-		fmt.Fprintf(os.Stderr, "nnchecks: %d typed checkNotNull calls become inline checks\n", done)
+		fmt.Fprintf(os.Stderr, "nnchecks: %d typed checkNotNull calls become inline checks (%d of them hoisted)\n", done+hoisted, hoisted)
 		return
 	}
-	fmt.Fprintf(os.Stderr, "nnchecks: %d typed checkNotNull calls become inline checks; files changed: %d\n", done, rw.SaveChecked())
-}
-
-// msgOKInner: a constant, a variable, or strobj_/obj_ of one.
-func msgOKInner(e ast.Expr) bool {
-	e = rw.Unparen(e)
-	if tv, ok := rw.Info.Types[e]; ok && tv.Value != nil {
-		return true
-	}
-	switch x := e.(type) {
-	case *ast.Ident:
-		_, isVar := rw.Info.Uses[x].(*types.Var)
-		return isVar || x.Name == "nil"
-	case *ast.CallExpr:
-		if f, ok := x.Fun.(*ast.Ident); ok && (f.Name == "strobj_" || f.Name == "obj_") && len(x.Args) == 1 {
-			return msgOKInner(x.Args[0])
-		}
-	}
-	return false
+	fmt.Fprintf(os.Stderr, "nnchecks: %d typed checkNotNull calls become inline checks (%d of them hoisted); files changed: %d\n", done+hoisted, hoisted, rw.SaveChecked())
 }
 
 // simpleTarget: an assignment target whose evaluation does nothing (a variable or a field of a
