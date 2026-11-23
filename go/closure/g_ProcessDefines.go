@@ -12,11 +12,11 @@ type ProcessDefines struct {
 	namespaceSupplier                   Supplier[*GlobalNamespace]
 	zoneInputPattern                    *Pattern
 	unknownDefinesToIgnore              *TSet[string]
-	knownDefineJsdocs                   *TSet[*JSDocInfo]
-	knownGoogDefineCalls                *TSet[Node]
+	knownDefineJsdocs                   map[*JSDocInfo]struct{}
+	knownGoogDefineCalls                map[Node]struct{}
 	defineByDefineName                  *TMap[string, *ProcessDefines_Define]
 	replacementValuesFromClosureDefines *TMap[string, Node]
-	validDefineValueExpressions         *TSet[Node]
+	validDefineValueExpressions         map[Node]struct{}
 	namespace_                          *GlobalNamespace
 	enableZonesDefineName               Optional[string]
 	recognizeClosureDefines             bool
@@ -24,11 +24,11 @@ type ProcessDefines struct {
 }
 
 func (this *ProcessDefines) finit_ProcessDefines() {
-	this.knownDefineJsdocs = newTSet_(tc_p_JSDocInfo)
-	this.knownGoogDefineCalls = newTSet_(tc_Node)
+	this.knownDefineJsdocs = map[*JSDocInfo]struct{}{}
+	this.knownGoogDefineCalls = map[Node]struct{}{}
 	this.defineByDefineName = newTMap_(tc_string, tc_p_ProcessDefines_Define)
 	this.replacementValuesFromClosureDefines = newTMap_(tc_string, tc_Node)
-	this.validDefineValueExpressions = newTSet_(tc_Node)
+	this.validDefineValueExpressions = map[Node]struct{}{}
 	this.hasZoneInput = false
 }
 
@@ -224,7 +224,7 @@ func (this *ProcessDefines) selectDefineDeclaration(name *GlobalNamespace_Name) 
 		if (jsdoc == nil) || !jsdoc.isDefine() {
 			continue
 		}
-		this.knownDefineJsdocs.Add(jsdoc)
+		this.knownDefineJsdocs[jsdoc] = struct{}{}
 		return ref
 	}
 	return nil
@@ -257,7 +257,7 @@ func (this *ProcessDefines) collectValidDefineValueExpressions() {
 		namesToCheck.Delete(define.name_)
 		for r := range elemsT_(define.name_.getRefs()) {
 			if !r.isSet() {
-				this.validDefineValueExpressions.Add(r.getNode())
+				this.validDefineValueExpressions[r.getNode()] = struct{}{}
 			}
 		}
 	}
@@ -270,7 +270,7 @@ func (this *ProcessDefines) collectValidDefineValueExpressions() {
 			switch this.isValidDefineValue(declValue) {
 			case Tri_TRUE:
 				for ref := range elemsT_(name.getRefs()) {
-					this.validDefineValueExpressions.Add(ref.getNode())
+					this.validDefineValueExpressions[ref.getNode()] = struct{}{}
 				}
 			case Tri_UNKNOWN:
 				namesToCheckAgain.Add(name)
@@ -312,10 +312,10 @@ func (this *ProcessDefines) reportInvalidDefineLocations(root Node) {
 	}
 	NodeTraversal_builder().setCompiler(this.compiler_).setCallbackAbstractPostOrderCallbackInterface(func(t *NodeTraversal, n Node, parent Node) {
 		var jsdoc *JSDocInfo = n.getJSDocInfo()
-		if ((jsdoc != nil) && jsdoc.isDefine()) && this.knownDefineJsdocs.Add(jsdoc) {
+		if ((jsdoc != nil) && jsdoc.isDefine()) && setAdd_(this.knownDefineJsdocs, jsdoc) {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ProcessDefines_INVALID_DEFINE_LOCATION, []string{}))
 		}
-		if this.isGoogDefineCall(n) && this.knownGoogDefineCalls.Add(n) {
+		if this.isGoogDefineCall(n) && setAdd_(this.knownGoogDefineCalls, n) {
 			this.verifyGoogDefine(n)
 		}
 		if (n.matchesName("CLOSURE_DEFINES") && (NodeUtil_isNameDeclaration(parent) || (parent.isGetElem() && parent.getParent().isAssign()))) && !NodeUtil_getEnclosingScopeRoot(n).isRoot() {
@@ -379,7 +379,7 @@ func (this *ProcessDefines) isValidDefineValue(val Node) Tri {
 	case tokOrd1_NAME, tokOrd1_GETPROP:
 		if val.isQualifiedName() {
 			return func() Tri {
-				if this.validDefineValueExpressions.Has(val) {
+				if has_(this.validDefineValueExpressions, val) {
 					return Tri_TRUE
 				}
 				return Tri_UNKNOWN
@@ -455,7 +455,7 @@ func (this *ProcessDefines) isGoogDefineCall(node Node) bool {
 }
 
 func (this *ProcessDefines) verifyGoogDefine(callNode Node) bool {
-	this.knownGoogDefineCalls.Add(callNode)
+	this.knownGoogDefineCalls[callNode] = struct{}{}
 	var parent Node = callNode.getParent()
 	var methodName Node = callNode.getFirstChild()
 	var args Node = callNode.getSecondChild()

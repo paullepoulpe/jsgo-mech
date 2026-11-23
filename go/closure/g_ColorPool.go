@@ -5,16 +5,16 @@ package closure
 type ColorPool struct {
 	idToColor     *TMap[*ColorId, *Color]
 	colorRegistry *ColorRegistry
-	shardViews    *TList[*ColorPool_ShardView]
+	shardViews    *[]*ColorPool_ShardView
 }
 
-func (this *ColorPool) init_ColorPool(idToColor *TMap[*ColorId, *Color], colorRegistry *ColorRegistry, shardViews *TList[*ColorPool_ShardView]) {
+func (this *ColorPool) init_ColorPool(idToColor *TMap[*ColorId, *Color], colorRegistry *ColorRegistry, shardViews *[]*ColorPool_ShardView) {
 	this.idToColor = idToColor
 	this.colorRegistry = colorRegistry
 	this.shardViews = shardViews
 }
 
-func new_ColorPool(idToColor *TMap[*ColorId, *Color], colorRegistry *ColorRegistry, shardViews *TList[*ColorPool_ShardView]) *ColorPool {
+func new_ColorPool(idToColor *TMap[*ColorId, *Color], colorRegistry *ColorRegistry, shardViews *[]*ColorPool_ShardView) *ColorPool {
 	this := &ColorPool{}
 	this.init_ColorPool(idToColor, colorRegistry, shardViews)
 	return this
@@ -29,7 +29,7 @@ func (this *ColorPool) getRegistry() *ColorRegistry {
 }
 
 func (this *ColorPool) getOnlyShardForTesting() *ColorPool_ShardView {
-	return Iterables_getOnlyElementT_[*ColorPool_ShardView](this.shardViews.asIterable())
+	return Iterables_getOnlyElementT_[*ColorPool_ShardView](slicePtrViewT_(tc_p_ColorPool_ShardView, this.shardViews))
 }
 
 func ColorPool_builder() *ColorPool_Builder {
@@ -243,7 +243,7 @@ func (this *ColorPool_Builder) build() *ColorPool {
 	if this.forTestingField {
 		this.forEachShard(Consumer[*ColorPool_ShardView](func(p0 *ColorPool_ShardView) { shardViewsForTesting.add(p0) }))
 	}
-	var colorPool *ColorPool = new_ColorPool(this.idToColor, this.registry.build(), tlistImm_(tc_p_ColorPool_ShardView, shardViewsForTesting.buildErased()))
+	var colorPool *ColorPool = new_ColorPool(this.idToColor, this.registry.build(), slicePtrImm_(tc_p_ColorPool_ShardView, shardViewsForTesting.buildErased()))
 	this.forEachShard(Consumer[*ColorPool_ShardView](func(shard *ColorPool_ShardView) {
 		shard.updateStateAfterColorPoolIsBuilt(colorPool)
 	}))

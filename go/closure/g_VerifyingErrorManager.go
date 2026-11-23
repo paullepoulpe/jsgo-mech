@@ -15,18 +15,16 @@ func (this *VerifyingErrorManager) up_ThreadSafeDelegatingErrorManager() *Thread
 	return &this.ThreadSafeDelegatingErrorManager
 }
 
-func (this *VerifyingErrorManager) init_VerifyingErrorManager(delegate ErrorManager, expectedDiagnostics *TList[string]) {
+func (this *VerifyingErrorManager) init_VerifyingErrorManager(delegate ErrorManager, expectedDiagnostics *[]string) {
 	this.ThreadSafeDelegatingErrorManager.init_ThreadSafeDelegatingErrorManager(delegate)
 	this.formatter = LightweightMessageFormatter_withoutSource()
 	this.unmatchedExpectations = newTList_(tc_p_Pattern)
-	it_1 := expectedDiagnostics.each()
-	for it_1.next() {
-		var exp string = it_1.v
+	for _, exp := range *expectedDiagnostics {
 		this.unmatchedExpectations.add(Pattern_compile(exp))
 	}
 }
 
-func new_VerifyingErrorManager(delegate ErrorManager, expectedDiagnostics *TList[string]) *VerifyingErrorManager {
+func new_VerifyingErrorManager(delegate ErrorManager, expectedDiagnostics *[]string) *VerifyingErrorManager {
 	this := &VerifyingErrorManager{}
 	this.self_ = this
 	this.init_VerifyingErrorManager(delegate, expectedDiagnostics)

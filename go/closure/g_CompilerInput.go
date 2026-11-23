@@ -10,8 +10,8 @@ type CompilerInput struct {
 	sourceFile                 *SourceFile_jscomp
 	ast                        *CompilerInput_JsAst
 	dependencyInfo             DependencyInfo_
-	extraRequires              *TList[*DependencyInfo_Require]
-	extraProvides              *TList[string]
+	extraRequires              *[]*DependencyInfo_Require
+	extraProvides              *[]string
 	orderedRequires            *TList[*DependencyInfo_Require]
 	dynamicRequires            *TList[string]
 	requireDynamicImports      *TList[string]
@@ -24,8 +24,8 @@ type CompilerInput struct {
 
 func (this *CompilerInput) finit_CompilerInput() {
 	this.ast = new_CompilerInput_JsAst(this)
-	this.extraRequires = newTList_(tc_p_DependencyInfo_Require)
-	this.extraProvides = newTList_(tc_string)
+	this.extraRequires = &[]*DependencyInfo_Require{}
+	this.extraProvides = &[]string{}
 	this.orderedRequires = newTList_(tc_p_DependencyInfo_Require)
 	this.dynamicRequires = newTList_(tc_string)
 	this.requireDynamicImports = newTList_(tc_string)
@@ -155,7 +155,7 @@ func (this *CompilerInput) getKnownRequires() CollectionT[*DependencyInfo_Requir
 			return Iterable(List_un_(this.dependencyInfo.getRequires()))
 		}
 		return ImmutableList_as_Iterable(ImmutableList_of())
-	}(), Iterable(this.extraRequires.asList()))))
+	}(), Iterable(slicePtrView_(tc_p_DependencyInfo_Require, this.extraRequires)))))
 }
 
 func (this *CompilerInput) getKnownRequiredSymbols() *TList[string] {
@@ -180,11 +180,11 @@ func (this *CompilerInput) getKnownProvides() CollectionT[string] {
 			return Iterable(List_un_(this.dependencyInfo.getProvides()))
 		}
 		return ImmutableList_as_Iterable(ImmutableList_of())
-	}(), Iterable(this.extraProvides.asList()))))
+	}(), Iterable(slicePtrView_(tc_string, this.extraProvides)))))
 }
 
 func (this *CompilerInput) addProvide(provide string) {
-	this.extraProvides.add(provide)
+	*this.extraProvides = append(*this.extraProvides, provide)
 }
 
 func (this *CompilerInput) addOrderedRequire(require *DependencyInfo_Require) bool {
@@ -230,17 +230,17 @@ func (this *CompilerInput) setJsModuleType(moduleType CompilerInput_ModuleType) 
 }
 
 func (this *CompilerInput) addRequire(require *DependencyInfo_Require) {
-	this.extraRequires.add(require)
+	*this.extraRequires = append(*this.extraRequires, require)
 }
 
 func (this *CompilerInput) getDependencyInfo() DependencyInfo_ {
 	if this.dependencyInfo == nil {
 		this.dependencyInfo = this.generateDependencyInfo()
 	}
-	if !this.extraRequires.isEmpty() || !this.extraProvides.isEmpty() {
-		this.dependencyInfo = SimpleDependencyInfo_as_DependencyInfo_(SimpleDependencyInfo_builder(this.getName(), Optional_of[string](this.getName())).setProvides(collectionAs_(tc_string, ImmutableSet_as_Collection(CompilerInput_concat(Iterable(List_un_(this.dependencyInfo.getProvides())), Iterable(this.extraProvides.asList()))))).setRequires(collectionAs_(tc_p_DependencyInfo_Require, ImmutableSet_as_Collection(CompilerInput_concat(Iterable(List_un_(this.dependencyInfo.getRequires())), Iterable(this.extraRequires.asList()))))).setTypeRequires(this.dependencyInfo.getTypeRequires()).setLoadFlags(this.dependencyInfo.getLoadFlags()).setHasExternsAnnotation(this.dependencyInfo.getHasExternsAnnotation()).setHasNoCompileAnnotation(this.dependencyInfo.getHasNoCompileAnnotation()).build())
-		this.extraRequires.clear()
-		this.extraProvides.clear()
+	if len(*this.extraRequires) != 0 || len(*this.extraProvides) != 0 {
+		this.dependencyInfo = SimpleDependencyInfo_as_DependencyInfo_(SimpleDependencyInfo_builder(this.getName(), Optional_of[string](this.getName())).setProvides(collectionAs_(tc_string, ImmutableSet_as_Collection(CompilerInput_concat(Iterable(List_un_(this.dependencyInfo.getProvides())), Iterable(slicePtrView_(tc_string, this.extraProvides)))))).setRequires(collectionAs_(tc_p_DependencyInfo_Require, ImmutableSet_as_Collection(CompilerInput_concat(Iterable(List_un_(this.dependencyInfo.getRequires())), Iterable(slicePtrView_(tc_p_DependencyInfo_Require, this.extraRequires)))))).setTypeRequires(this.dependencyInfo.getTypeRequires()).setLoadFlags(this.dependencyInfo.getLoadFlags()).setHasExternsAnnotation(this.dependencyInfo.getHasExternsAnnotation()).setHasNoCompileAnnotation(this.dependencyInfo.getHasNoCompileAnnotation()).build())
+		sliceClear_(this.extraRequires)
+		sliceClear_(this.extraProvides)
 	}
 	return this.dependencyInfo
 }

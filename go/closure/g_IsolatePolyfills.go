@@ -65,13 +65,13 @@ func (this *IsolatePolyfills) process_2(externs Node, root Node) {
 	var polyfillUsages ListT[*PolyfillUsageFinder_PolyfillUsage] = newTList_(tc_p_PolyfillUsageFinder_PolyfillUsage).asListT()
 	var shouldDisambiguateProperties bool = this.compiler_.getOptions().shouldDisambiguateProperties()
 	new_PolyfillUsageFinder(this.compiler_, this.polyfills, shouldDisambiguateProperties).traverseIncludingGuarded(root, Consumer[*PolyfillUsageFinder_PolyfillUsage](func(p0 *PolyfillUsageFinder_PolyfillUsage) { polyfillUsages.add_t(p0) }))
-	var visitedNodes *TSet[Node] = newTSet_(tc_Node)
+	var visitedNodes map[Node]struct{} = map[Node]struct{}{}
 	for usage := range elemsT_(polyfillUsages) {
-		if (visitedNodes.Has(usage.node()) || usage.polyfill().library == "") || !injectedPolyfills.Has(usage.polyfill().nativeSymbol) {
+		if (has_(visitedNodes, usage.node()) || usage.polyfill().library == "") || !injectedPolyfills.Has(usage.polyfill().nativeSymbol) {
 			continue
 		}
 		this.rewritePolyfill(usage)
-		visitedNodes.Add(usage.node())
+		visitedNodes[usage.node()] = struct{}{}
 	}
 	this.cleanUpJscompLookupPolyfilledValue()
 }
