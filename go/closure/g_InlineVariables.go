@@ -762,11 +762,11 @@ func (this *InlineVariables_InliningBehavior_StandardVarExpert) analyzeWithIniti
 	var refCount int32 = this.referenceInfo.references.size()
 	if (refCount > 1) && this.allReferencesAreValid() {
 		if this.referenceInfo.isNeverAssigned() {
-			return new_InlineVariables_InliningBehavior_PositiveInlineVarAnalysis(&Runnable_fn{func() {
+			return new_InlineVariables_InliningBehavior_PositiveInlineVarAnalysis(func() {
 				var srcLocation Node = this.declaration_.getNode()
 				var undefinedNode Node = NodeUtil_newUndefinedNode(srcLocation)
 				this.outer_.inlineWellDefinedVariable(this.v, undefinedNode, this.referenceInfo.references)
-			}}).up_InlineVariables_InlineVarAnalysis()
+			}).up_InlineVariables_InlineVarAnalysis()
 		}
 		if this.isWellDefined() && (initialValueAnalysis.isImmutableValue() || (initValue.isThis() && !this.referenceInfo.isThisRebound())) {
 			return this.createInlineWellDefinedVarAnalysis(initValue).up_InlineVariables_InlineVarAnalysis()
@@ -784,9 +784,9 @@ func (this *InlineVariables_InliningBehavior_StandardVarExpert) analyzeWithIniti
 		if numReadRefs == 1 {
 			var singleReadReference *Reference = this.referenceInfo.references.get(firstReadRefIndex)
 			if this.outer_.canInline(this.declaration_, initialization, singleReadReference, initValue) {
-				return new_InlineVariables_InliningBehavior_PositiveInlineVarAnalysis(&Runnable_fn{func() {
+				return new_InlineVariables_InliningBehavior_PositiveInlineVarAnalysis(func() {
 					this.outer_.inline(this.declaration_, initialization, singleReadReference)
-				}}).up_InlineVariables_InlineVarAnalysis()
+				}).up_InlineVariables_InlineVarAnalysis()
 			}
 		}
 	}
@@ -804,9 +804,9 @@ func (this *InlineVariables_InliningBehavior_StandardVarExpert) getNegativeInlin
 }
 
 func (this *InlineVariables_InliningBehavior_StandardVarExpert) createInlineWellDefinedVarAnalysis(initValue Node) *InlineVariables_InliningBehavior_PositiveInlineVarAnalysis {
-	return new_InlineVariables_InliningBehavior_PositiveInlineVarAnalysis(&Runnable_fn{func() {
+	return new_InlineVariables_InliningBehavior_PositiveInlineVarAnalysis(func() {
 		this.outer_.inlineWellDefinedVariable(this.v, initValue, this.referenceInfo.references)
-	}})
+	})
 }
 
 func (this *InlineVariables_InliningBehavior_StandardVarExpert) reanalyzeAfterAliasedVar_impl(aliasedVar *Var, aliasedVarAnalysis *InlineVariables_InlineVarAnalysis) *InlineVariables_InlineVarAnalysis {
@@ -884,7 +884,7 @@ func (this *InlineVariables_InliningBehavior_StandardVarExpert_InitialValueAnaly
 
 type InlineVariables_InliningBehavior_PositiveInlineVarAnalysis struct {
 	InlineVariables_InlineVarAnalysis
-	inliner Runnable
+	inliner func()
 }
 
 func (this *InlineVariables_InliningBehavior_PositiveInlineVarAnalysis) up_InlineVariables_InlineVarAnalysis() *InlineVariables_InlineVarAnalysis {
@@ -894,12 +894,12 @@ func (this *InlineVariables_InliningBehavior_PositiveInlineVarAnalysis) up_Inlin
 	return &this.InlineVariables_InlineVarAnalysis
 }
 
-func (this *InlineVariables_InliningBehavior_PositiveInlineVarAnalysis) init_InlineVariables_InliningBehavior_PositiveInlineVarAnalysis(inliner Runnable) {
+func (this *InlineVariables_InliningBehavior_PositiveInlineVarAnalysis) init_InlineVariables_InliningBehavior_PositiveInlineVarAnalysis(inliner func()) {
 	this.InlineVariables_InlineVarAnalysis.init_InlineVariables_InlineVarAnalysis()
 	this.inliner = inliner
 }
 
-func new_InlineVariables_InliningBehavior_PositiveInlineVarAnalysis(inliner Runnable) *InlineVariables_InliningBehavior_PositiveInlineVarAnalysis {
+func new_InlineVariables_InliningBehavior_PositiveInlineVarAnalysis(inliner func()) *InlineVariables_InliningBehavior_PositiveInlineVarAnalysis {
 	this := &InlineVariables_InliningBehavior_PositiveInlineVarAnalysis{}
 	this.self_ = this
 	this.init_InlineVariables_InliningBehavior_PositiveInlineVarAnalysis(inliner)
@@ -911,7 +911,7 @@ func (this *InlineVariables_InliningBehavior_PositiveInlineVarAnalysis) shouldIn
 }
 
 func (this *InlineVariables_InliningBehavior_PositiveInlineVarAnalysis) performInline_impl() {
-	this.inliner.run()
+	this.inliner()
 }
 
 func (this *InlineVariables_InliningBehavior_PositiveInlineVarAnalysis) isSafeToInlineAliases_impl() bool {

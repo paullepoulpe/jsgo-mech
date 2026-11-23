@@ -3242,11 +3242,11 @@ func NodeUtil_visitPreOrder_Node_Visitor_Predicate(node Node, visitor NodeUtil_V
 	}
 }
 
-func NodeUtil_visitPostOrder_Node_Visitor(node Node, visitor NodeUtil_Visitor) {
+func NodeUtil_visitPostOrder_Node_Visitor(node Node, visitor func(Node)) {
 	NodeUtil_visitPostOrder_Node_Visitor_Predicate(node, visitor, Predicates_alwaysTrue[Node]())
 }
 
-func NodeUtil_visitPostOrder_Node_Visitor_Predicate(node Node, visitor NodeUtil_Visitor, traverseChildrenPred Predicate_base[Node]) {
+func NodeUtil_visitPostOrder_Node_Visitor_Predicate(node Node, visitor func(Node), traverseChildrenPred Predicate_base[Node]) {
 	if traverseChildrenPred.apply(node) {
 		{
 			var c Node = node.getFirstChild()
@@ -3257,7 +3257,7 @@ func NodeUtil_visitPostOrder_Node_Visitor_Predicate(node Node, visitor NodeUtil_
 			}
 		}
 	}
-	visitor.visit(node)
+	visitor(node)
 }
 
 func NodeUtil_preOrderIterable_Node_Predicate(root Node, travserseNodePredicate Predicate_base[Node]) IterableT[Node] {

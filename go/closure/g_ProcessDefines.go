@@ -320,7 +320,7 @@ func (this *ProcessDefines) reportInvalidDefineLocations(root Node) {
 	if !ProcessDefines_Mode_check__[this.mode_-1] {
 		return
 	}
-	NodeTraversal_builder().setCompiler(this.compiler_).setCallbackAbstractPostOrderCallbackInterface(&NodeTraversal_AbstractPostOrderCallbackInterface_fn{func(t *NodeTraversal, n Node, parent Node) {
+	NodeTraversal_builder().setCompiler(this.compiler_).setCallbackAbstractPostOrderCallbackInterface(func(t *NodeTraversal, n Node, parent Node) {
 		var jsdoc *JSDocInfo = n.getJSDocInfo()
 		if ((jsdoc != nil) && jsdoc.isDefine()) && this.knownDefineJsdocs.add(jsdoc) {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ProcessDefines_INVALID_DEFINE_LOCATION, []string{}))
@@ -331,7 +331,7 @@ func (this *ProcessDefines) reportInvalidDefineLocations(root Node) {
 		if (n.matchesName("CLOSURE_DEFINES") && (NodeUtil_isNameDeclaration(parent) || (parent.isGetElem() && parent.getParent().isAssign()))) && !NodeUtil_getEnclosingScopeRoot(n).isRoot() {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ProcessDefines_NON_GLOBAL_CLOSURE_DEFINES_ERROR, []string{}))
 		}
-	}}).traverse(root)
+	}).traverse(root)
 }
 
 func (this *ProcessDefines) handleClosureDefinesValue(stringNode Node, valueNode Node, errorNode Node) {
