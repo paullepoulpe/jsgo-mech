@@ -268,3 +268,29 @@ func TestImmCursorMatchesIterator(t *testing.T) {
 		t.Fatal("a null immutable collection does not throw")
 	}
 }
+
+// TestBoxedKVMatchesEntrySet: mapKV_ of a typed map's view (ImmutableMap.copyOf) gives the keys
+// and values that walking the view's entry set gives, after removals and re-additions.
+func TestBoxedKVMatchesEntrySet(t *testing.T) {
+	kc := &tconv_[int32]{box: func(v int32) any { return v }, unbox: func(v any) int32 { return v.(int32) }}
+	for seed := int64(1); seed <= 20; seed++ {
+		rnd := rand.New(rand.NewSource(seed))
+		m := newTMap_(kc, kc)
+		for i := 0; i < 60; i++ {
+			if rnd.Intn(3) == 0 {
+				m.remove(int32(rnd.Intn(40)))
+			} else {
+				m.put(int32(rnd.Intn(40)), int32(i))
+			}
+		}
+		var ks, vs []any
+		for it := m.asMap().entrySet().iterator(); it.hasNext(); {
+			e := it.next().(Map_Entry)
+			ks, vs = append(ks, e.getKey()), append(vs, e.getValue())
+		}
+		gk, gv := mapKV_(m.asMap())
+		if !sameSlice_(gk, ks) || !sameSlice_(gv, vs) || (gk == nil) != (ks == nil) {
+			t.Fatalf("seed %d: mapKV_ %v=%v, entry set %v=%v", seed, gk, gv, ks, vs)
+		}
+	}
+}
