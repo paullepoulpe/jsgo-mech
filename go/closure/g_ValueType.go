@@ -73,9 +73,7 @@ func (this *ValueType) resolveInternal(p0 ErrorReporter_rhino) *JSType {
 	if this.self_ == any(this) {
 		return this.resolveInternal_impl(p0)
 	}
-	return this.self_.(interface {
-		resolveInternal_impl(ErrorReporter_rhino) *JSType
-	}).resolveInternal_impl(p0)
+	return this.self_.resolveInternal_impl(p0)
 }
 
 // appendTo: an object that is exactly a ValueType calls its appendTo_impl directly (post-flip); others dispatch.
@@ -84,7 +82,7 @@ func (this *ValueType) appendTo(p0 *TypeStringBuilder) {
 		this.appendTo_impl(p0)
 		return
 	}
-	this.self_.(interface{ appendTo_impl(*TypeStringBuilder) }).appendTo_impl(p0)
+	this.self_.appendTo_impl(p0)
 }
 
 // hasDisplayName: an object that is exactly a ValueType calls its hasDisplayName_impl directly (post-flip); others dispatch.
@@ -92,7 +90,7 @@ func (this *ValueType) hasDisplayName() bool {
 	if this.self_ == any(this) {
 		return this.hasDisplayName_impl()
 	}
-	return this.self_.(interface{ hasDisplayName_impl() bool }).hasDisplayName_impl()
+	return this.self_.hasDisplayName_impl()
 }
 
 // visitUntyped_2: an object that is exactly a ValueType calls its visitUntyped_2_impl directly (post-flip); others dispatch.
@@ -100,9 +98,7 @@ func (this *ValueType) visitUntyped_2(p0 RelationshipVisitor, p1 *JSType) any {
 	if this.self_ == any(this) {
 		return this.visitUntyped_2_impl(p0, p1)
 	}
-	return this.self_.(interface {
-		visitUntyped_2_impl(RelationshipVisitor, *JSType) any
-	}).visitUntyped_2_impl(p0, p1)
+	return this.self_.visitUntyped_2_impl(p0, p1)
 }
 
 // getPropertyKind_2: an object that is exactly a ValueType calls its getPropertyKind_2_impl directly (post-flip); others dispatch.
@@ -110,9 +106,7 @@ func (this *ValueType) getPropertyKind_2(p0 Property_Key, p1 bool) *JSType_HasPr
 	if this.self_ == any(this) {
 		return this.getPropertyKind_2_impl(p0, p1)
 	}
-	return this.self_.(interface {
-		getPropertyKind_2_impl(Property_Key, bool) *JSType_HasPropertyKind
-	}).getPropertyKind_2_impl(p0, p1)
+	return this.self_.getPropertyKind_2_impl(p0, p1)
 }
 
 // recursionUnsafeHashCode: an object that is exactly a ValueType calls its recursionUnsafeHashCode_impl directly (post-flip); others dispatch.
@@ -120,5 +114,5 @@ func (this *ValueType) recursionUnsafeHashCode() int32 {
 	if this.self_ == any(this) {
 		return this.recursionUnsafeHashCode_impl()
 	}
-	return this.self_.(interface{ recursionUnsafeHashCode_impl() int32 }).recursionUnsafeHashCode_impl()
+	return this.self_.recursionUnsafeHashCode_impl()
 }

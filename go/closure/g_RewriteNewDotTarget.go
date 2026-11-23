@@ -54,7 +54,7 @@ func (this *RewriteNewDotTarget) getTranspiledAwayFeatures() *FeatureSet {
 	if this.self_ == any(this) {
 		return this.getTranspiledAwayFeatures_impl()
 	}
-	return this.self_.(interface{ getTranspiledAwayFeatures_impl() *FeatureSet }).getTranspiledAwayFeatures_impl()
+	return this.self_.getTranspiledAwayFeatures_impl()
 }
 
 // transpileSubtree: an object that is exactly a RewriteNewDotTarget calls its transpileSubtree_impl directly (post-flip); others dispatch.
@@ -62,5 +62,5 @@ func (this *RewriteNewDotTarget) transpileSubtree(p0 Node) Node {
 	if this.self_ == any(this) {
 		return this.transpileSubtree_impl(p0)
 	}
-	return this.self_.(interface{ transpileSubtree_impl(Node) Node }).transpileSubtree_impl(p0)
+	return this.self_.transpileSubtree_impl(p0)
 }

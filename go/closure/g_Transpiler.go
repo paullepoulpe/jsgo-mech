@@ -67,7 +67,7 @@ func (this *Transpiler_bundle) getRuntime() Optional[string] {
 	if this.self_ == any(this) {
 		return this.getRuntime_impl()
 	}
-	return this.self_.(interface{ getRuntime_impl() Optional[string] }).getRuntime_impl()
+	return this.self_.getRuntime_impl()
 }
 
 // getTranformationName: an object that is exactly a Transpiler_bundle calls its getTranformationName_impl directly (post-flip); others dispatch.
@@ -75,5 +75,5 @@ func (this *Transpiler_bundle) getTranformationName() string {
 	if this.self_ == any(this) {
 		return this.getTranformationName_impl()
 	}
-	return this.self_.(interface{ getTranformationName_impl() string }).getTranformationName_impl()
+	return this.self_.getTranformationName_impl()
 }

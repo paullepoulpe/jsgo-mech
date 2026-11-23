@@ -1753,7 +1753,7 @@ func (this *DefaultPassConfig) getTranspileOnlyPasses() *PassListBuilder {
 	if this.self_ == any(this) {
 		return this.getTranspileOnlyPasses_impl()
 	}
-	return this.self_.(interface{ getTranspileOnlyPasses_impl() *PassListBuilder }).getTranspileOnlyPasses_impl()
+	return this.self_.getTranspileOnlyPasses_impl()
 }
 
 // getWhitespaceOnlyPasses: an object that is exactly a DefaultPassConfig calls its getWhitespaceOnlyPasses_impl directly (post-flip); others dispatch.
@@ -1761,7 +1761,7 @@ func (this *DefaultPassConfig) getWhitespaceOnlyPasses() *PassListBuilder {
 	if this.self_ == any(this) {
 		return this.getWhitespaceOnlyPasses_impl()
 	}
-	return this.self_.(interface{ getWhitespaceOnlyPasses_impl() *PassListBuilder }).getWhitespaceOnlyPasses_impl()
+	return this.self_.getWhitespaceOnlyPasses_impl()
 }
 
 // getChecks: an object that is exactly a DefaultPassConfig calls its getChecks_impl directly (post-flip); others dispatch.
@@ -1769,7 +1769,7 @@ func (this *DefaultPassConfig) getChecks() *PassListBuilder {
 	if this.self_ == any(this) {
 		return this.getChecks_impl()
 	}
-	return this.self_.(interface{ getChecks_impl() *PassListBuilder }).getChecks_impl()
+	return this.self_.getChecks_impl()
 }
 
 // getOptimizations: an object that is exactly a DefaultPassConfig calls its getOptimizations_impl directly (post-flip); others dispatch.
@@ -1777,7 +1777,7 @@ func (this *DefaultPassConfig) getOptimizations() *PassListBuilder {
 	if this.self_ == any(this) {
 		return this.getOptimizations_impl()
 	}
-	return this.self_.(interface{ getOptimizations_impl() *PassListBuilder }).getOptimizations_impl()
+	return this.self_.getOptimizations_impl()
 }
 
 // getFinalizations: an object that is exactly a DefaultPassConfig calls its getFinalizations_impl directly (post-flip); others dispatch.
@@ -1785,5 +1785,5 @@ func (this *DefaultPassConfig) getFinalizations() *PassListBuilder {
 	if this.self_ == any(this) {
 		return this.getFinalizations_impl()
 	}
-	return this.self_.(interface{ getFinalizations_impl() *PassListBuilder }).getFinalizations_impl()
+	return this.self_.getFinalizations_impl()
 }

@@ -373,7 +373,7 @@ func (this *Scope) untyped() *Scope {
 	if this.self_ == any(this) {
 		return this.untyped_impl()
 	}
-	return this.self_.(interface{ untyped_impl() *Scope }).untyped_impl()
+	return this.self_.untyped_impl()
 }
 
 // getDepth: an object that is exactly a Scope calls its getDepth_impl directly (post-flip); others dispatch.
@@ -381,7 +381,7 @@ func (this *Scope) getDepth() int32 {
 	if this.self_ == any(this) {
 		return this.getDepth_impl()
 	}
-	return this.self_.(interface{ getDepth_impl() int32 }).getDepth_impl()
+	return this.self_.getDepth_impl()
 }
 
 // clearVarsInternal: an object that is exactly a Scope calls its clearVarsInternal_impl directly (post-flip); others dispatch.
@@ -390,7 +390,7 @@ func (this *Scope) clearVarsInternal() {
 		this.clearVarsInternal_impl()
 		return
 	}
-	this.self_.(interface{ clearVarsInternal_impl() }).clearVarsInternal_impl()
+	this.self_.clearVarsInternal_impl()
 }
 
 // hasOwnSlot: an object that is exactly a Scope calls its hasOwnSlot_impl directly (post-flip); others dispatch.
@@ -398,7 +398,7 @@ func (this *Scope) hasOwnSlot(p0 string) bool {
 	if this.self_ == any(this) {
 		return this.hasOwnSlot_impl(p0)
 	}
-	return this.self_.(interface{ hasOwnSlot_impl(string) bool }).hasOwnSlot_impl(p0)
+	return this.self_.hasOwnSlot_impl(p0)
 }
 
 // hasSlot: an object that is exactly a Scope calls its hasSlot_impl directly (post-flip); others dispatch.
@@ -406,7 +406,7 @@ func (this *Scope) hasSlot(p0 string) bool {
 	if this.self_ == any(this) {
 		return this.hasSlot_impl(p0)
 	}
-	return this.self_.(interface{ hasSlot_impl(string) bool }).hasSlot_impl(p0)
+	return this.self_.hasSlot_impl(p0)
 }
 
 // canDeclare: an object that is exactly a Scope calls its canDeclare_impl directly (post-flip); others dispatch.
@@ -414,7 +414,7 @@ func (this *Scope) canDeclare(p0 string) bool {
 	if this.self_ == any(this) {
 		return this.canDeclare_impl(p0)
 	}
-	return this.self_.(interface{ canDeclare_impl(string) bool }).canDeclare_impl(p0)
+	return this.self_.canDeclare_impl(p0)
 }
 
 // getVarCount: an object that is exactly a Scope calls its getVarCount_impl directly (post-flip); others dispatch.
@@ -422,7 +422,7 @@ func (this *Scope) getVarCount() int32 {
 	if this.self_ == any(this) {
 		return this.getVarCount_impl()
 	}
-	return this.self_.(interface{ getVarCount_impl() int32 }).getVarCount_impl()
+	return this.self_.getVarCount_impl()
 }
 
 // getParent: an object that is exactly a Scope calls its getParent_impl directly (post-flip); others dispatch.
@@ -430,7 +430,7 @@ func (this *Scope) getParent() *AbstractScope {
 	if this.self_ == any(this) {
 		return this.getParent_impl()
 	}
-	return this.self_.(interface{ getParent_impl() *AbstractScope }).getParent_impl()
+	return this.self_.getParent_impl()
 }
 
 // makeImplicitVar_ImplicitVar: an object that is exactly a Scope calls its makeImplicitVar_ImplicitVar_impl directly (post-flip); others dispatch.
@@ -438,9 +438,7 @@ func (this *Scope) makeImplicitVar_ImplicitVar(p0 *AbstractScope_ImplicitVar) *A
 	if this.self_ == any(this) {
 		return this.makeImplicitVar_ImplicitVar_impl(p0)
 	}
-	return this.self_.(interface {
-		makeImplicitVar_ImplicitVar_impl(*AbstractScope_ImplicitVar) *AbstractVar
-	}).makeImplicitVar_ImplicitVar_impl(p0)
+	return this.self_.makeImplicitVar_ImplicitVar_impl(p0)
 }
 
 // getGlobalScope: an object that is exactly a Scope calls its getGlobalScope_impl directly (post-flip); others dispatch.
@@ -448,7 +446,7 @@ func (this *Scope) getGlobalScope() *AbstractScope {
 	if this.self_ == any(this) {
 		return this.getGlobalScope_impl()
 	}
-	return this.self_.(interface{ getGlobalScope_impl() *AbstractScope }).getGlobalScope_impl()
+	return this.self_.getGlobalScope_impl()
 }
 
 // getParentScope_rAbstractScope: an object that is exactly a Scope calls its getParentScope_rAbstractScope_impl directly (post-flip); others dispatch.
@@ -456,7 +454,7 @@ func (this *Scope) getParentScope_rAbstractScope() *AbstractScope {
 	if this.self_ == any(this) {
 		return this.getParentScope_rAbstractScope_impl()
 	}
-	return this.self_.(interface{ getParentScope_rAbstractScope_impl() *AbstractScope }).getParentScope_rAbstractScope_impl()
+	return this.self_.getParentScope_rAbstractScope_impl()
 }
 
 // getOwnSlot_String_rAbstractVar: an object that is exactly a Scope calls its getOwnSlot_String_rAbstractVar_impl directly (post-flip); others dispatch.
@@ -464,7 +462,7 @@ func (this *Scope) getOwnSlot_String_rAbstractVar(p0 string) *AbstractVar {
 	if this.self_ == any(this) {
 		return this.getOwnSlot_String_rAbstractVar_impl(p0)
 	}
-	return this.self_.(interface{ getOwnSlot_String_rAbstractVar_impl(string) *AbstractVar }).getOwnSlot_String_rAbstractVar_impl(p0)
+	return this.self_.getOwnSlot_String_rAbstractVar_impl(p0)
 }
 
 // getSlot_String_rAbstractVar: an object that is exactly a Scope calls its getSlot_String_rAbstractVar_impl directly (post-flip); others dispatch.
@@ -472,7 +470,7 @@ func (this *Scope) getSlot_String_rAbstractVar(p0 string) *AbstractVar {
 	if this.self_ == any(this) {
 		return this.getSlot_String_rAbstractVar_impl(p0)
 	}
-	return this.self_.(interface{ getSlot_String_rAbstractVar_impl(string) *AbstractVar }).getSlot_String_rAbstractVar_impl(p0)
+	return this.self_.getSlot_String_rAbstractVar_impl(p0)
 }
 
 // getVar_String: an object that is exactly a Scope calls its getVar_String_impl directly (post-flip); others dispatch.
@@ -480,7 +478,7 @@ func (this *Scope) getVar_String(p0 string) *AbstractVar {
 	if this.self_ == any(this) {
 		return this.getVar_String_impl(p0)
 	}
-	return this.self_.(interface{ getVar_String_impl(string) *AbstractVar }).getVar_String_impl(p0)
+	return this.self_.getVar_String_impl(p0)
 }
 
 // getArgumentsVar: an object that is exactly a Scope calls its getArgumentsVar_impl directly (post-flip); others dispatch.
@@ -488,7 +486,7 @@ func (this *Scope) getArgumentsVar() *AbstractVar {
 	if this.self_ == any(this) {
 		return this.getArgumentsVar_impl()
 	}
-	return this.self_.(interface{ getArgumentsVar_impl() *AbstractVar }).getArgumentsVar_impl()
+	return this.self_.getArgumentsVar_impl()
 }
 
 // getVarIterable: an object that is exactly a Scope calls its getVarIterable_impl directly (post-flip); others dispatch.
@@ -496,9 +494,7 @@ func (this *Scope) getVarIterable() IterableT[*AbstractVar] {
 	if this.self_ == any(this) {
 		return this.getVarIterable_impl()
 	}
-	return this.self_.(interface {
-		getVarIterable_impl() IterableT[*AbstractVar]
-	}).getVarIterable_impl()
+	return this.self_.getVarIterable_impl()
 }
 
 // getAllAccessibleVariables: an object that is exactly a Scope calls its getAllAccessibleVariables_impl directly (post-flip); others dispatch.
@@ -506,9 +502,7 @@ func (this *Scope) getAllAccessibleVariables() IterableT[*AbstractVar] {
 	if this.self_ == any(this) {
 		return this.getAllAccessibleVariables_impl()
 	}
-	return this.self_.(interface {
-		getAllAccessibleVariables_impl() IterableT[*AbstractVar]
-	}).getAllAccessibleVariables_impl()
+	return this.self_.getAllAccessibleVariables_impl()
 }
 
 // getAllSymbols: an object that is exactly a Scope calls its getAllSymbols_impl directly (post-flip); others dispatch.
@@ -516,9 +510,7 @@ func (this *Scope) getAllSymbols() IterableT[*AbstractVar] {
 	if this.self_ == any(this) {
 		return this.getAllSymbols_impl()
 	}
-	return this.self_.(interface {
-		getAllSymbols_impl() IterableT[*AbstractVar]
-	}).getAllSymbols_impl()
+	return this.self_.getAllSymbols_impl()
 }
 
 // getClosestHoistScope: an object that is exactly a Scope calls its getClosestHoistScope_impl directly (post-flip); others dispatch.
@@ -526,7 +518,7 @@ func (this *Scope) getClosestHoistScope() *AbstractScope {
 	if this.self_ == any(this) {
 		return this.getClosestHoistScope_impl()
 	}
-	return this.self_.(interface{ getClosestHoistScope_impl() *AbstractScope }).getClosestHoistScope_impl()
+	return this.self_.getClosestHoistScope_impl()
 }
 
 // getClosestCfgRootScope: an object that is exactly a Scope calls its getClosestCfgRootScope_impl directly (post-flip); others dispatch.
@@ -534,7 +526,7 @@ func (this *Scope) getClosestCfgRootScope() *AbstractScope {
 	if this.self_ == any(this) {
 		return this.getClosestCfgRootScope_impl()
 	}
-	return this.self_.(interface{ getClosestCfgRootScope_impl() *AbstractScope }).getClosestCfgRootScope_impl()
+	return this.self_.getClosestCfgRootScope_impl()
 }
 
 // getClosestContainerScope: an object that is exactly a Scope calls its getClosestContainerScope_impl directly (post-flip); others dispatch.
@@ -542,7 +534,7 @@ func (this *Scope) getClosestContainerScope() *AbstractScope {
 	if this.self_ == any(this) {
 		return this.getClosestContainerScope_impl()
 	}
-	return this.self_.(interface{ getClosestContainerScope_impl() *AbstractScope }).getClosestContainerScope_impl()
+	return this.self_.getClosestContainerScope_impl()
 }
 
 // getScopeOfThis: an object that is exactly a Scope calls its getScopeOfThis_impl directly (post-flip); others dispatch.
@@ -550,5 +542,5 @@ func (this *Scope) getScopeOfThis() *AbstractScope {
 	if this.self_ == any(this) {
 		return this.getScopeOfThis_impl()
 	}
-	return this.self_.(interface{ getScopeOfThis_impl() *AbstractScope }).getScopeOfThis_impl()
+	return this.self_.getScopeOfThis_impl()
 }
