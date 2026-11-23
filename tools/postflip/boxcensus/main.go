@@ -17,12 +17,6 @@
 //
 // usage: boxcensus <dir of package closure> <boxsites.tsv> [N]
 // (BOXCENSUS_SINK=<sink> also lists the lines of that sink)
-//
-// Without a profile, -static lists the explicit boxes (obj_, strobj_, any(...), .box_(), the
-// census row "boxing to any") by the cause of the box: the kind of declaration that wants the
-// interface (an erased collection or other runtime API, a generated Object field, parameter or
-// result, a variadic parameter, an []any element, a comparison...), with the most frequent
-// declarations of each kind: boxcensus -static <dir> [N].
 package main
 
 import (
@@ -41,7 +35,6 @@ import (
 )
 
 type site struct {
-	cat      string // -static: the kind of sink
 	line     string // g_File.go:123
 	explicit string // strobj_, obj_, any, or "" (implicit)
 	alloc    bool   // the conversion allocates (not a pointer, handle box, constant or small value)
@@ -248,7 +241,6 @@ func add(e ast.Expr, valueType types.Type, explicit string, boxed ast.Expr) {
 		s.alloc = false
 	}
 	s.sink, s.holder = sinkOf(boxed)
-	s.cat = category(boxed)
 	sites = append(sites, s)
 	byLine[s.line] = append(byLine[s.line], s)
 }
@@ -265,13 +257,7 @@ func implicit(e ast.Expr, slot types.Type) {
 	add(e, tv.Type, "", e)
 }
 
-var static bool
-
 func main() {
-	if len(os.Args) > 1 && os.Args[1] == "-static" {
-		static = true
-		os.Args = append(os.Args[:1], os.Args[2:]...)
-	}
 	rw.Load(os.Args[1])
 	for _, f := range rw.Files {
 		if !strings.HasPrefix(filepath.Base(rw.Fset.File(f.Pos()).Name()), "g_") {
@@ -293,10 +279,7 @@ func main() {
 					}
 				}
 				if s, ok := x.Fun.(*ast.SelectorExpr); ok && len(x.Args) == 0 && (s.Sel.Name == "box_" || s.Sel.Name == "self") {
-					// handle boxes and self() allocate nothing; only -static lists box_()
-					if static && s.Sel.Name == "box_" {
-						add(s.X, rw.Info.Types[s.X].Type, ".box_", x)
-					}
+					// handle boxes and self() allocate nothing; skip
 					return true
 				}
 				if tv, ok := rw.Info.Types[x.Fun]; ok && tv.IsType() {
@@ -384,14 +367,6 @@ func main() {
 		}
 	}
 	fmt.Printf("boxing sites in g_*.go: %d (allocating: %d)\n", len(sites), nAlloc)
-	if static {
-		top := 15
-		if len(os.Args) > 2 {
-			top, _ = strconv.Atoi(os.Args[2])
-		}
-		staticReport(top)
-		return
-	}
 	if len(os.Args) < 3 {
 		return
 	}
@@ -490,168 +465,4 @@ func main() {
 	dump("by generic declaration (function, method or class):", byClass)
 	dump("by parameter / field / result:", bySink)
 	dump("by erased declaration the method is called on:", byHolder)
-}
-
-// inRuntime reports whether o is declared in a handwritten file (rt_*.go).
-func inRuntime(o types.Object) bool {
-	return o != nil && o.Pos().IsValid() && strings.HasPrefix(filepath.Base(rw.Fset.Position(o.Pos()).Filename), "rt_")
-}
-
-// category is the kind of declaration that makes boxed (an interface-typed expression) an
-// interface: what would have to be typed for the box to go.
-func category(boxed ast.Expr) string {
-	p := rw.Up(boxed)
-	switch x := p.(type) {
-	case *ast.CallExpr:
-		idx := -1
-		for i, a := range x.Args {
-			if rw.Unparen(a) == rw.Unparen(boxed) {
-				idx = i
-			}
-		}
-		if idx < 0 {
-			return "method called on a box"
-		}
-		var o types.Object
-		recv := ""
-		switch f := rw.Unparen(x.Fun).(type) {
-		case *ast.Ident:
-			o = rw.Info.Uses[f]
-		case *ast.IndexExpr:
-			if id, ok := f.X.(*ast.Ident); ok {
-				o = rw.Info.Uses[id]
-			}
-		case *ast.SelectorExpr:
-			if sel := rw.Info.Selections[f]; sel != nil {
-				if sel.Kind() == types.FieldVal {
-					return "argument of a func-typed field"
-				}
-				o = sel.Obj()
-				recv = typeName(sel.Recv())
-			} else {
-				o = rw.Info.Uses[f.Sel]
-			}
-		}
-		if o == nil {
-			return "argument of a func value"
-		}
-		if sig, ok := o.Type().(*types.Signature); ok && sig.Variadic() && idx >= sig.Params().Len()-1 {
-			if inRuntime(o) {
-				return "variadic runtime argument"
-			}
-			return "variadic generated argument"
-		}
-		if inRuntime(o) {
-			if recv != "" {
-				return "runtime method parameter (" + recv + ")"
-			}
-			return "runtime function parameter"
-		}
-		if _, ok := o.(*types.Var); ok {
-			return "argument of a func value"
-		}
-		if recv != "" {
-			if _, ok := types.Unalias(rw.Info.Types[x.Fun.(*ast.SelectorExpr).X].Type).Underlying().(*types.Interface); ok {
-				return "generated interface method parameter"
-			}
-		}
-		return "generated parameter"
-	case *ast.AssignStmt:
-		for i, r := range x.Rhs {
-			if rw.Unparen(r) == rw.Unparen(boxed) && i < len(x.Lhs) {
-				switch l := x.Lhs[i].(type) {
-				case *ast.SelectorExpr:
-					if o, ok := rw.Info.Uses[l.Sel].(*types.Var); ok && o.IsField() {
-						if inRuntime(o) {
-							return "runtime field"
-						}
-						return "generated field"
-					}
-				case *ast.IndexExpr:
-					return "array element"
-				}
-				return "local variable"
-			}
-		}
-		return "assignment"
-	case *ast.ValueSpec:
-		return "local variable"
-	case *ast.ReturnStmt:
-		for q := ast.Node(x); q != nil; q = rw.Parent[q] {
-			switch fn := q.(type) {
-			case *ast.FuncLit:
-				return "result of a func literal"
-			case *ast.FuncDecl:
-				if inRuntime(rw.Info.Defs[fn.Name]) {
-					return "runtime result"
-				}
-				return "generated result"
-			}
-		}
-	case *ast.CompositeLit:
-		return "element of a composite literal"
-	case *ast.KeyValueExpr:
-		return "field in a composite literal"
-	case *ast.BinaryExpr:
-		return "comparison"
-	case *ast.TypeAssertExpr:
-		return "type assertion of a box"
-	case *ast.SelectorExpr:
-		return "method called on a box"
-	}
-	return fmt.Sprintf("other (%T)", p)
-}
-
-func staticReport(top int) {
-	byCat := map[string]int{}
-	byKind := map[string]map[string]int{}
-	bySink := map[string]map[string]int{}
-	for _, s := range sites {
-		if s.explicit == "" {
-			continue
-		}
-		byCat[s.cat]++
-		if byKind[s.cat] == nil {
-			byKind[s.cat] = map[string]int{}
-			bySink[s.cat] = map[string]int{}
-		}
-		byKind[s.cat][s.explicit]++
-		k := s.sink
-		if s.holder != "" {
-			k += " on " + s.holder
-		}
-		bySink[s.cat][k]++
-	}
-	type kv struct {
-		k string
-		v int
-	}
-	sorted := func(m map[string]int) []kv {
-		var l []kv
-		n := 0
-		for k, v := range m {
-			l = append(l, kv{k, v})
-			n += v
-		}
-		sort.Slice(l, func(i, j int) bool { return l[i].v > l[j].v || l[i].v == l[j].v && l[i].k < l[j].k })
-		return l
-	}
-	total := 0
-	for _, v := range byCat {
-		total += v
-	}
-	fmt.Printf("explicit boxes: %d\n", total)
-	for _, c := range sorted(byCat) {
-		var kinds []string
-		for _, k := range sorted(byKind[c.k]) {
-			kinds = append(kinds, fmt.Sprintf("%s %d", k.k, k.v))
-		}
-		fmt.Printf("\n%6d  %s  (%s)\n", c.v, c.k, strings.Join(kinds, ", "))
-		for i, s := range sorted(bySink[c.k]) {
-			if i >= top {
-				break
-			}
-			fmt.Printf("    %5d  %s\n", s.v, s.k)
-		}
-	}
 }
