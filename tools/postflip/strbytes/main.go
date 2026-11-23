@@ -1493,6 +1493,45 @@ func charArrays() {
 		if !strings.HasPrefix(filepath(f), "g_") {
 			continue
 		}
+		// indexOf(c) of a char in an ASCII String constant: its index there is a byte index,
+		// and strings.IndexRune finds no non-ASCII or surrogate code point (nor a negative
+		// one) in it, as Java does not
+		ast.Inspect(f, func(n ast.Node) bool {
+			name, c := callName(asExpr(n))
+			if (name != "String_indexOf" && name != "String_lastIndexOf") || len(c.Args) != 2 || rw.Rewrite[c] != nil {
+				return true
+			}
+			cs, ok := constString(c.Args[0])
+			if !ok || !asciiOnly(cs) || cs == "\x00\xff<null>\xff\x00" {
+				return true
+			}
+			fd := enclosingFunc(c)
+			if fd != nil && shadowed(fd, "strings") {
+				return true
+			}
+			fn := "IndexRune"
+			if name == "String_lastIndexOf" {
+				fn = "LastIndex"
+				if _, isConst := constInt(c.Args[1]); !isConst {
+					return true
+				}
+			}
+			note("indexOf(c) in an ASCII String constant: strings.IndexRune", c)
+			needImport[f] = true
+			rw.Rewrite[c] = func() string {
+				if fn == "LastIndex" {
+					k, _ := constInt(c.Args[1])
+					return "int32(strings.LastIndex(" + rw.Render(c.Args[0]) + ", " + strconv.Quote(string(rune(k))) + "))"
+				}
+				return "int32(strings.IndexRune(" + rw.Render(c.Args[0]) + ", rune(" + rw.Render(c.Args[1]) + ")))"
+			}
+			return true
+		})
+	}
+	for _, f := range rw.Files {
+		if !strings.HasPrefix(filepath(f), "g_") {
+			continue
+		}
 		ast.Inspect(f, func(n ast.Node) bool {
 			name, c := callName(asExpr(n))
 			if name != "String_toCharArray" || len(c.Args) != 1 {
@@ -1523,3 +1562,11 @@ func charArrays() {
 
 func strconvQuote(r rune) string { return strconv.QuoteRune(r) }
 
+func enclosingFunc(n ast.Node) *ast.FuncDecl {
+	for p := rw.Parent[n]; p != nil; p = rw.Parent[p] {
+		if fd, ok := p.(*ast.FuncDecl); ok {
+			return fd
+		}
+	}
+	return nil
+}
