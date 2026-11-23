@@ -66,9 +66,7 @@ func (this *PureFunctionIdentifier) validateArtificialPurity() {
 	it_1 := this.artificiallyPureLiteralsForDebugging.each()
 	for it_1.next() {
 		var function Node = it_1.v
-		it_3 := jeachOf_(this.summariesForAllNamesOfFunctionByNode.get(function))
-		for it_3.next() {
-			var summary *PureFunctionIdentifier_AmbiguatedFunctionSummary = it_3.v
+		for summary := range elemsT_(this.summariesForAllNamesOfFunctionByNode.get(function)) {
 			if summary.hasNoFlagsSet() {
 				continue
 			}
@@ -236,14 +234,10 @@ func (this *PureFunctionIdentifier) getSummariesForCallee(invocation Node) *JTLi
 
 func (this *PureFunctionIdentifier) populateDatastructuresForAnalysisTraversal(referenceMap *OptimizeCalls_ReferenceMap) {
 	var referencesByName *SimpleListMultimap[string, Node] = SimpleListMultimap_create[string, Node]()
-	it_1 := jeachOf_(referenceMap.getNameReferences())
-	for it_1.next() {
-		var entry Map_EntryT[string, ListT[Node]] = it_1.v
+	for entry := range elemsT_(referenceMap.getNameReferences()) {
 		referencesByName.putAll(entry.getKey_t(), entry.getValue_t())
 	}
-	it_3 := jeachOf_(referenceMap.getPropReferences())
-	for it_3.next() {
-		var entry Map_EntryT[string, ListT[Node]] = it_3.v
+	for entry := range elemsT_(referenceMap.getPropReferences()) {
 		referencesByName.putAll((sstr_(PureFunctionIdentifier_PROP_NAME_PREFIX) + sstr_(entry.getKey_t())), entry.getValue_t())
 	}
 	if referencesByName.containsKey("") {
@@ -252,9 +246,7 @@ func (this *PureFunctionIdentifier) populateDatastructuresForAnalysisTraversal(r
 	if referencesByName.containsKey(PureFunctionIdentifier_PROP_NAME_PREFIX) {
 		panic(new_IllegalStateException_0().self())
 	}
-	it_5 := jeachOf_(referencesByName.keySet())
-	for it_5.next() {
-		var name string = it_5.v
+	for name := range elemsT_(referencesByName.keySet()) {
 		this.summariesByName.put(name, PureFunctionIdentifier_AmbiguatedFunctionSummary_createInGraph(this.reverseCallGraph.up_DiGraph(), name))
 	}
 	Map_forEach(Map_un_(referencesByName.asMap()), BiConsumer[any, any](func(p0 any, p1 any) { this.populateFunctionDefinitions(str_(p0), listAs_(jtc_Node, icast_List(p1))) }))
@@ -268,9 +260,7 @@ func (this *PureFunctionIdentifier) populateFunctionDefinitions(name string, ref
 	}
 	var invalid bool = false
 	var rvaluesAssignedToName *JTList[ListT[Node]] = jnewTList_(tc_ListT_Node_)
-	it_1 := jeachOf_(references)
-	for it_1.next() {
-		var reference Node = it_1.v
+	for reference := range elemsT_(references) {
 		if !PureFunctionIdentifier_isDefinitelyRValue(reference) {
 			var rvalue Node = NodeUtil_getRValueOfLValue(reference)
 			if rvalue == 0 {
@@ -304,9 +294,7 @@ func (this *PureFunctionIdentifier) populateFunctionDefinitions(name string, ref
 		it_5 := rvaluesAssignedToName.each()
 		for it_5.next() {
 			var callables ListT[Node] = it_5.v
-			it_7 := jeachOf_(callables)
-			for it_7.next() {
-				var rvalue Node = it_7.v
+			for rvalue := range elemsT_(callables) {
 				if rvalue.isFunction() {
 					this.summariesForAllNamesOfFunctionByNode.put(rvalue, summaryForName)
 				} else if NodeUtil_isUndefined(rvalue) {
@@ -488,9 +476,7 @@ func (this *PureFunctionIdentifier_ExternFunctionAnnotationAnalyzer) visit(trave
 	if !node.isFunction() {
 		return
 	}
-	it_1 := jeachOf_(this.outer_.summariesForAllNamesOfFunctionByNode.get(node))
-	for it_1.next() {
-		var definitionSummary *PureFunctionIdentifier_AmbiguatedFunctionSummary = it_1.v
+	for definitionSummary := range elemsT_(this.outer_.summariesForAllNamesOfFunctionByNode.get(node)) {
 		this.updateSideEffectsForExternFunction(node, definitionSummary)
 	}
 }
@@ -556,9 +542,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) visit(traversal *NodeTr
 	if (root == 0) || enclosingFunction.isArtificiallyPure {
 		return
 	}
-	it_1 := jeachOf_(this.outer_.summariesForAllNamesOfFunctionByNode.get(root))
-	for it_1.next() {
-		var summary *PureFunctionIdentifier_AmbiguatedFunctionSummary = it_1.v
+	for summary := range elemsT_(this.outer_.summariesForAllNamesOfFunctionByNode.get(root)) {
 		if summary == nil {
 			panic(new_NullPointerException_0().self())
 		}
@@ -696,18 +680,14 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) exitScope(t *NodeTraver
 	if equalsId_(t.getScopeRoot(), functionEntry.root) {
 		SequencedCollection_removeLast(SequencedCollection(this.functionScopeStack.asDeque()))
 	}
-	it_1 := jeachOf_(this.outer_.summariesForAllNamesOfFunctionByNode.get(functionEntry.root))
-	for it_1.next() {
-		var sideEffectInfo *PureFunctionIdentifier_AmbiguatedFunctionSummary = it_1.v
+	for sideEffectInfo := range elemsT_(this.outer_.summariesForAllNamesOfFunctionByNode.get(functionEntry.root)) {
 		if v_, a1_ := sideEffectInfo, functionEntry.root; v_ == nil {
 			panic(new_NullPointerException_String(Strings_lenientFormat("%s has no side effect info.", []any{a1_.box_()})).self())
 		}
 		if sideEffectInfo.mutatesGlobalState() {
 			continue
 		}
-		it_3 := jeachOf_(t.getScope().getVarIterable_rIterableOf_Var())
-		for it_3.next() {
-			var v *Var = it_3.v
+		for v := range elemsT_(t.getScope().getVarIterable_rIterableOf_Var()) {
 			var isFromDestructuring bool = NodeUtil_isLhsByDestructuring(v.getNameNode())
 			if ((v.isParam() && !isFromDestructuring) && !functionEntry.skiplistedVars.contains(v)) && functionEntry.taintedVars.contains(v) {
 				sideEffectInfo.setMutatesArgumentAt(PureFunctionIdentifier_getParamIndex(v), v.getNode())

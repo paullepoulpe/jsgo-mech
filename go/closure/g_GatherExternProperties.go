@@ -59,9 +59,7 @@ func (this *GatherExternProperties) visit(t *NodeTraversal, n Node, parent Node)
 }
 
 func (this *GatherExternProperties) gatherPropertiesFromJSDocInfo(jsDocInfo *JSDocInfo) {
-	it_1 := jeachOf_(jsDocInfo.getTypeNodes())
-	for it_1.next() {
-		var jsTypeExpressionNode Node = it_1.v
+	for jsTypeExpressionNode := range elemsT_(jsDocInfo.getTypeNodes()) {
 		this.gatherPropertiesFromJsTypeExpressionNode(jsTypeExpressionNode)
 	}
 }

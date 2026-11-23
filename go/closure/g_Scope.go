@@ -246,9 +246,7 @@ func (this *Scope) getAllAccessibleVariables_rIterableOf_Var() IterableT[*Var] {
 	var accessibleVars *JTMap[string, *Var] = jnewTMap_(jtc_string, jtc_p_Var)
 	var s *Scope = this
 	for s != nil {
-		it_2 := jeachOf_(s.getVarIterable_rIterableOf_Var())
-		for it_2.next() {
-			var v *Var = it_2.v
+		for v := range elemsT_(s.getVarIterable_rIterableOf_Var()) {
 			accessibleVars.putIfAbsent(v.getName(), v)
 		}
 		s = s.getParent_rScope()

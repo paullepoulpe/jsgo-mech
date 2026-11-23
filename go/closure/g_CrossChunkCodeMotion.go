@@ -50,9 +50,7 @@ func (this *CrossChunkCodeMotion) process_2(externs Node, root Node) {
 }
 
 func (this *CrossChunkCodeMotion) addInstanceofGuards(globalSymbols CollectionT[*CrossChunkCodeMotion_GlobalSymbol]) {
-	it_1 := jeachOf_(globalSymbols)
-	for it_1.next() {
-		var globalSymbol *CrossChunkCodeMotion_GlobalSymbol = it_1.v
+	for globalSymbol := range elemsT_(globalSymbols) {
 		it_3 := globalSymbol.instanceofReferencesToGuard.each()
 		for it_3.next() {
 			var instanceofReference CrossChunkCodeMotion_InstanceofReference = it_3.v
@@ -492,9 +490,7 @@ func new_CrossChunkCodeMotion_OrderAndCombineGlobalSymbols(outer_ *CrossChunkCod
 }
 
 func (this *CrossChunkCodeMotion_OrderAndCombineGlobalSymbols) orderAndCombine() *TDeque[*CrossChunkCodeMotion_GlobalSymbolCycle] {
-	it_1 := jeachOf_(this.inputSymbols)
-	for it_1.next() {
-		var globalSymbol *CrossChunkCodeMotion_GlobalSymbol = it_1.v
+	for globalSymbol := range elemsT_(this.inputSymbols) {
 		if globalSymbol.preorderNumber < 0 {
 			this.processGlobalSymbol(globalSymbol)
 		}

@@ -298,9 +298,7 @@ func (this *Es6RewriteClass) visitMethod(member Node, metadata *Es6RewriteClass_
 }
 
 func (this *Es6RewriteClass) addTypeDeclarations(metadata *Es6RewriteClass_ClassDeclarationMetadata, insertionPoint Node) {
-	it_1 := jeachOf_(metadata.classMembersToDeclare().values_t())
-	for it_1.next() {
-		var property *Es6RewriteClass_ClassProperty = it_1.v
+	for property := range elemsT_(metadata.classMembersToDeclare().values_t()) {
 		var declaration Node = property.getDeclaration(this.astFactory_, metadata.fullClassNameNode().cloneTree())
 		declaration.srcrefTreeIfMissing(metadata.classNameNode())
 		declaration.insertAfter(insertionPoint)

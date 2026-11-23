@@ -56,9 +56,7 @@ func (this *SourceInfoCheck) visit(unused *NodeTraversal, n Node, parent Node) {
 }
 
 func (this *SourceInfoCheck) checkJSDoc(info *JSDocInfo) {
-	it_1 := jeachOf_(info.getTypeExpressions())
-	for it_1.next() {
-		var expression *JSTypeExpression = it_1.v
+	for expression := range elemsT_(info.getTypeExpressions()) {
 		if expression.getSourceName() == "" {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(expression.getRoot(), SourceInfoCheck_MISSING_SOURCE_NAME, []string{("JSTypeExpression " + jtostr_(expression))}))
 		} else {

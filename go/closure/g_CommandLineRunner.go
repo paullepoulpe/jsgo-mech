@@ -382,9 +382,7 @@ func (this *CommandLineRunner) createOptions_impl() *Outcome_base[*CompilerOptio
 	options.setExportLocalPropertyDefinitions(this.flags.exportLocalPropertyDefinitions)
 	var wLevel WarningLevel = this.flags.warningLevel
 	wLevel.setOptionsForWarningLevel(options)
-	it_1 := jeachOf_(this.flags.formatting)
-	for it_1.next() {
-		var formattingOption CommandLineRunner_FormattingOption = it_1.v
+	for formattingOption := range elemsT_(this.flags.formatting) {
 		formattingOption.applyToOptions(options)
 	}
 	options.setClosurePass(this.flags.processClosurePrimitives)
@@ -535,9 +533,7 @@ func (this *CommandLineRunner) createExterns_impl(options *CompilerOptions) *Out
 
 func CommandLineRunner_loadConformanceConfigs(configPaths ListT[string]) *JTList[*ConformanceConfig] {
 	var configs *TListBuilder[*ConformanceConfig] = newTListBuilder_(jtc_p_ConformanceConfig)
-	it_1 := jeachOf_(configPaths)
-	for it_1.next() {
-		var configPath string = it_1.v
+	for configPath := range elemsT_(configPaths) {
 		var config *Outcome_base[*ConformanceConfig] = CommandLineRunner_loadConformanceConfig(configPath)
 		if config.isErr() {
 			panic(new_RuntimeException_String_Throwable("Error loading conformance config", config.error()).self())
@@ -641,9 +637,7 @@ func CommandLineRunner_matchPaths(pattern string, allJsInputs *JTMap[string, str
 	}
 	var directory string = FilePaths_clean(prefix)
 	var glob string = (sstr_(prefix) + sstr_(separator) + sstr_(pattern))
-	it_2 := foreach_(Io_listFiles(directory))
-	for it_2.next() {
-		var file string = str_(it_2.v)
+	for file := range elemsBy_(Io_listFiles(directory), str_) {
 		var p string = FilePaths_resolve(directory, file)
 		if !Glob_matches(glob, p) && !Glob_matches(glob, FilePaths_normalize(p)) {
 			continue
@@ -1483,9 +1477,7 @@ func (this *CommandLineRunner_Flags) parse(args *JTList[string]) *Outcome_base[a
 func (this *CommandLineRunner_Flags) printUsage(ps *Output) {
 	var outputStream *StringBuilder = new_StringBuilder()
 	var isFirst bool = true
-	it_1 := jeachOf_(CommandLineRunner_Flags_categories.asMap().entrySet_t())
-	for it_1.next() {
-		var entry Map_EntryT[string, ListT[string]] = it_1.v
+	for entry := range elemsT_(CommandLineRunner_Flags_categories.asMap().entrySet_t()) {
 		var prefix string = "\n\n"
 		var suffix string = ""
 		if isFirst {
@@ -1517,9 +1509,7 @@ func (this *CommandLineRunner_Flags) printCategoryUsage(categoryName string, opt
 	}
 	if this.helpMarkdown {
 		outputStream.append(("# " + sstr_(categoryName) + "\n"))
-		it_1 := jeachOf_(options)
-		for it_1.next() {
-			var optionName string = it_1.v
+		for optionName := range elemsT_(options) {
 			var stringWriter *StringBuilder = new_StringBuilder()
 			this.parser.printUsage(stringWriter, Predicate[*CmdLineParser_Option](func(option *CmdLineParser_Option) bool {
 				return (!option.hidden() && (optionName == CommandLineRunner_LEADING_DASHES_PATTERN.matcher_s(option.name()).replaceFirst("")))
@@ -1587,9 +1577,7 @@ func (this *CommandLineRunner_Flags) getMixedJsSources() *Outcome_base[ListT[*Ab
 			if found.isErr() {
 				return Outcome_base_err[ListT[*AbstractCommandLineRunner_FlagEntry]](found.error())
 			}
-			it_3 := jeachOf_(found.get())
-			for it_3.next() {
-				var filename string = it_3.v
+			for filename := range elemsT_(found.get()) {
 				excludes.add(filename)
 				mixedSources.asListT().remove_Object(new_AbstractCommandLineRunner_FlagEntry(obj_(AbstractCommandLineRunner_JsSourceType_JS), filename))
 			}
@@ -1598,9 +1586,7 @@ func (this *CommandLineRunner_Flags) getMixedJsSources() *Outcome_base[ListT[*Ab
 			if found.isErr() {
 				return Outcome_base_err[ListT[*AbstractCommandLineRunner_FlagEntry]](found.error())
 			}
-			it_5 := jeachOf_(found.get())
-			for it_5.next() {
-				var filename string = it_5.v
+			for filename := range elemsT_(found.get()) {
 				if !excludes.contains(filename) {
 					mixedSources.add(new_AbstractCommandLineRunner_FlagEntry(obj_(AbstractCommandLineRunner_JsSourceType_JS), filename))
 				}
@@ -1611,9 +1597,7 @@ func (this *CommandLineRunner_Flags) getMixedJsSources() *Outcome_base[ListT[*Ab
 	if fromArguments.isErr() {
 		return Outcome_base_err[ListT[*AbstractCommandLineRunner_FlagEntry]](fromArguments.error())
 	}
-	it_7 := jeachOf_(fromArguments.get())
-	for it_7.next() {
-		var filename string = it_7.v
+	for filename := range elemsT_(fromArguments.get()) {
 		mixedSources.add(new_AbstractCommandLineRunner_FlagEntry(obj_(AbstractCommandLineRunner_JsSourceType_JS), filename))
 	}
 	if (!this.mixedJsSources.isEmpty() && !this.arguments.isEmpty()) && mixedSources.isEmpty() {

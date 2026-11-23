@@ -66,9 +66,7 @@ func (this *IsolatePolyfills) process_2(externs Node, root Node) {
 	var shouldDisambiguateProperties bool = this.compiler_.getOptions().shouldDisambiguateProperties()
 	new_PolyfillUsageFinder(this.compiler_, this.polyfills, shouldDisambiguateProperties).traverseIncludingGuarded(root, Consumer[*PolyfillUsageFinder_PolyfillUsage](func(p0 *PolyfillUsageFinder_PolyfillUsage) { polyfillUsages.add_t(p0) }))
 	var visitedNodes *JTSet[Node] = jnewTSet_(jtc_Node)
-	it_1 := jeachOf_(polyfillUsages)
-	for it_1.next() {
-		var usage *PolyfillUsageFinder_PolyfillUsage = it_1.v
+	for usage := range elemsT_(polyfillUsages) {
 		if (visitedNodes.contains(usage.node()) || usage.polyfill().library == "") || !injectedPolyfills.contains(usage.polyfill().nativeSymbol) {
 			continue
 		}

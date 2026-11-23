@@ -58,9 +58,7 @@ func (this *SimpleListMultimap[K, V]) put(key K, value V) *SimpleListMultimap[K,
 }
 
 func (this *SimpleListMultimap[K, V]) putAll(key K, values IterableT[V]) *SimpleListMultimap[K, V] {
-	it_1 := jeachOf_(values)
-	for it_1.next() {
-		var value V = it_1.v
+	for value := range elemsT_(values) {
 		this.put(key, value)
 	}
 	return this

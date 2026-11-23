@@ -447,9 +447,7 @@ func (this *TypeValidator) expectUndeclaredVariable(sourceName Optional[string],
 
 func (this *TypeValidator) expectAllInterfaceProperties(n Node, type_ *FunctionType) {
 	var instance *ObjectType = type_.getInstanceType()
-	it_1 := jeachOf_(type_.getAllImplementedInterfaces())
-	for it_1.next() {
-		var implemented *ObjectType = it_1.v
+	for implemented := range elemsT_(type_.getAllImplementedInterfaces()) {
 		this.expectInterfaceProperties(n, instance, implemented)
 	}
 	it_3 := type_.getExtendedInterfaces().each()
@@ -581,9 +579,7 @@ func (this *TypeValidator) mismatchJSType(n Node, msg string, found *JSType, req
 			var requiredObject *ObjectType = structuralType.toMaybeObjectType()
 			var foundObject *ObjectType = found.toMaybeObjectType()
 			if (requiredObject != nil) && (foundObject != nil) {
-				it_1 := foreach_(obj_(requiredObject.getPropertyNames()))
-				for it_1.next() {
-					var property string = str_(it_1.v)
+				for property := range elemsBy_(obj_(requiredObject.getPropertyNames()), str_) {
 					var propRequired *JSType = requiredObject.getPropertyType(property)
 					var hasProperty bool = foundObject.hasProperty(property)
 					if !propRequired.isExplicitlyVoidable() || hasProperty {

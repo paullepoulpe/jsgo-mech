@@ -66,9 +66,7 @@ func (this *ReplaceMessagesForChrome) getNewValueNode(message *JsMessage, defini
 		var placeholderNames ListT[string] = listAs_(jtc_string, Ordering_natural().sortedCopy(Iterable(message.jsPlaceholderNames().asSet())))
 		var placeholderValueArray Node = this.astFactory_.createArraylit([]Node{})
 		var placeholderValueMap *JTMap[string, Node] = definition.getPlaceholderValueMap()
-		it_1 := jeachOf_(placeholderNames)
-		for it_1.next() {
-			var name string = it_1.v
+		for name := range elemsT_(placeholderNames) {
 			nn_ := placeholderValueMap.get(name)
 			if nn_ == 0 {
 				panic(new_NullPointerException_0().self())

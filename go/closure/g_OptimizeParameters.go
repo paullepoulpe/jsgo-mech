@@ -40,9 +40,7 @@ func (this *OptimizeParameters) process_3(externs Node, root Node, refMap *Optim
 		this.decisionsLog = decisionsLog
 		this.globalScope = refMap.getGlobalScope()
 		var toOptimize *JTList[ListT[Node]] = jnewTList_(tc_ListT_Node_)
-		it_2 := jeachOf_(refMap.getNameReferences())
-		for it_2.next() {
-			var entry Map_EntryT[string, ListT[Node]] = it_2.v
+		for entry := range elemsT_(refMap.getNameReferences()) {
 			var key string = entry.getKey_t()
 			var refs ListT[Node] = entry.getValue_t()
 			var candidateAnalysis *OptimizeParameters_CandidateAnalysis = this.analyzeCandidateName(key, refs)
@@ -53,9 +51,7 @@ func (this *OptimizeParameters) process_3(externs Node, root Node, refMap *Optim
 				toOptimize.add(refs)
 			}
 		}
-		it_4 := jeachOf_(refMap.getPropReferences())
-		for it_4.next() {
-			var entry Map_EntryT[string, ListT[Node]] = it_4.v
+		for entry := range elemsT_(refMap.getPropReferences()) {
 			var key string = entry.getKey_t()
 			var refs ListT[Node] = entry.getValue_t()
 			var candidateAnalysis *OptimizeParameters_CandidateAnalysis = this.analyzeCandidateProperty(key, refs)
@@ -301,9 +297,7 @@ func (this *OptimizeParameters) tryEliminateOptionalArgs(refs ListT[Node]) {
 			}
 		}
 	}
-	it_4 := jeachOf_(OptimizeCalls_ReferenceMap_getFunctionNodes(refs).values())
-	for it_4.next() {
-		var fn Node = it_4.v
+	for fn := range elemsT_(OptimizeCalls_ReferenceMap_getFunctionNodes(refs).values()) {
 		this.eliminateParamsAfterInt(fn, maxArgs)
 	}
 }
@@ -322,9 +316,7 @@ func (this *OptimizeParameters) tryEliminateConstantArgs(refs ListT[Node]) {
 	if !continueLooking {
 		return
 	}
-	it_1 := jeachOf_(refs)
-	for it_1.next() {
-		var n Node = it_1.v
+	for n := range elemsT_(refs) {
 		if !OptimizeParameters_alreadyRemoved(n) && OptimizeCalls_ReferenceMap_isNormalOrOptChainCallOrNewTarget(n) {
 			this.optimizeCallSite(parameters, n)
 		}
@@ -336,9 +328,7 @@ func (this *OptimizeParameters) findFixedArguments(refs ListT[Node]) *JTList[*Op
 	var parameters *JTList[*OptimizeParameters_Parameter] = jnewTList_(jtc_p_OptimizeParameters_Parameter)
 	var firstCall bool = true
 	var continueLooking bool = false
-	it_1 := jeachOf_(refs)
-	for it_1.next() {
-		var n Node = it_1.v
+	for n := range elemsT_(refs) {
 		if OptimizeCalls_ReferenceMap_isNormalOrOptChainCallOrNewTarget(n) {
 			if OptimizeParameters_hasSpreadInFirstCallParam(n) {
 				continueLooking = false
@@ -640,9 +630,7 @@ func (this *OptimizeParameters) addStatementsToBack(block Node, stmts *JTList[No
 }
 
 func (this *OptimizeParameters) addStatementsBefore(insertionPoint Node, stmts *JTList[Node]) {
-	it_1 := foreach_(Lists_reverse(stmts.asList()))
-	for it_1.next() {
-		var item Node = Node_of_(it_1.v)
+	for item := range elemsBy_(Lists_reverse(stmts.asList()), Node_of_) {
 		item.insertBefore(insertionPoint)
 	}
 }
@@ -803,17 +791,13 @@ func (this *OptimizeParameters_UnusedParameterOptimizer) tryEliminateUnusedArgs(
 	if lowestUsedRest == int32(2147483647) {
 		removeAllAfterIndex = (maxFormalsCount - 1)
 	}
-	it_7 := jeachOf_(refs)
-	for it_7.next() {
-		var n Node = it_7.v
+	for n := range elemsT_(refs) {
 		if OptimizeCalls_ReferenceMap_isNormalOrOptChainCallOrNewTarget(n) && !OptimizeParameters_alreadyRemoved(n) {
 			var arg Node = OptimizeCalls_ReferenceMap_getFirstArgumentForCallOrNewOrDotCall(n)
 			this.recordRemovalCallArguments(lowestUsedRest, removeAllAfterIndex, unused, unremovable, arg, 0)
 		}
 	}
-	it_9 := jeachOf_(fns.values())
-	for it_9.next() {
-		var fn Node = it_9.v
+	for fn := range elemsT_(fns.values()) {
 		var paramList Node = NodeUtil_getFunctionParameters(fn)
 		var param Node = paramList.getFirstChild()
 		this.removeUnusedFunctionParameters(unremovable, param, 0)

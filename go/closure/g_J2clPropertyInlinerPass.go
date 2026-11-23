@@ -347,9 +347,7 @@ func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_GatherJ2CLCla
 		return
 	}
 	var classNameString string = className.getString()
-	it_1 := jeachOf_(NodeUtil_getObjectDefinedPropertiesKeys(n))
-	for it_1.next() {
-		var p Node = it_1.v
+	for p := range elemsT_(NodeUtil_getObjectDefinedPropertiesKeys(n)) {
 		var name string = p.getString()
 		var propertyLiteral Node = p.getFirstChild()
 		var getKey Node = 0

@@ -35,9 +35,7 @@ func new_ColorSerializer(serializationMode *SerializationOptions, stringPoolInde
 
 func (this *ColorSerializer) addColors(colors CollectionT[*Color]) *JTList[any] {
 	var builder *TListBuilder[any] = newTListBuilder_(tc_Integer)
-	it_1 := jeachOf_(colors)
-	for it_1.next() {
-		var color *Color = it_1.v
+	for color := range elemsT_(colors) {
 		builder.add(int32(this.addColor(color)))
 	}
 	return builder.build()
@@ -57,9 +55,7 @@ func (this *ColorSerializer) generateTypePool(getDisambiguationSupertypesFn Func
 		var color *Color = this.colorsInSerializedOrder.get(i)
 		var typePointer any = this.colorIdToTypePointer.get(color.getId())
 		typePoolBuilder.addType(this.generateTypeProto(color))
-		it_2 := jeachOf_(getDisambiguationSupertypesFn.apply(color))
-		for it_2.next() {
-			var supertype *Color = it_2.v
+		for supertype := range elemsT_(getDisambiguationSupertypesFn.apply(color)) {
 			typePoolBuilder.addDisambiguationEdgesBuilder().setSubtype(unbox_[int32](typePointer)).setSupertype(this.addColor(supertype))
 		}
 	}
@@ -77,9 +73,7 @@ func (this *ColorSerializer) generateTypePool(getDisambiguationSupertypesFn Func
 		for it_4.next() {
 			var color *Color = it_4.v
 			var typePointer any = this.colorIdToTypePointer.get(color.getId())
-			it_6 := jeachOf_(getMismatchSourceRefsFn.apply(color))
-			for it_6.next() {
-				var srcRef string = it_6.v
+			for srcRef := range elemsT_(getMismatchSourceRefsFn.apply(color)) {
 				var typePointerList ListT[any] = srcRefToTypePointerList.computeIfAbsent(srcRef, Function[string, ListT[any]](func(key string) ListT[any] {
 					return jnewTList_(tc_Integer).asListT()
 				}))

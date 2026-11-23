@@ -297,9 +297,7 @@ func new_RuntimeJsLibManager_FieldsTable() *RuntimeJsLibManager_FieldsTable {
 func RuntimeJsLibManager_FieldsTable_loadFields() *JTMap[string, string] {
 	var transpilationLibsTxt string = ResourceLoader_loadTextResource((sstr_(ResourceLoader_JSCOMP) + "js/transpilation_libs.txt"))
 	var allFields *TMapBuilder[string, string] = newTMapBuilder_(jtc_string, jtc_string)
-	it_1 := foreach_(Splitter_on('\n').omitEmptyStrings().split_s(transpilationLibsTxt))
-	for it_1.next() {
-		var line string = str_(it_1.v)
+	for line := range elemsBy_(Splitter_on('\n').omitEmptyStrings().split_s(transpilationLibsTxt), str_) {
 		var tokens *JTList[string] = splitToListT_(jtc_string, Splitter_on(',').limit(2), strobj_(line))
 		if ok_, a1_ := (tokens.size() == 2), tokens.asListT(); !ok_ {
 			panic(new_IllegalStateException_String(objstr_(a1_)).self())

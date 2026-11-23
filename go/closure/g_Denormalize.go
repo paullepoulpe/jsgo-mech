@@ -33,15 +33,11 @@ func (this *Denormalize) afterExitScope(t *NodeTraversal, referenceMap Reference
 	var scopeRoot Node = t.getScopeRoot()
 	if scopeRoot.isBlock() && scopeRoot.getParent().isFunction() {
 		var changed bool = false
-		it_1 := jeachOf_(t.getScope().getVarIterable_rIterableOf_Var())
-		for it_1.next() {
-			var v *Var = it_1.v
+		for v := range elemsT_(t.getScope().getVarIterable_rIterableOf_Var()) {
 			var references *ReferenceCollection = referenceMap.getReferences_Var(v)
 			var declaration *Reference = nil
 			var assign *Reference = nil
-			it_3 := foreach_(obj_(references))
-			for it_3.next() {
-				var r *Reference = cast_[*Reference](it_3.v)
+			for r := range elemsAs_[*Reference](obj_(references)) {
 				if (r.isVarDeclaration() && NodeUtil_isStatement(r.getNode().getParent())) && !r.isInitializingDeclaration() {
 					declaration = r
 				} else if ((assign == nil) && r.isSimpleAssignmentToName()) && eqR_(r.getScope().getClosestHoistScope_rScope(), t.getScope()) {

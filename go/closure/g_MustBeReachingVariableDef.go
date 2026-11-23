@@ -364,9 +364,7 @@ func new_MustBeReachingVariableDef_MustDef_0() *MustBeReachingVariableDef_MustDe
 
 func (this *MustBeReachingVariableDef_MustDef) init_MustBeReachingVariableDef_MustDef_Collection(vars CollectionT[*Var]) {
 	this.finit_MustBeReachingVariableDef_MustDef()
-	it_1 := jeachOf_(vars)
-	for it_1.next() {
-		var var_ *Var = it_1.v
+	for var_ := range elemsT_(vars) {
 		this.reachingDef.put(var_, new_MustBeReachingVariableDef_Definition(var_.getScope_rAbstractScope_rScope().getRootNode()))
 	}
 }

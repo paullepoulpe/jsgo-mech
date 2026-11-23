@@ -53,9 +53,7 @@ func (this *SuggestedFix) toString() string {
 		return "<no-op SuggestedFix>"
 	}
 	var sb *StringBuilder = new_StringBuilder()
-	it_1 := jeachOf_(this.replacements.asMap().entrySet_t())
-	for it_1.next() {
-		var entry Map_EntryT[string, SetT[*CodeReplacement]] = it_1.v
+	for entry := range elemsT_(this.replacements.asMap().entrySet_t()) {
 		sb.append("Replacements for file: ").append(entry.getKey_t()).append("\n")
 		Joiner_on("\n\n").appendTo(sb, Iterable(Set_un_(entry.getValue_t())))
 	}

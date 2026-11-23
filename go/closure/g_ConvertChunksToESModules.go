@@ -28,9 +28,7 @@ func new_ConvertChunksToESModules(compiler *AbstractCompiler) *ConvertChunksToES
 
 func (this *ConvertChunksToESModules) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(new_ConvertChunksToESModules_FindCrossChunkReferences(this)))
-	it_1 := jeachOf_(this.compiler_.getChunkGraph().getAllChunks())
-	for it_1.next() {
-		var chunk *JSChunk = it_1.v
+	for chunk := range elemsT_(this.compiler_.getChunkGraph().getAllChunks()) {
 		if (!this.crossChunkExports.containsKey(chunk) && !this.crossChunkImports.containsKey(chunk)) && !chunk.getInputs().isEmpty() {
 			this.crossChunkExports.put(chunk, jnewTSet_(jtc_string).asSetT())
 		}
@@ -43,16 +41,12 @@ func (this *ConvertChunksToESModules) process_2(externs Node, root Node) {
 }
 
 func (this *ConvertChunksToESModules) convertChunkSourcesToModules() {
-	it_1 := jeachOf_(this.compiler_.getChunkGraph().getAllChunks())
-	for it_1.next() {
-		var chunk *JSChunk = it_1.v
+	for chunk := range elemsT_(this.compiler_.getChunkGraph().getAllChunks()) {
 		if chunk.getInputs().isEmpty() {
 			continue
 		}
 		var firstInput *CompilerInput = nil
-		it_3 := jeachOf_(chunk.getInputs())
-		for it_3.next() {
-			var input *CompilerInput = it_3.v
+		for input := range elemsT_(chunk.getInputs()) {
 			var astRoot Node = input.getAstRoot(this.compiler_)
 			var scriptFeatures *FeatureSet = NodeUtil_getFeatureSetOfScript(astRoot)
 			if scriptFeatures.containsFeatureSet(FeatureSet_ES2015_MODULES) {
@@ -94,9 +88,7 @@ func (this *ConvertChunksToESModules) addExportStatements() {
 			panic(new_IllegalStateException_0().self())
 		}
 		var exportSpecs Node = new_Node_Token(Token_rhino_EXPORT_SPECS)
-		it_3 := jeachOf_(jsModuleExports.getValue())
-		for it_3.next() {
-			var name string = it_3.v
+		for name := range elemsT_(jsModuleExports.getValue()) {
 			var exportSpec Node = new_Node_Token(Token_rhino_EXPORT_SPEC)
 			exportSpec.addChildToFront(IR_name(name))
 			exportSpec.addChildToFront(IR_name(name))
@@ -127,13 +119,9 @@ func (this *ConvertChunksToESModules) addImportStatements() {
 		if moduleBody == 0 || !moduleBody.isModuleBody() {
 			panic(new_IllegalStateException_0().self())
 		}
-		it_3 := jeachOf_(chunkImportsEntry.getValue().entrySet_t())
-		for it_3.next() {
-			var importsByChunk Map_EntryT[*JSChunk, SetT[string]] = it_3.v
+		for importsByChunk := range elemsT_(chunkImportsEntry.getValue().entrySet_t()) {
 			var importSpecs Node = new_Node_Token(Token_rhino_IMPORT_SPECS)
-			it_5 := jeachOf_(importsByChunk.getValue_t())
-			for it_5.next() {
-				var name string = it_5.v
+			for name := range elemsT_(importsByChunk.getValue_t()) {
 				var importSpec Node = new_Node_Token(Token_rhino_IMPORT_SPEC)
 				importSpec.addChildToFront(IR_name(name))
 				importSpec.addChildToFront(IR_name(name))

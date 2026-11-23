@@ -222,15 +222,11 @@ func (this *VariableReferenceCheck_ReferenceCheckingBehavior) afterExitScope(t *
 	var scope *Scope = t.getScope()
 	if scope.isFunctionBlockScope() {
 		this.varsInFunctionBody.clear()
-		it_1 := jeachOf_(scope.getVarIterable_rIterableOf_Var())
-		for it_1.next() {
-			var v *Var = it_1.v
+		for v := range elemsT_(scope.getVarIterable_rIterableOf_Var()) {
 			this.varsInFunctionBody.add(v.getName())
 		}
 	}
-	it_3 := jeachOf_(scope.getVarIterable_rIterableOf_Var())
-	for it_3.next() {
-		var v *Var = it_3.v
+	for v := range elemsT_(scope.getVarIterable_rIterableOf_Var()) {
 		var referenceCollection *ReferenceCollection = referenceMap.getReferences_Var(v)
 		if referenceCollection != nil {
 			if scope.getRootNode().isFunction() && v.isDefaultParam() {

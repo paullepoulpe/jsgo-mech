@@ -544,9 +544,7 @@ func (this *TypeTransformation) joinRecordTypes(recTypes *JTList[*ObjectType]) *
 	it_1 := recTypes.each()
 	for it_1.next() {
 		var recType *ObjectType = it_1.v
-		it_3 := jeachOf_(recType.getOwnPropertyNames())
-		for it_3.next() {
-			var newPropName string = it_3.v
+		for newPropName := range elemsT_(recType.getOwnPropertyNames()) {
 			var newPropValue *JSType = recType.getPropertyType(newPropName)
 			this.putNewPropInPropertyMap(props, newPropName, newPropValue)
 		}
@@ -595,9 +593,7 @@ func (this *TypeTransformation) evalMaprecord(ttlAst Node, nameResolver *TypeTra
 			return this.getUnknownType()
 		}
 		var bodyAsObj *ObjectType = body.toMaybeObjectType()
-		it_3 := jeachOf_(bodyAsObj.getOwnPropertyNames())
-		for it_3.next() {
-			var newPropName string = it_3.v
+		for newPropName := range elemsT_(bodyAsObj.getOwnPropertyNames()) {
 			var newPropValue *JSType = bodyAsObj.getPropertyType(newPropName)
 			this.putNewPropInPropertyMap(newProps, newPropName, newPropValue)
 		}

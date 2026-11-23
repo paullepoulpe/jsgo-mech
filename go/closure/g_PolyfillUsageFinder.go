@@ -342,9 +342,7 @@ func PolyfillUsageFinder_Polyfills_fromTable(table string) *PolyfillUsageFinder_
 	var methods *SimpleListMultimap[string, *PolyfillUsageFinder_Polyfill] = SimpleListMultimap_create[string, *PolyfillUsageFinder_Polyfill]()
 	var statics *TMapBuilder[string, *PolyfillUsageFinder_Polyfill] = newTMapBuilder_(jtc_string, jtc_p_PolyfillUsageFinder_Polyfill)
 	var byNativeVersion *SimpleListMultimap[string, *PolyfillUsageFinder_Polyfill] = SimpleListMultimap_create[string, *PolyfillUsageFinder_Polyfill]()
-	it_1 := foreach_(Splitter_on('\n').omitEmptyStrings().split_s(table))
-	for it_1.next() {
-		var line string = str_(it_1.v)
+	for line := range elemsBy_(Splitter_on('\n').omitEmptyStrings().split_s(table), str_) {
 		var tokens *JTList[string] = splitToListT_(jtc_string, Splitter_on(' ').omitEmptyStrings(), strobj_(String_trim(line)))
 		if (tokens.size() == 1) && tokens.get(0) == "" {
 			continue
@@ -379,9 +377,7 @@ func PolyfillUsageFinder_Polyfills_fromTable(table string) *PolyfillUsageFinder_
 func (this *PolyfillUsageFinder_Polyfills) getPolyfillsNewerThan(languageMode CompilerOptions_LanguageMode) *JTList[*PolyfillUsageFinder_Polyfill] {
 	var featureSet *FeatureSet = languageMode.toFeatureSet()
 	var result *TListBuilder[*PolyfillUsageFinder_Polyfill] = newTListBuilder_(jtc_p_PolyfillUsageFinder_Polyfill)
-	it_1 := jeachOf_(this.byNativeVersion.keySet())
-	for it_1.next() {
-		var nativeVersionStr string = it_1.v
+	for nativeVersionStr := range elemsT_(this.byNativeVersion.keySet()) {
 		var polyfillNativeFeatureSet *FeatureSet = PolyfillUsageFinder_getPolyfillSupportedFeatureSet(nativeVersionStr)
 		if !featureSet.containsFeatureSet(polyfillNativeFeatureSet) {
 			result.addAll(this.byNativeVersion.get(nativeVersionStr))
@@ -613,9 +609,7 @@ func (this *PolyfillUsageFinder_Traverser) visitGetPropChain(traversal *NodeTrav
 		var propertyName string = getPropNode.getString()
 		var methodPolyfills ListT[*PolyfillUsageFinder_Polyfill] = this.outer_.polyfills.methods.get(propertyName)
 		if !methodPolyfills.isEmpty() && this.includeGuardedUsages.shouldInclude(this.isGuarded(("." + sstr_(propertyName)))) {
-			it_1 := jeachOf_(methodPolyfills)
-			for it_1.next() {
-				var polyfill *PolyfillUsageFinder_Polyfill = it_1.v
+			for polyfill := range elemsT_(methodPolyfills) {
 				var ownerName Optional[string] = PolyfillUsageFinder_getMethodOwner(polyfill.nativeSymbol)
 				if this.outer_.disambiguateProperties_ && this.outer_.isDisjointFromIterator_2(getPropNode, ownerName) {
 					continue

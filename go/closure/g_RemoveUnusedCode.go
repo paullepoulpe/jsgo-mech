@@ -114,9 +114,7 @@ func (this *RemoveUnusedCode) storePolyfill(polyfillUsage *PolyfillUsageFinder_P
 }
 
 func (this *RemoveUnusedCode) removeIndependentlyRemovableProperties() {
-	it_1 := jeachOf_(this.removablesForPropertyNames.keySet())
-	for it_1.next() {
-		var propName string = it_1.v
+	for propName := range elemsT_(this.removablesForPropertyNames.keySet()) {
 		this.removalLog.log(func() Supplier[string] {
 			v_ := RemoveUnusedCode_RemovalLogRecord_forProperty(propName)
 			if v_ == nil {
@@ -124,9 +122,7 @@ func (this *RemoveUnusedCode) removeIndependentlyRemovableProperties() {
 			}
 			return v_.get
 		}())
-		it_3 := jeachOf_(this.removablesForPropertyNames.get(propName))
-		for it_3.next() {
-			var removable *RemoveUnusedCode_Removable = it_3.v
+		for removable := range elemsT_(this.removablesForPropertyNames.get(propName)) {
 			removable.remove(this.compiler_)
 		}
 	}
@@ -237,9 +233,7 @@ func (this *RemoveUnusedCode) traverseNormalOrOptChainGetProp(getProp Node, scop
 	var objectNode Node = getProp.getFirstChild()
 	var propertyName string = getProp.getString()
 	if this.polyfills.containsKey(propertyName) {
-		it_1 := jeachOf_(this.polyfills.get(propertyName))
-		for it_1.next() {
-			var info *RemoveUnusedCode_PolyfillInfo = it_1.v
+		for info := range elemsT_(this.polyfills.get(propertyName)) {
 			if info.isRemovable_ {
 				info.considerPossibleReference(getProp)
 			}
@@ -332,9 +326,7 @@ func (this *RemoveUnusedCode) traverseCompoundAssign(compoundAssignNode Node, sc
 
 func (this *RemoveUnusedCode) traverseNameNode(n Node, scope *Scope) RemoveUnusedCode_VarInfo {
 	if this.polyfills.containsKey(n.getString()) {
-		it_1 := jeachOf_(this.polyfills.get(n.getString()))
-		for it_1.next() {
-			var info *RemoveUnusedCode_PolyfillInfo = it_1.v
+		for info := range elemsT_(this.polyfills.get(n.getString())) {
 			if info.isRemovable_ {
 				info.considerPossibleReference(n)
 			}
@@ -960,9 +952,7 @@ func (this *RemoveUnusedCode) removeUnreferencedFunctionArgs(fparamScope *Scope)
 
 func (this *RemoveUnusedCode) markPropertyNameAsPinned(propertyName string) {
 	if this.pinnedPropertyNames.add(propertyName) {
-		it_1 := jeachOf_(this.removablesForPropertyNames.removeAll(propertyName))
-		for it_1.next() {
-			var removable *RemoveUnusedCode_Removable = it_1.v
+		for removable := range elemsT_(this.removablesForPropertyNames.removeAll(propertyName)) {
 			removable.applyContinuations()
 		}
 	}

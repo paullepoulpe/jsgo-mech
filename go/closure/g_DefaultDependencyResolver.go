@@ -37,9 +37,7 @@ func (this *DefaultDependencyResolver) getDependencies_Collection_Set_rList(symb
 		var depsFile *DependencyFile = it_1.v
 		depsFile.ensureUpToDate()
 	}
-	it_3 := jeachOf_(symbols)
-	for it_3.next() {
-		var symbol string = it_3.v
+	for symbol := range elemsT_(symbols) {
 		this.addDependency(symbol, seen, list)
 	}
 	return list
@@ -53,9 +51,7 @@ func (this *DefaultDependencyResolver) addDependency(symbol string, seen *JTSet[
 		}
 	} else if !seen.asSetT().containsAll(Collection(List_un_(dependency.getProvides()))) {
 		seen.asSetT().addAll(Collection(List_un_(dependency.getProvides())))
-		it_1 := jeachOf_(dependency.getRequiredSymbols())
-		for it_1.next() {
-			var require string = it_1.v
+		for require := range elemsT_(dependency.getRequiredSymbols()) {
 			this.addDependency(require, seen, list)
 		}
 		list.add(dependency.getPathRelativeToClosureBase())

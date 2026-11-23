@@ -2633,9 +2633,7 @@ func NodeUtil_redeclareVarsInsideBranch(branch Node) {
 		return
 	}
 	var parent Node = NodeUtil_getAddingRoot(branch)
-	it_1 := jeachOf_(vars)
-	for it_1.next() {
-		var nameNode Node = it_1.v
+	for nameNode := range elemsT_(vars) {
 		var var_ Node = IR_var_Node(IR_name(nameNode.getString()).srcref(nameNode)).srcref(nameNode)
 		NodeUtil_copyNameAnnotations(nameNode, var_.getFirstChild())
 		parent.addChildToFront(var_)
@@ -4134,9 +4132,7 @@ func NodeUtil_collectExternVariableNames(compiler *AbstractCompiler, externs Nod
 	var externsRefs *ReferenceCollector = new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator(compiler, ReferenceCollector_DO_NOTHING_BEHAVIOR, ScopeCreator(new_SyntacticScopeCreator_AbstractCompiler(compiler)))
 	externsRefs.process(externs)
 	var externsNames *TSetBuilder[string] = newTSetBuilder_(jtc_string)
-	it_1 := jeachOf_(externsRefs.getAllSymbols())
-	for it_1.next() {
-		var v *Var = it_1.v
+	for v := range elemsT_(externsRefs.getAllSymbols()) {
 		if !v.isParam() {
 			externsNames.add(v.getName())
 		}
@@ -4186,9 +4182,7 @@ func NodeUtil_markFunctionsDeletedChangeTracker(node Node, changeTracker *Change
 
 func NodeUtil_getParentChangeScopeNodes(scopeNodes ListT[Node]) *JTList[Node] {
 	var parentScopeNodes *JTSet[Node] = jtsetFrom_(jtc_Node, Collection(List_un_(scopeNodes)))
-	it_1 := jeachOf_(scopeNodes)
-	for it_1.next() {
-		var scopeNode Node = it_1.v
+	for scopeNode := range elemsT_(scopeNodes) {
 		parentScopeNodes.add(ChangeTracker_getEnclosingChangeScopeRoot(scopeNode))
 	}
 	return jtlistFrom_(jtc_Node, Collection(parentScopeNodes.asSet()))
@@ -4915,9 +4909,7 @@ func new_NodeUtil_1(cap_nameVars *JTSet[string]) *NodeUtil_1 {
 func (this *NodeUtil_1) enterScope(t *NodeTraversal) {
 	var currentScope *Scope = t.getScope()
 	if currentScope.isModuleScope() {
-		it_1 := jeachOf_(currentScope.getVarIterable_rIterableOf_Var())
-		for it_1.next() {
-			var v *Var = it_1.v
+		for v := range elemsT_(currentScope.getVarIterable_rIterableOf_Var()) {
 			this.cap_nameVars.add(v.getName())
 		}
 	}
@@ -4956,9 +4948,7 @@ func new_NodeUtil_2(cap_nameVarMap *JTMap[string, *Var], cap_orderedVars *JTList
 
 func (this *NodeUtil_2) enterScope(t *NodeTraversal) {
 	var currentScope *Scope = t.getScope()
-	it_1 := jeachOf_(currentScope.getVarIterable_rIterableOf_Var())
-	for it_1.next() {
-		var v *Var = it_1.v
+	for v := range elemsT_(currentScope.getVarIterable_rIterableOf_Var()) {
 		this.cap_nameVarMap.put(v.getName(), v)
 		this.cap_orderedVars.add(v)
 	}

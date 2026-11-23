@@ -420,9 +420,7 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) maybeInlineInne
 	collector.processScope(innerScope)
 	var innerNameRefs *ReferenceCollection = collector.getReferences_Var(innerNameVar)
 	var newNodes *JTSet[GlobalNamespace_AstChange] = jnewTSet_(tce_GlobalNamespace_AstChange)
-	it_1 := foreach_(obj_(innerNameRefs))
-	for it_1.next() {
-		var innerNameRef *Reference = cast_[*Reference](it_1.v)
+	for innerNameRef := range elemsAs_[*Reference](obj_(innerNameRefs)) {
 		var innerNameRefNode Node = innerNameRef.getNode()
 		if NodeUtil_isNormalGet(innerNameRefNode.getParent()) {
 			newNodes.add(this.replaceAliasReference(globalNameDeclaration, innerNameRef))
@@ -447,9 +445,7 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) rewriteAllSubcl
 	}
 	var subclassNameObj *GlobalNamespace_Name = namespace.getOwnSlot_String_rName(subclassName)
 	if (subclassNameObj != nil) && (subclassNameObj.subclassingGetCount() > 0) {
-		it_1 := jeachOf_(subclassNameObj.getRefs())
-		for it_1.next() {
-			var ref *GlobalNamespace_Ref = it_1.v
+		for ref := range elemsT_(subclassNameObj.getRefs()) {
 			if ref.isSubclassingGet() {
 				this.rewriteAllSubclassInheritedAccesses(superclassNameObj, ref, prop, namespace)
 			}
@@ -571,9 +567,7 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) partiallyInline
 	var readNodes *JTSet[GlobalNamespace_AstChange] = jnewTSet_(tce_GlobalNamespace_AstChange)
 	var alreadySeenInitialAlias bool = false
 	var foundNonReplaceableAlias bool = false
-	it_3 := foreach_(obj_(aliasRefs))
-	for it_3.next() {
-		var aliasRef *Reference = cast_[*Reference](it_3.v)
+	for aliasRef := range elemsAs_[*Reference](obj_(aliasRefs)) {
 		var aliasRefNode Node = aliasRef.getNode()
 		if aliasRefNode == aliasLhsNode {
 			alreadySeenInitialAlias = true
@@ -1040,9 +1034,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) checkNamespaces() *J
 			continue
 		}
 		var initialized bool = (name.getDeclaration_rRef() != nil)
-		it_7 := jeachOf_(name.getRefs())
-		for it_7.next() {
-			var ref *GlobalNamespace_Ref = it_7.v
+		for ref := range elemsT_(name.getRefs()) {
 			if ref.isDeleteProp() {
 				if initialized {
 					this.warnAboutNamespaceRedefinition(name, ref)
@@ -1152,9 +1144,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) flattenReferencesTo(
 		}
 		return 0
 	}(), alias)
-	it_1 := jeachOf_(n.getRefs())
-	for it_1.next() {
-		var r *GlobalNamespace_Ref = it_1.v
+	for r := range elemsT_(n.getRefs()) {
 		if r == n.getDeclaration_rRef() {
 			continue
 		}
@@ -1181,9 +1171,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) flattenPrefixes(alia
 	if ((decl != nil) && (decl.getNode() != 0)) && decl.getNode().isGetProp() {
 		this.flattenNameRefAtDepth(alias, decl.getNode(), depth, originalName, isConstantName)
 	}
-	it_1 := jeachOf_(n.getRefs())
-	for it_1.next() {
-		var r *GlobalNamespace_Ref = it_1.v
+	for r := range elemsT_(n.getRefs()) {
 		if r == decl {
 			continue
 		}
