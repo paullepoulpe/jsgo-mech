@@ -349,7 +349,7 @@ func JSTypeReconserializer_isClosureAssert(primitive ClosurePrimitive) bool {
 		case ClosurePrimitive_ASSERTS_FAIL:
 			return false
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 }
 
