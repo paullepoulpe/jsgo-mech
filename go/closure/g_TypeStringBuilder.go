@@ -57,10 +57,11 @@ func (this *TypeStringBuilder) appendAll(elements IterableOf[any], separator str
 		_ = jSType
 		if func() bool {
 			v_ := e
-			if !is_JSType(v_) {
+			p, ok := v_.(JSType_as)
+			if !ok {
 				return false
 			}
-			jSType = to_JSType(v_)
+			jSType = p.as_JSType()
 			return true
 		}() {
 			this.appendJSType(jSType)

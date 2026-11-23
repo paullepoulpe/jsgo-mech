@@ -53,8 +53,8 @@ func (this *Parser) parseProgram() *ProgramTree {
 		defer func() {
 			if r_ := recover(); r_ != nil {
 				ex_ := catch_(r_)
-				if is_Error(ex_) {
-					var e *Error = to_Error(ex_)
+				if p, ok := ex_.(Error_as); ok {
+					var e *Error = p.as_Error()
 					if JString_contains_s(Object_toString(e.self()), "java.lang.StackOverflowError") {
 						this.reportError("Too deep recursion while parsing", []any{})
 						ret_1 = nil
@@ -1276,7 +1276,7 @@ func (this *Parser) parseTemplateLiteral(operand *ParseTree) *TemplateLiteralExp
 		return operand.location_.start_
 	}()
 	var token *Token_parser = this.nextToken()
-	if !is_[*TemplateLiteralToken](token.self()) {
+	if _, ok := token.self().(*TemplateLiteralToken); !ok {
 		this.reportError_3(token, "Unexpected template literal token %s.", []any{strobj_(token.type__.toString())})
 	}
 	var isTaggedTemplate bool = (operand != nil)
@@ -2152,10 +2152,11 @@ func (this *Parser) parseLeftHandSideExpression() *ParseTree {
 	_ = newExpressionTree
 	if !(func() bool {
 		v_ := operand.self()
-		if !is_[*NewExpressionTree](v_) {
+		p, ok := v_.(*NewExpressionTree)
+		if !ok {
 			return false
 		}
-		newExpressionTree = cast_[*NewExpressionTree](v_)
+		newExpressionTree = p
 		return true
 	}()) || (newExpressionTree.arguments != nil) {
 		for this.peekCallSuffix() {

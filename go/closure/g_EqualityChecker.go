@@ -122,17 +122,19 @@ func (this *EqualityChecker) areEqualInternal(left *JSType, right *JSType) bool 
 	_ = rightArrow
 	if func() bool {
 		v_ := left.self()
-		if !is_[*ArrowType](v_) {
+		p, ok := v_.(*ArrowType)
+		if !ok {
 			return false
 		}
-		leftArrow = cast_[*ArrowType](v_)
+		leftArrow = p
 		return true
 	}() && func() bool {
 		v_ := right.self()
-		if !is_[*ArrowType](v_) {
+		p2, ok2 := v_.(*ArrowType)
+		if !ok2 {
 			return false
 		}
-		rightArrow = cast_[*ArrowType](v_)
+		rightArrow = p2
 		return true
 	}() {
 		return this.areArrowEqual(leftArrow, rightArrow)
@@ -161,10 +163,11 @@ func (this *EqualityChecker) areEqualInternal(left *JSType, right *JSType) bool 
 	_ = proxyObjectType
 	if func() bool {
 		v_ := left.self()
-		if !is_ProxyObjectType(v_) {
+		p3, ok3 := v_.(ProxyObjectType_as)
+		if !ok3 {
 			return false
 		}
-		proxyObjectType = to_ProxyObjectType(v_)
+		proxyObjectType = p3.as_ProxyObjectType()
 		return true
 	}() && !is_[*TemplateType](left.self()) {
 		return this.areEqualCaching(proxyObjectType.getReferencedTypeInternal(), right)
@@ -173,10 +176,11 @@ func (this *EqualityChecker) areEqualInternal(left *JSType, right *JSType) bool 
 	_ = proxyObjectType_1
 	if func() bool {
 		v_ := right.self()
-		if !is_ProxyObjectType(v_) {
+		p4, ok4 := v_.(ProxyObjectType_as)
+		if !ok4 {
 			return false
 		}
-		proxyObjectType_1 = to_ProxyObjectType(v_)
+		proxyObjectType_1 = p4.as_ProxyObjectType()
 		return true
 	}() && !is_[*TemplateType](right.self()) {
 		return this.areEqualCaching(left, proxyObjectType_1.getReferencedTypeInternal())
@@ -209,10 +213,11 @@ func EqualityChecker_getGoogModuleId(type_ *ObjectType) string {
 	_ = functionType
 	if func() bool {
 		v_ := type_.self()
-		if !is_FunctionType(v_) {
+		p, ok := v_.(FunctionType_as)
+		if !ok {
 			return false
 		}
-		functionType = to_FunctionType(v_)
+		functionType = p.as_FunctionType()
 		return true
 	}() {
 		return functionType.getGoogModuleId()
