@@ -1765,6 +1765,10 @@ func Collection_contains_s(c any, k string) bool {
 			if x != nil {
 				return x.contains_s(k)
 			}
+		case *Sets_SetView:
+			if x != nil && x.hasStr != nil {
+				return x.hasStr(k)
+			}
 		case interface{ contains_s(string) bool }:
 			// the erased view of a typed list (rt_tlist.go)
 			return x.contains_s(k)
