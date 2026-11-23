@@ -343,7 +343,8 @@ func (this *DisambiguateProperties_PropertyReferenceIndexJson) writeJson(writer 
 	writer.beginObject()
 	writer.name("name").stringValue(Optional_of[string](this.name_))
 	writer.name("refs").beginArray()
-	for ref := range elemsAs_[*DisambiguateProperties_PropertyReferenceJson](obj_(this.refs)) {
+	for _, el := range immElems_(this.refs) {
+		ref := cast_[*DisambiguateProperties_PropertyReferenceJson](el)
 		ref.writeJson(writer)
 	}
 	writer.endArray()
@@ -496,7 +497,8 @@ func (this *DisambiguateProperties_1) writeJson(writer *SimpleJsonWriter) {
 	}
 	var propRefsJson ImmutableSortedSetOf[*DisambiguateProperties_PropertyReferenceIndexJson] = propRefsJsonBuilder.build()
 	writer.beginObject()
-	for propRef := range elemsAs_[*DisambiguateProperties_PropertyReferenceIndexJson](obj_(propRefsJson)) {
+	for _, el := range immElems_(propRefsJson) {
+		propRef := cast_[*DisambiguateProperties_PropertyReferenceIndexJson](el)
 		propRef.writeJson(writer)
 	}
 	writer.endObject()
