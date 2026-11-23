@@ -110,9 +110,7 @@ func (this *SortedDependencies[InputT]) getSortedWeakDependenciesOf(rootInputs L
 		}
 	}
 	var builder *ImmutableList_Builder[InputT] = immutableListBuilder_(tcT_[InputT]())
-	it_4 := this.importOrderedInputs.each()
-	for it_4.next() {
-		var input InputT = it_4.v
+	for input := range this.importOrderedInputs.All() {
 		if weakInputs.Has(input) {
 			builder.add(input)
 		}
@@ -143,9 +141,7 @@ func (this *SortedDependencies[InputT]) orderInput(input InputT) {
 }
 
 func (this *SortedDependencies[InputT]) processInputs() {
-	it_1 := this.userOrderedInputs.each()
-	for it_1.next() {
-		var userOrderedInput InputT = it_1.v
+	for userOrderedInput := range this.userOrderedInputs.All() {
 		var provides []string = sliceOfT_(tc_string, userOrderedInput.getProvides())
 		var firstProvide Optional[string] = Optional_ofNullable[string](str_(Iterables_getFirst(Iterable(sliceView_(tc_string, provides)), nil)))
 		if firstProvide.isEmpty() || (((int32(len(provides)) == 1) && strings.HasPrefix(firstProvide.get(), "module$")) && !userOrderedInput.isEs6Module()) {
@@ -155,9 +151,7 @@ func (this *SortedDependencies[InputT]) processInputs() {
 			this.exportingInputBySymbolName.Put(providedSymbolName, userOrderedInput)
 		}
 	}
-	it_5 := this.userOrderedInputs.each()
-	for it_5.next() {
-		var userOrderedInput InputT = it_5.v
+	for userOrderedInput := range this.userOrderedInputs.All() {
 		for symbolName := range elemsT_(userOrderedInput.getRequiredSymbols()) {
 			var importedInput InputT = this.exportingInputBySymbolName.Get(symbolName)
 			if !jisnull_(importedInput) {
@@ -165,9 +159,7 @@ func (this *SortedDependencies[InputT]) processInputs() {
 			}
 		}
 	}
-	it_9 := this.userOrderedInputs.each()
-	for it_9.next() {
-		var userOrderedInput InputT = it_9.v
+	for userOrderedInput := range this.userOrderedInputs.All() {
 		this.orderInput(userOrderedInput)
 	}
 	this.completedInputs.Clear()

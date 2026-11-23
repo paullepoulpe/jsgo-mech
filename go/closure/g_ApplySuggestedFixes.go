@@ -21,9 +21,11 @@ func ApplySuggestedFixes_applySuggestedFixesToFiles(fixes IterableT[*SuggestedFi
 		filenames.asSetT().addAll(Collection(Set_un_(fix.getReplacements().keySet())))
 	}
 	var filenameToCodeMap map[string]string = map[string]string{}
-	it_3 := filenames.each()
-	for it_3.next() {
-		var filename string = it_3.v
+	for i_3 := filenames.first(); i_3 < len(filenames.keys); i_3++ {
+		if filenames.isDead(i_3) {
+			continue
+		}
+		var filename string = filenames.keys[i_3]
 		var code *Outcome_base[string] = TextFiles_read(filename, Charsets_UTF_8)
 		if code.isErr() {
 			return Outcome_base_err[any](code.error())

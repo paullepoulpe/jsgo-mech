@@ -96,9 +96,7 @@ func (this *UnionType) matchesObjectContext_impl() bool {
 
 func (this *UnionType) findPropertyTypeWithoutConsideringTemplateTypes_impl(propertyName Property_Key) *JSType {
 	var propertyType *JSType = nil
-	it_1 := this.alternates.each()
-	for it_1.next() {
-		var alternate *JSType = it_1.v
+	for alternate := range this.alternates.All() {
 		if alternate.isNullType() || alternate.isVoidType() {
 			continue
 		}
@@ -283,9 +281,7 @@ func (this *UnionType) getRestrictedUnion(type_ *JSType) *JSType {
 func (this *UnionType) appendTo_impl(sb *TypeStringBuilder) {
 	sb.append("(")
 	var names *[]string = &[]string{}
-	it_1 := this.alternates.each()
-	for it_1.next() {
-		var alt *JSType = it_1.v
+	for alt := range this.alternates.All() {
 		*names = append(*names, sb.cloneWithConfig().appendJSType(alt).build())
 	}
 	Collections_sort(sliceViewP_(tc_string, names))
@@ -494,9 +490,9 @@ func (this *UnionType_Builder) addAlternate(alternate *JSType) *UnionType_Builde
 	}
 	if !alternate.isResolved() {
 		this.alternatesResolvedBeforeBuild = false
-		it_1 := this.alternates.each()
-		for it_1.next() {
-			var current *JSType = it_1.v
+		l_1 := this.alternates
+		for i_1 := 0; i_1 < len(l_1.items); i_1++ {
+			var current *JSType = l_1.items[i_1]
 			if current == alternate {
 				return this
 			}

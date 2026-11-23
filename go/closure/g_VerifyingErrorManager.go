@@ -61,9 +61,7 @@ func (this *VerifyingErrorManager) generateReport_impl() {
 }
 
 func (this *VerifyingErrorManager) reportMissingExpectations() {
-	it_1 := this.unmatchedExpectations.each()
-	for it_1.next() {
-		var p *Pattern = it_1.v
+	for p := range this.unmatchedExpectations.All() {
 		this.ThreadSafeDelegatingErrorManager.report_2_impl(CheckLevel_ERROR, JSError_make_DiagnosticType_StringArr(AbstractCommandLineRunner_EXPECTED_DIAGNOSTIC_NOT_FOUND, []string{tostrR_(p)}))
 	}
 	this.unmatchedExpectations.clear()

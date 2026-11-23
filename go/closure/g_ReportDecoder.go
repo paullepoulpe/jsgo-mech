@@ -84,9 +84,9 @@ func ReportDecoder_parseJsonStringList(json string) *Outcome_base[ListT[string]]
 		return Outcome_base_err[ListT[string]](new_SimpleJsonException("Malformed mapping: expected a JSON array").up_Throwable())
 	}
 	var list *TList[string] = newTList_(tc_string)
-	it_1 := parsed.get().elements().each()
-	for it_1.next() {
-		var element *SimpleJsonValue = it_1.v
+	l_1 := parsed.get().elements()
+	for i_1 := 0; i_1 < len(l_1.items); i_1++ {
+		var element *SimpleJsonValue = l_1.items[i_1]
 		if element.kind() == SimpleJsonValue_Kind_NULL {
 			list.add(nullstr_)
 			continue
@@ -184,9 +184,7 @@ func ReportDecoder_createReportProfile(instrumentationPoints *TList[*Instrumenta
 		}
 	}())
 	var pointsByFileName *TMap[string, ListT[*InstrumentationPointStats]] = newTMap_(tc_string, tc_ListT_p_InstrumentationPointStats_)
-	it_1 := sortedPoints.each()
-	for it_1.next() {
-		var pointStats *InstrumentationPointStats = it_1.v
+	for pointStats := range sortedPoints.All() {
 		pointsByFileName.ComputeIfAbsent(pointStats.getPoint().getFileName(), Function[string, ListT[*InstrumentationPointStats]](func(k string) ListT[*InstrumentationPointStats] {
 			return newTList_(tc_p_InstrumentationPointStats).asListT()
 		})).add_t(pointStats)

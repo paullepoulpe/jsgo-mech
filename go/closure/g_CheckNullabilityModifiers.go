@@ -50,9 +50,7 @@ func (this *CheckNullabilityModifiers) visit_impl(t *NodeTraversal, n Node, pare
 		if info.hasType() {
 			this.handleHasType(info.getType(), n)
 		}
-		it_1 := info.getParameterNames().each()
-		for it_1.next() {
-			var param string = it_1.v
+		for param := range info.getParameterNames().All() {
 			if info.hasParameterType(Optional_of[string](param)) {
 				this.visitTypeExpression(info.getParameterType(Optional_of[string](param)), false)
 			}
@@ -92,23 +90,17 @@ func (this *CheckNullabilityModifiers) handleHasType(expr *JSTypeExpression, n N
 }
 
 func (this *CheckNullabilityModifiers) report(t *NodeTraversal) {
-	it_1 := this.missingCandidates.each()
-	for it_1.next() {
-		var n Node = it_1.v
+	for n := range this.missingCandidates.All() {
 		if this.shouldReport(n) {
 			t.report(n, CheckNullabilityModifiers_MISSING_NULLABILITY_MODIFIER_JSDOC, []string{CheckNullabilityModifiers_getReportedTypeName(n)})
 		}
 	}
-	it_3 := this.nullMissingCandidates.each()
-	for it_3.next() {
-		var n Node = it_3.v
+	for n := range this.nullMissingCandidates.All() {
 		if this.shouldReport(n) {
 			t.report(n, CheckNullabilityModifiers_NULL_MISSING_NULLABILITY_MODIFIER_JSDOC, []string{CheckNullabilityModifiers_getReportedTypeName(n)})
 		}
 	}
-	it_5 := this.redundantCandidates.each()
-	for it_5.next() {
-		var n Node = it_5.v
+	for n := range this.redundantCandidates.All() {
 		if this.shouldReport(n) {
 			t.report(n.getParent(), CheckNullabilityModifiers_REDUNDANT_NULLABILITY_MODIFIER_JSDOC, []string{CheckNullabilityModifiers_getReportedTypeName(n)})
 		}
