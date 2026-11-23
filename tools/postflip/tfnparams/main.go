@@ -40,6 +40,16 @@
 // parameter of a functional interface type by the reason it stays (a runtime value such as
 // Predicates.alwaysTrue(); stored in a field; listed by a Java interface).
 //
+// A runtime value with a typed variant (Predicates.alwaysTrue() given where the adapter's
+// function is a func(T) bool: Predicates_alwaysTrueT_[T], the runtime's) is that variant: it is
+// only called there, so the singleton's identity is not needed. A package variable given to the
+// group (NodeUtil.MATCH_NOT_FUNCTION) whose every use is an argument of the group's calls or an
+// assignment of an adapter literal (its static initializer) holds the function: its type is the
+// function type and the adapter literals are their functions; groups given the same variable
+// are converted as one. A null variable (read before its initializer) fails at the call as the
+// nil interface did. In the inlined adapter method, the unboxing K(p) of a parameter given the
+// box B(e) that K undoes (Node_of_(n.box_())) is e.
+//
 // usage: tfnparams [-n] [-v] <dir of package closure>
 package main
 
@@ -78,8 +88,10 @@ type group struct {
 	ftype   *types.Signature      // X's function type
 	why     string
 	uses    []*ast.Ident
-	named   []ast.Expr // arguments that are named objects with the typed method <method>T_
-	method  string     // the adapter's method
+	named   []ast.Expr   // arguments that are named objects with the typed method <method>T_
+	method  string       // the adapter's method
+	rtvals  []ast.Expr   // arguments that are runtime values with a typed variant
+	vars    []*types.Var // package variables given as arguments, typed with the group
 }
 
 var (
@@ -315,6 +327,34 @@ func merge(gs []*group) []*group {
 			}
 		}
 	}
+	// groups given the same package variable (NodeUtil.MATCH_NOT_FUNCTION to has, findPreorder
+	// and visitPreOrder) are converted as one: the variable takes the function type for all
+	byVar := map[*types.Var]*group{}
+	for _, g := range gs {
+		for fo, i := range g.idxOf {
+			for _, id := range rw.UsesOf[fo] {
+				var fun ast.Node = id
+				if s, ok := rw.Parent[id].(*ast.SelectorExpr); ok && s.Sel == id {
+					fun = s
+				}
+				c, ok := rw.Up(fun).(*ast.CallExpr)
+				if !ok || rw.Unparen(c.Fun) != fun || i >= len(c.Args) {
+					continue
+				}
+				v := pkgVar(c.Args[i])
+				if v == nil {
+					continue
+				}
+				if h := byVar[v]; h != nil {
+					if a, b := find(h), find(g); a != b {
+						parent[b] = a
+					}
+				} else {
+					byVar[v] = g
+				}
+			}
+		}
+	}
 	var out []*group
 	merged := map[*group]*group{}
 	for _, g := range gs {
@@ -430,6 +470,16 @@ func analyse(g *group) {
 					g.named = append(g.named, a)
 					continue
 				}
+				if rtTyped(a) != "" {
+					g.rtvals = append(g.rtvals, a)
+					continue
+				}
+				if v := pkgVar(a); v != nil {
+					if !hasVar(g, v) {
+						g.vars = append(g.vars, v)
+					}
+					continue
+				}
 				g.why = "given another value than a typed lambda adapter"
 				return
 			}
@@ -441,26 +491,48 @@ func analyse(g *group) {
 			return
 		}
 	}
+	// the package variables: every use is an argument of the group's calls or an assignment of
+	// an adapter literal of the group's adapter type
+	for _, v := range g.vars {
+		for _, id := range rw.UsesOf[v] {
+			if c, idx := argOf(id); c != nil {
+				if i, ok := g.callIdx[c]; ok && i == idx {
+					continue
+				}
+			}
+			as, ok := rw.Parent[id].(*ast.AssignStmt)
+			if !ok || len(as.Lhs) != 1 || as.Lhs[0] != id || as.Tok != token.ASSIGN {
+				g.why = "given a package variable that is used otherwise"
+				if verbose {
+					fmt.Fprintf(os.Stderr, "        (%s: %s)\n", v.Name(), rw.Fset.Position(id.Pos()))
+				}
+				return
+			}
+			x, _ := adapterOf(as.Rhs[0])
+			if x == nil {
+				g.why = "given a package variable assigned another value than an adapter"
+				return
+			}
+			if g.adapter == nil {
+				g.adapter = x
+			} else if g.adapter != x {
+				g.why = "given adapters of two types"
+				return
+			}
+		}
+		if len(rw.UsesOf[v]) == 0 {
+			g.why = "given a package variable that is never assigned"
+			return
+		}
+	}
+	if g.adapter == nil && len(g.rtvals) > 0 {
+		g.adapter = adapterFor(g.params[0].Type())
+	}
 	if g.adapter == nil {
 		g.why = "never given an adapter"
 		return
 	}
 	g.ftype = g.adapter.Underlying().(*types.Struct).Field(0).Type().(*types.Signature)
-	// the named objects: a class with the typed method of the adapter's method and its bridge
-	if len(g.named) > 0 {
-		ms := types.NewMethodSet(types.NewPointer(g.adapter))
-		if ms.Len() != 1 {
-			g.why = "given a named object and the adapter has several methods"
-			return
-		}
-		g.method = ms.At(0).Obj().Name()
-		for _, a := range g.named {
-			if why := typedMethodOf(g, namedObj(a)); why != "" {
-				g.why = why
-				return
-			}
-		}
-	}
 	// the uses of the parameter
 	for i, fd := range g.decls {
 		p := g.params[i]
@@ -500,6 +572,43 @@ func analyse(g *group) {
 						return
 					}
 				}
+			}
+		}
+	}
+	for _, a := range g.rtvals {
+		if why := rtTypedFor(g, a); why != "" {
+			g.why = why
+			return
+		}
+	}
+	// the named objects: a class with the typed method of the adapter's method and its bridge
+	if len(g.named) > 0 {
+		// the adapter's method the group calls (one name), else its only method
+		names := map[string]bool{}
+		for _, id := range g.uses {
+			if s, ok := rw.Parent[id].(*ast.SelectorExpr); ok && s.X == id {
+				names[s.Sel.Name] = true
+			}
+		}
+		if len(names) == 0 {
+			ms := types.NewMethodSet(types.NewPointer(g.adapter))
+			if ms.Len() != 1 {
+				g.why = "given a named object, the parameter never called and the adapter has several methods"
+				return
+			}
+			names[ms.At(0).Obj().Name()] = true
+		}
+		if len(names) != 1 {
+			g.why = "given a named object and two of the adapter's methods called"
+			return
+		}
+		for n := range names {
+			g.method = n
+		}
+		for _, a := range g.named {
+			if why := typedMethodOf(g, namedObj(a)); why != "" {
+				g.why = why
+				return
 			}
 		}
 	}
@@ -712,6 +821,40 @@ func rewrite(g *group) {
 			return rw.RenderChildren(a) + "." + g.method + "T_"
 		}
 	}
+	for _, a := range g.rtvals {
+		v := rtTypedFor_(g, a)
+		counts["runtime values given to them are their typed variants"]++
+		rw.Rewrite[a] = func() string { return v }
+	}
+	for _, v := range g.vars {
+		counts["package variables given to them hold the function"]++
+		for _, f := range rw.Files {
+			for _, d := range f.Decls {
+				gd, ok := d.(*ast.GenDecl)
+				if !ok || gd.Tok != token.VAR {
+					continue
+				}
+				for _, sp := range gd.Specs {
+					vs := sp.(*ast.ValueSpec)
+					for _, n := range vs.Names {
+						if rw.Info.Defs[n] == v {
+							if len(vs.Names) != 1 || vs.Type == nil || len(vs.Values) != 0 {
+								panic("tfnparams: a package variable declared with others or a value: " + rw.Fset.Position(vs.Pos()).String())
+							}
+							rw.Rewrite[vs.Type] = func() string { return ft }
+						}
+					}
+				}
+			}
+		}
+		for _, id := range rw.UsesOf[v] {
+			if as, ok := rw.Parent[id].(*ast.AssignStmt); ok && as.Lhs[0] == id {
+				_, fl := adapterOf(as.Rhs[0])
+				counts["adapter objects assigned to them are their functions"]++
+				rw.Rewrite[as.Rhs[0]] = func() string { return rw.Render(fl) }
+			}
+		}
+	}
 	// the calls of the parameter
 	for _, id := range g.uses {
 		s, ok := rw.Parent[id].(*ast.SelectorExpr)
@@ -737,6 +880,21 @@ func rewrite(g *group) {
 					if xid, ok := x.X.(*ast.Ident); ok && rw.Info.Uses[xid] == recv {
 						subst[x] = pname
 						return false
+					}
+				case *ast.CallExpr:
+					// K(p) with the argument B(e) the boxing K undoes is e
+					if len(x.Args) == 1 {
+						if pid, ok := x.Args[0].(*ast.Ident); ok {
+							for i, o := range names {
+								if rw.Info.Uses[pid] == o {
+									if e := unboxedArg(x, call.Args[i]); e != nil {
+										counts["arguments boxed for the adapter's unboxing are passed as they are"]++
+										subst[x] = rw.Render(e)
+										return false
+									}
+								}
+							}
+						}
 					}
 				case *ast.Ident:
 					for i, o := range names {
@@ -955,6 +1113,123 @@ func shape(fd *ast.FuncDecl, fn string) string {
 		return ""
 	}
 	return renderWith(fd.Body.List[0], subst)
+}
+
+func hasVar(g *group, v *types.Var) bool {
+	for _, w := range g.vars {
+		if w == v {
+			return true
+		}
+	}
+	return false
+}
+
+// pkgVar: the package-level variable of a functional interface type an argument names.
+func pkgVar(e ast.Expr) *types.Var {
+	id, ok := rw.Unparen(e).(*ast.Ident)
+	if !ok {
+		return nil
+	}
+	v, ok := rw.Info.Uses[id].(*types.Var)
+	if !ok || v.Parent() != rw.Pkg.Scope() || fnIface(v.Type()) == nil {
+		return nil
+	}
+	return v
+}
+
+// rtTyped: the runtime value with a typed variant an argument is ("Predicates_alwaysTrue").
+func rtTyped(e ast.Expr) string {
+	c, ok := rw.Unparen(e).(*ast.CallExpr)
+	if !ok || len(c.Args) != 0 {
+		return ""
+	}
+	if n, _ := rw.CallName(c); n == "Predicates_alwaysTrue" {
+		return n
+	}
+	return ""
+}
+
+// rtTypedFor: the typed variant fits the group's function type: func(T) bool.
+func rtTypedFor(g *group, a ast.Expr) string {
+	if rtTypedFor_(g, a) == "" {
+		return "given a runtime value whose typed variant does not fit the function type"
+	}
+	return ""
+}
+
+func rtTypedFor_(g *group, a ast.Expr) string {
+	sig := g.ftype
+	if rtTyped(a) == "Predicates_alwaysTrue" && sig.Params().Len() == 1 && sig.Results().Len() == 1 && types.Identical(sig.Results().At(0).Type(), types.Typ[types.Bool]) && !sig.Variadic() {
+		return "Predicates_alwaysTrueT_[" + types.TypeString(sig.Params().At(0).Type(), qual) + "]"
+	}
+	return ""
+}
+
+// unboxedArg: the e of an argument B(e) that the unboxing K undoes, of K's result type.
+func unboxedArg(k *ast.CallExpr, a ast.Expr) ast.Expr {
+	b, ok := rw.Unparen(a).(*ast.CallExpr)
+	if !ok {
+		return nil
+	}
+	var e ast.Expr
+	if len(b.Args) == 1 {
+		e = b.Args[0]
+	} else if s, ok := b.Fun.(*ast.SelectorExpr); ok && len(b.Args) == 0 {
+		e = s.X
+	} else {
+		return nil
+	}
+	sig, ok := rw.Info.TypeOf(k.Fun).(*types.Signature)
+	if !ok || sig.Results().Len() != 1 {
+		return nil
+	}
+	t := sig.Results().At(0).Type()
+	if !types.Identical(rw.Info.TypeOf(e), t) || !unboxes(k, b, t) {
+		return nil
+	}
+	return e
+}
+
+// adapterFor: for a group given only runtime values with typed variants, the adapter type of the
+// parameter's type: the parameter is I_of[T] (j2go's alias of the erased interface I with its
+// type argument), and the adapter the one type I_tfn_.. of the package that implements I and
+// holds a func(T) bool (the predicates: the one function type a typed variant has).
+func adapterFor(t types.Type) *types.Named {
+	al, ok := t.(*types.Alias)
+	if !ok || al.TypeArgs().Len() != 1 {
+		return nil
+	}
+	it, ok := types.Unalias(t).(*types.Named)
+	if !ok {
+		return nil
+	}
+	want := types.NewSignatureType(nil, nil, nil, types.NewTuple(types.NewParam(0, nil, "", al.TypeArgs().At(0))), types.NewTuple(types.NewParam(0, nil, "", types.Typ[types.Bool])), false)
+	var found *types.Named
+	for _, n := range rw.Pkg.Scope().Names() {
+		if !strings.HasPrefix(n, it.Obj().Name()+"_tfn") {
+			continue
+		}
+		tn, ok := rw.Pkg.Scope().Lookup(n).(*types.TypeName)
+		if !ok {
+			continue
+		}
+		nt, ok := tn.Type().(*types.Named)
+		if !ok || nt.TypeParams().Len() > 0 {
+			continue
+		}
+		st, ok := nt.Underlying().(*types.Struct)
+		if !ok || st.NumFields() != 1 || !types.Identical(st.Field(0).Type(), want) {
+			continue
+		}
+		if !types.Implements(types.NewPointer(nt), it.Underlying().(*types.Interface)) {
+			continue
+		}
+		if found != nil {
+			return nil
+		}
+		found = nt
+	}
+	return found
 }
 
 // reflipUnwrap_ is the operand x of an upcast I(x) to an interface type, or of a nil-keeping
