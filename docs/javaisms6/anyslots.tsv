@@ -1,0 +1,448 @@
+g_0casts.go	1633	funclit		v any)	box:   func(v any) any { return v },
+g_0casts.go	1634	funclit		v any)	unbox: func(v any) any { return v },
+g_0casts.go	1638	funclit		v any)	box:   func(v any) any { return v },
+g_0casts.go	1639	funclit		v any)	unbox: func(v any) any { return v },
+g_0casts.go	1654	funclit		v any)	unbox: func(v any) CollectionT[*Mapping_OriginalMapping] {
+g_0casts.go	1692	funclit		v any)	unbox: func(v any) DiGraph_DiGraphNode[N, E] { return gcast_DiGraph_DiGraphNode_N_E[N, E](v) },
+g_0casts.go	1698	funclit		v any)	box:   func(v any) any { return v },
+g_0casts.go	1699	funclit		v any)	unbox: func(v any) any { return v },
+g_0casts.go	1709	funclit		p0 any)	return func(p0 any) any { return f_(Node_of_(p0)) }
+g_0casts.go	1712	funclit		v any)	unbox: func(v any) Function[Node, any] {
+g_0casts.go	1731	funclit		p0 any)	return func(p0 any) any { return f_(cast_[*ClosureReverseAbstractInterpreter_TypeRestriction](p0)).self() }
+g_0casts.go	1734	funclit		v any)	unbox: func(v any) Function_base[*ClosureReverseAbstractInterpreter_TypeRestriction, *JSType] {
+g_0casts.go	1761	funclit		v any)	unbox: func(v any) GraphNode[N, E] { return gcast_GraphNode_N_E[N, E](v) },
+g_0casts.go	1779	funclit		v any)	unbox: func(v any) Graph_GraphEdge[N, E] { return gcast_Graph_GraphEdge_N_E[N, E](v) },
+g_0casts.go	1800	funclit		v any)	box:   func(v any) any { return v },
+g_0casts.go	1801	funclit		v any)	unbox: func(v any) any { return v },
+g_0casts.go	1811	funclit		v any)	unbox: func(v any) ListT[JsMessage_Part] { return listAs_(tc_JsMessage_Part, icast_List(v)) },
+g_0casts.go	1816	funclit		v any)	unbox: func(v any) ListT[Node] { return listAs_(tc_Node, icast_List(v)) },
+g_0casts.go	1827	funclit		v any)	unbox: func(v any) ListT[V] { return listAs_(tcT_[V](), icast_List(v)) },
+g_0casts.go	1834	funclit		v any)	unbox: func(v any) ListT[any] { return listAs_(tc_Integer, icast_List(v)) },
+g_0casts.go	1839	funclit		v any)	unbox: func(v any) ListT[*Comment] { return listAs_(tc_p_Comment, icast_List(v)) },
+g_0casts.go	1844	funclit		v any)	unbox: func(v any) ListT[*InstrumentationPointStats] {
+g_0casts.go	1851	funclit		v any)	unbox: func(v any) ListT[*JSChunk] { return listAs_(tc_p_JSChunk, icast_List(v)) },
+g_0casts.go	1856	funclit		v any)	unbox: func(v any) ListT[*JSType] { return listAs_(tc_p_JSType, icast_List(v)) },
+g_0casts.go	1861	funclit		v any)	unbox: func(v any) ListT[string] { return listAs_(tc_string, icast_List(v)) },
+g_0casts.go	1870	funclit		v any)	box:   func(v any) any { return v },
+g_0casts.go	1871	funclit		v any)	unbox: func(v any) any { return v },
+g_0casts.go	1887	funclit		v any)	unbox: func(v any) MapT[C, V] { return mapAs_(tcT_[C](), tcT_[V](), icast_Map(v)) },
+g_0casts.go	1894	funclit		v any)	unbox: func(v any) MapT[any, CollectionT[*Mapping_OriginalMapping]] {
+g_0casts.go	1901	funclit		v any)	unbox: func(v any) MapT[*ColorPool_ShardView, *TypeProto] {
+g_0casts.go	1908	funclit		v any)	unbox: func(v any) MapT[*JSChunk, SetT[string]] { return mapAs_(tc_p_JSChunk, tc_SetT_string_, icast_Map(v)) },
+g_0casts.go	1913	funclit		v any)	unbox: func(v any) MapT[string, any] { return mapAs_(tc_string, tc_Long, icast_Map(v)) },
+g_0casts.go	1918	funclit		v any)	unbox: func(v any) MapT[string, string] { return mapAs_(tc_string, tc_string, icast_Map(v)) },
+g_0casts.go	1925	funclit		v any)	unbox: func(v any) Map_EntryT[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics] {
+g_0casts.go	1932	funclit		v any)	unbox: func(v any) Map_EntryT[Token_rhino, any] {
+g_0casts.go	1939	funclit		v any)	unbox: func(v any) Map_EntryT[string, any] { return map_EntryAs_(tc_string, tc_Integer, icast_Map_Entry(v)) },
+g_0casts.go	1944	funclit		v any)	unbox: func(v any) Map_EntryT[string, *PerformanceTracker_Stats] {
+g_0casts.go	1960	funclit		v any)	box:   func(v any) any { return v },
+g_0casts.go	1961	funclit		v any)	unbox: func(v any) any { return v },
+g_0casts.go	2002	funclit		v any)	unbox: func(v any) SetT[E] { return setAs_(tcT_[E](), icast_Set(v)) },
+g_0casts.go	2015	funclit		v any)	unbox: func(v any) SetT[V] { return setAs_(tcT_[V](), icast_Set(v)) },
+g_0casts.go	2022	funclit		v any)	unbox: func(v any) SetT[*CompilerInput] { return setAs_(tc_p_CompilerInput, icast_Set(v)) },
+g_0casts.go	2027	funclit		v any)	unbox: func(v any) SetT[*JSChunk] { return setAs_(tc_p_JSChunk, icast_Set(v)) },
+g_0casts.go	2032	funclit		v any)	unbox: func(v any) SetT[string] { return setAs_(tc_string, icast_Set(v)) },
+g_0casts.go	2055	funclit		v any)	unbox: func(v any) Supplier[Node] {
+g_0casts.go	2080	funclit		v any)	unbox: func(v any) UndiGraph_UndiGraphEdge[N, E] { return gcast_UndiGraph_UndiGraphEdge_N_E[N, E](v) },
+g_0casts.go	2093	funclit		v any)	unbox: func(v any) UndiGraph_UndiGraphNode[N, E] { return gcast_UndiGraph_UndiGraphNode_N_E[N, E](v) },
+g_0casts.go	2615	funclit		v any)	unbox: func(v any) *GraphColoring[*Var, any] { return to_GraphColoring[*Var, any](v) },
+g_0casts.go	2820	funclit		v any)	unbox: func(v any) *LinkedDirectedGraph_LinkedDiGraphEdge[N, E] {
+g_0casts.go	2829	funclit		v any)	unbox: func(v any) *LinkedDirectedGraph_LinkedDiGraphEdge[Node, ControlFlowGraph_Branch] {
+g_0casts.go	2845	funclit		v any)	unbox: func(v any) *LinkedDirectedGraph_LinkedDiGraphNode[N, E] {
+g_0casts.go	2854	funclit		v any)	unbox: func(v any) *LinkedDirectedGraph_LinkedDiGraphNode[Node, ControlFlowGraph_Branch] {
+g_0casts.go	2886	funclit		v any)	unbox: func(v any) *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E] {
+g_0casts.go	3295	funclit		v any)	unbox: func(v any) SourceRange { return *cast_[*SourceRange](v) },
+g_0casts.go	3459	funclit		v any)	unbox: func(v any) DiGraph_DiGraphNode[N, E] { return gcast_DiGraph_DiGraphNode_N_E[N, E](v) },
+g_0casts.go	3577	funclit		v any)	unbox: func(v any) Es6RewriteModulesToCommonJsModules_ModuleRequest {
+g_0casts.go	3591	funclit		v any)	unbox: func(v any) FileInstrumentationData_BranchIndexPair {
+g_0jsdocprops.go	11	other		v any)	valueT_(v any) T
+g_0jsdocprops.go	25	method	valueT_	v any)	func (p JSDocInfo_PropertyOf_[T]) valueT_(v any) T {
+g_0jsdocprops.go	42	method	valueT_	v any)	func (this *JSDocInfo_NodeMapProperty) valueT_(v any) Map {
+g_0jsdocprops.go	53	method	valueT_	v any)	func (this *JSDocInfo_TypeListProperty) valueT_(v any) List {
+g_0jsdocprops.go	64	method	valueT_	v any)	func (this *JSDocInfo_TypeMapProperty) valueT_(v any) Map {
+g_0jsdocprops.go	75	method	valueT_	v any)	func (this *JSDocInfo_TypeProperty) valueT_(v any) *JSTypeExpression {
+g_AbstractCommandLineRunner.go	2541	method	setBrowserFeaturesetYear	browserFeaturesetYear any)	func (this *AbstractCommandLineRunner_CommandLineConfig) setBrowserFeaturesetYear(browserFeaturesetYear any) *AbstractCommandLineRunner_CommandLineConfig {
+g_AbstractCommandLineRunner.go	2943	method	equals	o any)	func (this *AbstractCommandLineRunner_FlagEntry[T]) equals(o any) bool {
+g_AbstractCommandLineRunner.go	3049	method	apply	exitCode any)	func (this *AbstractCommandLineRunner_SystemExitCodeReceiver) apply(exitCode any) any {
+g_AmbiguateProperties.go	73	funclit		e any,	FixedPointGraphTraversal_newReverseTraversal[*ColorGraphNode, any](&FixedPointGraphTraversal_EdgeCallback_fn[*ColorGraphNode, any]{func(subtype *ColorGraphNode,
+g_Binding.go	104	method	equals	p0 any)	func (this *Binding) equals(p0 any) bool {
+g_BrowserWithTransformedPrefixesModuleResolver.go	175	method	equals	p0 any)	func (this *BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement) equals(p0 any) bool {
+g_CachedTransformer.go	10	funclit		p0 any)	this.cache = builder.build(CacheLoader_from(Function_base[any, any](func(p0 any) any { return obj_(delegate.transform(cast_[*Source](p0))) })))
+g_CachingTranspiler.go	68	method	equals	other any)	func (this *CachingTranspiler_Key) equals(other any) bool {
+g_CachingTranspiler.go	113	method	load	key_ any)	func (this *CachingTranspiler_1) load(key_ any) any {
+g_ChangeVerifier.go	221	function	ChangeVerifier_EqualsResult_notEqual	after any,	func ChangeVerifier_EqualsResult_notEqual(errorNode Node, error_ string, after any, before any) *ChangeVerifier_EqualsResult {
+g_ChangeVerifier.go	221	function	ChangeVerifier_EqualsResult_notEqual	before any)	func ChangeVerifier_EqualsResult_notEqual(errorNode Node, error_ string, after any, before any) *ChangeVerifier_EqualsResult {
+g_CharRanges.go	338	method	equals	o any)	func (this *CharRanges) equals(o any) bool {
+g_CheckProvidesSorted.go	95	funclit		p0 any)	this.replacement_ = optstrOf_(JString_join_s("\n", Iterables_transform(Iterable(canonicalProvides.asList()), Function_base[any, any](func(p0 any) any { return s
+g_CheckRequiresSorted.go	118	funclit		p0 any)	this.replacement_ = optstrOf_(JString_join_s("\n", Iterables_transform(Iterable(canonicalImports.asList()), Function_base[any, any](func(p0 any) any { return st
+g_CheckRequiresSorted.go	134	funclit		p0 any)	for stmt := range elemsAs_[*CheckRequiresSorted_ImportStatement](Iterables_filter(Iterable(Collection_un_(allImports)), Predicate_base[any](func(p0 any) bool { 
+g_CheckRequiresSorted.go	408	method	compareTo	other_ any)	func (this *CheckRequiresSorted_DestructuringBinding) compareTo(other_ any) int32 {
+g_CheckRequiresSorted.go	437	method	equals	p0 any)	func (this *CheckRequiresSorted_DestructuringBinding) equals(p0 any) bool {
+g_CheckRequiresSorted.go	585	method	compareTo	other_ any)	func (this *CheckRequiresSorted_ImportStatement) compareTo(other_ any) int32 {
+g_CheckRequiresSorted.go	609	method	equals	p0 any)	func (this *CheckRequiresSorted_ImportStatement) equals(p0 any) bool {
+g_ClosureBundler.go	11	field		minifier            any	minifier            any
+g_ClosureBundler.go	53	method	init_ClosureBundler_Transpiler_Transpiler_EvalMode_Optional_String_Object_Map_boolean	minifier any,	func (this *ClosureBundler) init_ClosureBundler_Transpiler_Transpiler_EvalMode_Optional_String_Object_Map_boolean(transpiler Transpiler_transpile, es6ModuleTran
+g_ClosureBundler.go	64	function	new_ClosureBundler_Transpiler_Transpiler_EvalMode_Optional_String_Object_Map_boolean	minifier any,	func new_ClosureBundler_Transpiler_Transpiler_EvalMode_Optional_String_Object_Map_boolean(transpiler Transpiler_transpile, es6ModuleTranspiler Transpiler_transp
+g_ClosureRequireProcessor.go	153	method	equals	p0 any)	func (this *ClosureRequireProcessor_Require) equals(p0 any) bool {
+g_ClosureRewriteModule.go	120	funclit		p0 any)	Iterable_forEach(ImmutableList_as_Iterable(vars.asImm()), Consumer[any](func(p0 any) { root.addChildToBack(Node_of_(p0)) }))
+g_ClusterPropagator.go	18	method	traverseEdge	unused any,	func (this *ClusterPropagator) traverseEdge(src *ColorGraphNode, unused any, dest *ColorGraphNode) bool {
+g_CmdLineParser.go	566	function	CmdLineParser_Option_addValue	value any)	func CmdLineParser_Option_addValue(get Supplier[List], set Consumer[List], value any) {
+g_CmdLineParser.go	575	function	CmdLineParser_Option_asList	value any)	func CmdLineParser_Option_asList(value any) ListOf[any] {
+g_CodeReplacement.go	54	method	compareTo	x_ any)	func (this *CodeReplacement) compareTo(x_ any) int32 {
+g_CodeReplacement.go	74	method	equals	p0 any)	func (this *CodeReplacement) equals(p0 any) bool {
+g_CodingConvention.go	280	method	equals	p0 any)	func (this *CodingConvention_AssertionFunctionSpec) equals(p0 any) bool {
+g_Color.go	61	method	equals	o any)	func (this *Color) equals(o any) bool {
+g_ColorGraphBuilder.go	36	funclit		p0 any)	Iterable_forEach(Iterable(Collection_un_(flats)), Consumer[any](func(p0 any) { this.add(cast_[*ColorGraphNode](p0)) }))
+g_ColorGraphBuilder.go	40	funclit		p0 any)	Iterable_forEach(Iterable(Collection_un_(this.colorHoldsInstanceGraph.getNodes_rCollectionOf_DiGraphNode_rCollectionOf_LinkedDiGraphNode())), Consumer[any](func
+g_ColorGraphBuilder.go	105	funclit		t any)	if equalsId_(source, dest) || this.colorHoldsInstanceGraph.isConnectedInDirectionLinkedDiGraphNode(source, Predicate_base[any](func(t any) bool {
+g_ColorId.go	75	method	equals	x any)	func (this *ColorId) equals(x any) bool {
+g_ColorPool.go	337	funclit		shard_ any,	Map_forEach(Map_un_(viewToProto), BiConsumer[any, any](func(shard_ any, proto_ any) {
+g_ColorPool.go	337	funclit		proto_ any)	Map_forEach(Map_un_(viewToProto), BiConsumer[any, any](func(shard_ any, proto_ any) {
+g_CommandLineRunner.go	702	field		browserFeaturesetYear              any	browserFeaturesetYear              any
+g_CommandLineRunner.go	721	field		parseInlineSourceMaps_             any	parseInlineSourceMaps_             any
+g_CommandLineRunner.go	733	field		polymerVersion                     any	polymerVersion                     any
+g_CommandLineRunner.go	950	funclit		v any)	}), Consumer[any](func(v any) {
+g_CommandLineRunner.go	955	funclit		v any)	}), Consumer[any](func(v any) {
+g_CommandLineRunner.go	960	funclit		v any)	}), Consumer[any](func(v any) {
+g_CommandLineRunner.go	965	funclit		v any)	}), Consumer[any](func(v any) {
+g_CommandLineRunner.go	970	funclit		v any)	}), Consumer[any](func(v any) {
+g_CommandLineRunner.go	975	funclit		v any)	}), Consumer[any](func(v any) {
+g_CommandLineRunner.go	980	funclit		v any)	}), Consumer[any](func(v any) {
+g_CommandLineRunner.go	1041	funclit		v any)	}), Consumer[any](func(v any) {
+g_CommandLineRunner.go	1046	funclit		v any)	}), Consumer[any](func(v any) {
+g_CommandLineRunner.go	1056	funclit		v any)	}), Consumer[any](func(v any) {
+g_CommandLineRunner.go	1061	funclit		v any)	}), Consumer[any](func(v any) {
+g_CommandLineRunner.go	1111	funclit		v any)	}), Consumer[any](func(v any) {
+g_CommandLineRunner.go	1116	funclit		v any)	}), Consumer[any](func(v any) {
+g_CommandLineRunner.go	1145	funclit		v any)	}), Consumer[any](func(v any) {
+g_CommandLineRunner.go	1150	funclit		v any)	}), Consumer[any](func(v any) {
+g_CommandLineRunner.go	1160	funclit		v any)	}), Consumer[any](func(v any) {
+g_CommandLineRunner.go	1165	funclit		v any)	}), Consumer[any](func(v any) {
+g_CommandLineRunner.go	1170	funclit		v any)	}), Consumer[any](func(v any) {
+g_CommandLineRunner.go	1180	funclit		v any)	}), Consumer[any](func(v any) {
+g_CommandLineRunner.go	1190	funclit		v any)	}), Consumer[any](func(v any) {
+g_CommandLineRunner.go	1195	funclit		v any)	}), Consumer[any](func(v any) {
+g_CommandLineRunner.go	1198	other		if any,	CmdLineParser_Option_enumList[CommandLineRunner_FormattingOption](this.parser.option("--formatting").usage("Specifies which formatting options, if any, should b
+g_CommandLineRunner.go	1205	funclit		v any)	}), Consumer[any](func(v any) {
+g_CommandLineRunner.go	1215	funclit		v any)	}), Consumer[any](func(v any) {
+g_CommandLineRunner.go	1220	funclit		v any)	}), Consumer[any](func(v any) {
+g_CommandLineRunner.go	1225	funclit		v any)	}), Consumer[any](func(v any) {
+g_CommandLineRunner.go	1230	funclit		v any)	}), Consumer[any](func(v any) {
+g_CommandLineRunner.go	1240	funclit		v any)	}), Consumer[any](func(v any) {
+g_CommandLineRunner.go	1265	funclit		v any)	}), Consumer[any](func(v any) {
+g_CommandLineRunner.go	1330	funclit		v any)	}), Consumer[any](func(v any) {
+g_CommandLineRunner.go	1335	funclit		v any)	}), Consumer[any](func(v any) {
+g_CommandLineRunner.go	1355	funclit		v any)	}), Consumer[any](func(v any) {
+g_CommandLineRunner.go	1360	funclit		v any)	}), Consumer[any](func(v any) {
+g_CommandLineRunner.go	1365	funclit		v any)	}), Consumer[any](func(v any) {
+g_CommandLineRunner.go	1390	funclit		v any)	}), Consumer[any](func(v any) {
+g_CommandLineRunner.go	1395	funclit		v any)	}), Consumer[any](func(v any) {
+g_CommandLineRunner.go	1415	funclit		v any)	}), Consumer[any](func(v any) {
+g_CommandLineRunner.go	1425	funclit		v any)	}), Consumer[any](func(v any) {
+g_CommandLineRunner.go	1430	funclit		v any)	}), Consumer[any](func(v any) {
+g_CommandLineRunner.go	1650	function	CommandLineRunner_Flags_addMultiFlagValue	flag any,	func CommandLineRunner_Flags_addMultiFlagValue(values ListT[string], value string, flag any, entries ListT[*AbstractCommandLineRunner_FlagEntry[any]]) ListT[str
+g_Compiler.go	1638	funclit		p_ any)	var provides IterableT[string] = iterableAs_(tc_string, Iterables_filter(Iterable(List_un_(input.getProvides())), Predicate_base[any](func(p_ any) bool {
+g_Compiler.go	3704	method	contains	o any)	func (this *Compiler_1) contains(o any) bool {
+g_Compiler.go	3708	method	add	e_ any)	func (this *Compiler_1) add(e_ any) bool {
+g_CompilerOptions.go	1106	method	setPolymerVersion	polymerVersion any)	func (this *CompilerOptions) setPolymerVersion(polymerVersion any) {
+g_ComposeWarningsGuard.go	37	funclit		p0 any,	return func(p0 any, p1 any) int32 { return f_(to_WarningsGuard(p0), to_WarningsGuard(p1)) }
+g_ComposeWarningsGuard.go	37	funclit		p1 any)	return func(p0 any, p1 any) int32 { return f_(to_WarningsGuard(p0), to_WarningsGuard(p1)) }
+g_ConvertChunksToESModules.go	261	funclit		k_ any)	var importsForChunk SetT[string] = setAs_(tc_string, icast_Set(Map_computeIfAbsent_f(Map_un_(namesToImportByChunk), obj_(definingChunk), func(k_ any) any {
+g_ConvertChunksToESModules.go	407	funclit		k_ any)	Map_computeIfAbsent_f(Map_un_(namesToImportByChunk), obj_(dependency), func(k_ any) any {
+g_ConvertToTypedInterface.go	408	funclit		p0 any,	return func(p0 any, p1 any) int32 { return f_(to_PotentialDeclaration(p0), to_PotentialDeclaration(p1)) }
+g_ConvertToTypedInterface.go	408	funclit		p1 any)	return func(p0 any, p1 any) int32 { return f_(to_PotentialDeclaration(p0), to_PotentialDeclaration(p1)) }
+g_ConvertToTypedInterface.go	425	funclit		p0 any,	return func(p0 any, p1 any) int32 { return f_(str_(p0), str_(p1)) }
+g_ConvertToTypedInterface.go	425	funclit		p1 any)	return func(p0 any, p1 any) int32 { return f_(str_(p0), str_(p1)) }
+g_DataFlowAnalysis.go	43	other		v any)	}](v any) *DataFlowAnalysis[N, L] {
+g_DataFlowAnalysis.go	120	function	cfgEdge_	e any)	func cfgEdge_[N comparable](e any) *LinkedDirectedGraph_LinkedDiGraphEdge[N, ControlFlowGraph_Branch] {
+g_DefaultNameGenerator.go	103	method	favors	sequence any)	func (this *DefaultNameGenerator) favors(sequence any) {
+g_DefaultNameGenerator.go	239	method	compareTo	other_ any)	func (this *DefaultNameGenerator_CharPriority) compareTo(other_ any) int32 {
+g_DependencyInfo.go	115	method	equals	p0 any)	func (this *DependencyInfo_Require) equals(p0 any) bool {
+g_DependencyInfo.go	337	funclit		arg_ any)	var quoted IterableT[string] = iterableAs_(tc_string, Iterables_transform(Iterable(Collection_un_(values)), Function_base[any, any](func(arg_ any) any {
+g_DiagnosticType.go	50	method	equals	type_ any)	func (this *DiagnosticType) equals(type_ any) bool {
+g_DiagnosticType.go	80	method	compareTo	diagnosticType_ any)	func (this *DiagnosticType) compareTo(diagnosticType_ any) int32 {
+g_DisambiguateProperties.go	411	field		value_ any	value_ any
+g_DisambiguateProperties.go	301	method	compareTo	x_ any)	func (this *DisambiguateProperties_PropertyReferenceIndexJson) compareTo(x_ any) int32 {
+g_DisambiguateProperties.go	358	method	compareTo	x_ any)	func (this *DisambiguateProperties_PropertyReferenceJson) compareTo(x_ any) int32 {
+g_DisambiguateProperties.go	435	method	compareTo	x_ any)	func (this *DisambiguateProperties_TypeEdgeJson) compareTo(x_ any) int32 {
+g_DotFormatter.go	195	function	DotFormatter_formatNodeName	key any)	func DotFormatter_formatNodeName(key any) string {
+g_EqualityChecker.go	418	field		if any	if any(this) == other {
+g_EqualityChecker.go	416	method	equals	other any)	func (this *EqualityChecker_CacheKey) equals(other any) bool {
+g_Es6RewriteClass.go	412	method	equals	p0 any)	func (this *Es6RewriteClass_ClassProperty) equals(p0 any) bool {
+g_Export.go	92	method	equals	p0 any)	func (this *Export) equals(p0 any) bool {
+g_ExportTrace.go	42	method	equals	p0 any)	func (this *ExportTrace) equals(p0 any) bool {
+g_ExternExportsPass.go	69	funclit		p0 any,	return func(p0 any, p1 any) int32 {
+g_ExternExportsPass.go	69	funclit		p1 any)	return func(p0 any, p1 any) int32 {
+g_FeatureSet.go	165	method	equals	other any)	func (this *FeatureSet) equals(other any) bool {
+g_FunctionArgumentInjector.go	509	method	equals	p0 any)	func (this *FunctionArgumentInjector_ParamArgPair) equals(p0 any) bool {
+g_FunctionType.go	1534	method	equals	p0 any)	func (this *FunctionType_Parameter) equals(p0 any) bool {
+g_GlobalNamespace.go	1093	field		refsForNode                                     any	refsForNode                                     any
+g_GlobalNamespace.go	393	method	equals	p0 any)	func (this *GlobalNamespace_SimpleAstChange) equals(p0 any) bool {
+g_GlobalNamespace.go	445	method	equals	p0 any)	func (this *GlobalNamespace_RefBasedAstChange) equals(p0 any) bool {
+g_GraphColoring.go	95	method	equals	other any)	func (this *GraphColoring_Color) equals(other any) bool {
+g_HamtPMap.go	392	function	HamtPMap_hash	key any)	func HamtPMap_hash(key any) int32 {
+g_IRFactory.go	1396	method	newNumberNode	value any)	func (this *IRFactory) newNumberNode(value any) Node {
+g_IRFactory.go	1486	method	compareTo	o_ any)	func (this *IRFactory_LineAndColumn) compareTo(o_ any) int32 {
+g_IRFactory.go	1498	method	equals	p0 any)	func (this *IRFactory_LineAndColumn) equals(p0 any) bool {
+g_Import.go	71	method	equals	p0 any)	func (this *Import) equals(p0 any) bool {
+g_InputId.go	44	field		if any	if any(this) == obj {
+g_InputId.go	43	method	equals	obj any)	func (this *InputId) equals(obj any) bool {
+g_J2clEqualitySameRewriterPass.go	133	function	J2clEqualitySameRewriterPass_isSafeNumber	d any)	func J2clEqualitySameRewriterPass_isSafeNumber(d any) bool {
+g_JSChunkGraph.go	160	funclit		p0 any)	return iterableAs_(tc_p_CompilerInput, Iterables_concat_Iterable(Iterables_transform(Iterable(Arrays_asList(arrmap_(this.chunks, obj_[*JSChunk]))), Function_bas
+g_JSChunkGraph.go	612	method	compare	m1_ any,	func (this *JSChunkGraph_InverseDepthComparator) compare(m1_ any, m2_ any) int32 {
+g_JSChunkGraph.go	612	method	compare	m2_ any)	func (this *JSChunkGraph_InverseDepthComparator) compare(m1_ any, m2_ any) int32 {
+g_JSCompObjects.go	18	function	JSCompObjects_identical	a any,	func JSCompObjects_identical(a any, b any) bool {
+g_JSCompObjects.go	18	function	JSCompObjects_identical	b any)	func JSCompObjects_identical(a any, b any) bool {
+g_JSDocInfo.go	8	field		propertyValues     any	propertyValues     any
+g_JSDocInfo.go	965	method	clone_impl	arg any,	func (this *JSDocInfo_Property) clone_impl(arg any, unusedTransform func(*JSTypeExpression) *JSTypeExpression) any {
+g_JSDocInfo.go	969	method	isDefault	value any)	func (this *JSDocInfo_Property) isDefault(value any) bool {
+g_JSDocInfo.go	975	method	equalValues_impl	left any,	func (this *JSDocInfo_Property) equalValues_impl(left any, right any) bool {
+g_JSDocInfo.go	975	method	equalValues_impl	right any)	func (this *JSDocInfo_Property) equalValues_impl(left any, right any) bool {
+g_JSDocInfo.go	979	method	getTypeExpressions_Object_impl	unusedValue any)	func (this *JSDocInfo_Property) getTypeExpressions_Object_impl(unusedValue any) IterableT[*JSTypeExpression] {
+g_JSDocInfo.go	983	method	compareTo	that_ any)	func (this *JSDocInfo_Property) compareTo(that_ any) int32 {
+g_JSDocInfo.go	989	method	equalValues	p0 any,	func (this *JSDocInfo_Property) equalValues(p0 any, p1 any) bool {
+g_JSDocInfo.go	989	method	equalValues	p1 any)	func (this *JSDocInfo_Property) equalValues(p0 any, p1 any) bool {
+g_JSDocInfo.go	993	method	clone	p0 any,	func (this *JSDocInfo_Property) clone(p0 any, p1 func(*JSTypeExpression) *JSTypeExpression) any {
+g_JSDocInfo.go	997	method	getTypeExpressions_Object	p0 any)	func (this *JSDocInfo_Property) getTypeExpressions_Object(p0 any) IterableT[*JSTypeExpression] {
+g_JSDocInfo.go	1043	method	equalValues_impl	a_ any,	func (this *JSDocInfo_MarkerListProperty) equalValues_impl(a_ any, b_ any) bool {
+g_JSDocInfo.go	1043	method	equalValues_impl	b_ any)	func (this *JSDocInfo_MarkerListProperty) equalValues_impl(a_ any, b_ any) bool {
+g_JSDocInfo.go	1088	method	clone_impl	arg_ any,	func (this *JSDocInfo_TypeProperty) clone_impl(arg_ any, transform func(*JSTypeExpression) *JSTypeExpression) any {
+g_JSDocInfo.go	1099	method	equalValues_impl	left_ any,	func (this *JSDocInfo_TypeProperty) equalValues_impl(left_ any, right_ any) bool {
+g_JSDocInfo.go	1099	method	equalValues_impl	right_ any)	func (this *JSDocInfo_TypeProperty) equalValues_impl(left_ any, right_ any) bool {
+g_JSDocInfo.go	1111	method	getTypeExpressions_Object_impl	p0 any)	func (this *JSDocInfo_TypeProperty) getTypeExpressions_Object_impl(p0 any) IterableT[*JSTypeExpression] {
+g_JSDocInfo.go	1152	method	clone_impl	arg_ any,	func (this *JSDocInfo_TypeListProperty) clone_impl(arg_ any, transform func(*JSTypeExpression) *JSTypeExpression) any {
+g_JSDocInfo.go	1167	method	equalValues_impl	left_ any,	func (this *JSDocInfo_TypeListProperty) equalValues_impl(left_ any, right_ any) bool {
+g_JSDocInfo.go	1167	method	equalValues_impl	right_ any)	func (this *JSDocInfo_TypeListProperty) equalValues_impl(left_ any, right_ any) bool {
+g_JSDocInfo.go	1187	method	getTypeExpressions_Object_impl	types_ any)	func (this *JSDocInfo_TypeListProperty) getTypeExpressions_Object_impl(types_ any) IterableT[*JSTypeExpression] {
+g_JSDocInfo.go	1220	method	clone_impl	arg_ any,	func (this *JSDocInfo_TypeMapProperty) clone_impl(arg_ any, transform func(*JSTypeExpression) *JSTypeExpression) any {
+g_JSDocInfo.go	1235	method	equalValues_impl	left_ any,	func (this *JSDocInfo_TypeMapProperty) equalValues_impl(left_ any, right_ any) bool {
+g_JSDocInfo.go	1235	method	equalValues_impl	right_ any)	func (this *JSDocInfo_TypeMapProperty) equalValues_impl(left_ any, right_ any) bool {
+g_JSDocInfo.go	1261	method	getTypeExpressions_Object_impl	map__ any)	func (this *JSDocInfo_TypeMapProperty) getTypeExpressions_Object_impl(map__ any) IterableT[*JSTypeExpression] {
+g_JSDocInfo.go	1294	method	clone_impl	arg_ any,	func (this *JSDocInfo_NodeMapProperty) clone_impl(arg_ any, transform func(*JSTypeExpression) *JSTypeExpression) any {
+g_JSDocInfo.go	1300	method	equalValues_impl	left_ any,	func (this *JSDocInfo_NodeMapProperty) equalValues_impl(left_ any, right_ any) bool {
+g_JSDocInfo.go	1300	method	equalValues_impl	right_ any)	func (this *JSDocInfo_NodeMapProperty) equalValues_impl(left_ any, right_ any) bool {
+g_JSDocInfo.go	1919	method	setItem_impl	item_ any)	func (this *JSDocInfo_TrimmedStringPosition) setItem_impl(item_ any) {
+g_JSDocInfo.go	2846	method	setProp	value any)	func (this *JSDocInfo_Builder) setProp(prop *JSDocInfo_Property, value any) {
+g_JSDocInfo.go	2863	method	putPropEntry	key any,	func (this *JSDocInfo_Builder) putPropEntry(prop *JSDocInfo_Property, key any, value any) bool {
+g_JSDocInfo.go	2863	method	putPropEntry	value any)	func (this *JSDocInfo_Builder) putPropEntry(prop *JSDocInfo_Property, key any, value any) bool {
+g_JSDocInfo.go	2867	method	populatePropEntry	value any)	func (this *JSDocInfo_Builder) populatePropEntry(prop *JSDocInfo_Property, key string, value any) bool {
+g_JSDocInfo.go	2875	method	populateProp	value any)	func (this *JSDocInfo_Builder) populateProp(prop *JSDocInfo_Property, value any) bool {
+g_JSDocInfo.go	2902	method	equalValues	p0 any,	func (this *JSDocInfo_MarkerListProperty) equalValues(p0 any, p1 any) bool {
+g_JSDocInfo.go	2902	method	equalValues	p1 any)	func (this *JSDocInfo_MarkerListProperty) equalValues(p0 any, p1 any) bool {
+g_JSDocInfo.go	2910	method	clone	p0 any,	func (this *JSDocInfo_TypeProperty) clone(p0 any, p1 func(*JSTypeExpression) *JSTypeExpression) any {
+g_JSDocInfo.go	2918	method	equalValues	p0 any,	func (this *JSDocInfo_TypeProperty) equalValues(p0 any, p1 any) bool {
+g_JSDocInfo.go	2918	method	equalValues	p1 any)	func (this *JSDocInfo_TypeProperty) equalValues(p0 any, p1 any) bool {
+g_JSDocInfo.go	2926	method	getTypeExpressions_Object	p0 any)	func (this *JSDocInfo_TypeProperty) getTypeExpressions_Object(p0 any) IterableT[*JSTypeExpression] {
+g_JSDocInfo.go	2934	method	clone	p0 any,	func (this *JSDocInfo_TypeListProperty) clone(p0 any, p1 func(*JSTypeExpression) *JSTypeExpression) any {
+g_JSDocInfo.go	2942	method	equalValues	p0 any,	func (this *JSDocInfo_TypeListProperty) equalValues(p0 any, p1 any) bool {
+g_JSDocInfo.go	2942	method	equalValues	p1 any)	func (this *JSDocInfo_TypeListProperty) equalValues(p0 any, p1 any) bool {
+g_JSDocInfo.go	2950	method	getTypeExpressions_Object	p0 any)	func (this *JSDocInfo_TypeListProperty) getTypeExpressions_Object(p0 any) IterableT[*JSTypeExpression] {
+g_JSDocInfo.go	2958	method	clone	p0 any,	func (this *JSDocInfo_TypeMapProperty) clone(p0 any, p1 func(*JSTypeExpression) *JSTypeExpression) any {
+g_JSDocInfo.go	2966	method	equalValues	p0 any,	func (this *JSDocInfo_TypeMapProperty) equalValues(p0 any, p1 any) bool {
+g_JSDocInfo.go	2966	method	equalValues	p1 any)	func (this *JSDocInfo_TypeMapProperty) equalValues(p0 any, p1 any) bool {
+g_JSDocInfo.go	2974	method	getTypeExpressions_Object	p0 any)	func (this *JSDocInfo_TypeMapProperty) getTypeExpressions_Object(p0 any) IterableT[*JSTypeExpression] {
+g_JSDocInfo.go	2982	method	clone	p0 any,	func (this *JSDocInfo_NodeMapProperty) clone(p0 any, p1 func(*JSTypeExpression) *JSTypeExpression) any {
+g_JSDocInfo.go	2990	method	equalValues	p0 any,	func (this *JSDocInfo_NodeMapProperty) equalValues(p0 any, p1 any) bool {
+g_JSDocInfo.go	2990	method	equalValues	p1 any)	func (this *JSDocInfo_NodeMapProperty) equalValues(p0 any, p1 any) bool {
+g_JSDocInfo.go	2998	method	setItem	p0 any)	func (this *JSDocInfo_TrimmedStringPosition) setItem(p0 any) {
+g_JSError.go	192	method	equals	p0 any)	func (this *JSError) equals(p0 any) bool {
+g_JSType.go	9	field		templateCheckResult                                    any	templateCheckResult                                    any
+g_JSType.go	677	method	equals	other any)	func (this *JSType) equals(other any) bool {
+g_JSTypeReconserializer.go	150	method	addSupertypeEdges	serializedSubtype any)	func (this *JSTypeReconserializer) addSupertypeEdges(subtype *ObjectType, serializedSubtype any) {
+g_JSTypeReconserializer.go	287	funclit		location_ any,	Map_forEach(Map_un_(this.invalidatingTypes.getMismatchLocations().inverse().asMap()), BiConsumer[any, any](func(location_ any, types_ any) {
+g_JSTypeReconserializer.go	287	funclit		types_ any)	Map_forEach(Map_un_(this.invalidatingTypes.getMismatchLocations().inverse().asMap()), BiConsumer[any, any](func(location_ any, types_ any) {
+g_JsMessage.go	264	method	equals	p0 any)	func (this *JsMessage) equals(p0 any) bool {
+g_JsMessage.go	457	method	equals	p0 any)	func (this *JsMessage_StringPart) equals(p0 any) bool {
+g_JsMessage.go	565	method	equals	p0 any)	func (this *JsMessage_PlaceholderReference) equals(p0 any) bool {
+g_LinkedFlowScope.go	203	method	equals	other any)	func (this *LinkedFlowScope) equals(other any) bool {
+g_LinterMain.go	40	funclit		v any)	}), Consumer[any](func(v any) {
+g_LiveVariablesAnalysis.go	300	method	equals	other any)	func (this *LiveVariablesAnalysis_LiveVariableLattice) equals(other any) bool {
+g_LogFile.go	44	method	logObject	p0 any)	func (this *LogFile) logObject(p0 any) *LogFile {
+g_LogFile.go	60	method	logJsonObject	p0 any)	func (this *LogFile) logJsonObject(p0 any) *LogFile {
+g_LogsGson.go	18	function	LogsGson_toJson	o any)	func LogsGson_toJson(o any) string {
+g_LogsGson.go	26	function	LogsGson_write	value any)	func LogsGson_write(out *SimpleJsonWriter, value any) {
+g_LowestCommonAncestorFinder.go	137	method	equals	other any)	func (this *LowestCommonAncestorFinder_Color) equals(other any) bool {
+g_MalformedTypedAstException.go	16	method	init_MalformedTypedAstException_Object	msg any)	func (this *MalformedTypedAstException) init_MalformedTypedAstException_Object(msg any) {
+g_MalformedTypedAstException.go	20	function	new_MalformedTypedAstException_Object	msg any)	func new_MalformedTypedAstException_Object(msg any) *MalformedTypedAstException {
+g_MalformedTypedAstException.go	27	method	init_MalformedTypedAstException_Object_Throwable	msg any,	func (this *MalformedTypedAstException) init_MalformedTypedAstException_Object_Throwable(msg any, cause *Throwable) {
+g_MalformedTypedAstException.go	31	function	new_MalformedTypedAstException_Object_Throwable	msg any,	func new_MalformedTypedAstException_Object_Throwable(msg any, cause *Throwable) *MalformedTypedAstException {
+g_MalformedTypedAstException.go	44	function	MalformedTypedAstException_checkWellFormed_boolean_String_Object	param any)	func MalformedTypedAstException_checkWellFormed_boolean_String_Object(condition bool, description string, param any) {
+g_MapDiagnosticToSuppression.go	42	funclit		v any)	}), Consumer[any](func(v any) {
+g_MaybeReachingVariableUse.go	282	method	equals	other any)	func (this *MaybeReachingVariableUse_ReachingUses) equals(other any) bool {
+g_Module.go	73	method	equals	p0 any)	func (this *Module) equals(p0 any) bool {
+g_ModuleIdentifier.go	94	method	equals	p0 any)	func (this *ModuleIdentifier) equals(p0 any) bool {
+g_ModuleLoader.go	79	funclit		p0 any,	return func(p0 any, p1 any) int32 { return f_(str_(p0), str_(p1)) }
+g_ModuleLoader.go	79	funclit		p1 any)	return func(p0 any, p1 any) int32 { return f_(str_(p0), str_(p1)) }
+g_ModuleLoader.go	110	funclit		p0 any,	return func(p0 any, p1 any) int32 { return f_(str_(p0), str_(p1)) }
+g_ModuleLoader.go	110	funclit		p1 any)	return func(p0 any, p1 any) int32 { return f_(str_(p0), str_(p1)) }
+g_ModuleMetadataMap.go	253	method	equals	other any)	func (this *ModuleMetadataMap_ModuleMetadata) equals(other any) bool {
+g_MustBeReachingVariableDef.go	320	method	equals	other any)	func (this *MustBeReachingVariableDef_Definition) equals(other any) bool {
+g_MustBeReachingVariableDef.go	378	method	equals	other any)	func (this *MustBeReachingVariableDef_MustDef) equals(other any) bool {
+g_NoOpLogFile.go	27	method	logObject_impl	value any)	func (this *NoOpLogFile) logObject_impl(value any) *LogFile {
+g_NoOpLogFile.go	43	method	logJsonObject_impl	value any)	func (this *NoOpLogFile) logJsonObject_impl(value any) *LogFile {
+g_NoOpLogFile.go	64	method	logObject	p0 any)	func (this *NoOpLogFile) logObject(p0 any) *LogFile {
+g_NoOpLogFile.go	96	method	logJsonObject	p0 any)	func (this *NoOpLogFile) logJsonObject(p0 any) *LogFile {
+g_Node.go	3353	field		objectValue any	objectValue any
+g_Node.go	51	method	payload_set_	v any)	func (this Node) payload_set_(v any) {
+g_Node.go	99	method	jstypeOrColor_set_	v any)	func (this Node) jstypeOrColor_set_(v any) {
+g_Node.go	131	function	Node_of_	v any)	func Node_of_(v any) Node {
+g_Node.go	931	method	setReflectedObject	object any)	func (this Node) setReflectedObject(object any) {
+g_Node.go	1819	function	Node_payloadClass	payload any)	func Node_payloadClass(payload any) ClassOf[any] {
+g_Node.go	3019	funclit		p0 any)	return func(p0 any) any { return f_(Node_of_(p0)) }
+g_Node.go	3025	funclit		p0 any)	return func(p0 any) any { return f_(Node_of_(p0)) }
+g_Node.go	3031	funclit		p0 any)	return func(p0 any) any { return f_(Node_of_(p0)) }
+g_Node.go	3037	funclit		p0 any)	return func(p0 any) any { return f_(Node_of_(p0)) }
+g_Node.go	3043	funclit		p0 any)	return func(p0 any) any { return f_(Node_of_(p0)) }
+g_Node.go	3049	funclit		p0 any)	return func(p0 any) any { return f_(Node_of_(p0)) }
+g_Node.go	3057	funclit		p0 any)	return func(p0 any) any { return f_(Node_of_(p0)) }
+g_Node.go	3065	funclit		p0 any)	return func(p0 any) any { return f_(Node_of_(p0)) }
+g_Node.go	3073	funclit		p0 any)	return func(p0 any) any { return f_(Node_of_(p0)) }
+g_Node.go	3081	funclit		p0 any)	return func(p0 any) any { return f_(Node_of_(p0)) }
+g_Node.go	3089	funclit		p0 any)	return func(p0 any) any { return f_(Node_of_(p0)) }
+g_Node.go	3097	funclit		p0 any)	return func(p0 any) any { return f_(Node_of_(p0)) }
+g_Node.go	3105	funclit		p0 any)	return func(p0 any) any { return f_(Node_of_(p0)) }
+g_Node.go	3113	funclit		p0 any)	return func(p0 any) any { return f_(Node_of_(p0)) }
+g_Node.go	3121	funclit		p0 any)	return func(p0 any) any { return f_(Node_of_(p0)) }
+g_Node.go	3363	method	init_Node_ObjectPropListItem	objectValue any,	func (this *Node_ObjectPropListItem) init_Node_ObjectPropListItem(propType int8, objectValue any, next *Node_PropListItem) {
+g_Node.go	3371	function	new_Node_ObjectPropListItem	objectValue any,	func new_Node_ObjectPropListItem(propType int8, objectValue any, next *Node_PropListItem) *Node_ObjectPropListItem {
+g_NodeModuleResolver.go	47	funclit		a_ any,	var registry *TSet[string] = newTSortedSetC_(tc_string, Comparator[any](func(a_ any, b_ any) int32 {
+g_NodeModuleResolver.go	47	funclit		b_ any)	var registry *TSet[string] = newTSortedSetC_(tc_string, Comparator[any](func(a_ any, b_ any) int32 {
+g_NodeTraversal.go	619	method	getNodeRootFromScopeObj	root any)	func (this *NodeTraversal) getNodeRootFromScopeObj(root any) Node {
+g_OptimizeCalls.go	114	field		considerExterns any	considerExterns any
+g_Output.go	82	method	append_CharSequence_rOutput	s any)	func (this *Output) append_CharSequence_rOutput(s any) *Output {
+g_Output.go	87	method	append_CharSequence_int_int_rOutput	s any,	func (this *Output) append_CharSequence_int_int_rOutput(s any, start int32, end int32) *Output {
+g_Output.go	131	method	append_CharSequence	p0 any)	func (this *Output) append_CharSequence(p0 any) Appendable {
+g_Output.go	135	method	append_CharSequence_int_int	p0 any,	func (this *Output) append_CharSequence_int_int(p0 any, p1 int32, p2 int32) Appendable {
+g_Parser.go	2581	method	reportExpectedError	expected any)	func (this *Parser) reportExpectedError(token *Token_parser, expected any) {
+g_PassFactory.go	110	method	equals	p0 any)	func (this *PassFactory) equals(p0 any) bool {
+g_PassFactory.go	153	method	equals	p0 any)	func (this *PassFactory_PreconditionResult) equals(p0 any) bool {
+g_PeepholeFoldConstants.go	289	method	isReasonableDoubleValue	x any)	func (this *PeepholeFoldConstants) isReasonableDoubleValue(x any) bool {
+g_PerformanceTracker.go	413	funclit		p0 any,	return func(p0 any, p1 any) int32 {
+g_PerformanceTracker.go	413	funclit		p1 any)	return func(p0 any, p1 any) int32 {
+g_PolyfillUsageFinder.go	437	method	equals	p0 any)	func (this *PolyfillUsageFinder_PolyfillUsage) equals(p0 any) bool {
+g_ProfilingReport.go	53	funclit		p0 any,	return func(p0 any, p1 any) int32 {
+g_ProfilingReport.go	53	funclit		p1 any)	return func(p0 any, p1 any) int32 {
+g_Property.go	6	field		name_        any	name_        any
+g_Property.go	17	method	init_Property	name any,	func (this *Property) init_Property(name any, type_ *JSType, inferred bool, propertyNode Node) {
+g_Property.go	31	function	new_Property	name any,	func new_Property(name any, type_ *JSType, inferred bool, propertyNode Node) *Property {
+g_Property.go	286	method	equals	p0 any)	func (this *Property_StringKey) equals(p0 any) bool {
+g_Property.go	351	method	equals	p0 any)	func (this *Property_SymbolKey) equals(p0 any) bool {
+g_PrototypeObjectType.go	189	funclit		p0 any,	return func(p0 any, p1 any) int32 {
+g_PrototypeObjectType.go	189	funclit		p1 any)	return func(p0 any, p1 any) int32 {
+g_PrototypeObjectType.go	538	method	equals	p0 any)	func (this *PrototypeObjectType_PropertyForPrettyPrinting) equals(p0 any) bool {
+g_PruningAnalysis.go	59	funclit		p0 any,	return func(p0 any, p1 any) int32 {
+g_PruningAnalysis.go	59	funclit		p1 any)	return func(p0 any, p1 any) int32 {
+g_PureFunctionIdentifier.go	80	funclit		p0 any,	return func(p0 any, p1 any) int32 { return f_(Node_of_(p0), Node_of_(p1)) }
+g_PureFunctionIdentifier.go	80	funclit		p1 any)	return func(p0 any, p1 any) int32 { return f_(Node_of_(p0), Node_of_(p1)) }
+g_PureFunctionIdentifier.go	246	funclit		p0 any,	Map_forEach(Map_un_(referencesByName.asMap()), BiConsumer[any, any](func(p0 any, p1 any) { this.populateFunctionDefinitions(str_(p0), listAs_(tc_Node, icast_Lis
+g_PureFunctionIdentifier.go	246	funclit		p1 any)	Map_forEach(Map_un_(referencesByName.asMap()), BiConsumer[any, any](func(p0 any, p1 any) { this.populateFunctionDefinitions(str_(p0), listAs_(tc_Node, icast_Lis
+g_QualifiedName.go	80	method	join_1	separator any)	func (this *QualifiedName) join_1(separator any) string {
+g_QualifiedName.go	102	method	appendTo	p1 any)	func (this *QualifiedName) appendTo(p0 *strBuilder_, p1 any) {
+g_QualifiedName.go	180	method	appendTo_impl	separator any)	func (this *QualifiedName_StringListQname) appendTo_impl(sb *strBuilder_, separator any) {
+g_QualifiedName.go	267	method	appendTo_impl	separator any)	func (this *QualifiedName_GetpropQname) appendTo_impl(sb *strBuilder_, separator any) {
+g_QualifiedName.go	332	method	appendTo_impl	separator any)	func (this *QualifiedName_NodeQname) appendTo_impl(sb *strBuilder_, separator any) {
+g_QualifiedName.go	385	method	appendTo	p1 any)	func (this *QualifiedName_StringListQname) appendTo(p0 *strBuilder_, p1 any) {
+g_QualifiedName.go	442	method	appendTo	p1 any)	func (this *QualifiedName_GetpropQname) appendTo(p0 *strBuilder_, p1 any) {
+g_QualifiedName.go	491	method	appendTo	p1 any)	func (this *QualifiedName_NodeQname) appendTo(p0 *strBuilder_, p1 any) {
+g_RefactoringDriver.go	96	funclit		p0 any)	return func(p0 any) any { return obj_(f_(str_(p0))) }
+g_RefactoringDriver.go	122	funclit		p0 any)	return func(p0 any) any { return obj_(f_(str_(p0))) }
+g_RegExpTree.go	175	method	equals	p0 any)	func (this *RegExpTree) equals(p0 any) bool {
+g_RegExpTree.go	382	method	equals_impl	o any)	func (this *RegExpTree_Empty) equals_impl(o any) bool {
+g_RegExpTree.go	451	method	equals_impl	o any)	func (this *RegExpTree_Anchor) equals_impl(o any) bool {
+g_RegExpTree.go	503	method	equals_impl	o any)	func (this *RegExpTree_WordBoundary) equals_impl(o any) bool {
+g_RegExpTree.go	558	method	equals_impl	o any)	func (this *RegExpTree_BackReference) equals_impl(o any) bool {
+g_RegExpTree.go	615	method	equals_impl	o any)	func (this *RegExpTree_NamedBackReference) equals_impl(o any) bool {
+g_RegExpTree.go	723	method	equals_impl	o any)	func (this *RegExpTree_Text) equals_impl(o any) bool {
+g_RegExpTree.go	936	method	equals_impl	o any)	func (this *RegExpTree_Repetition) equals_impl(o any) bool {
+g_RegExpTree.go	1125	method	equals_impl	o any)	func (this *RegExpTree_Alternation) equals_impl(o any) bool {
+g_RegExpTree.go	1219	method	equals_impl	o any)	func (this *RegExpTree_LookaheadAssertion) equals_impl(o any) bool {
+g_RegExpTree.go	1307	method	equals_impl	o any)	func (this *RegExpTree_LookbehindAssertion) equals_impl(o any) bool {
+g_RegExpTree.go	1377	method	equals_impl	o any)	func (this *RegExpTree_CapturingGroup) equals_impl(o any) bool {
+g_RegExpTree.go	1453	method	equals_impl	o any)	func (this *RegExpTree_NamedCaptureGroup) equals_impl(o any) bool {
+g_RegExpTree.go	1535	method	equals_impl	o any)	func (this *RegExpTree_UnicodePropertyEscape) equals_impl(o any) bool {
+g_RegExpTree.go	1695	method	equals_impl	o any)	func (this *RegExpTree_Charset) equals_impl(o any) bool {
+g_RegExpTree.go	2012	method	equals_impl	o any)	func (this *RegExpTree_Concatenation) equals_impl(o any) bool {
+g_RenameProperties.go	75	funclit		p0 any,	return func(p0 any, p1 any) int32 {
+g_RenameProperties.go	75	funclit		p1 any)	return func(p0 any, p1 any) int32 {
+g_RenameVars.go	83	funclit		p0 any,	var varsByFrequency *TSet[*RenameVars_Assignment] = newTSortedSetC_(tc_p_RenameVars_Assignment, Comparator[any](func(p0 any, p1 any) int32 {
+g_RenameVars.go	83	funclit		p1 any)	var varsByFrequency *TSet[*RenameVars_Assignment] = newTSortedSetC_(tc_p_RenameVars_Assignment, Comparator[any](func(p0 any, p1 any) int32 {
+g_RenameVars.go	193	funclit		p0 any,	return func(p0 any, p1 any) int32 {
+g_RenameVars.go	193	funclit		p1 any)	return func(p0 any, p1 any) int32 {
+g_ReplaceStrings.go	60	funclit		p0 any)	return func(p0 any) bool { return f_(cast_[*ReplaceStrings_Result](p0)) }
+g_ReplaceStrings.go	71	funclit		p0 any)	return func(p0 any) bool { return f_(cast_[*ReplaceStrings_Result](p0)) }
+g_ReportDecoder.go	137	funclit		existing any)	frequencies.computeT_(pointStats.getPoint(), func(p *InstrumentationPoint, existing any) any {
+g_Scope.go	189	funclit		p0 any)	return cast_[*Var](Map_computeIfAbsent_f(Map_un_(this.implicitVars), obj_(name), func(p0 any) any {
+g_ScopedName.go	111	method	equals	other any)	func (this *ScopedName) equals(other any) bool {
+g_SerializeTypesToPointers.go	257	method	compareTo	x_ any)	func (this *SerializeTypesToPointers_TypeMismatchJson) compareTo(x_ any) int32 {
+g_SimpleDependencyInfo.go	103	method	equals	p0 any)	func (this *SimpleDependencyInfo) equals(p0 any) bool {
+g_SimpleMultiset.go	174	method	equals	o any)	func (this *SimpleMultiset[E]) equals(o any) bool {
+g_SimpleReference.go	30	other		v any)	}](v any) *SimpleReference[T] {
+g_SimpleSetMultimap.go	219	method	equals	p0 any)	func (this *SimpleSetMultimap_Entry[K, V]) equals(p0 any) bool {
+g_SimpleTable.go	84	funclit		p0 any)	return iterableAs_(tcT_[V](), Iterables_unmodifiableIterable(Iterables_concat_Iterable(Iterables_transform(Iterable(Collection_un_(this.rows.valuesT())), Functi
+g_SortingErrorManager.go	56	funclit		p0 any,	return func(p0 any, p1 any) int32 {
+g_SortingErrorManager.go	56	funclit		p1 any)	return func(p0 any, p1 any) int32 {
+g_SortingErrorManager.go	245	method	equals	obj any)	func (this *SortingErrorManager_ErrorWithLevel) equals(obj any) bool {
+g_Source.go	448	field		cap_instance any	cap_instance any
+g_Source.go	108	method	equals	p0 any)	func (this *Source) equals(p0 any) bool {
+g_Source.go	424	method	equals	other any)	func (this *Source_Lazy) equals(other any) bool {
+g_Source.go	462	function	new_Source_Lazy_1	cap_instance any)	func new_Source_Lazy_1(cap_instance any) *Source_Lazy_1 {
+g_SourceCodeEscapers.go	22	function	SourceCodeEscapers_appendWithJavascriptEscaper	c any,	func SourceCodeEscapers_appendWithJavascriptEscaper(c any, to Appendable) {
+g_SourceCodeEscapers.go	66	method	appendTo	cs any,	func (this *SourceCodeEscapers_JavaScriptEscaper) appendTo(cs any, to Appendable) {
+g_SourceMap.go	338	method	equals	other any)	func (this *SourceMap_PrefixLocationMapping) equals(other any) bool {
+g_SourceMapGeneratorV3.go	211	method	addExtension	object any)	func (this *SourceMapGeneratorV3) addExtension(name string, object any) *Outcome_base[any] {
+g_SourceMapGeneratorV3.go	293	function	SourceMapGeneratorV3_appendFirstField	value any)	func SourceMapGeneratorV3_appendFirstField(out Appendable, name string, value any) {
+g_SourceMapSection.go	71	method	equals	p0 any)	func (this *SourceMapSection) equals(p0 any) bool {
+g_SourcePosition_rhino.go	7	field		item        any	item        any
+g_SourcePosition_rhino.go	41	method	setItem_impl	item any)	func (this *SourcePosition_rhino) setItem_impl(item any) {
+g_SourcePosition_rhino.go	81	method	setItem	p0 any)	func (this *SourcePosition_rhino) setItem(p0 any) {
+g_StandardUnionFind.go	195	method	apply	b any)	func (this *StandardUnionFind_1[E]) apply(b any) bool {
+g_StandardUnionFind.go	237	method	contains	o any)	func (this *StandardUnionFind_2[E]) contains(o any) bool {
+g_SubtypeChecker.go	9	field		isUsingStructuralTyping any	isUsingStructuralTyping any
+g_SubtypeChecker.go	723	method	equals	other any)	func (this *SubtypeChecker_CacheKey) equals(other any) bool {
+g_SymbolTable.go	1070	method	equals	o any)	func (this *SymbolTable_Symbol) equals(o any) bool {
+g_SymbolTable.go	1264	funclit		p0 any)	return func(p0 any) bool { return f_(cast_[*SymbolTable_Symbol](p0)) }
+g_SymbolTable.go	1839	method	compare	a_ any,	func (this *SymbolTable_5) compare(a_ any, b_ any) int32 {
+g_SymbolTable.go	1839	method	compare	b_ any)	func (this *SymbolTable_5) compare(a_ any, b_ any) int32 {
+g_SymbolTable.go	1880	method	compare	a_ any,	func (this *SymbolTable_6) compare(a_ any, b_ any) int32 {
+g_SymbolTable.go	1880	method	compare	b_ any)	func (this *SymbolTable_6) compare(a_ any, b_ any) int32 {
+g_SymbolTable.go	1927	method	compare	a_ any,	func (this *SymbolTable_7) compare(a_ any, b_ any) int32 {
+g_SymbolTable.go	1927	method	compare	b_ any)	func (this *SymbolTable_7) compare(a_ any, b_ any) int32 {
+g_Timeline.go	68	method	addEvent	value any,	func (this *Timeline[T]) addEvent(value any, eventsByKey MapOf[any, *Timeline_Event[any]]) {
+g_Timeline.go	125	method	equals	anObject any)	func (this *Timeline_Time) equals(anObject any) bool {
+g_TranspileAndOptimizeClosureUnaware.go	111	method	equals	p0 any)	func (this *TranspileAndOptimizeClosureUnaware_ShadowAst) equals(p0 any) bool {
+g_TranspileResult.go	78	method	equals	other any)	func (this *TranspileResult) equals(other any) bool {
+g_TypeInference.go	1474	funclit		k_ any,	Map_replaceAll(Map_un_(inferred.asMapT()), BiFunction[any, any, any](func(k_ any, v_ any) any {
+g_TypeInference.go	1474	funclit		v_ any)	Map_replaceAll(Map_un_(inferred.asMapT()), BiFunction[any, any, any](func(k_ any, v_ any) any {
+g_TypeInferencePass.go	75	funclit		p0 any,	return func(p0 any, p1 any) int32 {
+g_TypeInferencePass.go	75	funclit		p1 any)	return func(p0 any, p1 any) int32 {
+g_TypeInferencePass.go	102	funclit		k any)	this.stepCountHistogram.ComputeIfAbsent(int32(state.getStepCount()), Function[any, *SimpleMultiset[Token_rhino]](func(k any) *SimpleMultiset[Token_rhino] {
+g_TypeMismatch.go	64	method	equals	p0 any)	func (this *TypeMismatch) equals(p0 any) bool {
+g_TypeTransformation.go	100	method	addNewEntry	type_ any)	func (this *TypeTransformation) addNewEntry(map_ ImmutableMapOf[string, any], name string, type_ any) *ImmutableMap[string, any] {
+g_TypedAstDeserializer.go	112	funclit		builder_ any)	var colorShard Optional_baseOf[*ColorPool_ShardView] = this.colorPoolBuilder.transform(Function_base[any, any](func(builder_ any) any {
+g_TypedAstDeserializer.go	171	funclit		p0 any)	Map_computeIfAbsent_f(Map(this.typedAstFilesystem), obj_(file), func(p0 any) any {
+g_TypedAstDeserializer.go	186	funclit		f_ any)	Map_computeIfAbsent_f(Map(this.typedAstFilesystem), obj_(file), func(f_ any) any {
+g_TypedScope.go	194	funclit		p0 any)	return iterableAs_(tc_p_TypedVar, Iterables_filter(Iterable_un_(this.getVarIterable_rIterableOf_TypedVar()), Predicate_base[any](func(p0 any) bool { return this
+g_TypedScope.go	337	funclit		p0 any)	return cast_[*TypedVar](Map_computeIfAbsent_f(Map_un_(this.implicitVars), obj_(name), func(p0 any) any {
+g_TypedScopeCreator.go	767	funclit		p0 any)	Iterable_forEach(Iterable(Set_un_(this.deferredActions.removeAll(n))), Consumer[any](func(p0 any) { p0.(Runnable).run() }))
+g_TypedScopeCreator.go	769	funclit		p0 any)	Iterable_forEach(Iterable(Collection_un_(this.deferredActions.values())), Consumer[any](func(p0 any) { p0.(Runnable).run() }))
+g_UnresolvedModule.go	55	method	equals	other any)	func (this *UnresolvedModule) equals(other any) bool {
+g_VariableMap.go	58	funclit		p0 any,	return func(p0 any, p1 any) int32 { return f_(icast_Map_Entry(p0), icast_Map_Entry(p1)) }
+g_VariableMap.go	58	funclit		p1 any)	return func(p0 any, p1 any) int32 { return f_(icast_Map_Entry(p0), icast_Map_Entry(p1)) }
+g_WritingLogFile.go	41	method	logObject_impl	value any)	func (this *WritingLogFile) logObject_impl(value any) *LogFile {
+g_WritingLogFile.go	57	method	logJsonObject_impl	value any)	func (this *WritingLogFile) logJsonObject_impl(value any) *LogFile {
+g_WritingLogFile.go	101	method	logObject	p0 any)	func (this *WritingLogFile) logObject(p0 any) *LogFile {
+g_WritingLogFile.go	133	method	logJsonObject	p0 any)	func (this *WritingLogFile) logJsonObject(p0 any) *LogFile {
+g_zconv_immmaps.go	7	funclit		v any)	var tc_any = &tconv_[any]{box: func(v any) any { return v }, unbox: func(v any) any { return v }}
+g_zconv_immmaps.go	7	funclit		v any)	var tc_any = &tconv_[any]{box: func(v any) any { return v }, unbox: func(v any) any { return v }}
+g_zstubs.go	39	method	add_int_Object	p1 any)	func (this *AbstractList) add_int_Object(p0 int32, p1 any) {
+g_zstubs.go	47	method	indexOf	p0 any)	func (this *AbstractList) indexOf(p0 any) int32 {
+g_zstubs.go	55	method	lastIndexOf	p0 any)	func (this *AbstractList) lastIndexOf(p0 any) int32 {
+g_zstubs.go	63	method	set	p1 any)	func (this *AbstractList) set(p0 int32, p1 any) any {
+g_zstubs.go	94	method	containsKey	p0 any)	func (this *AbstractMap) containsKey(p0 any) bool {
+g_zstubs.go	98	method	containsValue	p0 any)	func (this *AbstractMap) containsValue(p0 any) bool {
+g_zstubs.go	106	method	get	p0 any)	func (this *AbstractMap) get(p0 any) any {
+g_zstubs.go	118	method	put	p0 any,	func (this *AbstractMap) put(p0 any, p1 any) any {
+g_zstubs.go	118	method	put	p1 any)	func (this *AbstractMap) put(p0 any, p1 any) any {
+g_zstubs.go	126	method	remove	p0 any)	func (this *AbstractMap) remove(p0 any) any {
+g_zstubs.go	338	method	init_AssertionError_Object	p0 any)	func (this *AssertionError) init_AssertionError_Object(p0 any) {
+g_zstubs.go	342	function	new_AssertionError_Object	p0 any)	func new_AssertionError_Object(p0 any) *AssertionError {

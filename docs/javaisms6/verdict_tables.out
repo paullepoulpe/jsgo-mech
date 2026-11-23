@@ -1,0 +1,399 @@
+
+### row 0: 40  (DONE 22, RULE T2 9, UNSPLIT 9)
+| DONE | BitSet (jsgo jutil.BitSet, jutil/bitset.go:13) | 22 |
+| RULE T2 | erased library class with no typed twin used here (Deque, EnumMap, TreeMap, IdentityHashMap) | 9 |
+| UNSPLIT | ArrayList / LinkedHashMap / LinkedHashSet wrapped at once by listAs_/mapAs_ or copied (colls left them; per-site reason not read) | 9 |
+
+### row 1: 525  (UNSPLIT 525)
+| UNSPLIT | typed TList/TMap/TSet constructor (newTMap_) | 186 |
+| UNSPLIT | typed TList/TMap/TSet constructor (newTList_) | 167 |
+| UNSPLIT | typed TList/TMap/TSet constructor (newTSet_) | 152 |
+| UNSPLIT | typed TList/TMap/TSet constructor (newTListN_) | 14 |
+| UNSPLIT | typed TList/TMap/TSet constructor (newTMapN_) | 4 |
+| UNSPLIT | typed TList/TMap/TSet constructor (newTSetN_) | 2 |
+
+### row 2: 43  (RULE T2 43)
+| RULE T2 | erased Guava immutable or builder (ImmutableList_copyOf_Iterable) | 7 |
+| RULE T2 | erased Guava immutable or builder (ImmutableSet_builder) | 5 |
+| RULE T2 | erased Guava immutable or builder (ImmutableList_of_Object..) | 4 |
+| RULE T2 | erased Guava immutable or builder (ImmutableList_copyOf) | 4 |
+| RULE T2 | erased Guava immutable or builder (ImmutableSet_copyOf_Object..Arr) | 3 |
+| RULE T2 | erased Guava immutable or builder (ImmutableSortedMap_copyOf) | 3 |
+| RULE T2 | erased Guava immutable or builder (ImmutableSortedSet_copyOf) | 2 |
+| RULE T2 | erased Guava immutable or builder (ImmutableMap_builder) | 2 |
+| RULE T2 | erased Guava immutable or builder (ImmutableList_of) | 2 |
+| RULE T2 | erased Guava immutable or builder (ImmutableMap_of_Object..) | 2 |
+| RULE T2 | erased Guava immutable or builder (ImmutableSortedSet_copyOfSorted) | 2 |
+| RULE T2 | erased Guava immutable or builder (ImmutableList_builder) | 1 |
+| RULE T2 | erased Guava immutable or builder (ImmutableSortedSet_of) | 1 |
+| RULE T2 | erased Guava immutable or builder (ImmutableMap_of) | 1 |
+| RULE T2 | erased Guava immutable or builder (new_ImmutableSortedSet_Builder) | 1 |
+| RULE T2 | erased Guava immutable or builder (ImmutableSet_of_Object..) | 1 |
+| RULE T2 | erased Guava immutable or builder (new_ImmutableMap_Builder) | 1 |
+| RULE T2 | erased Guava immutable or builder (ImmutableSortedSet_copyOf_Comparator_Collection) | 1 |
+
+### row 3: 100  (DONE 100)
+| DONE | make([]T) (jsgo 732) | 100 |
+
+### row 5: 34  (REASON 3, RULE T1 3, RULE T2 1, RULE T5 11, RULE T6 7, UNSPLIT 9)
+| REASON | Java wildcard List<? extends DiGraphEdge<N, E>> (no variance in Go; jsgo's graph is concrete, by hand) | 3 |
+| RULE T1 | for-each over an erased runtime library function's result | 3 |
+| RULE T2 | for-each over an erased Deque | 1 |
+| RULE T5 | for-each over a protobuf list accessor (erased List) | 11 |
+| RULE T6 | for-each over a typed value boxed to Object (program Iterable<T>, EnumSet) | 7 |
+| UNSPLIT | .each() cursor over a typed list or set (native keeps a cursor where the loop may change the collection; not split per site) | 9 |
+
+### row 6: 73  (REASON 73)
+| REASON | explicit Iterator walk written by hand in Java (iters converts 0 on this tree; a range or index loop instead is a rewrite of the walk; jsgo has 16 HasNext) | 68 |
+| REASON | hasNext() inside a program class implementing Iterator (Java's protocol; jsgo has 3 iterator types) | 5 |
+
+### row 10: 183  (DONE 65, REASON 17, RULE T1 6, RULE T2 10, not a site 85)
+| DONE | self() of a typed value: down/cross-cast in a class hierarchy | 44 |
+| DONE | JSDocInfo.Property value methods take Object (jsgo EqualValues(left any, right any), rhino/js_doc_info.go:259) | 13 |
+| DONE | Node / JSDocInfo property bag read (jsgo: GetProp any, node_cast / jsdocGet) | 7 |
+| DONE | cross-cast of a typed interface value to another interface it implements | 1 |
+| REASON | typed sort of typed entries (REFLIP6 'typed sorts': wrappers break K(box(x)) == x; a rule was tried and dropped) | 8 |
+| REASON | boxT_ of a type parameter (Go cannot assert a type-parameter value) | 7 |
+| REASON | Java wildcard List<? extends DiGraphEdge<N, E>> (Go has no variance; jsgo's graph is concrete, by hand) | 1 |
+| REASON | Object slot holding values of two or more types in Java (GlobalNamespace_Name.refsForNode any) | 1 |
+| RULE T1 | erased runtime library function: Map_forEach | 2 |
+| RULE T1 | erased runtime library function: Map_get_s | 1 |
+| RULE T1 | erased runtime library function: Map_computeIfAbsent_f | 1 |
+| RULE T1 | erased runtime library function: SequencedCollection_getFirst | 1 |
+| RULE T1 | erased runtime library function: Iterables_transform | 1 |
+| RULE T2 | value of an erased library type (Deque) | 2 |
+| RULE T2 | value of an erased library type (Optional_base) | 2 |
+| RULE T2 | converting closure for an erased Guava type (sorted immutables, Optional.transform) | 2 |
+| RULE T2 | value of an erased library type (PriorityQueue) | 1 |
+| RULE T2 | value of an erased library type (immElems_(ImmutableSetOf) | 1 |
+| RULE T2 | entry of an erased library map (ImmutableSortedSet / erased entries) | 1 |
+| RULE T2 | value of an erased library type (immElems_(*ImmutableSortedSet)) | 1 |
+| not a site | helper declaration | 60 |
+| not a site | inside the unbox function of a tconv_ descriptor (goes with the descriptors, section 3) | 25 |
+
+### row 11: 553  (DONE 95, REASON 27, RULE R4 7, RULE T1 60, RULE T2 33, RULE T4 18, RULE T5 4, RULE T6 2, RULE T7 1, not a site 306)
+| DONE | self() of a typed value: down/cross-cast in a class hierarchy | 52 |
+| DONE | Node / JSDocInfo property bag read (jsgo: GetProp any, node_cast / jsdocGet) | 14 |
+| DONE | caught exception asserted after its catch test | 12 |
+| DONE | Java downcast of an interface value to its class (jsgo asserts too) | 5 |
+| DONE | equals(Object) parameter (jsgo Equals(any)) | 4 |
+| DONE | JSDocInfo.Property value methods take Object (jsgo EqualValues(left any, right any), rhino/js_doc_info.go:259) | 4 |
+| DONE | cast after an instanceof test of the same value | 4 |
+| REASON | graph annotation (jsgo: flow states in a side slice, by hand) | 14 |
+| REASON | boxT_ of a type parameter (Go cannot assert a type-parameter value) | 3 |
+| REASON | Object or interface result in Java (AbstractCompiler.getTypedScopeCreator) | 2 |
+| REASON | Object or interface result in Java (NodeTraversal.getScopeCreator) | 1 |
+| REASON | Object slot holding values of two or more types in Java (GlobalNamespace_Name.refsForNode any) | 1 |
+| REASON | Object slot holding values of two or more types in Java (function LogsGson_write) | 1 |
+| REASON | Object or interface result in Java (Node.payload_get_) | 1 |
+| REASON | Object or interface result in Java (Node.jstypeOrColor_get_) | 1 |
+| REASON | Object slot holding values of two or more types in Java (method getNodeRootFromScopeObj) | 1 |
+| REASON | Object slot holding values of two or more types in Java (sliceAt_) | 1 |
+| REASON | Object or interface result in Java (Node.getStaticSourceFile) | 1 |
+| RULE R4 | generic program class with an erased type parameter (AbstractCommandLineRunner.FlagEntry<T>.flag) | 7 |
+| RULE T1 | erased runtime library function: newTSortedSetC_ | 14 |
+| RULE T1 | erased runtime library function: Map_computeIfAbsent_f | 8 |
+| RULE T1 | erased runtime library function: Map_get_s | 7 |
+| RULE T1 | erased runtime library function: Iterables_getOnlyElement | 4 |
+| RULE T1 | element of toArray's []any (typed toArray) | 3 |
+| RULE T1 | erased runtime library function: Iterables_getFirst | 3 |
+| RULE T1 | erased runtime library function: Object_clone | 3 |
+| RULE T1 | erased runtime library function: Iterables_filter | 3 |
+| RULE T1 | erased runtime library function: Map_forEach | 2 |
+| RULE T1 | erased runtime library function: List_sort | 2 |
+| RULE T1 | erased runtime library function: SequencedCollection_getLast | 2 |
+| RULE T1 | erased runtime library function: Map_replaceAll | 2 |
+| RULE T1 | result of a func value typed func() any (converting closure) | 1 |
+| RULE T1 | erased runtime library function: CacheLoader_from | 1 |
+| RULE T1 | erased runtime library function: Iterable_forEach | 1 |
+| RULE T1 | erased runtime library function: Map_getOrDefault_s | 1 |
+| RULE T1 | erased runtime library function: Map_getOrDefault | 1 |
+| RULE T1 | erased runtime library function: Iterables_indexOf | 1 |
+| RULE T1 | erased runtime library function: MoreObjects_firstNonNull | 1 |
+| RULE T2 | value of an erased library type (immElems_(ImmutableSortedSetOf) | 5 |
+| RULE T2 | value of an erased library type (Optional_base) | 5 |
+| RULE T2 | value of an erased library type (immElems_(*ErasedImmutableList)) | 5 |
+| RULE T2 | value of an erased library type (ImmutableCollection) | 4 |
+| RULE T2 | value of an erased library type (LoadingCache) | 2 |
+| RULE T2 | value of an erased library type (ErasedImmutableMap) | 2 |
+| RULE T2 | value of an erased library type (PeekingIterator) | 2 |
+| RULE T2 | entry of an erased library map (ImmutableSortedSet / erased entries) | 2 |
+| RULE T2 | value of an erased library type (foreach_(DequeOf) | 1 |
+| RULE T2 | value of an erased library type (immElems_(ImmutableListOf) | 1 |
+| RULE T2 | value of an erased library type (IdentityHashMap) | 1 |
+| RULE T2 | value of an erased library type (MapOf alias) | 1 |
+| RULE T2 | value of an erased library type (ThreadLocal) | 1 |
+| RULE T2 | converting closure for an erased Guava type (sorted immutables, Optional.transform) | 1 |
+| RULE T4 | bridge of Comparable/Comparator implemented by a class (erased callers: the runtime's sorts) | 17 |
+| RULE T4 | bridge of a class implementing a library interface (load) | 1 |
+| RULE T5 | protobuf list accessor returning an erased List | 3 |
+| RULE T5 | protobuf list accessor or builder returning an erased value | 1 |
+| RULE T6 | for-each over a typed value boxed to Object (a program class implementing Iterable<T>, EnumSet) | 2 |
+| RULE T7 | converting closure of a func-typed conversion in g_0casts.go | 1 |
+| not a site | cast function as a value (tconv_ unbox field) | 255 |
+| not a site | helper declaration | 36 |
+| not a site | comment | 6 |
+| not a site | fallback inside a gcast_ helper | 6 |
+| not a site | cast function as a value (arrmap_) | 2 |
+| not a site | inside the unbox function of a tconv_ descriptor (goes with the descriptors, section 3) | 1 |
+
+### row 12: 71  (DONE 54, not a site 17)
+| DONE | instanceof (jsgo typeCheck_isFunctionType one-line helpers, type_check_visit.go:75-80) | 54 |
+| not a site | is_X helper declaration | 17 |
+
+### row 13: 2047  (DONE 1897, REASON 4, RULE T1 7, RULE T2 6, RULE T5 2, not a site 131)
+| DONE | dispatcher (exact-class test or single implementation; jsgo self_ JSType, jstype_named_type.go:128) | 1588 |
+| DONE | instanceof as comma-ok assertion (jsgo 284 comma-ok assertions) | 195 |
+| DONE | cast folded to v.(T): self() of a typed value or guarded | 109 |
+| DONE | Java downcast of an interface value to its class | 2 |
+| DONE | Node property bag read | 2 |
+| DONE | equals(Object) parameter | 1 |
+| REASON | Object slot holding values of two or more types in Java | 4 |
+| RULE T1 | erased runtime library function or converting closure (argument of Function_base) | 2 |
+| RULE T1 | erased runtime library function or converting closure (argument of Consumer) | 2 |
+| RULE T1 | erased runtime library function or converting closure (Iterables_getFirst) | 1 |
+| RULE T1 | erased runtime library function or converting closure (argument of Predicate_base) | 1 |
+| RULE T1 | erased runtime library function or converting closure (SequencedCollection_getLast) | 1 |
+| RULE T2 | erased Guava immutable twin read back (lgBox_(..).(*ErasedImmutable..)) | 3 |
+| RULE T2 | value of an erased library type (Optional_base) | 2 |
+| RULE T2 | entry of an erased library map | 1 |
+| RULE T5 | protobuf builder returning an erased value | 2 |
+| not a site | body of a cast/instanceof helper | 129 |
+| not a site | inside the unbox function of a tconv_ descriptor | 2 |
+
+### row 14: 27  (DONE 4, not a site 23)
+| DONE | type switch (jsgo 78; visitors as type switches, jstype_template_type_replacer.go:211) | 4 |
+| not a site | type switch in a to_X / gcast_X helper | 23 |
+
+### row 15: 938  (DONE 417, REASON 211, RULE E-tostr 4, RULE R4 16, RULE R5 5, RULE T1 92, RULE T2 71, RULE T3 62, RULE T4 11, RULE T6 19, RULE T7 17, not a site 13)
+| DONE | variadic runtime argument (Strings_lenientFormat, String_format: ...any as jsgo) | 162 |
+| DONE | the Object argument of equals (jsgo Equals(other any)) | 60 |
+| DONE | identity comparison of values of two static types (needs an interface in Go) | 51 |
+| DONE | Node / JSDocInfo property bag store (jsgo PutProp(prop, value any)) | 51 |
+| DONE | variadic generated argument (Java varargs of Object: LogFile.log, Msg.format, Parser.report) | 45 |
+| DONE | any(x).(T) on an interface value (Go's instanceof on an interface) | 18 |
+| DONE | element of a []any literal | 15 |
+| DONE | Object API of the JDK (getClass, identityHashCode, AutoCloseable close) | 12 |
+| DONE | JSDocInfo.Property value methods take Object (jsgo EqualValues(left any, right any), rhino/js_doc_info.go:259) | 2 |
+| DONE | JSDocInfo property values packed as Object (jsgo propertyValues any) | 1 |
+| REASON | Java API takes Object or CharSequence (toString helpers, StringBuilder.append(Object), Joiner, Appendable) | 83 |
+| REASON | Java signature takes Object (exception or message argument) | 49 |
+| REASON | Java API takes Object (toString / format argument computed in a lambda) | 32 |
+| REASON | Double/Integer local used as a nullable number (jsgo: (T, bool) results by hand) | 25 |
+| REASON | Java signature takes Object (args4j option values, LogsGson, Property key, TypeTransformation entries, Logger) | 6 |
+| REASON | Object result holding two types in Java | 4 |
+| REASON | Double/Integer result used as a nullable number (jsgo: (T, bool) results by hand) | 4 |
+| REASON | Object result in Java (return of CanCastToVisitor.castCastToHelper) | 2 |
+| REASON | Object field holding two types (GlobalNamespace.Name.refsForNode) | 2 |
+| REASON | Deque<Object> holding Nodes and scopes (NodeTraversal's scope stack) | 2 |
+| REASON | Java LinkedDirectedGraph<ColorGraphNode, Object>: Object edge values | 1 |
+| REASON | Object result in Java (return of ColorId.toLogsGson) | 1 |
+| RULE E-tostr | objstr_(obj_(x)): the existing tool tostr rewrites it to tostr_(x) on this tree | 4 |
+| RULE R4 | generic program class with an erased type parameter (AbstractCommandLineRunner.FlagEntry<T>) | 10 |
+| RULE R4 | generic program class with an erased type parameter (SourcePosition<T>.setItem) | 6 |
+| RULE R5 | Object field holding one boxed primitive (tri-state Boolean/Integer) | 5 |
+| RULE T1 | runtime method whose Java signature is typed or overloaded (BigInteger.compareTo(BigInteger), ComparisonChain.compare(Comparable), Enum.compareTo(E)) | 24 |
+| RULE T1 | argument of an erased runtime library function (splitToListT_) | 22 |
+| RULE T1 | result of a lambda given to an erased runtime library function | 22 |
+| RULE T1 | argument of an erased runtime library function (Map_computeIfAbsent_f) | 6 |
+| RULE T1 | argument of an erased runtime library function (MoreObjects_firstNonNull) | 6 |
+| RULE T1 | argument of an erased runtime library function (Object_clone) | 3 |
+| RULE T1 | key of Comparator.comparing typed any (the runtime's comparing erases U extends Comparable) | 2 |
+| RULE T1 | argument of an erased runtime library function (TextFormat_merge) | 1 |
+| RULE T1 | argument of an erased runtime library function (Collections_singletonList) | 1 |
+| RULE T1 | argument of an erased runtime library function (Map_put_s) | 1 |
+| RULE T1 | argument of an erased runtime library function (Map_putIfAbsent_s) | 1 |
+| RULE T1 | argument of an erased runtime library function (Ascii_equalsIgnoreCase) | 1 |
+| RULE T1 | argument of an erased runtime library function (Integer_parseInt_CharSequence_int_int_int) | 1 |
+| RULE T1 | argument of an erased runtime library function (Map_replace) | 1 |
+| RULE T2 | argument of an erased library type's method (Guava immutables, Optional, Ordering, TreeMap, EnumSet...) | 70 |
+| RULE T2 | argument of an erased library type's method (ThreadLocal) | 1 |
+| RULE T3 | Object parameter of a typed collection method (Map.get/containsKey/remove, Collection.contains, List.indexOf take Object in Java) | 50 |
+| RULE T3 | erased element argument of a collection method (Map.put, List.add, typed map Put of an erased value) | 12 |
+| RULE T4 | bridge of a program class implementing Iterator<T> (next returns Object) | 7 |
+| RULE T4 | bridge of a program class implementing a library interface (clone, CacheLoader.load) | 3 |
+| RULE T4 | bridge of a class implementing a library interface (Source.Lazy, Supplier<String>) | 1 |
+| RULE T6 | for-each over a typed value boxed to Object | 19 |
+| RULE T7 | converting closure of a func value with a type argument any (func-typed type arguments) | 15 |
+| RULE T7 | argument of a func value with an erased type argument | 2 |
+| not a site | comment | 9 |
+| not a site | box function of a tconv_ descriptor (goes with the descriptors) | 4 |
+
+### row 16: 131  (DONE 6, REASON 7, RULE R4 13, RULE T1 49, RULE T2 20, RULE T4 5, RULE T5 9, RULE T6 5, RULE T7 16, not a site 1)
+| DONE | Node / JSDocInfo property bag read (jsgo: GetProp any, node_cast / jsdocGet) | 4 |
+| DONE | comma-ok test of an Object | 2 |
+| REASON | Object slot holding values of two or more types in Java (TEntry.getValue) | 1 |
+| REASON | Object slot holding values of two or more types in Java (function LogsGson_write) | 1 |
+| REASON | Object slot holding values of two or more types in Java (method getNodeRootFromScopeObj) | 1 |
+| REASON | Object slot holding values of two or more types in Java (sliceAt_) | 1 |
+| REASON | Object slot holding values of two or more types in Java (slicePeekTop_) | 1 |
+| REASON | Object slot holding values of two or more types in Java (Property.name_ any) | 1 |
+| REASON | Object slot holding values of two or more types in Java (TMap.Get) | 1 |
+| RULE R4 | generic program class with an erased type parameter (SourcePosition<T>) | 13 |
+| RULE T1 | erased runtime library function: Map_get_s | 12 |
+| RULE T1 | erased runtime library function: Iterables_getFirst | 5 |
+| RULE T1 | erased runtime library function: Iterables_get | 5 |
+| RULE T1 | erased runtime library function: List_sort | 4 |
+| RULE T1 | result of a func value typed func() any (converting closure) | 3 |
+| RULE T1 | erased runtime library function: Iterables_getOnlyElement | 3 |
+| RULE T1 | erased runtime library function: Iterables_transform | 2 |
+| RULE T1 | erased runtime library function: Map_forEach | 2 |
+| RULE T1 | erased runtime library function: newTSortedSetC_ | 2 |
+| RULE T1 | erased runtime library function: MoreObjects_firstNonNull | 2 |
+| RULE T1 | erased runtime library function: Lists_transform | 2 |
+| RULE T1 | erased runtime library function: Iterable_forEach | 1 |
+| RULE T1 | erased runtime library function: Iterables_filter | 1 |
+| RULE T1 | erased runtime library function: Lists_reverse (for-each over its result) | 1 |
+| RULE T1 | erased runtime library function: GatherModuleMetadata_DOT_SPLITTER (for-each over its result) | 1 |
+| RULE T1 | erased runtime library function: SequencedCollection_removeLast | 1 |
+| RULE T1 | erased runtime library function: Io_listFiles (for-each over its result) | 1 |
+| RULE T1 | erased runtime library function: Iterables_getLast | 1 |
+| RULE T2 | entry of an erased library map (ImmutableSortedSet / erased entries) | 5 |
+| RULE T2 | value of an erased library type (immElems_(ImmutableSortedSetOf) | 5 |
+| RULE T2 | converting closure for an erased Guava type (sorted immutables, Optional.transform) | 4 |
+| RULE T2 | value of an erased library type (immElems_(*ErasedImmutableList)) | 3 |
+| RULE T2 | value of an erased library type (Optional_base) | 2 |
+| RULE T2 | value of an erased library type (elems_(IterableOf) | 1 |
+| RULE T4 | bridge of a class implementing a library interface (Source_Lazy.get) | 2 |
+| RULE T4 | bridge of Comparable/Comparator implemented by a class (erased callers: the runtime's sorts) | 2 |
+| RULE T4 | bridge of a class implementing a library interface (add) | 1 |
+| RULE T5 | protobuf list accessor returning an erased List | 9 |
+| RULE T6 | for-each over a typed value boxed to Object (a program class implementing Iterable<T>, EnumSet) | 5 |
+| RULE T7 | func type as a type argument of a typed container (descriptor tc_Function_any__any_) | 15 |
+| RULE T7 | converting closure of a func-typed conversion in g_0casts.go | 1 |
+| not a site | helper declaration | 1 |
+
+### row 17: 37  (DONE 23, REASON 1, RULE F1 9, UNSPLIT 4)
+| DONE | lambda object of an interface a class implements too (jsgo: func type with a method or a small struct) | 23 |
+| REASON | executor plumbing (jsgo wrote goroutine pools by hand) | 1 |
+| RULE F1 | lambda object where jsgo passes a plain func (NodeUtil_VisitPreOrder func(rhino.Node); deferAction(fn func())) | 9 |
+| UNSPLIT | lambda object Iterable (Iterable lambda given to iterableAs_; jsgo form not looked up) | 4 |
+
+### row 18: 39  (DONE 25, REASON 1, RULE F1 9, UNSPLIT 4)
+| DONE | lambda object of an interface a class implements too (jsgo: func type with a method or a small struct) | 25 |
+| REASON | executor plumbing (jsgo wrote goroutine pools by hand) | 1 |
+| RULE F1 | lambda object where jsgo passes a plain func (NodeUtil_VisitPreOrder func(rhino.Node); deferAction(fn func())) | 9 |
+| UNSPLIT | lambda object Iterable (Iterable lambda given to iterableAs_; jsgo form not looked up) | 4 |
+
+### row 19: 75  (DONE 31, RULE T2 34, not a site 10)
+| DONE | java.util.Optional as the typed value Optional[T] (jsgo: (T, bool) results, nilable pointers) | 31 |
+| RULE T2 | erased Guava Optional (Optional_base_*) | 34 |
+| not a site | string literal | 10 |
+
+### row 20: 54  (DONE 54)
+| DONE | try/catch emulation (recover at boundaries, catch_ of the recovered value; jsgo 58 recover()) | 54 |
+
+### row 21: 3523  (DONE 3523)
+| DONE | panic of a Java exception (jsgo panic(jutil.NewX(..)) 1,724) | 3523 |
+
+### row 22: 84  (DONE 84)
+| DONE | defer (finally, try-with-resources, catch) | 84 |
+
+### row 23: 72  (DONE 54, RULE R7 18)
+| DONE | equals/hashCode protocol on Object values (jsgo ObjectsEquals objects.go:34, 70 Equals methods) | 52 |
+| DONE | requireNonNull used for its value (jsgo jutil.CheckNotNull[T]) | 2 |
+| RULE R7 | Objects.equals of two erased views of typed collections | 18 |
+
+### row 24: 121  (DONE 121)
+| DONE | UTF-16 String helper (jsgo jutil/jstring.go StringLength, StringCharAt...) | 121 |
+
+### row 25: 5  (RULE R7 2, not a site 3)
+| RULE R7 | Appendable(new_StringBuilder()) (manual step 303 on the lead line) | 2 |
+| not a site | name table | 2 |
+| not a site | StringBuilder_as_Appendable helper declaration | 1 |
+
+### row 26: 1  (RULE R7 1)
+| RULE R7 | Node_Prop as an object enum: enums refuses (the runtime names Node_Prop_CONSTANT_VAR_FLAGS); jsgo type Node_Prop int32 (rhino/node_props.go:49) | 1 |
+
+### row 27: 1  (RULE R7 1)
+| RULE R7 | Node_Prop as an object enum: enums refuses (the runtime names Node_Prop_CONSTANT_VAR_FLAGS); jsgo type Node_Prop int32 (rhino/node_props.go:49) | 1 |
+
+### row 28: 6  (DONE 4, RULE E-nnchecks 2)
+| DONE | Preconditions.checkNotNull (jsgo jutil.CheckNotNull, preconditions.go:236) | 4 |
+| RULE E-nnchecks | the existing tool nnchecks makes it an inline check on this tree | 2 |
+
+### row 29: 53  (DONE 28, REASON 12, not a site 13)
+| DONE | CompilerExecutor / one-thread Thread (jsgo compiler_pipeline.go:690-701, jutil/logger.go:370-378) | 28 |
+| REASON | ExecutorService / Future / submit (jsgo wrote goroutine pools by hand, prebuild_dependency_info_parallel.go:58-63) | 12 |
+| not a site | name table or comment | 13 |
+
+### row 30: 5  (not a site 5)
+| not a site | string literal (reflect.) or a local named unsafe | 5 |
+
+### row 31: 1  (not a site 1)
+| not a site | string literal (reflect.) or a local named unsafe | 1 |
+
+### row 100: 448  (DONE 141, REASON 70, RULE R4 5, RULE R5 51, RULE T1 66, RULE T2 1, RULE T4 29, RULE T7 23, not a site 62)
+| DONE | equals(Object) parameter (jsgo Equals(other any), var.go:568) | 79 |
+| DONE | JSDocInfo.Property value methods take Object (jsgo EqualValues(left any, right any), rhino/js_doc_info.go:259) | 43 |
+| DONE | Node / JSDocInfo property bag (jsgo PutProp(prop, value any)) | 11 |
+| DONE | typed reader of the JSDocInfo property bag | 5 |
+| DONE | property bag (jsgo js_doc_info.go:75, node_props.go:382 are any) | 2 |
+| DONE | typed reader of the JSDocInfo property bag (jsgo jsdocGet[T]) | 1 |
+| REASON | CharSequence or Object in Java (charseq leaves it: through interface Appendable / not a boxed String) | 14 |
+| REASON | typed sort of typed entries (REFLIP6 'typed sorts': wrappers break K(box(x)) == x; a rule was tried and dropped) | 8 |
+| REASON | Object in Java (logObject) | 3 |
+| REASON | Object in Java (logJsonObject) | 3 |
+| REASON | Object in Java (ChangeVerifier_EqualsResult_notEqual) | 2 |
+| REASON | Object in Java (JSCompObjects_identical) | 2 |
+| REASON | Object in Java (logObject_impl) | 2 |
+| REASON | Object in Java (logJsonObject_impl) | 2 |
+| REASON | Object edge values of LinkedDirectedGraph<ColorGraphNode, Object> | 1 |
+| REASON | Object field holding two or more types (minifier) | 1 |
+| REASON | Object in Java (init_ClosureBundler_Transpiler_Transpiler_EvalMode_Optional_String_Object_Map_boolean) | 1 |
+| REASON | Object in Java (new_ClosureBundler_Transpiler_Transpiler_EvalMode_Optional_String_Object_Map_boolean) | 1 |
+| REASON | Object in Java (traverseEdge) | 1 |
+| REASON | Object in Java (CmdLineParser_Option_addValue) | 1 |
+| REASON | Object in Java (CmdLineParser_Option_asList) | 1 |
+| REASON | Object in Java (cfgEdge_) | 1 |
+| REASON | Object in Java (favors) | 1 |
+| REASON | Object field holding two or more types (value_) | 1 |
+| REASON | Object in Java (DotFormatter_formatNodeName) | 1 |
+| REASON | Object field holding two or more types (refsForNode) | 1 |
+| REASON | Object in Java (HamtPMap_hash) | 1 |
+| REASON | Object in Java (newNumberNode) | 1 |
+| REASON | Object in Java (J2clEqualitySameRewriterPass_isSafeNumber) | 1 |
+| REASON | Object in Java (addSupertypeEdges) | 1 |
+| REASON | Object in Java (LogsGson_toJson) | 1 |
+| REASON | Object in Java (LogsGson_write) | 1 |
+| REASON | Object in Java (init_MalformedTypedAstException_Object) | 1 |
+| REASON | Object in Java (new_MalformedTypedAstException_Object) | 1 |
+| REASON | Object in Java (init_MalformedTypedAstException_Object_Throwable) | 1 |
+| REASON | Object in Java (new_MalformedTypedAstException_Object_Throwable) | 1 |
+| REASON | Object in Java (MalformedTypedAstException_checkWellFormed_boolean_String_Object) | 1 |
+| REASON | Object in Java (setReflectedObject) | 1 |
+| REASON | Object in Java (getNodeRootFromScopeObj) | 1 |
+| REASON | Object in Java (reportExpectedError) | 1 |
+| REASON | Object in Java (isReasonableDoubleValue) | 1 |
+| REASON | Object field holding two or more types (name_) | 1 |
+| REASON | Object in Java (init_Property) | 1 |
+| REASON | Object in Java (new_Property) | 1 |
+| REASON | Object in Java (join_1) | 1 |
+| REASON | Object in Java (addExtension) | 1 |
+| REASON | Object in Java (addNewEntry) | 1 |
+| REASON | Object in Java (new_AssertionError_Object) | 1 |
+| RULE R4 | SourcePosition<T>.setItem: an erased type parameter | 4 |
+| RULE R4 | SourcePosition<T>.item: an erased type parameter | 1 |
+| RULE R5 | command-line option setter of a nullable boxed flag (Consumer[any] for Boolean/Integer) | 38 |
+| RULE R5 | Object field holding one boxed primitive or one type (tri-state Boolean/Integer, Source.Lazy's String) | 7 |
+| RULE R5 | setter of a tri-state boxed flag | 3 |
+| RULE R5 | command-line option setter of a nullable boxed flag | 1 |
+| RULE R5 | Integer value of a typed map held as any (nullable boxed Integer) | 1 |
+| RULE R5 | Source.Lazy's captured String held as Object | 1 |
+| RULE T1 | parameter of a converting closure given to an erased runtime library function | 37 |
+| RULE T1 | parameter of a converting closure (typed function value given to an erased runtime function) | 29 |
+| RULE T2 | erased library map (MapOf alias) of Timeline | 1 |
+| RULE T4 | bridge of Comparable/Comparator (erased callers: the runtime's sorts) | 19 |
+| RULE T4 | bridge of a class implementing a library interface (apply) | 2 |
+| RULE T4 | bridge of a class implementing a library interface (contains) | 2 |
+| RULE T4 | bridge of a class implementing a library interface (put) | 2 |
+| RULE T4 | bridge of a class implementing a library interface (load) | 1 |
+| RULE T4 | bridge of a class implementing a library interface (add) | 1 |
+| RULE T4 | bridge of a class implementing a library interface (containsKey) | 1 |
+| RULE T4 | bridge of a class implementing a library interface (containsValue) | 1 |
+| RULE T7 | func type as a type argument of a typed container (Node.PROP_MAP_FOR_EQUALITY) | 15 |
+| RULE T7 | converting closure of a func-typed conversion (g_0casts.go) | 8 |
+| not a site | parameter of a tconv_ descriptor's unbox function | 51 |
+| not a site | j2go stub of a library class (g_zstubs.go: members not yet in the runtime) | 7 |
+| not a site | type parameter's helper parameter (to_X of a generic class) | 2 |
+| not a site | `if any(this) == x` (regex match) | 2 |

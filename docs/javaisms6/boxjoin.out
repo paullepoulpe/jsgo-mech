@@ -1,0 +1,241 @@
+938 matches
+  167  runtime function parameter   (allocating 29, in hot files 8)
+          24 objequalsVia_#1
+          22 splitToListT_#2
+          18 equalsBy_#1
+          17 objequalsBy_#1
+           8 elemsAs_#0
+           7 foreach_#0
+           6 Optional_base_of#0
+           6 Map_computeIfAbsent_f#1
+        value types: string 29, *BigInteger 15, Node 13, CompilerOptions_BrowserFeaturesetYear 10, *Node_AncestorIterable 6, *InputId 5
+  162  variadic runtime argument   (allocating 23, in hot files 29)
+         121 Strings_lenientFormat#1
+          14 Strings_lenientFormat#2
+           7 String_format#1
+           6 String_format#2
+           2 Strings_lenientFormat#3
+           2 immutableSetOf_#1
+           2 Objects_hash#1
+           1 immutableSetOf_#2
+        value types: Node 129, string 23, uint16 3, *SourcePosition_util 2, GlobalNamespace_Inlinability 1, *PropertyMap 1
+  125  generated parameter   (allocating 59, in hot files 9)
+          23 JSDocInfo_Builder.populateProp#1 on local/param JSDocInfo_Builder
+          21 new_AssertionError_Object#0
+           8 JSDocInfo_Builder.setProp#1 on local/param JSDocInfo_Builder
+           6 MalformedTypedAstException_checkWellFormed_boolean_String_Object#2
+           6 Parser.reportExpectedError#1 on local/param Parser
+           5 new_AbstractCommandLineRunner_FlagEntry#0
+           5 ChangeVerifier_EqualsResult_notEqual#2
+           5 ChangeVerifier_EqualsResult_notEqual#3
+        value types: string 60, Node 12, *JSTypeExpression 11, AbstractCommandLineRunner_JsSourceType 7, *TypeProto 7, JSDocInfo_IdGenerator 5
+   89  result of a func literal   (allocating 41, in hot files 6)
+          89 return of func literal
+        value types: string 45, bool 6, Node 5, int32 4, Supplier[any] 3, float64 3
+   52  runtime method parameter (MoreObjects_ToStringHelper)   (allocating 13, in hot files 0)
+          28 MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.add
+          14 MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.add_String_boolean
+           5 MoreObjects_ToStringHelper.add#1 on result of MoreObjects_toStringHelper
+           2 MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.add_String_int
+           2 MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.omitNullValues
+           1 MoreObjects_ToStringHelper.add#1 on result of MoreObjects_toStringHelper_Class
+        value types: string 9, Node 8, Optional_baseOf[BoxedOf[bool]] 2, *VariableMap 2, *Var 1, *ColorId 1
+   51  comparison   (allocating 0, in hot files 17)
+          51 comparison
+        value types: *ObjectType 11, *ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor 10, *ValueType 5, *RegExpTree_RegExpTreeAtom 4, *GlobalNamespace_Ref 2, *MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo 2
+   45  variadic generated argument   (allocating 34, in hot files 0)
+           7 LogFile.log_2#1 on field OptimizeReturns.decisionsLog LogFile
+           6 LogFile.log_2#1 on field OptimizeParameters.decisionsLog LogFile
+           6 LogFile.log_2#2 on field OptimizeParameters.decisionsLog LogFile
+           4 LogFile.log_2#1 on field Compiler_ChunkGraphAwareLicenseTracker.log_ LogFile
+           3 LogFile.log_2#2 on field Compiler_ChunkGraphAwareLicenseTracker.log_ LogFile
+           3 Msg.format_1#0 on local/param Msg
+           2 LogFile.log_2#1 on field GlobalNamespace.decisionsLog LogFile
+           2 LogFile.log_2#2 on field GlobalNamespace.decisionsLog LogFile
+        value types: string 34, *JSChunk 5, GlobalNamespace_Inlinability 2, *IdentifierToken 2, Node 1, TokenType 1
+   41  generated interface method parameter   (allocating 3, in hot files 1)
+           5 Collection.contains#0 on local/param SetT
+           4 Map.containsKey#0 on field Compiler.inputsById MapT
+           4 List.indexOf#0 on result of TList.asListT
+           3 Collection.contains#0 on result of TList.asListT
+           2 List.add_int_Object#1 on field Compiler.externs ListT
+           2 Collection.contains#0 on result of sliceViewP_
+           2 Collection.remove_Object#0 on result of TList.asListT
+           2 List.indexOf#0 on result of sliceViewP_
+        value types: *SourceFile_jscomp 4, *InputId 4, Node 4, *CompilerInput 3, *DependencyInfo_Require 3, *PassFactory 3
+   25  local variable   (allocating 23, in hot files 3)
+          24 local
+           1 global Node_NUMBER_PAYLOAD_UNSET
+        value types: float64 20, int32 5
+   19  runtime method parameter (MapT)   (allocating 0, in hot files 7)
+           6 MapT.get_t#0 on field TypedScopeCreator.memoized MapT
+           3 MapT.get_t#0 on field Compiler.inputsById MapT
+           3 MapT.get_t#0 on result of GlobalNamespace_Name.castRefsForNodeMap
+           1 MapT.get_t#0 on result of SimpleBiMap.inverse
+           1 MapT.get_t#0 on field Compiler.indexProvidersByType MapT
+           1 MapT.remove_t#0 on field Compiler.inputsById MapT
+           1 MapT.remove_t#0 on local/param MapT
+           1 MapT.get_t#0 on local/param MapT
+        value types: Node 13, *InputId 4, ClassOf[any] 1, *Node_Prop 1
+   17  conversion of a value that is already an interface, or a helper use boxcensus does not count   (allocating 0, in hot files 0)
+        value types: 
+   15  element of a composite literal   (allocating 5, in hot files 0)
+          15 element of []any
+        value types: *CodingConvention_AssertionFunctionSpec 9, string 6
+   13  generated result   (allocating 2, in hot files 2)
+           2 return of CanCastToVisitor.castCastToHelper
+           1 return of CachingTranspiler_1.load
+           1 return of ColorId.toLogsGson
+           1 return of DefaultNameGenerator_CharPriority.clone
+           1 return of JSDocInfo.clone
+           1 return of Node_SiblingNodeIterator.next
+           1 return of Node_AncestorIterable_1.next
+           1 return of NodeIterators_FunctionlessLocalScope.next
+        value types: Node 6, bool 2, string 2, *TranspileResult 1, *DefaultNameGenerator_CharPriority 1, *JSDocInfo 1
+   12  runtime method parameter (ComparisonChain)   (allocating 12, in hot files 0)
+           3 ComparisonChain.compare#0 on result of ComparisonChain.compare
+           3 ComparisonChain.compare#1 on result of ComparisonChain.compare
+           2 ComparisonChain.compare#0 on result of ComparisonChain_start
+           2 ComparisonChain.compare#1 on result of ComparisonChain_start
+           1 ComparisonChain.compare#0 on result of ComparisonChain.compare_int_int
+           1 ComparisonChain.compare#1 on result of ComparisonChain.compare_int_int
+        value types: string 12
+   10  runtime method parameter (BigInteger)   (allocating 0, in hot files 0)
+          10 BigInteger.compareTo#0 on local/param BigInteger
+        value types: *BigInteger 10
+   10  runtime method parameter (Node)   (allocating 0, in hot files 10)
+          10 Node.putProp#1 on local/param Node
+        value types: Node 4, *NonJSDocComment 2, JSDocInfo_Visibility 1, *FeatureSet 1, *InputId 1, *JSDocInfo 1
+    9  NOT CODE: in a comment   (allocating 0, in hot files 0)
+        value types: 
+    9  runtime method parameter (strBuilder_)   (allocating 0, in hot files 1)
+           4 strBuilder_.append_Object#0 on local/param strBuilder_
+           3 strBuilder_.append_Object#0 on result of strBuilder_.append
+           1 strBuilder_.append_CharSequence_int_int#0 on local/param strBuilder_
+           1 strBuilder_.append_CharSequence#0 on local/param strBuilder_
+        value types: *strBuilder_ 2, *SymbolTable_SymbolScope 2, *Tracer 2, CheckRequiresSorted_ImportPrimitive 1, Token_rhino 1, *CharRanges 1
+    8  runtime method parameter (TMap)   (allocating 2, in hot files 0)
+           7 TMap.Put#1 on local/param TMap
+           1 TMap.Put#1 on field CompilerOptions.defineReplacements TMap
+        value types: string 2, Invalidation_Reason 2, *SimpleJsonValue 2, ImmutableSortedSetOf[*DisambiguateProperties_TypeEdgeJson] 1, ImmutableSortedMapOf[string, ColorGraphNode_PropAssociation] 1
+    8  runtime method parameter (Joiner)   (allocating 8, in hot files 0)
+           3 Joiner.join_Object_Object_ObjectArr#0 on global ExternExportsPass_Q_NAME_JOINER
+           3 Joiner.join_Object_Object_ObjectArr#1 on global ExternExportsPass_Q_NAME_JOINER
+           1 Joiner.join_Object_Object_ObjectArr#0 on result of Joiner_on
+           1 Joiner.join_Object_Object_ObjectArr#1 on result of Joiner_on
+        value types: string 8
+    7  generated field   (allocating 0, in hot files 1)
+           2 field GlobalNamespace_Name.refsForNode
+           1 field CommandLineRunner_Flags.browserFeaturesetYear
+           1 field CommandLineRunner_Flags.parseInlineSourceMaps_
+           1 field JSType.templateCheckResult
+           1 field OptimizeCalls_Builder.considerExterns
+           1 field SubtypeChecker.isUsingStructuralTyping
+        value types: bool 4, *GlobalNamespace_Ref 2, int32 1
+    4  runtime method parameter (TreeMapOf[*JSDocInfo_Property, any])   (allocating 0, in hot files 0)
+           3 TreeMap.remove#0 on field JSDocInfo_Builder.props TreeMapOf[*JSDocInfo_Property, any]
+           1 TreeMap.containsKey#0 on field JSDocInfo_Builder.props TreeMapOf[*JSDocInfo_Property, any]
+        value types: *JSDocInfo_TypeProperty 4
+    2  argument of a func value   (allocating 0, in hot files 0)
+           2 local#0
+        value types: Node 1, *ClosureReverseAbstractInterpreter_TypeRestriction 1
+    2  runtime method parameter (Enum)   (allocating 0, in hot files 0)
+           1 Enum.compareTo#0 on result of JSDocInfo_Visibility.enum_
+           1 Enum.compareTo#0 on result of CheckLevel.enum_
+        value types: JSDocInfo_Visibility 1, CheckLevel 1
+    2  runtime method parameter (ImmutableSortedMap_BuilderOf[string, string])   (allocating 2, in hot files 0)
+           1 ErasedImmutableMap_Builder.put#0 on local/param ImmutableSortedMap_BuilderOf[string, string]
+           1 ErasedImmutableMap_Builder.put#1 on local/param ImmutableSortedMap_BuilderOf[string, string]
+        value types: string 2
+    2  runtime method parameter (ImmutableSortedMap_BuilderOf[string, ColorGraphNode_PropAssociation])   (allocating 1, in hot files 0)
+           1 ErasedImmutableMap_Builder.put#0 on local/param ImmutableSortedMap_BuilderOf[string, ColorGraphNode_PropAssociation]
+           1 ErasedImmutableMap_Builder.put#1 on local/param ImmutableSortedMap_BuilderOf[string, ColorGraphNode_PropAssociation]
+        value types: string 1, ColorGraphNode_PropAssociation 1
+    2  runtime method parameter (EnumSetOf[FeatureSet_Feature])   (allocating 0, in hot files 0)
+           2 EnumSet.add#0 on local/param EnumSetOf[FeatureSet_Feature]
+        value types: FeatureSet_Feature 2
+    2  runtime method parameter (EnumMapOf[TokenType, Keywords])   (allocating 0, in hot files 0)
+           1 EnumMap.put#0 on local/param EnumMapOf[TokenType, Keywords]
+           1 EnumMap.put#1 on local/param EnumMapOf[TokenType, Keywords]
+        value types: TokenType 1, Keywords 1
+    2  runtime method parameter (EnumSetOf[*Node_Prop])   (allocating 0, in hot files 2)
+           2 EnumSet.add#0 on local/param EnumSetOf[*Node_Prop]
+        value types: *Node_Prop 2
+    2  runtime method parameter (CharMatcher)   (allocating 2, in hot files 0)
+           1 CharMatcher.lastIndexIn#0 on global PathUtil_NON_SLASH_MATCHER
+           1 CharMatcher.collapseFrom#0 on global PathUtil_SLASH_MATCHER
+        value types: string 2
+    2  argument of a func-typed field   (allocating 0, in hot files 0)
+           2 func field field ?.unbox#0
+        value types: FeatureCollector_FeatureContext 2
+    2  runtime method parameter (OrderingOf[string])   (allocating 2, in hot files 0)
+           1 Ordering.compare#0 on field SymbolTable.sourceNameOrdering OrderingOf[string]
+           1 Ordering.compare#1 on field SymbolTable.sourceNameOrdering OrderingOf[string]
+        value types: string 2
+    2  runtime method parameter (OrderingOf[Node])   (allocating 0, in hot files 0)
+           1 Ordering.compare#0 on field SymbolTable.nodeOrdering OrderingOf[Node]
+           1 Ordering.compare#1 on field SymbolTable.nodeOrdering OrderingOf[Node]
+        value types: Node 2
+    2  runtime method parameter (OrderingOf[*SymbolTable_SymbolScope])   (allocating 0, in hot files 0)
+           1 Ordering.compare#0 on field SymbolTable.lexicalScopeOrdering OrderingOf[*SymbolTable_SymbolScope]
+           1 Ordering.compare#1 on field SymbolTable.lexicalScopeOrdering OrderingOf[*SymbolTable_SymbolScope]
+        value types: *SymbolTable_SymbolScope 2
+    2  runtime method parameter (Ordering)   (allocating 0, in hot files 0)
+           1 Ordering.compare#0 on result of Ordering.nullsFirst
+           1 Ordering.compare#1 on result of Ordering.nullsFirst
+        value types: Node 2
+    1  runtime method parameter (ImmutableMap_BuilderOf[any, *CodingConvention_AssertionFunctionSpec])   (allocating 0, in hot files 0)
+           1 ErasedImmutableMap_Builder.put#1 on local/param ImmutableMap_BuilderOf[any, *CodingConvention_AssertionFunctionSpec]
+        value types: *CodingConvention_AssertionFunctionSpec 1
+    1  runtime method parameter (ImmutableMapOf[any, *CodingConvention_AssertionFunctionSpec])   (allocating 0, in hot files 0)
+           1 ErasedImmutableMap.get#0 on field CodingConvention_AssertionFunctionLookup.internal ImmutableMapOf[any, *CodingConvention_AssertionFunctionSpec]
+        value types: ClosurePrimitive 1
+    1  type assertion of a box   (allocating 0, in hot files 0)
+           1 *ast.TypeAssertExpr
+        value types: *ReferenceCollector 1
+    1  runtime method parameter (ImmutableCollection_Builder)   (allocating 1, in hot files 0)
+           1 ImmutableCollection_Builder.add#0 on local/param ImmutableCollection_Builder
+        value types: string 1
+    1  runtime method parameter (ImmutableSortedMap_BuilderOf[string, any])   (allocating 1, in hot files 0)
+           1 ErasedImmutableMap_Builder.put#0 on local/param ImmutableSortedMap_BuilderOf[string, any]
+        value types: string 1
+    1  runtime method parameter (EnumSetOf[ExpressionDecomposer_Workaround])   (allocating 0, in hot files 0)
+           1 EnumSet.contains#0 on field ExpressionDecomposer.enabledWorkarounds EnumSetOf[ExpressionDecomposer_Workaround]
+        value types: ExpressionDecomposer_Workaround 1
+    1  runtime method parameter (ErasedImmutableMap)   (allocating 1, in hot files 0)
+           1 ErasedImmutableMap.containsValue#0 on result of TMap.asImm
+        value types: string 1
+    1  runtime method parameter (ImmutableMap_BuilderOf[SetT[string], string])   (allocating 1, in hot files 0)
+           1 ErasedImmutableMap_Builder.put#1 on local/param ImmutableMap_BuilderOf[SetT[string], string]
+        value types: string 1
+    1  runtime method parameter (EnumSet)   (allocating 0, in hot files 1)
+           1 EnumSet.contains#0 on global Node_propMapForEqualityKeys
+        value types: *Node_Prop 1
+    1  runtime method parameter (ImmutableSortedSet_BuilderOf[*SerializeTypesToPointers_TypeMismatchJson])   (allocating 0, in hot files 0)
+           1 ImmutableCollection_Builder.add#0 on local/param ImmutableSortedSet_BuilderOf[*SerializeTypesToPointers_TypeMismatchJson]
+        value types: *SerializeTypesToPointers_TypeMismatchJson 1
+    1  runtime method parameter (Logger)   (allocating 1, in hot files 0)
+           1 Logger.log_Level_String_Object#2 on global Tracer_logger
+        value types: string 1
+    1  runtime method parameter (ThreadLocal)   (allocating 0, in hot files 0)
+           1 ThreadLocal.set#0 on global Tracer_traces
+        value types: *Tracer_ThreadTrace 1
+    1  runtime method parameter (ErasedImmutableMap_Builder)   (allocating 1, in hot files 0)
+           1 ErasedImmutableMap_Builder.put#0 on result of ErasedImmutableMap_Builder.putAll
+        value types: string 1
+    1  runtime method parameter (Optional_base)   (allocating 0, in hot files 0)
+           1 Optional_base.or#0 on local/param Optional_base
+        value types: *ColorPool_Builder 1
+unmatched examples:
+    g_AbstractCommandLineRunner.go 844 if out, ok := any(output).(*Output); ok {
+    g_CheckMissingSemicolon.go 51 if sourceFile, ok := any(staticSourceFile).(*SourceFile_jscomp); ok {
+    g_CodePrinter.go 461 src, ok := any(staticSrc).(*SourceFile_jscomp)
+    g_CombinedCompilerPass.go 84 if scopedCallback, ok := any(callback).(NodeTraversal_ScopedCallback); ok {
+    g_CrossChunkMethodMotion.go 53 if prototypeProperty, ok := any(symbol).(AnalyzePrototypeProperties_PrototypeProperty); ok {
+    g_CrossChunkMethodMotion.go 56 if classMemberFunction, ok2 := any(symbol).(*AnalyzePrototypeProperties_ClassMemberFunction); ok2 {
+    g_CrossChunkMethodMotion.go 329 if otherProp, ok := any(symbol).(AnalyzePrototypeProperties_Property); ok {
+    g_JSTypeRegistry.go 592 if syntheticTemplateScope, ok := any(scope).(*JSTypeRegistry_SyntheticTemplateScope); ok {
+    g_JSTypeRegistry.go 616 v_ := any(scope)
+    g_JSTypeRegistry.go 1633 if syntheticTemplateScope, ok := any(delegate).(*JSTypeRegistry_SyntheticTemplateScope); ok {
+    g_NodeTraversal.go 39 if scopedCallback, ok := any(this.callback).(NodeTraversal_ScopedCallback); ok {
+    g_NodeTraversal.go 1566 v_ := any(this.cap_cb)

@@ -1,0 +1,52 @@
+| row | count | DONE | RULE | REASON | not a site | not split | RULE by rule |
+|---|---:|---:|---:|---:|---:|---:|---|
+| erased Java collection constructors | 40 | 22 | 9 |  |  | 9 | T2 9 |
+| typed TList/TMap/TSet constructors | 525 |  |  |  |  | 525 |  |
+| Guava immutables / builders | 43 |  | 43 |  |  |  | T2 43 |
+| native Go slices made | 100 | 100 |  |  |  |  |  |
+| native Go maps made | 0 |  |  |  |  |  |  |
+| for-each via iterator objects | 34 |  | 22 | 3 |  | 9 | T5 11, T6 7, T1 3, T2 1 |
+| explicit Iterator use | 73 |  |  | 73 |  |  |  |
+| streams | 0 |  |  |  |  |  |  |
+| dispatch through self_.(interface) | 0 |  |  |  |  |  |  |
+| anonymous interface assertions | 0 |  |  |  |  |  |  |
+| interface casts `icast_X(` | 183 | 65 | 16 | 17 | 85 |  | T2 10, T1 6 |
+| class casts `to_X(` / `cast_[` | 553 | 95 | 125 | 27 | 306 |  | T1 60, T2 33, T4 18, R4 7, T5 4, T6 2, T7 1 |
+| instanceof `is_X(` | 71 | 54 |  |  | 17 |  |  |
+| type assertions `x.(T)` | 2,047 | 1,897 | 15 | 4 | 131 |  | T1 7, T2 6, T5 2 |
+| type switches | 27 | 4 |  |  | 23 |  |  |
+| boxing to any (explicit) | 938 | 417 | 297 | 211 | 13 |  | T1 92, T2 71, T3 62, T6 19, T7 17, R4 16, T4 11, R5 5, E-tostr 4 |
+| unboxing from any | 131 | 6 | 117 | 7 | 1 |  | T1 49, T2 20, T7 16, R4 13, T5 9, T4 5, T6 5 |
+| lambda objects `&X_fn{func` (subset of next row) | 37 | 23 | 9 | 1 |  | 4 | F1 9 |
+| lambda adapter literals | 39 | 25 | 9 | 1 |  | 4 | F1 9 |
+| Optional | 75 | 31 | 34 |  | 10 |  | T2 34 |
+| try/catch emulation (recover, catch_) | 54 | 54 |  |  |  |  |  |
+| panic( | 3,523 | 3,523 |  |  |  |  |  |
+| defer | 84 | 84 |  |  |  |  |  |
+| equals/hashCode protocol | 72 | 54 | 18 |  |  |  | R7 18 |
+| String_* UTF-16 helpers | 121 | 121 |  |  |  |  |  |
+| StringBuilder | 5 |  | 2 |  | 3 |  | R7 2 |
+| enum objects: struct | 1 |  | 1 |  |  |  | R7 1 |
+| enum objects: call | 1 |  | 1 |  |  |  | R7 1 |
+| Preconditions_ | 6 | 4 | 2 |  |  |  | E-nnchecks 2 |
+| threads/executors | 53 | 28 |  | 12 | 13 |  |  |
+| reflect | 5 |  |  |  | 5 |  |  |
+| unsafe | 1 |  |  |  | 1 |  |  |
+| fields/params declared `any` (Object slots only) | 448 | 141 | 175 | 70 | 62 |  | T1 66, R5 51, T4 29, T7 23, R4 5, T2 1 |
+
+all rows add up: True
+
+RULE totals (census matches; row 17 is a subset of row 18 and is not added):
+  T1             283   in hot files 14
+  T2             228   in hot files 11
+  T4              63   in hot files 2
+  T3              62   in hot files 8
+  T7              57   in hot files 36
+  R5              56   in hot files 2
+  R4              41   in hot files 0
+  T6              33   in hot files 4
+  T5              26   in hot files 0
+  R7              22   in hot files 2
+  F1               9   in hot files 2
+  E-tostr          4   in hot files 0
+  E-nnchecks       2   in hot files 2

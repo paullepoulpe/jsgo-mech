@@ -1,0 +1,63 @@
+catch_: 27
+     27 catch_(r_): the recovered value as a Java exception (Go runtime errors as NullPointerException etc.), one per recover
+defer: 84
+     27 catch defer (recover) of a try: counted under recover()
+     36 finally block (Go idiom: defer the cleanup)
+     21 try-with-resources: close the resource (Go idiom: defer x.Close())
+instanceof is_X(: 71
+      3 a for condition (re-tested each iteration; no comma-ok form)
+      1 a switch-true case
+     21 catch clause test is_X(ex_) of a multi-catch (read by the exceptions step)
+     17 declaration of a generated is_X helper (a class with subclasses: an assertion to X_as)
+     27 inside && / || (Go has no comma-ok expression; the one-line helper is inlined)
+      1 other expression (*ast.CallExpr)
+      1 other expression (*ast.ValueSpec)
+lambda objects &X_fn{func: 37
+      9 capturing lambda passed to a generated function whose parameter is stored or handed on (funcparams: not only called)
+      4 capturing lambda passed to the runtime (Guava/JDK API taking the interface, e.g. iterableAs_)
+     16 capturing lambda returned as an interface value (stored by the caller)
+      1 capturing lambda stored in a field, variable or collection
+      7 non-capturing lambda made once at package level (the lambdas step; one object per lambda as HotSpot makes it): an object with identity
+panic(: 3523
+    205 Enum.valueOf of an unknown name: a new IllegalArgumentException (Go error value)
+      2 panic of a value of type any (an exception held in a variable, its most derived object)
+     66 panic with a string: abstract-method fallback or j2go stub that Java never reaches (Go idiom for an impossible state)
+      4 panic("unreachable") ending a function whose end Go cannot prove unreachable (after a loop only a return leaves, or a try's code tests; the throws step counts them)
+      1 panic(err) of a CompilerOptionsPreprocessor_InvalidOptionsException that a catch clause or the runner reports (Java's failure path, kept as the error value)
+      1 panic(err) of a FlagUsageException that a catch clause or the runner reports (Java's failure path, kept as the error value)
+      1 panic(err) of a IOException that a catch clause or the runner reports (Java's failure path, kept as the error value)
+      1 panic(err) of a InvalidProtocolBufferException that a catch clause or the runner reports (Java's failure path, kept as the error value)
+      5 panic(err) of a MalformedTypedAstException that a catch clause or the runner reports (Java's failure path, kept as the error value)
+     34 panic(err) of a RuntimeException that a catch clause or the runner reports (Java's failure path, kept as the error value)
+      3 panic(err) of a ServiceException that a catch clause or the runner reports (Java's failure path, kept as the error value)
+      1 panic(err) of a TranspilationException that a catch clause or the runner reports (Java's failure path, kept as the error value)
+     71 panic(err) of an unchecked Error (AssertionError) (a programmer error: the Go idiom)
+      1 panic(err) of an unchecked RuntimeException (ArithmeticException) (a programmer error: the Go idiom)
+      9 panic(err) of an unchecked RuntimeException (ClassCastException) (a programmer error: the Go idiom)
+    580 panic(err) of an unchecked RuntimeException (IllegalArgumentException) (a programmer error: the Go idiom)
+   1738 panic(err) of an unchecked RuntimeException (IllegalStateException) (a programmer error: the Go idiom)
+      4 panic(err) of an unchecked RuntimeException (IndexOutOfBoundsException) (a programmer error: the Go idiom)
+      2 panic(err) of an unchecked RuntimeException (NoSuchElementException) (a programmer error: the Go idiom)
+    685 panic(err) of an unchecked RuntimeException (NullPointerException) (a programmer error: the Go idiom)
+     66 panic(err) of an unchecked RuntimeException (UnsupportedOperationException) (a programmer error: the Go idiom)
+     27 rethrow panic(r_) in a catch defer: a recover that does not handle the value passes it on (Go idiom)
+     16 throw inside a catch clause (a Java catch block that throws: wraps the cause or rethrows it)
+recover(): 27
+      1 boundary catch-all (Error) that wraps the failure with context and throws it on (recover, wrap, re-panic: the cause chain reaches the top), deferred by the function the try ends
+      4 boundary catch-all (Error|Exception) that reports or carries any failure (the runner, the executor; Go idiom: recover at the boundary), deferred by the function the try ends
+      1 boundary catch-all (Exception) that reports or carries any failure (the runner, the executor; Go idiom: recover at the boundary), in a try literal
+      2 boundary catch-all (Exception) that wraps the failure with context and throws it on (recover, wrap, re-panic: the cause chain reaches the top), in a try literal
+      1 boundary catch-all (RuntimeException) that wraps the failure with context and throws it on (recover, wrap, re-panic: the cause chain reaches the top), deferred by the function the try ends
+      2 boundary catch-all (Throwable) that reports or carries any failure (the runner, the executor; Go idiom: recover at the boundary), in a try literal
+      2 boundary catch-all (Throwable) that wraps the failure with context and throws it on (recover, wrap, re-panic: the cause chain reaches the top), deferred by the function the try ends
+      1 typed catch (ArithmeticException) handling a failure raised inside a callee (the runtime's parsers, Go runtime errors as IndexOutOfBounds/NumberFormat...): exceptions as control flow, in a try literal
+      2 typed catch (ExecutionException) that wraps a failure raised inside a callee and throws it on, deferred by the function the try ends
+      1 typed catch (ExecutionException) that wraps a failure raised inside a callee and throws it on, in a try literal
+      2 typed catch (IOException) that wraps a failure raised inside a callee and throws it on, deferred by the function the try ends
+      2 typed catch (IllegalArgumentException|IndexOutOfBoundsException) handling a failure raised inside a callee (the runtime's parsers, Go runtime errors as IndexOutOfBounds/NumberFormat...): exceptions as control flow, in a try literal
+      1 typed catch (IllegalStateException) that wraps a failure raised inside a callee and throws it on, deferred by the function the try ends
+      1 typed catch (NullPointerException|NoSuchElementException|IllegalArgumentException) handling a failure raised inside a callee (the runtime's parsers, Go runtime errors as IndexOutOfBounds/NumberFormat...): exceptions as control flow, in a try literal
+      1 typed catch (NumberFormatException|StringIndexOutOfBoundsException) handling a failure raised inside a callee (the runtime's parsers, Go runtime errors as IndexOutOfBounds/NumberFormat...): exceptions as control flow, in a try literal
+      1 typed catch (PatternSyntaxException) that wraps a failure raised inside a callee and throws it on, in a try literal
+      1 typed catch (SAXException) that wraps a failure raised inside a callee and throws it on, deferred by the function the try ends
+      1 typed catch (UncheckedExecutionException) that wraps a failure raised inside a callee and throws it on, deferred by the function the try ends

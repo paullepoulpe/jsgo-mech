@@ -1,0 +1,938 @@
+g_0casts.go	1710	result of a func literal	return of func literal	false	Function[any, any]	.box_()	-
+g_0casts.go	1718	argument of a func value	local#0	false	Node	.box_()	-
+g_0casts.go	1732	result of a func literal	return of func literal	false	Function_base[any, any]	.box_()	-
+g_0casts.go	1740	argument of a func value	local#0	false	*ClosureReverseAbstractInterpreter_TypeRestriction	obj_(	-
+g_0casts.go	2052	result of a func literal	return of func literal	false	Node	.box_()	-
+g_0casts.go	2053	result of a func literal	return of func literal	false	Supplier[any]	.box_()	-
+g_0casts.go	2099	result of a func literal	return of func literal	true	[]int8	any(	-
+g_0casts.go	2637	result of a func literal	return of func literal	false	*HamtPMap[K, V]	obj_(	-
+g_0casts.go	2868	result of a func literal	return of func literal	false	*LinkedIdentityHashMap_Entry[K, V]	obj_(	-
+g_0casts.go	3307	result of a func literal	return of func literal	false	*StandardUnionFind_Node[E]	obj_(	-
+g_0casts.go	3515	runtime function parameter	objequalsVia_#1	false	*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement	obj_(	-
+g_0casts.go	3523	runtime function parameter	objequalsVia_#1	false	*CharRanges	obj_(	-
+g_0casts.go	3530	runtime function parameter	objequalsVia_#1	false	*CodeReplacement	obj_(	-
+g_0casts.go	3537	runtime function parameter	objequalsVia_#1	false	*CodingConvention_AssertionFunctionSpec	obj_(	-
+g_0casts.go	3544	runtime function parameter	objequalsVia_#1	false	*Color	obj_(	-
+g_0casts.go	3551	runtime function parameter	objequalsVia_#1	false	*ColorId	obj_(	-
+g_0casts.go	3558	runtime function parameter	objequalsVia_#1	false	*DependencyInfo_Require	obj_(	-
+g_0casts.go	3565	runtime function parameter	objequalsVia_#1	false	*DiagnosticType	obj_(	-
+g_0casts.go	3572	runtime function parameter	objequalsVia_#1	false	*EqualityChecker_CacheKey	obj_(	-
+g_0casts.go	3586	runtime function parameter	objequalsVia_#1	false	*ExportTrace	obj_(	-
+g_0casts.go	3607	runtime function parameter	objequalsVia_#1	false	*InputId	obj_(	-
+g_0casts.go	3614	runtime function parameter	objequalsVia_#1	false	*InstrumentationPoint	obj_(	-
+g_0casts.go	3621	runtime function parameter	objequalsVia_#1	false	*JSError	obj_(	-
+g_0casts.go	3635	runtime function parameter	objequalsVia_#1	false	*KnownSymbolType	obj_(	-
+g_0casts.go	3642	runtime function parameter	objequalsVia_#1	false	*Module	obj_(	-
+g_0casts.go	3649	runtime function parameter	objequalsVia_#1	false	*ModuleMetadataMap_ModuleMetadata	obj_(	-
+g_0casts.go	3677	runtime function parameter	objequalsVia_#1	false	*PrototypeObjectType_PropertyForPrettyPrinting	obj_(	-
+g_0casts.go	3684	runtime function parameter	objequalsVia_#1	false	*Requirement	obj_(	-
+g_0casts.go	3705	runtime function parameter	objequalsVia_#1	false	*SimpleSetMultimap_Entry[any, any]	obj_(	-
+g_0casts.go	3712	runtime function parameter	objequalsVia_#1	false	*SortingErrorManager_ErrorWithLevel	obj_(	-
+g_0casts.go	3719	runtime function parameter	objequalsVia_#1	false	*SubtypeChecker_CacheKey	obj_(	-
+g_0casts.go	3726	runtime function parameter	objequalsVia_#1	false	*TemplateType	obj_(	-
+g_0casts.go	3733	runtime function parameter	objequalsVia_#1	false	*Timeline_Time	obj_(	-
+g_0casts.go	3747	runtime function parameter	objequalsVia_#1	false	*Var	obj_(	-
+g_0enumin.go	8	NOT CODE: in a comment				obj_(
+g_0enumin.go	19	NOT CODE: in a comment				obj_(
+g_0enumin.go	30	NOT CODE: in a comment				obj_(
+g_0enumin.go	41	NOT CODE: in a comment				obj_(
+g_0enumin.go	52	NOT CODE: in a comment				obj_(
+g_0enumin.go	63	NOT CODE: in a comment				obj_(
+g_0enumin.go	74	NOT CODE: in a comment				obj_(
+g_0enumin.go	85	NOT CODE: in a comment				obj_(
+g_0enumin.go	96	NOT CODE: in a comment				obj_(
+g_AbstractCommandLineRunner.go	569	generated parameter	new_AbstractCommandLineRunner_FlagEntry#0	false	AbstractCommandLineRunner_JsSourceType	obj_(	-
+g_AbstractCommandLineRunner.go	596	generated parameter	new_AbstractCommandLineRunner_FlagEntry#0	false	AbstractCommandLineRunner_JsSourceType	obj_(	-
+g_AbstractCommandLineRunner.go	799	result of a func literal	return of func literal	true	string	strobj_(	-
+g_AbstractCommandLineRunner.go	801	result of a func literal	return of func literal	true	string	strobj_(	-
+g_AbstractCommandLineRunner.go	844	conversion of a value that is already an interface, or a helper use boxcensus does not count				any(
+g_AbstractCommandLineRunner.go	1313	generated parameter	Output.append_CharSequence_rOutput#0 on local/param Output	true	string	strobj_(	-
+g_AbstractCommandLineRunner.go	1959	result of a func literal	return of func literal	false	string	strobj_(	-
+g_AbstractCommandLineRunner.go	1961	result of a func literal	return of func literal	true	string	strobj_(	-
+g_AbstractVar.go	285	comparison	comparison	false	*AbstractVar	any(	h
+g_AllType.go	69	runtime function parameter	System_identityHashCode#0	false	*AllType	obj_(	H
+g_AllowlistWarningsGuard.go	103	runtime function parameter	splitToListT_#2	true	string	strobj_(	-
+g_AllowlistWarningsGuard.go	206	generated parameter	Output.append_CharSequence_rOutput#0 on local/param Output	true	string	strobj_(	-
+g_AllowlistWarningsGuard.go	209	generated parameter	Output.append_CharSequence_rOutput#0 on local/param Output	true	string	strobj_(	-
+g_AllowlistWarningsGuard.go	212	generated parameter	Output.append_CharSequence_rOutput#0 on local/param Output	true	string	strobj_(	-
+g_AllowlistWarningsGuard.go	222	generated parameter	Output.append_CharSequence_rOutput#0 on result of Output.append_CharSequence_rOutput	true	string	strobj_(	-
+g_AstFactory.go	272	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_AstFactory.go	327	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_AstFactory.go	431	runtime function parameter	splitToListT_#2	true	string	strobj_(	-
+g_AstFactory.go	492	runtime function parameter	splitToListT_#2	true	string	strobj_(	-
+g_AstFactory.go	515	runtime function parameter	splitToListT_#2	true	string	strobj_(	-
+g_AstFactory.go	560	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_AstManipulations.go	20	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_AstManipulations.go	23	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_AstValidator.go	315	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_AstValidator.go	321	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_AstValidator.go	464	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_AstValidator.go	464	variadic runtime argument	Strings_lenientFormat#2	false	Node	.box_()	-
+g_Binding.go	109	runtime function parameter	objequalsBy_#1	false	*ModuleMetadataMap_ModuleMetadata	obj_(	-
+g_Binding.go	109	runtime function parameter	objequalsBy_#1	false	*Export	obj_(	-
+g_BranchCoverageInstrumentationCallback.go	137	local variable	local	true	int32	any(	-
+g_BranchCoverageInstrumentationCallback.go	208	local variable	local	true	int32	any(	-
+g_BrowserWithTransformedPrefixesModuleResolver.go	35	result of a func literal	return of func literal	true	string	strobj_(	-
+g_CachedTransformer.go	10	result of a func literal	return of func literal	false	*Source	obj_(	-
+g_CachedTransformer.go	34	generated interface method parameter	LoadingCache.getUnchecked#0 on field CachedTransformer.cache LoadingCache	false	*Source	obj_(	-
+g_CachingTranspiler.go	116	generated result	return of CachingTranspiler_1.load	false	*TranspileResult	obj_(	-
+g_CanCastToVisitor.go	72	generated result	return of CanCastToVisitor.castCastToHelper	false	bool	any(	-
+g_CanCastToVisitor.go	78	generated result	return of CanCastToVisitor.castCastToHelper	false	bool	any(	-
+g_ChainableReverseAbstractInterpreter.go	705	comparison	comparison	false	*ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor	any(	h
+g_ChainableReverseAbstractInterpreter.go	713	comparison	comparison	false	*ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor	any(	h
+g_ChainableReverseAbstractInterpreter.go	721	comparison	comparison	false	*ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor	any(	h
+g_ChainableReverseAbstractInterpreter.go	729	comparison	comparison	false	*ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor	any(	h
+g_ChainableReverseAbstractInterpreter.go	737	comparison	comparison	false	*ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor	any(	h
+g_ChainableReverseAbstractInterpreter.go	745	comparison	comparison	false	*ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor	any(	h
+g_ChainableReverseAbstractInterpreter.go	753	comparison	comparison	false	*ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor	any(	h
+g_ChainableReverseAbstractInterpreter.go	761	comparison	comparison	false	*ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor	any(	h
+g_ChainableReverseAbstractInterpreter.go	769	comparison	comparison	false	*ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor	any(	h
+g_ChainableReverseAbstractInterpreter.go	777	comparison	comparison	false	*ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor	any(	h
+g_ChangeVerifier.go	70	runtime method parameter (MapT)	MapT.get_t#0 on result of SimpleBiMap.inverse	false	Node	.box_()	-
+g_ChangeVerifier.go	161	generated parameter	ChangeVerifier_EqualsResult_notEqual#2	true	string	strobj_(	-
+g_ChangeVerifier.go	161	generated parameter	ChangeVerifier_EqualsResult_notEqual#3	true	string	strobj_(	-
+g_ChangeVerifier.go	164	generated parameter	ChangeVerifier_EqualsResult_notEqual#2	false	Node	.box_()	-
+g_ChangeVerifier.go	164	generated parameter	ChangeVerifier_EqualsResult_notEqual#3	false	Node	.box_()	-
+g_ChangeVerifier.go	168	generated parameter	ChangeVerifier_EqualsResult_notEqual#2	false	Node	.box_()	-
+g_ChangeVerifier.go	168	generated parameter	ChangeVerifier_EqualsResult_notEqual#3	false	Node	.box_()	-
+g_ChangeVerifier.go	176	generated parameter	ChangeVerifier_EqualsResult_notEqual#2	false	Node	.box_()	-
+g_ChangeVerifier.go	176	generated parameter	ChangeVerifier_EqualsResult_notEqual#3	false	Node	.box_()	-
+g_ChangeVerifier.go	182	generated parameter	ChangeVerifier_EqualsResult_notEqual#2	true	string	strobj_(	-
+g_ChangeVerifier.go	182	generated parameter	ChangeVerifier_EqualsResult_notEqual#3	true	string	strobj_(	-
+g_CheckAccessControls.go	103	generated parameter	new_AssertionError_Object#0	false	Node	.box_()	-
+g_CheckAccessControls.go	489	runtime method parameter (Enum)	Enum.compareTo#0 on result of JSDocInfo_Visibility.enum_	false	JSDocInfo_Visibility	obj_(	-
+g_CheckAccessControls.go	1015	comparison	comparison	false	Supplier[string]	.box_()	-
+g_CheckEs6ModuleFileStructure.go	63	generated interface method parameter	NavigableSet.tailSet#0 on result of TSet.asSorted	false	CheckEs6ModuleFileStructure_OrderedStatement	obj_(	-
+g_CheckMissingRequires.go	68	generated parameter	new_AssertionError_Object#0	true	string	strobj_(	-
+g_CheckMissingSemicolon.go	51	conversion of a value that is already an interface, or a helper use boxcensus does not count				any(
+g_CheckProvidesSorted.go	95	result of a func literal	return of func literal	true	string	strobj_(	-
+g_CheckRequiresSorted.go	118	result of a func literal	return of func literal	true	string	strobj_(	-
+g_CheckRequiresSorted.go	404	runtime method parameter (ComparisonChain)	ComparisonChain.compare#0 on result of ComparisonChain_start	true	string	strobj_(	-
+g_CheckRequiresSorted.go	404	runtime method parameter (ComparisonChain)	ComparisonChain.compare#1 on result of ComparisonChain_start	true	string	strobj_(	-
+g_CheckRequiresSorted.go	404	runtime method parameter (ComparisonChain)	ComparisonChain.compare#0 on result of ComparisonChain.compare	true	string	strobj_(	-
+g_CheckRequiresSorted.go	404	runtime method parameter (ComparisonChain)	ComparisonChain.compare#1 on result of ComparisonChain.compare	true	string	strobj_(	-
+g_CheckRequiresSorted.go	556	runtime method parameter (strBuilder_)	strBuilder_.append_Object#0 on local/param strBuilder_	false	CheckRequiresSorted_ImportPrimitive	obj_(	-
+g_ClosureBundler.go	314	generated parameter	SourceCodeEscapers_appendWithJavascriptEscaper#0	true	string	strobj_(	-
+g_ClosureCodingConvention.go	203	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_ClosureCodingConvention.go	227	element of a composite literal	element of []any	false	*CodingConvention_AssertionFunctionSpec	obj_(	-
+g_ClosureCodingConvention.go	227	element of a composite literal	element of []any	false	*CodingConvention_AssertionFunctionSpec	obj_(	-
+g_ClosureCodingConvention.go	227	element of a composite literal	element of []any	false	*CodingConvention_AssertionFunctionSpec	obj_(	-
+g_ClosureCodingConvention.go	227	element of a composite literal	element of []any	false	*CodingConvention_AssertionFunctionSpec	obj_(	-
+g_ClosureCodingConvention.go	227	element of a composite literal	element of []any	false	*CodingConvention_AssertionFunctionSpec	obj_(	-
+g_ClosureCodingConvention.go	227	element of a composite literal	element of []any	false	*CodingConvention_AssertionFunctionSpec	obj_(	-
+g_ClosureCodingConvention.go	227	element of a composite literal	element of []any	false	*CodingConvention_AssertionFunctionSpec	obj_(	-
+g_ClosureCodingConvention.go	227	element of a composite literal	element of []any	false	*CodingConvention_AssertionFunctionSpec	obj_(	-
+g_ClosureCodingConvention.go	227	element of a composite literal	element of []any	false	*CodingConvention_AssertionFunctionSpec	obj_(	-
+g_ClosureModuleProcessor.go	41	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_ClosureModuleProcessor.go	176	variadic runtime argument	Strings_lenientFormat#1	true	string	strobj_(	-
+g_ClosureModuleProcessor.go	178	variadic runtime argument	Strings_lenientFormat#1	true	string	strobj_(	-
+g_ClosureModuleProcessor.go	178	variadic runtime argument	Strings_lenientFormat#2	true	string	strobj_(	-
+g_ClosureModuleProcessor.go	178	variadic runtime argument	Strings_lenientFormat#3	true	string	strobj_(	-
+g_ClosureRequireProcessor.go	158	runtime function parameter	objequalsBy_#1	false	*Import	obj_(	-
+g_ClosureRewriteModule.go	80	runtime function parameter	ImmutableList_of_Object_Object#0	false	Node	.box_()	-
+g_ClosureRewriteModule.go	80	runtime function parameter	ImmutableList_of_Object_Object#1	false	Node	.box_()	-
+g_ClosureRewriteModule.go	403	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_ClosureRewriteModule.go	1354	result of a func literal	return of func literal	true	string	strobj_(	-
+g_ClosureRewriteModule.go	1357	runtime method parameter (MoreObjects_ToStringHelper)	MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.add	false	Node	.box_()	-
+g_ClosureRewriteModule.go	1357	runtime method parameter (MoreObjects_ToStringHelper)	MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.add	false	*Var	obj_(	-
+g_ClosureRewriteModule.go	1382	generated interface method parameter	Collection.contains#0 on local/param SetT	false	*Var	obj_(	-
+g_CmdLineParser.go	350	generated parameter	CmdLineParser_Option_asList#0	true	string	strobj_(	-
+g_CmdLineParser.go	384	generated parameter	CmdLineParser_Option_addValue#2	true	string	strobj_(	-
+g_CoalesceVariableNames.go	177	result of a func literal	return of func literal	false	*BitSet	obj_(	-
+g_CodeGenerator.go	194	variadic runtime argument	Strings_lenientFormat#1	true	string	strobj_(	-
+g_CodeGenerator.go	364	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_CodeGenerator.go	387	runtime function parameter	Object_getClass#0	false	Node	.box_()	-
+g_CodeGenerator.go	628	runtime function parameter	Object_getClass#0	false	Node	.box_()	-
+g_CodeGenerator.go	782	variadic runtime argument	Strings_lenientFormat#2	false	Node	.box_()	-
+g_CodeGenerator.go	793	variadic runtime argument	Strings_lenientFormat#2	false	Node	.box_()	-
+g_CodeGenerator.go	986	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_CodePrinter.go	461	conversion of a value that is already an interface, or a helper use boxcensus does not count				any(
+g_CodeReplacement.go	110	result of a func literal	return of func literal	true	string	strobj_(	-
+g_CodeReplacement.go	110	result of a func literal	return of func literal	true	string	strobj_(	-
+g_CodingConvention.go	167	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_CodingConvention.go	170	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_CodingConvention.go	248	result of a func literal	return of func literal	false	ClosurePrimitive	obj_(	-
+g_CodingConvention.go	250	result of a func literal	return of func literal	true	string	strobj_(	-
+g_CodingConvention.go	459	runtime method parameter (ImmutableMap_BuilderOf[any, *CodingConvention_AssertionFunctionSpec])	ErasedImmutableMap_Builder.put#1 on local/param ImmutableMap_BuilderOf[any, *CodingConvention_AssertionFunctionSpec]	false	*CodingConvention_AssertionFunctionSpec	obj_(	-
+g_CodingConvention.go	468	runtime method parameter (ImmutableMapOf[any, *CodingConvention_AssertionFunctionSpec])	ErasedImmutableMap.get#0 on field CodingConvention_AssertionFunctionLookup.internal ImmutableMapOf[any, *CodingConvention_AssertionFunctionSpec]	false	ClosurePrimitive	obj_(	-
+g_Color.go	62	comparison	comparison	false	*Color	any(	-
+g_ColorGraphBuilder.go	110	generated parameter	LinkedDirectedGraph.connectDiGraphNode#1 on field ColorGraphBuilder.colorHoldsInstanceGraph LinkedDirectedGraph	false	ColorGraphBuilder_EdgeReason	obj_(	-
+g_ColorGraphNode.go	73	runtime method parameter (MoreObjects_ToStringHelper)	MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.add_String_int	false	*ColorId	obj_(	-
+g_ColorId.go	111	generated result	return of ColorId.toLogsGson	true	string	strobj_(	-
+g_ColorPool.go	52	generated parameter	new_MalformedTypedAstException_Object#0	false	*TypeProto	obj_(	-
+g_ColorPool.go	62	generated parameter	new_AssertionError_Object#0	false	*TypeProto	obj_(	-
+g_ColorPool.go	68	generated parameter	MalformedTypedAstException_checkWellFormed_boolean_String_Object#2	false	*TypeProto	obj_(	-
+g_ColorPool.go	74	generated parameter	MalformedTypedAstException_checkWellFormed_boolean_String_Object#2	false	*TypeProto	obj_(	-
+g_ColorPool.go	85	generated parameter	MalformedTypedAstException_checkWellFormed_boolean_String_Object#2	false	*TypeProto	obj_(	-
+g_ColorPool.go	223	generated parameter	MalformedTypedAstException_checkWellFormed_boolean_String_Object#2	false	*ColorId	obj_(	-
+g_ColorPool.go	271	generated parameter	new_MalformedTypedAstException_Object#0	true	string	strobj_(	-
+g_ColorPool.go	287	generated parameter	new_AssertionError_Object#0	false	*TypeProto	obj_(	-
+g_ColorPool.go	318	generated parameter	MalformedTypedAstException_checkWellFormed_boolean_String_Object#2	false	*ObjectTypeProto	obj_(	-
+g_ColorPool.go	350	generated parameter	MalformedTypedAstException_checkWellFormed_boolean_String_Object#2	false	*TypeProto	obj_(	-
+g_CombinedCompilerPass.go	84	conversion of a value that is already an interface, or a helper use boxcensus does not count				any(
+g_CommandLineRunner.go	188	element of a composite literal	element of []any	true	string	strobj_(	-
+g_CommandLineRunner.go	569	runtime function parameter	TextFormat_merge#0	true	string	strobj_(	-
+g_CommandLineRunner.go	628	runtime function parameter	splitToListT_#2	true	string	strobj_(	-
+g_CommandLineRunner.go	837	generated field	field CommandLineRunner_Flags.browserFeaturesetYear	false	int32	any(	-
+g_CommandLineRunner.go	870	generated field	field CommandLineRunner_Flags.parseInlineSourceMaps_	false	bool	any(	-
+g_CommandLineRunner.go	999	generated parameter	CommandLineRunner_Flags_addMultiFlagValue#2	false	AbstractCommandLineRunner_JsSourceType	obj_(	-
+g_CommandLineRunner.go	1002	generated parameter	CommandLineRunner_Flags_addMultiFlagValue#2	false	AbstractCommandLineRunner_JsSourceType	obj_(	-
+g_CommandLineRunner.go	1120	generated parameter	CommandLineRunner_Flags_addMultiFlagValue#2	false	CheckLevel	obj_(	-
+g_CommandLineRunner.go	1123	generated parameter	CommandLineRunner_Flags_addMultiFlagValue#2	false	CheckLevel	obj_(	-
+g_CommandLineRunner.go	1126	generated parameter	CommandLineRunner_Flags_addMultiFlagValue#2	false	CheckLevel	obj_(	-
+g_CommandLineRunner.go	1585	generated parameter	new_AbstractCommandLineRunner_FlagEntry#0	false	AbstractCommandLineRunner_JsSourceType	obj_(	-
+g_CommandLineRunner.go	1588	runtime function parameter	Collections_singletonList#0	true	string	strobj_(	-
+g_CommandLineRunner.go	1594	generated parameter	new_AbstractCommandLineRunner_FlagEntry#0	false	AbstractCommandLineRunner_JsSourceType	obj_(	-
+g_CommandLineRunner.go	1604	generated parameter	new_AbstractCommandLineRunner_FlagEntry#0	false	AbstractCommandLineRunner_JsSourceType	obj_(	-
+g_CommandLineRunner.go	1637	runtime function parameter	splitToListT_#2	true	string	strobj_(	-
+g_CommandLineRunner.go	1647	runtime function parameter	splitToListT_#2	true	string	strobj_(	-
+g_Compiler.go	197	runtime function parameter	objequalsBy_#1	false	*FeatureSet	obj_(	-
+g_Compiler.go	197	runtime function parameter	objequalsBy_#1	false	*FeatureSet	obj_(	-
+g_Compiler.go	315	runtime function parameter	Object_getClass#0	false	*Compiler	obj_(	-
+g_Compiler.go	356	generated interface method parameter	Map.remove#0 on field Compiler.typedAstFilesystem ConcurrentMap	false	*SourceFile_jscomp	obj_(	-
+g_Compiler.go	478	runtime function parameter	Object_getClass#0	false	*Compiler	obj_(	-
+g_Compiler.go	987	runtime function parameter	splitToListT_#2	true	string	strobj_(	-
+g_Compiler.go	1034	runtime function parameter	Object_getClass#0	false	*Compiler	obj_(	-
+g_Compiler.go	1067	runtime function parameter	ImmutableList_of_Object_Object#0	false	Node	.box_()	-
+g_Compiler.go	1067	runtime function parameter	ImmutableList_of_Object_Object#1	false	Node	.box_()	-
+g_Compiler.go	1257	runtime method parameter (MapT)	MapT.get_t#0 on field Compiler.inputsById MapT	false	*InputId	obj_(	-
+g_Compiler.go	1372	type assertion of a box	*ast.TypeAssertExpr	false	*ReferenceCollector	any(	-
+g_Compiler.go	2143	runtime method parameter (MapT)	MapT.get_t#0 on field Compiler.indexProvidersByType MapT	false	ClassOf[any]	obj_(	-
+g_Compiler.go	2348	runtime function parameter	Map_put_s#2	false	*SourceMapInput	obj_(	-
+g_Compiler.go	2420	runtime function parameter	Map_putIfAbsent_s#2	false	*SourceFile_jscomp	obj_(	-
+g_Compiler.go	2465	generated interface method parameter	Map.containsKey#0 on field Compiler.inputsById MapT	false	*InputId	obj_(	-
+g_Compiler.go	2466	runtime method parameter (MapT)	MapT.get_t#0 on field Compiler.inputsById MapT	false	*InputId	obj_(	-
+g_Compiler.go	2645	generated interface method parameter	List.add_int_Object#1 on field Compiler.externs ListT	false	*CompilerInput	obj_(	-
+g_Compiler.go	2667	generated interface method parameter	List.add_int_Object#1 on field Compiler.externs ListT	false	*CompilerInput	obj_(	-
+g_Compiler.go	2680	generated interface method parameter	Map.containsKey#0 on field Compiler.inputsById MapT	false	*InputId	obj_(	-
+g_Compiler.go	2684	generated interface method parameter	Map.containsKey#0 on field Compiler.inputsById MapT	false	*InputId	obj_(	-
+g_Compiler.go	2711	generated interface method parameter	Map.containsKey#0 on field Compiler.inputsById MapT	false	*InputId	obj_(	-
+g_Compiler.go	2714	runtime method parameter (MapT)	MapT.get_t#0 on field Compiler.inputsById MapT	false	*InputId	obj_(	-
+g_Compiler.go	2727	variadic generated argument	Compiler_checkNotModule#2	false	Node	.box_()	-
+g_Compiler.go	2736	runtime method parameter (MapT)	MapT.remove_t#0 on field Compiler.inputsById MapT	false	*InputId	obj_(	-
+g_Compiler.go	3551	variadic generated argument	LogFile.log_2#1 on field Compiler_ChunkGraphAwareLicenseTracker.log_ LogFile	false	*JSChunk	obj_(	-
+g_Compiler.go	3578	variadic generated argument	LogFile.log_2#1 on field Compiler_ChunkGraphAwareLicenseTracker.log_ LogFile	false	*JSChunk	obj_(	-
+g_Compiler.go	3578	variadic generated argument	LogFile.log_2#2 on field Compiler_ChunkGraphAwareLicenseTracker.log_ LogFile	false	*JSChunk	obj_(	-
+g_Compiler.go	3600	variadic generated argument	LogFile.log_2#1 on field Compiler_ChunkGraphAwareLicenseTracker.log_ LogFile	false	*JSChunk	obj_(	-
+g_Compiler.go	3600	variadic generated argument	LogFile.log_2#2 on field Compiler_ChunkGraphAwareLicenseTracker.log_ LogFile	true	string	strobj_(	-
+g_Compiler.go	3602	variadic generated argument	LogFile.log_2#1 on field Compiler_ChunkGraphAwareLicenseTracker.log_ LogFile	false	*JSChunk	obj_(	-
+g_Compiler.go	3602	variadic generated argument	LogFile.log_2#2 on field Compiler_ChunkGraphAwareLicenseTracker.log_ LogFile	true	string	strobj_(	-
+g_CompilerInput.go	191	generated interface method parameter	Collection.contains#0 on result of TList.asListT	false	*DependencyInfo_Require	obj_(	-
+g_CompilerInput.go	390	generated interface method parameter	Collection.contains#0 on result of TList.asListT	false	*DependencyInfo_Require	obj_(	-
+g_CompilerInput.go	585	comparison	comparison	false	*SourceFile_jscomp	obj_(	-
+g_CompilerOptions.go	291	runtime function parameter	Optional_base_of#0	false	*Pattern	obj_(	-
+g_CompilerOptions.go	854	runtime method parameter (TMap)	TMap.Put#1 on field CompilerOptions.defineReplacements TMap	true	string	strobj_(	-
+g_CompilerOptions.go	1238	runtime function parameter	Optional_base_of#0	false	*FeatureSet	obj_(	-
+g_CompilerOptions.go	1265	runtime function parameter	Optional_base_fromNullable#0	false	CompilerOptions_ExperimentalOutputFeatureSet	obj_(	-
+g_CompilerOptions.go	2382	runtime method parameter (MoreObjects_ToStringHelper)	MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.omitNullValues	false	CompilerOptions_AliasStringsMode	obj_(	-
+g_CompilerOptions.go	2382	runtime method parameter (MoreObjects_ToStringHelper)	MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.add_String_boolean	false	CompilerOptions_PropertyCollapseLevel	obj_(	-
+g_CompilerOptions.go	2382	runtime method parameter (MoreObjects_ToStringHelper)	MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.add	true	Optional_baseOf[*Pattern]	obj_(	-
+g_CompilerOptions.go	2382	runtime method parameter (MoreObjects_ToStringHelper)	MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.add	false	CompilerOptions_ConformanceReportingMode	obj_(	-
+g_CompilerOptions.go	2382	runtime method parameter (MoreObjects_ToStringHelper)	MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.add	false	*SimpleSetMultimap[CustomPassExecutionTime, CompilerPass]	obj_(	-
+g_CompilerOptions.go	2384	result of a func literal	return of func literal	true	string	strobj_(	-
+g_CompilerOptions.go	2387	runtime method parameter (MoreObjects_ToStringHelper)	MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.add	false	*DependencyOptions	obj_(	-
+g_CompilerOptions.go	2387	runtime method parameter (MoreObjects_ToStringHelper)	MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.add	false	CompilerOptions_DevMode	obj_(	-
+g_CompilerOptions.go	2387	runtime method parameter (MoreObjects_ToStringHelper)	MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.add_String_boolean	true	Optional_baseOf[BoxedOf[bool]]	obj_(	-
+g_CompilerOptions.go	2387	runtime method parameter (MoreObjects_ToStringHelper)	MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.add_String_boolean	false	CompilerOptions_Environment	obj_(	-
+g_CompilerOptions.go	2387	runtime method parameter (MoreObjects_ToStringHelper)	MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.add	false	CompilerOptions_Es6ModuleTranspilation	obj_(	-
+g_CompilerOptions.go	2387	runtime method parameter (MoreObjects_ToStringHelper)	MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.add	false	CompilerOptions_Es6SubclassTranspilation	obj_(	-
+g_CompilerOptions.go	2389	result of a func literal	return of func literal	true	string	strobj_(	-
+g_CompilerOptions.go	2392	runtime method parameter (MoreObjects_ToStringHelper)	MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.add	false	CompilerOptions_ExtractPrototypeMemberDeclarationsMode	obj_(	-
+g_CompilerOptions.go	2392	runtime method parameter (MoreObjects_ToStringHelper)	MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.add	true	string	strobj_(	-
+g_CompilerOptions.go	2392	runtime method parameter (MoreObjects_ToStringHelper)	MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.add	false	CompilerOptions_IncrementalCheckMode	obj_(	-
+g_CompilerOptions.go	2392	runtime method parameter (MoreObjects_ToStringHelper)	MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.add_String_boolean	false	CompilerOptions_Reach	obj_(	-
+g_CompilerOptions.go	2392	runtime method parameter (MoreObjects_ToStringHelper)	MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.add_String_boolean	true	string	strobj_(	-
+g_CompilerOptions.go	2392	runtime method parameter (MoreObjects_ToStringHelper)	MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.add	false	*VariableMap	obj_(	-
+g_CompilerOptions.go	2392	runtime method parameter (MoreObjects_ToStringHelper)	MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.add	false	*VariableMap	obj_(	-
+g_CompilerOptions.go	2392	runtime method parameter (MoreObjects_ToStringHelper)	MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.add_String_boolean	true	string	strobj_(	-
+g_CompilerOptions.go	2394	result of a func literal	return of func literal	true	string	strobj_(	-
+g_CompilerOptions.go	2397	runtime method parameter (MoreObjects_ToStringHelper)	MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.add	false	CompilerOptions_J2clPassMode	obj_(	-
+g_CompilerOptions.go	2397	runtime method parameter (MoreObjects_ToStringHelper)	MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.add_String_boolean	false	CompilerOptions_LanguageMode	obj_(	-
+g_CompilerOptions.go	2397	runtime method parameter (MoreObjects_ToStringHelper)	MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.add	true	Optional_baseOf[BoxedOf[bool]]	obj_(	-
+g_CompilerOptions.go	2399	result of a func literal	return of func literal	true	string	strobj_(	-
+g_CompilerOptions.go	2406	result of a func literal	return of func literal	true	string	strobj_(	-
+g_CompilerOptions.go	2407	runtime method parameter (MoreObjects_ToStringHelper)	MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.add_String_boolean	false	CompilerOptions_OptimizeLocalAccess	obj_(	-
+g_CompilerOptions.go	2409	result of a func literal	return of func literal	true	string	strobj_(	-
+g_CompilerOptions.go	2412	runtime method parameter (MoreObjects_ToStringHelper)	MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.add	true	Optional_baseOf[*FeatureSet]	obj_(	-
+g_CompilerOptions.go	2412	runtime method parameter (MoreObjects_ToStringHelper)	MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.add	false	CompilerOptions_OutputJs	obj_(	-
+g_CompilerOptions.go	2412	runtime method parameter (MoreObjects_ToStringHelper)	MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.add_String_boolean	false	Config_JsDocParsing	obj_(	-
+g_CompilerOptions.go	2412	runtime method parameter (MoreObjects_ToStringHelper)	MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.add_String_boolean	true	string	strobj_(	-
+g_CompilerOptions.go	2412	runtime method parameter (MoreObjects_ToStringHelper)	MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.add	false	PropertyRenamingPolicy	obj_(	-
+g_CompilerOptions.go	2414	result of a func literal	return of func literal	true	string	strobj_(	-
+g_CompilerOptions.go	2419	result of a func literal	return of func literal	true	string	strobj_(	-
+g_CompilerOptions.go	2422	runtime method parameter (MoreObjects_ToStringHelper)	MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.add	true	string	strobj_(	-
+g_CompilerOptions.go	2422	runtime method parameter (MoreObjects_ToStringHelper)	MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.add_String_boolean	false	RuntimeJsLibManager_RuntimeLibraryMode	obj_(	-
+g_CompilerOptions.go	2424	result of a func literal	return of func literal	true	string	strobj_(	-
+g_CompilerOptions.go	2429	result of a func literal	return of func literal	true	string	strobj_(	-
+g_CompilerOptions.go	2434	result of a func literal	return of func literal	true	string	strobj_(	-
+g_CompilerOptions.go	2437	runtime method parameter (MoreObjects_ToStringHelper)	MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.add	true	string	strobj_(	-
+g_CompilerOptions.go	2437	runtime method parameter (MoreObjects_ToStringHelper)	MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.add	false	CompilerOptions_TracerMode	obj_(	-
+g_CompilerOptions.go	2437	runtime method parameter (MoreObjects_ToStringHelper)	MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.add_String_boolean	false	CompilerOptions_TweakProcessing	obj_(	-
+g_CompilerOptions.go	2437	runtime method parameter (MoreObjects_ToStringHelper)	MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.add_String_boolean	false	VariableRenamingPolicy	obj_(	-
+g_CompilerOptions.go	2490	variadic runtime argument	immutableSetOf_#1	false	uint16	any(	-
+g_CompilerOptions.go	2490	variadic runtime argument	immutableSetOf_#2	false	uint16	any(	-
+g_CompilerOptions.go	2491	variadic runtime argument	immutableSetOf_#1	false	uint16	any(	-
+g_CompilerOptions.go	2785	runtime function parameter	ImmutableMap_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object#1	false	CompilerOptions_BrowserFeaturesetYear	obj_(	-
+g_CompilerOptions.go	2785	runtime function parameter	ImmutableMap_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object#3	false	CompilerOptions_BrowserFeaturesetYear	obj_(	-
+g_CompilerOptions.go	2785	runtime function parameter	ImmutableMap_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object#5	false	CompilerOptions_BrowserFeaturesetYear	obj_(	-
+g_CompilerOptions.go	2785	runtime function parameter	ImmutableMap_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object#7	false	CompilerOptions_BrowserFeaturesetYear	obj_(	-
+g_CompilerOptions.go	2785	runtime function parameter	ImmutableMap_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object#9	false	CompilerOptions_BrowserFeaturesetYear	obj_(	-
+g_CompilerOptions.go	2785	runtime function parameter	ImmutableMap_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object#11	false	CompilerOptions_BrowserFeaturesetYear	obj_(	-
+g_CompilerOptions.go	2785	runtime function parameter	ImmutableMap_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object#13	false	CompilerOptions_BrowserFeaturesetYear	obj_(	-
+g_CompilerOptions.go	2785	runtime function parameter	ImmutableMap_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object#15	false	CompilerOptions_BrowserFeaturesetYear	obj_(	-
+g_CompilerOptions.go	2785	runtime function parameter	ImmutableMap_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object#17	false	CompilerOptions_BrowserFeaturesetYear	obj_(	-
+g_CompilerOptions.go	2785	runtime function parameter	ImmutableMap_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object#19	false	CompilerOptions_BrowserFeaturesetYear	obj_(	-
+g_CompilerOptions.go	3593	runtime function parameter	elemsAs_#0	false	*EnumSet	obj_(	-
+g_ConformanceRules.go	451	runtime function parameter	Optional_base_fromNullable#0	false	*RequirementScopeEntry	obj_(	-
+g_ConformanceRules.go	1017	generated parameter	new_AssertionError_Object#0	false	Requirement_Type	obj_(	-
+g_ConformanceRules.go	1436	runtime function parameter	splitToListT_#2	true	string	strobj_(	-
+g_ConformanceRules.go	1448	runtime function parameter	splitToListT_#2	true	string	strobj_(	-
+g_ConformanceRules.go	3257	runtime function parameter	splitToListT_#2	true	string	strobj_(	-
+g_ConformanceRules.go	3621	runtime function parameter	Optional_base_of#0	true	string	strobj_(	-
+g_ConformanceRules.go	3786	runtime function parameter	Optional_base_of#0	true	string	strobj_(	-
+g_ConstCheck.go	77	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_ControlFlowAnalysis.go	54	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	H
+g_ControlFlowAnalysis.go	592	runtime function parameter	elemsBy_#0	false	*Node_AncestorIterable	obj_(	H
+g_ConvertChunksToESModules.go	261	runtime function parameter	Map_computeIfAbsent_f#1	false	*JSChunk	obj_(	-
+g_ConvertChunksToESModules.go	407	runtime function parameter	Map_computeIfAbsent_f#1	false	*JSChunk	obj_(	-
+g_ConvertToTypedInterface.go	468	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_ConvertToTypedInterface.go	472	generated parameter	new_AssertionError_Object#0	true	string	strobj_(	-
+g_ConvertToTypedInterface.go	576	result of a func literal	return of func literal	true	int32	any(	-
+g_ConvertTypesToColors.go	41	runtime function parameter	Optional_base_of#0	false	*ColorPool_Builder	obj_(	-
+g_CoverageInstrumentationPass.go	97	generated parameter	new_AssertionError_Object#0	true	string	strobj_(	-
+g_CrossChunkCodeMotion.go	67	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_CrossChunkCodeMotion.go	533	runtime function parameter	objstr_#0	false	*JSChunk	obj_(	-
+g_CrossChunkCodeMotion.go	533	runtime function parameter	objstr_#0	false	*JSChunk	obj_(	-
+g_CrossChunkMethodMotion.go	53	conversion of a value that is already an interface, or a helper use boxcensus does not count				any(
+g_CrossChunkMethodMotion.go	56	conversion of a value that is already an interface, or a helper use boxcensus does not count				any(
+g_CrossChunkMethodMotion.go	329	conversion of a value that is already an interface, or a helper use boxcensus does not count				any(
+g_DToA.go	637	runtime method parameter (BigInteger)	BigInteger.compareTo#0 on local/param BigInteger	false	*BigInteger	obj_(	-
+g_DToA.go	650	runtime method parameter (BigInteger)	BigInteger.compareTo#0 on local/param BigInteger	false	*BigInteger	obj_(	-
+g_DToA.go	677	runtime method parameter (BigInteger)	BigInteger.compareTo#0 on local/param BigInteger	false	*BigInteger	obj_(	-
+g_DToA.go	683	runtime method parameter (BigInteger)	BigInteger.compareTo#0 on local/param BigInteger	false	*BigInteger	obj_(	-
+g_DToA.go	703	runtime method parameter (BigInteger)	BigInteger.compareTo#0 on local/param BigInteger	false	*BigInteger	obj_(	-
+g_DToA.go	763	runtime method parameter (BigInteger)	BigInteger.compareTo#0 on local/param BigInteger	false	*BigInteger	obj_(	-
+g_DefaultNameGenerator.go	244	generated result	return of DefaultNameGenerator_CharPriority.clone	false	*DefaultNameGenerator_CharPriority	obj_(	-
+g_DefaultPassConfig.go	1451	runtime method parameter (ImmutableCollection_Builder)	ImmutableCollection_Builder.add#0 on local/param ImmutableCollection_Builder	true	string	strobj_(	-
+g_Denormalize.go	40	runtime function parameter	elemsAs_#0	false	*ReferenceCollection	obj_(	-
+g_DependencyInfo.go	340	result of a func literal	return of func literal	true	string	strobj_(	-
+g_DiagnosticGroup.go	71	runtime function parameter	defaultToString_#0	false	*DiagnosticGroup	any(	-
+g_DiagnosticToSuppressionMapper.go	51	runtime method parameter (ImmutableSortedMap_BuilderOf[string, string])	ErasedImmutableMap_Builder.put#0 on local/param ImmutableSortedMap_BuilderOf[string, string]	true	string	strobj_(	-
+g_DiagnosticToSuppressionMapper.go	51	runtime method parameter (ImmutableSortedMap_BuilderOf[string, string])	ErasedImmutableMap_Builder.put#1 on local/param ImmutableSortedMap_BuilderOf[string, string]	true	string	strobj_(	-
+g_DisambiguateProperties.go	69	result of a func literal	return of func literal	false	*ErasedImmutableList	obj_(	-
+g_DisambiguateProperties.go	92	result of a func literal	return of func literal	false	*SimpleSetMultimap[string, *ColorId]	obj_(	-
+g_DisambiguateProperties.go	106	runtime method parameter (ImmutableSortedMap_BuilderOf[string, any])	ErasedImmutableMap_Builder.put#0 on local/param ImmutableSortedMap_BuilderOf[string, any]	true	string	strobj_(	-
+g_DisambiguateProperties.go	110	result of a func literal	return of func literal	false	*ImmutableSortedSet	obj_(	-
+g_DisambiguateProperties.go	354	runtime method parameter (ComparisonChain)	ComparisonChain.compare#0 on result of ComparisonChain.compare_int_int	true	string	strobj_(	-
+g_DisambiguateProperties.go	354	runtime method parameter (ComparisonChain)	ComparisonChain.compare#1 on result of ComparisonChain.compare_int_int	true	string	strobj_(	-
+g_DisambiguateProperties.go	388	runtime method parameter (ImmutableSortedMap_BuilderOf[string, ColorGraphNode_PropAssociation])	ErasedImmutableMap_Builder.put#0 on local/param ImmutableSortedMap_BuilderOf[string, ColorGraphNode_PropAssociation]	true	string	strobj_(	-
+g_DisambiguateProperties.go	388	runtime method parameter (ImmutableSortedMap_BuilderOf[string, ColorGraphNode_PropAssociation])	ErasedImmutableMap_Builder.put#1 on local/param ImmutableSortedMap_BuilderOf[string, ColorGraphNode_PropAssociation]	false	ColorGraphNode_PropAssociation	obj_(	-
+g_DisambiguateProperties.go	404	runtime method parameter (TMap)	TMap.Put#1 on local/param TMap	true	string	strobj_(	-
+g_DisambiguateProperties.go	405	runtime method parameter (TMap)	TMap.Put#1 on local/param TMap	false	ImmutableSortedSetOf[*DisambiguateProperties_TypeEdgeJson]	obj_(	-
+g_DisambiguateProperties.go	406	runtime method parameter (TMap)	TMap.Put#1 on local/param TMap	false	ImmutableSortedMapOf[string, ColorGraphNode_PropAssociation]	obj_(	-
+g_DotFormatter.go	90	result of a func literal	return of func literal	true	string	strobj_(	-
+g_DotFormatter.go	152	local variable	local	true	int32	any(	-
+g_EqualityChecker.go	418	comparison	comparison	false	*EqualityChecker_CacheKey	any(	h
+g_ErrorToFixMapper.go	245	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_Es6ConvertSuperConstructorCalls.go	552	generated interface method parameter	Collection.contains#0 on result of sliceViewP_	false	Node	.box_()	-
+g_Es6NormalizeClasses.go	303	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_Es6NormalizeClasses.go	321	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_Es6NormalizeClasses.go	325	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_Es6NormalizeClasses.go	871	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_Es6NormalizeClasses.go	903	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_Es6NormalizeClasses.go	1210	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_Es6NormalizeClasses.go	1210	variadic runtime argument	Strings_lenientFormat#2	false	Node	.box_()	-
+g_Es6NormalizeClasses.go	1687	runtime function parameter	objstr_#0	false	Optional[Node]	.box_()	-
+g_Es6NormalizeClasses.go	1718	runtime function parameter	objstr_#0	false	Optional[Node]	.box_()	-
+g_Es6RenameTypeReferences.go	77	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_Es6RewriteBlockScopedDeclaration.go	396	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_Es6RewriteClass.go	60	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_Es6RewriteClass.go	64	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_Es6RewriteClass.go	85	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_Es6RewriteClass.go	88	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_Es6RewriteClass.go	417	runtime function parameter	objequalsBy_#1	false	*Color	obj_(	-
+g_Es6RewriteDestructuring.go	39	generated parameter	new_AssertionError_Object#0	true	string	strobj_(	-
+g_Es6RewriteDestructuring.go	194	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_Es6RewriteDestructuring.go	521	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_Es6RewriteModules.go	337	runtime function parameter	splitToListT_#2	true	string	strobj_(	-
+g_Es6RewriteModules.go	768	runtime function parameter	splitToListT_#2	true	string	strobj_(	-
+g_EsModuleProcessor.go	242	generated interface method parameter	List.indexOf#0 on result of TList.asListT	false	*Export	obj_(	-
+g_Export.go	97	runtime function parameter	objequalsBy_#1	false	*ModuleMetadataMap_ModuleMetadata	obj_(	-
+g_ExpressionDecomposer.go	473	runtime function parameter	foreach_#0	false	*Node_AncestorIterable	obj_(	-
+g_ExpressionDecomposer.go	517	runtime function parameter	foreach_#0	false	*Node_AncestorIterable	obj_(	-
+g_ExpressionDecomposer.go	630	runtime method parameter (EnumSetOf[ExpressionDecomposer_Workaround])	EnumSet.contains#0 on field ExpressionDecomposer.enabledWorkarounds EnumSetOf[ExpressionDecomposer_Workaround]	false	ExpressionDecomposer_Workaround	obj_(	-
+g_ExpressionDecomposer.go	804	runtime method parameter (MoreObjects_ToStringHelper)	MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.add_String_boolean	false	Node	.box_()	-
+g_ExternExportsPass.go	45	runtime function parameter	splitToListT_#2	true	string	strobj_(	-
+g_ExternExportsPass.go	50	runtime method parameter (Joiner)	Joiner.join_Object_Object_ObjectArr#0 on global ExternExportsPass_Q_NAME_JOINER	true	string	strobj_(	-
+g_ExternExportsPass.go	50	runtime method parameter (Joiner)	Joiner.join_Object_Object_ObjectArr#1 on global ExternExportsPass_Q_NAME_JOINER	true	string	strobj_(	-
+g_ExternExportsPass.go	65	result of a func literal	return of func literal	true	string	strobj_(	-
+g_ExternExportsPass.go	546	runtime method parameter (Joiner)	Joiner.join_Object_Object_ObjectArr#0 on global ExternExportsPass_Q_NAME_JOINER	true	string	strobj_(	-
+g_ExternExportsPass.go	546	runtime method parameter (Joiner)	Joiner.join_Object_Object_ObjectArr#1 on global ExternExportsPass_Q_NAME_JOINER	true	string	strobj_(	-
+g_ExternExportsPass.go	548	runtime method parameter (Joiner)	Joiner.join_Object_Object_ObjectArr#0 on global ExternExportsPass_Q_NAME_JOINER	true	string	strobj_(	-
+g_ExternExportsPass.go	548	runtime method parameter (Joiner)	Joiner.join_Object_Object_ObjectArr#1 on global ExternExportsPass_Q_NAME_JOINER	true	string	strobj_(	-
+g_FeatureCollector.go	195	generated interface method parameter	Collection.contains#0 on result of sliceViewP_	false	FeatureCollector_FeatureContext	obj_(	-
+g_FeatureSet.go	122	runtime method parameter (EnumSetOf[FeatureSet_Feature])	EnumSet.add#0 on local/param EnumSetOf[FeatureSet_Feature]	false	FeatureSet_Feature	obj_(	-
+g_FeatureSet.go	373	runtime function parameter	elemsAs_#0	false	*EnumSet	obj_(	-
+g_FeatureSet.go	375	runtime method parameter (EnumSetOf[FeatureSet_Feature])	EnumSet.add#0 on local/param EnumSetOf[FeatureSet_Feature]	false	FeatureSet_Feature	obj_(	-
+g_FindModuleDependencies.go	43	generated interface method parameter	Collection.contains#0 on result of CompilerInput.getRequires	false	*DependencyInfo_Require	obj_(	-
+g_FindModuleDependencies.go	49	runtime method parameter (ErasedImmutableMap)	ErasedImmutableMap.containsValue#0 on result of TMap.asImm	true	string	strobj_(	-
+g_FixedPointGraphTraversal.go	83	generated parameter	new_AssertionError_Object#0	true	string	strobj_(	-
+g_FunctionType.go	782	generated parameter	new_Property#0	true	string	strobj_(	H
+g_GatherModuleMetadata.go	277	runtime function parameter	elemsBy_#0	false	*SimpleMultiset[string]	obj_(	-
+g_GlobalNamespace.go	1277	runtime method parameter (MapT)	MapT.get_t#0 on result of GlobalNamespace_Name.castRefsForNodeMap	false	Node	.box_()	-
+g_GlobalNamespace.go	1299	generated field	field GlobalNamespace_Name.refsForNode	false	*GlobalNamespace_Ref	obj_(	-
+g_GlobalNamespace.go	1388	generated field	field GlobalNamespace_Name.refsForNode	false	*GlobalNamespace_Ref	obj_(	-
+g_GlobalNamespace.go	1390	comparison	comparison	false	*GlobalNamespace_Ref	obj_(	-
+g_GlobalNamespace.go	1395	runtime method parameter (MapT)	MapT.remove_t#0 on local/param MapT	false	Node	.box_()	-
+g_GlobalNamespace.go	1397	runtime method parameter (MapT)	MapT.get_t#0 on local/param MapT	false	Node	.box_()	-
+g_GlobalNamespace.go	1411	comparison	comparison	false	*GlobalNamespace_Ref	obj_(	-
+g_GlobalNamespace.go	1416	generated interface method parameter	Map.containsKey#0 on result of GlobalNamespace_Name.castRefsForNodeMap	false	Node	.box_()	-
+g_GlobalNamespace.go	1487	runtime method parameter (MapT)	MapT.get_t#0 on result of GlobalNamespace_Name.castRefsForNodeMap	false	Node	.box_()	-
+g_GlobalNamespace.go	1491	runtime method parameter (MapT)	MapT.remove_t#0 on result of GlobalNamespace_Name.castRefsForNodeMap	false	Node	.box_()	-
+g_GlobalNamespace.go	1520	runtime method parameter (MapT)	MapT.get_t#0 on result of GlobalNamespace_Name.castRefsForNodeMap	false	Node	.box_()	-
+g_GlobalNamespace.go	1701	variadic generated argument	LogFile.log_2#1 on field GlobalNamespace.decisionsLog LogFile	true	string	strobj_(	-
+g_GlobalNamespace.go	1701	variadic generated argument	LogFile.log_2#2 on field GlobalNamespace.decisionsLog LogFile	false	GlobalNamespace_Inlinability	obj_(	-
+g_GlobalNamespace.go	1701	variadic generated argument	LogFile.log_2#3 on field GlobalNamespace.decisionsLog LogFile	true	string	strobj_(	-
+g_GlobalNamespace.go	1843	variadic generated argument	LogFile.log_2#1 on field GlobalNamespace.decisionsLog LogFile	true	string	strobj_(	-
+g_GlobalNamespace.go	1843	variadic generated argument	LogFile.log_2#2 on field GlobalNamespace.decisionsLog LogFile	false	GlobalNamespace_Inlinability	obj_(	-
+g_GlobalNamespace.go	1843	variadic generated argument	LogFile.log_2#3 on field GlobalNamespace.decisionsLog LogFile	true	string	strobj_(	-
+g_GlobalNamespace.go	1850	variadic runtime argument	String_format#1	true	string	strobj_(	-
+g_GlobalNamespace.go	1850	variadic runtime argument	String_format#2	false	GlobalNamespace_Inlinability	obj_(	-
+g_GlobalNamespace.go	1850	variadic runtime argument	String_format#3	true	string	strobj_(	-
+g_GlobalNamespace.go	1930	generated parameter	new_AssertionError_Object#0	true	string	strobj_(	-
+g_GlobalNamespace.go	1934	runtime method parameter (Joiner)	Joiner.join_Object_Object_ObjectArr#0 on result of Joiner_on	true	string	strobj_(	-
+g_GlobalNamespace.go	1934	runtime method parameter (Joiner)	Joiner.join_Object_Object_ObjectArr#1 on result of Joiner_on	true	string	strobj_(	-
+g_GlobalNamespace.go	1934	variadic runtime argument	Joiner.join_Object_Object_ObjectArr#2 on result of Joiner_on	true	string	strobj_(	-
+g_GlobalNamespace.go	1934	variadic runtime argument	Joiner.join_Object_Object_ObjectArr#3 on result of Joiner_on	true	string	strobj_(	-
+g_GlobalNamespace.go	1934	variadic runtime argument	Joiner.join_Object_Object_ObjectArr#4 on result of Joiner_on	true	string	strobj_(	-
+g_GlobalNamespace.go	1934	variadic runtime argument	Joiner.join_Object_Object_ObjectArr#5 on result of Joiner_on	true	string	strobj_(	-
+g_GlobalNamespace.go	2080	runtime method parameter (MoreObjects_ToStringHelper)	MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.omitNullValues	false	GlobalNamespace_Ref_Type	obj_(	-
+g_GlobalNamespace.go	2080	runtime method parameter (MoreObjects_ToStringHelper)	MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.add	false	Node	.box_()	-
+g_GlobalNamespace.go	2080	runtime method parameter (MoreObjects_ToStringHelper)	MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.add	false	*Scope	obj_(	-
+g_Graph.go	127	runtime function parameter	elemsAs_#0	false	*Graph_GraphAnnotationState	obj_(	h
+g_HamtPMap.go	545	generated parameter	new_AssertionError_Object#0	true	string	strobj_(	-
+g_IR.go	200	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_IRFactory.go	638	runtime function parameter	Range_closed#0	false	*IRFactory_LineAndColumn	obj_(	-
+g_IRFactory.go	638	runtime function parameter	Range_closed#1	false	*IRFactory_LineAndColumn	obj_(	-
+g_IRFactory.go	2780	result of a func literal	return of func literal	false	string	strobj_(	-
+g_IRFactory.go	2782	result of a func literal	return of func literal	false	string	strobj_(	-
+g_IRFactory.go	2785	result of a func literal	return of func literal	false	string	strobj_(	-
+g_IRFactory.go	2787	result of a func literal	return of func literal	false	string	strobj_(	-
+g_InlineAndCollapseProperties.go	414	runtime function parameter	elemsAs_#0	false	*ReferenceCollection	obj_(	-
+g_InlineAndCollapseProperties.go	547	runtime function parameter	foreach_#0	false	*ReferenceCollection	obj_(	-
+g_InlineAndCollapseProperties.go	561	runtime function parameter	elemsAs_#0	false	*ReferenceCollection	obj_(	-
+g_InlineAndCollapseProperties.go	726	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_InlineAndCollapseProperties.go	740	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_InlineAndCollapseProperties.go	1078	runtime function parameter	objstr_#0	false	GlobalNamespace_Inlinability	obj_(	-
+g_InlineAndCollapseProperties.go	1179	variadic runtime argument	Strings_lenientFormat#2	false	Node	.box_()	-
+g_InlineAndCollapseProperties.go	1290	runtime function parameter	objstr_#0	false	Node	.box_()	-
+g_InlineAndCollapseProperties.go	1299	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_InlineVariables.go	802	runtime function parameter	objequalsBy_#1	false	*Var	obj_(	-
+g_InputId.go	44	comparison	comparison	false	*InputId	any(	-
+g_Invalidation.go	50	runtime method parameter (TMap)	TMap.Put#1 on local/param TMap	false	Invalidation_Reason	obj_(	-
+g_Invalidation.go	163	runtime method parameter (TMap)	TMap.Put#1 on local/param TMap	false	Invalidation_Reason	obj_(	-
+g_J2clConstantHoisterPass.go	67	generated interface method parameter	Collection.contains#0 on local/param CollectionT	false	Node	.box_()	-
+g_JSChunkGraph.go	388	generated interface method parameter	Collection.contains#0 on local/param SetT	false	*CompilerInput	obj_(	-
+g_JSDocInfo.go	531	result of a func literal	return of func literal	true	string	strobj_(	h
+g_JSDocInfo.go	794	result of a func literal	return of func literal	true	[]any	any(	h
+g_JSDocInfo.go	808	generated result	return of JSDocInfo.clone	false	*JSDocInfo	obj_(	h
+g_JSDocInfo.go	972	comparison	comparison	false	JSDocInfo_Visibility	obj_(	h
+g_JSDocInfo.go	1093	result of a func literal	return of func literal	false	*JSTypeExpression	obj_(	h
+g_JSDocInfo.go	1095	result of a func literal	return of func literal	false	*JSTypeExpression	obj_(	h
+g_JSDocInfo.go	1925	generated parameter	SourcePosition_rhino.setItem_impl#0 on field JSDocInfo_TrimmedStringPosition.JSDocInfo_StringPosition JSDocInfo_StringPosition	true	string	strobj_(	h
+g_JSDocInfo.go	2145	generated parameter	JSDocInfo_Builder.setProp#1 on local/param JSDocInfo_Builder	true	string	strobj_(	h
+g_JSDocInfo.go	2201	generated parameter	JSDocInfo_TrimmedStringPosition.setItem#0 on local/param JSDocInfo_TrimmedStringPosition	true	string	strobj_(	h
+g_JSDocInfo.go	2226	generated parameter	SourcePosition_rhino.setItem#0 on local/param JSDocInfo_StringPosition	true	string	strobj_(	h
+g_JSDocInfo.go	2235	generated parameter	SourcePosition_rhino.setItem#0 on local/param JSDocInfo_TypePosition	false	Node	.box_()	h
+g_JSDocInfo.go	2245	generated parameter	JSDocInfo_TrimmedStringPosition.setItem#0 on local/param JSDocInfo_TrimmedStringPosition	true	string	strobj_(	h
+g_JSDocInfo.go	2254	generated parameter	SourcePosition_rhino.setItem#0 on local/param JSDocInfo_NamePosition	false	Node	.box_()	h
+g_JSDocInfo.go	2265	generated parameter	JSDocInfo_Builder.populateProp#1 on local/param JSDocInfo_Builder	true	string	strobj_(	h
+g_JSDocInfo.go	2271	generated parameter	JSDocInfo_Builder.setProp#1 on local/param JSDocInfo_Builder	false	JSDocInfo_Visibility	obj_(	h
+g_JSDocInfo.go	2279	generated parameter	JSDocInfo_Builder.setProp#1 on local/param JSDocInfo_Builder	false	JSDocInfo_Visibility	obj_(	h
+g_JSDocInfo.go	2283	generated parameter	JSDocInfo_Builder.populatePropEntry#2 on local/param JSDocInfo_Builder	false	*JSTypeExpression	obj_(	h
+g_JSDocInfo.go	2290	generated parameter	JSDocInfo_Builder.populatePropEntry#2 on local/param JSDocInfo_Builder	true	string	strobj_(	h
+g_JSDocInfo.go	2302	runtime method parameter (TreeMapOf[*JSDocInfo_Property, any])	TreeMap.containsKey#0 on field JSDocInfo_Builder.props TreeMapOf[*JSDocInfo_Property, any]	false	*JSDocInfo_TypeProperty	obj_(	h
+g_JSDocInfo.go	2305	generated parameter	JSDocInfo_Builder.populatePropEntry#2 on local/param JSDocInfo_Builder	false	*JSTypeExpression	obj_(	h
+g_JSDocInfo.go	2313	generated parameter	JSDocInfo_Builder.populatePropEntry#2 on local/param JSDocInfo_Builder	false	Node	.box_()	h
+g_JSDocInfo.go	2349	generated parameter	JSDocInfo_Builder.populateProp#1 on local/param JSDocInfo_Builder	false	JSDocInfo_IdGenerator	obj_(	h
+g_JSDocInfo.go	2353	generated parameter	JSDocInfo_Builder.populateProp#1 on local/param JSDocInfo_Builder	false	JSDocInfo_IdGenerator	obj_(	h
+g_JSDocInfo.go	2357	generated parameter	JSDocInfo_Builder.populateProp#1 on local/param JSDocInfo_Builder	false	JSDocInfo_IdGenerator	obj_(	h
+g_JSDocInfo.go	2361	generated parameter	JSDocInfo_Builder.populateProp#1 on local/param JSDocInfo_Builder	false	JSDocInfo_IdGenerator	obj_(	h
+g_JSDocInfo.go	2365	generated parameter	JSDocInfo_Builder.populateProp#1 on local/param JSDocInfo_Builder	false	JSDocInfo_IdGenerator	obj_(	h
+g_JSDocInfo.go	2369	generated parameter	JSDocInfo_Builder.populateProp#1 on local/param JSDocInfo_Builder	true	string	strobj_(	h
+g_JSDocInfo.go	2386	runtime method parameter (ImmutableMap_BuilderOf[SetT[string], string])	ErasedImmutableMap_Builder.put#1 on local/param ImmutableMap_BuilderOf[SetT[string], string]	true	string	strobj_(	h
+g_JSDocInfo.go	2388	generated parameter	JSDocInfo_Builder.setProp#1 on local/param JSDocInfo_Builder	false	ImmutableMapOf[SetT[string], string]	obj_(	h
+g_JSDocInfo.go	2404	generated parameter	JSDocInfo_Builder.populateProp#1 on local/param JSDocInfo_Builder	false	*JSTypeExpression	obj_(	h
+g_JSDocInfo.go	2412	generated parameter	JSDocInfo_Builder.populateProp#1 on local/param JSDocInfo_Builder	false	*JSTypeExpression	obj_(	h
+g_JSDocInfo.go	2416	generated parameter	JSDocInfo_Builder.populateProp#1 on local/param JSDocInfo_Builder	false	*JSTypeExpression	obj_(	h
+g_JSDocInfo.go	2423	generated parameter	JSDocInfo_Builder.populateProp#1 on local/param JSDocInfo_Builder	true	string	strobj_(	h
+g_JSDocInfo.go	2435	generated parameter	JSDocInfo_Builder.setProp#1 on local/param JSDocInfo_Builder	false	*JSTypeExpression	obj_(	h
+g_JSDocInfo.go	2443	generated parameter	JSDocInfo_Builder.populateProp#1 on local/param JSDocInfo_Builder	false	*JSTypeExpression	obj_(	h
+g_JSDocInfo.go	2447	generated parameter	JSDocInfo_Builder.populateProp#1 on local/param JSDocInfo_Builder	false	*JSTypeExpression	obj_(	h
+g_JSDocInfo.go	2452	generated parameter	JSDocInfo_Builder.setProp#1 on local/param JSDocInfo_Builder	false	*JSTypeExpression	obj_(	h
+g_JSDocInfo.go	2472	generated parameter	JSDocInfo_Builder.populateProp#1 on local/param JSDocInfo_Builder	true	string	strobj_(	h
+g_JSDocInfo.go	2481	generated parameter	JSDocInfo_Builder.populateProp#1 on local/param JSDocInfo_Builder	true	string	strobj_(	h
+g_JSDocInfo.go	2485	generated parameter	JSDocInfo_Builder.populateProp#1 on local/param JSDocInfo_Builder	true	string	strobj_(	h
+g_JSDocInfo.go	2489	generated parameter	JSDocInfo_Builder.populateProp#1 on local/param JSDocInfo_Builder	true	string	strobj_(	h
+g_JSDocInfo.go	2498	generated parameter	JSDocInfo_Builder.populateProp#1 on local/param JSDocInfo_Builder	true	string	strobj_(	h
+g_JSDocInfo.go	2504	generated parameter	JSDocInfo_Builder.populateProp#1 on local/param JSDocInfo_Builder	true	string	strobj_(	h
+g_JSDocInfo.go	2512	generated parameter	JSDocInfo_Builder.populateProp#1 on local/param JSDocInfo_Builder	true	string	strobj_(	h
+g_JSDocInfo.go	2516	generated parameter	JSDocInfo_Builder.setProp#1 on local/param JSDocInfo_Builder	true	string	strobj_(	h
+g_JSDocInfo.go	2708	generated parameter	JSDocInfo_Builder.populateProp#1 on local/param JSDocInfo_Builder	false	*JSTypeExpression	obj_(	h
+g_JSDocInfo.go	2796	generated parameter	JSDocInfo_Builder.populateProp#1 on local/param JSDocInfo_Builder	false	JSDocInfo_PerFileClosureUnawareMode	obj_(	h
+g_JSDocInfo.go	2800	generated parameter	JSDocInfo_Builder.populateProp#1 on local/param JSDocInfo_Builder	false	JSDocInfo_PerFileClosureUnawareMode	obj_(	h
+g_JSDocInfo.go	2813	runtime method parameter (TreeMapOf[*JSDocInfo_Property, any])	TreeMap.remove#0 on field JSDocInfo_Builder.props TreeMapOf[*JSDocInfo_Property, any]	false	*JSDocInfo_TypeProperty	obj_(	h
+g_JSDocInfo.go	2814	runtime method parameter (TreeMapOf[*JSDocInfo_Property, any])	TreeMap.remove#0 on field JSDocInfo_Builder.props TreeMapOf[*JSDocInfo_Property, any]	false	*JSDocInfo_TypeProperty	obj_(	h
+g_JSDocInfo.go	2815	runtime method parameter (TreeMapOf[*JSDocInfo_Property, any])	TreeMap.remove#0 on field JSDocInfo_Builder.props TreeMapOf[*JSDocInfo_Property, any]	false	*JSDocInfo_TypeProperty	obj_(	h
+g_JSDocInfo.go	2816	generated parameter	JSDocInfo_Builder.setProp#1 on local/param JSDocInfo_Builder	false	*JSTypeExpression	obj_(	h
+g_JSDocInfo.go	2864	result of a func literal	return of func literal	false	*LinkedHashMap	any(	h
+g_JSDocInfo.go	2868	generated parameter	JSDocInfo_Builder.putPropEntry#1 on local/param JSDocInfo_Builder	true	string	strobj_(	h
+g_JSDocSerializer.go	134	runtime function parameter	equalsBy_#1	false	*OptimizationJsdoc	obj_(	-
+g_JSDocSerializer.go	320	generated parameter	new_MalformedTypedAstException_Object#0	true	string	strobj_(	-
+g_JSError.go	197	runtime function parameter	objequalsBy_#1	false	*DiagnosticType	obj_(	-
+g_JSError.go	197	runtime function parameter	objequalsBy_#1	false	*Requirement	obj_(	-
+g_JSType.go	591	generated field	field JSType.templateCheckResult	false	bool	any(	H
+g_JSTypeReconserializer.go	153	local variable	local	true	int32	any(	-
+g_JSTypeRegistry.go	78	runtime function parameter	closeResource_#0	false	*JSTypeResolver_Closer	obj_(	h
+g_JSTypeRegistry.go	410	runtime function parameter	ImmutableMap_of_Object_Object#1	false	*UnknownType	obj_(	h
+g_JSTypeRegistry.go	592	conversion of a value that is already an interface, or a helper use boxcensus does not count				any(
+g_JSTypeRegistry.go	616	conversion of a value that is already an interface, or a helper use boxcensus does not count				any(
+g_JSTypeRegistry.go	1633	conversion of a value that is already an interface, or a helper use boxcensus does not count				any(
+g_JsDocInfoParser.go	70	variadic generated argument	Msg.format_1#0 on local/param Msg	true	string	strobj_(	-
+g_JsDocInfoParser.go	86	variadic generated argument	Msg.format_1#0 on local/param Msg	true	string	strobj_(	-
+g_JsMessage.go	750	variadic runtime argument	Strings_lenientFormat#1	true	string	strobj_(	-
+g_JsMessage.go	750	variadic runtime argument	Strings_lenientFormat#2	true	string	strobj_(	-
+g_JsonErrorReportGenerator.go	104	generated parameter	Output.append_CharSequence_rOutput#0 on field JsonErrorReportGenerator.stream Output	true	string	strobj_(	-
+g_Keywords.go	292	runtime function parameter	elemsAs_#0	false	*EnumSet	obj_(	-
+g_Keywords.go	294	runtime method parameter (EnumMapOf[TokenType, Keywords])	EnumMap.put#0 on local/param EnumMapOf[TokenType, Keywords]	false	TokenType	obj_(	-
+g_Keywords.go	294	runtime method parameter (EnumMapOf[TokenType, Keywords])	EnumMap.put#1 on local/param EnumMapOf[TokenType, Keywords]	false	Keywords	obj_(	-
+g_LightweightMessageFormatter.go	239	runtime function parameter	splitToListT_#2	true	string	strobj_(	-
+g_LinkedFlowScope.go	183	comparison	comparison	false	*TypedScope	obj_(	h
+g_LiveVariablesAnalysis.go	297	runtime function parameter	Object_clone#0	false	*BitSet	obj_(	-
+g_LiveVariablesAnalysis.go	305	runtime function parameter	equalsBy_#1	false	*BitSet	obj_(	-
+g_LogsGson.go	36	generated parameter	LogsGson_toJson#0	false	*ErasedImmutableList	obj_(	-
+g_LowestCommonAncestorFinder.go	166	result of a func literal	return of func literal	false	*LowestCommonAncestorFinder_Color	obj_(	-
+g_MakeDeclaredNamesUnique.go	266	comparison	comparison	false	*MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo	obj_(	-
+g_MakeDeclaredNamesUnique.go	394	comparison	comparison	false	*MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo	any(	-
+g_MakeDeclaredNamesUnique.go	646	runtime method parameter (MoreObjects_ToStringHelper)	MoreObjects_ToStringHelper.add#1 on result of MoreObjects_toStringHelper	false	Node	.box_()	-
+g_MakeDeclaredNamesUnique.go	646	runtime method parameter (MoreObjects_ToStringHelper)	MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.add	false	*SimpleMultiset[string]	obj_(	-
+g_MakeDeclaredNamesUnique.go	753	comparison	comparison	false	*MakeDeclaredNamesUnique_InlineRenamer	any(	-
+g_MalformedTypedAstException.go	40	generated parameter	new_MalformedTypedAstException_Object#0	true	string	strobj_(	-
+g_MalformedTypedAstException.go	47	generated parameter	new_MalformedTypedAstException_Object#0	true	string	strobj_(	-
+g_MaybeReachingVariableUse.go	123	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_Module.go	78	runtime function parameter	objequalsBy_#1	false	*ModuleMetadataMap_ModuleMetadata	obj_(	-
+g_ModuleLoader.go	85	result of a func literal	return of func literal	true	string	strobj_(	-
+g_ModuleLoader.go	87	result of a func literal	return of func literal	true	string	strobj_(	-
+g_ModuleMapCreator.go	49	runtime function parameter	elemsBy_#0	false	*SimpleMultiset[string]	obj_(	-
+g_ModuleMapCreator.go	83	runtime function parameter	elemsBy_#0	false	*SimpleMultiset[string]	obj_(	-
+g_ModuleMetadataMap.go	254	comparison	comparison	false	*ModuleMetadataMap_ModuleMetadata	any(	-
+g_NestedCompilerRunner.go	41	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_NoResolvedType.go	76	runtime function parameter	System_identityHashCode#0	false	*NoResolvedType	obj_(	H
+g_Node.go	277	runtime method parameter (Node)	Node.putProp#1 on local/param Node	false	*NonJSDocComment	obj_(	H
+g_Node.go	282	runtime method parameter (Node)	Node.putProp#1 on local/param Node	false	*NonJSDocComment	obj_(	H
+g_Node.go	306	generated parameter	Node.payload_set_#0 on local/param Node	false	*BigInteger	obj_(	H
+g_Node.go	329	generated parameter	Node.payload_set_#0 on local/param Node	false	*Node_TemplateLiteralSubstring	obj_(	H
+g_Node.go	340	generated parameter	Node.payload_set_#0 on local/param Node	false	*Node_TemplateLiteralSubstring	obj_(	H
+g_Node.go	409	runtime method parameter (Node)	Node.putProp#1 on local/param Node	false	Node	.box_()	H
+g_Node.go	421	variadic runtime argument	String_format#1	false	Node	.box_()	H
+g_Node.go	421	variadic runtime argument	String_format#2	true	string	strobj_(	H
+g_Node.go	477	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	H
+g_Node.go	477	variadic runtime argument	Strings_lenientFormat#2	false	Node	.box_()	H
+g_Node.go	477	variadic runtime argument	Strings_lenientFormat#3	false	Node	.box_()	H
+g_Node.go	642	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	H
+g_Node.go	648	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	H
+g_Node.go	651	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	H
+g_Node.go	654	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	H
+g_Node.go	924	runtime method parameter (Node)	Node.putProp#1 on local/param Node	false	Node	.box_()	H
+g_Node.go	940	runtime method parameter (Node)	Node.putProp#1 on local/param Node	false	Node	.box_()	H
+g_Node.go	948	runtime method parameter (Node)	Node.putProp#1 on local/param Node	false	Node	.box_()	H
+g_Node.go	964	runtime method parameter (Node)	Node.putProp#1 on local/param Node	false	JSDocInfo_Visibility	obj_(	H
+g_Node.go	972	runtime method parameter (Node)	Node.putProp#1 on local/param Node	false	*FeatureSet	obj_(	H
+g_Node.go	1029	local variable	local	true	float64	any(	H
+g_Node.go	1068	generated parameter	Node.payload_set_#0 on local/param Node	false	*BigInteger	obj_(	H
+g_Node.go	1135	runtime method parameter (strBuilder_)	strBuilder_.append_Object#0 on local/param strBuilder_	false	Token_rhino	obj_(	H
+g_Node.go	1347	runtime method parameter (Node)	Node.putProp#1 on local/param Node	false	*InputId	obj_(	H
+g_Node.go	1725	runtime method parameter (EnumSetOf[*Node_Prop])	EnumSet.add#0 on local/param EnumSetOf[*Node_Prop]	false	*Node_Prop	obj_(	H
+g_Node.go	1732	runtime method parameter (EnumSetOf[*Node_Prop])	EnumSet.add#0 on local/param EnumSetOf[*Node_Prop]	false	*Node_Prop	obj_(	H
+g_Node.go	1735	runtime function parameter	foreach_#0	false	EnumSetOf[*Node_Prop]	obj_(	H
+g_Node.go	1738	runtime method parameter (EnumSet)	EnumSet.contains#0 on global Node_propMapForEqualityKeys	false	*Node_Prop	obj_(	H
+g_Node.go	1739	runtime method parameter (MapT)	MapT.get_t#0 on global Node_PROP_MAP_FOR_EQUALITY	false	*Node_Prop	obj_(	H
+g_Node.go	1801	local variable	local	true	float64	any(	H
+g_Node.go	2131	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	H
+g_Node.go	2157	generated parameter	Node.jstypeOrColor_set_#0 on local/param Node	false	*Color	obj_(	H
+g_Node.go	2171	runtime method parameter (Node)	Node.putProp#1 on local/param Node	false	*JSDocInfo	obj_(	H
+g_Node.go	2232	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	H
+g_Node.go	2344	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	H
+g_Node.go	2403	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	H
+g_Node.go	2410	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	H
+g_Node.go	2417	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	H
+g_Node.go	2424	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	H
+g_Node.go	3012	local variable	global Node_NUMBER_PAYLOAD_UNSET	false	float64	any(	H
+g_Node.go	3015	result of a func literal	return of func literal	false	bool	any(	H
+g_Node.go	3021	result of a func literal	return of func literal	false	bool	any(	H
+g_Node.go	3027	result of a func literal	return of func literal	false	bool	any(	H
+g_Node.go	3033	result of a func literal	return of func literal	false	bool	any(	H
+g_Node.go	3039	result of a func literal	return of func literal	false	bool	any(	H
+g_Node.go	3045	result of a func literal	return of func literal	false	bool	any(	H
+g_Node.go	3492	generated result	return of Node_SiblingNodeIterator.next	false	Node	.box_()	H
+g_Node.go	3926	generated result	return of Node_AncestorIterable_1.next	false	Node	.box_()	H
+g_NodeIterators.go	74	generated result	return of NodeIterators_FunctionlessLocalScope.next	false	Node	.box_()	-
+g_NodeIterators.go	165	generated result	return of NodeIterators_LocalVarMotion.next	false	Node	.box_()	-
+g_NodeTraversal.go	39	conversion of a value that is already an interface, or a helper use boxcensus does not count				any(
+g_NodeTraversal.go	588	generated parameter	append#1	false	Node	.box_()	H
+g_NodeTraversal.go	1169	generated parameter	append#1	false	Node	.box_()	H
+g_NodeTraversal.go	1566	conversion of a value that is already an interface, or a helper use boxcensus does not count				any(
+g_NodeTraversal.go	1582	conversion of a value that is already an interface, or a helper use boxcensus does not count				any(
+g_NodeUtil.go	43	runtime function parameter	equalsBy_#1	false	*BigInteger	obj_(	h
+g_NodeUtil.go	65	runtime function parameter	equalsBy_#1	false	*BigInteger	obj_(	h
+g_NodeUtil.go	226	result of a func literal	return of func literal	true	float64	any(	h
+g_NodeUtil.go	246	result of a func literal	return of func literal	true	float64	any(	h
+g_NodeUtil.go	254	result of a func literal	return of func literal	true	float64	any(	h
+g_NodeUtil.go	670	generated parameter	new_AssertionError_Object#0	true	string	strobj_(	h
+g_NodeUtil.go	1700	runtime function parameter	foreach_#0	false	*Node_AncestorIterable	obj_(	h
+g_NodeUtil.go	2041	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	h
+g_NodeUtil.go	2808	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	h
+g_NodeUtil.go	2873	runtime function parameter	splitToListT_#2	true	string	strobj_(	h
+g_NodeUtil.go	4408	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	h
+g_NodeUtil.go	4751	generated result	return of NodeUtil_PreOrderIterator.computeNext	false	Node	.box_()	h
+g_NodeUtil.go	4986	generated result	return of NodeUtil_TemplateArgsIterable_1.computeNext	false	Node	.box_()	h
+g_Normalize.go	226	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_Normalize.go	342	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_Normalize.go	412	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_ObjectType.go	720	comparison	comparison	false	*ObjectType	any(	H
+g_ObjectType.go	728	comparison	comparison	false	*ObjectType	any(	H
+g_ObjectType.go	736	comparison	comparison	false	*ObjectType	any(	H
+g_ObjectType.go	744	comparison	comparison	false	*ObjectType	any(	H
+g_ObjectType.go	752	comparison	comparison	false	*ObjectType	any(	H
+g_ObjectType.go	760	comparison	comparison	false	*ObjectType	any(	H
+g_ObjectType.go	768	comparison	comparison	false	*ObjectType	any(	H
+g_ObjectType.go	776	comparison	comparison	false	*ObjectType	any(	H
+g_ObjectType.go	784	comparison	comparison	false	*ObjectType	any(	H
+g_ObjectType.go	792	comparison	comparison	false	*ObjectType	any(	H
+g_ObjectType.go	800	comparison	comparison	false	*ObjectType	any(	H
+g_OptimizeCalls.go	137	generated field	field OptimizeCalls_Builder.considerExterns	false	bool	any(	-
+g_OptimizeCalls.go	316	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_OptimizeCalls.go	316	variadic runtime argument	Strings_lenientFormat#2	false	Node	.box_()	-
+g_OptimizeCalls.go	330	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_OptimizeCalls.go	330	variadic runtime argument	Strings_lenientFormat#2	false	Node	.box_()	-
+g_OptimizeParameters.go	97	variadic generated argument	LogFile.log_2#1 on field OptimizeParameters.decisionsLog LogFile	true	string	strobj_(	-
+g_OptimizeParameters.go	97	variadic generated argument	LogFile.log_2#2 on field OptimizeParameters.decisionsLog LogFile	true	string	strobj_(	-
+g_OptimizeParameters.go	113	variadic generated argument	LogFile.log_2#1 on field OptimizeParameters.decisionsLog LogFile	true	string	strobj_(	-
+g_OptimizeParameters.go	113	variadic generated argument	LogFile.log_2#2 on field OptimizeParameters.decisionsLog LogFile	true	string	strobj_(	-
+g_OptimizeParameters.go	113	variadic generated argument	LogFile.log_2#3 on field OptimizeParameters.decisionsLog LogFile	true	string	strobj_(	-
+g_OptimizeParameters.go	119	variadic generated argument	LogFile.log_2#1 on field OptimizeParameters.decisionsLog LogFile	true	string	strobj_(	-
+g_OptimizeParameters.go	119	variadic generated argument	LogFile.log_2#2 on field OptimizeParameters.decisionsLog LogFile	true	string	strobj_(	-
+g_OptimizeParameters.go	129	variadic generated argument	LogFile.log_2#1 on field OptimizeParameters.decisionsLog LogFile	true	string	strobj_(	-
+g_OptimizeParameters.go	129	variadic generated argument	LogFile.log_2#2 on field OptimizeParameters.decisionsLog LogFile	true	string	strobj_(	-
+g_OptimizeParameters.go	133	variadic generated argument	LogFile.log_2#1 on field OptimizeParameters.decisionsLog LogFile	true	string	strobj_(	-
+g_OptimizeParameters.go	133	variadic generated argument	LogFile.log_2#2 on field OptimizeParameters.decisionsLog LogFile	true	string	strobj_(	-
+g_OptimizeParameters.go	137	variadic generated argument	LogFile.log_2#1 on field OptimizeParameters.decisionsLog LogFile	true	string	strobj_(	-
+g_OptimizeParameters.go	137	variadic generated argument	LogFile.log_2#2 on field OptimizeParameters.decisionsLog LogFile	true	string	strobj_(	-
+g_OptimizeParameters.go	672	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_OptimizeParameters.go	744	runtime function parameter	Object_clone#0	false	*BitSet	obj_(	-
+g_OptimizeParameters.go	749	runtime function parameter	Object_clone#0	false	*BitSet	obj_(	-
+g_OptimizeReturns.go	36	variadic generated argument	LogFile.log_2#1 on field OptimizeReturns.decisionsLog LogFile	true	string	strobj_(	-
+g_OptimizeReturns.go	44	variadic generated argument	LogFile.log_2#1 on field OptimizeReturns.decisionsLog LogFile	true	string	strobj_(	-
+g_OptimizeReturns.go	57	variadic generated argument	LogFile.log_2#1 on field OptimizeReturns.decisionsLog LogFile	true	string	strobj_(	-
+g_OptimizeReturns.go	69	variadic generated argument	LogFile.log_2#1 on field OptimizeReturns.decisionsLog LogFile	true	string	strobj_(	-
+g_OptimizeReturns.go	69	variadic generated argument	LogFile.log_2#2 on field OptimizeReturns.decisionsLog LogFile	true	string	strobj_(	-
+g_OptimizeReturns.go	79	variadic generated argument	LogFile.log_2#1 on field OptimizeReturns.decisionsLog LogFile	true	string	strobj_(	-
+g_OptimizeReturns.go	79	variadic generated argument	LogFile.log_2#2 on field OptimizeReturns.decisionsLog LogFile	true	string	strobj_(	-
+g_OptimizeReturns.go	86	variadic generated argument	LogFile.log_2#1 on field OptimizeReturns.decisionsLog LogFile	true	string	strobj_(	-
+g_OptimizeReturns.go	90	variadic generated argument	LogFile.log_2#1 on field OptimizeReturns.decisionsLog LogFile	true	string	strobj_(	-
+g_OptionalChainRewriter.go	54	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_Parser.go	161	generated parameter	Parser.reportExpectedError#1 on local/param Parser	false	string	strobj_(	-
+g_Parser.go	210	variadic generated argument	Parser.reportError_3#2 on local/param Parser	false	*IdentifierToken	obj_(	-
+g_Parser.go	1260	variadic generated argument	Parser.reportError_3#2 on local/param Parser	true	string	strobj_(	-
+g_Parser.go	1446	generated parameter	Parser.reportExpectedError#1 on local/param Parser	true	string	strobj_(	-
+g_Parser.go	1510	generated parameter	Parser.reportExpectedError#1 on local/param Parser	false	TokenType	obj_(	-
+g_Parser.go	2128	generated parameter	new_AssertionError_Object#0	true	string	strobj_(	-
+g_Parser.go	2160	variadic generated argument	Parser.reportError#1 on local/param Parser	false	TokenType	obj_(	-
+g_Parser.go	2189	generated parameter	new_AssertionError_Object#0	true	string	strobj_(	-
+g_Parser.go	2410	variadic generated argument	Parser.reportError#1 on local/param Parser	false	*IdentifierToken	obj_(	-
+g_Parser.go	2541	generated parameter	Parser.reportExpectedError#1 on local/param Parser	false	TokenType	obj_(	-
+g_Parser.go	2567	generated parameter	Parser.reportExpectedError#1 on local/param Parser	false	TokenType	obj_(	-
+g_Parser.go	2575	generated parameter	Parser.reportExpectedError#1 on local/param Parser	false	TokenType	obj_(	-
+g_Parser.go	2669	variadic generated argument	ErrorReporter_util.reportWarning_3#2 on field Parser.errorReporter ErrorReporter_util	true	string	strobj_(	-
+g_Parser.go	2672	variadic generated argument	Parser.reportErrorSourcePosition#2 on local/param Parser	true	string	strobj_(	-
+g_PassFactory.go	20	comparison	comparison	false	Function[*CompilerOptions, any]	.box_()	-
+g_PassFactory.go	27	comparison	comparison	false	Function[*CompilerOptions, *PassFactory_PreconditionResult]	.box_()	-
+g_PassFactory.go	34	comparison	comparison	false	Function[*AbstractCompiler, CompilerPass]	.box_()	-
+g_PassListBuilder.go	89	generated interface method parameter	Collection.contains#0 on result of TList.asListT	false	*PassFactory	obj_(	-
+g_PassListBuilder.go	109	generated interface method parameter	List.indexOf#0 on result of TList.asListT	false	*PassFactory	obj_(	-
+g_PassListBuilder.go	110	generated interface method parameter	List.indexOf#0 on result of TList.asListT	false	*PassFactory	obj_(	-
+g_PathUtil.go	46	runtime method parameter (CharMatcher)	CharMatcher.lastIndexIn#0 on global PathUtil_NON_SLASH_MATCHER	true	string	strobj_(	-
+g_PathUtil.go	50	runtime method parameter (CharMatcher)	CharMatcher.collapseFrom#0 on global PathUtil_SLASH_MATCHER	true	string	strobj_(	-
+g_PeepholeFoldConstants.go	631	runtime function parameter	equalsBy_#1	false	*BigInteger	obj_(	-
+g_PeepholeFoldConstants.go	658	runtime function parameter	equalsBy_#1	false	*BigInteger	obj_(	-
+g_PeepholeFoldConstants.go	676	runtime function parameter	equalsBy_#1	false	*BigInteger	obj_(	-
+g_PeepholeFoldConstants.go	678	runtime function parameter	equalsBy_#1	false	*BigInteger	obj_(	-
+g_PeepholeFoldConstants.go	683	runtime function parameter	equalsBy_#1	false	*BigInteger	obj_(	-
+g_PeepholeFoldConstants.go	685	runtime function parameter	equalsBy_#1	false	*BigInteger	obj_(	-
+g_PeepholeFoldConstants.go	690	runtime function parameter	equalsBy_#1	false	*BigInteger	obj_(	-
+g_PeepholeFoldConstants.go	692	runtime function parameter	equalsBy_#1	false	*BigInteger	obj_(	-
+g_PeepholeFoldConstants.go	697	runtime function parameter	equalsBy_#1	false	*BigInteger	obj_(	-
+g_PeepholeFoldConstants.go	992	generated parameter	new_AssertionError_Object#0	true	string	strobj_(	-
+g_PeepholeFoldConstants.go	1038	runtime method parameter (BigInteger)	BigInteger.compareTo#0 on local/param BigInteger	false	*BigInteger	obj_(	-
+g_PeepholeFoldConstants.go	1052	runtime method parameter (BigInteger)	BigInteger.compareTo#0 on local/param BigInteger	false	*BigInteger	obj_(	-
+g_PeepholeFoldConstants.go	1060	runtime method parameter (BigInteger)	BigInteger.compareTo#0 on local/param BigInteger	false	*BigInteger	obj_(	-
+g_PeepholeFoldConstants.go	1096	runtime method parameter (BigInteger)	BigInteger.compareTo#0 on local/param BigInteger	false	*BigInteger	obj_(	-
+g_PeepholeFoldConstants.go	1146	runtime function parameter	equalsBy_#1	false	*BigInteger	obj_(	-
+g_PeepholeFoldConstants.go	1163	runtime function parameter	equalsBy_#1	false	*BigInteger	obj_(	-
+g_PeepholeFoldConstants.go	1174	runtime function parameter	equalsBy_#1	false	*BigInteger	obj_(	-
+g_PeepholeFoldConstants.go	1245	runtime function parameter	equalsBy_#1	false	*BigInteger	obj_(	-
+g_PeepholeRemoveDeadCode.go	780	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_PeepholeRemoveDeadCode.go	849	generated parameter	new_AssertionError_Object#0	true	string	strobj_(	-
+g_PeepholeReplaceKnownMethods.go	203	local variable	local	true	float64	any(	-
+g_PeepholeReplaceKnownMethods.go	205	local variable	local	true	float64	any(	-
+g_PeepholeReplaceKnownMethods.go	207	local variable	local	true	float64	any(	-
+g_PeepholeReplaceKnownMethods.go	210	local variable	local	true	float64	any(	-
+g_PeepholeReplaceKnownMethods.go	218	local variable	local	true	float64	any(	-
+g_PeepholeReplaceKnownMethods.go	220	local variable	local	true	float64	any(	-
+g_PeepholeReplaceKnownMethods.go	222	local variable	local	true	float64	any(	-
+g_PeepholeReplaceKnownMethods.go	224	local variable	local	true	float64	any(	-
+g_PeepholeReplaceKnownMethods.go	227	local variable	local	true	float64	any(	-
+g_PeepholeReplaceKnownMethods.go	230	local variable	local	true	float64	any(	-
+g_PeepholeReplaceKnownMethods.go	232	local variable	local	true	float64	any(	-
+g_PeepholeReplaceKnownMethods.go	235	local variable	local	true	float64	any(	-
+g_PeepholeReplaceKnownMethods.go	246	local variable	local	true	float64	any(	-
+g_PeepholeReplaceKnownMethods.go	252	local variable	local	true	float64	any(	-
+g_PeepholeReplaceKnownMethods.go	255	local variable	local	false	float64	any(	-
+g_PeepholeReplaceKnownMethods.go	257	local variable	local	true	float64	any(	-
+g_PeepholeReplaceKnownMethods.go	261	local variable	local	true	float64	any(	-
+g_PeepholeReplaceKnownMethods.go	515	runtime function parameter	Ascii_equalsIgnoreCase#0	true	string	strobj_(	-
+g_PolyfillUsageFinder.go	338	runtime function parameter	splitToListT_#2	true	string	strobj_(	-
+g_PolymerClassDefinition.go	257	generated interface method parameter	Collection.remove_Object#0 on result of TList.asListT	false	*PolymerPass_MemberDefinition	obj_(	-
+g_PolymerClassDefinition.go	298	runtime method parameter (MoreObjects_ToStringHelper)	MoreObjects_ToStringHelper.add#1 on result of MoreObjects_toStringHelper	false	PolymerClassDefinition_DefinitionType	obj_(	-
+g_PolymerClassDefinition.go	298	runtime method parameter (MoreObjects_ToStringHelper)	MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.add	false	Node	.box_()	-
+g_PolymerClassDefinition.go	298	runtime method parameter (MoreObjects_ToStringHelper)	MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.add	false	Node	.box_()	-
+g_PolymerClassDefinition.go	300	result of a func literal	return of func literal	true	string	strobj_(	-
+g_PolymerPass.go	184	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_PolymerPass.go	209	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_PolymerPass.go	256	runtime method parameter (MoreObjects_ToStringHelper)	MoreObjects_ToStringHelper.add#1 on result of MoreObjects_toStringHelper	false	Node	.box_()	-
+g_PolymerPass.go	256	runtime method parameter (MoreObjects_ToStringHelper)	MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.add	false	Node	.box_()	-
+g_PrebuildAst.go	28	result of a func literal	return of func literal	false	Node	.box_()	-
+g_ProcessClosureProvidesAndRequires.go	523	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_ProcessCommonJSModules.go	619	generated interface method parameter	Collection.remove_Object#0 on result of TList.asListT	false	*ProcessCommonJSModules_ExportInfo	obj_(	-
+g_ProcessCommonJSModules.go	657	generated interface method parameter	List.indexOf#0 on result of TList.asListT	false	*ProcessCommonJSModules_ExportInfo	obj_(	-
+g_ProcessCommonJSModules.go	970	runtime function parameter	objequalsBy_#1	false	*InputId	obj_(	-
+g_ProcessCommonJSModules.go	1338	runtime function parameter	objequalsBy_#1	false	*InputId	obj_(	-
+g_ProcessCommonJSModules.go	1501	runtime function parameter	objequalsBy_#1	false	*InputId	obj_(	-
+g_ProcessDefines.go	289	runtime function parameter	MoreObjects_firstNonNull#0	false	Node	.box_()	-
+g_ProcessDefines.go	289	runtime function parameter	MoreObjects_firstNonNull#0	false	Node	.box_()	-
+g_ProcessDefines.go	289	runtime function parameter	MoreObjects_firstNonNull#1	false	Node	.box_()	-
+g_ProcessDefines.go	292	runtime function parameter	MoreObjects_firstNonNull#0	false	Node	.box_()	-
+g_ProcessDefines.go	292	runtime function parameter	MoreObjects_firstNonNull#0	false	Node	.box_()	-
+g_ProcessDefines.go	292	runtime function parameter	MoreObjects_firstNonNull#1	false	Node	.box_()	-
+g_ProcessTweaks.go	88	runtime function parameter	elemsAs_#0	false	*EnumSet	obj_(	-
+g_Property.go	44	result of a func literal	return of func literal	true	string	strobj_(	h
+g_Property.go	46	result of a func literal	return of func literal	false	*KnownSymbolType	obj_(	h
+g_Property.go	356	runtime function parameter	objequalsBy_#1	false	*KnownSymbolType	obj_(	h
+g_PropertyClustering.go	87	runtime method parameter (MoreObjects_ToStringHelper)	MoreObjects_ToStringHelper.add#1 on result of MoreObjects_toStringHelper	true	string	strobj_(	-
+g_PrototypeObjectType.go	357	variadic runtime argument	Objects_hash#1	false	*PropertyMap	obj_(	H
+g_PureFunctionIdentifier.go	93	variadic runtime argument	String_format#1	true	string	strobj_(	-
+g_PureFunctionIdentifier.go	213	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_PureFunctionIdentifier.go	671	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_PureFunctionIdentifier.go	1042	runtime method parameter (MoreObjects_ToStringHelper)	MoreObjects_ToStringHelper.add#1 on result of MoreObjects_toStringHelper_Class	true	string	strobj_(	-
+g_PureFunctionIdentifier.go	1042	runtime method parameter (MoreObjects_ToStringHelper)	MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.add_String_int	true	string	strobj_(	-
+g_RandomNameGenerator.go	147	generated interface method parameter	PrimitiveSink.putUnencodedChars#0 on local/param Hasher	false	*strBuilder_	obj_(	-
+g_RefactoringDriver.go	96	result of a func literal	return of func literal	false	*SourceFile_jscomp	obj_(	-
+g_RefactoringDriver.go	122	result of a func literal	return of func literal	false	*SourceFile_jscomp	obj_(	-
+g_ReferenceCollection.go	140	runtime function parameter	objequalsBy_#1	false	*InputId	obj_(	-
+g_ReferenceCollection.go	222	runtime method parameter (MoreObjects_ToStringHelper)	MoreObjects_ToStringHelper.add#1 on result of MoreObjects_toStringHelper	false	*Reference	obj_(	-
+g_RegExpTree.go	900	runtime method parameter (strBuilder_)	strBuilder_.append_CharSequence_int_int#0 on local/param strBuilder_	false	*strBuilder_	obj_(	-
+g_RegExpTree.go	1128	comparison	comparison	false	*RegExpTree_Alternation	obj_(	-
+g_RegExpTree.go	1541	variadic runtime argument	Objects_hash#2	true	string	strobj_(	-
+g_RegExpTree.go	1692	runtime method parameter (strBuilder_)	strBuilder_.append_Object#0 on local/param strBuilder_	false	*CharRanges	obj_(	-
+g_RegExpTree.go	2213	generated parameter	new_AssertionError_Object#0	true	string	strobj_(	-
+g_RegExpTree.go	2550	result of a func literal	return of func literal	false	int32	any(	-
+g_RegExpTree.go	2672	comparison	comparison	false	*RegExpTree_RegExpTreeAtom	any(	-
+g_RegExpTree.go	2680	comparison	comparison	false	*RegExpTree_RegExpTreeAtom	any(	-
+g_RegExpTree.go	2688	comparison	comparison	false	*RegExpTree_RegExpTreeAtom	any(	-
+g_RegExpTree.go	2696	comparison	comparison	false	*RegExpTree_RegExpTreeAtom	any(	-
+g_RemoveUnnecessarySyntheticExterns.go	56	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_RemoveUnusedCode.go	1189	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_RemoveUnusedCode.go	1453	element of a composite literal	element of []any	true	string	strobj_(	-
+g_RemoveUnusedCode.go	1453	element of a composite literal	element of []any	true	string	strobj_(	-
+g_RemoveUnusedCode.go	1453	element of a composite literal	element of []any	true	string	strobj_(	-
+g_RemoveUnusedCode.go	2565	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_RemoveUnusedCode.go	2568	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_RemoveUnusedCode.go	2576	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_RenameVars.go	230	generated interface method parameter	List.indexOf#0 on result of SimpleListMultimap.get	false	*Var	obj_(	-
+g_ReplaceCssNames.go	374	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_ReplaceCssNames.go	381	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_ReplaceCssNames.go	384	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_ReplaceCssNames.go	393	variadic runtime argument	String_format#2	false	Node	.box_()	-
+g_ReplaceCssNames.go	403	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_ReplaceCssNames.go	435	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_ReplaceCssNames.go	442	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_ReplaceCssNames.go	445	runtime function parameter	foreach_#0	false	*Node_AncestorIterable	obj_(	-
+g_ReplaceCssNames.go	457	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_ReplaceCssNames.go	460	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_ReplaceCssNames.go	472	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_ReplaceCssNames.go	481	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_ReplaceCssNames.go	485	variadic runtime argument	String_format#2	false	Node	.box_()	-
+g_ReplaceIdGenerators.go	33	conversion of a value that is already an interface, or a helper use boxcensus does not count				any(
+g_ReplaceIdGenerators.go	469	runtime function parameter	foreach_#0	false	*Node_AncestorIterable	obj_(	-
+g_ReplaceMessages.go	623	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_ReplaceStrings.go	231	runtime method parameter (strBuilder_)	strBuilder_.append_CharSequence#0 on local/param strBuilder_	false	*strBuilder_	obj_(	-
+g_ReplaceStrings.go	268	runtime function parameter	splitToListT_#2	true	string	strobj_(	-
+g_ReportDecoder.go	30	runtime function parameter	splitToListT_#2	true	string	strobj_(	-
+g_RequireAliasGenerator.go	115	generated result	return of RequireAliasGenerator_NameIterator.computeNext	true	string	strobj_(	-
+g_RescopeGlobalSymbols.go	349	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_RescopeGlobalSymbolsRewriteCallback.go	74	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_RescopeGlobalSymbolsRewriteCallback.go	293	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_RescopeGlobalSymbolsRewriteCallback.go	447	generated interface method parameter	Collection.contains#0 on local/param SetT	false	*JSChunk	obj_(	-
+g_RescopeGlobalSymbolsRewriteCallback.go	453	generated interface method parameter	Collection.contains#0 on local/param SetT	false	*JSChunk	obj_(	-
+g_RescopeGlobalSymbolsRewriteCallback.go	510	generated interface method parameter	Collection.contains#0 on local/param SetT	false	*JSChunk	obj_(	-
+g_RewriteAsyncFunctions.go	204	runtime function parameter	objequalsBy_#1	false	*Color	obj_(	-
+g_RuntimeJsLibManager.go	70	runtime function parameter	splitToListT_#2	true	string	strobj_(	-
+g_RuntimeJsLibManager.go	136	element of a composite literal	element of []any	false	string	strobj_(	-
+g_RuntimeJsLibManager.go	136	element of a composite literal	element of []any	true	string	strobj_(	-
+g_RuntimeJsLibManager.go	170	runtime function parameter	splitToListT_#2	true	string	strobj_(	-
+g_RuntimeJsLibManager.go	285	runtime function parameter	splitToListT_#2	true	string	strobj_(	-
+g_RuntimeJsLibManager.go	366	variadic runtime argument	Strings_lenientFormat#1	true	string	strobj_(	-
+g_RuntimeJsLibManager.go	366	variadic runtime argument	Strings_lenientFormat#2	true	string	strobj_(	-
+g_Scope.go	150	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	h
+g_Scope.go	189	runtime function parameter	Map_computeIfAbsent_f#1	false	AbstractScope_ImplicitVar	obj_(	h
+g_Scope.go	190	result of a func literal	return of func literal	false	*Var	obj_(	h
+g_Scope.go	303	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	h
+g_ScriptNodeDeserializer.go	409	generated parameter	new_MalformedTypedAstException_Object_Throwable#0	false	*SourceFile_jscomp	obj_(	-
+g_ScriptNodeDeserializer.go	417	argument of a func-typed field	func field field ?.unbox#0	false	FeatureCollector_FeatureContext	obj_(	-
+g_ScriptNodeDeserializer.go	446	argument of a func-typed field	func field field ?.unbox#0	false	FeatureCollector_FeatureContext	obj_(	-
+g_SerializeTypesToPointers.go	79	runtime method parameter (ImmutableSortedSet_BuilderOf[*SerializeTypesToPointers_TypeMismatchJson])	ImmutableCollection_Builder.add#0 on local/param ImmutableSortedSet_BuilderOf[*SerializeTypesToPointers_TypeMismatchJson]	false	*SerializeTypesToPointers_TypeMismatchJson	obj_(	-
+g_SerializeTypesToPointers.go	153	result of a func literal	return of func literal	true	int32	any(	-
+g_SerializeTypesToPointers.go	248	generated parameter	new_AssertionError_Object#0	true	string	strobj_(	-
+g_SerializeTypesToPointers.go	253	runtime method parameter (ComparisonChain)	ComparisonChain.compare#0 on result of ComparisonChain_start	true	string	strobj_(	-
+g_SerializeTypesToPointers.go	253	runtime method parameter (ComparisonChain)	ComparisonChain.compare#1 on result of ComparisonChain_start	true	string	strobj_(	-
+g_SerializeTypesToPointers.go	253	runtime method parameter (ComparisonChain)	ComparisonChain.compare#0 on result of ComparisonChain.compare	true	string	strobj_(	-
+g_SerializeTypesToPointers.go	253	runtime method parameter (ComparisonChain)	ComparisonChain.compare#1 on result of ComparisonChain.compare	true	string	strobj_(	-
+g_SerializeTypesToPointers.go	253	runtime method parameter (ComparisonChain)	ComparisonChain.compare#0 on result of ComparisonChain.compare	true	string	strobj_(	-
+g_SerializeTypesToPointers.go	253	runtime method parameter (ComparisonChain)	ComparisonChain.compare#1 on result of ComparisonChain.compare	true	string	strobj_(	-
+g_SimpleJsonValue.go	94	local variable	local	true	int32	any(	-
+g_SortingErrorManager.go	187	runtime method parameter (Enum)	Enum.compareTo#0 on result of CheckLevel.enum_	false	CheckLevel	obj_(	-
+g_SortingErrorManager.go	242	variadic runtime argument	Objects_hash#0	false	CheckLevel	obj_(	-
+g_SortingErrorManager.go	242	variadic runtime argument	Objects_hash#1	true	string	strobj_(	-
+g_Source.go	230	result of a func literal	return of func literal	true	string	strobj_(	-
+g_Source.go	434	generated parameter	new_Source_Lazy_1#0	true	string	strobj_(	-
+g_SourceCodeEscapers.go	109	generated parameter	SourceCodeEscapers_JavaScriptEscaper.appendTo#0 on local/param SourceCodeEscapers_JavaScriptEscaper	true	string	strobj_(	-
+g_SourceFile.go	533	generated parameter	new_AssertionError_Object#0	true	string	strobj_(	-
+g_SourceFile.go	562	generated parameter	new_AssertionError_Object#0	true	string	strobj_(	-
+g_SourceMap.go	48	runtime function parameter	equalsBy_#1	false	*Mapping_OriginalMapping	obj_(	-
+g_SourceMapGeneratorV3.go	300	generated interface method parameter	Appendable.append_CharSequence#0 on local/param Appendable	true	string	strobj_(	-
+g_SourceMapGeneratorV3.go	368	generated parameter	SourceMapGeneratorV3_appendFirstField#2	true	string	strobj_(	-
+g_SourceMapJsonLexer.go	314	runtime function parameter	Integer_parseInt_CharSequence_int_int_int#0	true	string	strobj_(	-
+g_SourceMapObjectParser.go	86	runtime method parameter (TMap)	TMap.Put#1 on local/param TMap	false	*SimpleJsonValue	obj_(	-
+g_SourceMapObjectParser.go	189	runtime method parameter (TMap)	TMap.Put#1 on local/param TMap	false	*SimpleJsonValue	obj_(	-
+g_SourceRange.go	25	variadic runtime argument	String_format#1	false	*SourcePosition_util	obj_(	-
+g_SourceRange.go	25	variadic runtime argument	String_format#2	false	*SourcePosition_util	obj_(	-
+g_SubtypeChecker.go	61	generated field	field SubtypeChecker.isUsingStructuralTyping	false	bool	any(	h
+g_SuggestedFix.go	214	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_SuggestedFix.go	404	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_SymbolTable.go	303	runtime method parameter (strBuilder_)	strBuilder_.append_Object#0 on result of strBuilder_.append	false	*SymbolTable_SymbolScope	obj_(	-
+g_SymbolTable.go	337	runtime method parameter (strBuilder_)	strBuilder_.append_Object#0 on result of strBuilder_.append	false	*SymbolTable_SymbolScope	obj_(	-
+g_SymbolTable.go	345	result of a func literal	return of func literal	false	string	strobj_(	-
+g_SymbolTable.go	347	result of a func literal	return of func literal	false	string	strobj_(	-
+g_SymbolTable.go	990	conversion of a value that is already an interface, or a helper use boxcensus does not count				any(
+g_SymbolTable.go	997	conversion of a value that is already an interface, or a helper use boxcensus does not count				any(
+g_SymbolTable.go	1004	conversion of a value that is already an interface, or a helper use boxcensus does not count				any(
+g_SymbolTable.go	1831	runtime method parameter (OrderingOf[string])	Ordering.compare#0 on field SymbolTable.sourceNameOrdering OrderingOf[string]	true	string	strobj_(	-
+g_SymbolTable.go	1831	runtime method parameter (OrderingOf[string])	Ordering.compare#1 on field SymbolTable.sourceNameOrdering OrderingOf[string]	true	string	strobj_(	-
+g_SymbolTable.go	1872	runtime method parameter (OrderingOf[Node])	Ordering.compare#0 on field SymbolTable.nodeOrdering OrderingOf[Node]	false	Node	.box_()	-
+g_SymbolTable.go	1872	runtime method parameter (OrderingOf[Node])	Ordering.compare#1 on field SymbolTable.nodeOrdering OrderingOf[Node]	false	Node	.box_()	-
+g_SymbolTable.go	1921	runtime method parameter (OrderingOf[*SymbolTable_SymbolScope])	Ordering.compare#0 on field SymbolTable.lexicalScopeOrdering OrderingOf[*SymbolTable_SymbolScope]	false	*SymbolTable_SymbolScope	obj_(	-
+g_SymbolTable.go	1921	runtime method parameter (OrderingOf[*SymbolTable_SymbolScope])	Ordering.compare#1 on field SymbolTable.lexicalScopeOrdering OrderingOf[*SymbolTable_SymbolScope]	false	*SymbolTable_SymbolScope	obj_(	-
+g_SymbolTable.go	1923	runtime method parameter (Ordering)	Ordering.compare#0 on result of Ordering.nullsFirst	false	Node	.box_()	-
+g_SymbolTable.go	1923	runtime method parameter (Ordering)	Ordering.compare#1 on result of Ordering.nullsFirst	false	Node	.box_()	-
+g_SyntacticScopeCreator.go	261	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_SynthesizeExplicitConstructors.go	40	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_TemplateAstMatcher.go	32	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_TemplateAstMatcher.go	384	generated interface method parameter	List.indexOf#0 on result of sliceViewP_	true	string	strobj_(	-
+g_TemplateAstMatcher.go	386	generated interface method parameter	List.indexOf#0 on result of sliceViewP_	true	string	strobj_(	-
+g_TemplateType.go	142	runtime function parameter	System_identityHashCode#0	false	*TemplateType	obj_(	H
+g_TemplateTypeMap.go	218	comparison	comparison	false	*TemplateType	obj_(	h
+g_TemplateTypeMap.go	218	comparison	comparison	false	*TemplateType	obj_(	h
+g_TemplateTypeMap.go	258	result of a func literal	return of func literal	false	string	strobj_(	h
+g_TemplateTypeMap.go	265	result of a func literal	return of func literal	false	string	strobj_(	h
+g_TemplateTypeReplacer.go	282	generated interface method parameter	Collection.contains#0 on field TemplateTypeReplacer.seenTypes SetT	false	*TemplateType	obj_(	h
+g_TemplateTypeReplacer.go	298	generated interface method parameter	Collection.remove_Object#0 on field TemplateTypeReplacer.seenTypes SetT	false	*TemplateType	obj_(	h
+g_Timeline.go	79	generated interface method parameter	Map.put#1 on local/param Map	false	*Timeline_Event[any]	obj_(	-
+g_Tracer.go	180	runtime method parameter (Logger)	Logger.log_Level_String_Object#2 on global Tracer_logger	true	string	strobj_(	-
+g_Tracer.go	253	runtime method parameter (ThreadLocal)	ThreadLocal.set#0 on global Tracer_traces	false	*Tracer_ThreadTrace	obj_(	-
+g_Tracer.go	394	runtime method parameter (strBuilder_)	strBuilder_.append_Object#0 on local/param strBuilder_	false	*Tracer	obj_(	-
+g_Tracer.go	557	runtime method parameter (strBuilder_)	strBuilder_.append_Object#0 on result of strBuilder_.append	false	*Tracer	obj_(	-
+g_Tracer.go	631	runtime function parameter	Map_replace#1	true	string	strobj_(	-
+g_TypeCheck.go	88	runtime function parameter	closeResource_#0	false	*TypeCheck_DebugTypeLogger	obj_(	H
+g_TypeCheck.go	714	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	H
+g_TypeInference.go	37	variadic runtime argument	Strings_lenientFormat#2	false	Node	.box_()	H
+g_TypeInference.go	180	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	H
+g_TypeInference.go	913	runtime function parameter	equalsDyn_#1	false	*TypedVar	obj_(	H
+g_TypeInference.go	1774	comparison	comparison	false	*TypedVar	obj_(	H
+g_TypeInferencePass.go	38	runtime function parameter	closeResource_#0	false	*JSTypeResolver_Closer	obj_(	h
+g_TypeTransformation.go	101	runtime method parameter (ErasedImmutableMap_Builder)	ErasedImmutableMap_Builder.put#0 on result of ErasedImmutableMap_Builder.putAll	true	string	strobj_(	-
+g_TypeTransformation.go	106	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_TypeTransformation.go	113	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_TypeTransformation.go	120	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_TypeTransformation.go	127	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_TypeTransformation.go	134	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_TypeTransformation.go	145	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_TypeTransformation.go	152	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_TypeTransformation.go	579	generated parameter	TypeTransformation.addNewEntry#2 on local/param TypeTransformation	true	string	strobj_(	-
+g_TypeTransformationParser.go	38	variadic generated argument	Msg.format_1#0 on local/param Msg	true	string	strobj_(	-
+g_TypeTransformationParser.go	80	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_TypeTransformationParser.go	87	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_TypeTransformationParser.go	94	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_TypeTransformationParser.go	101	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_TypeTransformationParser.go	108	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	-
+g_TypeValidator.go	606	variadic runtime argument	String_format#1	true	string	strobj_(	h
+g_TypeValidator.go	642	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	h
+g_TypedAstDeserializer.go	32	runtime method parameter (Optional_base)	Optional_base.or#0 on local/param Optional_base	false	*ColorPool_Builder	obj_(	-
+g_TypedAstDeserializer.go	69	generated interface method parameter	Map.put#0 on field TypedAstDeserializer.typedAstFilesystem ConcurrentMap	false	*SourceFile_jscomp	obj_(	-
+g_TypedAstDeserializer.go	77	result of a func literal	return of func literal	false	Node	.box_()	-
+g_TypedAstDeserializer.go	78	generated interface method parameter	Map.put#1 on field TypedAstDeserializer.typedAstFilesystem ConcurrentMap	false	Supplier[any]	.box_()	-
+g_TypedAstDeserializer.go	87	runtime function parameter	Optional_base_of#0	false	*ColorRegistry	obj_(	-
+g_TypedAstDeserializer.go	98	generated interface method parameter	Collection.contains#0 on result of setAs_	false	*SourceFile_jscomp	obj_(	-
+g_TypedAstDeserializer.go	115	result of a func literal	return of func literal	false	*ColorPool_ShardView	obj_(	-
+g_TypedAstDeserializer.go	167	generated interface method parameter	Collection.contains#0 on result of setAs_	false	*SourceFile_jscomp	obj_(	-
+g_TypedAstDeserializer.go	171	runtime function parameter	Map_computeIfAbsent_f#1	false	*SourceFile_jscomp	obj_(	-
+g_TypedAstDeserializer.go	177	result of a func literal	return of func literal	false	Node	.box_()	-
+g_TypedAstDeserializer.go	178	result of a func literal	return of func literal	false	Supplier[any]	.box_()	-
+g_TypedAstDeserializer.go	186	runtime function parameter	Map_computeIfAbsent_f#1	false	*SourceFile_jscomp	obj_(	-
+g_TypedAstDeserializer.go	194	result of a func literal	return of func literal	false	Node	.box_()	-
+g_TypedAstDeserializer.go	195	result of a func literal	return of func literal	false	Supplier[any]	.box_()	-
+g_TypedAstSerializer.go	151	variadic runtime argument	Strings_lenientFormat#2	false	Node	.box_()	-
+g_TypedAstSerializer.go	511	result of a func literal	return of func literal	true	int32	any(	-
+g_TypedScope.go	298	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	h
+g_TypedScope.go	337	runtime function parameter	Map_computeIfAbsent_f#1	false	AbstractScope_ImplicitVar	obj_(	h
+g_TypedScope.go	338	result of a func literal	return of func literal	false	*TypedVar	obj_(	h
+g_TypedScope.go	451	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	h
+g_TypedScopeCreator.go	92	runtime method parameter (MapT)	MapT.get_t#0 on field TypedScopeCreator.memoized MapT	false	Node	.box_()	H
+g_TypedScopeCreator.go	100	runtime method parameter (MapT)	MapT.get_t#0 on field TypedScopeCreator.memoized MapT	false	Node	.box_()	H
+g_TypedScopeCreator.go	114	runtime method parameter (MapT)	MapT.get_t#0 on field TypedScopeCreator.memoized MapT	false	Node	.box_()	H
+g_TypedScopeCreator.go	128	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	H
+g_TypedScopeCreator.go	495	runtime method parameter (MapT)	MapT.get_t#0 on field TypedScopeCreator.memoized MapT	false	Node	.box_()	H
+g_TypedScopeCreator.go	676	variadic runtime argument	String_format#1	false	ModuleMetadataMap_ModuleType	obj_(	H
+g_TypedScopeCreator.go	676	variadic runtime argument	String_format#2	false	*Module	obj_(	H
+g_TypedScopeCreator.go	1051	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	H
+g_TypedScopeCreator.go	1143	runtime method parameter (MapT)	MapT.get_t#0 on field TypedScopeCreator.memoized MapT	false	Node	.box_()	H
+g_TypedScopeCreator.go	1280	generated interface method parameter	Map.containsKey#0 on field TypedScopeCreator.memoized MapT	false	Node	.box_()	H
+g_TypedScopeCreator.go	1283	runtime method parameter (MapT)	MapT.get_t#0 on field TypedScopeCreator.memoized MapT	false	Node	.box_()	H
+g_TypedScopeCreator.go	1358	variadic runtime argument	Strings_lenientFormat#1	true	string	strobj_(	H
+g_TypedScopeCreator.go	1358	variadic runtime argument	Strings_lenientFormat#2	true	string	strobj_(	H
+g_TypedScopeCreator.go	2118	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	H
+g_TypedScopeCreator.go	2424	variadic runtime argument	Strings_lenientFormat#1	false	Node	.box_()	H
+g_TypedScopeCreator.go	2576	generated parameter	new_AssertionError_Object#0	true	string	strobj_(	H
+g_UnknownType.go	123	runtime function parameter	System_identityHashCode#0	false	*UnknownType	obj_(	H
+g_ValueType.go	62	comparison	comparison	false	*ValueType	any(	H
+g_ValueType.go	70	comparison	comparison	false	*ValueType	any(	H
+g_ValueType.go	79	comparison	comparison	false	*ValueType	any(	H
+g_ValueType.go	87	comparison	comparison	false	*ValueType	any(	H
+g_ValueType.go	95	comparison	comparison	false	*ValueType	any(	H
+g_VerboseMessageFormatter.go	46	variadic runtime argument	String_format#1	true	string	strobj_(	-
+g_VerboseMessageFormatter.go	48	result of a func literal	return of func literal	false	string	strobj_(	-
+g_VerboseMessageFormatter.go	50	result of a func literal	return of func literal	true	string	strobj_(	-
+g_VerboseMessageFormatter.go	53	result of a func literal	return of func literal	false	string	strobj_(	-
+g_VerboseMessageFormatter.go	55	result of a func literal	return of func literal	true	string	strobj_(	-
+g_VerboseMessageFormatter.go	58	result of a func literal	return of func literal	true	string	strobj_(	-
+g_VerboseMessageFormatter.go	60	result of a func literal	return of func literal	false	string	strobj_(	-
+g_WritingLogFile.go	85	generated parameter	Output.append_CharSequence_rOutput#0 on field WritingLogFile.writer Output	true	string	strobj_(	-

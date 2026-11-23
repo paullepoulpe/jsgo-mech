@@ -1,0 +1,67 @@
+  399 casts in the generated code
+  160 a variable or parameter declared Object (any)
+       160 any
+  109 a typed value boxed on the spot (an upcast or cross-cast: the static type does not decide it)
+        99 self
+        10 boxT_
+   53 the Object result of a runtime function or method (an erased collection's element, a property bag, an Optional, a cache)
+         8 Map_get_s
+         8 Node.getProp
+         5 Optional_base.get
+         4 ImmutableCollection.subList
+         4 Iterables_getOnlyElement
+         3 Iterables_getFirst
+         3 Map_computeIfAbsent_f
+         3 Object_clone
+         2 Optional_base.orNull
+         2 SequencedCollection_getLast
+         1 AstNode.getType
+         1 ErasedImmutableMap.get
+         1 ErasedImmutableMap.keySet
+         1 IdentityHashMap.get
+         1 Map_getOrDefault
+         1 Map_getOrDefault_s
+         1 MoreObjects_firstNonNull
+         1 PriorityQueue.remove_0
+         1 Requirement.toBuilder
+         1 ThreadLocal.get
+         1 lgBox_
+   33 the Object result of a function or method of the program
+        14 Annotatable_getAnnotation
+         6 Node.getFeatureSet
+         4 LinkedUndirectedGraph.getNodeOrFail
+         2 AbstractCompiler.getTypedScopeCreator
+         2 JSDocInfo_Builder.getPropWithDefault
+         1 JSDocInfo_Builder.getProp
+         1 Node.getStaticSourceFile
+         1 Node.jstypeOrColor_get_
+         1 Node.payload_get_
+         1 NodeTraversal.getScopeCreator
+   16 a field declared Object (any)
+         7 flag_ any
+         7 v any
+         2 refsForNode any
+   11 a variable or parameter declared as a Java interface
+         4 DiGraph_DiGraphNode[N, E]
+         2 PMap[K, V]
+         1 DiGraph_DiGraphEdge[N, E]
+         1 FlowScope
+         1 StaticTypedScope
+         1 UndiGraph_UndiGraphEdge[N, E]
+         1 UndiGraph_UndiGraphNode[N, E]
+   11 the Object result of a method called through an interface of the program
+         3 Map_Entry.getKey
+         2 LoadingCache.getUnchecked
+         1 Deque.peek
+         1 Deque.pop
+         1 FlowScope.getDeclarationScope
+         1 Map.get
+         1 PeekingIterator.next
+         1 PeekingIterator.peek
+    3 an element of a slice or map of Objects
+         3 tmp_2
+    2 a field declared as a Java interface
+         1 nodeA UndiGraph_UndiGraphNode[N, E]
+         1 nodeB UndiGraph_UndiGraphNode[N, E]
+    1 the result of a function value (a lambda's Object result)
+         1 f_

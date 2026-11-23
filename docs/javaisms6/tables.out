@@ -1,0 +1,372 @@
+
+### row 11 class casts  (total 553, in hot files 46)
+| A2 cast function as a value: field `unbox` of a tconv_ element-conversion descriptor | 255 | 0 |
+| C self(): downcast/cross-cast of a typed value in a class hierarchy | 52 | 9 |
+| G result of a runtime function/method (Map_get_s, Node.getProp, Optional.get, Iterables...): carrier raw / does not name it | 37 | 12 |
+| A1 helper declaration | 36 | 5 |
+| D2 parameter of a func literal typed any | 35 | 4 |
+| D parameter of an erased-signature method (bridge: compare/apply/accept/equals...) | 30 | 0 |
+| H Object result of a generated function/method: Annotatable_getAnnotation | 14 | 5 |
+| B1 caught exception value (catch_(r)) cast after is_X(ex_) test | 12 | 4 |
+| E for-each element of an erased collection: carrier raw / does not name it | 11 | 1 |
+| G result of a runtime function/method (Map_get_s, Node.getProp, Optional.get, Iterables...): type named by alias | 9 | 0 |
+| J Object field read | 8 | 0 |
+| A0 not code (comment) | 6 | 0 |
+| A3 fallback cast inside a gcast_ helper | 6 | 0 |
+| E for-each element of an erased collection: element type named by the XOf[T] alias | 6 | 0 |
+| H Object result of a generated function/method: getFeatureSet | 6 | 0 |
+| F result of an erased Java-interface method (Iterator.next, Map.get, List.get, Entry.getKey/Value, Function.apply...): type named by alias | 5 | 0 |
+| B2 after an instanceof test of the same expression (not exceptions) | 4 | 2 |
+| K typed value boxed on the spot (boxT_ of a type parameter) | 3 | 0 |
+| L element of []any / map of any | 3 | 0 |
+| F result of an erased Java-interface method (Iterator.next, Map.get, List.get, Entry.getKey/Value, Function.apply...): carrier raw / does not name it | 3 | 1 |
+| A2 cast function as a value: argument of arrmap_ | 2 | 0 |
+| H Object result of a generated function/method: getTypedScopeCreator | 2 | 0 |
+| I result of a func value typed func() any (Supplier/Function as func) | 1 | 0 |
+| H Object result of a generated function/method: getScopeCreator | 1 | 0 |
+| Z other: parameter declared a Java interface of a generated method | 1 | 0 |
+| Z other: parameter declared Object (any) of a generated function | 1 | 0 |
+| H Object result of a generated function/method: payload_get_ | 1 | 1 |
+| H Object result of a generated function/method: jstypeOrColor_get_ | 1 | 1 |
+| Z other: parameter declared Object (any) of a generated method | 1 | 1 |
+| H Object result of a generated function/method: getStaticSourceFile | 1 | 0 |
+
+### row 10 interface casts  (total 183, in hot files 9)
+| A1 helper declaration | 60 | 0 |
+| C self(): downcast/cross-cast of a typed value in a class hierarchy | 44 | 5 |
+| D2 parameter of a func literal typed any | 38 | 0 |
+| D parameter of an erased-signature method (bridge: compare/apply/accept/equals...) | 16 | 0 |
+| K typed value boxed on the spot (boxT_ of a type parameter) | 7 | 2 |
+| G result of a runtime function/method (Map_get_s, Node.getProp, Optional.get, Iterables...): carrier raw / does not name it | 6 | 1 |
+| E for-each element of an erased collection: carrier raw / does not name it | 4 | 0 |
+| H Object result of a generated function/method: getPropWithDefault | 2 | 0 |
+| F result of an erased Java-interface method (Iterator.next, Map.get, List.get, Entry.getKey/Value, Function.apply...): type named by alias | 2 | 0 |
+| G result of a runtime function/method (Map_get_s, Node.getProp, Optional.get, Iterables...): type named by alias | 1 | 1 |
+| J Object field read | 1 | 0 |
+| H Object result of a generated function/method: getProp | 1 | 0 |
+| F result of an erased Java-interface method (Iterator.next, Map.get, List.get, Entry.getKey/Value, Function.apply...): carrier raw / does not name it | 1 | 0 |
+
+### row 16 unboxing  (total 131, in hot files 26)
+| G result of a runtime function/method (Map_get_s, Node.getProp, Optional.get, Iterables...): carrier raw / does not name it | 35 | 7 |
+| D2 parameter of a func literal typed any | 34 | 15 |
+| E for-each element of an erased collection: carrier raw / does not name it | 20 | 0 |
+| H Object result of a generated function/method: getItem | 12 | 0 |
+| F result of an erased Java-interface method (Iterator.next, Map.get, List.get, Entry.getKey/Value, Function.apply...): carrier raw / does not name it | 6 | 0 |
+| E for-each element of an erased collection: element type named by the XOf[T] alias | 5 | 2 |
+| D parameter of an erased-signature method (bridge: compare/apply/accept/equals...) | 4 | 0 |
+| G result of a runtime function/method (Map_get_s, Node.getProp, Optional.get, Iterables...): type named by alias | 4 | 0 |
+| I result of a func value typed func() any (Supplier/Function as func) | 3 | 0 |
+| M `.(bool)` comma-ok test of an Object | 2 | 0 |
+| H Object result of a generated function/method: get | 2 | 0 |
+| Z other: parameter declared Object (any) of a generated function | 1 | 0 |
+| A1 helper declaration | 1 | 1 |
+| Z other: parameter declared Object (any) of a generated method | 1 | 1 |
+| J Object field read | 1 | 0 |
+
+### row 13 type assertions  (total 2047, in hot files 442)
+| V1 dispatch: exact-class test `p, _ := this.self_.(*C); p == this` (leaf class) | 1174 | 270 |
+| V2 dispatch: this.self_.(*C).m_impl() (single implementation) | 256 | 1 |
+| V1 dispatch: exact-class test `p, _ := this.self_.(*C); p == this` (class with subclasses) | 158 | 127 |
+| C cast folded to v.(T): self() of a typed value | 108 | 3 |
+| H body of a cast/instanceof helper: icast_X | 60 | 0 |
+| I instanceof as comma-ok `p, ok := v.(T)` on self() of a typed value | 60 | 10 |
+| I instanceof as comma-ok `p, ok := v.(T)` on other Object/interface value | 58 | 13 |
+| I instanceof as comma-ok `p, ok := v.(T)` on parameter of an erased-signature method (equals) | 58 | 3 |
+| H body of a cast/instanceof helper: to_X | 51 | 6 |
+| C cast folded to v.(T): erased result/parameter | 24 | 5 |
+| H body of a cast/instanceof helper: is_X | 17 | 3 |
+| I instanceof as comma-ok `p, ok := v.(T)` on parameter of an erased-signature method (equals_impl) | 15 | 0 |
+| I instanceof as comma-ok `p, ok := v.(T)` on parameter of an erased-signature method (other) | 4 | 0 |
+| C cast folded to v.(T): erased result/parameter (type named by alias) | 2 | 0 |
+| H body of a cast/instanceof helper: Node_of_ | 1 | 1 |
+| C cast folded to v.(T): erased result/parameter [guarded] | 1 | 0 |
+
+### row 14 type switches  (total 27, in hot files 4)
+| type switch in to_X helper | 17 | 2 |
+| type switch in gcast_X helper | 6 | 0 |
+| type switch in JSType_visit | 1 | 1 |
+| type switch in JSType_visit_2 | 1 | 1 |
+| type switch in LogsGson_write | 1 | 0 |
+| type switch in method simplify | 1 | 0 |
+
+### row 9 anonymous interface assertions  (total 0, in hot files 0)
+
+### row 18 adapter literals by destination  (total 39, in hot files 4)
+| S returned | 16 | 0 |
+| T stored in a variable/field | 10 | 0 |
+| G passed to other generated code | 9 | 3 |
+| R passed to a runtime function/method | 4 | 1 |
+
+### row 18 adapter literals by wrapped function  (total 39, in hot files 4)
+| func literal, capturing, in a function | 30 | 4 |
+| func literal, non-capturing, package-level variable initialiser | 7 | 0 |
+| method expression, non-capturing, package-level variable initialiser | 2 | 0 |
+
+### row 18 by family  (total 39, in hot files 4)
+| CompilerPass (object _fn) | 13 | 0 |
+| NodeUtil_Visitor (object _fn) | 7 | 0 |
+| Iterable (object _fn) | 4 | 1 |
+| Source_Transformer (object _fn) | 4 | 0 |
+| CheckConformance_Precondition (object _fn) | 3 | 0 |
+| Runnable (object _fn) | 2 | 2 |
+| SourceMap_LocationMapping (object _fn) | 1 | 0 |
+| ModuleLoader_ModuleResolverFactory (object _fn) | 1 | 0 |
+| Matcher (object _fn) | 1 | 0 |
+| ErrorHandler (object _fn) | 1 | 0 |
+| ThreadFactory (object _fn) | 1 | 0 |
+| CompilerInputProvider (object _fn) | 1 | 1 |
+
+### row 17 lambda objects  (total 37, in hot files 4)
+| CompilerPass_fn | capturing | returned from a func literal | 12 | 0 |
+| NodeUtil_Visitor_fn | capturing | argument of a generated function | 6 | 0 |
+| Iterable_fn | capturing | argument of a runtime function | 4 | 1 |
+| Source_Transformer_fn | capturing | returned from a generated function | 3 | 0 |
+| Runnable_fn | capturing | argument of a generated method | 2 | 2 |
+| SourceMap_LocationMapping_fn | non-capturing | initialises a declared variable | 1 | 0 |
+| ModuleLoader_ModuleResolverFactory_fn | non-capturing | initialises a declared variable | 1 | 0 |
+| CheckConformance_Precondition_fn | non-capturing | initialises a declared variable | 1 | 0 |
+| NodeUtil_Visitor_fn | capturing | initialises a declared variable | 1 | 0 |
+| Matcher_fn | capturing | returned from a generated function | 1 | 0 |
+| ErrorHandler_fn | non-capturing | initialises a declared variable | 1 | 0 |
+| CompilerPass_fn | non-capturing | initialises a declared variable | 1 | 0 |
+| ThreadFactory_fn | non-capturing | initialises a declared variable | 1 | 0 |
+| Source_Transformer_fn | non-capturing | initialises a declared variable | 1 | 0 |
+| CompilerInputProvider_fn | capturing | argument of a generated function | 1 | 1 |
+
+### row 0 erased ctors by constructor  (total 40, in hot files 1)
+| new_BitSet | 11 | 0 |
+| new_BitSet_int | 11 | 0 |
+| new_ArrayList_0 | 3 | 0 |
+| new_LinkedHashMap | 3 | 0 |
+| new_EnumMap | 3 | 0 |
+| new_LinkedHashSet_Collection | 2 | 0 |
+| new_ArrayDeque | 2 | 1 |
+| new_TreeMap | 2 | 0 |
+| new_LinkedList | 1 | 0 |
+| new_ArrayList_Collection | 1 | 0 |
+| new_IdentityHashMap | 1 | 0 |
+
+### row 0 erased ctors by destination  (total 40, in hot files 1)
+| initialises a declared variable :: *BitSet | 10 | 0 |
+| argument of a runtime function :: mapAs_ | 4 | 0 |
+| argument of a generated function :: new_LiveVariablesAnalysis_LiveVariableLattice | 3 | 0 |
+| argument of a runtime function :: immutableListCopyOf_ | 2 | 0 |
+| argument of a runtime function :: listAs_ | 2 | 0 |
+| assigned to a field :: AmbiguateProperties_PropertySubGraph.relatedTypes *BitSet | 1 | 0 |
+| assigned to a field :: AmbiguateProperties_Property.relatedColors *BitSet | 1 | 0 |
+| assigned to a field :: CheckAccessControls.currentClassStack DequeOf[*ObjectType] | 1 | 0 |
+| assigned to a variable :: ListOf[any] | 1 | 0 |
+| argument of a runtime function :: obj_ | 1 | 0 |
+| assigned to a field :: ColorGraphNode.subtypeIndices *BitSet | 1 | 0 |
+| assigned to a field :: CrossChunkCodeMotion_GlobalSymbol.chunksWithImmovableReferences *BitSet | 1 | 0 |
+| returned from a func literal :: argument of  | 1 | 1 |
+| receiver of a runtime method call :: ArrayList.self | 1 | 0 |
+| assigned to a field :: FileInstrumentationData.instrumentedBits *BitSet | 1 | 0 |
+| assigned to a field :: FileInstrumentationData.branchPresent *BitSet | 1 | 0 |
+| initialises a declared variable :: TreeMapOf[*JSDocInfo_Property, any] | 1 | 0 |
+| assigned to a field :: JSDocInfo_Builder.props TreeMapOf[*JSDocInfo_Property, any] | 1 | 0 |
+| returned from a func literal :: argument of Supplier | 1 | 0 |
+| initialises a declared variable :: EnumMapOf[TokenType, Keywords] | 1 | 0 |
+| returned from a func literal :: argument of mapComputeIfAbsentT_ | 1 | 0 |
+| argument of a generated function :: new_TemplateTypeMap | 1 | 0 |
+| argument of a generated method :: TemplateTypeMap.copyWithExtension_3 | 1 | 0 |
+| assigned to a field :: TemplateTypeReplacer.visitedObjectTypes IdentityHashMapOf[*JSType, *JSType] | 1 | 0 |
+
+### row 1 typed ctors by constructor  (total 525, in hot files 22)
+| newTMap_ | 186 | 7 |
+| newTList_ | 167 | 3 |
+| newTSet_ | 152 | 12 |
+| newTListN_ | 14 | 0 |
+| newTMapN_ | 4 | 0 |
+| newTSetN_ | 2 | 0 |
+
+### row 1 typed ctors by destination  (total 525, in hot files 22)
+| assigned to a field | 224 | 3 |
+| initialises a declared variable | 202 | 14 |
+| receiver of a runtime method call | 76 | 1 |
+| assigned to a variable | 8 | 1 |
+| argument of a generated method | 8 | 2 |
+| returned from a func literal | 4 | 0 |
+| argument of a generated function | 2 | 1 |
+| returned from a generated method | 1 | 0 |
+
+### row 2 guava by constructor  (total 43, in hot files 1)
+| ImmutableList_copyOf_Iterable | 7 | 0 |
+| ImmutableSet_builder | 5 | 0 |
+| ImmutableList_of_Object.. | 4 | 0 |
+| ImmutableList_copyOf | 4 | 1 |
+| ImmutableSet_copyOf_Object..Arr | 3 | 0 |
+| ImmutableSortedMap_copyOf | 3 | 0 |
+| ImmutableSortedSet_copyOf | 2 | 0 |
+| ImmutableMap_builder | 2 | 0 |
+| ImmutableList_of | 2 | 0 |
+| ImmutableMap_of_Object.. | 2 | 0 |
+| ImmutableSortedSet_copyOfSorted | 2 | 0 |
+| ImmutableList_builder | 1 | 0 |
+| ImmutableSortedSet_of | 1 | 0 |
+| ImmutableMap_of | 1 | 0 |
+| new_ImmutableSortedSet_Builder | 1 | 0 |
+| ImmutableSet_of_Object.. | 1 | 0 |
+| new_ImmutableMap_Builder | 1 | 0 |
+| ImmutableSortedSet_copyOf_Comparator_Collection | 1 | 0 |
+
+### row 2 guava by destination  (total 43, in hot files 1)
+| argument of a runtime function :: immElems_ | 8 | 0 |
+| receiver of a runtime method call :: ImmutableCollection_Builder.addAll | 4 | 0 |
+| argument of a generated function :: ImmutableList_as_List | 4 | 1 |
+| argument of a runtime function :: obj_ | 3 | 0 |
+| argument of a runtime function :: tsetImm_ | 2 | 0 |
+| receiver of a runtime method call :: ErasedImmutableMap.values | 2 | 0 |
+| argument of a generated function :: ImmutableList_as_Iterable | 2 | 0 |
+| initialises a declared variable :: ImmutableSortedSetOf[*CodeReplacement] | 1 | 0 |
+| assigned to a new local :: *ErasedImmutableList | 1 | 0 |
+| initialises a declared variable :: ImmutableMap_BuilderOf[any, *CodingConvention_AssertionFunctionSpec] | 1 | 0 |
+| argument of a runtime function :: tmapImm_ | 1 | 0 |
+| initialises a declared variable :: ImmutableList_BuilderOf[[]string] | 1 | 0 |
+| argument of a runtime function :: Optional_of | 1 | 0 |
+| assigned to a field :: DisambiguateProperties_PropertyReferenceIndexJson.refs ImmutableSortedSetOf[*DisambiguateProperties_PropertyReferenceJson] | 1 | 0 |
+| argument of a generated function :: ImmutableSet_as_Set | 1 | 0 |
+| returned from a func literal :: argument of  | 1 | 0 |
+| initialises a declared variable :: ImmutableMap_BuilderOf[SetT[string], string] | 1 | 0 |
+| argument of a generated function :: ImmutableMap_as_Map | 1 | 0 |
+| initialises a declared variable :: ImmutableSortedSet_BuilderOf[string] | 1 | 0 |
+| returned from a generated function :: function NodeModuleResolver_buildNodeModulesFoldersRegistry | 1 | 0 |
+| assigned to a field :: PropertyMap.cachedKeySet ImmutableSortedSetOf[string] | 1 | 0 |
+| argument of a generated function :: ImmutableList_as_Collection | 1 | 0 |
+| argument of a generated function :: ImmutableSet_as_Collection | 1 | 0 |
+| receiver of a runtime method call :: ErasedImmutableMap_Builder.putAll | 1 | 0 |
+| argument of a generated function :: ImmutableSortedMap_as_Map | 1 | 0 |
+
+### row 3 make([]  (total 100, in hot files 1)
+| initialises a declared variable | 58 | 1 |
+| argument of a runtime function | 21 | 0 |
+| assigned to a field | 10 | 0 |
+| assigned to a variable | 8 | 0 |
+| returned from a generated function | 1 | 0 |
+| argument of a generated function | 1 | 0 |
+| returned from a func literal | 1 | 0 |
+
+### row 5 foreach  (total 34, in hot files 1)
+| foreach_( result each_ | 25 | 1 |
+| .each() result tsetEach_[*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement] | 2 | 0 |
+| .each() result sliceEach_[*CrossChunkCodeMotion_DeclarationStatementGroup] | 2 | 0 |
+| .each() result sliceEach_[*CrossChunkReferenceCollector_TopLevelStatement] | 2 | 0 |
+| .each() result sliceEach_[*AbstractCommandLineRunner_FlagEntry[any]] | 1 | 0 |
+| .each() result sliceEach_[AnalyzePrototypeProperties_Symbol] | 1 | 0 |
+| .each() result tsetEach_[Node] | 1 | 0 |
+
+### row 6 iterators  (total 73, in hot files 14)
+| .hasNext() | condition/tag | 46 | 7 |
+| .hasNext() | operand of && | 14 | 3 |
+| .hasNext() | operand of ! | 9 | 3 |
+| .hasNext() | operand of || | 3 | 1 |
+| .hasNext() | returned from a method listed by an interface (erased signature) | 1 | 0 |
+
+### row 12 instanceof  (total 71, in hot files 19)
+| operand of || | 28 | 8 |
+| declaration of the function itself | 17 | 3 |
+| operand of ! | 12 | 6 |
+| condition/tag | 7 | 1 |
+| operand of && | 5 | 0 |
+| argument of a runtime function | 1 | 1 |
+| case value | 1 | 0 |
+
+### row 19 Optional  (total 75, in hot files 2)
+| Optional | type name | 28 | 2 |
+| Optional | NOT CODE: inside a string literal (name table or message text) | 10 | 0 |
+| Optional_base_absent( | assigned to a field | 8 | 0 |
+| Optional_base_of( | assigned to a field | 7 | 0 |
+| Optional_base_absent( | returned from a generated method | 7 | 0 |
+| Optional_base_absent( | returned from a func literal | 2 | 0 |
+| Optional_base_of( | returned from a generated method | 2 | 0 |
+| Optional | initialises a declared variable | 2 | 0 |
+| Optional_base_absent( | argument of a generated function | 2 | 0 |
+| Optional_base_fromNullable( | assigned to a field | 1 | 0 |
+| Optional_base_fromNullable( | returned from a func literal | 1 | 0 |
+| Optional_base_absent( | argument of a generated method | 1 | 0 |
+| Optional_base_of( | argument of a generated method | 1 | 0 |
+| Optional | assigned to a variable | 1 | 0 |
+| Optional_base_of( | argument of a generated function | 1 | 0 |
+| Optional_base_of( | returned from a func literal | 1 | 0 |
+
+### row 23 equals  (total 72, in hot files 8)
+| Objects_equals( | arg0 Map | operand of && | 8 | 0 |
+| .equals( | arg0 any | operand of && | 8 | 0 |
+| Objects_equals( | arg0 List | operand of && | 6 | 0 |
+| Objects_equals( | arg0 any | operand of && | 5 | 0 |
+| .hashCode() | arg0  | operand of ^ | 5 | 0 |
+| .hashCode() | arg0  | operand of + | 3 | 2 |
+| Objects_equals( | arg0 Set | operand of && | 3 | 0 |
+| Objects_hash( | arg0 any | returned from a method listed by an interface (erased signature) | 3 | 1 |
+| .hashCode() | arg0  | assigned to a variable | 2 | 1 |
+| Objects_equals( | arg0 any | condition/tag | 2 | 0 |
+| .hashCode() | arg0  | returned from a method listed by an interface (erased signature) | 2 | 2 |
+| Objects_equals( | arg0 any | operand of ! | 2 | 2 |
+| .hashCode() | arg0  | operand of * | 2 | 0 |
+| Objects_hashCode( | arg0 any | operand of + | 2 | 0 |
+| objequals_( | arg0 CheckConformance_Rule | returned from a func literal | 1 | 0 |
+| objequals_( | arg0 DiGraph_DiGraphNode[N, E] | returned from a func literal | 1 | 0 |
+| objequals_( | arg0 GlobalNamespace_AstChange | returned from a func literal | 1 | 0 |
+| objequals_( | arg0 MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo | returned from a func literal | 1 | 0 |
+| objequals_( | arg0 Property_Key | returned from a func literal | 1 | 0 |
+| objequals_( | arg0 RuntimeJsLibManager_ExternedField | returned from a func literal | 1 | 0 |
+| objequals_( | arg0 SortingErrorManager_ErrorReportGenerator | returned from a func literal | 1 | 0 |
+| objequals_( | arg0 StaticSourceFile | returned from a func literal | 1 | 0 |
+| Object_equals( | arg0 any | operand of && | 1 | 0 |
+| .hashCode() | arg0  | returned from a func literal | 1 | 0 |
+| Objects_requireNonNull_Object_T( | arg0 *Color | assigned to a field | 1 | 0 |
+| Objects_requireNonNull_T( | arg0 *TMap[string, *Es6RewriteClass_ClassProperty] | receiver of a runtime method call | 1 | 0 |
+| Object_equals( | arg0 any | argument of a generated function | 1 | 0 |
+| Object_equals( | arg0 any | returned from a method listed by an interface (erased signature) | 1 | 0 |
+| .equals( | arg0 any | operand of || | 1 | 0 |
+| .equals( | arg0 any | condition/tag | 1 | 0 |
+| Objects_hash( | arg0 bool | returned from a method listed by an interface (erased signature) | 1 | 0 |
+| Objects_equals( | arg0 Set | operand of ! | 1 | 0 |
+| Objects_hashCode( | arg0 any | returned from a method listed by an interface (erased signature) | 1 | 0 |
+
+### row 24 String_  (total 121, in hot files 11)
+| String_length( | 48 | 5 |
+| String_format( | 24 | 3 |
+| String_substring_int( | 10 | 2 |
+| String_charAt( | 8 | 0 |
+| String_substring( | 6 | 0 |
+| String_join_CharSequence_CharSequenceArr( | 6 | 0 |
+| String_indexOf( | 3 | 0 |
+| String_valueOf_charArr_int_int( | 3 | 0 |
+| String_valueOf_char( | 2 | 0 |
+| String_repeat( | 2 | 0 |
+| String_codePointCount( | 1 | 0 |
+| String_lastIndexOf( | 1 | 0 |
+| String_equalsIgnoreCase( | 1 | 0 |
+| String_codePointAt( | 1 | 0 |
+| String_lastIndexOf_String( | 1 | 0 |
+| String_lastIndexOf_int_int( | 1 | 1 |
+| String_concat( | 1 | 0 |
+| String_lastIndexOf_String_int( | 1 | 0 |
+| String_toCharArray( | 1 | 0 |
+
+### row 29 threads  (total 53, in hot files 0)
+| CompilerExecutor | type name | g_CompilerExecutor.go | 9 | 0 |
+| Thread | type name | g_zstubs.go | 4 | 0 |
+| CompilerExecutor | NOT CODE: inside a string literal (name  | g_0names.go | 3 | 0 |
+| Thread | NOT CODE: inside a string literal (name  | g_0names.go | 3 | 0 |
+| CompilerExecutor | type name | g_Compiler.go | 3 | 0 |
+| Thread | type name | g_CompilerExecutor.go | 3 | 0 |
+| ExecutorService | type name | g_CompilerExecutor.go | 3 | 0 |
+| Thread | type name | g_Tracer.go | 3 | 0 |
+| AbstractExecutorService | NOT CODE: inside a string literal (name  | g_0names.go | 2 | 0 |
+| ExecutorService | NOT CODE: inside a string literal (name  | g_0names.go | 2 | 0 |
+| Future | NOT CODE: inside a string literal (name  | g_0names.go | 2 | 0 |
+| Thread | type name | g_PrebuildAst.go | 2 | 0 |
+| Thread | type name | g_PrebuildDependencyInfo.go | 2 | 0 |
+| Future | type name | g_zstubs.go | 2 | 0 |
+| Future | type name | g_0aliases.go | 1 | 0 |
+| CompilerExecutor | argument of a runtime function | g_0casts.go | 1 | 0 |
+| CompilerExecutor | NOT CODE: in a comment | g_CompilerExecutor.go | 1 | 0 |
+| CompilerExecutor | declaration | g_CompilerExecutor.go | 1 | 0 |
+| .submit( | initialises a declared variable | g_CompilerExecutor.go | 1 | 0 |
+| .submit( | argument of a runtime method | g_PrebuildAst.go | 1 | 0 |
+| .submit( | argument of a runtime method | g_PrebuildDependencyInfo.go | 1 | 0 |
+| ExecutorService | declaration | g_zstubs.go | 1 | 0 |
+| Future | declaration | g_zstubs.go | 1 | 0 |
+| ExecutorService | type name | g_zstubs.go | 1 | 0 |

@@ -1,0 +1,24 @@
+      22 in    9 files  collections from the Java-collection helpers (jutil.New*Map/Set/List/Deque)
+     732 in  265 files  native Go slices made (make([])
+     557 in  239 files  native Go maps made (make(map[)
+      16 in    7 files  explicit Iterator use (.Iterator()/HasNext())
+      78 in   44 files  type switches (.(type))
+     570 in  196 files  type assertions x.(T) (comma-ok and direct; .(type) is the row above)
+    1724 in  413 files  panic(
+      58 in   38 files  recover()
+     304 in  131 files  defer
+     351 in  113 files  Equals/HashCode calls and methods
+      57 in   26 files  Optional
+     175 in   52 files  Optional-of-string: base.OptString spellings
+     106 in   34 files  Optional-of-string: SomeString( / NoString() calls
+     243 in  121 files  Optional-of-string: functions returning (string, bool)
+       0 in    0 files  func values given where Java has a lambda adapter (no adapter literals): &X_tfn_Y{ / &X_fn{
+    1882 in  400 files  Preconditions (jutil.Check*)
+     279 in  123 files  strings.Builder
+     560 in  194 files  UTF-16 string helpers (jutil string functions)
+      98 in   55 files  threads/sync (sync., go statements)
+     166 in   12 files  reflect
+       3 in    2 files  unsafe
+     281                 fields/params declared any (approx; census.py's regex)
+     271                 fields/params declared any, Object slots only (less 7 type parameters, 3 return any(, 0 cast-helper operands; census.py's split)
+  402963 lines in 710 files

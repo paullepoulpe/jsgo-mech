@@ -1,0 +1,266 @@
+boxing sites in g_*.go: 9622 (allocating: 602)
+explicit boxes: 912
+
+   167  runtime function parameter  (obj_ 122, strobj_ 29, .box_ 15, any 1)
+       24  objequalsVia_#1
+       22  splitToListT_#2
+       18  equalsBy_#1
+       17  objequalsBy_#1
+        8  elemsAs_#0
+        7  foreach_#0
+        6  Map_computeIfAbsent_f#1
+        6  Optional_base_of#0
+        6  objstr_#0
+        5  Object_getClass#0
+        4  MoreObjects_firstNonNull#0
+        4  System_identityHashCode#0
+        4  elemsBy_#0
+        3  Object_clone#0
+        3  closeResource_#0
+
+   162  variadic runtime argument  (.box_ 129, strobj_ 23, obj_ 7, any 3)
+      121  Strings_lenientFormat#1
+       14  Strings_lenientFormat#2
+        7  String_format#1
+        6  String_format#2
+        2  Objects_hash#1
+        2  Strings_lenientFormat#3
+        2  immutableSetOf_#1
+        1  Joiner.join_Object_Object_ObjectArr#2 on result of Joiner_on
+        1  Joiner.join_Object_Object_ObjectArr#3 on result of Joiner_on
+        1  Joiner.join_Object_Object_ObjectArr#4 on result of Joiner_on
+        1  Joiner.join_Object_Object_ObjectArr#5 on result of Joiner_on
+        1  Objects_hash#0
+        1  Objects_hash#2
+        1  String_format#3
+        1  immutableSetOf_#2
+
+   125  generated parameter  (strobj_ 60, obj_ 53, .box_ 12)
+       23  JSDocInfo_Builder.populateProp#1 on local/param JSDocInfo_Builder
+       21  new_AssertionError_Object#0
+        8  JSDocInfo_Builder.setProp#1 on local/param JSDocInfo_Builder
+        6  MalformedTypedAstException_checkWellFormed_boolean_String_Object#2
+        6  Parser.reportExpectedError#1 on local/param Parser
+        5  ChangeVerifier_EqualsResult_notEqual#2
+        5  ChangeVerifier_EqualsResult_notEqual#3
+        5  CommandLineRunner_Flags_addMultiFlagValue#2
+        5  new_AbstractCommandLineRunner_FlagEntry#0
+        5  new_MalformedTypedAstException_Object#0
+        4  JSDocInfo_Builder.populatePropEntry#2 on local/param JSDocInfo_Builder
+        4  Node.payload_set_#0 on local/param Node
+        4  Output.append_CharSequence_rOutput#0 on local/param Output
+        2  JSDocInfo_TrimmedStringPosition.setItem#0 on local/param JSDocInfo_TrimmedStringPosition
+        2  append#1
+
+    89  result of a func literal  (strobj_ 45, obj_ 18, any 16, .box_ 10)
+       89  return of func literal
+
+    52  runtime method parameter (MoreObjects_ToStringHelper)  (obj_ 35, strobj_ 9, .box_ 8)
+       28  MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.add
+       14  MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.add_String_boolean
+        5  MoreObjects_ToStringHelper.add#1 on result of MoreObjects_toStringHelper
+        2  MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.add_String_int
+        2  MoreObjects_ToStringHelper.add#1 on result of MoreObjects_ToStringHelper.omitNullValues
+        1  MoreObjects_ToStringHelper.add#1 on result of MoreObjects_toStringHelper_Class
+
+    51  comparison  (any 37, obj_ 10, .box_ 4)
+       51  comparison
+
+    45  variadic generated argument  (strobj_ 34, obj_ 10, .box_ 1)
+        7  LogFile.log_2#1 on field OptimizeReturns.decisionsLog LogFile
+        6  LogFile.log_2#1 on field OptimizeParameters.decisionsLog LogFile
+        6  LogFile.log_2#2 on field OptimizeParameters.decisionsLog LogFile
+        4  LogFile.log_2#1 on field Compiler_ChunkGraphAwareLicenseTracker.log_ LogFile
+        3  LogFile.log_2#2 on field Compiler_ChunkGraphAwareLicenseTracker.log_ LogFile
+        3  Msg.format_1#0 on local/param Msg
+        2  LogFile.log_2#1 on field GlobalNamespace.decisionsLog LogFile
+        2  LogFile.log_2#2 on field GlobalNamespace.decisionsLog LogFile
+        2  LogFile.log_2#2 on field OptimizeReturns.decisionsLog LogFile
+        2  LogFile.log_2#3 on field GlobalNamespace.decisionsLog LogFile
+        2  Parser.reportError#1 on local/param Parser
+        2  Parser.reportError_3#2 on local/param Parser
+        1  Compiler_checkNotModule#2
+        1  ErrorReporter_util.reportWarning_3#2 on field Parser.errorReporter ErrorReporter_util
+        1  LogFile.log_2#3 on field OptimizeParameters.decisionsLog LogFile
+
+    41  generated interface method parameter  (obj_ 33, .box_ 5, strobj_ 3)
+        5  Collection.contains#0 on local/param SetT
+        4  List.indexOf#0 on result of TList.asListT
+        4  Map.containsKey#0 on field Compiler.inputsById MapT
+        3  Collection.contains#0 on result of TList.asListT
+        2  Collection.contains#0 on result of setAs_
+        2  Collection.contains#0 on result of sliceViewP_
+        2  Collection.remove_Object#0 on result of TList.asListT
+        2  List.add_int_Object#1 on field Compiler.externs ListT
+        2  List.indexOf#0 on result of sliceViewP_
+        1  Appendable.append_CharSequence#0 on local/param Appendable
+        1  Collection.contains#0 on field TemplateTypeReplacer.seenTypes SetT
+        1  Collection.contains#0 on local/param CollectionT
+        1  Collection.contains#0 on result of CompilerInput.getRequires
+        1  Collection.remove_Object#0 on field TemplateTypeReplacer.seenTypes SetT
+        1  List.indexOf#0 on result of SimpleListMultimap.get
+
+    25  local variable  (any 25)
+       24  local
+        1  global Node_NUMBER_PAYLOAD_UNSET
+
+    19  runtime method parameter (MapT)  (.box_ 13, obj_ 6)
+        6  MapT.get_t#0 on field TypedScopeCreator.memoized MapT
+        3  MapT.get_t#0 on field Compiler.inputsById MapT
+        3  MapT.get_t#0 on result of GlobalNamespace_Name.castRefsForNodeMap
+        1  MapT.get_t#0 on field Compiler.indexProvidersByType MapT
+        1  MapT.get_t#0 on global Node_PROP_MAP_FOR_EQUALITY
+        1  MapT.get_t#0 on local/param MapT
+        1  MapT.get_t#0 on result of SimpleBiMap.inverse
+        1  MapT.remove_t#0 on field Compiler.inputsById MapT
+        1  MapT.remove_t#0 on local/param MapT
+        1  MapT.remove_t#0 on result of GlobalNamespace_Name.castRefsForNodeMap
+
+    15  element of a composite literal  (obj_ 9, strobj_ 6)
+       15  element of []any
+
+    13  generated result  (.box_ 6, obj_ 3, any 2, strobj_ 2)
+        2  return of CanCastToVisitor.castCastToHelper
+        1  return of CachingTranspiler_1.load
+        1  return of ColorId.toLogsGson
+        1  return of DefaultNameGenerator_CharPriority.clone
+        1  return of JSDocInfo.clone
+        1  return of NodeIterators_FunctionlessLocalScope.next
+        1  return of NodeIterators_LocalVarMotion.next
+        1  return of NodeUtil_PreOrderIterator.computeNext
+        1  return of NodeUtil_TemplateArgsIterable_1.computeNext
+        1  return of Node_AncestorIterable_1.next
+        1  return of Node_SiblingNodeIterator.next
+        1  return of RequireAliasGenerator_NameIterator.computeNext
+
+    12  runtime method parameter (ComparisonChain)  (strobj_ 12)
+        3  ComparisonChain.compare#0 on result of ComparisonChain.compare
+        3  ComparisonChain.compare#1 on result of ComparisonChain.compare
+        2  ComparisonChain.compare#0 on result of ComparisonChain_start
+        2  ComparisonChain.compare#1 on result of ComparisonChain_start
+        1  ComparisonChain.compare#0 on result of ComparisonChain.compare_int_int
+        1  ComparisonChain.compare#1 on result of ComparisonChain.compare_int_int
+
+    10  runtime method parameter (BigInteger)  (obj_ 10)
+       10  BigInteger.compareTo#0 on local/param BigInteger
+
+    10  runtime method parameter (Node)  (obj_ 6, .box_ 4)
+       10  Node.putProp#1 on local/param Node
+
+     9  runtime method parameter (strBuilder_)  (obj_ 9)
+        4  strBuilder_.append_Object#0 on local/param strBuilder_
+        3  strBuilder_.append_Object#0 on result of strBuilder_.append
+        1  strBuilder_.append_CharSequence#0 on local/param strBuilder_
+        1  strBuilder_.append_CharSequence_int_int#0 on local/param strBuilder_
+
+     8  runtime method parameter (Joiner)  (strobj_ 8)
+        3  Joiner.join_Object_Object_ObjectArr#0 on global ExternExportsPass_Q_NAME_JOINER
+        3  Joiner.join_Object_Object_ObjectArr#1 on global ExternExportsPass_Q_NAME_JOINER
+        1  Joiner.join_Object_Object_ObjectArr#0 on result of Joiner_on
+        1  Joiner.join_Object_Object_ObjectArr#1 on result of Joiner_on
+
+     8  runtime method parameter (TMap)  (obj_ 6, strobj_ 2)
+        7  TMap.Put#1 on local/param TMap
+        1  TMap.Put#1 on field CompilerOptions.defineReplacements TMap
+
+     7  generated field  (any 5, obj_ 2)
+        2  field GlobalNamespace_Name.refsForNode
+        1  field CommandLineRunner_Flags.browserFeaturesetYear
+        1  field CommandLineRunner_Flags.parseInlineSourceMaps_
+        1  field JSType.templateCheckResult
+        1  field OptimizeCalls_Builder.considerExterns
+        1  field SubtypeChecker.isUsingStructuralTyping
+
+     4  runtime method parameter (TreeMapOf[*JSDocInfo_Property, any])  (obj_ 4)
+        3  TreeMap.remove#0 on field JSDocInfo_Builder.props TreeMapOf[*JSDocInfo_Property, any]
+        1  TreeMap.containsKey#0 on field JSDocInfo_Builder.props TreeMapOf[*JSDocInfo_Property, any]
+
+     2  argument of a func value  (.box_ 1, obj_ 1)
+        2  local#0
+
+     2  argument of a func-typed field  (obj_ 2)
+        2  func field field ?.unbox#0
+
+     2  runtime method parameter (CharMatcher)  (strobj_ 2)
+        1  CharMatcher.collapseFrom#0 on global PathUtil_SLASH_MATCHER
+        1  CharMatcher.lastIndexIn#0 on global PathUtil_NON_SLASH_MATCHER
+
+     2  runtime method parameter (Enum)  (obj_ 2)
+        1  Enum.compareTo#0 on result of CheckLevel.enum_
+        1  Enum.compareTo#0 on result of JSDocInfo_Visibility.enum_
+
+     2  runtime method parameter (EnumMapOf[TokenType, Keywords])  (obj_ 2)
+        1  EnumMap.put#0 on local/param EnumMapOf[TokenType, Keywords]
+        1  EnumMap.put#1 on local/param EnumMapOf[TokenType, Keywords]
+
+     2  runtime method parameter (EnumSetOf[*Node_Prop])  (obj_ 2)
+        2  EnumSet.add#0 on local/param EnumSetOf[*Node_Prop]
+
+     2  runtime method parameter (EnumSetOf[FeatureSet_Feature])  (obj_ 2)
+        2  EnumSet.add#0 on local/param EnumSetOf[FeatureSet_Feature]
+
+     2  runtime method parameter (ImmutableSortedMap_BuilderOf[string, ColorGraphNode_PropAssociation])  (obj_ 1, strobj_ 1)
+        1  ErasedImmutableMap_Builder.put#0 on local/param ImmutableSortedMap_BuilderOf[string, ColorGraphNode_PropAssociation]
+        1  ErasedImmutableMap_Builder.put#1 on local/param ImmutableSortedMap_BuilderOf[string, ColorGraphNode_PropAssociation]
+
+     2  runtime method parameter (ImmutableSortedMap_BuilderOf[string, string])  (strobj_ 2)
+        1  ErasedImmutableMap_Builder.put#0 on local/param ImmutableSortedMap_BuilderOf[string, string]
+        1  ErasedImmutableMap_Builder.put#1 on local/param ImmutableSortedMap_BuilderOf[string, string]
+
+     2  runtime method parameter (Ordering)  (.box_ 2)
+        1  Ordering.compare#0 on result of Ordering.nullsFirst
+        1  Ordering.compare#1 on result of Ordering.nullsFirst
+
+     2  runtime method parameter (OrderingOf[*SymbolTable_SymbolScope])  (obj_ 2)
+        1  Ordering.compare#0 on field SymbolTable.lexicalScopeOrdering OrderingOf[*SymbolTable_SymbolScope]
+        1  Ordering.compare#1 on field SymbolTable.lexicalScopeOrdering OrderingOf[*SymbolTable_SymbolScope]
+
+     2  runtime method parameter (OrderingOf[Node])  (.box_ 2)
+        1  Ordering.compare#0 on field SymbolTable.nodeOrdering OrderingOf[Node]
+        1  Ordering.compare#1 on field SymbolTable.nodeOrdering OrderingOf[Node]
+
+     2  runtime method parameter (OrderingOf[string])  (strobj_ 2)
+        1  Ordering.compare#0 on field SymbolTable.sourceNameOrdering OrderingOf[string]
+        1  Ordering.compare#1 on field SymbolTable.sourceNameOrdering OrderingOf[string]
+
+     1  runtime method parameter (EnumSet)  (obj_ 1)
+        1  EnumSet.contains#0 on global Node_propMapForEqualityKeys
+
+     1  runtime method parameter (EnumSetOf[ExpressionDecomposer_Workaround])  (obj_ 1)
+        1  EnumSet.contains#0 on field ExpressionDecomposer.enabledWorkarounds EnumSetOf[ExpressionDecomposer_Workaround]
+
+     1  runtime method parameter (ErasedImmutableMap)  (strobj_ 1)
+        1  ErasedImmutableMap.containsValue#0 on result of TMap.asImm
+
+     1  runtime method parameter (ErasedImmutableMap_Builder)  (strobj_ 1)
+        1  ErasedImmutableMap_Builder.put#0 on result of ErasedImmutableMap_Builder.putAll
+
+     1  runtime method parameter (ImmutableCollection_Builder)  (strobj_ 1)
+        1  ImmutableCollection_Builder.add#0 on local/param ImmutableCollection_Builder
+
+     1  runtime method parameter (ImmutableMapOf[any, *CodingConvention_AssertionFunctionSpec])  (obj_ 1)
+        1  ErasedImmutableMap.get#0 on field CodingConvention_AssertionFunctionLookup.internal ImmutableMapOf[any, *CodingConvention_AssertionFunctionSpec]
+
+     1  runtime method parameter (ImmutableMap_BuilderOf[SetT[string], string])  (strobj_ 1)
+        1  ErasedImmutableMap_Builder.put#1 on local/param ImmutableMap_BuilderOf[SetT[string], string]
+
+     1  runtime method parameter (ImmutableMap_BuilderOf[any, *CodingConvention_AssertionFunctionSpec])  (obj_ 1)
+        1  ErasedImmutableMap_Builder.put#1 on local/param ImmutableMap_BuilderOf[any, *CodingConvention_AssertionFunctionSpec]
+
+     1  runtime method parameter (ImmutableSortedMap_BuilderOf[string, any])  (strobj_ 1)
+        1  ErasedImmutableMap_Builder.put#0 on local/param ImmutableSortedMap_BuilderOf[string, any]
+
+     1  runtime method parameter (ImmutableSortedSet_BuilderOf[*SerializeTypesToPointers_TypeMismatchJson])  (obj_ 1)
+        1  ImmutableCollection_Builder.add#0 on local/param ImmutableSortedSet_BuilderOf[*SerializeTypesToPointers_TypeMismatchJson]
+
+     1  runtime method parameter (Logger)  (strobj_ 1)
+        1  Logger.log_Level_String_Object#2 on global Tracer_logger
+
+     1  runtime method parameter (Optional_base)  (obj_ 1)
+        1  Optional_base.or#0 on local/param Optional_base
+
+     1  runtime method parameter (ThreadLocal)  (obj_ 1)
+        1  ThreadLocal.set#0 on global Tracer_traces
+
+     1  type assertion of a box  (any 1)
+        1  *ast.TypeAssertExpr

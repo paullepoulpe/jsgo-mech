@@ -1,0 +1,34 @@
+      40 in   23 files  Java collections (erased): constructors
+     525 in  204 files  Java collections: typed TList/TMap/TSet constructors
+      43 in   30 files  Guava immutable collections / builders
+     100 in   48 files  native Go slices made
+       0 in    0 files  native Go maps made
+      34 in   19 files  for-each via iterator objects (foreach_/each)
+      73 in   34 files  explicit Iterator use (.iterator()/hasNext)
+       0 in    0 files  streams (Stream/Collectors)
+       0 in    0 files  dynamic dispatch through self_ (this.self_.(interface{...}))
+       0 in    0 files  anonymous interface assertions .(interface{
+     183 in   43 files  interface casts icast_X(
+     553 in  132 files  class casts to_X( / cast_[T](
+      71 in   32 files  instanceof is_X(
+    2047 in  332 files  type assertions x.(T), jsgocensus.py's regex (incl. self_ dispatch, helper bodies)
+      27 in   20 files  type switches .(type)
+     938 in  200 files  boxing to any: obj_( / strobj_( / .box_() / any(
+     131 in   51 files  unboxing from any: str_( / unboxing casts
+      37 in   21 files  lambda objects &X_fn{func
+      39 in   21 files  lambda adapter literals &X_tfn_Y{ / &X_fn{ (all adapter values)
+      75 in   20 files  Optional
+      54 in   20 files  try/catch emulation: recover() / catch_ (Java try/catch)
+    3523 in  449 files  throw as panic( (the Go idiom for an unchecked exception)
+      84 in   41 files  defer
+      72 in   26 files  Java equals/hashCode protocol
+     121 in   71 files  String_* UTF-16 helpers (charAt, substring, indexOf...)
+       5 in    4 files  StringBuilder
+       1 in    1 files  enum objects: structs embedding Enum
+       1 in    1 files  enum objects: calls on object enums (.Enum.x())
+       6 in    4 files  Preconditions_ checks
+      53 in    9 files  threads/executors/synchronized emulation
+       5 in    2 files  reflect
+       1 in    1 files  unsafe
+     595                 fields/params declared any (approx)
+     448                 fields/params declared any, Object slots only (less 8 type parameters, 7 return any(, 132 cast-helper operands)

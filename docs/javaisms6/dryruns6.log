@@ -1,0 +1,103 @@
+adapters_ rc=0 n= unchanged
+anyconv_ rc=0 n= unchanged
+anyconv_all rc=0 n= unchanged
+arraycopy_ rc=0 n= unchanged
+castfold_ rc=0 n= unchanged
+castfold_assert rc=0 n= unchanged
+castfold_instof rc=0 n= unchanged
+castfold_nilup rc=0 n= unchanged
+casts_ rc=0 n= unchanged
+casts_named rc=0 n= CHANGED THE COPY (46 changed lines); restoring
+charseq_ rc=0 n= unchanged
+checks_ rc=0 n= unchanged
+colls_kind_deque rc=0 n= unchanged
+colls_kind_list rc=0 n= unchanged
+colls_kind_map rc=0 n= unchanged
+colls_kind_set rc=0 n= unchanged
+covret_ rc=0 n= unchanged
+deadbridge_ rc=0 n= unchanged
+deadeq_ rc=0 n= unchanged
+deadtfn_ rc=0 n= unchanged
+dispatch_ rc=0 n= unchanged
+enumcmp_ rc=0 n= unchanged
+enumin_ rc=0 n= unchanged
+enums_ rc=0 n= unchanged
+enums_runtime rc=0 n= unchanged
+eqtyped_ rc=0 n= unchanged
+etaconv_ rc=0 n= CHANGED THE COPY (82 changed lines); restoring
+exceptions_ rc=0 n= unchanged
+fbound_ rc=0 n= unchanged
+fnobj_ rc=0 n= unchanged
+fntypes_ rc=0 n= unchanged
+funcparams_ rc=0 n= unchanged
+gcasts_ rc=0 n= unchanged
+generics_ rc=0 n= unchanged
+gmaps_ rc=0 n= unchanged
+hashmemo_: no such tool in the overlay
+htabself_ rc=0 n= unchanged
+icasts_ rc=0 n= unchanged
+ident_ rc=0 n= unchanged
+immbuild_ rc=0 n= unchanged
+immnames_ rc=0 n= unchanged
+implsplit_ rc=0 n= unchanged
+instof_ rc=0 n= unchanged
+isanames_: no such tool in the overlay
+iters_ rc=0 n= unchanged
+jsdocprops_ rc=0 n= unchanged
+lamparams_ rc=0 n= unchanged
+maps_ rc=0 n= unchanged
+native_kind_imm rc=0 n= unchanged
+native_kind_list rc=0 n= unchanged
+native_kind_map rc=0 n= unchanged
+native_kind_set rc=0 n= unchanged
+nnassert_ rc=0 n= unchanged
+nnchecks_ rc=0 n= CHANGED THE COPY (12 changed lines); restoring
+objslots_ rc=0 n= unchanged
+opteq_ rc=0 n= unchanged
+optional_guava rc=0 n= unchanged
+optof_ rc=0 n= unchanged
+optstr_ rc=1 n= unchanged
+overrides_ rc=0 n= unchanged
+patinst_ rc=0 n= unchanged
+pbbuild_ rc=0 n= unchanged
+pblast_: no such tool in the overlay
+precond_ rc=0 n= unchanged
+ranges_ rc=0 n= unchanged
+ranges_entries rc=0 n= unchanged
+ranges_index rc=0 n= CHANGED THE COPY (30 changed lines); restoring
+ranges_loops rc=0 n= unchanged
+sbuild_ rc=0 n= unchanged
+selftype_ rc=0 n= unchanged
+slices_ rc=0 n= unchanged
+strbytes_ rc=0 n= unchanged
+strids_ rc=0 n= unchanged
+strkeys_ rc=0 n= unchanged
+strnative_ rc=0 n= unchanged
+strunits_ rc=0 n= unchanged
+strvar_rule_A: no such tool in the overlay
+strvar_rule_B: no such tool in the overlay
+strvar_rule_C: no such tool in the overlay
+strview_ rc=0 n= unchanged
+tcmp_ rc=0 n= unchanged
+tdeque_ rc=0 n= unchanged
+tfnapi_ rc=0 n= unchanged
+tfnargs_ rc=0 n= unchanged
+tfnparams_ rc=0 n= unchanged
+tgeneric_ rc=0 n= unchanged
+throws_ rc=0 n= unchanged
+tnames_undo rc=0 n= CHANGED THE COPY (2622 changed lines); restoring
+tostr_ rc=0 n= CHANGED THE COPY (6 changed lines); restoring
+trips_: no such tool in the overlay
+tryfn_ rc=0 n= unchanged
+tswitch_ rc=0 n= unchanged
+tviews_ rc=0 n= unchanged
+unify_ rc=0 n= unchanged
+valcls_ rc=0 n= unchanged
+valplain_: no such tool in the overlay
+varargs_ rc=0 n= unchanged
+vdispatch_enums rc=0 n= unchanged
+vdispatch_rest rc=0 n= unchanged
+vdispatch_retype rc=0 n= unchanged
+vdispatch_sub rc=0 n= unchanged
+visit_ rc=0 n= unchanged
+ALLDONE
