@@ -391,7 +391,7 @@ func (this *SemanticReverseAbstractInterpreter) caseIn(object Node, propertyName
 
 func SemanticReverseAbstractInterpreter_unwrap(scope FlowScope) FlowScope {
 	for is_[*SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope](scope) {
-		scope = cast_[*SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope](scope).delegate
+		scope = scope.(*SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope).delegate
 	}
 	return scope
 }

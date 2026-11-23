@@ -149,7 +149,7 @@ func (this *SimpleListMultimap[K, V]) isEmpty() bool {
 }
 
 func (this *SimpleListMultimap[K, V]) equals(o any) bool {
-	return (is_SimpleListMultimap(o) && equalsDyn_(lgBox_(this.map__.asMapT()), icast_SimpleCollection(o).untypedMap()))
+	return (is_SimpleListMultimap(o) && equalsDyn_(lgBox_(this.map__.asMapT()), o.(SimpleCollection).untypedMap()))
 }
 
 func (this *SimpleListMultimap[K, V]) hashCode() int32 {
