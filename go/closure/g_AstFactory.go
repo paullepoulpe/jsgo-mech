@@ -1154,7 +1154,7 @@ func (this *AstFactory) createEmptyAsyncGeneratorWrapperArgument(asyncGeneratorW
 		if asyncGeneratorWrapperType.isUnknownType() {
 			generatorType = AstFactory_typeJSType_JSType(this.registry.createFunctionType(this.replaceTemplate(this.getNativeType(JSTypeNative_GENERATOR_TYPE), jimmutableListOf_[*JSType](jtc_p_JSType, this.unknownType)), []*JSType{}).up_JSType())
 		} else {
-			var innerFunctionReturnType *JSType = cast_[*FunctionType_Parameter](Iterables_getOnlyElement(Iterable(asyncGeneratorWrapperType.toMaybeFunctionType().getParameters().asList()))).getJSType()
+			var innerFunctionReturnType *JSType = Iterables_getOnlyElement(Iterable(asyncGeneratorWrapperType.toMaybeFunctionType().getParameters().asList())).(*FunctionType_Parameter).getJSType()
 			generatorType = AstFactory_typeJSType_JSType(this.registry.createFunctionType(innerFunctionReturnType, []*JSType{}).up_JSType())
 		}
 	} else if this.isAddingColors() {

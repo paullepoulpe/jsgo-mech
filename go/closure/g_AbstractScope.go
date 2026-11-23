@@ -261,7 +261,7 @@ func (this *AbstractScope) getSlot_String(p0 string) StaticSlot {
 }
 
 func (this *AbstractScope) getTopmostScopeOfEventualDeclaration_impl(p0 string) StaticScope {
-	return StaticScope_getTopmostScopeOfEventualDeclaration_default(icast_StaticScope(this.self()), p0)
+	return StaticScope_getTopmostScopeOfEventualDeclaration_default(this.self().(StaticScope), p0)
 }
 
 func (this *AbstractScope) getParentScope_impl() StaticScope {
