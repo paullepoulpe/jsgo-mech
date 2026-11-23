@@ -164,7 +164,7 @@ func (this *LiveVariablesAnalysis) computeGenKill(n Node, gen *BitSet, kill *Bit
 		this.computeGenKill(n.getLastChild(), gen, kill, true)
 		return
 	case tokOrd1_NAME:
-		if n.getString() == "arguments" {
+		if n.getStringIs_(sid_arguments) {
 			this.markAllParametersEscaped()
 		} else if !NodeUtil_isLhsByDestructuring(n) {
 			this.addToSetIfLocal(n, gen)

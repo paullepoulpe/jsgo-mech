@@ -101,7 +101,7 @@ func (this *ClosureCodingConvention) isSuperClassReference_impl(propertyName str
 }
 
 func ClosureCodingConvention_endsWithPrototype(qualifiedName Node) bool {
-	return (qualifiedName.isGetProp() && (qualifiedName.getString() == "prototype"))
+	return (qualifiedName.isGetProp() && (qualifiedName.getStringIs_(sid_prototype)))
 }
 
 func (this *ClosureCodingConvention) extractIsModuleFile_impl(node Node, parent Node) bool {
@@ -180,7 +180,7 @@ func (this *ClosureCodingConvention) isPropertyTestFunction_impl(call Node) bool
 	if target.isGetProp() {
 		var src Node = target.getFirstChild()
 		var prop string = target.getString()
-		if (src.isName() && (src.getString() == "goog")) && ((prop == "isArrayLike") || (prop == "isObject")) {
+		if (src.isName() && (src.getStringIs_(sid_goog))) && ((prop == "isArrayLike") || (prop == "isObject")) {
 			return true
 		}
 	}
@@ -281,7 +281,7 @@ func (this *ClosureCodingConvention) matchesCacheMethodName(target Node) bool {
 	if target.isGetProp() {
 		return target.matchesQualifiedNameNode(ClosureCodingConvention_googCacheReflect)
 	} else if target.isName() {
-		return (target.getString() == "goog$reflect$cache")
+		return (target.getStringIs_(sidx_676f6f67247265666c656374246361636865))
 	}
 	return false
 }
