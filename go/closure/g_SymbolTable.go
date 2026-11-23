@@ -284,10 +284,10 @@ func (this *SymbolTable) toDebugStringTree() string {
 		}
 	}
 	var childrenScopes *SimpleListMultimap[*SymbolTable_SymbolScope, *SymbolTable_SymbolScope] = childrenScopesBuilder.immutableCopy()
-	var builder *StringBuilder = new_StringBuilder()
+	var builder strBuilder_
 	for scope := range elemsT_(this.getAllScopes()) {
 		if scope.getParentScope() == nil {
-			this.toDebugStringTree_4(builder, "", scope, childrenScopes)
+			this.toDebugStringTree_4(&builder, "", scope, childrenScopes)
 		}
 	}
 	var visitedScopes *JTSet[*SymbolTable_SymbolScope] = jtsetFrom_(jtc_p_SymbolTable_SymbolScope, Collection_un_(this.getAllScopes()))
@@ -298,18 +298,18 @@ func (this *SymbolTable) toDebugStringTree() string {
 			continue
 		}
 		visitedScopes.add(symbol.getPropertyScope())
-		this.toDebugStringTree_4(builder, "", symbol.propertyScope, childrenScopes)
+		this.toDebugStringTree_4(&builder, "", symbol.propertyScope, childrenScopes)
 	}
-	return tostrR_(builder)
+	return builder.toString()
 }
 
-func (this *SymbolTable) toDebugStringTree_4(builder *StringBuilder, prefix string, scope *SymbolTable_SymbolScope, childrenScopes *SimpleListMultimap[*SymbolTable_SymbolScope, *SymbolTable_SymbolScope]) {
+func (this *SymbolTable) toDebugStringTree_4(builder *strBuilder_, prefix string, scope *SymbolTable_SymbolScope, childrenScopes *SimpleListMultimap[*SymbolTable_SymbolScope, *SymbolTable_SymbolScope]) {
 	builder.append(prefix).append_Object(obj_(scope))
 	var childrenPrefix string = (sstr_(prefix) + "    ")
 	var printedSomething bool = false
 	if !scope.ownSymbols.isEmpty() {
 		printedSomething = true
-		cast_[*StringBuilder](builder.append_char('\n')).append(prefix).append("  Symbols:\n")
+		builder.append_char('\n').append(prefix).append("  Symbols:\n")
 		it_1 := scope.ownSymbols.eachValue()
 		for it_1.next() {
 			var symbol *SymbolTable_Symbol = it_1.v
@@ -318,7 +318,7 @@ func (this *SymbolTable) toDebugStringTree_4(builder *StringBuilder, prefix stri
 	}
 	if childrenScopes.containsKey(scope) {
 		printedSomething = true
-		cast_[*StringBuilder](builder.append_char('\n')).append(prefix).append("  Scopes:\n")
+		builder.append_char('\n').append(prefix).append("  Scopes:\n")
 		for childScope := range elemsT_(childrenScopes.get(scope)) {
 			this.toDebugStringTree_4(builder, childrenPrefix, childScope, childrenScopes)
 		}
@@ -330,16 +330,16 @@ func (this *SymbolTable) toDebugStringTree_4(builder *StringBuilder, prefix stri
 }
 
 func (this *SymbolTable) toDebugString() string {
-	var builder *StringBuilder = new_StringBuilder()
+	var builder strBuilder_
 	it_1 := this.getAllSymbols().each()
 	for it_1.next() {
 		var symbol *SymbolTable_Symbol = it_1.v
-		this.toDebugString_4(builder, "", symbol, true)
+		this.toDebugString_4(&builder, "", symbol, true)
 	}
-	return tostrR_(builder)
+	return builder.toString()
 }
 
-func (this *SymbolTable) toDebugString_4(builder *StringBuilder, prefix string, symbol *SymbolTable_Symbol, printScope bool) {
+func (this *SymbolTable) toDebugString_4(builder *strBuilder_, prefix string, symbol *SymbolTable_Symbol, printScope bool) {
 	builder.append(prefix).append("'").append(symbol.getName()).append("'")
 	if printScope {
 		builder.append(" in ").append_Object(obj_(symbol.scope_))

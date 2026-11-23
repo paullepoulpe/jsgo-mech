@@ -56,7 +56,7 @@ func (this *DepsGenerator) computeDependencyCalls() *Outcome_base[string] {
 	}
 	var output *StringBuilder = new_StringBuilder()
 	this.writeDepsContent(depsFiles, jsFiles, output)
-	return Outcome_base_ok_Object[string](Io_utf8String(Io_utf8Bytes(tostrR_(output))))
+	return Outcome_base_ok_Object[string](Io_utf8String(Io_utf8Bytes(output.toString())))
 }
 
 func (this *DepsGenerator) cleanUpDuplicatedFiles(depsFiles MapT[string, DependencyInfo_], jsFiles MapT[string, DependencyInfo_]) {

@@ -122,7 +122,7 @@ func (this *CommandLineRunner) processFlagFile(flagFileString string) *Outcome_b
 	}
 	var flagFileText string = buffer.get()
 	var flagFileIndex int32 = 0
-	var builder *StringBuilder = new_StringBuilder()
+	var builder strBuilder_
 	var tokens *JTList[string] = jnewTList_(jtc_string)
 	var quoted bool = false
 	var escaped bool = false
@@ -144,7 +144,7 @@ func (this *CommandLineRunner) processFlagFile(flagFileString string) *Outcome_b
 			if quoted {
 				builder.append_char(uint16(c))
 			} else if builder.length() != 0 {
-				tokens.add(tostrR_(builder))
+				tokens.add(builder.toString())
 				builder.setLength(0)
 			}
 		} else if c == 34 {
@@ -163,7 +163,7 @@ func (this *CommandLineRunner) processFlagFile(flagFileString string) *Outcome_b
 		escaped = (c == 92)
 	}
 	if builder.length() != 0 {
-		tokens.add(tostrR_(builder))
+		tokens.add(builder.toString())
 	}
 	this.flags.flagFiles = jnewTList_(jtc_string).asListT()
 	tokens = CommandLineRunner_processArgs(arrmap_(tokens.asListT().toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) }))
@@ -1475,7 +1475,7 @@ func (this *CommandLineRunner_Flags) parse(args *JTList[string]) *Outcome_base[a
 }
 
 func (this *CommandLineRunner_Flags) printUsage(ps *Output) {
-	var outputStream *StringBuilder = new_StringBuilder()
+	var outputStream strBuilder_
 	var isFirst bool = true
 	for entry := range elemsT_(CommandLineRunner_Flags_categories.asMap().entrySet_t()) {
 		var prefix string = "\n\n"
@@ -1495,26 +1495,26 @@ func (this *CommandLineRunner_Flags) printUsage(ps *Output) {
 			this.maxLineLength = 5000
 			this.parser.setUsageWidth(this.maxLineLength)
 		}
-		this.printCategoryUsage(entry.getKey_t(), entry.getValue_t(), outputStream, Optional_of[string](prefix), Optional_of[string](suffix))
+		this.printCategoryUsage(entry.getKey_t(), entry.getValue_t(), &outputStream, Optional_of[string](prefix), Optional_of[string](suffix))
 	}
 	var encoded *Output = ps.encodedAs(Charsets_UTF_8)
-	encoded.print(tostrR_(outputStream))
+	encoded.print(outputStream.toString())
 	encoded.flush()
 	ps.flush()
 }
 
-func (this *CommandLineRunner_Flags) printCategoryUsage(categoryName string, options CollectionT[string], outputStream *StringBuilder, prefix Optional[string], suffix Optional[string]) {
+func (this *CommandLineRunner_Flags) printCategoryUsage(categoryName string, options CollectionT[string], outputStream *strBuilder_, prefix Optional[string], suffix Optional[string]) {
 	if prefix.isPresent() {
 		this.printStringLineWrapped(prefix.get(), outputStream)
 	}
 	if this.helpMarkdown {
 		outputStream.append(("# " + sstr_(categoryName) + "\n"))
 		for optionName := range elemsT_(options) {
-			var stringWriter *StringBuilder = new_StringBuilder()
-			this.parser.printUsage(stringWriter, Predicate[*CmdLineParser_Option](func(option *CmdLineParser_Option) bool {
+			var stringWriter strBuilder_
+			this.parser.printUsage(&stringWriter, Predicate[*CmdLineParser_Option](func(option *CmdLineParser_Option) bool {
 				return (!option.hidden() && (optionName == CommandLineRunner_LEADING_DASHES_PATTERN.matcher_s(option.name()).replaceFirst("")))
 			}))
-			var rawOptionUsage string = tostrR_(stringWriter)
+			var rawOptionUsage string = stringWriter.toString()
 			var delimiterIndex int32 = int32(strings.Index(rawOptionUsage, " : "))
 			if delimiterIndex > 0 {
 				outputStream.append(("\n**" + sstr_(String_trim(rawOptionUsage[:delimiterIndex])) + "**  \n"))
@@ -1535,7 +1535,7 @@ func (this *CommandLineRunner_Flags) printCategoryUsage(categoryName string, opt
 	}
 }
 
-func (this *CommandLineRunner_Flags) printStringLineWrapped(input string, outputStream *StringBuilder) {
+func (this *CommandLineRunner_Flags) printStringLineWrapped(input string, outputStream *strBuilder_) {
 	if String_length(input) < this.maxLineLength {
 		outputStream.append(input)
 		return
