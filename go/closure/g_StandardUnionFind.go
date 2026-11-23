@@ -134,7 +134,7 @@ func (this *StandardUnionFind[E]) findAll(value E) SetT[E] {
 		}
 		return v_.apply
 	}()
-	return setAs_(tcT_[E](), icast_Set(obj_(new_StandardUnionFind_2[E](this, isSameRoot, value))))
+	return setAs_(tcT_[E](), iup_Set(new_StandardUnionFind_2[E](this, isSameRoot, value)))
 }
 
 type StandardUnionFind_Node[E comparable] struct {
