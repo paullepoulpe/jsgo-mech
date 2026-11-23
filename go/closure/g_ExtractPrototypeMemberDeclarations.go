@@ -133,19 +133,19 @@ func (this ExtractPrototypeMemberDeclarations_Pattern) enum_() *Enum {
 }
 
 func (this ExtractPrototypeMemberDeclarations_Pattern) name() string {
-	return ExtractPrototypeMemberDeclarations_Pattern_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this ExtractPrototypeMemberDeclarations_Pattern) ordinal() int32 {
-	return ExtractPrototypeMemberDeclarations_Pattern_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this ExtractPrototypeMemberDeclarations_Pattern) toString() string {
-	return ExtractPrototypeMemberDeclarations_Pattern_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this ExtractPrototypeMemberDeclarations_Pattern) compareTo(o any) int32 {
-	return ExtractPrototypeMemberDeclarations_Pattern_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this ExtractPrototypeMemberDeclarations_Pattern) self() any {

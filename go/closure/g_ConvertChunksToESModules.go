@@ -304,19 +304,19 @@ func (this ConvertChunksToESModules_ImportType) enum_() *Enum {
 }
 
 func (this ConvertChunksToESModules_ImportType) name() string {
-	return ConvertChunksToESModules_ImportType_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this ConvertChunksToESModules_ImportType) ordinal() int32 {
-	return ConvertChunksToESModules_ImportType_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this ConvertChunksToESModules_ImportType) toString() string {
-	return ConvertChunksToESModules_ImportType_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this ConvertChunksToESModules_ImportType) compareTo(o any) int32 {
-	return ConvertChunksToESModules_ImportType_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this ConvertChunksToESModules_ImportType) self() any {

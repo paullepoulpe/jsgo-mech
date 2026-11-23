@@ -177,14 +177,14 @@ func (this PhaseOptimizer_State) enum_() *Enum {
 	return &PhaseOptimizer_State_enum_[this-1]
 }
 
-func (this PhaseOptimizer_State) name() string { return PhaseOptimizer_State_enum_[this-1].name_ }
+func (this PhaseOptimizer_State) name() string { return this.enum_().name_ }
 
-func (this PhaseOptimizer_State) ordinal() int32 { return PhaseOptimizer_State_enum_[this-1].ordinal_ }
+func (this PhaseOptimizer_State) ordinal() int32 { return this.enum_().ordinal_ }
 
-func (this PhaseOptimizer_State) toString() string { return PhaseOptimizer_State_enum_[this-1].name_ }
+func (this PhaseOptimizer_State) toString() string { return this.enum_().name_ }
 
 func (this PhaseOptimizer_State) compareTo(o any) int32 {
-	return PhaseOptimizer_State_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this PhaseOptimizer_State) self() any {

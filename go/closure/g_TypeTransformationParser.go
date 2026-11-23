@@ -666,19 +666,19 @@ func (this TypeTransformationParser_OperationKind) enum_() *Enum {
 }
 
 func (this TypeTransformationParser_OperationKind) name() string {
-	return TypeTransformationParser_OperationKind_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this TypeTransformationParser_OperationKind) ordinal() int32 {
-	return TypeTransformationParser_OperationKind_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this TypeTransformationParser_OperationKind) toString() string {
-	return TypeTransformationParser_OperationKind_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this TypeTransformationParser_OperationKind) compareTo(o any) int32 {
-	return TypeTransformationParser_OperationKind_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this TypeTransformationParser_OperationKind) self() any {
@@ -767,19 +767,19 @@ func (this TypeTransformationParser_Keywords) enum_() *Enum {
 }
 
 func (this TypeTransformationParser_Keywords) name() string {
-	return TypeTransformationParser_Keywords_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this TypeTransformationParser_Keywords) ordinal() int32 {
-	return TypeTransformationParser_Keywords_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this TypeTransformationParser_Keywords) toString() string {
-	return TypeTransformationParser_Keywords_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this TypeTransformationParser_Keywords) compareTo(o any) int32 {
-	return TypeTransformationParser_Keywords_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this TypeTransformationParser_Keywords) self() any {

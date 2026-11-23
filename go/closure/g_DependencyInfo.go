@@ -159,19 +159,19 @@ func (this DependencyInfo_Require_Type) enum_() *Enum {
 }
 
 func (this DependencyInfo_Require_Type) name() string {
-	return DependencyInfo_Require_Type_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this DependencyInfo_Require_Type) ordinal() int32 {
-	return DependencyInfo_Require_Type_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this DependencyInfo_Require_Type) toString() string {
-	return DependencyInfo_Require_Type_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this DependencyInfo_Require_Type) compareTo(o any) int32 {
-	return DependencyInfo_Require_Type_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this DependencyInfo_Require_Type) self() any {

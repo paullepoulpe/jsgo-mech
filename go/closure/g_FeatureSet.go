@@ -349,18 +349,18 @@ func (this FeatureSet_LangVersion) enum_() *Enum {
 	return &FeatureSet_LangVersion_enum_[this-1]
 }
 
-func (this FeatureSet_LangVersion) name() string { return FeatureSet_LangVersion_enum_[this-1].name_ }
+func (this FeatureSet_LangVersion) name() string { return this.enum_().name_ }
 
 func (this FeatureSet_LangVersion) ordinal() int32 {
-	return FeatureSet_LangVersion_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this FeatureSet_LangVersion) toString() string {
-	return FeatureSet_LangVersion_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this FeatureSet_LangVersion) compareTo(o any) int32 {
-	return FeatureSet_LangVersion_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this FeatureSet_LangVersion) self() any {
@@ -500,12 +500,12 @@ func (this FeatureSet_Feature) enum_() *Enum {
 	return &FeatureSet_Feature_enum_[this-1]
 }
 
-func (this FeatureSet_Feature) name() string { return FeatureSet_Feature_enum_[this-1].name_ }
+func (this FeatureSet_Feature) name() string { return this.enum_().name_ }
 
-func (this FeatureSet_Feature) ordinal() int32 { return FeatureSet_Feature_enum_[this-1].ordinal_ }
+func (this FeatureSet_Feature) ordinal() int32 { return this.enum_().ordinal_ }
 
 func (this FeatureSet_Feature) compareTo(o any) int32 {
-	return FeatureSet_Feature_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this FeatureSet_Feature) self() any {
