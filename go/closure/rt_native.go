@@ -74,7 +74,7 @@ func sliceInsert_[T any](s *[]T, i int32, v T) {
 func sliceRemoveAt_[T any](s *[]T, i int32) T {
 	old := sliceAt_(*s, i)
 	var z T
-	if i == 0 {
+	if i == 0 && len(*s) > frontShift_ { // a long list steps over the slot (see ArrayList.remove)
 		(*s)[0] = z
 		*s = (*s)[1:]
 		return old
