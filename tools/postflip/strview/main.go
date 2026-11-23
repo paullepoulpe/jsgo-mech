@@ -23,7 +23,9 @@
 //
 //   - for a string field f that every assignment sets in a statement of its own
 //     (x.f = e, x a variable or this): a field fU16 next to f, set after each assignment of f
-//     (x.fU16 = utf16Of_(x.f)). A field that is never assigned has the view of "" , as f is "";
+//     (x.fU16 = utf16Kept_(x.f), which has the units of a long text too: an object reads its
+//     string again and again; x.fU16 = y.gU16 when the value is another viewed field y.g).
+//     A field that is never assigned has the view of "", as f is "";
 //
 //   - for a parameter or a local variable that is given one value: a local variable sU16 :=
 //     utf16Of_(s), before the first statement that uses it, in the innermost block that holds
@@ -34,7 +36,7 @@
 //     a variable sU16 declared with s (a parameter's at the start of the function), set after
 //     each assignment of s.
 //
-//   - for a package constant that is not ASCII: a package variable CU16 = utf16Of_(C)
+//   - for a package constant that is not ASCII: a package variable CU16 = utf16Kept_(C)
 //     declared after it;
 //
 //   - for the result of a call x.m() without arguments (o.get() of an Optional<String>
@@ -754,6 +756,21 @@ func main() {
 		}
 	}
 
+	// The assignments of view fields to write, once every field that gets a view is known: a
+	// field that is assigned another viewed field (this.contents = file.contents) takes that
+	// field's view, and any other value gets a view of its own.
+	type pendingWrite struct {
+		stmt           *ast.AssignStmt
+		x, view, fname string
+	}
+	var pending []pendingWrite
+	viewed := map[*types.Var]bool{}
+	type upgrade struct {
+		old ast.Stmt
+		w   pendingWrite
+	}
+	var upgrades []upgrade
+
 	// The view fields that an earlier run added: every assignment of the string must still be
 	// followed by the view's (a later step may have written a new assignment).
 	var viewFields []*types.Var
@@ -776,6 +793,7 @@ func main() {
 		if fv == nil {
 			continue
 		}
+		viewed[fv] = true
 		for _, id := range rw.UsesOf[fv] {
 			sel, ok := rw.Parent[id].(*ast.SelectorExpr)
 			if !ok || sel.Sel != id {
@@ -798,16 +816,19 @@ func main() {
 				continue
 			}
 			x := rw.Text(sel.X)
-			want := x + "." + vf.Name() + " = utf16Of_(" + x + "." + fv.Name() + ")"
 			list, _ := container(rw.Parent[as])
 			followed := false
 			for i, st := range list {
-				if st == ast.Stmt(as) && i+1 < len(list) && rw.Text(list[i+1]) == want {
+				if st == ast.Stmt(as) && i+1 < len(list) && strings.HasPrefix(rw.Text(list[i+1]), x+"."+vf.Name()+" = ") {
 					followed = true
+					// The first version of the step made every view with utf16Of_.
+					if rw.Text(list[i+1]) == x+"."+vf.Name()+" = utf16Of_("+x+"."+fv.Name()+")" {
+						upgrades = append(upgrades, upgrade{list[i+1], pendingWrite{as, x, vf.Name(), fv.Name()}})
+					}
 				}
 			}
 			if !followed {
-				after[as] = append(after[as], want)
+				pending = append(pending, pendingWrite{as, x, vf.Name(), fv.Name()})
 				count["view field assignments added after an assignment that a later step wrote"]++
 			}
 		}
@@ -966,15 +987,59 @@ func main() {
 				}
 				return s + "\n" + viewName + " utf16_"
 			}
+			viewed[fv] = true
 			for _, w := range writes {
-				x := rw.Text(w.x)
-				after[w.stmt] = append(after[w.stmt], x+"."+viewName+" = utf16Of_("+x+"."+fv.Name()+")")
+				pending = append(pending, pendingWrite{w.stmt, rw.Text(w.x), viewName, fv.Name()})
 				count["view field assignments"]++
 			}
 		}
 		for _, o := range us {
 			s := rw.Unparen(o.call.Args[0]).(*ast.SelectorExpr)
 			convert(o, rw.Text(s.X)+"."+viewName)
+		}
+	}
+
+	viewAssign := func(w pendingWrite) string {
+		if w.stmt.Tok == token.ASSIGN && len(w.stmt.Rhs) == 1 {
+			if sel, ok := rw.Unparen(w.stmt.Rhs[0]).(*ast.SelectorExpr); ok && rw.Pure(sel.X) {
+				if fs := rw.Info.Selections[sel]; fs != nil && fs.Kind() == types.FieldVal && viewed[fs.Obj().(*types.Var).Origin()] {
+					count["view field assignments that take the view of the assigned field"]++
+					return w.x + "." + w.view + " = " + rw.Text(sel.X) + "." + sel.Sel.Name + "U16"
+				}
+			}
+		}
+		return w.x + "." + w.view + " = utf16Kept_(" + w.x + "." + w.fname + ")"
+	}
+	for _, w := range pending {
+		after[w.stmt] = append(after[w.stmt], viewAssign(w))
+	}
+	for _, u := range upgrades {
+		text := viewAssign(u.w)
+		rw.Rewrite[u.old] = func() string { return text }
+		count["view field assignments of the first version (utf16Of_) rewritten"]++
+	}
+	// A package constant's view of the first version.
+	for _, f := range rw.Files {
+		for _, d := range f.Decls {
+			gd, ok := d.(*ast.GenDecl)
+			if !ok || gd.Tok != token.VAR {
+				continue
+			}
+			for _, sp := range gd.Specs {
+				vs := sp.(*ast.ValueSpec)
+				if len(vs.Names) != 1 || len(vs.Values) != 1 || !strings.HasSuffix(vs.Names[0].Name, "U16") {
+					continue
+				}
+				name, c := rw.CallName(vs.Values[0])
+				if name != "utf16Of_" || len(c.Args) != 1 {
+					continue
+				}
+				if _, isConst := objOf(identOf(c.Args[0])).(*types.Const); isConst {
+					fun := c.Fun
+					rw.Rewrite[fun] = func() string { return "utf16Kept_" }
+					count["views of a package constant of the first version (utf16Of_) rewritten"]++
+				}
+			}
 		}
 	}
 
@@ -1014,7 +1079,7 @@ func main() {
 				} else {
 					t = rw.RenderChildren(d)
 				}
-				return t + "\n\n// " + viewName + " is the UTF-16 view of " + cv.Name() + " (post-flip step strview).\nvar " + viewName + " = utf16Of_(" + cv.Name() + ")"
+				return t + "\n\n// " + viewName + " is the UTF-16 view of " + cv.Name() + " (post-flip step strview).\nvar " + viewName + " = utf16Kept_(" + cv.Name() + ")"
 			}
 		}
 		nConsts++
@@ -1442,4 +1507,12 @@ func inScope(v *types.Var, us []op) bool {
 		}
 	}
 	return true
+}
+
+func identOf(e ast.Expr) *ast.Ident {
+	id, _ := rw.Unparen(e).(*ast.Ident)
+	if id == nil {
+		return &ast.Ident{}
+	}
+	return id
 }
