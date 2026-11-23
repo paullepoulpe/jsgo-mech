@@ -3213,3 +3213,69 @@ func reflip44typed(call *ast.CallExpr) bool {
 	return false
 }
 E44b
+# 45. (seventh flip) native: piece `fns` of rule "typed library interfaces" (T1) calls the typed twins of the runtime's library
+#    functions with the typed view of a list where the sixth flip's translator called the erased function with its erased
+#    view: Iterables_getFirstT_[T](L.asIterable(), d) for Iterables_getFirst(Iterable_un_(L.asIterable()), d), List_sortT_[T]
+#    (L.asListT(), c) for List_sort(..). The tool knows the erased ones by name (readers: "take a collection, read it during the
+#    call and do not keep it"; sorters: "change the list in place, keeping its length") and gave them the view made for the
+#    call; the twins' names it did not know, so every class with such a call kept its lists (native -kind list at step 403:
+#    388 declarations become slices, 211 classes; the sixth flip 423, 233; 30 refusals "a view passed to Iterables_getFirstT_
+#    / getLastT_ / getOnlyElementT_ / List_sortT_ / Collections_sortT_"). The rule: the twin of a reader is a reader and the
+#    twin of a sorter a sorter, for the twins whose erased function is in those lists (Iterables_getOnlyElementT_, _getFirstT_,
+#    _getLastT_; List_sortT_, Collections_sortT_), with the instantiation's type arguments in the name. Proof obligation (from
+#    rt_lgfn.go, each twin "does what the erased function does, step by step"): getFirstT_ / getLastT_ / getOnlyElementT_ read
+#    through iterator_t / get_t / size and keep nothing; List_sortT_ (and Collections_sortT_, which calls it) reads every
+#    element with get_t, sorts a copy and writes them back with set_t at the same positions, keeping the length, and keeps
+#    nothing. The twins take the typed interface, so the view made for the call is the typed live view of the slice,
+#    slicePtrViewT_(c, &L) (fix 44's, rt_nativet.go: get_t / set_t / iterator_t read and write *p), where &L is the slot's
+#    pointer to its slice or the address of an addressable slot (a variable, or a field selected through a pointer); any
+#    other receiver keeps the class, as before. Only in the versions that have fix 44b's typed view (reflip44typed) and when
+#    the runtime has slicePtrViewT_. Twins whose erased function is in neither list (Iterables_getT_, indexOfT_, filterT_,
+#    transformT_, Iterable_forEachT_, the Map twins) are left unknown, as their erased functions were.
+if grep -q 'reflip44typed' tools/postflip/native/main.go 2>/dev/null; then
+reflip_edit tools/postflip/native/main.go reflip45 <<'E45'
+		if readers[nm] || sorters[nm] {
+			if sorters[nm] && n.mutated == "" {
+=====
+		if tw := reflip45twins[reflip45base(nm)]; tw != "" && rw.HasFunc("slicePtrViewT_") && top == call && reflip44typed(call) && (ptr() || reflip45addr(recv)) { // reflip45
+			if tw == "sorter" {
+				if n.mutated == "" {
+					n.mutated = nm
+				}
+				mutSites[p] = n
+			}
+			edit(n, call, func() string { return "slicePtrViewT_(" + tc + ", " + P() + ")" })
+			return
+		}
+		if readers[nm] || sorters[nm] {
+			if sorters[nm] && n.mutated == "" {
++++++
+
+// reflip45twins: the typed twins (piece fns) of the readers and sorters above.
+var reflip45twins = map[string]string{"Iterables_getOnlyElementT_": "reader", "Iterables_getFirstT_": "reader",
+	"Iterables_getLastT_": "reader", "List_sortT_": "sorter", "Collections_sortT_": "sorter"}
+
+// reflip45base is a call name without its type arguments.
+func reflip45base(nm string) string {
+	if i := strings.IndexByte(nm, '['); i >= 0 {
+		return nm[:i]
+	}
+	return nm
+}
+
+// reflip45addr: e is addressable as written: a variable, or a field selected through a pointer.
+func reflip45addr(e ast.Expr) bool {
+	switch x := rw.Unparen(e).(type) {
+	case *ast.Ident:
+		_, ok := rw.Info.Uses[x].(*types.Var)
+		return ok
+	case *ast.SelectorExpr:
+		if s := rw.Info.Selections[x]; s != nil && s.Kind() == types.FieldVal {
+			_, ok := types.Unalias(typeOf(x.X)).Underlying().(*types.Pointer)
+			return ok
+		}
+	}
+	return false
+}
+E45
+fi
