@@ -91,7 +91,7 @@ type Timeline_Event[T comparable] struct {
 
 func (this *Timeline_Event[T]) init_Timeline_Event(value T) {
 	if value == null_[T]() {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.value_ = value
 }

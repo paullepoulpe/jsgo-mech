@@ -61,7 +61,7 @@ func (this *NoResolvedType) testForEquality_impl(that *JSType) Tri {
 }
 
 func (this *NoResolvedType) resolveInternal_impl(reporter ErrorReporter_rhino) *JSType {
-	panic(new_AssertionError_0().self())
+	panic(new_AssertionError_0())
 }
 
 func (this *NoResolvedType) getConstructor_impl() *FunctionType {

@@ -165,7 +165,7 @@ func (this *PolymerPass) appendPolymerElementExterns(def *PolymerClassDefinition
 func PolymerPass_exportTsickleProps(classNode Node, classQualifiedName string) {
 	var classStmt Node = NodeUtil_getEnclosingStatement(classNode)
 	if classStmt == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	{
 		var sibling Node = classStmt.getNext()
@@ -183,7 +183,7 @@ func PolymerPass_exportTsickleProps(classNode Node, classQualifiedName string) {
 					}
 					var jsdoc *JSDocInfo = prop.getJSDocInfo()
 					if jsdoc == nil {
-						panic(new_NullPointerException_String(Strings_lenientFormat("No JSDoc found for %s", []any{prop.box_()})).self())
+						panic(new_NullPointerException_String(Strings_lenientFormat("No JSDoc found for %s", []any{prop.box_()})))
 					}
 					if jsdoc.getVisibility() == JSDocInfo_Visibility_PRIVATE {
 						continue
@@ -208,7 +208,7 @@ func PolymerPass_maybeGetTsicklePropTypesIfBlock(node Node) Node {
 	}
 	var block Node = condition.getNext()
 	if block == 0 || !block.isBlock() {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected block but got %s", []any{block.box_()})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected block but got %s", []any{block.box_()})))
 	}
 	return block
 }

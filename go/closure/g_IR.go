@@ -27,13 +27,13 @@ func IR_export(declaration Node) Node {
 
 func IR_importNode(name Node, importSpecs Node, moduleIdentifier Node) Node {
 	if !name.isName() && !name.isEmpty() {
-		panic(new_IllegalStateException_String(tostr_(name)).self())
+		panic(new_IllegalStateException_String(tostr_(name)))
 	}
 	if !((importSpecs.isImportSpec() || importSpecs.isImportStar()) || importSpecs.isEmpty()) {
-		panic(new_IllegalStateException_String(tostr_(importSpecs)).self())
+		panic(new_IllegalStateException_String(tostr_(importSpecs)))
 	}
 	if !moduleIdentifier.isStringLit() {
-		panic(new_IllegalStateException_String(tostr_(moduleIdentifier)).self())
+		panic(new_IllegalStateException_String(tostr_(moduleIdentifier)))
 	}
 	return new_Node_Token_Node_Node_Node(Token_rhino_IMPORT, name, importSpecs, moduleIdentifier)
 }
@@ -44,26 +44,26 @@ func IR_importStar(name string) Node {
 
 func IR_function(name Node, params Node, body Node) Node {
 	if !name.isName() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !params.isParamList() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !body.isBlock() && !body.isEmpty() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return new_Node_Token_Node_Node_Node(Token_rhino_FUNCTION, name, params, body)
 }
 
 func IR_arrowFunction(name Node, params Node, body Node) Node {
 	if !name.isName() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !params.isParamList() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !body.isBlock() && !IR_mayBeExpression(body) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var func_ Node = new_Node_Token_Node_Node_Node(Token_rhino_FUNCTION, name, params, body)
 	func_.setIsArrowFunction(true)
@@ -74,7 +74,7 @@ func IR_paramList(params []Node) Node {
 	var paramList Node = new_Node_Token(Token_rhino_PARAM_LIST)
 	for _, param := range params {
 		if !((param.isName() || param.isRest()) || param.isDefaultValue()) {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		paramList.addChildToBack(param)
 	}
@@ -85,7 +85,7 @@ func IR_root(rootChildren []Node) Node {
 	var root Node = new_Node_Token(Token_rhino_ROOT)
 	for _, child := range rootChildren {
 		if child.ns_().token != tokOrd1_ROOT && child.ns_().token != tokOrd1_SCRIPT {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		root.addChildToBack(child)
 	}
@@ -98,7 +98,7 @@ func IR_block_0() Node {
 
 func IR_block_Node(stmt Node) Node {
 	if ok_, a1_ := IR_mayBeStatement(stmt), stmt.getToken(); !ok_ {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Block node cannot contain %s", []any{a1_})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Block node cannot contain %s", []any{a1_})))
 	}
 	return new_Node_Token_Node(Token_rhino_BLOCK, stmt)
 }
@@ -107,7 +107,7 @@ func IR_blockNodeVarargs(stmts []Node) Node {
 	var block Node = IR_block_0()
 	for _, stmt := range stmts {
 		if !IR_mayBeStatement(stmt) {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		block.addChildToBack(stmt)
 	}
@@ -120,7 +120,7 @@ func IR_blockList(stmts *JTList[Node]) Node {
 	for it_1.next() {
 		var stmt Node = it_1.v
 		if !IR_mayBeStatement(stmt) {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		paramList.addChildToBack(stmt)
 	}
@@ -139,7 +139,7 @@ func IR_script_NodeArr(stmts []Node) Node {
 	var block Node = IR_script_0()
 	for _, stmt := range stmts {
 		if !IR_mayBeStatementNoReturn(stmt) {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		block.addChildToBack(stmt)
 	}
@@ -152,7 +152,7 @@ func IR_scriptList(stmts *JTList[Node]) Node {
 	for it_1.next() {
 		var stmt Node = it_1.v
 		if !IR_mayBeStatementNoReturn(stmt) {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		paramList.addChildToBack(stmt)
 	}
@@ -181,7 +181,7 @@ func IR_constNode(lhs Node, value Node) Node {
 
 func IR_declaration_Node_Token(lhs Node, type_ Token_rhino) Node {
 	if !((lhs.isName() || lhs.isDestructuringPattern()) || lhs.isDestructuringLhs()) {
-		panic(new_IllegalStateException_String(tostr_(lhs)).self())
+		panic(new_IllegalStateException_String(tostr_(lhs)))
 	}
 	if lhs.isDestructuringPattern() {
 		lhs = new_Node_Token_Node(Token_rhino_DESTRUCTURING_LHS, lhs)
@@ -192,16 +192,16 @@ func IR_declaration_Node_Token(lhs Node, type_ Token_rhino) Node {
 func IR_declaration_Node_Node_Token(lhs Node, value Node, type_ Token_rhino) Node {
 	if lhs.isName() {
 		if lhs.hasChildren() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 	} else {
 		if !lhs.isArrayPattern() && !lhs.isObjectPattern() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		lhs = new_Node_Token_Node(Token_rhino_DESTRUCTURING_LHS, lhs)
 	}
 	if !IR_mayBeExpression(value) {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("%s can't be an expression", []any{value.box_()})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("%s can't be an expression", []any{value.box_()})))
 	}
 	lhs.addChildToBack(value)
 	return new_Node_Token_Node(type_, lhs)
@@ -213,107 +213,107 @@ func IR_returnNode_0() Node {
 
 func IR_returnNode_Node(expr Node) Node {
 	if !IR_mayBeExpression(expr) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return new_Node_Token_Node(Token_rhino_RETURN, expr)
 }
 
 func IR_yieldNode(expr Node) Node {
 	if !IR_mayBeExpression(expr) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return new_Node_Token_Node(Token_rhino_YIELD, expr)
 }
 
 func IR_await(expr Node) Node {
 	if !IR_mayBeExpression(expr) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return new_Node_Token_Node(Token_rhino_AWAIT, expr)
 }
 
 func IR_throwNode(expr Node) Node {
 	if !IR_mayBeExpression(expr) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return new_Node_Token_Node(Token_rhino_THROW, expr)
 }
 
 func IR_exprResult(expr Node) Node {
 	if !IR_mayBeExpression(expr) {
-		panic(new_IllegalStateException_String(tostr_(expr)).self())
+		panic(new_IllegalStateException_String(tostr_(expr)))
 	}
 	return new_Node_Token_Node(Token_rhino_EXPR_RESULT, expr)
 }
 
 func IR_ifNode_Node_Node(cond Node, then Node) Node {
 	if !IR_mayBeExpression(cond) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !then.isBlock() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return new_Node_Token_Node_Node(Token_rhino_IF, cond, then)
 }
 
 func IR_ifNode_Node_Node_Node(cond Node, then Node, elseNode Node) Node {
 	if !IR_mayBeExpression(cond) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !then.isBlock() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !elseNode.isBlock() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return new_Node_Token_Node_Node_Node(Token_rhino_IF, cond, then, elseNode)
 }
 
 func IR_doNode(body Node, cond Node) Node {
 	if !body.isBlock() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !IR_mayBeExpression(cond) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return new_Node_Token_Node_Node(Token_rhino_DO, body, cond)
 }
 
 func IR_whileNode(cond Node, body Node) Node {
 	if !body.isBlock() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !IR_mayBeExpression(cond) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return new_Node_Token_Node_Node(Token_rhino_WHILE, cond, body)
 }
 
 func IR_forIn(target Node, cond Node, body Node) Node {
 	if !target.isVar() && !IR_mayBeExpression(target) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !IR_mayBeExpression(cond) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !body.isBlock() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return new_Node_Token_Node_Node_Node(Token_rhino_FOR_IN, target, cond, body)
 }
 
 func IR_forNode(init_ Node, cond Node, incr Node, body Node) Node {
 	if !(((init_.isVar() || init_.isLet()) || init_.isConst()) || IR_mayBeExpressionOrEmpty(init_)) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !IR_mayBeExpressionOrEmpty(cond) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !IR_mayBeExpressionOrEmpty(incr) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !body.isBlock() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var r Node = new_Node_Token_Node_Node_Node(Token_rhino_FOR, init_, cond, incr)
 	r.addChildToBack(body)
@@ -322,14 +322,14 @@ func IR_forNode(init_ Node, cond Node, incr Node, body Node) Node {
 
 func IR_switchNode(cond Node, cases []Node) Node {
 	if !IR_mayBeExpression(cond) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var switchNode Node = new_Node_Token_Node(Token_rhino_SWITCH, cond)
 	var switchBody Node = new_Node_Token(Token_rhino_SWITCH_BODY)
 	switchNode.addChildToBack(switchBody)
 	for _, caseNode := range cases {
 		if !caseNode.isCase() && !caseNode.isDefaultCase() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		switchBody.addChildToBack(caseNode)
 	}
@@ -338,10 +338,10 @@ func IR_switchNode(cond Node, cases []Node) Node {
 
 func IR_caseNode(expr Node, body Node) Node {
 	if !IR_mayBeExpression(expr) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !body.isBlock() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	body.setIsAddedBlock(true)
 	return new_Node_Token_Node_Node(Token_rhino_CASE, expr, body)
@@ -349,7 +349,7 @@ func IR_caseNode(expr Node, body Node) Node {
 
 func IR_defaultCase(body Node) Node {
 	if !body.isBlock() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	body.setIsAddedBlock(true)
 	return new_Node_Token_Node(Token_rhino_DEFAULT_CASE, body)
@@ -357,27 +357,27 @@ func IR_defaultCase(body Node) Node {
 
 func IR_label(name Node, stmt Node) Node {
 	if !name.isLabelName() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !IR_mayBeStatement(stmt) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return new_Node_Token_Node_Node(Token_rhino_LABEL, name, stmt)
 }
 
 func IR_labelName(name string) Node {
 	if name == "" {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return Node_newString_Token_String(Token_rhino_LABEL_NAME, name)
 }
 
 func IR_tryFinally(tryBody Node, finallyBody Node) Node {
 	if !tryBody.isBlock() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !finallyBody.isBlock() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var catchBody Node = IR_block_0().srcrefIfMissing(tryBody)
 	return new_Node_Token_Node_Node_Node(Token_rhino_TRY, tryBody, catchBody, finallyBody)
@@ -385,10 +385,10 @@ func IR_tryFinally(tryBody Node, finallyBody Node) Node {
 
 func IR_tryCatch(tryBody Node, catchNode Node) Node {
 	if !tryBody.isBlock() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !catchNode.isCatch() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var catchBody Node = IR_blockUnchecked(catchNode).srcrefIfMissing(catchNode)
 	return new_Node_Token_Node_Node(Token_rhino_TRY, tryBody, catchBody)
@@ -396,7 +396,7 @@ func IR_tryCatch(tryBody Node, catchNode Node) Node {
 
 func IR_tryCatchFinally(tryBody Node, catchNode Node, finallyBody Node) Node {
 	if !finallyBody.isBlock() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var tryNode Node = IR_tryCatch(tryBody, catchNode)
 	tryNode.addChildToBack(finallyBody)
@@ -405,10 +405,10 @@ func IR_tryCatchFinally(tryBody Node, catchNode Node, finallyBody Node) Node {
 
 func IR_catchNode(expr Node, body Node) Node {
 	if !expr.isName() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !body.isBlock() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return new_Node_Token_Node_Node(Token_rhino_CATCH, expr, body)
 }
@@ -419,7 +419,7 @@ func IR_breakNode_0() Node {
 
 func IR_breakNode_Node(name Node) Node {
 	if !name.isLabelName() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return new_Node_Token_Node(Token_rhino_BREAK, name)
 }
@@ -430,7 +430,7 @@ func IR_continueNode_0() Node {
 
 func IR_continueNode_Node(name Node) Node {
 	if !name.isLabelName() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return new_Node_Token_Node(Token_rhino_CONTINUE, name)
 }
@@ -439,7 +439,7 @@ func IR_call(target Node, args []Node) Node {
 	var call Node = new_Node_Token_Node(Token_rhino_CALL, target)
 	for _, arg := range args {
 		if !IR_mayBeExpression(arg) && !arg.isSpread() {
-			panic(new_IllegalStateException_String(tostr_(arg)).self())
+			panic(new_IllegalStateException_String(tostr_(arg)))
 		}
 		call.addChildToBack(arg)
 	}
@@ -450,7 +450,7 @@ func IR_startOptChainCall(target Node, args []Node) Node {
 	var call Node = new_Node_Token_Node(Token_rhino_OPTCHAIN_CALL, target)
 	for _, arg := range args {
 		if !IR_mayBeExpression(arg) && !arg.isSpread() {
-			panic(new_IllegalStateException_String(tostr_(arg)).self())
+			panic(new_IllegalStateException_String(tostr_(arg)))
 		}
 		call.addChildToBack(arg)
 	}
@@ -462,7 +462,7 @@ func IR_continueOptChainCall(target Node, args []Node) Node {
 	var call Node = new_Node_Token_Node(Token_rhino_OPTCHAIN_CALL, target)
 	for _, arg := range args {
 		if !IR_mayBeExpression(arg) && !arg.isSpread() {
-			panic(new_IllegalStateException_String(tostr_(arg)).self())
+			panic(new_IllegalStateException_String(tostr_(arg)))
 		}
 		call.addChildToBack(arg)
 	}
@@ -474,7 +474,7 @@ func IR_newNode(target Node, args []Node) Node {
 	var newcall Node = new_Node_Token_Node(Token_rhino_NEW, target)
 	for _, arg := range args {
 		if !IR_mayBeExpression(arg) && !arg.isSpread() {
-			panic(new_IllegalStateException_String(tostr_(arg)).self())
+			panic(new_IllegalStateException_String(tostr_(arg)))
 		}
 		newcall.addChildToBack(arg)
 	}
@@ -483,14 +483,14 @@ func IR_newNode(target Node, args []Node) Node {
 
 func IR_name(name string) Node {
 	if strings.Contains(name, ".") {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Invalid name '%s'. Did you mean to use NodeUtil.newQName?", []any{name})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Invalid name '%s'. Did you mean to use NodeUtil.newQName?", []any{name})))
 	}
 	return Node_newString_Token_String(Token_rhino_NAME, name)
 }
 
 func IR_startOptChainGetprop(target Node, prop string) Node {
 	if !IR_mayBeExpression(target) {
-		panic(new_IllegalStateException_String(tostr_(target)).self())
+		panic(new_IllegalStateException_String(tostr_(target)))
 	}
 	var optChainGetProp Node = Node_newString_Token_String(Token_rhino_OPTCHAIN_GETPROP, prop)
 	optChainGetProp.addChildToBack(target)
@@ -500,7 +500,7 @@ func IR_startOptChainGetprop(target Node, prop string) Node {
 
 func IR_continueOptChainGetprop(target Node, prop string) Node {
 	if !IR_mayBeExpression(target) {
-		panic(new_IllegalStateException_String(tostr_(target)).self())
+		panic(new_IllegalStateException_String(tostr_(target)))
 	}
 	var optChainGetProp Node = Node_newString_Token_String(Token_rhino_OPTCHAIN_GETPROP, prop)
 	optChainGetProp.addChildToBack(target)
@@ -510,7 +510,7 @@ func IR_continueOptChainGetprop(target Node, prop string) Node {
 
 func IR_getprop_Node_String(target Node, prop string) Node {
 	if !IR_mayBeExpression(target) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var getprop Node = Node_newString_Token_String(Token_rhino_GETPROP, prop)
 	getprop.addChildToBack(target)
@@ -519,7 +519,7 @@ func IR_getprop_Node_String(target Node, prop string) Node {
 
 func IR_getprop_Node_String_StringArr(target Node, prop string, moreProps []string) Node {
 	if !IR_mayBeExpression(target) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var result Node = IR_getprop_Node_String(target, prop)
 	for _, moreProp := range moreProps {
@@ -530,10 +530,10 @@ func IR_getprop_Node_String_StringArr(target Node, prop string, moreProps []stri
 
 func IR_startOptChainGetelem(target Node, elem Node) Node {
 	if !IR_mayBeExpression(target) {
-		panic(new_IllegalStateException_String(tostr_(target)).self())
+		panic(new_IllegalStateException_String(tostr_(target)))
 	}
 	if !IR_mayBeExpression(elem) {
-		panic(new_IllegalStateException_String(tostr_(elem)).self())
+		panic(new_IllegalStateException_String(tostr_(elem)))
 	}
 	var optChainGetElem Node = new_Node_Token_Node_Node(Token_rhino_OPTCHAIN_GETELEM, target, elem)
 	optChainGetElem.setIsOptionalChainStart(true)
@@ -542,10 +542,10 @@ func IR_startOptChainGetelem(target Node, elem Node) Node {
 
 func IR_continueOptChainGetelem(target Node, elem Node) Node {
 	if !IR_mayBeExpression(target) {
-		panic(new_IllegalStateException_String(tostr_(target)).self())
+		panic(new_IllegalStateException_String(tostr_(target)))
 	}
 	if !IR_mayBeExpression(elem) {
-		panic(new_IllegalStateException_String(tostr_(elem)).self())
+		panic(new_IllegalStateException_String(tostr_(elem)))
 	}
 	var optChainGetElem Node = new_Node_Token_Node_Node(Token_rhino_OPTCHAIN_GETELEM, target, elem)
 	optChainGetElem.setIsOptionalChainStart(false)
@@ -554,40 +554,40 @@ func IR_continueOptChainGetelem(target Node, elem Node) Node {
 
 func IR_getelem(target Node, elem Node) Node {
 	if !IR_mayBeExpression(target) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !IR_mayBeExpression(elem) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return new_Node_Token_Node_Node(Token_rhino_GETELEM, target, elem)
 }
 
 func IR_delprop(target Node) Node {
 	if !IR_mayBeExpression(target) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return new_Node_Token_Node(Token_rhino_DELPROP, target)
 }
 
 func IR_assign(target Node, expr Node) Node {
 	if !target.isValidAssignmentTarget() {
-		panic(new_IllegalStateException_String(tostr_(target)).self())
+		panic(new_IllegalStateException_String(tostr_(target)))
 	}
 	if !IR_mayBeExpression(expr) {
-		panic(new_IllegalStateException_String(tostr_(expr)).self())
+		panic(new_IllegalStateException_String(tostr_(expr)))
 	}
 	return new_Node_Token_Node_Node(Token_rhino_ASSIGN, target, expr)
 }
 
 func IR_hook(cond Node, trueval Node, falseval Node) Node {
 	if !IR_mayBeExpression(cond) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !IR_mayBeExpression(trueval) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !IR_mayBeExpression(falseval) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return new_Node_Token_Node_Node_Node(Token_rhino_HOOK, cond, trueval, falseval)
 }
@@ -704,7 +704,7 @@ func IR_objectlit(propdefs []Node) Node {
 		switch propdef.ns_().token {
 		case tokOrd1_STRING_KEY, tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF, tokOrd1_OBJECT_SPREAD, tokOrd1_COMPUTED_PROP:
 		default:
-			panic(new_IllegalStateException_String(("Unexpected OBJECTLIT child: " + tostrH_(propdef))).self())
+			panic(new_IllegalStateException_String(("Unexpected OBJECTLIT child: " + tostrH_(propdef))))
 		}
 		objectlit.addChildToBack(propdef)
 	}
@@ -715,7 +715,7 @@ func IR_objectPattern(keys []Node) Node {
 	var objectPattern Node = new_Node_Token(Token_rhino_OBJECT_PATTERN)
 	for _, key := range keys {
 		if !((key.isStringKey() || key.isComputedProp()) || key.isRest()) {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		objectPattern.addChildToBack(key)
 	}
@@ -726,7 +726,7 @@ func IR_arrayPattern(keys []Node) Node {
 	var arrayPattern Node = new_Node_Token(Token_rhino_ARRAY_PATTERN)
 	for _, key := range keys {
 		if !key.isRest() && !key.isValidAssignmentTarget() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		arrayPattern.addChildToBack(key)
 	}
@@ -735,23 +735,23 @@ func IR_arrayPattern(keys []Node) Node {
 
 func IR_computedProp(key Node, value Node) Node {
 	if !IR_mayBeExpression(key) {
-		panic(new_IllegalStateException_String(tostr_(key)).self())
+		panic(new_IllegalStateException_String(tostr_(key)))
 	}
 	if !IR_mayBeExpression(value) {
-		panic(new_IllegalStateException_String(tostr_(value)).self())
+		panic(new_IllegalStateException_String(tostr_(value)))
 	}
 	return new_Node_Token_Node_Node(Token_rhino_COMPUTED_PROP, key, value)
 }
 
 func IR_propdef(string_ Node, value Node) Node {
 	if !string_.isStringKey() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if string_.hasChildren() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !IR_mayBeExpression(value) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	string_.addChildToFront(value)
 	return string_
@@ -765,7 +765,7 @@ func IR_arraylitIterable(exprs IterableT[Node]) Node {
 	var arraylit Node = new_Node_Token(Token_rhino_ARRAYLIT)
 	for expr := range elemsT_(exprs) {
 		if !IR_mayBeExpressionOrEmpty(expr) && !expr.isSpread() {
-			panic(new_IllegalStateException_String(tostr_(expr)).self())
+			panic(new_IllegalStateException_String(tostr_(expr)))
 		}
 		arraylit.addChildToBack(expr)
 	}
@@ -774,17 +774,17 @@ func IR_arraylitIterable(exprs IterableT[Node]) Node {
 
 func IR_regexp_Node(expr Node) Node {
 	if !expr.isStringLit() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return new_Node_Token_Node(Token_rhino_REGEXP, expr)
 }
 
 func IR_regexp_Node_Node(expr Node, flags Node) Node {
 	if !expr.isStringLit() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !flags.isStringLit() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return new_Node_Token_Node_Node(Token_rhino_REGEXP, expr, flags)
 }
@@ -799,7 +799,7 @@ func IR_stringKey_String(s string) Node {
 
 func IR_stringKey_String_Node(s string, value Node) Node {
 	if !((IR_mayBeExpression(value) || value.isDefaultValue()) || value.isObjectPattern()) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var stringKey Node = IR_stringKey_String(s)
 	stringKey.addChildToFront(value)
@@ -828,28 +828,28 @@ func IR_templateLiteralSubstitution(child Node) Node {
 
 func IR_iterRest(target Node) Node {
 	if !target.isValidAssignmentTarget() {
-		panic(new_IllegalStateException_String(tostr_(target)).self())
+		panic(new_IllegalStateException_String(tostr_(target)))
 	}
 	return new_Node_Token_Node(Token_rhino_ITER_REST, target)
 }
 
 func IR_objectRest(target Node) Node {
 	if !target.isValidAssignmentTarget() {
-		panic(new_IllegalStateException_String(tostr_(target)).self())
+		panic(new_IllegalStateException_String(tostr_(target)))
 	}
 	return new_Node_Token_Node(Token_rhino_OBJECT_REST, target)
 }
 
 func IR_iterSpread(expr Node) Node {
 	if !IR_mayBeExpression(expr) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return new_Node_Token_Node(Token_rhino_ITER_SPREAD, expr)
 }
 
 func IR_objectSpread(expr Node) Node {
 	if !IR_mayBeExpression(expr) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return new_Node_Token_Node(Token_rhino_OBJECT_SPREAD, expr)
 }
@@ -860,7 +860,7 @@ func IR_superNode() Node {
 
 func IR_getterDef(name string, value Node) Node {
 	if !value.isFunction() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var member Node = Node_newString_Token_String(Token_rhino_GETTER_DEF, name)
 	member.addChildToFront(value)
@@ -869,7 +869,7 @@ func IR_getterDef(name string, value Node) Node {
 
 func IR_setterDef(name string, value Node) Node {
 	if !value.isFunction() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var member Node = Node_newString_Token_String(Token_rhino_SETTER_DEF, name)
 	member.addChildToFront(value)
@@ -878,7 +878,7 @@ func IR_setterDef(name string, value Node) Node {
 
 func IR_memberFieldDef(name string, value Node) Node {
 	if !IR_mayBeExpression(value) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var member Node = Node_newString_Token_String(Token_rhino_MEMBER_FIELD_DEF, name)
 	member.addChildToFront(value)
@@ -887,7 +887,7 @@ func IR_memberFieldDef(name string, value Node) Node {
 
 func IR_memberFunctionDef(name string, function Node) Node {
 	if !function.isFunction() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var member Node = Node_newString_Token_String(Token_rhino_MEMBER_FUNCTION_DEF, name)
 	member.addChildToBack(function)
@@ -896,20 +896,20 @@ func IR_memberFunctionDef(name string, function Node) Node {
 
 func IR_number(d float64) Node {
 	if Double_isNaN(d) {
-		panic(new_IllegalStateException_String(objstr_(float64(d))).self())
+		panic(new_IllegalStateException_String(objstr_(float64(d))))
 	}
 	if !JSCompDoubles_isPositive(d) {
-		panic(new_IllegalStateException_String(objstr_(float64(d))).self())
+		panic(new_IllegalStateException_String(objstr_(float64(d))))
 	}
 	return Node_newNumber(d)
 }
 
 func IR_bigint(b *BigInteger) Node {
 	if b == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if b.signum() < 0 {
-		panic(new_IllegalStateException_String(objstr_(b)).self())
+		panic(new_IllegalStateException_String(objstr_(b)))
 	}
 	return Node_newBigInt(b)
 }
@@ -944,17 +944,17 @@ func IR_newTarget() Node {
 
 func IR_binaryOp(token Token_rhino, expr1 Node, expr2 Node) Node {
 	if !IR_mayBeExpression(expr1) {
-		panic(new_IllegalStateException_String(tostr_(expr1)).self())
+		panic(new_IllegalStateException_String(tostr_(expr1)))
 	}
 	if !IR_mayBeExpression(expr2) {
-		panic(new_IllegalStateException_String(tostr_(expr2)).self())
+		panic(new_IllegalStateException_String(tostr_(expr2)))
 	}
 	return new_Node_Token_Node_Node(token, expr1, expr2)
 }
 
 func IR_unaryOp(token Token_rhino, expr Node) Node {
 	if !IR_mayBeExpression(expr) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return new_Node_Token_Node(token, expr)
 }

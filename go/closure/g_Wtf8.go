@@ -90,7 +90,7 @@ func (this *Wtf8_Decoder) decode(encoded *ByteString) string {
 			var fourthByte int32 = (int32(encoded.byteAt(i)) & int32(Wtf8_CONTINUATION_MASK))
 			codepoint = ((((firstByte << 18) | (secondByte << 12)) | (thirdByte << 6)) | fourthByte)
 		} else {
-			panic(new_AssertionError_0().self())
+			panic(new_AssertionError_0())
 		}
 		this.codepointBuffer[codepointCount] = codepoint
 		codepointCount++

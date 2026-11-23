@@ -37,13 +37,13 @@ func new_MalformedTypedAstException_Object_Throwable(msg any, cause *Throwable) 
 
 func MalformedTypedAstException_checkWellFormed_boolean_String(condition bool, description string) {
 	if !condition {
-		panic(obj_(new_MalformedTypedAstException_Object(strobj_(description))))
+		panic(new_MalformedTypedAstException_Object(strobj_(description)))
 	}
 }
 
 func MalformedTypedAstException_checkWellFormed_boolean_String_Object(condition bool, description string, param any) {
 	if !condition {
 		var message string = (sstr_(description) + ": " + objstr_(param))
-		panic(obj_(new_MalformedTypedAstException_Object(strobj_(message))))
+		panic(new_MalformedTypedAstException_Object(strobj_(message)))
 	}
 }

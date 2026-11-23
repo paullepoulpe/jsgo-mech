@@ -30,7 +30,7 @@ func new_CheckTypeSummaryWarningsGuard(level CheckLevel) *CheckTypeSummaryWarnin
 
 func (this *CheckTypeSummaryWarningsGuard) level_impl(error_ *JSError) CheckLevel {
 	if error_ == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if !this.shouldDemoteIfTypeSummary(error_) {
 		return 0

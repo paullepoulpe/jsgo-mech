@@ -77,35 +77,35 @@ func (this *TypeTransformationParser) isValidPredicate(name string) bool {
 
 func (this *TypeTransformationParser) getFunctionParamCount(n Node) int32 {
 	if !n.isFunction() {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected a function node, found %s", []any{n.box_()})).self())
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected a function node, found %s", []any{n.box_()})))
 	}
 	return n.getSecondChild().getChildCount()
 }
 
 func (this *TypeTransformationParser) getFunctionBody(n Node) Node {
 	if !n.isFunction() {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected a function node, found %s", []any{n.box_()})).self())
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected a function node, found %s", []any{n.box_()})))
 	}
 	return n.getChildAtIndex(2)
 }
 
 func (this *TypeTransformationParser) getCallName(n Node) string {
 	if !n.isCall() {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected a call node, found %s", []any{n.box_()})).self())
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected a call node, found %s", []any{n.box_()})))
 	}
 	return n.getFirstChild().getString()
 }
 
 func (this *TypeTransformationParser) getCallArgument(n Node, i int32) Node {
 	if !n.isCall() {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected a call node, found %s", []any{n.box_()})).self())
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected a call node, found %s", []any{n.box_()})))
 	}
 	return n.getChildAtIndex((i + 1))
 }
 
 func (this *TypeTransformationParser) getCallParamCount(n Node) int32 {
 	if !n.isCall() {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected a call node, found %s", []any{n.box_()})).self())
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected a call node, found %s", []any{n.box_()})))
 	}
 	return (n.getChildCount() - 1)
 }
@@ -338,7 +338,7 @@ func (this *TypeTransformationParser) validTypeExpression(expr Node) bool {
 		case TypeTransformationParser_Keywords_TYPEEXPR:
 			return this.validNativeTypeExpr(expr)
 		default:
-			panic(new_IllegalStateException_String("Invalid type expression").self())
+			panic(new_IllegalStateException_String("Invalid type expression"))
 		}
 	}()
 }
@@ -432,7 +432,7 @@ func (this *TypeTransformationParser) validBooleanExpression(expr Node) bool {
 		case TypeTransformationParser_OperationKind_TYPEVAR_PREDICATE:
 			return this.validTypevarPredicate(expr, this.getCallParamCount(expr))
 		default:
-			panic(new_IllegalStateException_String("Invalid boolean expression").self())
+			panic(new_IllegalStateException_String("Invalid boolean expression"))
 		}
 	}()
 }
@@ -597,7 +597,7 @@ func (this *TypeTransformationParser) validOperationExpression(expr Node) bool {
 		case TypeTransformationParser_Keywords_PROPTYPE:
 			return this.validPropTypeExpression(expr)
 		default:
-			panic(new_IllegalStateException_String("Invalid type transformation operation").self())
+			panic(new_IllegalStateException_String("Invalid type transformation operation"))
 		}
 	}()
 }
@@ -623,7 +623,7 @@ func (this *TypeTransformationParser) validTypeTransformationExpression(expr Nod
 		case TypeTransformationParser_OperationKind_OPERATION:
 			return this.validOperationExpression(expr)
 		default:
-			panic(new_IllegalStateException_String("Invalid type transformation expression").self())
+			panic(new_IllegalStateException_String("Invalid type transformation expression"))
 		}
 	}()
 }

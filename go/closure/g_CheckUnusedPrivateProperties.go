@@ -47,7 +47,7 @@ func (this *CheckUnusedPrivateProperties) getPropName(n Node) string {
 		return n.getString()
 	default:
 	}
-	panic(new_RuntimeException_String(("Unexpected node type: " + tostrH_(n))).self())
+	panic(new_RuntimeException_String(("Unexpected node type: " + tostrH_(n))))
 }
 
 func (this *CheckUnusedPrivateProperties) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
@@ -123,7 +123,7 @@ func (this *CheckUnusedPrivateProperties) isCheckablePrivatePropDecl(n Node) boo
 
 func (this *CheckUnusedPrivateProperties) isCandidatePropertyDefinition(n Node) bool {
 	if !n.isGetProp() {
-		panic(new_IllegalStateException_String(tostr_(n)).self())
+		panic(new_IllegalStateException_String(tostr_(n)))
 	}
 	var target Node = n.getFirstChild()
 	return ((target.isThis() || this.constructorsAndInterfaces.contains(target.getQualifiedName())) || (target.isGetProp() && (target.getString() == "prototype")))

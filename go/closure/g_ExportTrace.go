@@ -13,7 +13,7 @@ func (this *ExportTrace) zero_ExportTrace() {
 
 func (this *ExportTrace) init_ExportTrace(module *UnresolvedModule, exportName string) {
 	if module == nil {
-		panic(new_NullPointerException_String("module").self())
+		panic(new_NullPointerException_String("module"))
 	}
 	this.module_ = module
 	this.exportName_ = exportName

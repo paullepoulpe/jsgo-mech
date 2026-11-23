@@ -64,7 +64,7 @@ func (this *PassListBuilder) findByName(name string) *PassFactory {
 			return pass
 		}
 	}
-	panic(new_IllegalArgumentException_String(("No factory named '" + sstr_(name) + "' in the factory list")).self())
+	panic(new_IllegalArgumentException_String(("No factory named '" + sstr_(name) + "' in the factory list")))
 }
 
 func (this *PassListBuilder) removeByName(name string) {
@@ -82,7 +82,7 @@ func (this *PassListBuilder) findIndexByName(name string) int32 {
 			return i
 		}
 	}
-	panic(new_IllegalArgumentException_String(("No factory named '" + sstr_(name) + "' in the factory list")).self())
+	panic(new_IllegalArgumentException_String(("No factory named '" + sstr_(name) + "' in the factory list")))
 }
 
 func (this *PassListBuilder) contains(factory *PassFactory) bool {
@@ -94,7 +94,7 @@ func (this *PassListBuilder) assertAllOneTimePasses() {
 	for it_1.next() {
 		var pass *PassFactory = it_1.v
 		if pass.isRunInFixedPointLoop() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 	}
 }
@@ -104,7 +104,7 @@ func (this *PassListBuilder) assertAllLoopablePasses() {
 	for it_1.next() {
 		var pass *PassFactory = it_1.v
 		if !pass.isRunInFixedPointLoop() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 	}
 }
@@ -114,7 +114,7 @@ func (this *PassListBuilder) assertPassOrder(pass1 *PassFactory, pass2 *PassFact
 	var pass2Index int32 = this.passes.asListT().indexOf(obj_(pass2))
 	if (pass1Index != -1) && (pass2Index != -1) {
 		if pass1Index >= pass2Index {
-			panic(new_IllegalStateException_String(objstr_(msg)).self())
+			panic(new_IllegalStateException_String(objstr_(msg)))
 		}
 	}
 }

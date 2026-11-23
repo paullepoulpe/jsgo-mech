@@ -64,23 +64,23 @@ func (this *ArrowType) getParameterList() *JTList[*FunctionType_Parameter] {
 }
 
 func (this *ArrowType) getLeastSupertype_impl(that *JSType) *JSType {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
 func (this *ArrowType) getGreatestSubtype_impl(that *JSType) *JSType {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
 func (this *ArrowType) testForEquality_impl(that *JSType) Tri {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
 func (this *ArrowType) visitUntyped_impl(visitor Visitor) any {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
 func (this *ArrowType) visitUntyped_2_impl(visitor RelationshipVisitor, that *JSType) any {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
 func (this *ArrowType) getPossibleToBooleanOutcomes_impl() BooleanLiteralSet {

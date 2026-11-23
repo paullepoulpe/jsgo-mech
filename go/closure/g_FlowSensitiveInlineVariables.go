@@ -65,7 +65,7 @@ func (this *FlowSensitiveInlineVariables) enterScope(t *NodeTraversal) {
 		var c *FlowSensitiveInlineVariables_Candidate = this.candidates.iterator_t().next_t()
 		var candidateVar *Var = allVarsInFn.get(c.varName_)
 		if candidateVar == nil {
-			panic(new_NullPointerException_0().self())
+			panic(new_NullPointerException_0())
 		}
 		if c.canInline(candidateVar.getScope_rAbstractScope_rScope()) {
 			c.inlineVariable()
@@ -341,7 +341,7 @@ func (this *FlowSensitiveInlineVariables_Candidate) zero_FlowSensitiveInlineVari
 
 func (this *FlowSensitiveInlineVariables_Candidate) init_FlowSensitiveInlineVariables_Candidate(varName string, defMetadata *MustBeReachingVariableDef_Definition, use Node, useCfgNode Node) {
 	if !use.isName() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	this.varName_ = varName
 	this.defMetadata = defMetadata
@@ -448,7 +448,7 @@ func (this *FlowSensitiveInlineVariables_Candidate) inlineVariable() {
 		var rhs Node = this.def.getLastChild()
 		rhs.detach()
 		if !defParent.isExprResult() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		for defParent.getParent().isLabel() {
 			defParent = defParent.getParent()
@@ -466,7 +466,7 @@ func (this *FlowSensitiveInlineVariables_Candidate) inlineVariable() {
 			this.use.replaceWith(rhs)
 		}
 	} else {
-		panic(new_IllegalStateException_String("No other definitions can be inlined.").self())
+		panic(new_IllegalStateException_String("No other definitions can be inlined."))
 	}
 	this.outer_.compiler_.reportChangeToEnclosingScope(useParent)
 }

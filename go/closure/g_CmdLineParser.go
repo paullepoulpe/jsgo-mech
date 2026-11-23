@@ -40,7 +40,7 @@ func (this *CmdLineParser) option(name string) *CmdLineParser_Option {
 
 func (this *CmdLineParser) argument(get Supplier[ListT[string]], set Consumer[ListT[string]]) {
 	if this.argumentField != nil {
-		panic(new_IllegalStateException_String("Argument with index 0 is used more than once").self())
+		panic(new_IllegalStateException_String("Argument with index 0 is used more than once"))
 	}
 	this.argumentField = new_CmdLineParser_Option(this, "", true)
 	this.argumentField.stringList(get, set)
@@ -48,7 +48,7 @@ func (this *CmdLineParser) argument(get Supplier[ListT[string]], set Consumer[Li
 
 func (this *CmdLineParser) checkOptionNotDefined(name string) {
 	if this.findOptionByName(name) != nil {
-		panic(new_IllegalStateException_String(("Option name " + sstr_(name) + " is used more than once")).self())
+		panic(new_IllegalStateException_String(("Option name " + sstr_(name) + " is used more than once")))
 	}
 }
 
@@ -64,7 +64,7 @@ func (this *CmdLineParser) sortedOptions() *JTList[*CmdLineParser_Option] {
 
 func (this *CmdLineParser) setUsageWidth(usageWidth int32) {
 	if usageWidth < 0 {
-		panic(new_IllegalArgumentException_String("Usage width is negative").self())
+		panic(new_IllegalArgumentException_String("Usage width is negative"))
 	}
 	this.usageWidth = usageWidth
 }
