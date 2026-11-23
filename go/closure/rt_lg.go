@@ -630,7 +630,7 @@ func mapAs_[K any, V any](kc *jtconv_[K], vc *jtconv_[V], v Map) MapT[K, V] {
 	if t, ok := v.(MapT[K, V]); ok {
 		return t
 	}
-	if im, ok := v.(*ImmutableMap); ok {
+	if im, ok := v.(*ErasedImmutableMap); ok {
 		if m, ok := im.jtyped_.(asMapT_[K, V]); ok {
 			return m.asMapT()
 		}
@@ -785,5 +785,5 @@ func tmapOfT_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V], x Map) *JTMap
 	if v, ok := x.(*jtmapView_[K, V]); ok && v.m.imm != nil && v.m.imm != sortedMapMark_ {
 		return v.m
 	}
-	return tmapImm_(kc, vc, cast_[*ImmutableMap](lgBox_(x)))
+	return tmapImm_(kc, vc, cast_[*ErasedImmutableMap](lgBox_(x)))
 }
