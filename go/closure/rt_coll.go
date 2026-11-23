@@ -1580,6 +1580,10 @@ func compareNatural_(a, b any) int32 {
 		return -1
 	case interface{ compareTo(any) int32 }:
 		return x.compareTo(b)
+	case interface{ enum_() *Enum }:
+		// an enum type of the program: java.lang.Enum's final compareTo (post-flip enumcmp
+		// deletes the per-enum forwarders)
+		return x.enum_().compareTo(b)
 	}
 	panic(new_ClassCastException_String(goTypeName_(a) + " is not Comparable").self())
 }
