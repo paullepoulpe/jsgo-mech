@@ -81,7 +81,6 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 		var startSize int32 = supertype.getSubtypeIndices().cardinality()
 		supertype.getSubtypeIndices().or(subtype.getSubtypeIndices())
 		return (supertype.getSubtypeIndices().cardinality() > startSize)
-		panic("unreachable")
 	}}).computeFixedPoint(colorGraph.up_DiGraph())
 	it_4 := this.propertyMap.eachValue()
 	for it_4.next() {
@@ -170,7 +169,6 @@ func (this *AmbiguateProperties) getColor(n Node) *Color {
 	} else {
 		return type_
 	}
-	panic("unreachable")
 }
 
 var AmbiguateProperties_logger *Logger
@@ -189,7 +187,6 @@ func AmbiguateProperties_clinit() {
 			return (p2.numOccurrences - p1.numOccurrences)
 		}
 		return String_compareTo(p1.oldName, p2.oldName)
-		panic("unreachable")
 	})
 
 }

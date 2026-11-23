@@ -352,7 +352,6 @@ func (this *DeadAssignmentsElimination) checkHookBranchReadBeforeKill(trueCase N
 	} else {
 		return DeadAssignmentsElimination_VariableLiveness_MAYBE_LIVE
 	}
-	panic("unreachable")
 }
 
 type DeadAssignmentsElimination_BailoutInformation struct {

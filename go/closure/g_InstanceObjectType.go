@@ -152,7 +152,6 @@ func (this *InstanceObjectType) recursionUnsafeHashCode_impl() int32 {
 	} else {
 		return this.PrototypeObjectType.hashCode()
 	}
-	panic("unreachable")
 }
 
 func (this *InstanceObjectType) getCtorImplementedInterfaces_rImmutableList() *JTList[*ObjectType] {

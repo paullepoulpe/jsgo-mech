@@ -169,7 +169,6 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 			sharedCallbacks.add(NodeTraversal_Callback(new_CheckDebuggerStatement(compiler)))
 		}
 		return DefaultPassConfig_combineChecks(compiler, sharedCallbacks)
-		panic("unreachable")
 	})).build()
 	this.extraRequires = PassFactory_builder().setName("checkExtraRequires").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(compiler *AbstractCompiler) CompilerPass {
 		return CompilerPass(new_CheckExtraRequires(compiler, this.options_.getUnusedImportsToRemove()))
@@ -188,7 +187,6 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 			return s != ""
 		})))
 		return CompilerPass(new_DefaultPassConfig_1(this, pass, compiler))
-		panic("unreachable")
 	})).build()
 	this.generateIjs = PassFactory_builder().setName("generateIjs").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(p0 *AbstractCompiler) CompilerPass { return CompilerPass(new_ConvertToTypedInterface(p0)) })).build()
 	this.removeExtraRequires = PassFactory_builder().setName("removeExtraRequires").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(p0 *AbstractCompiler) CompilerPass { return CompilerPass(new_ExtraRequireRemover(p0)) })).build()
@@ -199,17 +197,14 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		} else {
 			return ErrorPass_as_CompilerPass(ErrorPass_createFromDiagnosticType(compiler, DefaultPassConfig_GENERATE_EXPORTS_ERROR))
 		}
-		panic("unreachable")
 	})).build()
 	this.gatherRawExports = PassFactory_builder().setName(PassNames_GATHER_RAW_EXPORTS).setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(compiler *AbstractCompiler) CompilerPass {
 		var pass *GatherRawExports = new_GatherRawExports(compiler)
 		return CompilerPass(new_DefaultPassConfig_2(this, pass, compiler))
-		panic("unreachable")
 	})).build()
 	this.closurePrimitives = PassFactory_builder().setName("closurePrimitives").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(compiler *AbstractCompiler) CompilerPass {
 		this.preprocessorSymbolTableFactory.maybeInitialize(compiler)
 		return CompilerPass(new_ProcessClosurePrimitives(compiler))
-		panic("unreachable")
 	})).build()
 	this.closureProvidesRequires = PassFactory_builder().setName("closureProvidesRequires").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(compiler *AbstractCompiler) CompilerPass {
 		this.preprocessorSymbolTableFactory.maybeInitialize(compiler)
@@ -218,7 +213,6 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 			pass.process_2(externs, root)
 			compiler.addExportedNames(pass.getExportedVariableNames())
 		}}
-		panic("unreachable")
 	})).build()
 	this.angularPass = PassFactory_builder().setName(PassNames_ANGULAR_PASS).setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(p0 *AbstractCompiler) CompilerPass { return CompilerPass(new_AngularPass(p0)) })).build()
 	this.replaceMessagesForChrome = PassFactory_builder().setName(PassNames_REPLACE_MESSAGES).setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(compiler *AbstractCompiler) CompilerPass {
@@ -230,7 +224,6 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 	this.closureGoogScopeAliases = PassFactory_builder().setName("closureGoogScopeAliases").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(compiler *AbstractCompiler) CompilerPass {
 		this.preprocessorSymbolTableFactory.maybeInitialize(compiler)
 		return ScopedAliases_as_CompilerPass(ScopedAliases_builder(compiler).setPreprocessorSymbolTable(this.preprocessorSymbolTableFactory.getInstanceOrNull()).setModuleMetadataMap(compiler.getModuleMetadataMap()).setInvalidModuleGetHandling(ScopedAliases_InvalidModuleGetHandling_GIVE_UNIQUE_NAME).build())
-		panic("unreachable")
 	})).build()
 	this.injectRuntimeLibraries = PassFactory_builder().setName("InjectRuntimeLibraries").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(compiler *AbstractCompiler) CompilerPass {
 		return CompilerPass(new_InjectRuntimeLibraries(compiler, jimmutableSetCopyOf_(jtc_string, Collection(compiler.getOptions().getForceLibraryInjectionList().asList()))))
@@ -244,7 +237,6 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 	this.closureRewriteModule = PassFactory_builder().setName("closureRewriteModule").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(compiler *AbstractCompiler) CompilerPass {
 		this.preprocessorSymbolTableFactory.maybeInitialize(compiler)
 		return CompilerPass(new_ClosureRewriteModule(compiler, this.preprocessorSymbolTableFactory.getInstanceOrNull(), compiler.getTopScope()))
-		panic("unreachable")
 	})).build()
 	this.checkClosureImports = PassFactory_builder().setName("checkGoogRequires").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(compiler *AbstractCompiler) CompilerPass {
 		return CompilerPass(new_CheckClosureImports(compiler, compiler.getModuleMetadataMap()))
@@ -266,7 +258,6 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 			peepholeOptimizations.add(new_J2clEqualitySameRewriterPass(useTypesForOptimization).up_AbstractPeepholeOptimization())
 		}
 		return CompilerPass(new_PeepholeOptimizationsPass(compiler, "earlyPeepholeOptimizations", peepholeOptimizations.asListT()))
-		panic("unreachable")
 	})).build()
 	this.earlyInlineVariables = PassFactory_builder().setName("earlyInlineVariables").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(compiler *AbstractCompiler) CompilerPass {
 		var mode InlineVariables_Mode
@@ -278,7 +269,6 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 			panic(new_IllegalStateException_String("No variable inlining option set.").self())
 		}
 		return CompilerPass(new_InlineVariables(compiler, mode))
-		panic("unreachable")
 	})).build()
 	this.peepholeOptimizations = PassFactory_builder().setName(PassNames_PEEPHOLE_OPTIMIZATIONS).setRunInFixedPointLoop(true).setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(compiler *AbstractCompiler) CompilerPass {
 		return DefaultPassConfig_createPeepholeOptimizationsPass(compiler, PassNames_PEEPHOLE_OPTIMIZATIONS, true)
@@ -293,19 +283,16 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		var late bool = true
 		var useTypesForOptimization bool = this.options_.shouldUseTypesForLocalOptimization()
 		return PeepholeOptimizationsPass_as_CompilerPass(PeepholeOptimizationsPass_createFromOptimizations(compiler, "latePeepholeOptimizations", []*AbstractPeepholeOptimization{new_StatementFusion().up_AbstractPeepholeOptimization(), new_PeepholeRemoveDeadCode().up_AbstractPeepholeOptimization(), new_PeepholeMinimizeConditions(late).up_AbstractPeepholeOptimization(), new_PeepholeSubstituteAlternateSyntax(late).up_AbstractPeepholeOptimization(), new_PeepholeReplaceKnownMethods(late, useTypesForOptimization).up_AbstractPeepholeOptimization(), new_PeepholeFoldConstants(late, useTypesForOptimization).up_AbstractPeepholeOptimization()}))
-		panic("unreachable")
 	})).build()
 	this.checkVars_ = PassFactory_builder().setName(PassNames_CHECK_VARS).setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(p0 *AbstractCompiler) CompilerPass { return CompilerPass(new_VarCheck_AbstractCompiler(p0)) })).build()
 	this.inferConsts = PassFactory_builder().setName(PassNames_INFER_CONSTS).setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(p0 *AbstractCompiler) CompilerPass { return CompilerPass(new_InferConsts(p0)) })).build()
 	this.checkRegExp = PassFactory_builder().setName(PassNames_CHECK_REG_EXP).setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(compiler *AbstractCompiler) CompilerPass {
 		var pass *CheckRegExp = new_CheckRegExp(compiler, this.options_.getAssumePropertiesAreStaticallyAnalyzable(), true)
 		return CompilerPass(new_DefaultPassConfig_4(this, pass, compiler))
-		panic("unreachable")
 	})).build()
 	this.checkRegExpForOptimizations = PassFactory_builder().setName("checkRegExpForOptimizations").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(compiler *AbstractCompiler) CompilerPass {
 		var regExpCheck *CheckRegExp = new_CheckRegExp(compiler, this.options_.getAssumePropertiesAreStaticallyAnalyzable(), false)
 		return CompilerPass(new_DefaultPassConfig_5(this, regExpCheck, compiler))
-		panic("unreachable")
 	})).build()
 	this.checkVariableReferences = PassFactory_builder().setName(PassNames_CHECK_VARIABLE_REFERENCES).setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(p0 *AbstractCompiler) CompilerPass { return CompilerPass(new_VariableReferenceCheck(p0)) })).build()
 	this.checkSuper = PassFactory_builder().setName("checkSuper").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(p0 *AbstractCompiler) CompilerPass { return CompilerPass(new_CheckSuper(p0)) })).build()
@@ -349,18 +336,15 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 			callbacks.add(NodeTraversal_Callback(new_CheckMissingReturn(compiler)))
 		}
 		return DefaultPassConfig_combineChecks(compiler, callbacks)
-		panic("unreachable")
 	})).build()
 	this.checkAccessControls = PassFactory_builder().setName("checkAccessControls").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(p0 *AbstractCompiler) CompilerPass { return CompilerPass(new_CheckAccessControls(p0)) })).build()
 	this.lintChecks = PassFactory_builder().setName(PassNames_LINT_CHECKS).setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(compiler *AbstractCompiler) CompilerPass {
 		var callbacks *TListBuilder[NodeTraversal_Callback] = newTListBuilder_(jtc_NodeTraversal_Callback).add(NodeTraversal_Callback(new_CheckConstPrivateProperties(compiler))).add(NodeTraversal_Callback(new_CheckConstantCaseNames(compiler))).add(NodeTraversal_Callback(new_CheckEmptyStatements(compiler))).add(NodeTraversal_Callback(new_CheckEnums(compiler))).add(NodeTraversal_Callback(new_CheckEs6ModuleFileStructure(compiler))).add(NodeTraversal_Callback(new_CheckEs6Modules(compiler))).add(NodeTraversal_Callback(new_CheckNoMutatedEs6Exports(compiler))).add(NodeTraversal_Callback(new_CheckGoogModuleTypeScriptName(compiler))).add(NodeTraversal_Callback(new_CheckInterfaces(compiler))).add(NodeTraversal_Callback(new_CheckJSDocStyle(compiler))).add(NodeTraversal_Callback(new_CheckMissingSemicolon(compiler))).add(NodeTraversal_Callback(new_CheckNullabilityModifiers(compiler))).add(NodeTraversal_Callback(new_CheckPrimitiveAsObject(compiler))).add(NodeTraversal_Callback(new_CheckPrototypeProperties(compiler))).add(NodeTraversal_Callback(new_CheckUnusedPrivateProperties(compiler))).add(NodeTraversal_Callback(new_CheckUnusedLabels(compiler))).add(NodeTraversal_Callback(new_CheckUselessBlocks(compiler))).add(NodeTraversal_Callback(new_CheckVar(compiler)))
 		return DefaultPassConfig_combineChecks(compiler, callbacks.build())
-		panic("unreachable")
 	})).build()
 	this.analyzerChecks = PassFactory_builder().setName(PassNames_ANALYZER_CHECKS).setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(compiler *AbstractCompiler) CompilerPass {
 		var callbacks *JTList[NodeTraversal_Callback] = jimmutableListOf_[NodeTraversal_Callback](jtc_NodeTraversal_Callback, NodeTraversal_Callback(new_CheckArrayWithGoogObject(compiler)), NodeTraversal_Callback(new_ImplicitNullabilityCheck(compiler)), NodeTraversal_Callback(new_CheckNestedNames(compiler)))
 		return DefaultPassConfig_combineChecks(compiler, callbacks)
-		panic("unreachable")
 	})).build()
 	this.checkRequiresAndProvidesSorted = PassFactory_builder().setName("checkRequiresAndProvidesSorted").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(compiler *AbstractCompiler) CompilerPass {
 		return DefaultPassConfig_combineChecks(compiler, jimmutableListOf_[NodeTraversal_Callback](jtc_NodeTraversal_Callback, NodeTraversal_Callback(new_CheckProvidesSorted(CheckProvidesSorted_Mode_COLLECT_AND_REPORT)), NodeTraversal_Callback(new_CheckRequiresSorted(CheckRequiresSorted_Mode_COLLECT_AND_REPORT))))
@@ -373,7 +357,6 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 			return CheckLevel_OFF
 		}()
 		return CompilerPass(new_StrictModeCheck(compiler, defaultLevel))
-		panic("unreachable")
 	})).build()
 	this.processTweaks = PassFactory_builder().setName("processTweaks").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(compiler *AbstractCompiler) CompilerPass {
 		return CompilerPass(new_DefaultPassConfig_6(this, compiler))
@@ -441,7 +424,6 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 			panic(new_IllegalStateException_String("No variable inlining option set.").self())
 		}
 		return CompilerPass(new_InlineVariables(compiler, mode))
-		panic("unreachable")
 	})).build()
 	this.inlineConstants = PassFactory_builder().setName("inlineConstants").setRunInFixedPointLoop(true).setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(compiler *AbstractCompiler) CompilerPass {
 		return CompilerPass(new_InlineVariables(compiler, InlineVariables_Mode_CONSTANTS_ONLY))
@@ -485,7 +467,6 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 			optimizations.add(new_OptimizeLetAndConstPeephole(this.options_.shouldTreatGlobalScopeAsIsolated()).up_AbstractPeepholeOptimization())
 		}
 		return CompilerPass(new_PeepholeOptimizationsPass(compiler, PassNames_POST_NORMALIZE_PEEPHOLE, optimizations.build().asListT()))
-		panic("unreachable")
 	})).build()
 	this.collapseVariableDeclarations = PassFactory_builder().setName(PassNames_COLLAPSE_VARIABLE_DECLARATIONS).setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(p0 *AbstractCompiler) CompilerPass { return CompilerPass(new_CollapseVariableDeclarations(p0)) })).build()
 	this.extractPrototypeMemberDeclarations = PassFactory_builder().setName(PassNames_EXTRACT_PROTOTYPE_MEMBER_DECLARATIONS).setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(compiler *AbstractCompiler) CompilerPass {
@@ -500,10 +481,8 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 			default:
 				panic(new_IllegalStateException_String("unexpected").self())
 			}
-			panic("unreachable")
 		}()
 		return CompilerPass(new_ExtractPrototypeMemberDeclarations(compiler, pattern))
-		panic("unreachable")
 	})).setPreconditionCheck(Function[*CompilerOptions, *PassFactory_PreconditionResult](func(p0 *CompilerOptions) *PassFactory_PreconditionResult {
 		return DefaultPassConfig_requirePropertiesAreStaticallyAnalyzable(p0)
 	})).build()
@@ -539,7 +518,6 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		}
 		var prevPropertyMap *VariableMap = this.options_.getInputPropertyMap()
 		return CompilerPass(new_DefaultPassConfig_11(this, compiler, prevPropertyMap))
-		panic("unreachable")
 	})).setPreconditionCheck(Function[*CompilerOptions, *PassFactory_PreconditionResult](func(p0 *CompilerOptions) *PassFactory_PreconditionResult {
 		return DefaultPassConfig_requirePropertiesAreStaticallyAnalyzable(p0)
 	})).build()
@@ -547,7 +525,6 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 	this.renameVars = PassFactory_builder().setName("renameVars").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(compiler *AbstractCompiler) CompilerPass {
 		var prevVariableMap *VariableMap = this.options_.getInputVariableMap()
 		return CompilerPass(new_DefaultPassConfig_12(this, compiler, prevVariableMap))
-		panic("unreachable")
 	})).build()
 	this.renameLabels = PassFactory_builder().setName("renameLabels").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(p0 *AbstractCompiler) CompilerPass { return CompilerPass(new_RenameLabels_AbstractCompiler(p0)) })).build()
 	this.convertToDottedProperties = PassFactory_builder().setName(PassNames_CONVERT_TO_DOTTED_PROPERTIES).setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(p0 *AbstractCompiler) CompilerPass { return CompilerPass(new_ConvertToDottedProperties(p0)) })).build()
@@ -566,7 +543,6 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 	this.j2clClinitPass = PassFactory_builder().setName("j2clClinitPass").setRunInFixedPointLoop(true).setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(compiler *AbstractCompiler) CompilerPass {
 		var changedScopeNodes ListT[Node] = compiler.getChangeTracker().getChangedScopeNodesForPass("j2clClinitPass")
 		return CompilerPass(new_J2clClinitPrunerPass(compiler, changedScopeNodes))
-		panic("unreachable")
 	})).build()
 	this.j2clPropertyInlinerPass = PassFactory_builder().setName("j2clPropertyInlinerPass").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(p0 *AbstractCompiler) CompilerPass { return CompilerPass(new_J2clPropertyInlinerPass(p0)) })).build()
 	this.j2clPass = PassFactory_builder().setName("j2clPass").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(p0 *AbstractCompiler) CompilerPass { return CompilerPass(new_J2clPass(p0)) })).build()
@@ -597,7 +573,6 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 	this.gatherModuleMetadataPass = PassFactory_builder().setName(PassNames_GATHER_MODULE_METADATA).setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(compiler *AbstractCompiler) CompilerPass {
 		compiler.getSynthesizedExternsInput()
 		return CompilerPass(new_GatherModuleMetadata(compiler, this.options_.getProcessCommonJSModules(), this.options_.getModuleResolutionMode()))
-		panic("unreachable")
 	})).build()
 	this.createModuleMapPass = PassFactory_builder().setName(PassNames_CREATE_MODULE_MAP).setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(compiler *AbstractCompiler) CompilerPass {
 		return CompilerPass(new_ModuleMapCreator(compiler, compiler.getModuleMetadataMap()))

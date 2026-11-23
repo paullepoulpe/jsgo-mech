@@ -213,7 +213,6 @@ func UnionType_getGreatestSubtypeUnionType(union *UnionType, that *JSType) *JSTy
 	} else {
 		return registry.getNativeType(JSTypeNative_NO_TYPE)
 	}
-	panic("unreachable")
 }
 
 func (this *UnionType) getPropertyKind_2_impl(pname Property_Key, autobox bool) JSType_HasPropertyKind {
@@ -606,7 +605,6 @@ func (this *UnionType_Builder) build() *JSType {
 	} else {
 		return new_UnionType(this).up_JSType()
 	}
-	panic("unreachable")
 }
 
 func (this *UnionType_Builder) buildInternal() *UnionType_Builder {

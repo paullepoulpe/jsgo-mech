@@ -206,7 +206,6 @@ func RenameProperties_clinit() {
 			return (p2.numOccurrences - p1.numOccurrences)
 		}
 		return String_compareTo(p1.oldName, p2.oldName)
-		panic("unreachable")
 	})
 	RenameProperties_BAD_CALL = DiagnosticType_error("JSC_BAD_RENAME_PROPERTY_FUNCTION_NAME_CALL", "Bad {0} call - the first argument must be a string literal")
 	RenameProperties_BAD_ARG = DiagnosticType_error("JSC_BAD_RENAME_PROPERTY_FUNCTION_NAME_ARG", "Bad {0} argument - ''{1}'' is not a valid JavaScript identifier")

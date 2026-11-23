@@ -226,7 +226,6 @@ func FeatureCollector_contextFor(contextStack *JTList[FeatureCollector_FeatureCo
 		default:
 			return FeatureCollector_FeatureContext_NONE
 		}
-		panic("unreachable")
 	}()
 }
 

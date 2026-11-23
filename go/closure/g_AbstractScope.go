@@ -357,7 +357,6 @@ func AbstractScope_ImplicitVar_of(name string) AbstractScope_ImplicitVar {
 		default:
 			return 0
 		}
-		panic("unreachable")
 	}()
 }
 

@@ -44,7 +44,6 @@ func (this *VarCheck) createScopeCreator() *SyntacticScopeCreator {
 		this.dupHandler = new_VarCheck_RedeclarationCheckHandler(this)
 		return new_SyntacticScopeCreator_AbstractCompiler_RedeclarationHandler(this.compiler_, VarCheck_RedeclarationCheckHandler_as_SyntacticScopeCreator_RedeclarationHandler(this.dupHandler))
 	}
-	panic("unreachable")
 }
 
 func (this *VarCheck) process_2(externs Node, root Node) {

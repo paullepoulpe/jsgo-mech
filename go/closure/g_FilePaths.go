@@ -87,7 +87,6 @@ func FilePaths_names(plain string) *JTList[string] {
 		names.add(String_substring(plain, start, slash))
 		start = (slash + 1)
 	}
-	panic("unreachable")
 }
 
 func FilePaths_joinNames(names *JTList[string], from int32) string {

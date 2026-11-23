@@ -96,7 +96,6 @@ func (this *CrossChunkCodeMotion) isUndefinedTypeofGuardReference(reference Node
 	} else {
 		return false
 	}
-	panic("unreachable")
 }
 
 func (this *CrossChunkCodeMotion) isExistenceTypeofGuardFor(expression Node, reference Node) bool {
@@ -111,7 +110,6 @@ func (this *CrossChunkCodeMotion) isExistenceTypeofGuardFor(expression Node, ref
 	} else {
 		return false
 	}
-	panic("unreachable")
 }
 
 func (this *CrossChunkCodeMotion) isGuardedInstanceofReference(reference Node) bool {
@@ -122,7 +120,6 @@ func (this *CrossChunkCodeMotion) isGuardedInstanceofReference(reference Node) b
 	} else {
 		return false
 	}
-	panic("unreachable")
 }
 
 func (this *CrossChunkCodeMotion) isUnguardedInstanceofReference(reference Node) bool {
@@ -135,7 +132,6 @@ func (this *CrossChunkCodeMotion) isUnguardedInstanceofReference(reference Node)
 	} else {
 		return false
 	}
-	panic("unreachable")
 }
 
 func (this *CrossChunkCodeMotion) isInstanceofFor(expression Node, reference Node) bool {
@@ -650,7 +646,6 @@ func (this *CrossChunkCodeMotion_DeclarationStatementGroupCycle) getPreferredChu
 	} else {
 		return this.outer_.graph.getSmallestCoveringSubtree(this.currentChunk, chunksWithImmovableReferences)
 	}
-	panic("unreachable")
 }
 
 func (this *CrossChunkCodeMotion_DeclarationStatementGroupCycle) allStatementsCanMove() bool {

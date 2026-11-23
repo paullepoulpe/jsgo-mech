@@ -79,7 +79,6 @@ func (this *DisambiguateProperties) process_2(externs Node, root Node) {
 			}
 		}())
 		return obj_(ImmutableList_copyOf(Collection(result.asList())))
-		panic("unreachable")
 	}))
 	this.invalidateBasedOnType(flattener)
 	FixedPointGraphTraversal_newTraversal[*ColorGraphNode, any](func() FixedPointGraphTraversal_EdgeCallback[*ColorGraphNode, any] {
@@ -208,7 +207,6 @@ func (this *DisambiguateProperties) mayHaveProperty(color *Color, propertyName s
 		}
 		ret_1 = false
 		return 1
-		return 0
 	}()
 	if code_1 == 1 {
 		return ret_1

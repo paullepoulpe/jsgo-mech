@@ -2754,7 +2754,6 @@ func (this *JSDocInfo_Builder) addUnique(prop *JSDocInfo_Property, elem *JSTypeE
 		this.populated = true
 		return true
 	}
-	panic("unreachable")
 }
 
 func (this *JSDocInfo_Builder) recordLends(name *JSTypeExpression) bool {
