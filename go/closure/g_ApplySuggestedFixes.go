@@ -46,7 +46,7 @@ func ApplySuggestedFixes_applyAllSuggestedFixChoicesToCode(fixChoices IterableT[
 	if Iterables_isEmpty(Iterable_un_(fixChoices)) {
 		return jimmutableListOf_[MapT[string, string]](tc_MapT_string__string_, jtmapEmptyImm_(jtc_string, jtc_string).asMapT())
 	}
-	var alternativeCount int32 = cast_[*SuggestedFix](Iterables_getFirst(Iterable_un_(fixChoices), nil)).getAlternatives().size()
+	var alternativeCount int32 = Iterables_getFirst(Iterable_un_(fixChoices), nil).(*SuggestedFix).getAlternatives().size()
 	if !ApplySuggestedFixes_allHaveAlternativeCount(fixChoices, alternativeCount) {
 		panic(new_IllegalArgumentException_String(objstr_("All SuggestedFixAlternatives must offer an equal number of choices for this utility to make sense")))
 	}

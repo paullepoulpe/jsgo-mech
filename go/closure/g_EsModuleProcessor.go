@@ -240,7 +240,7 @@ func (this *EsModuleProcessor_FindMutableExports) visit_impl(t *NodeTraversal, n
 	if (var_ == nil) || !var_.getScope_rAbstractScope_rScope().isModuleScope() {
 		return
 	}
-	for e := range elemsT_(listAs_(jtc_p_Export, icast_List(new_ArrayList_Collection(Collection(List_un_(exports))).self()))) {
+	for e := range elemsT_(listAs_(jtc_p_Export, new_ArrayList_Collection(Collection(List_un_(exports))).self().(List))) {
 		var i int32 = this.exports.asListT().indexOf(obj_(e))
 		var mutated *Export = e.mutatedCopy()
 		this.exports.set(i, mutated)

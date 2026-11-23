@@ -1082,10 +1082,10 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 	var jumpMethod string
 	if this.nestedFinallyBlockCount > 0 {
 		jumpMethod = "jumpThroughFinallyBlocks"
-	} else if this.finallyCases.isEmpty() || (cast_[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case](SequencedCollection_getFirst(SequencedCollection(this.finallyCases.asDeque()))).id < section.id) {
+	} else if this.finallyCases.isEmpty() || (SequencedCollection_getFirst(SequencedCollection(this.finallyCases.asDeque())).(*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case).id < section.id) {
 		jumpMethod = "jumpTo"
 	} else {
-		if cast_[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case](SequencedCollection_getFirst(SequencedCollection(this.finallyCases.asDeque()))).id == section.id {
+		if SequencedCollection_getFirst(SequencedCollection(this.finallyCases.asDeque())).(*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case).id == section.id {
 			panic(new_IllegalStateException_0())
 		}
 		jumpMethod = "jumpThroughFinallyBlocks"
@@ -1130,7 +1130,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext) addCatchFinallyCases(catchCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case, finallyCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case) {
 	if finallyCase != nil {
 		if !this.catchCases.isEmpty() {
-			cast_[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_CatchCase](SequencedCollection_getFirst(SequencedCollection(this.catchCases.asDeque()))).finallyBlocks++
+			SequencedCollection_getFirst(SequencedCollection(this.catchCases.asDeque())).(*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_CatchCase).finallyBlocks++
 		}
 		this.finallyCases.push(finallyCase)
 	}

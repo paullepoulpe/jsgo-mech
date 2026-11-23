@@ -75,12 +75,12 @@ func PathUtil_makeRelative(basePath string, targetPath string) string {
 		if (i == int32(len(baseFragments))) && (i == int32(len(targetFragments))) {
 			return "."
 		} else if i == int32(len(baseFragments)) {
-			return Joiner_on("/").join(icast_Iterable(Lists_newArrayList(Iterator(listAs_(jtc_string, Arrays_asList(arrmap_(targetFragments, func(v_ string) any { return strobj_(v_) }))).listIterator(i))).self()))
+			return Joiner_on("/").join(Lists_newArrayList(Iterator(listAs_(jtc_string, Arrays_asList(arrmap_(targetFragments, func(v_ string) any { return strobj_(v_) }))).listIterator(i))).self().(Iterable))
 		} else if i == int32(len(targetFragments)) {
 			return (sstr_(String_repeat("../", ((int32(len(baseFragments))-i)-1))) + "..")
 		}
 	}
-	return (sstr_(String_repeat("../", (int32(len(baseFragments))-i))) + sstr_(Joiner_on("/").join(icast_Iterable(Lists_newArrayList(Iterator(listAs_(jtc_string, Arrays_asList(arrmap_(targetFragments, func(v_ string) any { return strobj_(v_) }))).listIterator(i))).self()))))
+	return (sstr_(String_repeat("../", (int32(len(baseFragments))-i))) + sstr_(Joiner_on("/").join(Lists_newArrayList(Iterator(listAs_(jtc_string, Arrays_asList(arrmap_(targetFragments, func(v_ string) any { return strobj_(v_) }))).listIterator(i))).self().(Iterable))))
 }
 
 var PathUtil_SLASH_PATTERN *Pattern

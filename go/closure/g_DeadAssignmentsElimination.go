@@ -181,10 +181,10 @@ func (this *DeadAssignmentsElimination) tryRemoveAssignment_5(t *NodeTraversal, 
 			return
 		}
 		var index int32 = this.liveness.getVarIndex(var_.getName())
-		if cast_[*LiveVariablesAnalysis_LiveVariableLattice](state.getOut()).isLive(index) {
+		if state.getOut().(*LiveVariablesAnalysis_LiveVariableLattice).isLive(index) {
 			return
 		}
-		if cast_[*LiveVariablesAnalysis_LiveVariableLattice](state.getIn()).isLive(index) && this.isVariableStillLiveWithinExpression(n, exprRoot, var_.getName()) {
+		if state.getIn().(*LiveVariablesAnalysis_LiveVariableLattice).isLive(index) && this.isVariableStillLiveWithinExpression(n, exprRoot, var_.getName()) {
 			return
 		}
 		if n.isAssign() {
