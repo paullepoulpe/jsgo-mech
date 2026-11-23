@@ -5,14 +5,14 @@ package closure
 type LowestCommonAncestorFinder[N comparable, E comparable] struct {
 	graph          *DiGraph[N, E]
 	searchColoring *TMap[DiGraph_DiGraphNode[N, E], *LowestCommonAncestorFinder_Color]
-	searchQueue    *TDeque[DiGraph_DiGraphNode[N, E]]
+	searchQueue    *TList[DiGraph_DiGraphNode[N, E]]
 }
 
 func (this *LowestCommonAncestorFinder[N, E]) isa_LowestCommonAncestorFinder_() {}
 
 func (this *LowestCommonAncestorFinder[N, E]) finit_LowestCommonAncestorFinder() {
 	this.searchColoring = newTMap_(tch_DiGraph_DiGraphNode_N__E_[N, E](), tc_p_LowestCommonAncestorFinder_Color)
-	this.searchQueue = newTDeque_(tc_DiGraph_DiGraphNode_N__E_[N, E]())
+	this.searchQueue = newTList_(tc_DiGraph_DiGraphNode_N__E_[N, E]())
 }
 
 func (this *LowestCommonAncestorFinder[N, E]) init_LowestCommonAncestorFinder(graph *DiGraph[N, E]) {
@@ -77,7 +77,7 @@ func (this *LowestCommonAncestorFinder[N, E]) paintAncestors(root DiGraph_DiGrap
 	}
 	this.searchQueue.add(root)
 	for !this.searchQueue.isEmpty() {
-		var curr DiGraph_DiGraphNode[N, E] = this.searchQueue.pop()
+		var curr DiGraph_DiGraphNode[N, E] = this.searchQueue.popFirst_()
 		var parentEdges ListOf[DiGraph_DiGraphEdge[N, E]] = curr.getInEdges()
 		for parentEdge := range elemsBy_(parentEdges, gcast_DiGraph_DiGraphEdge_N_E[N, E]) {
 			var parent DiGraph_DiGraphNode[N, E] = parentEdge.getSource()
