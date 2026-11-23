@@ -1824,17 +1824,7 @@ func (this *TypeCheck) isReasonableObjectPropertyKey(type_ *JSType) bool {
 			return this.isReasonableObjectPropertyKey(templatizedType.getTemplateTypes().get(0))
 		}
 	}
-	var namedType *NamedType
-	_ = namedType
-	if func() bool {
-		v_ := type_.self()
-		p, ok := v_.(*NamedType)
-		if !ok {
-			return false
-		}
-		namedType = p
-		return true
-	}() {
+	if namedType, ok := type_.self().(*NamedType); ok {
 		return this.isReasonableObjectPropertyKey(namedType.getReferencedType())
 	}
 	if type_.isUnionType() {
