@@ -4,7 +4,7 @@ package closure
 
 type SimpleSetMultimap[K comparable, V comparable] struct {
 	map__      MapT[K, SetT[V]]
-	entryOrder *JTSet[*SimpleSetMultimap_Entry]
+	entryOrder *JTSet[*SimpleSetMultimap_Entry[any, any]]
 	sorted     bool
 	frozen     bool
 }
@@ -29,7 +29,7 @@ func (this *SimpleSetMultimap[K, V]) init_SimpleSetMultimap(sorted bool, inserti
 		return jnewTMap_(tceT_[K](), tc_SetT_V_[V]()).asMapT()
 	}()
 	this.sorted = sorted
-	this.entryOrder = func() *JTSet[*SimpleSetMultimap_Entry] {
+	this.entryOrder = func() *JTSet[*SimpleSetMultimap_Entry[any, any]] {
 		if insertionOrdered {
 			return jnewTSet_(tce_p_SimpleSetMultimap_Entry)
 		}
@@ -108,7 +108,7 @@ func SimpleSetMultimap_putAll_SimpleSetMultimap[K comparable, V comparable, K2 c
 	if other.entryOrder != nil {
 		it_1 := other.entryOrder.each()
 		for it_1.next() {
-			var e *SimpleSetMultimap_Entry = it_1.v
+			var e *SimpleSetMultimap_Entry[any, any] = it_1.v
 			this.put(junboxT_[K](e.key()), junboxT_[V](e.value()))
 		}
 	} else {
@@ -203,53 +203,53 @@ func (this *SimpleSetMultimap[K, V]) toString() string {
 	return Object_toString(lgBox_(this.map__))
 }
 
-type SimpleSetMultimap_Entry struct {
-	key_   any
-	value_ any
+type SimpleSetMultimap_Entry[K, V comparable] struct {
+	key_   K
+	value_ V
 }
 
-func (this *SimpleSetMultimap_Entry) init_SimpleSetMultimap_Entry(key any, value any) {
+func (this *SimpleSetMultimap_Entry[K, V]) init_SimpleSetMultimap_Entry(key K, value V) {
 	this.key_ = key
 	this.value_ = value
 }
 
-func new_SimpleSetMultimap_Entry(key any, value any) *SimpleSetMultimap_Entry {
-	this := &SimpleSetMultimap_Entry{}
+func new_SimpleSetMultimap_Entry[K, V comparable](key K, value V) *SimpleSetMultimap_Entry[K, V] {
+	this := &SimpleSetMultimap_Entry[K, V]{key_: null_[K](), value_: null_[V]()}
 	this.init_SimpleSetMultimap_Entry(key, value)
 	return this
 }
 
-func (this *SimpleSetMultimap_Entry) key() any {
+func (this *SimpleSetMultimap_Entry[K, V]) key() K {
 	return this.key_
 }
 
-func (this *SimpleSetMultimap_Entry) value() any {
+func (this *SimpleSetMultimap_Entry[K, V]) value() V {
 	return this.value_
 }
 
-func (this *SimpleSetMultimap_Entry) equals(p0 any) bool {
-	o, ok := p0.(*SimpleSetMultimap_Entry)
+func (this *SimpleSetMultimap_Entry[K, V]) equals(p0 any) bool {
+	o, ok := p0.(*SimpleSetMultimap_Entry[any, any])
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(this.key_, o.key_) && Objects_equals(this.value_, o.value_)
+	return true && Objects_equals(boxNull_(this.key_), o.key_) && Objects_equals(boxNull_(this.value_), o.value_)
 }
 
-func (this *SimpleSetMultimap_Entry) hashCode() int32 {
+func (this *SimpleSetMultimap_Entry[K, V]) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(this.key_)
-	h = h*31 + Objects_hashCode(this.value_)
+	h = h*31 + Objects_hashCode(boxNull_(this.key_))
+	h = h*31 + Objects_hashCode(boxNull_(this.value_))
 	return h
 }
 
-func (this *SimpleSetMultimap_Entry) toString() string {
-	return "Entry[" + "key=" + objstr_(this.key_) + ", value=" + objstr_(this.value_) + "]"
+func (this *SimpleSetMultimap_Entry[K, V]) toString() string {
+	return "Entry[" + "key=" + objstr_(boxNull_(this.key_)) + ", value=" + objstr_(boxNull_(this.value_)) + "]"
 }
 
 type SimpleSetMultimap_1InsertionOrderedValuesIterator[K comparable, V comparable] struct {
 	outer_  *SimpleSetMultimap[K, V]
-	entries IteratorT[*SimpleSetMultimap_Entry]
-	last    *SimpleSetMultimap_Entry
+	entries IteratorT[*SimpleSetMultimap_Entry[any, any]]
+	last    *SimpleSetMultimap_Entry[any, any]
 }
 
 func (this *SimpleSetMultimap_1InsertionOrderedValuesIterator[K, V]) isa_SimpleSetMultimap_1InsertionOrderedValuesIterator_() {

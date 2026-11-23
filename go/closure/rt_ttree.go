@@ -134,7 +134,7 @@ func (s *TTreeSet[K]) asSet() NavigableSet {
 type ttreeSetView_[K any] struct{ s *TTreeSet[K] }
 
 func (v *ttreeSetView_[K]) self() any                     { return v }
-func (v *ttreeSetView_[K]) comparator() Comparator_e        { return v.s.ecmp }
+func (v *ttreeSetView_[K]) comparator() Comparator_e      { return v.s.ecmp }
 func (v *ttreeSetView_[K]) size() int32                   { return v.s.size() }
 func (v *ttreeSetView_[K]) isEmpty() bool                 { return v.s.isEmpty() }
 func (v *ttreeSetView_[K]) clear()                        { v.s.clear() }
@@ -352,13 +352,13 @@ func (m *TTreeMap[K, V]) asMap() NavigableMap {
 // keySet, values and entrySet are copies, as TreeMap's are.
 type ttreeMapView_[K, V any] struct{ m *TTreeMap[K, V] }
 
-func (v *ttreeMapView_[K, V]) self() any              { return v }
+func (v *ttreeMapView_[K, V]) self() any                { return v }
 func (v *ttreeMapView_[K, V]) comparator() Comparator_e { return v.m.ecmp }
-func (v *ttreeMapView_[K, V]) size() int32            { return v.m.size() }
-func (v *ttreeMapView_[K, V]) isEmpty() bool          { return v.m.isEmpty() }
-func (v *ttreeMapView_[K, V]) clear()                 { v.m.clear() }
-func (v *ttreeMapView_[K, V]) get(k any) any          { return v.m.vc.box(v.m.get(v.m.kc.unbox(k))) }
-func (v *ttreeMapView_[K, V]) containsKey(k any) bool { return v.m.containsKey(v.m.kc.unbox(k)) }
+func (v *ttreeMapView_[K, V]) size() int32              { return v.m.size() }
+func (v *ttreeMapView_[K, V]) isEmpty() bool            { return v.m.isEmpty() }
+func (v *ttreeMapView_[K, V]) clear()                   { v.m.clear() }
+func (v *ttreeMapView_[K, V]) get(k any) any            { return v.m.vc.box(v.m.get(v.m.kc.unbox(k))) }
+func (v *ttreeMapView_[K, V]) containsKey(k any) bool   { return v.m.containsKey(v.m.kc.unbox(k)) }
 func (v *ttreeMapView_[K, V]) put(k, x any) any {
 	return v.m.vc.box(v.m.put(v.m.kc.unbox(k), v.m.vc.unbox(x)))
 }
