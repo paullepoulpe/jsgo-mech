@@ -556,7 +556,7 @@ func (this *CrossChunkCodeMotion_DeclarationStatementGroupCycle) moveToPreferred
 			for it_1.next() {
 				var globalSymbolName string = it_1.v
 				this.outer_.cccmLog.log(Supplier[string](func() string {
-					return String_format("Moving DSG for %s from chunk %s to chunk %s", []any{strobj_(globalSymbolName), obj_(this.currentChunk), obj_(preferredChunk)})
+					return ("Moving DSG for " + sstr_(globalSymbolName) + " from chunk " + objstr_(obj_(this.currentChunk)) + " to chunk " + objstr_(obj_(preferredChunk)))
 				}))
 			}
 		}

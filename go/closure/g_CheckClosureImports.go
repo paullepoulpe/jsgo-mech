@@ -383,13 +383,14 @@ func (this *CheckClosureImports_Checker) checkShortName(t *NodeTraversal, shortN
 		return
 	}
 	if Ascii_isUpperCase(uint16(byteAt_(shortName, 0))) != Ascii_isUpperCase(uint16(byteAt_(lastSegment, 0))) {
+		shortNameU16 := utf16Of_(shortName)
 		var newStartChar uint16 = func() uint16 {
 			if Ascii_isUpperCase(uint16(byteAt_(shortName, 0))) {
-				return Ascii_toLowerCase_char(String_charAt(shortName, 0))
+				return Ascii_toLowerCase_char(shortNameU16.charAt(0))
 			}
-			return Ascii_toUpperCase_char(String_charAt(shortName, 0))
+			return Ascii_toUpperCase_char(shortNameU16.charAt(0))
 		}()
-		var correctedName string = (chrstr_(newStartChar) + sstr_(String_substring_int(shortName, 1)))
+		var correctedName string = (chrstr_(newStartChar) + sstr_(shortNameU16.substring_int(1)))
 		t.report(shortNameNode, ClosureCheckModule_INCORRECT_SHORTNAME_CAPITALIZATION, []string{shortName, correctedName})
 	}
 }

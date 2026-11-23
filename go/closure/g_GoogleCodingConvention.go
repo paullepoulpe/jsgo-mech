@@ -38,17 +38,18 @@ func new_GoogleCodingConvention_CodingConvention(convention CodingConvention) *G
 }
 
 func (this *GoogleCodingConvention) isConstant_impl(name string) bool {
-	if String_length(name) <= 1 {
+	nameU16 := utf16Of_(name)
+	if nameU16.length() <= 1 {
 		return false
 	}
-	var pos int32 = String_lastIndexOf(name, 36)
+	var pos int32 = nameU16.lastIndexOf(36)
 	var start int32 = func() int32 {
 		if pos >= 0 {
 			return (pos + 1)
 		}
 		return 0
 	}()
-	return GoogleCodingConvention_isConstantKey(name, start, String_length(name))
+	return GoogleCodingConvention_isConstantKey(name, start, nameU16.length())
 }
 
 func (this *GoogleCodingConvention) isConstantKey_impl(name string) bool {
@@ -56,11 +57,12 @@ func (this *GoogleCodingConvention) isConstantKey_impl(name string) bool {
 }
 
 func GoogleCodingConvention_isConstantKey(name string, start int32, end int32) bool {
-	if (start >= end) || !Character_isUpperCase(String_charAt(name, start)) {
+	nameU16 := utf16Of_(name)
+	if (start >= end) || !Character_isUpperCase(nameU16.charAt(start)) {
 		return false
 	}
 	for i := int32((start + 1)); i < end; i++ {
-		if Character_toUpperCase(String_charAt(name, i)) != String_charAt(name, i) {
+		if Character_toUpperCase(nameU16.charAt(i)) != nameU16.charAt(i) {
 			return false
 		}
 	}

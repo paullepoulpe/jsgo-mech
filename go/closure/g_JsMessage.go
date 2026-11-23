@@ -176,12 +176,13 @@ func JsMessage_isLowerCamelCaseWithNumericSuffixes(input string) bool {
 }
 
 func JsMessage_toLowerCamelCaseWithNumericSuffixes(input string) string {
-	var suffixStart int32 = String_length(input)
+	inputU16 := utf16Of_(input)
+	var suffixStart int32 = inputU16.length()
 	for suffixStart > 0 {
 		var ch uint16 = 0x0000
 		var numberStart int32 = suffixStart
 		for numberStart > 0 {
-			ch = String_charAt(input, (numberStart - 1))
+			ch = inputU16.charAt((numberStart - 1))
 			if Character_isDigit(ch) {
 				numberStart--
 			} else {
@@ -194,10 +195,10 @@ func JsMessage_toLowerCamelCaseWithNumericSuffixes(input string) string {
 			break
 		}
 	}
-	if suffixStart == String_length(input) {
+	if suffixStart == inputU16.length() {
 		return CaseFormat_UPPER_UNDERSCORE.to(CaseFormat_LOWER_CAMEL, input)
 	} else {
-		return (sstr_(CaseFormat_UPPER_UNDERSCORE.to(CaseFormat_LOWER_CAMEL, String_substring(input, 0, suffixStart))) + sstr_(String_substring_int(input, suffixStart)))
+		return (sstr_(CaseFormat_UPPER_UNDERSCORE.to(CaseFormat_LOWER_CAMEL, inputU16.substring(0, suffixStart))) + sstr_(inputU16.substring_int(suffixStart)))
 	}
 }
 

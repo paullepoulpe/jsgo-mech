@@ -196,7 +196,7 @@ func (this *SymbolTable) getSymbolForName(source Node, name Optional[string]) *S
 	if scope.isModuleScope() {
 		var moduleNameWithDot string = (sstr_(str_(Iterables_getFirst(icast_Iterable(obj_(this.compiler_.getModuleMetadataMap().getModulesByPath().get(scope.getRootNode().getSourceFileName()).googNamespaces())), nil))) + ".")
 		if strings.HasPrefix(name.get(), moduleNameWithDot) {
-			name = Optional_of[string](String_substring_int(name.get(), String_length(moduleNameWithDot)))
+			name = Optional_of[string](name.get()[len(moduleNameWithDot):])
 		}
 	}
 	return scope.getQualifiedSlot(name.get())
@@ -348,12 +348,12 @@ func (this *SymbolTable) toDebugString_4(builder *strBuilder_, prefix string, sy
 	var refCount int32 = 0
 	for ref := range elemsT_(this.getReferences(symbol)) {
 		var node Node = ref.getNode()
-		builder.append(prefix).append(String_format("  Ref %d: %s line: %d col: %d len: %d %s\n", []any{int32(refCount), strobj_(node.getSourceFileName()), int32(node.getLineno()), int32(node.getCharno()), int32(node.getLength()), func() any {
+		builder.append(prefix).append(("  Ref " + istr_(int64(int32(refCount))) + ": " + sstr_(node.getSourceFileName()) + " line: " + istr_(int64(int32(node.getLineno()))) + " col: " + istr_(int64(int32(node.getCharno()))) + " len: " + istr_(int64(int32(node.getLength()))) + " " + objstr_(func() any {
 			if node.isIndexable() {
 				return strobj_("")
 			}
 			return strobj_("non indexable")
-		}()}))
+		}()) + "\n"))
 		refCount++
 	}
 }
@@ -900,6 +900,7 @@ func (this *SymbolTable) fillGoogProvideModuleRequires(externs Node, root Node) 
 }
 
 func (this *SymbolTable) flattenGoogModuleExports() {
+	var getNameU16 utf16_
 	for moduleScope := range elemsT_(this.getAllScopes()) {
 		if !moduleScope.isModuleScope() {
 			continue
@@ -907,7 +908,7 @@ func (this *SymbolTable) flattenGoogModuleExports() {
 		for _, el := range immElems_(ImmutableList_copyOf(Collection_un_(moduleScope.ownSymbols.valuesT()))) {
 			sym := cast_[*SymbolTable_Symbol](el)
 			if strings.HasPrefix(sym.getName(), "exports.") {
-				this.renameSymbol(moduleScope, sym, String_substring_int(sym.getName(), int32(len("exports."))))
+				this.renameSymbol(moduleScope, sym, getNameU16.of(sym.getName()).substring_int(int32(len("exports."))))
 			}
 		}
 	}
@@ -1740,8 +1741,9 @@ func (this *SymbolTable_JSDocInfoCollector) visitTypeNode(templateTypeNames *JTM
 			if JString_contains_s(typeString, ".") {
 				var lastPart string = typeString[strings.LastIndexByte(typeString, '.')+1:]
 				var copy_ Node = n.cloneNode()
-				copy_.setLinenoCharno(copy_.getLineno(), ((copy_.getCharno() + copy_.getLength()) - String_length(lastPart)))
-				copy_.setLength(String_length(lastPart))
+				lastPartU16 := utf16Of_(lastPart)
+				copy_.setLinenoCharno(copy_.getLineno(), ((copy_.getCharno() + copy_.getLength()) - lastPartU16.length()))
+				copy_.setLength(lastPartU16.length())
 				ref = copy_
 			}
 			symbol.defineReferenceAt(ref)
