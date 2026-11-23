@@ -1,0 +1,73 @@
+diff --git a/go/closure/g_NodeUtil.go b/go/closure/g_NodeUtil.go
+index c4e29c29..741bae36 100644
+--- a/go/closure/g_NodeUtil.go
++++ b/go/closure/g_NodeUtil.go
+@@ -2828,33 +2828,40 @@ func NodeUtil_getVarsDeclaredInBranch(root Node) CollectionOf[Node] {
+ }
+ 
+ func NodeUtil_getLhsNodesHelper(n Node, consumer ConsumerOf[Node]) {
++	nodeUtilLhsNodes_(n, func(x Node) { consumer.accept(x.box_()) })
++}
++
++// nodeUtilLhsNodes_ is NodeUtil_getLhsNodesHelper with the consumer as a function value, which
++// does not escape (post-flip manual step: a caller's closure, and what it captures, can stay
++// on the stack).
++func nodeUtilLhsNodes_(n Node, consumer func(Node)) {
+ 	switch n.ns_().token {
+ 	case tokOrd1_IMPORT:
+-		NodeUtil_getLhsNodesHelper(n.getFirstChild(), consumer)
+-		NodeUtil_getLhsNodesHelper(n.getSecondChild(), consumer)
++		nodeUtilLhsNodes_(n.getFirstChild(), consumer)
++		nodeUtilLhsNodes_(n.getSecondChild(), consumer)
+ 		return
+ 	case tokOrd1_VAR, tokOrd1_CONST, tokOrd1_LET, tokOrd1_OBJECT_PATTERN, tokOrd1_ARRAY_PATTERN, tokOrd1_PARAM_LIST, tokOrd1_IMPORT_SPECS:
+ 		{
+ 			var child Node = n.getFirstChild()
+ 			for ; child != 0; child = child.getNext() {
+-				NodeUtil_getLhsNodesHelper(child, consumer)
++				nodeUtilLhsNodes_(child, consumer)
+ 			}
+ 		}
+ 		return
+ 	case tokOrd1_DESTRUCTURING_LHS, tokOrd1_DEFAULT_VALUE, tokOrd1_CATCH, tokOrd1_ITER_REST, tokOrd1_OBJECT_REST, tokOrd1_CAST:
+-		NodeUtil_getLhsNodesHelper(n.getFirstChild(), consumer)
++		nodeUtilLhsNodes_(n.getFirstChild(), consumer)
+ 	case tokOrd1_IMPORT_SPEC, tokOrd1_COMPUTED_PROP, tokOrd1_STRING_KEY:
+-		NodeUtil_getLhsNodesHelper(n.getLastChild(), consumer)
++		nodeUtilLhsNodes_(n.getLastChild(), consumer)
+ 	case tokOrd1_NAME, tokOrd1_IMPORT_STAR:
+-		consumer.accept(n.box_())
++		consumer(n)
+ 	case tokOrd1_GETPROP, tokOrd1_GETELEM:
+-		consumer.accept(n.box_())
++		consumer(n)
+ 	case tokOrd1_EMPTY:
+ 	case tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF:
+-		NodeUtil_getLhsNodesHelper(n.getFirstChild(), consumer)
++		nodeUtilLhsNodes_(n.getFirstChild(), consumer)
+ 	default:
+ 		if NodeUtil_isAssignmentOp(n) {
+-			NodeUtil_getLhsNodesHelper(n.getFirstChild(), consumer)
++			nodeUtilLhsNodes_(n.getFirstChild(), consumer)
+ 		} else {
+ 			panic(new_IllegalStateException_String(("Invalid node in lhs: " + objstr_(n.box_()))).self())
+ 		}
+diff --git a/go/closure/g_SyntacticScopeCreator.go b/go/closure/g_SyntacticScopeCreator.go
+index cbc0b817..0fd20bb5 100644
+--- a/go/closure/g_SyntacticScopeCreator.go
++++ b/go/closure/g_SyntacticScopeCreator.go
+@@ -153,11 +153,9 @@ func (this *SyntacticScopeCreator_ScopeScanner) declareLHS(s *Scope, n Node) {
+ 	if n.hasOneChild() && n.getFirstChild().isName() {
+ 		this.declareVar(s, n.getFirstChild())
+ 	} else {
+-		NodeUtil_visitLhsNodesInNode(n, &Consumer_fn{func(lhs_ any) {
+-			var lhs Node = Node_of_(lhs_)
+-			_ = lhs
+-			this.declareVar(s, lhs)
+-		}})
++		// NodeUtil.visitLhsNodesInNode, through the function-value walker (post-flip manual step).
++		Preconditions_checkArgument_boolean_Object((((((((NodeUtil_isNameDeclaration(n) || n.isParamList()) || NodeUtil_isAssignmentOp(n)) || n.isCatch()) || n.isDestructuringLhs()) || n.isDefaultValue()) || n.isImport()) || NodeUtil_isEnhancedFor(n)), n.box_())
++		nodeUtilLhsNodes_(n, func(lhs Node) { this.declareVar(s, lhs) })
+ 	}
+ }
+ 
