@@ -292,10 +292,14 @@ func new_DisambiguateProperties_PropertyReferenceIndexJson(prop *PropertyCluster
 	return this
 }
 
-func (this *DisambiguateProperties_PropertyReferenceIndexJson) compareTo(x_ any) int32 {
-	var x *DisambiguateProperties_PropertyReferenceIndexJson = cast_[*DisambiguateProperties_PropertyReferenceIndexJson](x_)
-	_ = x
+// compareToT_ is compareTo with the parameter types the class declares (implsplit).
+func (this *DisambiguateProperties_PropertyReferenceIndexJson) compareToT_(x *DisambiguateProperties_PropertyReferenceIndexJson) int32 {
 	return utf16Compare_(this.name_, x.name_)
+}
+
+// compareTo is the bridge of the interface's erased signature (javac's): it casts its arguments and calls compareToT_.
+func (this *DisambiguateProperties_PropertyReferenceIndexJson) compareTo(x_ any) int32 {
+	return this.compareToT_(cast_[*DisambiguateProperties_PropertyReferenceIndexJson](x_))
 }
 
 func (this *DisambiguateProperties_PropertyReferenceIndexJson) writeJson(writer *SimpleJsonWriter) {
@@ -344,10 +348,14 @@ func (this *DisambiguateProperties_PropertyReferenceJson) writeJson(writer *Simp
 	writer.setSerializeNulls(oldSerializeNulls)
 }
 
-func (this *DisambiguateProperties_PropertyReferenceJson) compareTo(x_ any) int32 {
-	var x *DisambiguateProperties_PropertyReferenceJson = cast_[*DisambiguateProperties_PropertyReferenceJson](x_)
-	_ = x
+// compareToT_ is compareTo with the parameter types the class declares (implsplit).
+func (this *DisambiguateProperties_PropertyReferenceJson) compareToT_(x *DisambiguateProperties_PropertyReferenceJson) int32 {
 	return ComparisonChain_start().compare_int_int(this.receiverIndex, x.receiverIndex).compare(strobj_(this.location_), strobj_(x.location_)).result()
+}
+
+// compareTo is the bridge of the interface's erased signature (javac's): it casts its arguments and calls compareToT_.
+func (this *DisambiguateProperties_PropertyReferenceJson) compareTo(x_ any) int32 {
+	return this.compareToT_(cast_[*DisambiguateProperties_PropertyReferenceJson](x_))
 }
 
 type DisambiguateProperties_TypeNodeJson struct {
@@ -414,13 +422,17 @@ func new_DisambiguateProperties_TypeEdgeJson(e DiGraph_DiGraphEdge[*ColorGraphNo
 	return this
 }
 
-func (this *DisambiguateProperties_TypeEdgeJson) compareTo(x_ any) int32 {
-	var x *DisambiguateProperties_TypeEdgeJson = cast_[*DisambiguateProperties_TypeEdgeJson](x_)
-	_ = x
+// compareToT_ is compareTo with the parameter types the class declares (implsplit).
+func (this *DisambiguateProperties_TypeEdgeJson) compareToT_(x *DisambiguateProperties_TypeEdgeJson) int32 {
 	if this.dest == x.dest {
 		panic(new_IllegalArgumentException_0())
 	}
 	return (this.dest - x.dest)
+}
+
+// compareTo is the bridge of the interface's erased signature (javac's): it casts its arguments and calls compareToT_.
+func (this *DisambiguateProperties_TypeEdgeJson) compareTo(x_ any) int32 {
+	return this.compareToT_(cast_[*DisambiguateProperties_TypeEdgeJson](x_))
 }
 
 func (this *DisambiguateProperties_TypeEdgeJson) toLogsGson() any {
