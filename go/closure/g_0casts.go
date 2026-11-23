@@ -1689,7 +1689,7 @@ func tc_DiGraph_DiGraphNode_N__E_[N comparable, E comparable]() *tconv_[DiGraph_
 var tc_DiGraph_DiGraphNode_Node__p_ControlFlowGraph_Branch_ = &tconv_[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]]{
 	box: func(v DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]) any { return v },
 	unbox: func(v any) DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch] {
-		return cast_[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]](v)
+		return icast_DiGraph_DiGraphNode_Node_ControlFlowGraph_Branch(v)
 	},
 }
 
@@ -1765,7 +1765,7 @@ func tc_GraphNode_N__E_[N comparable, E comparable]() *tconv_[GraphNode[N, E]] {
 var tc_GraphNode_p_AmbiguateProperties_Property__any_ = &tconv_[GraphNode[*AmbiguateProperties_Property, any]]{
 	box: func(v GraphNode[*AmbiguateProperties_Property, any]) any { return v },
 	unbox: func(v any) GraphNode[*AmbiguateProperties_Property, any] {
-		return cast_[GraphNode[*AmbiguateProperties_Property, any]](v)
+		return icast_GraphNode_AmbiguateProperties_Property_any(v)
 	},
 }
 
@@ -5563,4 +5563,53 @@ func init() {
 		(*ZipArchive_Opened)(nil),
 		Node(0),
 	)
+}
+
+func icast_AdjacencyGraph_Var_any(v any) AdjacencyGraph[*Var, any] {
+	if v == nil {
+		return nil
+	}
+	return v.(AdjacencyGraph[*Var, any])
+}
+
+func icast_DiGraph_DiGraphEdge_ColorGraphNode_any(v any) DiGraph_DiGraphEdge[*ColorGraphNode, any] {
+	if v == nil {
+		return nil
+	}
+	return v.(DiGraph_DiGraphEdge[*ColorGraphNode, any])
+}
+
+func icast_DiGraph_DiGraphEdge_Node_ControlFlowGraph_Branch(v any) DiGraph_DiGraphEdge[Node, ControlFlowGraph_Branch] {
+	if v == nil {
+		return nil
+	}
+	return v.(DiGraph_DiGraphEdge[Node, ControlFlowGraph_Branch])
+}
+
+func icast_DiGraph_DiGraphNode_ColorGraphNode_any(v any) DiGraph_DiGraphNode[*ColorGraphNode, any] {
+	if v == nil {
+		return nil
+	}
+	return v.(DiGraph_DiGraphNode[*ColorGraphNode, any])
+}
+
+func icast_DiGraph_DiGraphNode_Node_ControlFlowGraph_Branch(v any) DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch] {
+	if v == nil {
+		return nil
+	}
+	return v.(DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch])
+}
+
+func icast_GraphNode_AmbiguateProperties_Property_any(v any) GraphNode[*AmbiguateProperties_Property, any] {
+	if v == nil {
+		return nil
+	}
+	return v.(GraphNode[*AmbiguateProperties_Property, any])
+}
+
+func icast_GraphNode_Node_ControlFlowGraph_Branch(v any) GraphNode[Node, ControlFlowGraph_Branch] {
+	if v == nil {
+		return nil
+	}
+	return v.(GraphNode[Node, ControlFlowGraph_Branch])
 }
