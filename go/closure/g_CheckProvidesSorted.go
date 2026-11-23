@@ -90,7 +90,7 @@ func (this *CheckProvidesSorted) checkCanonical(t *NodeTraversal) {
 	var sortedProvides *JTList[string] = tlistCopy_(jtc_string, this.originalProvides)
 	Collections_sortT_[string](sortedProvides.asListT())
 	var canonicalProvides *JTList[string] = jimmutableListCopyOf_(jtc_string, Collection(new_LinkedHashSet_Collection(Collection(sortedProvides.asList()))))
-	if !Object_equals(lgBox_(this.originalProvides.asListT()), canonicalProvides.asList()) {
+	if !equalsDyn_(lgBox_(this.originalProvides.asListT()), canonicalProvides.asList()) {
 		this.needsFixField = true
 		this.replacement_ = Optional_of[string](JString_join_s("\n", Iterable_un_(Iterables_transformT_[string, string](canonicalProvides.asIterable(), Function_base[string, string](func(p0 string) string { return CheckProvidesSorted_formatProvide(p0) })))))
 		if this.mode_ == CheckProvidesSorted_Mode_COLLECT_AND_REPORT {

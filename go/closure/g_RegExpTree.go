@@ -1201,7 +1201,7 @@ func (this *RegExpTree_Alternation) simplify_impl(flags string) *RegExpTree {
 		}
 	}
 	return func() *RegExpTree {
-		if Object_equals(lgBox_(alternatives), this.alternatives.asList()) {
+		if equalsDyn_(lgBox_(alternatives), this.alternatives.asList()) {
 			return this.up_RegExpTree()
 		}
 		return new_RegExpTree_Alternation(List_un_(alternatives)).up_RegExpTree()
@@ -1272,11 +1272,11 @@ func (this *RegExpTree_Alternation) equals_impl(o any) bool {
 		}
 		alternation = p
 		return true
-	}() && equalsR_(this.alternatives.asImm(), alternation.alternatives.asList())))
+	}() && equalsBy_(this.alternatives.asImm(), alternation.alternatives.asList(), (*ImmutableCollection).equals)))
 }
 
 func (this *RegExpTree_Alternation) hashCode_impl() int32 {
-	return (1370848465 ^ hashR_(this.alternatives.asImm()))
+	return (1370848465 ^ hashBy_(this.alternatives.asImm(), (*ImmutableCollection).hashCode))
 }
 
 func (this *RegExpTree_Alternation) children_impl() *JTList[*RegExpTree] {
@@ -2062,13 +2062,13 @@ func (this *RegExpTree_DecomposedCharset) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.inverted_ == o.inverted_ && equals_(this.ranges_, o.ranges_) && this.namedGroups_ == o.namedGroups_
+	return true && this.inverted_ == o.inverted_ && objequalsBy_(this.ranges_, obj_(o.ranges_), (*CharRanges).equals) && this.namedGroups_ == o.namedGroups_
 }
 
 func (this *RegExpTree_DecomposedCharset) hashCode() int32 {
 	var h int32
 	h = h*31 + boolhash_(this.inverted_)
-	h = h*31 + hash_(this.ranges_)
+	h = h*31 + objhashBy_(this.ranges_, (*CharRanges).hashCode)
 	h = h*31 + strhash_(this.namedGroups_)
 	return h
 }
@@ -2235,11 +2235,11 @@ func (this *RegExpTree_Concatenation) equals_impl(o any) bool {
 		}
 		concatenation = p
 		return true
-	}() && equalsR_(this.elements_.asImm(), concatenation.elements_.asList()))
+	}() && equalsBy_(this.elements_.asImm(), concatenation.elements_.asList(), (*ImmutableCollection).equals))
 }
 
 func (this *RegExpTree_Concatenation) hashCode_impl() int32 {
-	return (546930238 ^ hashR_(this.elements_.asImm()))
+	return (546930238 ^ hashBy_(this.elements_.asImm(), (*ImmutableCollection).hashCode))
 }
 
 func (this *RegExpTree_Concatenation) children_impl() *JTList[*RegExpTree] {

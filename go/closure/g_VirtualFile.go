@@ -37,7 +37,7 @@ func (this *VirtualFile) wasModified() bool {
 }
 
 func (this *VirtualFile) hashCode() int32 {
-	return Objects_hash([]any{strobj_(this.name_), strobj_(this.code_)})
+	return hashOf_(objhashStr_(this.name_), objhashStr_(this.code_))
 }
 
 func (this *VirtualFile) equals(o any) bool {

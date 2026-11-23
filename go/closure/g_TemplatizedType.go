@@ -92,7 +92,7 @@ func (this *TemplatizedType) recursionUnsafeHashCode_impl() int32 {
 	if this.isSpecializedOnlyWithUnknown {
 		return baseHash
 	}
-	return Objects_hash([]any{lgBox_(this.templateTypes), int32(baseHash)})
+	return hashOf_(objhashDyn_(lgBox_(this.templateTypes)), int32(baseHash))
 }
 
 func (this *TemplatizedType) visitUntyped_impl(visitor Visitor) any {

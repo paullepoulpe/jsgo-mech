@@ -816,7 +816,7 @@ func (this *InlineVariables_InliningBehavior_StandardVarExpert) reanalyzeAfterAl
 	if (this.isDeclaredOrInferredConstant && initialValueAnalysis.isImmutableValue()) && this.isAssignedOnceInLifetime() {
 		return this.createInlineWellDefinedVarAnalysis(initValue).up_InlineVariables_InlineVarAnalysis()
 	}
-	if ((initialValueAnalysis.isAlias() && (equals_(aliasedVar, initialValueAnalysis.getAliasedVar()))) && aliasedVarAnalysis.isSafeToInlineAliases()) && this.isWellDefinedAssignedOnce() {
+	if ((initialValueAnalysis.isAlias() && (objequalsBy_(aliasedVar, obj_(initialValueAnalysis.getAliasedVar()), (*Var).equals))) && aliasedVarAnalysis.isSafeToInlineAliases()) && this.isWellDefinedAssignedOnce() {
 		return this.createInlineWellDefinedVarAnalysis(initValue).up_InlineVariables_InlineVarAnalysis()
 	}
 	return this.analyzeWithInitialValue(initialization, initValue, initialValueAnalysis)

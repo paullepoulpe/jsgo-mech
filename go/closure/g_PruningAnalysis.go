@@ -141,8 +141,8 @@ func (this *PruningAnalysis_Result) equals(p0 any) bool {
 
 func (this *PruningAnalysis_Result) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(this.entryPointDependencyCount_.asMap())
-	h = h*31 + Objects_hashCode(this.bottleneckBlame_.asMap())
+	h = h*31 + objhashDyn_(this.entryPointDependencyCount_.asMap())
+	h = h*31 + objhashDyn_(this.bottleneckBlame_.asMap())
 	return h
 }
 
