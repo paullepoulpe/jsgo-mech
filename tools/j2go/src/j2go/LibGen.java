@@ -112,7 +112,11 @@ final class LibGen {
       Map.entry("com.google.common.collect.ImmutableSortedSet", new String[] {"java.util.Set", "sorted"}),
       Map.entry("com.google.common.collect.ImmutableSortedMap", new String[] {"java.util.Map", "sorted"}),
       Map.entry("java.util.SortedSet", new String[] {"java.util.Set", "sorted"}),
-      Map.entry("java.util.EnumSet", new String[] {"java.util.Set", "enumset"}));
+      Map.entry("java.util.EnumSet", new String[] {"java.util.Set", "enumset"}),
+      Map.entry("java.util.concurrent.ConcurrentHashMap", new String[] {"java.util.Map", "cmaps"}),
+      Map.entry("java.util.concurrent.ConcurrentMap", new String[] {"java.util.Map", "cmaps"}),
+      Map.entry("java.util.IdentityHashMap", new String[] {"java.util.Map", "cmaps"}),
+      Map.entry("java.util.EnumMap", new String[] {"java.util.Map", "cmaps"}));
 
   /**
    * The typed makers of the kinds of CLASSES_T2 (rt_lg_t2.go): a library function ("class.method"

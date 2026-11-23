@@ -16,7 +16,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
+import java.util.EnumMap;
 import java.util.EnumSet;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -27,6 +29,8 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Rule "typed library interfaces" (j2go.LibGen): Iterator and Iterable with their typed methods.
@@ -1463,7 +1467,48 @@ public class LibGen {
     return r;
   }
 
+  /** Kind `cmaps`: ConcurrentHashMap, ConcurrentMap, IdentityHashMap, EnumMap at typed places (erased objects through mapAs_). */
+  static String cmaps() {
+    String r = "";
+    ConcurrentHashMap<String, Integer> chm = new ConcurrentHashMap<>();
+    chm.put("b", 2);
+    chm.put("a", 1);
+    r += chm.get("a") + "" + chm.get("z") + chm.size() + chm.containsKey("b") + chm.remove("b") + chm;
+    ConcurrentMap<String, Long> cm = new ConcurrentHashMap<>();
+    cm.put("x", 5L);
+    r += cm.putIfAbsent("x", 6L) + "" + cm.putIfAbsent("y", 7L) + cm.get("y");
+    long sum = 0;
+    for (Map.Entry<String, Long> e : cm.entrySet()) {
+      sum += e.getValue();
+      r += e.getKey();
+    }
+    r += sum;
+    Map<String, Long> asMap = cm;
+    r += asMap.get("x") + "" + (asMap == cm);
+    Object o = cm;
+    r += (o instanceof ConcurrentMap) + "" + (o == cm) + (o instanceof Map);
+    IdentityHashMap<Eq, String> ids = new IdentityHashMap<>();
+    Eq e1 = new Eq("q"), e2 = new Eq("q");
+    ids.put(e1, "one");
+    ids.put(e2, "two");
+    r += ids.size() + "" + ids.get(e1) + ids.get(e2) + ids.get(new Eq("q")) + ids.containsKey(e1) + ids.remove(e1) + ids.size();
+    EnumMap<Hue, String> em = new EnumMap<>(Hue.class);
+    em.put(Hue.GRAY, "g");
+    em.put(Hue.RED, "r");
+    for (Map.Entry<Hue, String> e : em.entrySet()) {
+      r += e.getKey() + e.getValue();
+    }
+    r += em.get(Hue.RED) + em.get(Hue.BLUE) + em.keySet() + em.values() + em;
+    Map<String, ConcurrentMap<String, Long>> nested = new LinkedHashMap<>();
+    nested.put("n", cm);
+    r += nested.get("n").get("x") + "" + (nested.get("n") == cm);
+    ConcurrentHashMap<String, Integer> nul = null;
+    r += (nul == null);
+    return r;
+  }
+
   public static String run() {
+    p(cmaps());
     p(enumSets());
     p(sorted());
     p(classes());
