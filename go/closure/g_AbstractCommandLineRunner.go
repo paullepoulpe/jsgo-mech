@@ -2720,7 +2720,10 @@ func (this AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption) name()
 }
 
 func (this AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption) toString() string {
@@ -2919,7 +2922,10 @@ func (this AbstractCommandLineRunner_JsSourceType) name() string {
 }
 
 func (this AbstractCommandLineRunner_JsSourceType) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this AbstractCommandLineRunner_JsSourceType) toString() string {
