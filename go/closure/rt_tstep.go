@@ -8,7 +8,7 @@ package closure
 // view boxes it.
 
 func (v *tlistView_[T]) step_(i int) (any, int) {
-	l := v.l
+	l := v.tl()
 	if i >= len(l.items) {
 		return nil, -1
 	}
