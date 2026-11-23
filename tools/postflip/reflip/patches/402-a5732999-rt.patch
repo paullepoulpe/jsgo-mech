@@ -2242,10 +2242,10 @@ index cef178692..000000000
 -func (v *tmapEntrySet_[K, V]) step_(i int) (any, int)        { return v.m.step(i, tentries_) }
 diff --git a/go/closure/rt_jtset.go b/go/closure/rt_jtset.go
 deleted file mode 100644
-index f57c4fd56..000000000
+index 99b8d1ad5..000000000
 --- a/go/closure/rt_jtset.go
 +++ /dev/null
-@@ -1,511 +0,0 @@
+@@ -1,512 +0,0 @@
 -package closure
 -
 -// Typed sets (j2go rule "typed collections"): a LinkedHashSet<K> that the translator finds
@@ -2695,6 +2695,7 @@ index f57c4fd56..000000000
 -	// in the order of cmp (nil: their natural ordering); hs, first and next are not used.
 -	sorted bool
 -	cmp    Comparator_e
+-	cmpT   any // the comparator at the key type, a func(K, K) int32 (newTSortedSetCT_), or nil: cmp
 -	view   any // the sorted collection as erased code sees it, once that is needed
 -}
 -
@@ -2759,10 +2760,10 @@ index f57c4fd56..000000000
 -}
 diff --git a/go/closure/rt_jtsorted.go b/go/closure/rt_jtsorted.go
 deleted file mode 100644
-index a209eaa15..000000000
+index 37c60dd6e..000000000
 --- a/go/closure/rt_jtsorted.go
 +++ /dev/null
-@@ -1,294 +0,0 @@
+@@ -1,297 +0,0 @@
 -package closure
 -
 -import "sort"
@@ -2790,6 +2791,9 @@ index a209eaa15..000000000
 -// tsortCmp_ compares two keys of a sorted collection: with its comparator, or by natural
 -// ordering (a null key throws NullPointerException there, through compareNatural_).
 -func tsortCmp_[K any](x *teq_, c *jtconv_[K], a, b K) int32 {
+-	if x.cmpT != nil {
+-		return x.cmpT.(func(K, K) int32)(a, b)
+-	}
 -	if x.cmp != nil {
 -		return x.cmp.compare(c.box(a), c.box(b))
 -	}
@@ -3584,6 +3588,77 @@ index 72612d380..1b999f639 100644
  	}
  	return tmapImm_(kc, vc, cast_[*ErasedImmutableMap](lgBox_(x)))
  }
+diff --git a/go/closure/rt_lg_t2.go b/go/closure/rt_lg_t2.go
+index 18200e759..bd3bb9298 100644
+--- a/go/closure/rt_lg_t2.go
++++ b/go/closure/rt_lg_t2.go
+@@ -18,7 +18,7 @@ func tenumSetNoneOf_[K comparable](c *tconv_[K], cl *Class) *TSet[K] {
+ func tenumSetAllOf_[K comparable](c *tconv_[K], cl *Class) *TSet[K] {
+ 	s := tenumSetNoneOf_(c, cl)
+ 	for _, x := range enumRegistry_[cl.name_] {
+-		s.addSorted(c.unbox(x))
++		s.Add(c.unbox(x))
+ 	}
+ 	return s
+ }
+@@ -26,7 +26,7 @@ func tenumSetAllOf_[K comparable](c *tconv_[K], cl *Class) *TSet[K] {
+ // tenumSetOf_ is EnumSet.of(e).
+ func tenumSetOf_[K comparable](c *tconv_[K], e *Enum) *TSet[K] {
+ 	s := tenumSetNoneOf_(c, nil)
+-	s.addSorted(c.unbox(e.self()))
++	s.Add(c.unbox(e.self()))
+ 	return s
+ }
+ 
+@@ -34,7 +34,7 @@ func tenumSetOf_[K comparable](c *tconv_[K], e *Enum) *TSet[K] {
+ func tenumSetOfArr_[K comparable](c *tconv_[K], e *Enum, rest []*Enum) *TSet[K] {
+ 	s := tenumSetOf_(c, e)
+ 	for _, x := range rest {
+-		s.addSorted(c.unbox(x.self()))
++		s.Add(c.unbox(x.self()))
+ 	}
+ 	return s
+ }
+@@ -43,7 +43,7 @@ func tenumSetOfArr_[K comparable](c *tconv_[K], e *Enum, rest []*Enum) *TSet[K]
+ func tenumSetCopyOf_[K comparable](c *tconv_[K], from Collection) *TSet[K] {
+ 	s := tenumSetNoneOf_(c, nil)
+ 	for _, x := range toSlice_(from) {
+-		s.addSorted(c.unbox(x))
++		s.Add(c.unbox(x))
+ 	}
+ 	return s
+ }
+@@ -159,21 +159,23 @@ func (d *TDeque[T]) asDequeT() DequeT[T] {
+ 	if d == nil {
+ 		return nil
+ 	}
+-	return &d.dview
++	d.asDeque()
++	return d.dview
+ }
+ 
+ func (d *TDeque[T]) asQueueT() QueueT[T] {
+ 	if d == nil {
+ 		return nil
+ 	}
+-	return &d.dview
++	d.asDeque()
++	return d.dview
+ }
+ 
+-func (v *jtdequeView_[T]) peek_t() T     { return v.d.peek() }
+-func (v *jtdequeView_[T]) poll_t() T     { return v.d.poll() }
+-func (v *jtdequeView_[T]) remove_0_t() T { return v.d.pop() }
+-func (v *jtdequeView_[T]) pop_t() T      { return v.d.pop() }
+-func (v *jtdequeView_[T]) push_t(x T)    { v.d.push(x) }
++func (v *tdequeFace_[T]) peek_t() T     { return v.d.peek() }
++func (v *tdequeFace_[T]) poll_t() T     { return v.d.poll() }
++func (v *tdequeFace_[T]) remove_0_t() T { return v.d.pop() }
++func (v *tdequeFace_[T]) pop_t() T      { return v.d.pop() }
++func (v *tdequeFace_[T]) push_t(x T)    { v.d.push(x) }
+ 
+ // ---- kind `guava`: PeekingIterator and LoadingCache as typed interfaces. The runtime makes
+ // both erased (Iterators.peekingIterator, CacheBuilder.build), so every value is a wrapper.
 diff --git a/go/closure/rt_lg_test.go b/go/closure/rt_lg_test.go
 index 0ea7502d8..afe4fcd9c 100644
 --- a/go/closure/rt_lg_test.go
@@ -3606,6 +3681,66 @@ index 0ea7502d8..afe4fcd9c 100644
  		t.Fatal("the twin of an immutable list was made although only typed code read it")
  	}
  	// an erased immutable list in a wrapper: the typed list of that object, made once
+diff --git a/go/closure/rt_lgfn.go b/go/closure/rt_lgfn.go
+index de1a91a1f..eab6904d8 100644
+--- a/go/closure/rt_lgfn.go
++++ b/go/closure/rt_lgfn.go
+@@ -242,7 +242,7 @@ func Map_getOrDefaultT_[K, V any](m MapT[K, V], k any, def V) V {
+ // Map_get_sT_ is Map.get with a String key on a map whose keys are Strings (Map_get_s): the
+ // typed map's own lookup, else the erased helper's and the cast of erased code.
+ func Map_get_sT_[V any](m MapT[string, V], k string) V {
+-	if v, ok := m.(*jtmapView_[string, V]); ok && k != nullstr_ {
++	if v, ok := m.(*tmapView_[string, V]); ok && k != nullstr_ {
+ 		return v.m.Get(k)
+ 	}
+ 	return junboxT_[V](Map_get_s(Map_un_(m), k))
+@@ -251,7 +251,7 @@ func Map_get_sT_[V any](m MapT[string, V], k string) V {
+ // Map_getOrDefault_sT_ is Map.getOrDefault with a String key on a map whose keys are Strings
+ // (Map_getOrDefault_s).
+ func Map_getOrDefault_sT_[V any](m MapT[string, V], k string, def V) V {
+-	if v, ok := m.(*jtmapView_[string, V]); ok && k != nullstr_ {
++	if v, ok := m.(*tmapView_[string, V]); ok && k != nullstr_ {
+ 		return v.m.GetOr(k, def)
+ 	}
+ 	u := Map_un_(m)
+@@ -264,21 +264,22 @@ func Map_getOrDefault_sT_[V any](m MapT[string, V], k string, def V) V {
+ // ---- constructors with a comparator, and Splitter
+ 
+ // newTSortedSetCT_ is newTSortedSetC_ with the comparator at the element type: the set compares
+-// its keys with it as they are (tsortCmp_); erased code that asks for the comparator gets it at
++// its keys with it as they are (tsort_.cmp); erased code that asks for the comparator gets it at
+ // Object.
+ func newTSortedSetCT_[K comparable](c *tconv_[K], cmp Comparator[K]) *TSet[K] {
+ 	s := newTSortedSetC_(c, cmpErased_(c, cmp))
+ 	if cmp != nil {
+-		s.eq.cmpT = (func(K, K) int32)(cmp)
++		s.x.sort.cmp = (func(K, K) int32)(cmp)
+ 	}
+ 	return s
+ }
+ 
+ // newTSortedMapCT_ is newTSortedMapC_ with the comparator at the key type.
+ func newTSortedMapCT_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], cmp Comparator[K]) *TMap[K, V] {
+-	m := newTSortedMapC_(kc, vc, cmpErased_(kc, cmp))
++	m := newTMap_(kc, vc)
++	m.setSorted_(cmpErased_(kc, cmp))
+ 	if cmp != nil {
+-		m.eq.cmpT = (func(K, K) int32)(cmp)
++		m.x.sort.cmp = (func(K, K) int32)(cmp)
+ 	}
+ 	return m
+ }
+@@ -296,9 +297,7 @@ func splitToListST_(c *tconv_[string], sp *Splitter, s string) *TList[string] {
+ 	if s == nullstr_ {
+ 		return splitToListT_(c, sp, nil)
+ 	}
+-	l := &TList[string]{c: c, items: sp.splitStrs_(s), twin: unmodMark_}
+-	l.view.l = l
+-	return l
++	return &TList[string]{c: c, items: sp.splitStrs_(s), imm: true, unmod: true}
+ }
+ 
+ // Collections_sortT_ is Collections.sort(List) (Collections_sort).
 diff --git a/go/closure/rt_tdeque.go b/go/closure/rt_tdeque.go
 new file mode 100644
 index 000000000..21de472dd
