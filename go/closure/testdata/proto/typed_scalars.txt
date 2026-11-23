@@ -1,0 +1,115 @@
+ast defaults: kind=1/0 line=0 col=0 orig=0 props=0 type=false/0 file=0 str=false/0 dbl=false/0 tmpl=false jsdoc=false case=4
+ast empty: builder {}
+ast empty:  | {} | hash -126628231 | size 0
+ast set: kind=13/214 line=-3 col=1048576 orig=-1 props=-9223372036854775808 type=true/0 file=2147483647 str=false/0 dbl=false/0 tmpl=false jsdoc=false case=4
+ast set: builder {kind: IDENTIFIER; relative_line: -3; relative_column: 1048576; original_name_pointer: 4294967295; boolean_properties: -9223372036854775808; type: 0; source_file: 2147483647}
+ast set: 08d6012805308080800148ffffffff0f708080808080808080800178008001ffffffff07 | {kind: IDENTIFIER; relative_line: -3; relative_column: 1048576; original_name_pointer: 4294967295; boolean_properties: -9223372036854775808; type: 0; source_file: 2147483647} | hash -1941975484 | size 36
+ast message: kind=13/214 line=-3 col=1048576 orig=-1 props=-9223372036854775808 type=true/0 file=2147483647 case=4
+ast unknown kind: kind=142/9999 line=-3 col=1048576 orig=-1 props=-9223372036854775808 type=true/0 file=2147483647 str=false/0 dbl=false/0 tmpl=false jsdoc=false case=4
+ast unknown kind: builder {kind: 9999; relative_line: -3; relative_column: 1048576; original_name_pointer: 4294967295; boolean_properties: -9223372036854775808; type: 0; source_file: 2147483647}
+ast unknown kind: 088f4e2805308080800148ffffffff0f708080808080808080800178008001ffffffff07 | {kind: 9999; relative_line: -3; relative_column: 1048576; original_name_pointer: 4294967295; boolean_properties: -9223372036854775808; type: 0; source_file: 2147483647} | hash -1071903059 | size 36
+ast clear 0: kind=1/0 line=-3 col=1048576 orig=-1 props=-9223372036854775808 type=true/0 file=2147483647 str=false/0 dbl=false/0 tmpl=false jsdoc=false case=4
+ast clear 0: builder {relative_line: -3; relative_column: 1048576; original_name_pointer: 4294967295; boolean_properties: -9223372036854775808; type: 0; source_file: 2147483647}
+ast clear 0: 2805308080800148ffffffff0f708080808080808080800178008001ffffffff07 | {relative_line: -3; relative_column: 1048576; original_name_pointer: 4294967295; boolean_properties: -9223372036854775808; type: 0; source_file: 2147483647} | hash -45375 | size 33
+ast clear 1: kind=1/0 line=0 col=1048576 orig=-1 props=-9223372036854775808 type=true/0 file=2147483647 str=false/0 dbl=false/0 tmpl=false jsdoc=false case=4
+ast clear 1: builder {relative_column: 1048576; original_name_pointer: 4294967295; boolean_properties: -9223372036854775808; type: 0; source_file: 2147483647}
+ast clear 1: 308080800148ffffffff0f708080808080808080800178008001ffffffff07 | {relative_column: 1048576; original_name_pointer: 4294967295; boolean_properties: -9223372036854775808; type: 0; source_file: 2147483647} | hash -1110490781 | size 31
+ast clear 2: kind=1/0 line=0 col=0 orig=-1 props=-9223372036854775808 type=true/0 file=2147483647 str=false/0 dbl=false/0 tmpl=false jsdoc=false case=4
+ast clear 2: builder {original_name_pointer: 4294967295; boolean_properties: -9223372036854775808; type: 0; source_file: 2147483647}
+ast clear 2: 48ffffffff0f708080808080808080800178008001ffffffff07 | {original_name_pointer: 4294967295; boolean_properties: -9223372036854775808; type: 0; source_file: 2147483647} | hash -755682051 | size 26
+ast clear 3: kind=1/0 line=0 col=0 orig=0 props=-9223372036854775808 type=true/0 file=2147483647 str=false/0 dbl=false/0 tmpl=false jsdoc=false case=4
+ast clear 3: builder {boolean_properties: -9223372036854775808; type: 0; source_file: 2147483647}
+ast clear 3: 708080808080808080800178008001ffffffff07 | {boolean_properties: -9223372036854775808; type: 0; source_file: 2147483647} | hash -2078685223 | size 20
+ast clear 4: kind=1/0 line=0 col=0 orig=0 props=0 type=true/0 file=2147483647 str=false/0 dbl=false/0 tmpl=false jsdoc=false case=4
+ast clear 4: builder {type: 0; source_file: 2147483647}
+ast clear 4: 78008001ffffffff07 | {type: 0; source_file: 2147483647} | hash 1134658731 | size 9
+ast clear 5: kind=1/0 line=0 col=0 orig=0 props=0 type=false/0 file=2147483647 str=false/0 dbl=false/0 tmpl=false jsdoc=false case=4
+ast clear 5: builder {source_file: 2147483647}
+ast clear 5: 8001ffffffff07 | {source_file: 2147483647} | hash -1357340624 | size 7
+ast clear 6: kind=1/0 line=0 col=0 orig=0 props=0 type=false/0 file=0 str=false/0 dbl=false/0 tmpl=false jsdoc=false case=4
+ast clear 6: builder {}
+ast clear 6:  | {} | hash -126628231 | size 0
+ast zeros: builder {}
+ast zeros:  | {} | hash -126628231 | size 0
+ast optional zero: builder {type: 0}
+ast optional zero: 7800 | {type: 0} | hash 790142972 | size 2
+ast negative: builder {relative_line: -2147483648; relative_column: -1; boolean_properties: -1; type: -1; source_file: 4294967295}
+ast negative: 28ffffffff0f300170ffffffffffffffffff0178ffffffffffffffffff018001ffffffff0f | {relative_line: -2147483648; relative_column: -1; boolean_properties: -1; type: -1; source_file: 4294967295} | hash -1528910082 | size 37
+double 0: has=true get=0
+double 0: builder {double_value: 0.0}
+double 0: 210000000000000000 | {double_value: 0.0} | hash 790142389 | size 9
+double -0: has=true get=-0
+double -0: builder {double_value: -0.0}
+double -0: 210000000000000080 | {double_value: -0.0} | hash -1357341259 | size 9
+double 1.5: has=true get=1.5
+double 1.5: builder {double_value: 1.5}
+double 1.5: 21000000000000f83f | {double_value: 1.5} | hash 1863359925 | size 9
+double -1e+300: has=true get=-1e+300
+double -1e+300: builder {double_value: -1.0E300}
+double -1e+300: 219c7500883ce437fe | {double_value: -1.0E300} | hash -1521471659 | size 9
+double +Inf: has=true get=+Inf
+double +Inf: builder {double_value: Infinity}
+double +Inf: 21000000000000f07f | {double_value: Infinity} | hash -1358389835 | size 9
+double -Inf: has=true get=-Inf
+double -Inf: builder {double_value: -Infinity}
+double -Inf: 21000000000000f0ff | {double_value: -Infinity} | hash 789093813 | size 9
+double NaN: has=true get=NaN
+double NaN: builder {double_value: NaN}
+double NaN: 21000000000000f87f | {double_value: NaN} | hash -1357865547 | size 9
+double 5e-324: has=true get=5e-324
+double 5e-324: builder {double_value: 4.9E-324}
+double 5e-324: 210100000000000000 | {double_value: 4.9E-324} | hash 790142390 | size 9
+double cleared: builder {}
+double cleared:  | {} | hash -126628231 | size 0
+null enum: java.lang.NullPointerException: \x00\xff<null>\xff\x00
+object defaults: inv=false uuid=0 empty=true keep=false debug=false
+object set: inv=true uuid=00ff07 assert=true marked=false
+object set: builder {is_invalidating: true; uuid: "\000\377\a"; closure_assert: true}
+object set: 10011a0300ff074801 | {is_invalidating: true; uuid: "\000\377\a"; closure_assert: true} | hash -1435457731 | size 9
+object message: inv=true uuid=00ff07 assert=true debug=false default debug=true
+object empty uuid: 0 empty=true
+object empty uuid: builder {is_invalidating: true; closure_assert: true}
+object empty uuid: 10014801 | {is_invalidating: true; closure_assert: true} | hash 69266353 | size 4
+object bools cleared: builder {uuid: "u"}
+object bools cleared: 1a0175 | {uuid: "u"} | hash 898013175 | size 3
+object uuid cleared: 0
+object uuid cleared: builder {}
+object uuid cleared:  | {} | hash 2037336868 | size 0
+null bytes: java.lang.NullPointerException: \x00\xff<null>\xff\x00
+object default message: uuid empty=true
+file defaults: name="" pre=false/"" kind=1/0
+file set: name="a\xc3\xa9.js" bytes=61c3a92e6a73 kind=2/1
+file set: builder {filename: "a\303\251.js"; source_kind: EXTERN; num_bytes_plus_one: 300; is_closure_unaware_code: true}
+file set: 0a0661c3a92e6a73280130ac024001 | {filename: "a\303\251.js"; source_kind: EXTERN; num_bytes_plus_one: 300; is_closure_unaware_code: true} | hash -669030907 | size 15
+file empty name: builder {source_kind: EXTERN; num_bytes_plus_one: 300; is_closure_unaware_code: true}
+file empty name: 280130ac024001 | {source_kind: EXTERN; num_bytes_plus_one: 300; is_closure_unaware_code: true} | hash -1500455375 | size 7
+file bytes name: name="b.js" pre=true/""
+file bytes name: builder {filename: "b.js"; preloaded_contents: ""; source_kind: EXTERN; num_bytes_plus_one: 300; is_closure_unaware_code: true}
+file bytes name: 0a04622e6a731200280130ac024001 | {filename: "b.js"; preloaded_contents: ""; source_kind: EXTERN; num_bytes_plus_one: 300; is_closure_unaware_code: true} | hash -1411235083 | size 15
+file cleared: name="" pre=false
+file cleared: builder {num_bytes_plus_one: 300; is_closure_unaware_code: true}
+file cleared: 30ac024001 | {num_bytes_plus_one: 300; is_closure_unaware_code: true} | hash -1276956009 | size 5
+null string: java.lang.NullPointerException: \x00\xff<null>\xff\x00
+state defaults: map=false/"" stage=1/0 id=0
+state set: map=true/"" stage=4/3 id=-1
+state set: builder {type_checking_has_run: true; life_cycle_stage: LIFE_CYCLE_STAGE_NORMALIZED; unique_name_id: -1; id_generator_map: ""}
+state set: 1001200338ffffffffffffffffff016200 | {type_checking_has_run: true; life_cycle_stage: LIFE_CYCLE_STAGE_NORMALIZED; unique_name_id: -1; id_generator_map: ""} | hash 548069654 | size 17
+state cleared: builder {}
+state cleared:  | {} | hash 355893856 | size 0
+requirement defaults: msg=false/"" type=false/1 sev=false/2 strat=false/2 loose=false/true ext=false/false
+requirement empty: builder {}
+requirement empty:  | {} | hash 839002648 | size 0
+requirement default message: sev=false/2 strat=2 loose=true type=1
+requirement set to defaults: msg=true/"" type=true/1 sev=true/2 strat=true/2 loose=true/true ext=true/false
+requirement set to defaults: builder {error_message: ""; type: CUSTOM; report_loose_type_violations: true; severity: WARNING; type_matching_strategy: LOOSE; allow_extending_value: false}
+requirement set to defaults: 0a0030015801600168017800 | {error_message: ""; type: CUSTOM; report_loose_type_violations: true; severity: WARNING; type_matching_strategy: LOOSE; allow_extending_value: false} | hash -1439428231 | size 12
+requirement set: msg=true/"e" type=true/1 sev=true/3 strat=true/2 loose=true/false ext=true/false
+requirement set: builder {error_message: "e"; type: CUSTOM; report_loose_type_violations: false; severity: ERROR; type_matching_strategy: LOOSE; allow_extending_value: false}
+requirement set: 0a016530015800600268017800 | {error_message: "e"; type: CUSTOM; report_loose_type_violations: false; severity: ERROR; type_matching_strategy: LOOSE; allow_extending_value: false} | hash 2129927341 | size 13
+requirement cleared: msg=false/"" type=false/1 sev=false/2 strat=false/2 loose=false/true ext=false/false
+requirement cleared: builder {}
+requirement cleared:  | {} | hash 839002648 | size 0
+mapping defaults: file=false/"" line=false/0 prec=false/1
+mapping set: line=true/0 prec=true/2
+mapping set: builder {line_number: 0; precision: EXACT}
+mapping set: 10002801 | {line_number: 0; precision: EXACT} | hash -1756913841 | size 4

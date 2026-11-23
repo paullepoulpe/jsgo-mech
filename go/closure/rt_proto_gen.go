@@ -3,6 +3,8 @@
 
 package closure
 
+import "unsafe"
+
 // ================================================================ java/src/com/google/debugging/sourcemap/proto/mapping.proto
 
 // ---- enum sourcemap.OriginalMapping.Precision
@@ -109,8 +111,18 @@ var Mapping_OriginalMapping_Precision_desc_ = pbRegEnum_(&pbEnumDesc_{name: "sou
 
 // ---- message sourcemap.OriginalMapping
 
+type Mapping_OriginalMapping_x_ struct {
+	original_file_   string
+	identifier_      string
+	pbHas_           [1]uint32
+	line_number_     int32
+	column_position_ int32
+	precision_       int32
+}
+
 type Mapping_OriginalMapping struct {
 	GeneratedMessage
+	x_ Mapping_OriginalMapping_x_
 }
 
 func (this *Mapping_OriginalMapping) up_GeneratedMessage() *GeneratedMessage {
@@ -122,6 +134,7 @@ func (this *Mapping_OriginalMapping) up_GeneratedMessage() *GeneratedMessage {
 
 type Mapping_OriginalMapping_Builder struct {
 	GeneratedMessage_Builder
+	x_ Mapping_OriginalMapping_x_
 }
 
 func (this *Mapping_OriginalMapping_Builder) up_GeneratedMessage_Builder() *GeneratedMessage_Builder {
@@ -132,13 +145,16 @@ func (this *Mapping_OriginalMapping_Builder) up_GeneratedMessage_Builder() *Gene
 }
 
 var Mapping_OriginalMapping_desc_ = pbReg_(&pbDesc_{name: "sourcemap.OriginalMapping", oneofs: []string{},
-	newM: func() any { return &Mapping_OriginalMapping{} }, newB: func() any { return &Mapping_OriginalMapping_Builder{} },
+	newM: func() *pbData_ { return &new(Mapping_OriginalMapping).pbData_ }, newB: func() *pbData_ { return &new(Mapping_OriginalMapping_Builder).pbData_ },
+	asM: func(p unsafe.Pointer) any { return (*Mapping_OriginalMapping)(p) }, asB: func(p unsafe.Pointer) any { return (*Mapping_OriginalMapping_Builder)(p) },
+	cp:   func(dst, src unsafe.Pointer) { (*Mapping_OriginalMapping)(dst).x_ = (*Mapping_OriginalMapping)(src).x_ },
+	xoff: unsafe.Offsetof(Mapping_OriginalMapping{}.x_), hoff: unsafe.Offsetof(Mapping_OriginalMapping{}.x_.pbHas_),
 	fields: []*pbField_{
-		{name: "original_file", num: 1, kind: pbString_, pres: true},
-		{name: "line_number", num: 2, kind: pbInt32_, pres: true},
-		{name: "column_position", num: 3, kind: pbInt32_, pres: true},
-		{name: "identifier", num: 4, kind: pbString_, pres: true},
-		{name: "precision", num: 5, kind: pbEnum_, pres: true, def: int32(0), tname: "sourcemap.OriginalMapping.Precision"},
+		{name: "original_file", num: 1, kind: pbString_, pres: true, off: unsafe.Offsetof(Mapping_OriginalMapping{}.x_.original_file_), hb: 1},
+		{name: "line_number", num: 2, kind: pbInt32_, pres: true, off: unsafe.Offsetof(Mapping_OriginalMapping{}.x_.line_number_), hb: 2},
+		{name: "column_position", num: 3, kind: pbInt32_, pres: true, off: unsafe.Offsetof(Mapping_OriginalMapping{}.x_.column_position_), hb: 3},
+		{name: "identifier", num: 4, kind: pbString_, pres: true, off: unsafe.Offsetof(Mapping_OriginalMapping{}.x_.identifier_), hb: 4},
+		{name: "precision", num: 5, kind: pbEnum_, pres: true, def: int32(0), tname: "sourcemap.OriginalMapping.Precision", off: unsafe.Offsetof(Mapping_OriginalMapping{}.x_.precision_), hb: 5},
 	}})
 
 const (
@@ -150,7 +166,7 @@ const (
 )
 
 func Mapping_OriginalMapping_getDefaultInstance() *Mapping_OriginalMapping {
-	return Mapping_OriginalMapping_desc_.default_().(*Mapping_OriginalMapping)
+	return (*Mapping_OriginalMapping)(unsafe.Pointer(Mapping_OriginalMapping_desc_.default_()))
 }
 
 func Mapping_OriginalMapping_getDescriptor() *Descriptors_Descriptor {
@@ -158,7 +174,7 @@ func Mapping_OriginalMapping_getDescriptor() *Descriptors_Descriptor {
 }
 
 func Mapping_OriginalMapping_newBuilder() *Mapping_OriginalMapping_Builder {
-	return Mapping_OriginalMapping_desc_.newBuilder_().me_.(*Mapping_OriginalMapping_Builder)
+	return (*Mapping_OriginalMapping_Builder)(unsafe.Pointer(Mapping_OriginalMapping_desc_.newBuilder_()))
 }
 
 func Mapping_OriginalMapping_newBuilder_OriginalMapping(p0 *Mapping_OriginalMapping) *Mapping_OriginalMapping_Builder {
@@ -190,28 +206,33 @@ func Mapping_OriginalMapping_parseFrom_CodedInputStream_ExtensionRegistryLite(p0
 }
 
 func (this *Mapping_OriginalMapping) hasOriginalFile() bool {
-	return this.has_(0)
+	return this.x_.pbHas_[0]&0x1 != 0
 }
 
 func (this *Mapping_OriginalMapping_Builder) hasOriginalFile() bool {
-	return this.has_(0)
+	return this.x_.pbHas_[0]&0x1 != 0
 }
 
 func (this *Mapping_OriginalMapping) getOriginalFile() string {
-	return this.gStr_(0)
+	return this.x_.original_file_
 }
 
 func (this *Mapping_OriginalMapping_Builder) getOriginalFile() string {
-	return this.gStr_(0)
+	return this.x_.original_file_
 }
 
 func (this *Mapping_OriginalMapping_Builder) setOriginalFile(p0 string) *Mapping_OriginalMapping_Builder {
-	this.set_(0, p0)
+	if p0 == nullstr_ {
+		pbNPE_()
+	}
+	this.x_.pbHas_[0] |= 0x1
+	this.x_.original_file_ = p0
 	return this
 }
 
 func (this *Mapping_OriginalMapping_Builder) clearOriginalFile() *Mapping_OriginalMapping_Builder {
-	this.clr_(0)
+	this.x_.original_file_ = ""
+	this.x_.pbHas_[0] &^= 0x1
 	return this
 }
 
@@ -229,80 +250,89 @@ func (this *Mapping_OriginalMapping_Builder) setOriginalFileBytes(p0 *ByteString
 }
 
 func (this *Mapping_OriginalMapping) hasLineNumber() bool {
-	return this.has_(1)
+	return this.x_.pbHas_[0]&0x2 != 0
 }
 
 func (this *Mapping_OriginalMapping_Builder) hasLineNumber() bool {
-	return this.has_(1)
+	return this.x_.pbHas_[0]&0x2 != 0
 }
 
 func (this *Mapping_OriginalMapping) getLineNumber() int32 {
-	return this.gI32_(1)
+	return this.x_.line_number_
 }
 
 func (this *Mapping_OriginalMapping_Builder) getLineNumber() int32 {
-	return this.gI32_(1)
+	return this.x_.line_number_
 }
 
 func (this *Mapping_OriginalMapping_Builder) setLineNumber(p0 int32) *Mapping_OriginalMapping_Builder {
-	this.set_(1, p0)
+	this.x_.pbHas_[0] |= 0x2
+	this.x_.line_number_ = p0
 	return this
 }
 
 func (this *Mapping_OriginalMapping_Builder) clearLineNumber() *Mapping_OriginalMapping_Builder {
-	this.clr_(1)
+	this.x_.line_number_ = 0
+	this.x_.pbHas_[0] &^= 0x2
 	return this
 }
 
 func (this *Mapping_OriginalMapping) hasColumnPosition() bool {
-	return this.has_(2)
+	return this.x_.pbHas_[0]&0x4 != 0
 }
 
 func (this *Mapping_OriginalMapping_Builder) hasColumnPosition() bool {
-	return this.has_(2)
+	return this.x_.pbHas_[0]&0x4 != 0
 }
 
 func (this *Mapping_OriginalMapping) getColumnPosition() int32 {
-	return this.gI32_(2)
+	return this.x_.column_position_
 }
 
 func (this *Mapping_OriginalMapping_Builder) getColumnPosition() int32 {
-	return this.gI32_(2)
+	return this.x_.column_position_
 }
 
 func (this *Mapping_OriginalMapping_Builder) setColumnPosition(p0 int32) *Mapping_OriginalMapping_Builder {
-	this.set_(2, p0)
+	this.x_.pbHas_[0] |= 0x4
+	this.x_.column_position_ = p0
 	return this
 }
 
 func (this *Mapping_OriginalMapping_Builder) clearColumnPosition() *Mapping_OriginalMapping_Builder {
-	this.clr_(2)
+	this.x_.column_position_ = 0
+	this.x_.pbHas_[0] &^= 0x4
 	return this
 }
 
 func (this *Mapping_OriginalMapping) hasIdentifier() bool {
-	return this.has_(3)
+	return this.x_.pbHas_[0]&0x8 != 0
 }
 
 func (this *Mapping_OriginalMapping_Builder) hasIdentifier() bool {
-	return this.has_(3)
+	return this.x_.pbHas_[0]&0x8 != 0
 }
 
 func (this *Mapping_OriginalMapping) getIdentifier() string {
-	return this.gStr_(3)
+	return this.x_.identifier_
 }
 
 func (this *Mapping_OriginalMapping_Builder) getIdentifier() string {
-	return this.gStr_(3)
+	return this.x_.identifier_
 }
 
 func (this *Mapping_OriginalMapping_Builder) setIdentifier(p0 string) *Mapping_OriginalMapping_Builder {
-	this.set_(3, p0)
+	if p0 == nullstr_ {
+		pbNPE_()
+	}
+	this.x_.pbHas_[0] |= 0x8
+	this.x_.identifier_ = p0
 	return this
 }
 
 func (this *Mapping_OriginalMapping_Builder) clearIdentifier() *Mapping_OriginalMapping_Builder {
-	this.clr_(3)
+	this.x_.identifier_ = ""
+	this.x_.pbHas_[0] &^= 0x8
 	return this
 }
 
@@ -320,28 +350,37 @@ func (this *Mapping_OriginalMapping_Builder) setIdentifierBytes(p0 *ByteString) 
 }
 
 func (this *Mapping_OriginalMapping) hasPrecision() bool {
-	return this.has_(4)
+	return this.x_.pbHas_[0]&0x10 != 0
 }
 
 func (this *Mapping_OriginalMapping_Builder) hasPrecision() bool {
-	return this.has_(4)
+	return this.x_.pbHas_[0]&0x10 != 0
 }
 
 func (this *Mapping_OriginalMapping) getPrecision() Mapping_OriginalMapping_Precision {
-	return Mapping_OriginalMapping_Precision_ofNum_(this.gI32_(4))
+	if !(this.x_.pbHas_[0]&0x10 != 0) {
+		return Mapping_OriginalMapping_Precision_ofNum_(int32(0))
+	}
+	return Mapping_OriginalMapping_Precision_ofNum_(this.x_.precision_)
 }
 
 func (this *Mapping_OriginalMapping_Builder) getPrecision() Mapping_OriginalMapping_Precision {
-	return Mapping_OriginalMapping_Precision_ofNum_(this.gI32_(4))
+	if !(this.x_.pbHas_[0]&0x10 != 0) {
+		return Mapping_OriginalMapping_Precision_ofNum_(int32(0))
+	}
+	return Mapping_OriginalMapping_Precision_ofNum_(this.x_.precision_)
 }
 
 func (this *Mapping_OriginalMapping_Builder) setPrecision(p0 Mapping_OriginalMapping_Precision) *Mapping_OriginalMapping_Builder {
-	this.set_(4, p0.getNumber())
+	v := p0.getNumber()
+	this.x_.pbHas_[0] |= 0x10
+	this.x_.precision_ = v
 	return this
 }
 
 func (this *Mapping_OriginalMapping_Builder) clearPrecision() *Mapping_OriginalMapping_Builder {
-	this.clr_(4)
+	this.x_.precision_ = 0
+	this.x_.pbHas_[0] &^= 0x10
 	return this
 }
 
@@ -354,8 +393,14 @@ func (this *Mapping_OriginalMapping_Builder) mergeFrom_OriginalMapping(p0 *Mappi
 
 // ---- message jscomp.AdditionalConformanceReport
 
+type AdditionalConformanceReport_x_ struct {
+	report_by_rule_id_ []*AdditionalConformanceReport_ReportByRuleId
+	num_violations_    int32
+}
+
 type AdditionalConformanceReport struct {
 	GeneratedMessage
+	x_ AdditionalConformanceReport_x_
 }
 
 func (this *AdditionalConformanceReport) up_GeneratedMessage() *GeneratedMessage {
@@ -367,6 +412,7 @@ func (this *AdditionalConformanceReport) up_GeneratedMessage() *GeneratedMessage
 
 type AdditionalConformanceReport_Builder struct {
 	GeneratedMessage_Builder
+	x_ AdditionalConformanceReport_x_
 }
 
 func (this *AdditionalConformanceReport_Builder) up_GeneratedMessage_Builder() *GeneratedMessage_Builder {
@@ -377,10 +423,15 @@ func (this *AdditionalConformanceReport_Builder) up_GeneratedMessage_Builder() *
 }
 
 var AdditionalConformanceReport_desc_ = pbReg_(&pbDesc_{name: "jscomp.AdditionalConformanceReport", oneofs: []string{},
-	newM: func() any { return &AdditionalConformanceReport{} }, newB: func() any { return &AdditionalConformanceReport_Builder{} },
+	newM: func() *pbData_ { return &new(AdditionalConformanceReport).pbData_ }, newB: func() *pbData_ { return &new(AdditionalConformanceReport_Builder).pbData_ },
+	asM: func(p unsafe.Pointer) any { return (*AdditionalConformanceReport)(p) }, asB: func(p unsafe.Pointer) any { return (*AdditionalConformanceReport_Builder)(p) },
+	cp: func(dst, src unsafe.Pointer) {
+		(*AdditionalConformanceReport)(dst).x_ = (*AdditionalConformanceReport)(src).x_
+	},
+	xoff: unsafe.Offsetof(AdditionalConformanceReport{}.x_),
 	fields: []*pbField_{
-		{name: "num_violations", num: 1, kind: pbInt32_},
-		{name: "report_by_rule_id", num: 2, kind: pbMessage_, rep: true, tname: "jscomp.AdditionalConformanceReport.ReportByRuleId"},
+		{name: "num_violations", num: 1, kind: pbInt32_, off: unsafe.Offsetof(AdditionalConformanceReport{}.x_.num_violations_)},
+		{name: "report_by_rule_id", num: 2, kind: pbMessage_, rep: true, tname: "jscomp.AdditionalConformanceReport.ReportByRuleId", off: unsafe.Offsetof(AdditionalConformanceReport{}.x_.report_by_rule_id_)},
 	}})
 
 const (
@@ -389,7 +440,7 @@ const (
 )
 
 func AdditionalConformanceReport_getDefaultInstance() *AdditionalConformanceReport {
-	return AdditionalConformanceReport_desc_.default_().(*AdditionalConformanceReport)
+	return (*AdditionalConformanceReport)(unsafe.Pointer(AdditionalConformanceReport_desc_.default_()))
 }
 
 func AdditionalConformanceReport_getDescriptor() *Descriptors_Descriptor {
@@ -397,7 +448,7 @@ func AdditionalConformanceReport_getDescriptor() *Descriptors_Descriptor {
 }
 
 func AdditionalConformanceReport_newBuilder() *AdditionalConformanceReport_Builder {
-	return AdditionalConformanceReport_desc_.newBuilder_().me_.(*AdditionalConformanceReport_Builder)
+	return (*AdditionalConformanceReport_Builder)(unsafe.Pointer(AdditionalConformanceReport_desc_.newBuilder_()))
 }
 
 func AdditionalConformanceReport_newBuilder_AdditionalConformanceReport(p0 *AdditionalConformanceReport) *AdditionalConformanceReport_Builder {
@@ -429,25 +480,25 @@ func AdditionalConformanceReport_parseFrom_CodedInputStream_ExtensionRegistryLit
 }
 
 func (this *AdditionalConformanceReport) getNumViolations() int32 {
-	return this.gI32_(0)
+	return this.x_.num_violations_
 }
 
 func (this *AdditionalConformanceReport_Builder) getNumViolations() int32 {
-	return this.gI32_(0)
+	return this.x_.num_violations_
 }
 
 func (this *AdditionalConformanceReport_Builder) setNumViolations(p0 int32) *AdditionalConformanceReport_Builder {
-	this.set_(0, p0)
+	this.x_.num_violations_ = p0
 	return this
 }
 
 func (this *AdditionalConformanceReport_Builder) clearNumViolations() *AdditionalConformanceReport_Builder {
-	this.clr_(0)
+	this.x_.num_violations_ = 0
 	return this
 }
 
 func (this *AdditionalConformanceReport) getReportByRuleIdList() List {
-	return this.list_(1)
+	return pbListOf_(this.x_.report_by_rule_id_)
 }
 
 func (this *AdditionalConformanceReport_Builder) getReportByRuleIdList() List {
@@ -455,31 +506,31 @@ func (this *AdditionalConformanceReport_Builder) getReportByRuleIdList() List {
 }
 
 func (this *AdditionalConformanceReport) getReportByRuleIdCount() int32 {
-	return this.cnt_(1)
+	return int32(len(this.x_.report_by_rule_id_))
 }
 
 func (this *AdditionalConformanceReport_Builder) getReportByRuleIdCount() int32 {
-	return this.cnt_(1)
+	return int32(len(this.x_.report_by_rule_id_))
 }
 
 func (this *AdditionalConformanceReport) getReportByRuleId(p0 int32) *AdditionalConformanceReport_ReportByRuleId {
-	return this.at_(1, p0).(*AdditionalConformanceReport_ReportByRuleId)
+	return pbAt_(this.x_.report_by_rule_id_, p0)
 }
 
 func (this *AdditionalConformanceReport_Builder) getReportByRuleId(p0 int32) *AdditionalConformanceReport_ReportByRuleId {
-	return this.at_(1, p0).(*AdditionalConformanceReport_ReportByRuleId)
+	return (*AdditionalConformanceReport_ReportByRuleId)(this.atMsgP_(1, p0))
 }
 
 func (this *AdditionalConformanceReport) getReportByRuleIdOrBuilder(p0 int32) AdditionalConformanceReport_ReportByRuleIdOrBuilder {
-	return this.at_(1, p0).(*AdditionalConformanceReport_ReportByRuleId)
+	return pbAt_(this.x_.report_by_rule_id_, p0)
 }
 
 func (this *AdditionalConformanceReport_Builder) getReportByRuleIdOrBuilder(p0 int32) AdditionalConformanceReport_ReportByRuleIdOrBuilder {
-	return this.at_(1, p0).(*AdditionalConformanceReport_ReportByRuleId)
+	return (*AdditionalConformanceReport_ReportByRuleId)(this.atMsgP_(1, p0))
 }
 
 func (this *AdditionalConformanceReport) getReportByRuleIdOrBuilderList() List {
-	return this.list_(1)
+	return pbListOf_(this.x_.report_by_rule_id_)
 }
 
 func (this *AdditionalConformanceReport_Builder) getReportByRuleIdOrBuilderList() List {
@@ -497,7 +548,11 @@ func (this *AdditionalConformanceReport_Builder) setReportByRuleId_int_Builder(p
 }
 
 func (this *AdditionalConformanceReport_Builder) addReportByRuleId(p0 *AdditionalConformanceReport_ReportByRuleId) *AdditionalConformanceReport_Builder {
-	this.add_(1, obj_(p0))
+	if p0 == nil {
+		pbNPE_()
+	}
+	this.own_()
+	this.x_.report_by_rule_id_ = append(this.x_.report_by_rule_id_, p0)
 	return this
 }
 
@@ -522,7 +577,7 @@ func (this *AdditionalConformanceReport_Builder) addAllReportByRuleId(p0 Iterabl
 }
 
 func (this *AdditionalConformanceReport_Builder) clearReportByRuleId() *AdditionalConformanceReport_Builder {
-	this.clr_(1)
+	this.x_.report_by_rule_id_ = nil
 	return this
 }
 
@@ -564,8 +619,15 @@ type AdditionalConformanceReportOrBuilder interface {
 
 // ---- message jscomp.AdditionalConformanceReport.ReportByRuleId
 
+type AdditionalConformanceReport_ReportByRuleId_x_ struct {
+	rule_id_                 string
+	violation_locations_     []*AdditionalConformanceReport_ViolationLocation
+	num_violations_for_rule_ int32
+}
+
 type AdditionalConformanceReport_ReportByRuleId struct {
 	GeneratedMessage
+	x_ AdditionalConformanceReport_ReportByRuleId_x_
 }
 
 func (this *AdditionalConformanceReport_ReportByRuleId) up_GeneratedMessage() *GeneratedMessage {
@@ -577,6 +639,7 @@ func (this *AdditionalConformanceReport_ReportByRuleId) up_GeneratedMessage() *G
 
 type AdditionalConformanceReport_ReportByRuleId_Builder struct {
 	GeneratedMessage_Builder
+	x_ AdditionalConformanceReport_ReportByRuleId_x_
 }
 
 func (this *AdditionalConformanceReport_ReportByRuleId_Builder) up_GeneratedMessage_Builder() *GeneratedMessage_Builder {
@@ -587,11 +650,16 @@ func (this *AdditionalConformanceReport_ReportByRuleId_Builder) up_GeneratedMess
 }
 
 var AdditionalConformanceReport_ReportByRuleId_desc_ = pbReg_(&pbDesc_{name: "jscomp.AdditionalConformanceReport.ReportByRuleId", oneofs: []string{},
-	newM: func() any { return &AdditionalConformanceReport_ReportByRuleId{} }, newB: func() any { return &AdditionalConformanceReport_ReportByRuleId_Builder{} },
+	newM: func() *pbData_ { return &new(AdditionalConformanceReport_ReportByRuleId).pbData_ }, newB: func() *pbData_ { return &new(AdditionalConformanceReport_ReportByRuleId_Builder).pbData_ },
+	asM: func(p unsafe.Pointer) any { return (*AdditionalConformanceReport_ReportByRuleId)(p) }, asB: func(p unsafe.Pointer) any { return (*AdditionalConformanceReport_ReportByRuleId_Builder)(p) },
+	cp: func(dst, src unsafe.Pointer) {
+		(*AdditionalConformanceReport_ReportByRuleId)(dst).x_ = (*AdditionalConformanceReport_ReportByRuleId)(src).x_
+	},
+	xoff: unsafe.Offsetof(AdditionalConformanceReport_ReportByRuleId{}.x_),
 	fields: []*pbField_{
-		{name: "rule_id", num: 3, kind: pbString_, utf8: true},
-		{name: "num_violations_for_rule", num: 4, kind: pbInt32_},
-		{name: "violation_locations", num: 5, kind: pbMessage_, rep: true, tname: "jscomp.AdditionalConformanceReport.ViolationLocation"},
+		{name: "rule_id", num: 3, kind: pbString_, utf8: true, off: unsafe.Offsetof(AdditionalConformanceReport_ReportByRuleId{}.x_.rule_id_)},
+		{name: "num_violations_for_rule", num: 4, kind: pbInt32_, off: unsafe.Offsetof(AdditionalConformanceReport_ReportByRuleId{}.x_.num_violations_for_rule_)},
+		{name: "violation_locations", num: 5, kind: pbMessage_, rep: true, tname: "jscomp.AdditionalConformanceReport.ViolationLocation", off: unsafe.Offsetof(AdditionalConformanceReport_ReportByRuleId{}.x_.violation_locations_)},
 	}})
 
 const (
@@ -601,7 +669,7 @@ const (
 )
 
 func AdditionalConformanceReport_ReportByRuleId_getDefaultInstance() *AdditionalConformanceReport_ReportByRuleId {
-	return AdditionalConformanceReport_ReportByRuleId_desc_.default_().(*AdditionalConformanceReport_ReportByRuleId)
+	return (*AdditionalConformanceReport_ReportByRuleId)(unsafe.Pointer(AdditionalConformanceReport_ReportByRuleId_desc_.default_()))
 }
 
 func AdditionalConformanceReport_ReportByRuleId_getDescriptor() *Descriptors_Descriptor {
@@ -609,7 +677,7 @@ func AdditionalConformanceReport_ReportByRuleId_getDescriptor() *Descriptors_Des
 }
 
 func AdditionalConformanceReport_ReportByRuleId_newBuilder() *AdditionalConformanceReport_ReportByRuleId_Builder {
-	return AdditionalConformanceReport_ReportByRuleId_desc_.newBuilder_().me_.(*AdditionalConformanceReport_ReportByRuleId_Builder)
+	return (*AdditionalConformanceReport_ReportByRuleId_Builder)(unsafe.Pointer(AdditionalConformanceReport_ReportByRuleId_desc_.newBuilder_()))
 }
 
 func AdditionalConformanceReport_ReportByRuleId_newBuilder_ReportByRuleId(p0 *AdditionalConformanceReport_ReportByRuleId) *AdditionalConformanceReport_ReportByRuleId_Builder {
@@ -641,20 +709,23 @@ func AdditionalConformanceReport_ReportByRuleId_parseFrom_CodedInputStream_Exten
 }
 
 func (this *AdditionalConformanceReport_ReportByRuleId) getRuleId() string {
-	return this.gStr_(0)
+	return this.x_.rule_id_
 }
 
 func (this *AdditionalConformanceReport_ReportByRuleId_Builder) getRuleId() string {
-	return this.gStr_(0)
+	return this.x_.rule_id_
 }
 
 func (this *AdditionalConformanceReport_ReportByRuleId_Builder) setRuleId(p0 string) *AdditionalConformanceReport_ReportByRuleId_Builder {
-	this.set_(0, p0)
+	if p0 == nullstr_ {
+		pbNPE_()
+	}
+	this.x_.rule_id_ = p0
 	return this
 }
 
 func (this *AdditionalConformanceReport_ReportByRuleId_Builder) clearRuleId() *AdditionalConformanceReport_ReportByRuleId_Builder {
-	this.clr_(0)
+	this.x_.rule_id_ = ""
 	return this
 }
 
@@ -672,25 +743,25 @@ func (this *AdditionalConformanceReport_ReportByRuleId_Builder) setRuleIdBytes(p
 }
 
 func (this *AdditionalConformanceReport_ReportByRuleId) getNumViolationsForRule() int32 {
-	return this.gI32_(1)
+	return this.x_.num_violations_for_rule_
 }
 
 func (this *AdditionalConformanceReport_ReportByRuleId_Builder) getNumViolationsForRule() int32 {
-	return this.gI32_(1)
+	return this.x_.num_violations_for_rule_
 }
 
 func (this *AdditionalConformanceReport_ReportByRuleId_Builder) setNumViolationsForRule(p0 int32) *AdditionalConformanceReport_ReportByRuleId_Builder {
-	this.set_(1, p0)
+	this.x_.num_violations_for_rule_ = p0
 	return this
 }
 
 func (this *AdditionalConformanceReport_ReportByRuleId_Builder) clearNumViolationsForRule() *AdditionalConformanceReport_ReportByRuleId_Builder {
-	this.clr_(1)
+	this.x_.num_violations_for_rule_ = 0
 	return this
 }
 
 func (this *AdditionalConformanceReport_ReportByRuleId) getViolationLocationsList() List {
-	return this.list_(2)
+	return pbListOf_(this.x_.violation_locations_)
 }
 
 func (this *AdditionalConformanceReport_ReportByRuleId_Builder) getViolationLocationsList() List {
@@ -698,31 +769,31 @@ func (this *AdditionalConformanceReport_ReportByRuleId_Builder) getViolationLoca
 }
 
 func (this *AdditionalConformanceReport_ReportByRuleId) getViolationLocationsCount() int32 {
-	return this.cnt_(2)
+	return int32(len(this.x_.violation_locations_))
 }
 
 func (this *AdditionalConformanceReport_ReportByRuleId_Builder) getViolationLocationsCount() int32 {
-	return this.cnt_(2)
+	return int32(len(this.x_.violation_locations_))
 }
 
 func (this *AdditionalConformanceReport_ReportByRuleId) getViolationLocations(p0 int32) *AdditionalConformanceReport_ViolationLocation {
-	return this.at_(2, p0).(*AdditionalConformanceReport_ViolationLocation)
+	return pbAt_(this.x_.violation_locations_, p0)
 }
 
 func (this *AdditionalConformanceReport_ReportByRuleId_Builder) getViolationLocations(p0 int32) *AdditionalConformanceReport_ViolationLocation {
-	return this.at_(2, p0).(*AdditionalConformanceReport_ViolationLocation)
+	return (*AdditionalConformanceReport_ViolationLocation)(this.atMsgP_(2, p0))
 }
 
 func (this *AdditionalConformanceReport_ReportByRuleId) getViolationLocationsOrBuilder(p0 int32) AdditionalConformanceReport_ViolationLocationOrBuilder {
-	return this.at_(2, p0).(*AdditionalConformanceReport_ViolationLocation)
+	return pbAt_(this.x_.violation_locations_, p0)
 }
 
 func (this *AdditionalConformanceReport_ReportByRuleId_Builder) getViolationLocationsOrBuilder(p0 int32) AdditionalConformanceReport_ViolationLocationOrBuilder {
-	return this.at_(2, p0).(*AdditionalConformanceReport_ViolationLocation)
+	return (*AdditionalConformanceReport_ViolationLocation)(this.atMsgP_(2, p0))
 }
 
 func (this *AdditionalConformanceReport_ReportByRuleId) getViolationLocationsOrBuilderList() List {
-	return this.list_(2)
+	return pbListOf_(this.x_.violation_locations_)
 }
 
 func (this *AdditionalConformanceReport_ReportByRuleId_Builder) getViolationLocationsOrBuilderList() List {
@@ -740,7 +811,11 @@ func (this *AdditionalConformanceReport_ReportByRuleId_Builder) setViolationLoca
 }
 
 func (this *AdditionalConformanceReport_ReportByRuleId_Builder) addViolationLocations(p0 *AdditionalConformanceReport_ViolationLocation) *AdditionalConformanceReport_ReportByRuleId_Builder {
-	this.add_(2, obj_(p0))
+	if p0 == nil {
+		pbNPE_()
+	}
+	this.own_()
+	this.x_.violation_locations_ = append(this.x_.violation_locations_, p0)
 	return this
 }
 
@@ -765,7 +840,7 @@ func (this *AdditionalConformanceReport_ReportByRuleId_Builder) addAllViolationL
 }
 
 func (this *AdditionalConformanceReport_ReportByRuleId_Builder) clearViolationLocations() *AdditionalConformanceReport_ReportByRuleId_Builder {
-	this.clr_(2)
+	this.x_.violation_locations_ = nil
 	return this
 }
 
@@ -809,8 +884,16 @@ type AdditionalConformanceReport_ReportByRuleIdOrBuilder interface {
 
 // ---- message jscomp.AdditionalConformanceReport.ViolationLocation
 
+type AdditionalConformanceReport_ViolationLocation_x_ struct {
+	path_          string
+	error_message_ string
+	line_no_       int32
+	col_no_        int32
+}
+
 type AdditionalConformanceReport_ViolationLocation struct {
 	GeneratedMessage
+	x_ AdditionalConformanceReport_ViolationLocation_x_
 }
 
 func (this *AdditionalConformanceReport_ViolationLocation) up_GeneratedMessage() *GeneratedMessage {
@@ -822,6 +905,7 @@ func (this *AdditionalConformanceReport_ViolationLocation) up_GeneratedMessage()
 
 type AdditionalConformanceReport_ViolationLocation_Builder struct {
 	GeneratedMessage_Builder
+	x_ AdditionalConformanceReport_ViolationLocation_x_
 }
 
 func (this *AdditionalConformanceReport_ViolationLocation_Builder) up_GeneratedMessage_Builder() *GeneratedMessage_Builder {
@@ -832,12 +916,17 @@ func (this *AdditionalConformanceReport_ViolationLocation_Builder) up_GeneratedM
 }
 
 var AdditionalConformanceReport_ViolationLocation_desc_ = pbReg_(&pbDesc_{name: "jscomp.AdditionalConformanceReport.ViolationLocation", oneofs: []string{},
-	newM: func() any { return &AdditionalConformanceReport_ViolationLocation{} }, newB: func() any { return &AdditionalConformanceReport_ViolationLocation_Builder{} },
+	newM: func() *pbData_ { return &new(AdditionalConformanceReport_ViolationLocation).pbData_ }, newB: func() *pbData_ { return &new(AdditionalConformanceReport_ViolationLocation_Builder).pbData_ },
+	asM: func(p unsafe.Pointer) any { return (*AdditionalConformanceReport_ViolationLocation)(p) }, asB: func(p unsafe.Pointer) any { return (*AdditionalConformanceReport_ViolationLocation_Builder)(p) },
+	cp: func(dst, src unsafe.Pointer) {
+		(*AdditionalConformanceReport_ViolationLocation)(dst).x_ = (*AdditionalConformanceReport_ViolationLocation)(src).x_
+	},
+	xoff: unsafe.Offsetof(AdditionalConformanceReport_ViolationLocation{}.x_),
 	fields: []*pbField_{
-		{name: "path", num: 3, kind: pbString_, utf8: true},
-		{name: "line_no", num: 4, kind: pbInt32_},
-		{name: "col_no", num: 5, kind: pbInt32_},
-		{name: "error_message", num: 6, kind: pbString_, utf8: true},
+		{name: "path", num: 3, kind: pbString_, utf8: true, off: unsafe.Offsetof(AdditionalConformanceReport_ViolationLocation{}.x_.path_)},
+		{name: "line_no", num: 4, kind: pbInt32_, off: unsafe.Offsetof(AdditionalConformanceReport_ViolationLocation{}.x_.line_no_)},
+		{name: "col_no", num: 5, kind: pbInt32_, off: unsafe.Offsetof(AdditionalConformanceReport_ViolationLocation{}.x_.col_no_)},
+		{name: "error_message", num: 6, kind: pbString_, utf8: true, off: unsafe.Offsetof(AdditionalConformanceReport_ViolationLocation{}.x_.error_message_)},
 	}})
 
 const (
@@ -848,7 +937,7 @@ const (
 )
 
 func AdditionalConformanceReport_ViolationLocation_getDefaultInstance() *AdditionalConformanceReport_ViolationLocation {
-	return AdditionalConformanceReport_ViolationLocation_desc_.default_().(*AdditionalConformanceReport_ViolationLocation)
+	return (*AdditionalConformanceReport_ViolationLocation)(unsafe.Pointer(AdditionalConformanceReport_ViolationLocation_desc_.default_()))
 }
 
 func AdditionalConformanceReport_ViolationLocation_getDescriptor() *Descriptors_Descriptor {
@@ -856,7 +945,7 @@ func AdditionalConformanceReport_ViolationLocation_getDescriptor() *Descriptors_
 }
 
 func AdditionalConformanceReport_ViolationLocation_newBuilder() *AdditionalConformanceReport_ViolationLocation_Builder {
-	return AdditionalConformanceReport_ViolationLocation_desc_.newBuilder_().me_.(*AdditionalConformanceReport_ViolationLocation_Builder)
+	return (*AdditionalConformanceReport_ViolationLocation_Builder)(unsafe.Pointer(AdditionalConformanceReport_ViolationLocation_desc_.newBuilder_()))
 }
 
 func AdditionalConformanceReport_ViolationLocation_newBuilder_ViolationLocation(p0 *AdditionalConformanceReport_ViolationLocation) *AdditionalConformanceReport_ViolationLocation_Builder {
@@ -888,20 +977,23 @@ func AdditionalConformanceReport_ViolationLocation_parseFrom_CodedInputStream_Ex
 }
 
 func (this *AdditionalConformanceReport_ViolationLocation) getPath() string {
-	return this.gStr_(0)
+	return this.x_.path_
 }
 
 func (this *AdditionalConformanceReport_ViolationLocation_Builder) getPath() string {
-	return this.gStr_(0)
+	return this.x_.path_
 }
 
 func (this *AdditionalConformanceReport_ViolationLocation_Builder) setPath(p0 string) *AdditionalConformanceReport_ViolationLocation_Builder {
-	this.set_(0, p0)
+	if p0 == nullstr_ {
+		pbNPE_()
+	}
+	this.x_.path_ = p0
 	return this
 }
 
 func (this *AdditionalConformanceReport_ViolationLocation_Builder) clearPath() *AdditionalConformanceReport_ViolationLocation_Builder {
-	this.clr_(0)
+	this.x_.path_ = ""
 	return this
 }
 
@@ -919,56 +1011,59 @@ func (this *AdditionalConformanceReport_ViolationLocation_Builder) setPathBytes(
 }
 
 func (this *AdditionalConformanceReport_ViolationLocation) getLineNo() int32 {
-	return this.gI32_(1)
+	return this.x_.line_no_
 }
 
 func (this *AdditionalConformanceReport_ViolationLocation_Builder) getLineNo() int32 {
-	return this.gI32_(1)
+	return this.x_.line_no_
 }
 
 func (this *AdditionalConformanceReport_ViolationLocation_Builder) setLineNo(p0 int32) *AdditionalConformanceReport_ViolationLocation_Builder {
-	this.set_(1, p0)
+	this.x_.line_no_ = p0
 	return this
 }
 
 func (this *AdditionalConformanceReport_ViolationLocation_Builder) clearLineNo() *AdditionalConformanceReport_ViolationLocation_Builder {
-	this.clr_(1)
+	this.x_.line_no_ = 0
 	return this
 }
 
 func (this *AdditionalConformanceReport_ViolationLocation) getColNo() int32 {
-	return this.gI32_(2)
+	return this.x_.col_no_
 }
 
 func (this *AdditionalConformanceReport_ViolationLocation_Builder) getColNo() int32 {
-	return this.gI32_(2)
+	return this.x_.col_no_
 }
 
 func (this *AdditionalConformanceReport_ViolationLocation_Builder) setColNo(p0 int32) *AdditionalConformanceReport_ViolationLocation_Builder {
-	this.set_(2, p0)
+	this.x_.col_no_ = p0
 	return this
 }
 
 func (this *AdditionalConformanceReport_ViolationLocation_Builder) clearColNo() *AdditionalConformanceReport_ViolationLocation_Builder {
-	this.clr_(2)
+	this.x_.col_no_ = 0
 	return this
 }
 
 func (this *AdditionalConformanceReport_ViolationLocation) getErrorMessage() string {
-	return this.gStr_(3)
+	return this.x_.error_message_
 }
 
 func (this *AdditionalConformanceReport_ViolationLocation_Builder) getErrorMessage() string {
-	return this.gStr_(3)
+	return this.x_.error_message_
 }
 
 func (this *AdditionalConformanceReport_ViolationLocation_Builder) setErrorMessage(p0 string) *AdditionalConformanceReport_ViolationLocation_Builder {
-	this.set_(3, p0)
+	if p0 == nullstr_ {
+		pbNPE_()
+	}
+	this.x_.error_message_ = p0
 	return this
 }
 
 func (this *AdditionalConformanceReport_ViolationLocation_Builder) clearErrorMessage() *AdditionalConformanceReport_ViolationLocation_Builder {
-	this.clr_(3)
+	this.x_.error_message_ = ""
 	return this
 }
 
@@ -1613,8 +1708,38 @@ var PropertyAccessKindProto_desc_ = pbRegEnum_(&pbEnumDesc_{name: "jscomp.Proper
 
 // ---- message jscomp.JSCompilerStateProto
 
+type JSCompilerStateProto_x_ struct {
+	allowable_features_                          []int32
+	chunks_                                      []*ChunkProto
+	unique_id_supplier_                          []*UniqueIdProto
+	exported_names_                              []string
+	css_names_                                   []string
+	id_generator_map_                            string
+	externs_                                     []string
+	injected_libraries_                          []string
+	accessor_summary_                            *AccessorSummaryProto
+	string_map_                                  []*VariableMapEntryProto
+	instrumentation_mapping_                     []*VariableMapEntryProto
+	conformance_violations_                      []*ConformanceViolationsProto
+	unattributed_conformance_violations_         []*ViolationProto
+	pbHas_                                       [1]uint32
+	life_cycle_stage_                            int32
+	unique_name_id_                              int32
+	id_generator_current_id_                     int32
+	last_injected_library_index_in_first_script_ int32
+	type_checking_has_run_                       bool
+	has_reg_exp_global_references_               bool
+	merged_precompiled_libraries_                bool
+	has_css_names_                               bool
+	transpiled_files_                            bool
+	run_j2cl_passes_                             bool
+	has_string_map_                              bool
+	has_instrumentation_mapping_                 bool
+}
+
 type JSCompilerStateProto struct {
 	GeneratedMessage
+	x_ JSCompilerStateProto_x_
 }
 
 func (this *JSCompilerStateProto) up_GeneratedMessage() *GeneratedMessage {
@@ -1626,6 +1751,7 @@ func (this *JSCompilerStateProto) up_GeneratedMessage() *GeneratedMessage {
 
 type JSCompilerStateProto_Builder struct {
 	GeneratedMessage_Builder
+	x_ JSCompilerStateProto_x_
 }
 
 func (this *JSCompilerStateProto_Builder) up_GeneratedMessage_Builder() *GeneratedMessage_Builder {
@@ -1636,33 +1762,36 @@ func (this *JSCompilerStateProto_Builder) up_GeneratedMessage_Builder() *Generat
 }
 
 var JSCompilerStateProto_desc_ = pbReg_(&pbDesc_{name: "jscomp.JSCompilerStateProto", oneofs: []string{},
-	newM: func() any { return &JSCompilerStateProto{} }, newB: func() any { return &JSCompilerStateProto_Builder{} },
+	newM: func() *pbData_ { return &new(JSCompilerStateProto).pbData_ }, newB: func() *pbData_ { return &new(JSCompilerStateProto_Builder).pbData_ },
+	asM: func(p unsafe.Pointer) any { return (*JSCompilerStateProto)(p) }, asB: func(p unsafe.Pointer) any { return (*JSCompilerStateProto_Builder)(p) },
+	cp:   func(dst, src unsafe.Pointer) { (*JSCompilerStateProto)(dst).x_ = (*JSCompilerStateProto)(src).x_ },
+	xoff: unsafe.Offsetof(JSCompilerStateProto{}.x_), hoff: unsafe.Offsetof(JSCompilerStateProto{}.x_.pbHas_),
 	fields: []*pbField_{
-		{name: "allowable_features", num: 1, kind: pbEnum_, rep: true, packed: true, tname: "jscomp.FeatureProto"},
-		{name: "type_checking_has_run", num: 2, kind: pbBool_},
-		{name: "has_reg_exp_global_references", num: 3, kind: pbBool_},
-		{name: "life_cycle_stage", num: 4, kind: pbEnum_, tname: "jscomp.LifeCycleStageProto"},
-		{name: "merged_precompiled_libraries", num: 5, kind: pbBool_},
-		{name: "chunks", num: 6, kind: pbMessage_, rep: true, tname: "jscomp.ChunkProto"},
-		{name: "unique_name_id", num: 7, kind: pbInt32_},
-		{name: "unique_id_supplier", num: 8, kind: pbMessage_, rep: true, tname: "jscomp.UniqueIdProto"},
-		{name: "exported_names", num: 9, kind: pbString_, rep: true, utf8: true},
-		{name: "has_css_names", num: 10, kind: pbBool_},
-		{name: "css_names", num: 11, kind: pbString_, rep: true, utf8: true},
-		{name: "id_generator_map", num: 12, kind: pbString_, pres: true, utf8: true},
-		{name: "transpiled_files", num: 13, kind: pbBool_},
-		{name: "id_generator_current_id", num: 14, kind: pbInt32_},
-		{name: "run_j2cl_passes", num: 15, kind: pbBool_},
-		{name: "externs", num: 16, kind: pbString_, rep: true, utf8: true},
-		{name: "injected_libraries", num: 17, kind: pbString_, rep: true, utf8: true},
-		{name: "last_injected_library_index_in_first_script", num: 18, kind: pbInt32_},
-		{name: "accessor_summary", num: 19, kind: pbMessage_, pres: true, tname: "jscomp.AccessorSummaryProto"},
-		{name: "has_string_map", num: 20, kind: pbBool_},
-		{name: "string_map", num: 21, kind: pbMessage_, rep: true, tname: "jscomp.VariableMapEntryProto"},
-		{name: "has_instrumentation_mapping", num: 22, kind: pbBool_},
-		{name: "instrumentation_mapping", num: 23, kind: pbMessage_, rep: true, tname: "jscomp.VariableMapEntryProto"},
-		{name: "conformance_violations", num: 24, kind: pbMessage_, rep: true, tname: "jscomp.ConformanceViolationsProto"},
-		{name: "unattributed_conformance_violations", num: 25, kind: pbMessage_, rep: true, tname: "jscomp.ViolationProto"},
+		{name: "allowable_features", num: 1, kind: pbEnum_, rep: true, packed: true, tname: "jscomp.FeatureProto", off: unsafe.Offsetof(JSCompilerStateProto{}.x_.allowable_features_)},
+		{name: "type_checking_has_run", num: 2, kind: pbBool_, off: unsafe.Offsetof(JSCompilerStateProto{}.x_.type_checking_has_run_)},
+		{name: "has_reg_exp_global_references", num: 3, kind: pbBool_, off: unsafe.Offsetof(JSCompilerStateProto{}.x_.has_reg_exp_global_references_)},
+		{name: "life_cycle_stage", num: 4, kind: pbEnum_, tname: "jscomp.LifeCycleStageProto", off: unsafe.Offsetof(JSCompilerStateProto{}.x_.life_cycle_stage_)},
+		{name: "merged_precompiled_libraries", num: 5, kind: pbBool_, off: unsafe.Offsetof(JSCompilerStateProto{}.x_.merged_precompiled_libraries_)},
+		{name: "chunks", num: 6, kind: pbMessage_, rep: true, tname: "jscomp.ChunkProto", off: unsafe.Offsetof(JSCompilerStateProto{}.x_.chunks_)},
+		{name: "unique_name_id", num: 7, kind: pbInt32_, off: unsafe.Offsetof(JSCompilerStateProto{}.x_.unique_name_id_)},
+		{name: "unique_id_supplier", num: 8, kind: pbMessage_, rep: true, tname: "jscomp.UniqueIdProto", off: unsafe.Offsetof(JSCompilerStateProto{}.x_.unique_id_supplier_)},
+		{name: "exported_names", num: 9, kind: pbString_, rep: true, utf8: true, off: unsafe.Offsetof(JSCompilerStateProto{}.x_.exported_names_)},
+		{name: "has_css_names", num: 10, kind: pbBool_, off: unsafe.Offsetof(JSCompilerStateProto{}.x_.has_css_names_)},
+		{name: "css_names", num: 11, kind: pbString_, rep: true, utf8: true, off: unsafe.Offsetof(JSCompilerStateProto{}.x_.css_names_)},
+		{name: "id_generator_map", num: 12, kind: pbString_, pres: true, utf8: true, off: unsafe.Offsetof(JSCompilerStateProto{}.x_.id_generator_map_), hb: 1},
+		{name: "transpiled_files", num: 13, kind: pbBool_, off: unsafe.Offsetof(JSCompilerStateProto{}.x_.transpiled_files_)},
+		{name: "id_generator_current_id", num: 14, kind: pbInt32_, off: unsafe.Offsetof(JSCompilerStateProto{}.x_.id_generator_current_id_)},
+		{name: "run_j2cl_passes", num: 15, kind: pbBool_, off: unsafe.Offsetof(JSCompilerStateProto{}.x_.run_j2cl_passes_)},
+		{name: "externs", num: 16, kind: pbString_, rep: true, utf8: true, off: unsafe.Offsetof(JSCompilerStateProto{}.x_.externs_)},
+		{name: "injected_libraries", num: 17, kind: pbString_, rep: true, utf8: true, off: unsafe.Offsetof(JSCompilerStateProto{}.x_.injected_libraries_)},
+		{name: "last_injected_library_index_in_first_script", num: 18, kind: pbInt32_, off: unsafe.Offsetof(JSCompilerStateProto{}.x_.last_injected_library_index_in_first_script_)},
+		{name: "accessor_summary", num: 19, kind: pbMessage_, pres: true, tname: "jscomp.AccessorSummaryProto", off: unsafe.Offsetof(JSCompilerStateProto{}.x_.accessor_summary_)},
+		{name: "has_string_map", num: 20, kind: pbBool_, off: unsafe.Offsetof(JSCompilerStateProto{}.x_.has_string_map_)},
+		{name: "string_map", num: 21, kind: pbMessage_, rep: true, tname: "jscomp.VariableMapEntryProto", off: unsafe.Offsetof(JSCompilerStateProto{}.x_.string_map_)},
+		{name: "has_instrumentation_mapping", num: 22, kind: pbBool_, off: unsafe.Offsetof(JSCompilerStateProto{}.x_.has_instrumentation_mapping_)},
+		{name: "instrumentation_mapping", num: 23, kind: pbMessage_, rep: true, tname: "jscomp.VariableMapEntryProto", off: unsafe.Offsetof(JSCompilerStateProto{}.x_.instrumentation_mapping_)},
+		{name: "conformance_violations", num: 24, kind: pbMessage_, rep: true, tname: "jscomp.ConformanceViolationsProto", off: unsafe.Offsetof(JSCompilerStateProto{}.x_.conformance_violations_)},
+		{name: "unattributed_conformance_violations", num: 25, kind: pbMessage_, rep: true, tname: "jscomp.ViolationProto", off: unsafe.Offsetof(JSCompilerStateProto{}.x_.unattributed_conformance_violations_)},
 	}})
 
 const (
@@ -1694,7 +1823,7 @@ const (
 )
 
 func JSCompilerStateProto_getDefaultInstance() *JSCompilerStateProto {
-	return JSCompilerStateProto_desc_.default_().(*JSCompilerStateProto)
+	return (*JSCompilerStateProto)(unsafe.Pointer(JSCompilerStateProto_desc_.default_()))
 }
 
 func JSCompilerStateProto_getDescriptor() *Descriptors_Descriptor {
@@ -1702,7 +1831,7 @@ func JSCompilerStateProto_getDescriptor() *Descriptors_Descriptor {
 }
 
 func JSCompilerStateProto_newBuilder() *JSCompilerStateProto_Builder {
-	return JSCompilerStateProto_desc_.newBuilder_().me_.(*JSCompilerStateProto_Builder)
+	return (*JSCompilerStateProto_Builder)(unsafe.Pointer(JSCompilerStateProto_desc_.newBuilder_()))
 }
 
 func JSCompilerStateProto_newBuilder_JSCompilerStateProto(p0 *JSCompilerStateProto) *JSCompilerStateProto_Builder {
@@ -1742,19 +1871,19 @@ func (this *JSCompilerStateProto_Builder) getAllowableFeaturesList() List {
 }
 
 func (this *JSCompilerStateProto) getAllowableFeatures(p0 int32) FeatureProto {
-	return FeatureProto_ofNum_(this.at_(0, p0).(int32))
+	return FeatureProto_ofNum_(pbAt_(this.x_.allowable_features_, p0))
 }
 
 func (this *JSCompilerStateProto_Builder) getAllowableFeatures(p0 int32) FeatureProto {
-	return FeatureProto_ofNum_(this.at_(0, p0).(int32))
+	return FeatureProto_ofNum_(pbAt_(this.x_.allowable_features_, p0))
 }
 
 func (this *JSCompilerStateProto) getAllowableFeaturesCount() int32 {
-	return this.cnt_(0)
+	return int32(len(this.x_.allowable_features_))
 }
 
 func (this *JSCompilerStateProto_Builder) getAllowableFeaturesCount() int32 {
-	return this.cnt_(0)
+	return int32(len(this.x_.allowable_features_))
 }
 
 func (this *JSCompilerStateProto_Builder) setAllowableFeatures(p0 int32, p1 FeatureProto) *JSCompilerStateProto_Builder {
@@ -1763,7 +1892,9 @@ func (this *JSCompilerStateProto_Builder) setAllowableFeatures(p0 int32, p1 Feat
 }
 
 func (this *JSCompilerStateProto_Builder) addAllowableFeatures(p0 FeatureProto) *JSCompilerStateProto_Builder {
-	this.add_(0, p0.getNumber())
+	v := p0.getNumber()
+	this.own_()
+	this.x_.allowable_features_ = append(this.x_.allowable_features_, v)
 	return this
 }
 
@@ -1773,24 +1904,24 @@ func (this *JSCompilerStateProto_Builder) addAllAllowableFeatures(p0 Iterable) *
 }
 
 func (this *JSCompilerStateProto_Builder) clearAllowableFeatures() *JSCompilerStateProto_Builder {
-	this.clr_(0)
+	this.x_.allowable_features_ = nil
 	return this
 }
 
 func (this *JSCompilerStateProto) getAllowableFeaturesValueList() List {
-	return this.list_(0)
+	return pbListOf_(this.x_.allowable_features_)
 }
 
 func (this *JSCompilerStateProto_Builder) getAllowableFeaturesValueList() List {
-	return this.list_(0)
+	return pbListOf_(this.x_.allowable_features_)
 }
 
 func (this *JSCompilerStateProto) getAllowableFeaturesValue(p0 int32) int32 {
-	return this.at_(0, p0).(int32)
+	return pbAt_(this.x_.allowable_features_, p0)
 }
 
 func (this *JSCompilerStateProto_Builder) getAllowableFeaturesValue(p0 int32) int32 {
-	return this.at_(0, p0).(int32)
+	return pbAt_(this.x_.allowable_features_, p0)
 }
 
 func (this *JSCompilerStateProto_Builder) setAllowableFeaturesValue(p0 int32, p1 int32) *JSCompilerStateProto_Builder {
@@ -1799,7 +1930,8 @@ func (this *JSCompilerStateProto_Builder) setAllowableFeaturesValue(p0 int32, p1
 }
 
 func (this *JSCompilerStateProto_Builder) addAllowableFeaturesValue(p0 int32) *JSCompilerStateProto_Builder {
-	this.add_(0, p0)
+	this.own_()
+	this.x_.allowable_features_ = append(this.x_.allowable_features_, p0)
 	return this
 }
 
@@ -1809,92 +1941,93 @@ func (this *JSCompilerStateProto_Builder) addAllAllowableFeaturesValue(p0 Iterab
 }
 
 func (this *JSCompilerStateProto) getTypeCheckingHasRun() bool {
-	return this.gBool_(1)
+	return this.x_.type_checking_has_run_
 }
 
 func (this *JSCompilerStateProto_Builder) getTypeCheckingHasRun() bool {
-	return this.gBool_(1)
+	return this.x_.type_checking_has_run_
 }
 
 func (this *JSCompilerStateProto_Builder) setTypeCheckingHasRun(p0 bool) *JSCompilerStateProto_Builder {
-	this.set_(1, p0)
+	this.x_.type_checking_has_run_ = p0
 	return this
 }
 
 func (this *JSCompilerStateProto_Builder) clearTypeCheckingHasRun() *JSCompilerStateProto_Builder {
-	this.clr_(1)
+	this.x_.type_checking_has_run_ = false
 	return this
 }
 
 func (this *JSCompilerStateProto) getHasRegExpGlobalReferences() bool {
-	return this.gBool_(2)
+	return this.x_.has_reg_exp_global_references_
 }
 
 func (this *JSCompilerStateProto_Builder) getHasRegExpGlobalReferences() bool {
-	return this.gBool_(2)
+	return this.x_.has_reg_exp_global_references_
 }
 
 func (this *JSCompilerStateProto_Builder) setHasRegExpGlobalReferences(p0 bool) *JSCompilerStateProto_Builder {
-	this.set_(2, p0)
+	this.x_.has_reg_exp_global_references_ = p0
 	return this
 }
 
 func (this *JSCompilerStateProto_Builder) clearHasRegExpGlobalReferences() *JSCompilerStateProto_Builder {
-	this.clr_(2)
+	this.x_.has_reg_exp_global_references_ = false
 	return this
 }
 
 func (this *JSCompilerStateProto) getLifeCycleStage() LifeCycleStageProto {
-	return LifeCycleStageProto_ofNum_(this.gI32_(3))
+	return LifeCycleStageProto_ofNum_(this.x_.life_cycle_stage_)
 }
 
 func (this *JSCompilerStateProto_Builder) getLifeCycleStage() LifeCycleStageProto {
-	return LifeCycleStageProto_ofNum_(this.gI32_(3))
+	return LifeCycleStageProto_ofNum_(this.x_.life_cycle_stage_)
 }
 
 func (this *JSCompilerStateProto_Builder) setLifeCycleStage(p0 LifeCycleStageProto) *JSCompilerStateProto_Builder {
-	this.set_(3, p0.getNumber())
+	v := p0.getNumber()
+	this.x_.life_cycle_stage_ = v
 	return this
 }
 
 func (this *JSCompilerStateProto_Builder) clearLifeCycleStage() *JSCompilerStateProto_Builder {
-	this.clr_(3)
+	this.x_.life_cycle_stage_ = 0
 	return this
 }
 
 func (this *JSCompilerStateProto) getLifeCycleStageValue() int32 {
-	return this.gI32_(3)
+	return this.x_.life_cycle_stage_
 }
 
 func (this *JSCompilerStateProto_Builder) getLifeCycleStageValue() int32 {
-	return this.gI32_(3)
+	return this.x_.life_cycle_stage_
 }
 
 func (this *JSCompilerStateProto_Builder) setLifeCycleStageValue(p0 int32) *JSCompilerStateProto_Builder {
-	this.set_(3, p0)
+	this.x_.life_cycle_stage_ = p0
 	return this
 }
 
 func (this *JSCompilerStateProto) getMergedPrecompiledLibraries() bool {
-	return this.gBool_(4)
+	return this.x_.merged_precompiled_libraries_
 }
 
 func (this *JSCompilerStateProto_Builder) getMergedPrecompiledLibraries() bool {
-	return this.gBool_(4)
+	return this.x_.merged_precompiled_libraries_
 }
 
 func (this *JSCompilerStateProto_Builder) setMergedPrecompiledLibraries(p0 bool) *JSCompilerStateProto_Builder {
-	this.set_(4, p0)
+	this.x_.merged_precompiled_libraries_ = p0
 	return this
 }
 
 func (this *JSCompilerStateProto_Builder) clearMergedPrecompiledLibraries() *JSCompilerStateProto_Builder {
-	this.clr_(4)
+	this.x_.merged_precompiled_libraries_ = false
 	return this
 }
 
 func (this *JSCompilerStateProto) getChunksList() List {
-	return this.list_(5)
+	return pbListOf_(this.x_.chunks_)
 }
 
 func (this *JSCompilerStateProto_Builder) getChunksList() List {
@@ -1902,31 +2035,31 @@ func (this *JSCompilerStateProto_Builder) getChunksList() List {
 }
 
 func (this *JSCompilerStateProto) getChunksCount() int32 {
-	return this.cnt_(5)
+	return int32(len(this.x_.chunks_))
 }
 
 func (this *JSCompilerStateProto_Builder) getChunksCount() int32 {
-	return this.cnt_(5)
+	return int32(len(this.x_.chunks_))
 }
 
 func (this *JSCompilerStateProto) getChunks(p0 int32) *ChunkProto {
-	return this.at_(5, p0).(*ChunkProto)
+	return pbAt_(this.x_.chunks_, p0)
 }
 
 func (this *JSCompilerStateProto_Builder) getChunks(p0 int32) *ChunkProto {
-	return this.at_(5, p0).(*ChunkProto)
+	return (*ChunkProto)(this.atMsgP_(5, p0))
 }
 
 func (this *JSCompilerStateProto) getChunksOrBuilder(p0 int32) ChunkProtoOrBuilder {
-	return this.at_(5, p0).(*ChunkProto)
+	return pbAt_(this.x_.chunks_, p0)
 }
 
 func (this *JSCompilerStateProto_Builder) getChunksOrBuilder(p0 int32) ChunkProtoOrBuilder {
-	return this.at_(5, p0).(*ChunkProto)
+	return (*ChunkProto)(this.atMsgP_(5, p0))
 }
 
 func (this *JSCompilerStateProto) getChunksOrBuilderList() List {
-	return this.list_(5)
+	return pbListOf_(this.x_.chunks_)
 }
 
 func (this *JSCompilerStateProto_Builder) getChunksOrBuilderList() List {
@@ -1944,7 +2077,11 @@ func (this *JSCompilerStateProto_Builder) setChunks_int_Builder(p0 int32, p1 *Ch
 }
 
 func (this *JSCompilerStateProto_Builder) addChunks(p0 *ChunkProto) *JSCompilerStateProto_Builder {
-	this.add_(5, obj_(p0))
+	if p0 == nil {
+		pbNPE_()
+	}
+	this.own_()
+	this.x_.chunks_ = append(this.x_.chunks_, p0)
 	return this
 }
 
@@ -1969,7 +2106,7 @@ func (this *JSCompilerStateProto_Builder) addAllChunks(p0 Iterable) *JSCompilerS
 }
 
 func (this *JSCompilerStateProto_Builder) clearChunks() *JSCompilerStateProto_Builder {
-	this.clr_(5)
+	this.x_.chunks_ = nil
 	return this
 }
 
@@ -1995,25 +2132,25 @@ func (this *JSCompilerStateProto_Builder) getChunksBuilderList() List {
 }
 
 func (this *JSCompilerStateProto) getUniqueNameId() int32 {
-	return this.gI32_(6)
+	return this.x_.unique_name_id_
 }
 
 func (this *JSCompilerStateProto_Builder) getUniqueNameId() int32 {
-	return this.gI32_(6)
+	return this.x_.unique_name_id_
 }
 
 func (this *JSCompilerStateProto_Builder) setUniqueNameId(p0 int32) *JSCompilerStateProto_Builder {
-	this.set_(6, p0)
+	this.x_.unique_name_id_ = p0
 	return this
 }
 
 func (this *JSCompilerStateProto_Builder) clearUniqueNameId() *JSCompilerStateProto_Builder {
-	this.clr_(6)
+	this.x_.unique_name_id_ = 0
 	return this
 }
 
 func (this *JSCompilerStateProto) getUniqueIdSupplierList() List {
-	return this.list_(7)
+	return pbListOf_(this.x_.unique_id_supplier_)
 }
 
 func (this *JSCompilerStateProto_Builder) getUniqueIdSupplierList() List {
@@ -2021,31 +2158,31 @@ func (this *JSCompilerStateProto_Builder) getUniqueIdSupplierList() List {
 }
 
 func (this *JSCompilerStateProto) getUniqueIdSupplierCount() int32 {
-	return this.cnt_(7)
+	return int32(len(this.x_.unique_id_supplier_))
 }
 
 func (this *JSCompilerStateProto_Builder) getUniqueIdSupplierCount() int32 {
-	return this.cnt_(7)
+	return int32(len(this.x_.unique_id_supplier_))
 }
 
 func (this *JSCompilerStateProto) getUniqueIdSupplier(p0 int32) *UniqueIdProto {
-	return this.at_(7, p0).(*UniqueIdProto)
+	return pbAt_(this.x_.unique_id_supplier_, p0)
 }
 
 func (this *JSCompilerStateProto_Builder) getUniqueIdSupplier(p0 int32) *UniqueIdProto {
-	return this.at_(7, p0).(*UniqueIdProto)
+	return (*UniqueIdProto)(this.atMsgP_(7, p0))
 }
 
 func (this *JSCompilerStateProto) getUniqueIdSupplierOrBuilder(p0 int32) UniqueIdProtoOrBuilder {
-	return this.at_(7, p0).(*UniqueIdProto)
+	return pbAt_(this.x_.unique_id_supplier_, p0)
 }
 
 func (this *JSCompilerStateProto_Builder) getUniqueIdSupplierOrBuilder(p0 int32) UniqueIdProtoOrBuilder {
-	return this.at_(7, p0).(*UniqueIdProto)
+	return (*UniqueIdProto)(this.atMsgP_(7, p0))
 }
 
 func (this *JSCompilerStateProto) getUniqueIdSupplierOrBuilderList() List {
-	return this.list_(7)
+	return pbListOf_(this.x_.unique_id_supplier_)
 }
 
 func (this *JSCompilerStateProto_Builder) getUniqueIdSupplierOrBuilderList() List {
@@ -2063,7 +2200,11 @@ func (this *JSCompilerStateProto_Builder) setUniqueIdSupplier_int_Builder(p0 int
 }
 
 func (this *JSCompilerStateProto_Builder) addUniqueIdSupplier(p0 *UniqueIdProto) *JSCompilerStateProto_Builder {
-	this.add_(7, obj_(p0))
+	if p0 == nil {
+		pbNPE_()
+	}
+	this.own_()
+	this.x_.unique_id_supplier_ = append(this.x_.unique_id_supplier_, p0)
 	return this
 }
 
@@ -2088,7 +2229,7 @@ func (this *JSCompilerStateProto_Builder) addAllUniqueIdSupplier(p0 Iterable) *J
 }
 
 func (this *JSCompilerStateProto_Builder) clearUniqueIdSupplier() *JSCompilerStateProto_Builder {
-	this.clr_(7)
+	this.x_.unique_id_supplier_ = nil
 	return this
 }
 
@@ -2114,27 +2255,27 @@ func (this *JSCompilerStateProto_Builder) getUniqueIdSupplierBuilderList() List 
 }
 
 func (this *JSCompilerStateProto) getExportedNamesList() List {
-	return this.list_(8)
+	return pbListOf_(this.x_.exported_names_)
 }
 
 func (this *JSCompilerStateProto_Builder) getExportedNamesList() List {
-	return this.list_(8)
+	return pbListOf_(this.x_.exported_names_)
 }
 
 func (this *JSCompilerStateProto) getExportedNames(p0 int32) string {
-	return this.at_(8, p0).(string)
+	return pbAt_(this.x_.exported_names_, p0)
 }
 
 func (this *JSCompilerStateProto_Builder) getExportedNames(p0 int32) string {
-	return this.at_(8, p0).(string)
+	return pbAt_(this.x_.exported_names_, p0)
 }
 
 func (this *JSCompilerStateProto) getExportedNamesCount() int32 {
-	return this.cnt_(8)
+	return int32(len(this.x_.exported_names_))
 }
 
 func (this *JSCompilerStateProto_Builder) getExportedNamesCount() int32 {
-	return this.cnt_(8)
+	return int32(len(this.x_.exported_names_))
 }
 
 func (this *JSCompilerStateProto_Builder) setExportedNames(p0 int32, p1 string) *JSCompilerStateProto_Builder {
@@ -2143,7 +2284,11 @@ func (this *JSCompilerStateProto_Builder) setExportedNames(p0 int32, p1 string) 
 }
 
 func (this *JSCompilerStateProto_Builder) addExportedNames(p0 string) *JSCompilerStateProto_Builder {
-	this.add_(8, p0)
+	if p0 == nullstr_ {
+		pbNPE_()
+	}
+	this.own_()
+	this.x_.exported_names_ = append(this.x_.exported_names_, p0)
 	return this
 }
 
@@ -2153,16 +2298,16 @@ func (this *JSCompilerStateProto_Builder) addAllExportedNames(p0 Iterable) *JSCo
 }
 
 func (this *JSCompilerStateProto_Builder) clearExportedNames() *JSCompilerStateProto_Builder {
-	this.clr_(8)
+	this.x_.exported_names_ = nil
 	return this
 }
 
 func (this *JSCompilerStateProto) getExportedNamesBytes(p0 int32) *ByteString {
-	return ByteString_copyFromUtf8(this.at_(8, p0).(string))
+	return ByteString_copyFromUtf8(pbAt_(this.x_.exported_names_, p0))
 }
 
 func (this *JSCompilerStateProto_Builder) getExportedNamesBytes(p0 int32) *ByteString {
-	return ByteString_copyFromUtf8(this.at_(8, p0).(string))
+	return ByteString_copyFromUtf8(pbAt_(this.x_.exported_names_, p0))
 }
 
 func (this *JSCompilerStateProto_Builder) addExportedNamesBytes(p0 *ByteString) *JSCompilerStateProto_Builder {
@@ -2171,45 +2316,45 @@ func (this *JSCompilerStateProto_Builder) addExportedNamesBytes(p0 *ByteString) 
 }
 
 func (this *JSCompilerStateProto) getHasCssNames() bool {
-	return this.gBool_(9)
+	return this.x_.has_css_names_
 }
 
 func (this *JSCompilerStateProto_Builder) getHasCssNames() bool {
-	return this.gBool_(9)
+	return this.x_.has_css_names_
 }
 
 func (this *JSCompilerStateProto_Builder) setHasCssNames(p0 bool) *JSCompilerStateProto_Builder {
-	this.set_(9, p0)
+	this.x_.has_css_names_ = p0
 	return this
 }
 
 func (this *JSCompilerStateProto_Builder) clearHasCssNames() *JSCompilerStateProto_Builder {
-	this.clr_(9)
+	this.x_.has_css_names_ = false
 	return this
 }
 
 func (this *JSCompilerStateProto) getCssNamesList() List {
-	return this.list_(10)
+	return pbListOf_(this.x_.css_names_)
 }
 
 func (this *JSCompilerStateProto_Builder) getCssNamesList() List {
-	return this.list_(10)
+	return pbListOf_(this.x_.css_names_)
 }
 
 func (this *JSCompilerStateProto) getCssNames(p0 int32) string {
-	return this.at_(10, p0).(string)
+	return pbAt_(this.x_.css_names_, p0)
 }
 
 func (this *JSCompilerStateProto_Builder) getCssNames(p0 int32) string {
-	return this.at_(10, p0).(string)
+	return pbAt_(this.x_.css_names_, p0)
 }
 
 func (this *JSCompilerStateProto) getCssNamesCount() int32 {
-	return this.cnt_(10)
+	return int32(len(this.x_.css_names_))
 }
 
 func (this *JSCompilerStateProto_Builder) getCssNamesCount() int32 {
-	return this.cnt_(10)
+	return int32(len(this.x_.css_names_))
 }
 
 func (this *JSCompilerStateProto_Builder) setCssNames(p0 int32, p1 string) *JSCompilerStateProto_Builder {
@@ -2218,7 +2363,11 @@ func (this *JSCompilerStateProto_Builder) setCssNames(p0 int32, p1 string) *JSCo
 }
 
 func (this *JSCompilerStateProto_Builder) addCssNames(p0 string) *JSCompilerStateProto_Builder {
-	this.add_(10, p0)
+	if p0 == nullstr_ {
+		pbNPE_()
+	}
+	this.own_()
+	this.x_.css_names_ = append(this.x_.css_names_, p0)
 	return this
 }
 
@@ -2228,16 +2377,16 @@ func (this *JSCompilerStateProto_Builder) addAllCssNames(p0 Iterable) *JSCompile
 }
 
 func (this *JSCompilerStateProto_Builder) clearCssNames() *JSCompilerStateProto_Builder {
-	this.clr_(10)
+	this.x_.css_names_ = nil
 	return this
 }
 
 func (this *JSCompilerStateProto) getCssNamesBytes(p0 int32) *ByteString {
-	return ByteString_copyFromUtf8(this.at_(10, p0).(string))
+	return ByteString_copyFromUtf8(pbAt_(this.x_.css_names_, p0))
 }
 
 func (this *JSCompilerStateProto_Builder) getCssNamesBytes(p0 int32) *ByteString {
-	return ByteString_copyFromUtf8(this.at_(10, p0).(string))
+	return ByteString_copyFromUtf8(pbAt_(this.x_.css_names_, p0))
 }
 
 func (this *JSCompilerStateProto_Builder) addCssNamesBytes(p0 *ByteString) *JSCompilerStateProto_Builder {
@@ -2246,28 +2395,33 @@ func (this *JSCompilerStateProto_Builder) addCssNamesBytes(p0 *ByteString) *JSCo
 }
 
 func (this *JSCompilerStateProto) hasIdGeneratorMap() bool {
-	return this.has_(11)
+	return this.x_.pbHas_[0]&0x1 != 0
 }
 
 func (this *JSCompilerStateProto_Builder) hasIdGeneratorMap() bool {
-	return this.has_(11)
+	return this.x_.pbHas_[0]&0x1 != 0
 }
 
 func (this *JSCompilerStateProto) getIdGeneratorMap() string {
-	return this.gStr_(11)
+	return this.x_.id_generator_map_
 }
 
 func (this *JSCompilerStateProto_Builder) getIdGeneratorMap() string {
-	return this.gStr_(11)
+	return this.x_.id_generator_map_
 }
 
 func (this *JSCompilerStateProto_Builder) setIdGeneratorMap(p0 string) *JSCompilerStateProto_Builder {
-	this.set_(11, p0)
+	if p0 == nullstr_ {
+		pbNPE_()
+	}
+	this.x_.pbHas_[0] |= 0x1
+	this.x_.id_generator_map_ = p0
 	return this
 }
 
 func (this *JSCompilerStateProto_Builder) clearIdGeneratorMap() *JSCompilerStateProto_Builder {
-	this.clr_(11)
+	this.x_.id_generator_map_ = ""
+	this.x_.pbHas_[0] &^= 0x1
 	return this
 }
 
@@ -2285,81 +2439,81 @@ func (this *JSCompilerStateProto_Builder) setIdGeneratorMapBytes(p0 *ByteString)
 }
 
 func (this *JSCompilerStateProto) getTranspiledFiles() bool {
-	return this.gBool_(12)
+	return this.x_.transpiled_files_
 }
 
 func (this *JSCompilerStateProto_Builder) getTranspiledFiles() bool {
-	return this.gBool_(12)
+	return this.x_.transpiled_files_
 }
 
 func (this *JSCompilerStateProto_Builder) setTranspiledFiles(p0 bool) *JSCompilerStateProto_Builder {
-	this.set_(12, p0)
+	this.x_.transpiled_files_ = p0
 	return this
 }
 
 func (this *JSCompilerStateProto_Builder) clearTranspiledFiles() *JSCompilerStateProto_Builder {
-	this.clr_(12)
+	this.x_.transpiled_files_ = false
 	return this
 }
 
 func (this *JSCompilerStateProto) getIdGeneratorCurrentId() int32 {
-	return this.gI32_(13)
+	return this.x_.id_generator_current_id_
 }
 
 func (this *JSCompilerStateProto_Builder) getIdGeneratorCurrentId() int32 {
-	return this.gI32_(13)
+	return this.x_.id_generator_current_id_
 }
 
 func (this *JSCompilerStateProto_Builder) setIdGeneratorCurrentId(p0 int32) *JSCompilerStateProto_Builder {
-	this.set_(13, p0)
+	this.x_.id_generator_current_id_ = p0
 	return this
 }
 
 func (this *JSCompilerStateProto_Builder) clearIdGeneratorCurrentId() *JSCompilerStateProto_Builder {
-	this.clr_(13)
+	this.x_.id_generator_current_id_ = 0
 	return this
 }
 
 func (this *JSCompilerStateProto) getRunJ2ClPasses() bool {
-	return this.gBool_(14)
+	return this.x_.run_j2cl_passes_
 }
 
 func (this *JSCompilerStateProto_Builder) getRunJ2ClPasses() bool {
-	return this.gBool_(14)
+	return this.x_.run_j2cl_passes_
 }
 
 func (this *JSCompilerStateProto_Builder) setRunJ2ClPasses(p0 bool) *JSCompilerStateProto_Builder {
-	this.set_(14, p0)
+	this.x_.run_j2cl_passes_ = p0
 	return this
 }
 
 func (this *JSCompilerStateProto_Builder) clearRunJ2ClPasses() *JSCompilerStateProto_Builder {
-	this.clr_(14)
+	this.x_.run_j2cl_passes_ = false
 	return this
 }
 
 func (this *JSCompilerStateProto) getExternsList() List {
-	return this.list_(15)
+	return pbListOf_(this.x_.externs_)
 }
 
 func (this *JSCompilerStateProto_Builder) getExternsList() List {
-	return this.list_(15)
+	return pbListOf_(this.x_.externs_)
 }
 
 func (this *JSCompilerStateProto) getExterns(p0 int32) string {
-	return this.at_(15, p0).(string)
+	return pbAt_(this.x_.externs_, p0)
 }
 
 func (this *JSCompilerStateProto_Builder) getExterns(p0 int32) string {
-	return this.at_(15, p0).(string)
+	return pbAt_(this.x_.externs_, p0)
 }
 
 func (this *JSCompilerStateProto) getExternsCount() int32 {
-	return this.cnt_(15)
+	return int32(len(this.x_.externs_))
 }
 
 func (this *JSCompilerStateProto_Builder) getExternsCount() int32 {
-	return this.cnt_(15)
+	return int32(len(this.x_.externs_))
 }
 
 func (this *JSCompilerStateProto_Builder) setExterns(p0 int32, p1 string) *JSCompilerStateProto_Builder {
@@ -2368,7 +2522,11 @@ func (this *JSCompilerStateProto_Builder) setExterns(p0 int32, p1 string) *JSCom
 }
 
 func (this *JSCompilerStateProto_Builder) addExterns(p0 string) *JSCompilerStateProto_Builder {
-	this.add_(15, p0)
+	if p0 == nullstr_ {
+		pbNPE_()
+	}
+	this.own_()
+	this.x_.externs_ = append(this.x_.externs_, p0)
 	return this
 }
 
@@ -2378,16 +2536,16 @@ func (this *JSCompilerStateProto_Builder) addAllExterns(p0 Iterable) *JSCompiler
 }
 
 func (this *JSCompilerStateProto_Builder) clearExterns() *JSCompilerStateProto_Builder {
-	this.clr_(15)
+	this.x_.externs_ = nil
 	return this
 }
 
 func (this *JSCompilerStateProto) getExternsBytes(p0 int32) *ByteString {
-	return ByteString_copyFromUtf8(this.at_(15, p0).(string))
+	return ByteString_copyFromUtf8(pbAt_(this.x_.externs_, p0))
 }
 
 func (this *JSCompilerStateProto_Builder) getExternsBytes(p0 int32) *ByteString {
-	return ByteString_copyFromUtf8(this.at_(15, p0).(string))
+	return ByteString_copyFromUtf8(pbAt_(this.x_.externs_, p0))
 }
 
 func (this *JSCompilerStateProto_Builder) addExternsBytes(p0 *ByteString) *JSCompilerStateProto_Builder {
@@ -2396,27 +2554,27 @@ func (this *JSCompilerStateProto_Builder) addExternsBytes(p0 *ByteString) *JSCom
 }
 
 func (this *JSCompilerStateProto) getInjectedLibrariesList() List {
-	return this.list_(16)
+	return pbListOf_(this.x_.injected_libraries_)
 }
 
 func (this *JSCompilerStateProto_Builder) getInjectedLibrariesList() List {
-	return this.list_(16)
+	return pbListOf_(this.x_.injected_libraries_)
 }
 
 func (this *JSCompilerStateProto) getInjectedLibraries(p0 int32) string {
-	return this.at_(16, p0).(string)
+	return pbAt_(this.x_.injected_libraries_, p0)
 }
 
 func (this *JSCompilerStateProto_Builder) getInjectedLibraries(p0 int32) string {
-	return this.at_(16, p0).(string)
+	return pbAt_(this.x_.injected_libraries_, p0)
 }
 
 func (this *JSCompilerStateProto) getInjectedLibrariesCount() int32 {
-	return this.cnt_(16)
+	return int32(len(this.x_.injected_libraries_))
 }
 
 func (this *JSCompilerStateProto_Builder) getInjectedLibrariesCount() int32 {
-	return this.cnt_(16)
+	return int32(len(this.x_.injected_libraries_))
 }
 
 func (this *JSCompilerStateProto_Builder) setInjectedLibraries(p0 int32, p1 string) *JSCompilerStateProto_Builder {
@@ -2425,7 +2583,11 @@ func (this *JSCompilerStateProto_Builder) setInjectedLibraries(p0 int32, p1 stri
 }
 
 func (this *JSCompilerStateProto_Builder) addInjectedLibraries(p0 string) *JSCompilerStateProto_Builder {
-	this.add_(16, p0)
+	if p0 == nullstr_ {
+		pbNPE_()
+	}
+	this.own_()
+	this.x_.injected_libraries_ = append(this.x_.injected_libraries_, p0)
 	return this
 }
 
@@ -2435,16 +2597,16 @@ func (this *JSCompilerStateProto_Builder) addAllInjectedLibraries(p0 Iterable) *
 }
 
 func (this *JSCompilerStateProto_Builder) clearInjectedLibraries() *JSCompilerStateProto_Builder {
-	this.clr_(16)
+	this.x_.injected_libraries_ = nil
 	return this
 }
 
 func (this *JSCompilerStateProto) getInjectedLibrariesBytes(p0 int32) *ByteString {
-	return ByteString_copyFromUtf8(this.at_(16, p0).(string))
+	return ByteString_copyFromUtf8(pbAt_(this.x_.injected_libraries_, p0))
 }
 
 func (this *JSCompilerStateProto_Builder) getInjectedLibrariesBytes(p0 int32) *ByteString {
-	return ByteString_copyFromUtf8(this.at_(16, p0).(string))
+	return ByteString_copyFromUtf8(pbAt_(this.x_.injected_libraries_, p0))
 }
 
 func (this *JSCompilerStateProto_Builder) addInjectedLibrariesBytes(p0 *ByteString) *JSCompilerStateProto_Builder {
@@ -2453,54 +2615,60 @@ func (this *JSCompilerStateProto_Builder) addInjectedLibrariesBytes(p0 *ByteStri
 }
 
 func (this *JSCompilerStateProto) getLastInjectedLibraryIndexInFirstScript() int32 {
-	return this.gI32_(17)
+	return this.x_.last_injected_library_index_in_first_script_
 }
 
 func (this *JSCompilerStateProto_Builder) getLastInjectedLibraryIndexInFirstScript() int32 {
-	return this.gI32_(17)
+	return this.x_.last_injected_library_index_in_first_script_
 }
 
 func (this *JSCompilerStateProto_Builder) setLastInjectedLibraryIndexInFirstScript(p0 int32) *JSCompilerStateProto_Builder {
-	this.set_(17, p0)
+	this.x_.last_injected_library_index_in_first_script_ = p0
 	return this
 }
 
 func (this *JSCompilerStateProto_Builder) clearLastInjectedLibraryIndexInFirstScript() *JSCompilerStateProto_Builder {
-	this.clr_(17)
+	this.x_.last_injected_library_index_in_first_script_ = 0
 	return this
 }
 
 func (this *JSCompilerStateProto) hasAccessorSummary() bool {
-	return this.has_(18)
+	return this.x_.accessor_summary_ != nil
 }
 
 func (this *JSCompilerStateProto_Builder) hasAccessorSummary() bool {
-	return this.has_(18)
+	return this.x_.accessor_summary_ != nil
 }
 
 func (this *JSCompilerStateProto) getAccessorSummary() *AccessorSummaryProto {
-	return this.gMsg_(18).(*AccessorSummaryProto)
+	if p := this.x_.accessor_summary_; p != nil {
+		return p
+	}
+	return (*AccessorSummaryProto)(unsafe.Pointer(AccessorSummaryProto_desc_.default_()))
 }
 
 func (this *JSCompilerStateProto_Builder) getAccessorSummary() *AccessorSummaryProto {
-	return this.gMsg_(18).(*AccessorSummaryProto)
+	return (*AccessorSummaryProto)(this.gMsgP_(18))
 }
 
 func (this *JSCompilerStateProto) getAccessorSummaryOrBuilder() AccessorSummaryProtoOrBuilder {
-	return this.gMsg_(18).(*AccessorSummaryProto)
+	if p := this.x_.accessor_summary_; p != nil {
+		return p
+	}
+	return (*AccessorSummaryProto)(unsafe.Pointer(AccessorSummaryProto_desc_.default_()))
 }
 
 func (this *JSCompilerStateProto_Builder) getAccessorSummaryOrBuilder() AccessorSummaryProtoOrBuilder {
-	return this.gMsg_(18).(*AccessorSummaryProto)
+	return (*AccessorSummaryProto)(this.gMsgP_(18))
 }
 
 func (this *JSCompilerStateProto_Builder) setAccessorSummary(p0 *AccessorSummaryProto) *JSCompilerStateProto_Builder {
-	this.set_(18, obj_(p0))
+	this.setMsg_(18, unsafe.Pointer(p0))
 	return this
 }
 
 func (this *JSCompilerStateProto_Builder) setAccessorSummary_Builder(p0 *AccessorSummaryProto_Builder) *JSCompilerStateProto_Builder {
-	this.set_(18, p0.build())
+	this.setMsg_(18, unsafe.Pointer(p0.build_()))
 	return this
 }
 
@@ -2510,7 +2678,7 @@ func (this *JSCompilerStateProto_Builder) mergeAccessorSummary(p0 *AccessorSumma
 }
 
 func (this *JSCompilerStateProto_Builder) clearAccessorSummary() *JSCompilerStateProto_Builder {
-	this.clr_(18)
+	this.x_.accessor_summary_ = nil
 	return this
 }
 
@@ -2519,25 +2687,25 @@ func (this *JSCompilerStateProto_Builder) getAccessorSummaryBuilder() *AccessorS
 }
 
 func (this *JSCompilerStateProto) getHasStringMap() bool {
-	return this.gBool_(19)
+	return this.x_.has_string_map_
 }
 
 func (this *JSCompilerStateProto_Builder) getHasStringMap() bool {
-	return this.gBool_(19)
+	return this.x_.has_string_map_
 }
 
 func (this *JSCompilerStateProto_Builder) setHasStringMap(p0 bool) *JSCompilerStateProto_Builder {
-	this.set_(19, p0)
+	this.x_.has_string_map_ = p0
 	return this
 }
 
 func (this *JSCompilerStateProto_Builder) clearHasStringMap() *JSCompilerStateProto_Builder {
-	this.clr_(19)
+	this.x_.has_string_map_ = false
 	return this
 }
 
 func (this *JSCompilerStateProto) getStringMapList() List {
-	return this.list_(20)
+	return pbListOf_(this.x_.string_map_)
 }
 
 func (this *JSCompilerStateProto_Builder) getStringMapList() List {
@@ -2545,31 +2713,31 @@ func (this *JSCompilerStateProto_Builder) getStringMapList() List {
 }
 
 func (this *JSCompilerStateProto) getStringMapCount() int32 {
-	return this.cnt_(20)
+	return int32(len(this.x_.string_map_))
 }
 
 func (this *JSCompilerStateProto_Builder) getStringMapCount() int32 {
-	return this.cnt_(20)
+	return int32(len(this.x_.string_map_))
 }
 
 func (this *JSCompilerStateProto) getStringMap(p0 int32) *VariableMapEntryProto {
-	return this.at_(20, p0).(*VariableMapEntryProto)
+	return pbAt_(this.x_.string_map_, p0)
 }
 
 func (this *JSCompilerStateProto_Builder) getStringMap(p0 int32) *VariableMapEntryProto {
-	return this.at_(20, p0).(*VariableMapEntryProto)
+	return (*VariableMapEntryProto)(this.atMsgP_(20, p0))
 }
 
 func (this *JSCompilerStateProto) getStringMapOrBuilder(p0 int32) VariableMapEntryProtoOrBuilder {
-	return this.at_(20, p0).(*VariableMapEntryProto)
+	return pbAt_(this.x_.string_map_, p0)
 }
 
 func (this *JSCompilerStateProto_Builder) getStringMapOrBuilder(p0 int32) VariableMapEntryProtoOrBuilder {
-	return this.at_(20, p0).(*VariableMapEntryProto)
+	return (*VariableMapEntryProto)(this.atMsgP_(20, p0))
 }
 
 func (this *JSCompilerStateProto) getStringMapOrBuilderList() List {
-	return this.list_(20)
+	return pbListOf_(this.x_.string_map_)
 }
 
 func (this *JSCompilerStateProto_Builder) getStringMapOrBuilderList() List {
@@ -2587,7 +2755,11 @@ func (this *JSCompilerStateProto_Builder) setStringMap_int_Builder(p0 int32, p1 
 }
 
 func (this *JSCompilerStateProto_Builder) addStringMap(p0 *VariableMapEntryProto) *JSCompilerStateProto_Builder {
-	this.add_(20, obj_(p0))
+	if p0 == nil {
+		pbNPE_()
+	}
+	this.own_()
+	this.x_.string_map_ = append(this.x_.string_map_, p0)
 	return this
 }
 
@@ -2612,7 +2784,7 @@ func (this *JSCompilerStateProto_Builder) addAllStringMap(p0 Iterable) *JSCompil
 }
 
 func (this *JSCompilerStateProto_Builder) clearStringMap() *JSCompilerStateProto_Builder {
-	this.clr_(20)
+	this.x_.string_map_ = nil
 	return this
 }
 
@@ -2638,25 +2810,25 @@ func (this *JSCompilerStateProto_Builder) getStringMapBuilderList() List {
 }
 
 func (this *JSCompilerStateProto) getHasInstrumentationMapping() bool {
-	return this.gBool_(21)
+	return this.x_.has_instrumentation_mapping_
 }
 
 func (this *JSCompilerStateProto_Builder) getHasInstrumentationMapping() bool {
-	return this.gBool_(21)
+	return this.x_.has_instrumentation_mapping_
 }
 
 func (this *JSCompilerStateProto_Builder) setHasInstrumentationMapping(p0 bool) *JSCompilerStateProto_Builder {
-	this.set_(21, p0)
+	this.x_.has_instrumentation_mapping_ = p0
 	return this
 }
 
 func (this *JSCompilerStateProto_Builder) clearHasInstrumentationMapping() *JSCompilerStateProto_Builder {
-	this.clr_(21)
+	this.x_.has_instrumentation_mapping_ = false
 	return this
 }
 
 func (this *JSCompilerStateProto) getInstrumentationMappingList() List {
-	return this.list_(22)
+	return pbListOf_(this.x_.instrumentation_mapping_)
 }
 
 func (this *JSCompilerStateProto_Builder) getInstrumentationMappingList() List {
@@ -2664,31 +2836,31 @@ func (this *JSCompilerStateProto_Builder) getInstrumentationMappingList() List {
 }
 
 func (this *JSCompilerStateProto) getInstrumentationMappingCount() int32 {
-	return this.cnt_(22)
+	return int32(len(this.x_.instrumentation_mapping_))
 }
 
 func (this *JSCompilerStateProto_Builder) getInstrumentationMappingCount() int32 {
-	return this.cnt_(22)
+	return int32(len(this.x_.instrumentation_mapping_))
 }
 
 func (this *JSCompilerStateProto) getInstrumentationMapping(p0 int32) *VariableMapEntryProto {
-	return this.at_(22, p0).(*VariableMapEntryProto)
+	return pbAt_(this.x_.instrumentation_mapping_, p0)
 }
 
 func (this *JSCompilerStateProto_Builder) getInstrumentationMapping(p0 int32) *VariableMapEntryProto {
-	return this.at_(22, p0).(*VariableMapEntryProto)
+	return (*VariableMapEntryProto)(this.atMsgP_(22, p0))
 }
 
 func (this *JSCompilerStateProto) getInstrumentationMappingOrBuilder(p0 int32) VariableMapEntryProtoOrBuilder {
-	return this.at_(22, p0).(*VariableMapEntryProto)
+	return pbAt_(this.x_.instrumentation_mapping_, p0)
 }
 
 func (this *JSCompilerStateProto_Builder) getInstrumentationMappingOrBuilder(p0 int32) VariableMapEntryProtoOrBuilder {
-	return this.at_(22, p0).(*VariableMapEntryProto)
+	return (*VariableMapEntryProto)(this.atMsgP_(22, p0))
 }
 
 func (this *JSCompilerStateProto) getInstrumentationMappingOrBuilderList() List {
-	return this.list_(22)
+	return pbListOf_(this.x_.instrumentation_mapping_)
 }
 
 func (this *JSCompilerStateProto_Builder) getInstrumentationMappingOrBuilderList() List {
@@ -2706,7 +2878,11 @@ func (this *JSCompilerStateProto_Builder) setInstrumentationMapping_int_Builder(
 }
 
 func (this *JSCompilerStateProto_Builder) addInstrumentationMapping(p0 *VariableMapEntryProto) *JSCompilerStateProto_Builder {
-	this.add_(22, obj_(p0))
+	if p0 == nil {
+		pbNPE_()
+	}
+	this.own_()
+	this.x_.instrumentation_mapping_ = append(this.x_.instrumentation_mapping_, p0)
 	return this
 }
 
@@ -2731,7 +2907,7 @@ func (this *JSCompilerStateProto_Builder) addAllInstrumentationMapping(p0 Iterab
 }
 
 func (this *JSCompilerStateProto_Builder) clearInstrumentationMapping() *JSCompilerStateProto_Builder {
-	this.clr_(22)
+	this.x_.instrumentation_mapping_ = nil
 	return this
 }
 
@@ -2757,7 +2933,7 @@ func (this *JSCompilerStateProto_Builder) getInstrumentationMappingBuilderList()
 }
 
 func (this *JSCompilerStateProto) getConformanceViolationsList() List {
-	return this.list_(23)
+	return pbListOf_(this.x_.conformance_violations_)
 }
 
 func (this *JSCompilerStateProto_Builder) getConformanceViolationsList() List {
@@ -2765,31 +2941,31 @@ func (this *JSCompilerStateProto_Builder) getConformanceViolationsList() List {
 }
 
 func (this *JSCompilerStateProto) getConformanceViolationsCount() int32 {
-	return this.cnt_(23)
+	return int32(len(this.x_.conformance_violations_))
 }
 
 func (this *JSCompilerStateProto_Builder) getConformanceViolationsCount() int32 {
-	return this.cnt_(23)
+	return int32(len(this.x_.conformance_violations_))
 }
 
 func (this *JSCompilerStateProto) getConformanceViolations(p0 int32) *ConformanceViolationsProto {
-	return this.at_(23, p0).(*ConformanceViolationsProto)
+	return pbAt_(this.x_.conformance_violations_, p0)
 }
 
 func (this *JSCompilerStateProto_Builder) getConformanceViolations(p0 int32) *ConformanceViolationsProto {
-	return this.at_(23, p0).(*ConformanceViolationsProto)
+	return (*ConformanceViolationsProto)(this.atMsgP_(23, p0))
 }
 
 func (this *JSCompilerStateProto) getConformanceViolationsOrBuilder(p0 int32) ConformanceViolationsProtoOrBuilder {
-	return this.at_(23, p0).(*ConformanceViolationsProto)
+	return pbAt_(this.x_.conformance_violations_, p0)
 }
 
 func (this *JSCompilerStateProto_Builder) getConformanceViolationsOrBuilder(p0 int32) ConformanceViolationsProtoOrBuilder {
-	return this.at_(23, p0).(*ConformanceViolationsProto)
+	return (*ConformanceViolationsProto)(this.atMsgP_(23, p0))
 }
 
 func (this *JSCompilerStateProto) getConformanceViolationsOrBuilderList() List {
-	return this.list_(23)
+	return pbListOf_(this.x_.conformance_violations_)
 }
 
 func (this *JSCompilerStateProto_Builder) getConformanceViolationsOrBuilderList() List {
@@ -2807,7 +2983,11 @@ func (this *JSCompilerStateProto_Builder) setConformanceViolations_int_Builder(p
 }
 
 func (this *JSCompilerStateProto_Builder) addConformanceViolations(p0 *ConformanceViolationsProto) *JSCompilerStateProto_Builder {
-	this.add_(23, obj_(p0))
+	if p0 == nil {
+		pbNPE_()
+	}
+	this.own_()
+	this.x_.conformance_violations_ = append(this.x_.conformance_violations_, p0)
 	return this
 }
 
@@ -2832,7 +3012,7 @@ func (this *JSCompilerStateProto_Builder) addAllConformanceViolations(p0 Iterabl
 }
 
 func (this *JSCompilerStateProto_Builder) clearConformanceViolations() *JSCompilerStateProto_Builder {
-	this.clr_(23)
+	this.x_.conformance_violations_ = nil
 	return this
 }
 
@@ -2858,7 +3038,7 @@ func (this *JSCompilerStateProto_Builder) getConformanceViolationsBuilderList() 
 }
 
 func (this *JSCompilerStateProto) getUnattributedConformanceViolationsList() List {
-	return this.list_(24)
+	return pbListOf_(this.x_.unattributed_conformance_violations_)
 }
 
 func (this *JSCompilerStateProto_Builder) getUnattributedConformanceViolationsList() List {
@@ -2866,31 +3046,31 @@ func (this *JSCompilerStateProto_Builder) getUnattributedConformanceViolationsLi
 }
 
 func (this *JSCompilerStateProto) getUnattributedConformanceViolationsCount() int32 {
-	return this.cnt_(24)
+	return int32(len(this.x_.unattributed_conformance_violations_))
 }
 
 func (this *JSCompilerStateProto_Builder) getUnattributedConformanceViolationsCount() int32 {
-	return this.cnt_(24)
+	return int32(len(this.x_.unattributed_conformance_violations_))
 }
 
 func (this *JSCompilerStateProto) getUnattributedConformanceViolations(p0 int32) *ViolationProto {
-	return this.at_(24, p0).(*ViolationProto)
+	return pbAt_(this.x_.unattributed_conformance_violations_, p0)
 }
 
 func (this *JSCompilerStateProto_Builder) getUnattributedConformanceViolations(p0 int32) *ViolationProto {
-	return this.at_(24, p0).(*ViolationProto)
+	return (*ViolationProto)(this.atMsgP_(24, p0))
 }
 
 func (this *JSCompilerStateProto) getUnattributedConformanceViolationsOrBuilder(p0 int32) ViolationProtoOrBuilder {
-	return this.at_(24, p0).(*ViolationProto)
+	return pbAt_(this.x_.unattributed_conformance_violations_, p0)
 }
 
 func (this *JSCompilerStateProto_Builder) getUnattributedConformanceViolationsOrBuilder(p0 int32) ViolationProtoOrBuilder {
-	return this.at_(24, p0).(*ViolationProto)
+	return (*ViolationProto)(this.atMsgP_(24, p0))
 }
 
 func (this *JSCompilerStateProto) getUnattributedConformanceViolationsOrBuilderList() List {
-	return this.list_(24)
+	return pbListOf_(this.x_.unattributed_conformance_violations_)
 }
 
 func (this *JSCompilerStateProto_Builder) getUnattributedConformanceViolationsOrBuilderList() List {
@@ -2908,7 +3088,11 @@ func (this *JSCompilerStateProto_Builder) setUnattributedConformanceViolations_i
 }
 
 func (this *JSCompilerStateProto_Builder) addUnattributedConformanceViolations(p0 *ViolationProto) *JSCompilerStateProto_Builder {
-	this.add_(24, obj_(p0))
+	if p0 == nil {
+		pbNPE_()
+	}
+	this.own_()
+	this.x_.unattributed_conformance_violations_ = append(this.x_.unattributed_conformance_violations_, p0)
 	return this
 }
 
@@ -2933,7 +3117,7 @@ func (this *JSCompilerStateProto_Builder) addAllUnattributedConformanceViolation
 }
 
 func (this *JSCompilerStateProto_Builder) clearUnattributedConformanceViolations() *JSCompilerStateProto_Builder {
-	this.clr_(24)
+	this.x_.unattributed_conformance_violations_ = nil
 	return this
 }
 
@@ -2965,8 +3149,15 @@ func (this *JSCompilerStateProto_Builder) mergeFrom_JSCompilerStateProto(p0 *JSC
 
 // ---- message jscomp.ChunkProto
 
+type ChunkProto_x_ struct {
+	name_         string
+	dependencies_ []int32
+	input_ids_    []string
+}
+
 type ChunkProto struct {
 	GeneratedMessage
+	x_ ChunkProto_x_
 }
 
 func (this *ChunkProto) up_GeneratedMessage() *GeneratedMessage {
@@ -2978,6 +3169,7 @@ func (this *ChunkProto) up_GeneratedMessage() *GeneratedMessage {
 
 type ChunkProto_Builder struct {
 	GeneratedMessage_Builder
+	x_ ChunkProto_x_
 }
 
 func (this *ChunkProto_Builder) up_GeneratedMessage_Builder() *GeneratedMessage_Builder {
@@ -2988,11 +3180,14 @@ func (this *ChunkProto_Builder) up_GeneratedMessage_Builder() *GeneratedMessage_
 }
 
 var ChunkProto_desc_ = pbReg_(&pbDesc_{name: "jscomp.ChunkProto", oneofs: []string{},
-	newM: func() any { return &ChunkProto{} }, newB: func() any { return &ChunkProto_Builder{} },
+	newM: func() *pbData_ { return &new(ChunkProto).pbData_ }, newB: func() *pbData_ { return &new(ChunkProto_Builder).pbData_ },
+	asM: func(p unsafe.Pointer) any { return (*ChunkProto)(p) }, asB: func(p unsafe.Pointer) any { return (*ChunkProto_Builder)(p) },
+	cp:   func(dst, src unsafe.Pointer) { (*ChunkProto)(dst).x_ = (*ChunkProto)(src).x_ },
+	xoff: unsafe.Offsetof(ChunkProto{}.x_),
 	fields: []*pbField_{
-		{name: "name", num: 1, kind: pbString_, utf8: true},
-		{name: "dependencies", num: 2, kind: pbInt32_, rep: true, packed: true},
-		{name: "input_ids", num: 3, kind: pbString_, rep: true, utf8: true},
+		{name: "name", num: 1, kind: pbString_, utf8: true, off: unsafe.Offsetof(ChunkProto{}.x_.name_)},
+		{name: "dependencies", num: 2, kind: pbInt32_, rep: true, packed: true, off: unsafe.Offsetof(ChunkProto{}.x_.dependencies_)},
+		{name: "input_ids", num: 3, kind: pbString_, rep: true, utf8: true, off: unsafe.Offsetof(ChunkProto{}.x_.input_ids_)},
 	}})
 
 const (
@@ -3002,7 +3197,7 @@ const (
 )
 
 func ChunkProto_getDefaultInstance() *ChunkProto {
-	return ChunkProto_desc_.default_().(*ChunkProto)
+	return (*ChunkProto)(unsafe.Pointer(ChunkProto_desc_.default_()))
 }
 
 func ChunkProto_getDescriptor() *Descriptors_Descriptor {
@@ -3010,7 +3205,7 @@ func ChunkProto_getDescriptor() *Descriptors_Descriptor {
 }
 
 func ChunkProto_newBuilder() *ChunkProto_Builder {
-	return ChunkProto_desc_.newBuilder_().me_.(*ChunkProto_Builder)
+	return (*ChunkProto_Builder)(unsafe.Pointer(ChunkProto_desc_.newBuilder_()))
 }
 
 func ChunkProto_newBuilder_ChunkProto(p0 *ChunkProto) *ChunkProto_Builder {
@@ -3042,20 +3237,23 @@ func ChunkProto_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInputS
 }
 
 func (this *ChunkProto) getName() string {
-	return this.gStr_(0)
+	return this.x_.name_
 }
 
 func (this *ChunkProto_Builder) getName() string {
-	return this.gStr_(0)
+	return this.x_.name_
 }
 
 func (this *ChunkProto_Builder) setName(p0 string) *ChunkProto_Builder {
-	this.set_(0, p0)
+	if p0 == nullstr_ {
+		pbNPE_()
+	}
+	this.x_.name_ = p0
 	return this
 }
 
 func (this *ChunkProto_Builder) clearName() *ChunkProto_Builder {
-	this.clr_(0)
+	this.x_.name_ = ""
 	return this
 }
 
@@ -3073,27 +3271,27 @@ func (this *ChunkProto_Builder) setNameBytes(p0 *ByteString) *ChunkProto_Builder
 }
 
 func (this *ChunkProto) getDependenciesList() List {
-	return this.list_(1)
+	return pbListOf_(this.x_.dependencies_)
 }
 
 func (this *ChunkProto_Builder) getDependenciesList() List {
-	return this.list_(1)
+	return pbListOf_(this.x_.dependencies_)
 }
 
 func (this *ChunkProto) getDependencies(p0 int32) int32 {
-	return this.at_(1, p0).(int32)
+	return pbAt_(this.x_.dependencies_, p0)
 }
 
 func (this *ChunkProto_Builder) getDependencies(p0 int32) int32 {
-	return this.at_(1, p0).(int32)
+	return pbAt_(this.x_.dependencies_, p0)
 }
 
 func (this *ChunkProto) getDependenciesCount() int32 {
-	return this.cnt_(1)
+	return int32(len(this.x_.dependencies_))
 }
 
 func (this *ChunkProto_Builder) getDependenciesCount() int32 {
-	return this.cnt_(1)
+	return int32(len(this.x_.dependencies_))
 }
 
 func (this *ChunkProto_Builder) setDependencies(p0 int32, p1 int32) *ChunkProto_Builder {
@@ -3102,7 +3300,8 @@ func (this *ChunkProto_Builder) setDependencies(p0 int32, p1 int32) *ChunkProto_
 }
 
 func (this *ChunkProto_Builder) addDependencies(p0 int32) *ChunkProto_Builder {
-	this.add_(1, p0)
+	this.own_()
+	this.x_.dependencies_ = append(this.x_.dependencies_, p0)
 	return this
 }
 
@@ -3112,32 +3311,32 @@ func (this *ChunkProto_Builder) addAllDependencies(p0 Iterable) *ChunkProto_Buil
 }
 
 func (this *ChunkProto_Builder) clearDependencies() *ChunkProto_Builder {
-	this.clr_(1)
+	this.x_.dependencies_ = nil
 	return this
 }
 
 func (this *ChunkProto) getInputIdsList() List {
-	return this.list_(2)
+	return pbListOf_(this.x_.input_ids_)
 }
 
 func (this *ChunkProto_Builder) getInputIdsList() List {
-	return this.list_(2)
+	return pbListOf_(this.x_.input_ids_)
 }
 
 func (this *ChunkProto) getInputIds(p0 int32) string {
-	return this.at_(2, p0).(string)
+	return pbAt_(this.x_.input_ids_, p0)
 }
 
 func (this *ChunkProto_Builder) getInputIds(p0 int32) string {
-	return this.at_(2, p0).(string)
+	return pbAt_(this.x_.input_ids_, p0)
 }
 
 func (this *ChunkProto) getInputIdsCount() int32 {
-	return this.cnt_(2)
+	return int32(len(this.x_.input_ids_))
 }
 
 func (this *ChunkProto_Builder) getInputIdsCount() int32 {
-	return this.cnt_(2)
+	return int32(len(this.x_.input_ids_))
 }
 
 func (this *ChunkProto_Builder) setInputIds(p0 int32, p1 string) *ChunkProto_Builder {
@@ -3146,7 +3345,11 @@ func (this *ChunkProto_Builder) setInputIds(p0 int32, p1 string) *ChunkProto_Bui
 }
 
 func (this *ChunkProto_Builder) addInputIds(p0 string) *ChunkProto_Builder {
-	this.add_(2, p0)
+	if p0 == nullstr_ {
+		pbNPE_()
+	}
+	this.own_()
+	this.x_.input_ids_ = append(this.x_.input_ids_, p0)
 	return this
 }
 
@@ -3156,16 +3359,16 @@ func (this *ChunkProto_Builder) addAllInputIds(p0 Iterable) *ChunkProto_Builder 
 }
 
 func (this *ChunkProto_Builder) clearInputIds() *ChunkProto_Builder {
-	this.clr_(2)
+	this.x_.input_ids_ = nil
 	return this
 }
 
 func (this *ChunkProto) getInputIdsBytes(p0 int32) *ByteString {
-	return ByteString_copyFromUtf8(this.at_(2, p0).(string))
+	return ByteString_copyFromUtf8(pbAt_(this.x_.input_ids_, p0))
 }
 
 func (this *ChunkProto_Builder) getInputIdsBytes(p0 int32) *ByteString {
-	return ByteString_copyFromUtf8(this.at_(2, p0).(string))
+	return ByteString_copyFromUtf8(pbAt_(this.x_.input_ids_, p0))
 }
 
 func (this *ChunkProto_Builder) addInputIdsBytes(p0 *ByteString) *ChunkProto_Builder {
@@ -3180,8 +3383,14 @@ func (this *ChunkProto_Builder) mergeFrom_ChunkProto(p0 *ChunkProto) *ChunkProto
 
 // ---- message jscomp.UniqueIdProto
 
+type UniqueIdProto_x_ struct {
+	hash_    int32
+	counter_ int32
+}
+
 type UniqueIdProto struct {
 	GeneratedMessage
+	x_ UniqueIdProto_x_
 }
 
 func (this *UniqueIdProto) up_GeneratedMessage() *GeneratedMessage {
@@ -3193,6 +3402,7 @@ func (this *UniqueIdProto) up_GeneratedMessage() *GeneratedMessage {
 
 type UniqueIdProto_Builder struct {
 	GeneratedMessage_Builder
+	x_ UniqueIdProto_x_
 }
 
 func (this *UniqueIdProto_Builder) up_GeneratedMessage_Builder() *GeneratedMessage_Builder {
@@ -3203,10 +3413,13 @@ func (this *UniqueIdProto_Builder) up_GeneratedMessage_Builder() *GeneratedMessa
 }
 
 var UniqueIdProto_desc_ = pbReg_(&pbDesc_{name: "jscomp.UniqueIdProto", oneofs: []string{},
-	newM: func() any { return &UniqueIdProto{} }, newB: func() any { return &UniqueIdProto_Builder{} },
+	newM: func() *pbData_ { return &new(UniqueIdProto).pbData_ }, newB: func() *pbData_ { return &new(UniqueIdProto_Builder).pbData_ },
+	asM: func(p unsafe.Pointer) any { return (*UniqueIdProto)(p) }, asB: func(p unsafe.Pointer) any { return (*UniqueIdProto_Builder)(p) },
+	cp:   func(dst, src unsafe.Pointer) { (*UniqueIdProto)(dst).x_ = (*UniqueIdProto)(src).x_ },
+	xoff: unsafe.Offsetof(UniqueIdProto{}.x_),
 	fields: []*pbField_{
-		{name: "hash", num: 1, kind: pbInt32_},
-		{name: "counter", num: 2, kind: pbInt32_},
+		{name: "hash", num: 1, kind: pbInt32_, off: unsafe.Offsetof(UniqueIdProto{}.x_.hash_)},
+		{name: "counter", num: 2, kind: pbInt32_, off: unsafe.Offsetof(UniqueIdProto{}.x_.counter_)},
 	}})
 
 const (
@@ -3215,7 +3428,7 @@ const (
 )
 
 func UniqueIdProto_getDefaultInstance() *UniqueIdProto {
-	return UniqueIdProto_desc_.default_().(*UniqueIdProto)
+	return (*UniqueIdProto)(unsafe.Pointer(UniqueIdProto_desc_.default_()))
 }
 
 func UniqueIdProto_getDescriptor() *Descriptors_Descriptor {
@@ -3223,7 +3436,7 @@ func UniqueIdProto_getDescriptor() *Descriptors_Descriptor {
 }
 
 func UniqueIdProto_newBuilder() *UniqueIdProto_Builder {
-	return UniqueIdProto_desc_.newBuilder_().me_.(*UniqueIdProto_Builder)
+	return (*UniqueIdProto_Builder)(unsafe.Pointer(UniqueIdProto_desc_.newBuilder_()))
 }
 
 func UniqueIdProto_newBuilder_UniqueIdProto(p0 *UniqueIdProto) *UniqueIdProto_Builder {
@@ -3255,38 +3468,38 @@ func UniqueIdProto_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInp
 }
 
 func (this *UniqueIdProto) getHash() int32 {
-	return this.gI32_(0)
+	return this.x_.hash_
 }
 
 func (this *UniqueIdProto_Builder) getHash() int32 {
-	return this.gI32_(0)
+	return this.x_.hash_
 }
 
 func (this *UniqueIdProto_Builder) setHash(p0 int32) *UniqueIdProto_Builder {
-	this.set_(0, p0)
+	this.x_.hash_ = p0
 	return this
 }
 
 func (this *UniqueIdProto_Builder) clearHash() *UniqueIdProto_Builder {
-	this.clr_(0)
+	this.x_.hash_ = 0
 	return this
 }
 
 func (this *UniqueIdProto) getCounter() int32 {
-	return this.gI32_(1)
+	return this.x_.counter_
 }
 
 func (this *UniqueIdProto_Builder) getCounter() int32 {
-	return this.gI32_(1)
+	return this.x_.counter_
 }
 
 func (this *UniqueIdProto_Builder) setCounter(p0 int32) *UniqueIdProto_Builder {
-	this.set_(1, p0)
+	this.x_.counter_ = p0
 	return this
 }
 
 func (this *UniqueIdProto_Builder) clearCounter() *UniqueIdProto_Builder {
-	this.clr_(1)
+	this.x_.counter_ = 0
 	return this
 }
 
@@ -3297,8 +3510,14 @@ func (this *UniqueIdProto_Builder) mergeFrom_UniqueIdProto(p0 *UniqueIdProto) *U
 
 // ---- message jscomp.AccessorSummaryEntryProto
 
+type AccessorSummaryEntryProto_x_ struct {
+	name_ string
+	kind_ int32
+}
+
 type AccessorSummaryEntryProto struct {
 	GeneratedMessage
+	x_ AccessorSummaryEntryProto_x_
 }
 
 func (this *AccessorSummaryEntryProto) up_GeneratedMessage() *GeneratedMessage {
@@ -3310,6 +3529,7 @@ func (this *AccessorSummaryEntryProto) up_GeneratedMessage() *GeneratedMessage {
 
 type AccessorSummaryEntryProto_Builder struct {
 	GeneratedMessage_Builder
+	x_ AccessorSummaryEntryProto_x_
 }
 
 func (this *AccessorSummaryEntryProto_Builder) up_GeneratedMessage_Builder() *GeneratedMessage_Builder {
@@ -3320,10 +3540,15 @@ func (this *AccessorSummaryEntryProto_Builder) up_GeneratedMessage_Builder() *Ge
 }
 
 var AccessorSummaryEntryProto_desc_ = pbReg_(&pbDesc_{name: "jscomp.AccessorSummaryEntryProto", oneofs: []string{},
-	newM: func() any { return &AccessorSummaryEntryProto{} }, newB: func() any { return &AccessorSummaryEntryProto_Builder{} },
+	newM: func() *pbData_ { return &new(AccessorSummaryEntryProto).pbData_ }, newB: func() *pbData_ { return &new(AccessorSummaryEntryProto_Builder).pbData_ },
+	asM: func(p unsafe.Pointer) any { return (*AccessorSummaryEntryProto)(p) }, asB: func(p unsafe.Pointer) any { return (*AccessorSummaryEntryProto_Builder)(p) },
+	cp: func(dst, src unsafe.Pointer) {
+		(*AccessorSummaryEntryProto)(dst).x_ = (*AccessorSummaryEntryProto)(src).x_
+	},
+	xoff: unsafe.Offsetof(AccessorSummaryEntryProto{}.x_),
 	fields: []*pbField_{
-		{name: "name", num: 1, kind: pbString_, utf8: true},
-		{name: "kind", num: 2, kind: pbEnum_, tname: "jscomp.PropertyAccessKindProto"},
+		{name: "name", num: 1, kind: pbString_, utf8: true, off: unsafe.Offsetof(AccessorSummaryEntryProto{}.x_.name_)},
+		{name: "kind", num: 2, kind: pbEnum_, tname: "jscomp.PropertyAccessKindProto", off: unsafe.Offsetof(AccessorSummaryEntryProto{}.x_.kind_)},
 	}})
 
 const (
@@ -3332,7 +3557,7 @@ const (
 )
 
 func AccessorSummaryEntryProto_getDefaultInstance() *AccessorSummaryEntryProto {
-	return AccessorSummaryEntryProto_desc_.default_().(*AccessorSummaryEntryProto)
+	return (*AccessorSummaryEntryProto)(unsafe.Pointer(AccessorSummaryEntryProto_desc_.default_()))
 }
 
 func AccessorSummaryEntryProto_getDescriptor() *Descriptors_Descriptor {
@@ -3340,7 +3565,7 @@ func AccessorSummaryEntryProto_getDescriptor() *Descriptors_Descriptor {
 }
 
 func AccessorSummaryEntryProto_newBuilder() *AccessorSummaryEntryProto_Builder {
-	return AccessorSummaryEntryProto_desc_.newBuilder_().me_.(*AccessorSummaryEntryProto_Builder)
+	return (*AccessorSummaryEntryProto_Builder)(unsafe.Pointer(AccessorSummaryEntryProto_desc_.newBuilder_()))
 }
 
 func AccessorSummaryEntryProto_newBuilder_AccessorSummaryEntryProto(p0 *AccessorSummaryEntryProto) *AccessorSummaryEntryProto_Builder {
@@ -3372,20 +3597,23 @@ func AccessorSummaryEntryProto_parseFrom_CodedInputStream_ExtensionRegistryLite(
 }
 
 func (this *AccessorSummaryEntryProto) getName() string {
-	return this.gStr_(0)
+	return this.x_.name_
 }
 
 func (this *AccessorSummaryEntryProto_Builder) getName() string {
-	return this.gStr_(0)
+	return this.x_.name_
 }
 
 func (this *AccessorSummaryEntryProto_Builder) setName(p0 string) *AccessorSummaryEntryProto_Builder {
-	this.set_(0, p0)
+	if p0 == nullstr_ {
+		pbNPE_()
+	}
+	this.x_.name_ = p0
 	return this
 }
 
 func (this *AccessorSummaryEntryProto_Builder) clearName() *AccessorSummaryEntryProto_Builder {
-	this.clr_(0)
+	this.x_.name_ = ""
 	return this
 }
 
@@ -3403,33 +3631,34 @@ func (this *AccessorSummaryEntryProto_Builder) setNameBytes(p0 *ByteString) *Acc
 }
 
 func (this *AccessorSummaryEntryProto) getKind() PropertyAccessKindProto {
-	return PropertyAccessKindProto_ofNum_(this.gI32_(1))
+	return PropertyAccessKindProto_ofNum_(this.x_.kind_)
 }
 
 func (this *AccessorSummaryEntryProto_Builder) getKind() PropertyAccessKindProto {
-	return PropertyAccessKindProto_ofNum_(this.gI32_(1))
+	return PropertyAccessKindProto_ofNum_(this.x_.kind_)
 }
 
 func (this *AccessorSummaryEntryProto_Builder) setKind(p0 PropertyAccessKindProto) *AccessorSummaryEntryProto_Builder {
-	this.set_(1, p0.getNumber())
+	v := p0.getNumber()
+	this.x_.kind_ = v
 	return this
 }
 
 func (this *AccessorSummaryEntryProto_Builder) clearKind() *AccessorSummaryEntryProto_Builder {
-	this.clr_(1)
+	this.x_.kind_ = 0
 	return this
 }
 
 func (this *AccessorSummaryEntryProto) getKindValue() int32 {
-	return this.gI32_(1)
+	return this.x_.kind_
 }
 
 func (this *AccessorSummaryEntryProto_Builder) getKindValue() int32 {
-	return this.gI32_(1)
+	return this.x_.kind_
 }
 
 func (this *AccessorSummaryEntryProto_Builder) setKindValue(p0 int32) *AccessorSummaryEntryProto_Builder {
-	this.set_(1, p0)
+	this.x_.kind_ = p0
 	return this
 }
 
@@ -3440,8 +3669,14 @@ func (this *AccessorSummaryEntryProto_Builder) mergeFrom_AccessorSummaryEntryPro
 
 // ---- message jscomp.AccessorSummaryProto
 
+type AccessorSummaryProto_x_ struct {
+	accessors_                       []*AccessorSummaryEntryProto
+	assume_always_getter_and_setter_ bool
+}
+
 type AccessorSummaryProto struct {
 	GeneratedMessage
+	x_ AccessorSummaryProto_x_
 }
 
 func (this *AccessorSummaryProto) up_GeneratedMessage() *GeneratedMessage {
@@ -3453,6 +3688,7 @@ func (this *AccessorSummaryProto) up_GeneratedMessage() *GeneratedMessage {
 
 type AccessorSummaryProto_Builder struct {
 	GeneratedMessage_Builder
+	x_ AccessorSummaryProto_x_
 }
 
 func (this *AccessorSummaryProto_Builder) up_GeneratedMessage_Builder() *GeneratedMessage_Builder {
@@ -3463,10 +3699,13 @@ func (this *AccessorSummaryProto_Builder) up_GeneratedMessage_Builder() *Generat
 }
 
 var AccessorSummaryProto_desc_ = pbReg_(&pbDesc_{name: "jscomp.AccessorSummaryProto", oneofs: []string{},
-	newM: func() any { return &AccessorSummaryProto{} }, newB: func() any { return &AccessorSummaryProto_Builder{} },
+	newM: func() *pbData_ { return &new(AccessorSummaryProto).pbData_ }, newB: func() *pbData_ { return &new(AccessorSummaryProto_Builder).pbData_ },
+	asM: func(p unsafe.Pointer) any { return (*AccessorSummaryProto)(p) }, asB: func(p unsafe.Pointer) any { return (*AccessorSummaryProto_Builder)(p) },
+	cp:   func(dst, src unsafe.Pointer) { (*AccessorSummaryProto)(dst).x_ = (*AccessorSummaryProto)(src).x_ },
+	xoff: unsafe.Offsetof(AccessorSummaryProto{}.x_),
 	fields: []*pbField_{
-		{name: "assume_always_getter_and_setter", num: 1, kind: pbBool_},
-		{name: "accessors", num: 2, kind: pbMessage_, rep: true, tname: "jscomp.AccessorSummaryEntryProto"},
+		{name: "assume_always_getter_and_setter", num: 1, kind: pbBool_, off: unsafe.Offsetof(AccessorSummaryProto{}.x_.assume_always_getter_and_setter_)},
+		{name: "accessors", num: 2, kind: pbMessage_, rep: true, tname: "jscomp.AccessorSummaryEntryProto", off: unsafe.Offsetof(AccessorSummaryProto{}.x_.accessors_)},
 	}})
 
 const (
@@ -3475,7 +3714,7 @@ const (
 )
 
 func AccessorSummaryProto_getDefaultInstance() *AccessorSummaryProto {
-	return AccessorSummaryProto_desc_.default_().(*AccessorSummaryProto)
+	return (*AccessorSummaryProto)(unsafe.Pointer(AccessorSummaryProto_desc_.default_()))
 }
 
 func AccessorSummaryProto_getDescriptor() *Descriptors_Descriptor {
@@ -3483,7 +3722,7 @@ func AccessorSummaryProto_getDescriptor() *Descriptors_Descriptor {
 }
 
 func AccessorSummaryProto_newBuilder() *AccessorSummaryProto_Builder {
-	return AccessorSummaryProto_desc_.newBuilder_().me_.(*AccessorSummaryProto_Builder)
+	return (*AccessorSummaryProto_Builder)(unsafe.Pointer(AccessorSummaryProto_desc_.newBuilder_()))
 }
 
 func AccessorSummaryProto_newBuilder_AccessorSummaryProto(p0 *AccessorSummaryProto) *AccessorSummaryProto_Builder {
@@ -3515,25 +3754,25 @@ func AccessorSummaryProto_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *C
 }
 
 func (this *AccessorSummaryProto) getAssumeAlwaysGetterAndSetter() bool {
-	return this.gBool_(0)
+	return this.x_.assume_always_getter_and_setter_
 }
 
 func (this *AccessorSummaryProto_Builder) getAssumeAlwaysGetterAndSetter() bool {
-	return this.gBool_(0)
+	return this.x_.assume_always_getter_and_setter_
 }
 
 func (this *AccessorSummaryProto_Builder) setAssumeAlwaysGetterAndSetter(p0 bool) *AccessorSummaryProto_Builder {
-	this.set_(0, p0)
+	this.x_.assume_always_getter_and_setter_ = p0
 	return this
 }
 
 func (this *AccessorSummaryProto_Builder) clearAssumeAlwaysGetterAndSetter() *AccessorSummaryProto_Builder {
-	this.clr_(0)
+	this.x_.assume_always_getter_and_setter_ = false
 	return this
 }
 
 func (this *AccessorSummaryProto) getAccessorsList() List {
-	return this.list_(1)
+	return pbListOf_(this.x_.accessors_)
 }
 
 func (this *AccessorSummaryProto_Builder) getAccessorsList() List {
@@ -3541,31 +3780,31 @@ func (this *AccessorSummaryProto_Builder) getAccessorsList() List {
 }
 
 func (this *AccessorSummaryProto) getAccessorsCount() int32 {
-	return this.cnt_(1)
+	return int32(len(this.x_.accessors_))
 }
 
 func (this *AccessorSummaryProto_Builder) getAccessorsCount() int32 {
-	return this.cnt_(1)
+	return int32(len(this.x_.accessors_))
 }
 
 func (this *AccessorSummaryProto) getAccessors(p0 int32) *AccessorSummaryEntryProto {
-	return this.at_(1, p0).(*AccessorSummaryEntryProto)
+	return pbAt_(this.x_.accessors_, p0)
 }
 
 func (this *AccessorSummaryProto_Builder) getAccessors(p0 int32) *AccessorSummaryEntryProto {
-	return this.at_(1, p0).(*AccessorSummaryEntryProto)
+	return (*AccessorSummaryEntryProto)(this.atMsgP_(1, p0))
 }
 
 func (this *AccessorSummaryProto) getAccessorsOrBuilder(p0 int32) AccessorSummaryEntryProtoOrBuilder {
-	return this.at_(1, p0).(*AccessorSummaryEntryProto)
+	return pbAt_(this.x_.accessors_, p0)
 }
 
 func (this *AccessorSummaryProto_Builder) getAccessorsOrBuilder(p0 int32) AccessorSummaryEntryProtoOrBuilder {
-	return this.at_(1, p0).(*AccessorSummaryEntryProto)
+	return (*AccessorSummaryEntryProto)(this.atMsgP_(1, p0))
 }
 
 func (this *AccessorSummaryProto) getAccessorsOrBuilderList() List {
-	return this.list_(1)
+	return pbListOf_(this.x_.accessors_)
 }
 
 func (this *AccessorSummaryProto_Builder) getAccessorsOrBuilderList() List {
@@ -3583,7 +3822,11 @@ func (this *AccessorSummaryProto_Builder) setAccessors_int_Builder(p0 int32, p1 
 }
 
 func (this *AccessorSummaryProto_Builder) addAccessors(p0 *AccessorSummaryEntryProto) *AccessorSummaryProto_Builder {
-	this.add_(1, obj_(p0))
+	if p0 == nil {
+		pbNPE_()
+	}
+	this.own_()
+	this.x_.accessors_ = append(this.x_.accessors_, p0)
 	return this
 }
 
@@ -3608,7 +3851,7 @@ func (this *AccessorSummaryProto_Builder) addAllAccessors(p0 Iterable) *Accessor
 }
 
 func (this *AccessorSummaryProto_Builder) clearAccessors() *AccessorSummaryProto_Builder {
-	this.clr_(1)
+	this.x_.accessors_ = nil
 	return this
 }
 
@@ -3640,8 +3883,14 @@ func (this *AccessorSummaryProto_Builder) mergeFrom_AccessorSummaryProto(p0 *Acc
 
 // ---- message jscomp.VariableMapEntryProto
 
+type VariableMapEntryProto_x_ struct {
+	original_name_ string
+	new_name_      string
+}
+
 type VariableMapEntryProto struct {
 	GeneratedMessage
+	x_ VariableMapEntryProto_x_
 }
 
 func (this *VariableMapEntryProto) up_GeneratedMessage() *GeneratedMessage {
@@ -3653,6 +3902,7 @@ func (this *VariableMapEntryProto) up_GeneratedMessage() *GeneratedMessage {
 
 type VariableMapEntryProto_Builder struct {
 	GeneratedMessage_Builder
+	x_ VariableMapEntryProto_x_
 }
 
 func (this *VariableMapEntryProto_Builder) up_GeneratedMessage_Builder() *GeneratedMessage_Builder {
@@ -3663,10 +3913,13 @@ func (this *VariableMapEntryProto_Builder) up_GeneratedMessage_Builder() *Genera
 }
 
 var VariableMapEntryProto_desc_ = pbReg_(&pbDesc_{name: "jscomp.VariableMapEntryProto", oneofs: []string{},
-	newM: func() any { return &VariableMapEntryProto{} }, newB: func() any { return &VariableMapEntryProto_Builder{} },
+	newM: func() *pbData_ { return &new(VariableMapEntryProto).pbData_ }, newB: func() *pbData_ { return &new(VariableMapEntryProto_Builder).pbData_ },
+	asM: func(p unsafe.Pointer) any { return (*VariableMapEntryProto)(p) }, asB: func(p unsafe.Pointer) any { return (*VariableMapEntryProto_Builder)(p) },
+	cp:   func(dst, src unsafe.Pointer) { (*VariableMapEntryProto)(dst).x_ = (*VariableMapEntryProto)(src).x_ },
+	xoff: unsafe.Offsetof(VariableMapEntryProto{}.x_),
 	fields: []*pbField_{
-		{name: "original_name", num: 1, kind: pbString_, utf8: true},
-		{name: "new_name", num: 2, kind: pbString_, utf8: true},
+		{name: "original_name", num: 1, kind: pbString_, utf8: true, off: unsafe.Offsetof(VariableMapEntryProto{}.x_.original_name_)},
+		{name: "new_name", num: 2, kind: pbString_, utf8: true, off: unsafe.Offsetof(VariableMapEntryProto{}.x_.new_name_)},
 	}})
 
 const (
@@ -3675,7 +3928,7 @@ const (
 )
 
 func VariableMapEntryProto_getDefaultInstance() *VariableMapEntryProto {
-	return VariableMapEntryProto_desc_.default_().(*VariableMapEntryProto)
+	return (*VariableMapEntryProto)(unsafe.Pointer(VariableMapEntryProto_desc_.default_()))
 }
 
 func VariableMapEntryProto_getDescriptor() *Descriptors_Descriptor {
@@ -3683,7 +3936,7 @@ func VariableMapEntryProto_getDescriptor() *Descriptors_Descriptor {
 }
 
 func VariableMapEntryProto_newBuilder() *VariableMapEntryProto_Builder {
-	return VariableMapEntryProto_desc_.newBuilder_().me_.(*VariableMapEntryProto_Builder)
+	return (*VariableMapEntryProto_Builder)(unsafe.Pointer(VariableMapEntryProto_desc_.newBuilder_()))
 }
 
 func VariableMapEntryProto_newBuilder_VariableMapEntryProto(p0 *VariableMapEntryProto) *VariableMapEntryProto_Builder {
@@ -3715,20 +3968,23 @@ func VariableMapEntryProto_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *
 }
 
 func (this *VariableMapEntryProto) getOriginalName() string {
-	return this.gStr_(0)
+	return this.x_.original_name_
 }
 
 func (this *VariableMapEntryProto_Builder) getOriginalName() string {
-	return this.gStr_(0)
+	return this.x_.original_name_
 }
 
 func (this *VariableMapEntryProto_Builder) setOriginalName(p0 string) *VariableMapEntryProto_Builder {
-	this.set_(0, p0)
+	if p0 == nullstr_ {
+		pbNPE_()
+	}
+	this.x_.original_name_ = p0
 	return this
 }
 
 func (this *VariableMapEntryProto_Builder) clearOriginalName() *VariableMapEntryProto_Builder {
-	this.clr_(0)
+	this.x_.original_name_ = ""
 	return this
 }
 
@@ -3746,20 +4002,23 @@ func (this *VariableMapEntryProto_Builder) setOriginalNameBytes(p0 *ByteString) 
 }
 
 func (this *VariableMapEntryProto) getNewName() string {
-	return this.gStr_(1)
+	return this.x_.new_name_
 }
 
 func (this *VariableMapEntryProto_Builder) getNewName() string {
-	return this.gStr_(1)
+	return this.x_.new_name_
 }
 
 func (this *VariableMapEntryProto_Builder) setNewName(p0 string) *VariableMapEntryProto_Builder {
-	this.set_(1, p0)
+	if p0 == nullstr_ {
+		pbNPE_()
+	}
+	this.x_.new_name_ = p0
 	return this
 }
 
 func (this *VariableMapEntryProto_Builder) clearNewName() *VariableMapEntryProto_Builder {
-	this.clr_(1)
+	this.x_.new_name_ = ""
 	return this
 }
 
@@ -3783,8 +4042,14 @@ func (this *VariableMapEntryProto_Builder) mergeFrom_VariableMapEntryProto(p0 *V
 
 // ---- message jscomp.ConformanceViolationsProto
 
+type ConformanceViolationsProto_x_ struct {
+	input_name_ string
+	violations_ []*ViolationProto
+}
+
 type ConformanceViolationsProto struct {
 	GeneratedMessage
+	x_ ConformanceViolationsProto_x_
 }
 
 func (this *ConformanceViolationsProto) up_GeneratedMessage() *GeneratedMessage {
@@ -3796,6 +4061,7 @@ func (this *ConformanceViolationsProto) up_GeneratedMessage() *GeneratedMessage 
 
 type ConformanceViolationsProto_Builder struct {
 	GeneratedMessage_Builder
+	x_ ConformanceViolationsProto_x_
 }
 
 func (this *ConformanceViolationsProto_Builder) up_GeneratedMessage_Builder() *GeneratedMessage_Builder {
@@ -3806,10 +4072,15 @@ func (this *ConformanceViolationsProto_Builder) up_GeneratedMessage_Builder() *G
 }
 
 var ConformanceViolationsProto_desc_ = pbReg_(&pbDesc_{name: "jscomp.ConformanceViolationsProto", oneofs: []string{},
-	newM: func() any { return &ConformanceViolationsProto{} }, newB: func() any { return &ConformanceViolationsProto_Builder{} },
+	newM: func() *pbData_ { return &new(ConformanceViolationsProto).pbData_ }, newB: func() *pbData_ { return &new(ConformanceViolationsProto_Builder).pbData_ },
+	asM: func(p unsafe.Pointer) any { return (*ConformanceViolationsProto)(p) }, asB: func(p unsafe.Pointer) any { return (*ConformanceViolationsProto_Builder)(p) },
+	cp: func(dst, src unsafe.Pointer) {
+		(*ConformanceViolationsProto)(dst).x_ = (*ConformanceViolationsProto)(src).x_
+	},
+	xoff: unsafe.Offsetof(ConformanceViolationsProto{}.x_),
 	fields: []*pbField_{
-		{name: "input_name", num: 1, kind: pbString_, utf8: true},
-		{name: "violations", num: 2, kind: pbMessage_, rep: true, tname: "jscomp.ViolationProto"},
+		{name: "input_name", num: 1, kind: pbString_, utf8: true, off: unsafe.Offsetof(ConformanceViolationsProto{}.x_.input_name_)},
+		{name: "violations", num: 2, kind: pbMessage_, rep: true, tname: "jscomp.ViolationProto", off: unsafe.Offsetof(ConformanceViolationsProto{}.x_.violations_)},
 	}})
 
 const (
@@ -3818,7 +4089,7 @@ const (
 )
 
 func ConformanceViolationsProto_getDefaultInstance() *ConformanceViolationsProto {
-	return ConformanceViolationsProto_desc_.default_().(*ConformanceViolationsProto)
+	return (*ConformanceViolationsProto)(unsafe.Pointer(ConformanceViolationsProto_desc_.default_()))
 }
 
 func ConformanceViolationsProto_getDescriptor() *Descriptors_Descriptor {
@@ -3826,7 +4097,7 @@ func ConformanceViolationsProto_getDescriptor() *Descriptors_Descriptor {
 }
 
 func ConformanceViolationsProto_newBuilder() *ConformanceViolationsProto_Builder {
-	return ConformanceViolationsProto_desc_.newBuilder_().me_.(*ConformanceViolationsProto_Builder)
+	return (*ConformanceViolationsProto_Builder)(unsafe.Pointer(ConformanceViolationsProto_desc_.newBuilder_()))
 }
 
 func ConformanceViolationsProto_newBuilder_ConformanceViolationsProto(p0 *ConformanceViolationsProto) *ConformanceViolationsProto_Builder {
@@ -3858,20 +4129,23 @@ func ConformanceViolationsProto_parseFrom_CodedInputStream_ExtensionRegistryLite
 }
 
 func (this *ConformanceViolationsProto) getInputName() string {
-	return this.gStr_(0)
+	return this.x_.input_name_
 }
 
 func (this *ConformanceViolationsProto_Builder) getInputName() string {
-	return this.gStr_(0)
+	return this.x_.input_name_
 }
 
 func (this *ConformanceViolationsProto_Builder) setInputName(p0 string) *ConformanceViolationsProto_Builder {
-	this.set_(0, p0)
+	if p0 == nullstr_ {
+		pbNPE_()
+	}
+	this.x_.input_name_ = p0
 	return this
 }
 
 func (this *ConformanceViolationsProto_Builder) clearInputName() *ConformanceViolationsProto_Builder {
-	this.clr_(0)
+	this.x_.input_name_ = ""
 	return this
 }
 
@@ -3889,7 +4163,7 @@ func (this *ConformanceViolationsProto_Builder) setInputNameBytes(p0 *ByteString
 }
 
 func (this *ConformanceViolationsProto) getViolationsList() List {
-	return this.list_(1)
+	return pbListOf_(this.x_.violations_)
 }
 
 func (this *ConformanceViolationsProto_Builder) getViolationsList() List {
@@ -3897,31 +4171,31 @@ func (this *ConformanceViolationsProto_Builder) getViolationsList() List {
 }
 
 func (this *ConformanceViolationsProto) getViolationsCount() int32 {
-	return this.cnt_(1)
+	return int32(len(this.x_.violations_))
 }
 
 func (this *ConformanceViolationsProto_Builder) getViolationsCount() int32 {
-	return this.cnt_(1)
+	return int32(len(this.x_.violations_))
 }
 
 func (this *ConformanceViolationsProto) getViolations(p0 int32) *ViolationProto {
-	return this.at_(1, p0).(*ViolationProto)
+	return pbAt_(this.x_.violations_, p0)
 }
 
 func (this *ConformanceViolationsProto_Builder) getViolations(p0 int32) *ViolationProto {
-	return this.at_(1, p0).(*ViolationProto)
+	return (*ViolationProto)(this.atMsgP_(1, p0))
 }
 
 func (this *ConformanceViolationsProto) getViolationsOrBuilder(p0 int32) ViolationProtoOrBuilder {
-	return this.at_(1, p0).(*ViolationProto)
+	return pbAt_(this.x_.violations_, p0)
 }
 
 func (this *ConformanceViolationsProto_Builder) getViolationsOrBuilder(p0 int32) ViolationProtoOrBuilder {
-	return this.at_(1, p0).(*ViolationProto)
+	return (*ViolationProto)(this.atMsgP_(1, p0))
 }
 
 func (this *ConformanceViolationsProto) getViolationsOrBuilderList() List {
-	return this.list_(1)
+	return pbListOf_(this.x_.violations_)
 }
 
 func (this *ConformanceViolationsProto_Builder) getViolationsOrBuilderList() List {
@@ -3939,7 +4213,11 @@ func (this *ConformanceViolationsProto_Builder) setViolations_int_Builder(p0 int
 }
 
 func (this *ConformanceViolationsProto_Builder) addViolations(p0 *ViolationProto) *ConformanceViolationsProto_Builder {
-	this.add_(1, obj_(p0))
+	if p0 == nil {
+		pbNPE_()
+	}
+	this.own_()
+	this.x_.violations_ = append(this.x_.violations_, p0)
 	return this
 }
 
@@ -3964,7 +4242,7 @@ func (this *ConformanceViolationsProto_Builder) addAllViolations(p0 Iterable) *C
 }
 
 func (this *ConformanceViolationsProto_Builder) clearViolations() *ConformanceViolationsProto_Builder {
-	this.clr_(1)
+	this.x_.violations_ = nil
 	return this
 }
 
@@ -4007,8 +4285,19 @@ type ConformanceViolationsProtoOrBuilder interface {
 
 // ---- message jscomp.ViolationProto
 
+type ViolationProto_x_ struct {
+	requirement_                                           *Requirement
+	allowlist_entry_                                       *RequirementScopeEntry
+	source_name_                                           string
+	pbHas_                                                 [1]uint32
+	line_number_                                           int32
+	char_number_                                           int32
+	should_report_during_library_deps_conformance_checker_ bool
+}
+
 type ViolationProto struct {
 	GeneratedMessage
+	x_ ViolationProto_x_
 }
 
 func (this *ViolationProto) up_GeneratedMessage() *GeneratedMessage {
@@ -4020,6 +4309,7 @@ func (this *ViolationProto) up_GeneratedMessage() *GeneratedMessage {
 
 type ViolationProto_Builder struct {
 	GeneratedMessage_Builder
+	x_ ViolationProto_x_
 }
 
 func (this *ViolationProto_Builder) up_GeneratedMessage_Builder() *GeneratedMessage_Builder {
@@ -4030,14 +4320,17 @@ func (this *ViolationProto_Builder) up_GeneratedMessage_Builder() *GeneratedMess
 }
 
 var ViolationProto_desc_ = pbReg_(&pbDesc_{name: "jscomp.ViolationProto", oneofs: []string{},
-	newM: func() any { return &ViolationProto{} }, newB: func() any { return &ViolationProto_Builder{} },
+	newM: func() *pbData_ { return &new(ViolationProto).pbData_ }, newB: func() *pbData_ { return &new(ViolationProto_Builder).pbData_ },
+	asM: func(p unsafe.Pointer) any { return (*ViolationProto)(p) }, asB: func(p unsafe.Pointer) any { return (*ViolationProto_Builder)(p) },
+	cp:   func(dst, src unsafe.Pointer) { (*ViolationProto)(dst).x_ = (*ViolationProto)(src).x_ },
+	xoff: unsafe.Offsetof(ViolationProto{}.x_), hoff: unsafe.Offsetof(ViolationProto{}.x_.pbHas_),
 	fields: []*pbField_{
-		{name: "requirement", num: 1, kind: pbMessage_, pres: true, tname: "jscomp.Requirement"},
-		{name: "allowlist_entry", num: 2, kind: pbMessage_, pres: true, tname: "jscomp.RequirementScopeEntry"},
-		{name: "source_name", num: 3, kind: pbString_, pres: true, utf8: true},
-		{name: "line_number", num: 4, kind: pbInt32_},
-		{name: "char_number", num: 5, kind: pbInt32_},
-		{name: "should_report_during_library_deps_conformance_checker", num: 6, kind: pbBool_},
+		{name: "requirement", num: 1, kind: pbMessage_, pres: true, tname: "jscomp.Requirement", off: unsafe.Offsetof(ViolationProto{}.x_.requirement_)},
+		{name: "allowlist_entry", num: 2, kind: pbMessage_, pres: true, tname: "jscomp.RequirementScopeEntry", off: unsafe.Offsetof(ViolationProto{}.x_.allowlist_entry_)},
+		{name: "source_name", num: 3, kind: pbString_, pres: true, utf8: true, off: unsafe.Offsetof(ViolationProto{}.x_.source_name_), hb: 1},
+		{name: "line_number", num: 4, kind: pbInt32_, off: unsafe.Offsetof(ViolationProto{}.x_.line_number_)},
+		{name: "char_number", num: 5, kind: pbInt32_, off: unsafe.Offsetof(ViolationProto{}.x_.char_number_)},
+		{name: "should_report_during_library_deps_conformance_checker", num: 6, kind: pbBool_, off: unsafe.Offsetof(ViolationProto{}.x_.should_report_during_library_deps_conformance_checker_)},
 	}})
 
 const (
@@ -4050,7 +4343,7 @@ const (
 )
 
 func ViolationProto_getDefaultInstance() *ViolationProto {
-	return ViolationProto_desc_.default_().(*ViolationProto)
+	return (*ViolationProto)(unsafe.Pointer(ViolationProto_desc_.default_()))
 }
 
 func ViolationProto_getDescriptor() *Descriptors_Descriptor {
@@ -4058,7 +4351,7 @@ func ViolationProto_getDescriptor() *Descriptors_Descriptor {
 }
 
 func ViolationProto_newBuilder() *ViolationProto_Builder {
-	return ViolationProto_desc_.newBuilder_().me_.(*ViolationProto_Builder)
+	return (*ViolationProto_Builder)(unsafe.Pointer(ViolationProto_desc_.newBuilder_()))
 }
 
 func ViolationProto_newBuilder_ViolationProto(p0 *ViolationProto) *ViolationProto_Builder {
@@ -4090,36 +4383,42 @@ func ViolationProto_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedIn
 }
 
 func (this *ViolationProto) hasRequirement() bool {
-	return this.has_(0)
+	return this.x_.requirement_ != nil
 }
 
 func (this *ViolationProto_Builder) hasRequirement() bool {
-	return this.has_(0)
+	return this.x_.requirement_ != nil
 }
 
 func (this *ViolationProto) getRequirement() *Requirement {
-	return this.gMsg_(0).(*Requirement)
+	if p := this.x_.requirement_; p != nil {
+		return p
+	}
+	return (*Requirement)(unsafe.Pointer(Requirement_desc_.default_()))
 }
 
 func (this *ViolationProto_Builder) getRequirement() *Requirement {
-	return this.gMsg_(0).(*Requirement)
+	return (*Requirement)(this.gMsgP_(0))
 }
 
 func (this *ViolationProto) getRequirementOrBuilder() RequirementOrBuilder {
-	return this.gMsg_(0).(*Requirement)
+	if p := this.x_.requirement_; p != nil {
+		return p
+	}
+	return (*Requirement)(unsafe.Pointer(Requirement_desc_.default_()))
 }
 
 func (this *ViolationProto_Builder) getRequirementOrBuilder() RequirementOrBuilder {
-	return this.gMsg_(0).(*Requirement)
+	return (*Requirement)(this.gMsgP_(0))
 }
 
 func (this *ViolationProto_Builder) setRequirement(p0 *Requirement) *ViolationProto_Builder {
-	this.set_(0, obj_(p0))
+	this.setMsg_(0, unsafe.Pointer(p0))
 	return this
 }
 
 func (this *ViolationProto_Builder) setRequirement_Builder(p0 *Requirement_Builder) *ViolationProto_Builder {
-	this.set_(0, p0.build())
+	this.setMsg_(0, unsafe.Pointer(p0.build_()))
 	return this
 }
 
@@ -4129,7 +4428,7 @@ func (this *ViolationProto_Builder) mergeRequirement(p0 *Requirement) *Violation
 }
 
 func (this *ViolationProto_Builder) clearRequirement() *ViolationProto_Builder {
-	this.clr_(0)
+	this.x_.requirement_ = nil
 	return this
 }
 
@@ -4138,36 +4437,42 @@ func (this *ViolationProto_Builder) getRequirementBuilder() *Requirement_Builder
 }
 
 func (this *ViolationProto) hasAllowlistEntry() bool {
-	return this.has_(1)
+	return this.x_.allowlist_entry_ != nil
 }
 
 func (this *ViolationProto_Builder) hasAllowlistEntry() bool {
-	return this.has_(1)
+	return this.x_.allowlist_entry_ != nil
 }
 
 func (this *ViolationProto) getAllowlistEntry() *RequirementScopeEntry {
-	return this.gMsg_(1).(*RequirementScopeEntry)
+	if p := this.x_.allowlist_entry_; p != nil {
+		return p
+	}
+	return (*RequirementScopeEntry)(unsafe.Pointer(RequirementScopeEntry_desc_.default_()))
 }
 
 func (this *ViolationProto_Builder) getAllowlistEntry() *RequirementScopeEntry {
-	return this.gMsg_(1).(*RequirementScopeEntry)
+	return (*RequirementScopeEntry)(this.gMsgP_(1))
 }
 
 func (this *ViolationProto) getAllowlistEntryOrBuilder() RequirementScopeEntryOrBuilder {
-	return this.gMsg_(1).(*RequirementScopeEntry)
+	if p := this.x_.allowlist_entry_; p != nil {
+		return p
+	}
+	return (*RequirementScopeEntry)(unsafe.Pointer(RequirementScopeEntry_desc_.default_()))
 }
 
 func (this *ViolationProto_Builder) getAllowlistEntryOrBuilder() RequirementScopeEntryOrBuilder {
-	return this.gMsg_(1).(*RequirementScopeEntry)
+	return (*RequirementScopeEntry)(this.gMsgP_(1))
 }
 
 func (this *ViolationProto_Builder) setAllowlistEntry(p0 *RequirementScopeEntry) *ViolationProto_Builder {
-	this.set_(1, obj_(p0))
+	this.setMsg_(1, unsafe.Pointer(p0))
 	return this
 }
 
 func (this *ViolationProto_Builder) setAllowlistEntry_Builder(p0 *RequirementScopeEntry_Builder) *ViolationProto_Builder {
-	this.set_(1, p0.build())
+	this.setMsg_(1, unsafe.Pointer(p0.build_()))
 	return this
 }
 
@@ -4177,7 +4482,7 @@ func (this *ViolationProto_Builder) mergeAllowlistEntry(p0 *RequirementScopeEntr
 }
 
 func (this *ViolationProto_Builder) clearAllowlistEntry() *ViolationProto_Builder {
-	this.clr_(1)
+	this.x_.allowlist_entry_ = nil
 	return this
 }
 
@@ -4186,28 +4491,33 @@ func (this *ViolationProto_Builder) getAllowlistEntryBuilder() *RequirementScope
 }
 
 func (this *ViolationProto) hasSourceName() bool {
-	return this.has_(2)
+	return this.x_.pbHas_[0]&0x1 != 0
 }
 
 func (this *ViolationProto_Builder) hasSourceName() bool {
-	return this.has_(2)
+	return this.x_.pbHas_[0]&0x1 != 0
 }
 
 func (this *ViolationProto) getSourceName() string {
-	return this.gStr_(2)
+	return this.x_.source_name_
 }
 
 func (this *ViolationProto_Builder) getSourceName() string {
-	return this.gStr_(2)
+	return this.x_.source_name_
 }
 
 func (this *ViolationProto_Builder) setSourceName(p0 string) *ViolationProto_Builder {
-	this.set_(2, p0)
+	if p0 == nullstr_ {
+		pbNPE_()
+	}
+	this.x_.pbHas_[0] |= 0x1
+	this.x_.source_name_ = p0
 	return this
 }
 
 func (this *ViolationProto_Builder) clearSourceName() *ViolationProto_Builder {
-	this.clr_(2)
+	this.x_.source_name_ = ""
+	this.x_.pbHas_[0] &^= 0x1
 	return this
 }
 
@@ -4225,56 +4535,56 @@ func (this *ViolationProto_Builder) setSourceNameBytes(p0 *ByteString) *Violatio
 }
 
 func (this *ViolationProto) getLineNumber() int32 {
-	return this.gI32_(3)
+	return this.x_.line_number_
 }
 
 func (this *ViolationProto_Builder) getLineNumber() int32 {
-	return this.gI32_(3)
+	return this.x_.line_number_
 }
 
 func (this *ViolationProto_Builder) setLineNumber(p0 int32) *ViolationProto_Builder {
-	this.set_(3, p0)
+	this.x_.line_number_ = p0
 	return this
 }
 
 func (this *ViolationProto_Builder) clearLineNumber() *ViolationProto_Builder {
-	this.clr_(3)
+	this.x_.line_number_ = 0
 	return this
 }
 
 func (this *ViolationProto) getCharNumber() int32 {
-	return this.gI32_(4)
+	return this.x_.char_number_
 }
 
 func (this *ViolationProto_Builder) getCharNumber() int32 {
-	return this.gI32_(4)
+	return this.x_.char_number_
 }
 
 func (this *ViolationProto_Builder) setCharNumber(p0 int32) *ViolationProto_Builder {
-	this.set_(4, p0)
+	this.x_.char_number_ = p0
 	return this
 }
 
 func (this *ViolationProto_Builder) clearCharNumber() *ViolationProto_Builder {
-	this.clr_(4)
+	this.x_.char_number_ = 0
 	return this
 }
 
 func (this *ViolationProto) getShouldReportDuringLibraryDepsConformanceChecker() bool {
-	return this.gBool_(5)
+	return this.x_.should_report_during_library_deps_conformance_checker_
 }
 
 func (this *ViolationProto_Builder) getShouldReportDuringLibraryDepsConformanceChecker() bool {
-	return this.gBool_(5)
+	return this.x_.should_report_during_library_deps_conformance_checker_
 }
 
 func (this *ViolationProto_Builder) setShouldReportDuringLibraryDepsConformanceChecker(p0 bool) *ViolationProto_Builder {
-	this.set_(5, p0)
+	this.x_.should_report_during_library_deps_conformance_checker_ = p0
 	return this
 }
 
 func (this *ViolationProto_Builder) clearShouldReportDuringLibraryDepsConformanceChecker() *ViolationProto_Builder {
-	this.clr_(5)
+	this.x_.should_report_during_library_deps_conformance_checker_ = false
 	return this
 }
 
@@ -4893,8 +5203,15 @@ var RequirementScopeEntry_Reason_desc_ = pbRegEnum_(&pbEnumDesc_{name: "jscomp.R
 
 // ---- message jscomp.ConformanceConfig
 
+type ConformanceConfig_x_ struct {
+	requirement_                                                   []*Requirement
+	pbHas_                                                         [1]uint32
+	library_level_non_allowlisted_conformance_violations_behavior_ int32
+}
+
 type ConformanceConfig struct {
 	GeneratedMessage
+	x_ ConformanceConfig_x_
 }
 
 func (this *ConformanceConfig) up_GeneratedMessage() *GeneratedMessage {
@@ -4906,6 +5223,7 @@ func (this *ConformanceConfig) up_GeneratedMessage() *GeneratedMessage {
 
 type ConformanceConfig_Builder struct {
 	GeneratedMessage_Builder
+	x_ ConformanceConfig_x_
 }
 
 func (this *ConformanceConfig_Builder) up_GeneratedMessage_Builder() *GeneratedMessage_Builder {
@@ -4916,10 +5234,13 @@ func (this *ConformanceConfig_Builder) up_GeneratedMessage_Builder() *GeneratedM
 }
 
 var ConformanceConfig_desc_ = pbReg_(&pbDesc_{name: "jscomp.ConformanceConfig", oneofs: []string{},
-	newM: func() any { return &ConformanceConfig{} }, newB: func() any { return &ConformanceConfig_Builder{} },
+	newM: func() *pbData_ { return &new(ConformanceConfig).pbData_ }, newB: func() *pbData_ { return &new(ConformanceConfig_Builder).pbData_ },
+	asM: func(p unsafe.Pointer) any { return (*ConformanceConfig)(p) }, asB: func(p unsafe.Pointer) any { return (*ConformanceConfig_Builder)(p) },
+	cp:   func(dst, src unsafe.Pointer) { (*ConformanceConfig)(dst).x_ = (*ConformanceConfig)(src).x_ },
+	xoff: unsafe.Offsetof(ConformanceConfig{}.x_), hoff: unsafe.Offsetof(ConformanceConfig{}.x_.pbHas_),
 	fields: []*pbField_{
-		{name: "requirement", num: 1, kind: pbMessage_, rep: true, tname: "jscomp.Requirement"},
-		{name: "library_level_non_allowlisted_conformance_violations_behavior", num: 2, kind: pbEnum_, pres: true, tname: "jscomp.ConformanceConfig.LibraryLevelNonAllowlistedConformanceViolationsBehavior"},
+		{name: "requirement", num: 1, kind: pbMessage_, rep: true, tname: "jscomp.Requirement", off: unsafe.Offsetof(ConformanceConfig{}.x_.requirement_)},
+		{name: "library_level_non_allowlisted_conformance_violations_behavior", num: 2, kind: pbEnum_, pres: true, tname: "jscomp.ConformanceConfig.LibraryLevelNonAllowlistedConformanceViolationsBehavior", off: unsafe.Offsetof(ConformanceConfig{}.x_.library_level_non_allowlisted_conformance_violations_behavior_), hb: 1},
 	}})
 
 const (
@@ -4928,7 +5249,7 @@ const (
 )
 
 func ConformanceConfig_getDefaultInstance() *ConformanceConfig {
-	return ConformanceConfig_desc_.default_().(*ConformanceConfig)
+	return (*ConformanceConfig)(unsafe.Pointer(ConformanceConfig_desc_.default_()))
 }
 
 func ConformanceConfig_getDescriptor() *Descriptors_Descriptor {
@@ -4936,7 +5257,7 @@ func ConformanceConfig_getDescriptor() *Descriptors_Descriptor {
 }
 
 func ConformanceConfig_newBuilder() *ConformanceConfig_Builder {
-	return ConformanceConfig_desc_.newBuilder_().me_.(*ConformanceConfig_Builder)
+	return (*ConformanceConfig_Builder)(unsafe.Pointer(ConformanceConfig_desc_.newBuilder_()))
 }
 
 func ConformanceConfig_newBuilder_ConformanceConfig(p0 *ConformanceConfig) *ConformanceConfig_Builder {
@@ -4968,7 +5289,7 @@ func ConformanceConfig_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *Code
 }
 
 func (this *ConformanceConfig) getRequirementList() List {
-	return this.list_(0)
+	return pbListOf_(this.x_.requirement_)
 }
 
 func (this *ConformanceConfig_Builder) getRequirementList() List {
@@ -4976,31 +5297,31 @@ func (this *ConformanceConfig_Builder) getRequirementList() List {
 }
 
 func (this *ConformanceConfig) getRequirementCount() int32 {
-	return this.cnt_(0)
+	return int32(len(this.x_.requirement_))
 }
 
 func (this *ConformanceConfig_Builder) getRequirementCount() int32 {
-	return this.cnt_(0)
+	return int32(len(this.x_.requirement_))
 }
 
 func (this *ConformanceConfig) getRequirement(p0 int32) *Requirement {
-	return this.at_(0, p0).(*Requirement)
+	return pbAt_(this.x_.requirement_, p0)
 }
 
 func (this *ConformanceConfig_Builder) getRequirement(p0 int32) *Requirement {
-	return this.at_(0, p0).(*Requirement)
+	return (*Requirement)(this.atMsgP_(0, p0))
 }
 
 func (this *ConformanceConfig) getRequirementOrBuilder(p0 int32) RequirementOrBuilder {
-	return this.at_(0, p0).(*Requirement)
+	return pbAt_(this.x_.requirement_, p0)
 }
 
 func (this *ConformanceConfig_Builder) getRequirementOrBuilder(p0 int32) RequirementOrBuilder {
-	return this.at_(0, p0).(*Requirement)
+	return (*Requirement)(this.atMsgP_(0, p0))
 }
 
 func (this *ConformanceConfig) getRequirementOrBuilderList() List {
-	return this.list_(0)
+	return pbListOf_(this.x_.requirement_)
 }
 
 func (this *ConformanceConfig_Builder) getRequirementOrBuilderList() List {
@@ -5018,7 +5339,11 @@ func (this *ConformanceConfig_Builder) setRequirement_int_Builder(p0 int32, p1 *
 }
 
 func (this *ConformanceConfig_Builder) addRequirement(p0 *Requirement) *ConformanceConfig_Builder {
-	this.add_(0, obj_(p0))
+	if p0 == nil {
+		pbNPE_()
+	}
+	this.own_()
+	this.x_.requirement_ = append(this.x_.requirement_, p0)
 	return this
 }
 
@@ -5043,7 +5368,7 @@ func (this *ConformanceConfig_Builder) addAllRequirement(p0 Iterable) *Conforman
 }
 
 func (this *ConformanceConfig_Builder) clearRequirement() *ConformanceConfig_Builder {
-	this.clr_(0)
+	this.x_.requirement_ = nil
 	return this
 }
 
@@ -5069,28 +5394,31 @@ func (this *ConformanceConfig_Builder) getRequirementBuilderList() List {
 }
 
 func (this *ConformanceConfig) hasLibraryLevelNonAllowlistedConformanceViolationsBehavior() bool {
-	return this.has_(1)
+	return this.x_.pbHas_[0]&0x1 != 0
 }
 
 func (this *ConformanceConfig_Builder) hasLibraryLevelNonAllowlistedConformanceViolationsBehavior() bool {
-	return this.has_(1)
+	return this.x_.pbHas_[0]&0x1 != 0
 }
 
 func (this *ConformanceConfig) getLibraryLevelNonAllowlistedConformanceViolationsBehavior() ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior {
-	return ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_ofNum_(this.gI32_(1))
+	return ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_ofNum_(this.x_.library_level_non_allowlisted_conformance_violations_behavior_)
 }
 
 func (this *ConformanceConfig_Builder) getLibraryLevelNonAllowlistedConformanceViolationsBehavior() ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior {
-	return ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_ofNum_(this.gI32_(1))
+	return ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_ofNum_(this.x_.library_level_non_allowlisted_conformance_violations_behavior_)
 }
 
 func (this *ConformanceConfig_Builder) setLibraryLevelNonAllowlistedConformanceViolationsBehavior(p0 ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior) *ConformanceConfig_Builder {
-	this.set_(1, p0.getNumber())
+	v := p0.getNumber()
+	this.x_.pbHas_[0] |= 0x1
+	this.x_.library_level_non_allowlisted_conformance_violations_behavior_ = v
 	return this
 }
 
 func (this *ConformanceConfig_Builder) clearLibraryLevelNonAllowlistedConformanceViolationsBehavior() *ConformanceConfig_Builder {
-	this.clr_(1)
+	this.x_.library_level_non_allowlisted_conformance_violations_behavior_ = 0
+	this.x_.pbHas_[0] &^= 0x1
 	return this
 }
 
@@ -5101,8 +5429,32 @@ func (this *ConformanceConfig_Builder) mergeFrom_ConformanceConfig(p0 *Conforman
 
 // ---- message jscomp.Requirement
 
+type Requirement_x_ struct {
+	error_message_                string
+	whitelist_                    []string
+	whitelist_regexp_             []string
+	allowlist_                    []string
+	allowlist_regexp_             []string
+	whitelist_entry_              []*RequirementScopeEntry
+	allowlist_entry_              []*RequirementScopeEntry
+	only_apply_to_                []string
+	only_apply_to_regexp_         []string
+	value_                        []string
+	java_class_                   string
+	rule_id_                      string
+	extends_                      string
+	config_file_                  []string
+	pbHas_                        [1]uint32
+	type_                         int32
+	type_matching_strategy_       int32
+	severity_                     int32
+	allow_extending_value_        bool
+	report_loose_type_violations_ bool
+}
+
 type Requirement struct {
 	GeneratedMessage_ExtendableMessage
+	x_ Requirement_x_
 }
 
 func (this *Requirement) up_GeneratedMessage_ExtendableMessage() *GeneratedMessage_ExtendableMessage {
@@ -5114,6 +5466,7 @@ func (this *Requirement) up_GeneratedMessage_ExtendableMessage() *GeneratedMessa
 
 type Requirement_Builder struct {
 	GeneratedMessage_ExtendableBuilder
+	x_ Requirement_x_
 }
 
 func (this *Requirement_Builder) up_GeneratedMessage_ExtendableBuilder() *GeneratedMessage_ExtendableBuilder {
@@ -5124,27 +5477,30 @@ func (this *Requirement_Builder) up_GeneratedMessage_ExtendableBuilder() *Genera
 }
 
 var Requirement_desc_ = pbReg_(&pbDesc_{name: "jscomp.Requirement", oneofs: []string{},
-	newM: func() any { return &Requirement{} }, newB: func() any { return &Requirement_Builder{} },
+	newM: func() *pbData_ { return &new(Requirement).pbData_ }, newB: func() *pbData_ { return &new(Requirement_Builder).pbData_ },
+	asM: func(p unsafe.Pointer) any { return (*Requirement)(p) }, asB: func(p unsafe.Pointer) any { return (*Requirement_Builder)(p) },
+	cp:   func(dst, src unsafe.Pointer) { (*Requirement)(dst).x_ = (*Requirement)(src).x_ },
+	xoff: unsafe.Offsetof(Requirement{}.x_), hoff: unsafe.Offsetof(Requirement{}.x_.pbHas_),
 	fields: []*pbField_{
-		{name: "error_message", num: 1, kind: pbString_, pres: true},
-		{name: "whitelist", num: 2, kind: pbString_, rep: true},
-		{name: "whitelist_regexp", num: 3, kind: pbString_, rep: true},
-		{name: "allowlist", num: 17, kind: pbString_, rep: true},
-		{name: "allowlist_regexp", num: 18, kind: pbString_, rep: true},
-		{name: "whitelist_entry", num: 14, kind: pbMessage_, rep: true, tname: "jscomp.RequirementScopeEntry"},
-		{name: "allowlist_entry", num: 19, kind: pbMessage_, rep: true, tname: "jscomp.RequirementScopeEntry"},
-		{name: "only_apply_to", num: 4, kind: pbString_, rep: true},
-		{name: "only_apply_to_regexp", num: 5, kind: pbString_, rep: true},
-		{name: "type", num: 6, kind: pbEnum_, pres: true, tname: "jscomp.Requirement.Type"},
-		{name: "value", num: 7, kind: pbString_, rep: true},
-		{name: "allow_extending_value", num: 15, kind: pbBool_, pres: true},
-		{name: "type_matching_strategy", num: 13, kind: pbEnum_, pres: true, def: int32(1), tname: "jscomp.Requirement.TypeMatchingStrategy"},
-		{name: "java_class", num: 8, kind: pbString_, pres: true},
-		{name: "rule_id", num: 9, kind: pbString_, pres: true},
-		{name: "extends", num: 10, kind: pbString_, pres: true},
-		{name: "report_loose_type_violations", num: 11, kind: pbBool_, pres: true, def: true},
-		{name: "severity", num: 12, kind: pbEnum_, pres: true, def: int32(1), tname: "jscomp.Requirement.Severity"},
-		{name: "config_file", num: 16, kind: pbString_, rep: true},
+		{name: "error_message", num: 1, kind: pbString_, pres: true, off: unsafe.Offsetof(Requirement{}.x_.error_message_), hb: 1},
+		{name: "whitelist", num: 2, kind: pbString_, rep: true, off: unsafe.Offsetof(Requirement{}.x_.whitelist_)},
+		{name: "whitelist_regexp", num: 3, kind: pbString_, rep: true, off: unsafe.Offsetof(Requirement{}.x_.whitelist_regexp_)},
+		{name: "allowlist", num: 17, kind: pbString_, rep: true, off: unsafe.Offsetof(Requirement{}.x_.allowlist_)},
+		{name: "allowlist_regexp", num: 18, kind: pbString_, rep: true, off: unsafe.Offsetof(Requirement{}.x_.allowlist_regexp_)},
+		{name: "whitelist_entry", num: 14, kind: pbMessage_, rep: true, tname: "jscomp.RequirementScopeEntry", off: unsafe.Offsetof(Requirement{}.x_.whitelist_entry_)},
+		{name: "allowlist_entry", num: 19, kind: pbMessage_, rep: true, tname: "jscomp.RequirementScopeEntry", off: unsafe.Offsetof(Requirement{}.x_.allowlist_entry_)},
+		{name: "only_apply_to", num: 4, kind: pbString_, rep: true, off: unsafe.Offsetof(Requirement{}.x_.only_apply_to_)},
+		{name: "only_apply_to_regexp", num: 5, kind: pbString_, rep: true, off: unsafe.Offsetof(Requirement{}.x_.only_apply_to_regexp_)},
+		{name: "type", num: 6, kind: pbEnum_, pres: true, tname: "jscomp.Requirement.Type", off: unsafe.Offsetof(Requirement{}.x_.type_), hb: 2},
+		{name: "value", num: 7, kind: pbString_, rep: true, off: unsafe.Offsetof(Requirement{}.x_.value_)},
+		{name: "allow_extending_value", num: 15, kind: pbBool_, pres: true, off: unsafe.Offsetof(Requirement{}.x_.allow_extending_value_), hb: 3},
+		{name: "type_matching_strategy", num: 13, kind: pbEnum_, pres: true, def: int32(1), tname: "jscomp.Requirement.TypeMatchingStrategy", off: unsafe.Offsetof(Requirement{}.x_.type_matching_strategy_), hb: 4},
+		{name: "java_class", num: 8, kind: pbString_, pres: true, off: unsafe.Offsetof(Requirement{}.x_.java_class_), hb: 5},
+		{name: "rule_id", num: 9, kind: pbString_, pres: true, off: unsafe.Offsetof(Requirement{}.x_.rule_id_), hb: 6},
+		{name: "extends", num: 10, kind: pbString_, pres: true, off: unsafe.Offsetof(Requirement{}.x_.extends_), hb: 7},
+		{name: "report_loose_type_violations", num: 11, kind: pbBool_, pres: true, def: true, off: unsafe.Offsetof(Requirement{}.x_.report_loose_type_violations_), hb: 8},
+		{name: "severity", num: 12, kind: pbEnum_, pres: true, def: int32(1), tname: "jscomp.Requirement.Severity", off: unsafe.Offsetof(Requirement{}.x_.severity_), hb: 9},
+		{name: "config_file", num: 16, kind: pbString_, rep: true, off: unsafe.Offsetof(Requirement{}.x_.config_file_)},
 	}})
 
 const (
@@ -5170,7 +5526,7 @@ const (
 )
 
 func Requirement_getDefaultInstance() *Requirement {
-	return Requirement_desc_.default_().(*Requirement)
+	return (*Requirement)(unsafe.Pointer(Requirement_desc_.default_()))
 }
 
 func Requirement_getDescriptor() *Descriptors_Descriptor {
@@ -5178,7 +5534,7 @@ func Requirement_getDescriptor() *Descriptors_Descriptor {
 }
 
 func Requirement_newBuilder() *Requirement_Builder {
-	return Requirement_desc_.newBuilder_().me_.(*Requirement_Builder)
+	return (*Requirement_Builder)(unsafe.Pointer(Requirement_desc_.newBuilder_()))
 }
 
 func Requirement_newBuilder_Requirement(p0 *Requirement) *Requirement_Builder {
@@ -5210,28 +5566,33 @@ func Requirement_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInput
 }
 
 func (this *Requirement) hasErrorMessage() bool {
-	return this.has_(0)
+	return this.x_.pbHas_[0]&0x1 != 0
 }
 
 func (this *Requirement_Builder) hasErrorMessage() bool {
-	return this.has_(0)
+	return this.x_.pbHas_[0]&0x1 != 0
 }
 
 func (this *Requirement) getErrorMessage() string {
-	return this.gStr_(0)
+	return this.x_.error_message_
 }
 
 func (this *Requirement_Builder) getErrorMessage() string {
-	return this.gStr_(0)
+	return this.x_.error_message_
 }
 
 func (this *Requirement_Builder) setErrorMessage(p0 string) *Requirement_Builder {
-	this.set_(0, p0)
+	if p0 == nullstr_ {
+		pbNPE_()
+	}
+	this.x_.pbHas_[0] |= 0x1
+	this.x_.error_message_ = p0
 	return this
 }
 
 func (this *Requirement_Builder) clearErrorMessage() *Requirement_Builder {
-	this.clr_(0)
+	this.x_.error_message_ = ""
+	this.x_.pbHas_[0] &^= 0x1
 	return this
 }
 
@@ -5249,27 +5610,27 @@ func (this *Requirement_Builder) setErrorMessageBytes(p0 *ByteString) *Requireme
 }
 
 func (this *Requirement) getWhitelistList() List {
-	return this.list_(1)
+	return pbListOf_(this.x_.whitelist_)
 }
 
 func (this *Requirement_Builder) getWhitelistList() List {
-	return this.list_(1)
+	return pbListOf_(this.x_.whitelist_)
 }
 
 func (this *Requirement) getWhitelist(p0 int32) string {
-	return this.at_(1, p0).(string)
+	return pbAt_(this.x_.whitelist_, p0)
 }
 
 func (this *Requirement_Builder) getWhitelist(p0 int32) string {
-	return this.at_(1, p0).(string)
+	return pbAt_(this.x_.whitelist_, p0)
 }
 
 func (this *Requirement) getWhitelistCount() int32 {
-	return this.cnt_(1)
+	return int32(len(this.x_.whitelist_))
 }
 
 func (this *Requirement_Builder) getWhitelistCount() int32 {
-	return this.cnt_(1)
+	return int32(len(this.x_.whitelist_))
 }
 
 func (this *Requirement_Builder) setWhitelist(p0 int32, p1 string) *Requirement_Builder {
@@ -5278,7 +5639,11 @@ func (this *Requirement_Builder) setWhitelist(p0 int32, p1 string) *Requirement_
 }
 
 func (this *Requirement_Builder) addWhitelist(p0 string) *Requirement_Builder {
-	this.add_(1, p0)
+	if p0 == nullstr_ {
+		pbNPE_()
+	}
+	this.own_()
+	this.x_.whitelist_ = append(this.x_.whitelist_, p0)
 	return this
 }
 
@@ -5288,16 +5653,16 @@ func (this *Requirement_Builder) addAllWhitelist(p0 Iterable) *Requirement_Build
 }
 
 func (this *Requirement_Builder) clearWhitelist() *Requirement_Builder {
-	this.clr_(1)
+	this.x_.whitelist_ = nil
 	return this
 }
 
 func (this *Requirement) getWhitelistBytes(p0 int32) *ByteString {
-	return ByteString_copyFromUtf8(this.at_(1, p0).(string))
+	return ByteString_copyFromUtf8(pbAt_(this.x_.whitelist_, p0))
 }
 
 func (this *Requirement_Builder) getWhitelistBytes(p0 int32) *ByteString {
-	return ByteString_copyFromUtf8(this.at_(1, p0).(string))
+	return ByteString_copyFromUtf8(pbAt_(this.x_.whitelist_, p0))
 }
 
 func (this *Requirement_Builder) addWhitelistBytes(p0 *ByteString) *Requirement_Builder {
@@ -5306,27 +5671,27 @@ func (this *Requirement_Builder) addWhitelistBytes(p0 *ByteString) *Requirement_
 }
 
 func (this *Requirement) getWhitelistRegexpList() List {
-	return this.list_(2)
+	return pbListOf_(this.x_.whitelist_regexp_)
 }
 
 func (this *Requirement_Builder) getWhitelistRegexpList() List {
-	return this.list_(2)
+	return pbListOf_(this.x_.whitelist_regexp_)
 }
 
 func (this *Requirement) getWhitelistRegexp(p0 int32) string {
-	return this.at_(2, p0).(string)
+	return pbAt_(this.x_.whitelist_regexp_, p0)
 }
 
 func (this *Requirement_Builder) getWhitelistRegexp(p0 int32) string {
-	return this.at_(2, p0).(string)
+	return pbAt_(this.x_.whitelist_regexp_, p0)
 }
 
 func (this *Requirement) getWhitelistRegexpCount() int32 {
-	return this.cnt_(2)
+	return int32(len(this.x_.whitelist_regexp_))
 }
 
 func (this *Requirement_Builder) getWhitelistRegexpCount() int32 {
-	return this.cnt_(2)
+	return int32(len(this.x_.whitelist_regexp_))
 }
 
 func (this *Requirement_Builder) setWhitelistRegexp(p0 int32, p1 string) *Requirement_Builder {
@@ -5335,7 +5700,11 @@ func (this *Requirement_Builder) setWhitelistRegexp(p0 int32, p1 string) *Requir
 }
 
 func (this *Requirement_Builder) addWhitelistRegexp(p0 string) *Requirement_Builder {
-	this.add_(2, p0)
+	if p0 == nullstr_ {
+		pbNPE_()
+	}
+	this.own_()
+	this.x_.whitelist_regexp_ = append(this.x_.whitelist_regexp_, p0)
 	return this
 }
 
@@ -5345,16 +5714,16 @@ func (this *Requirement_Builder) addAllWhitelistRegexp(p0 Iterable) *Requirement
 }
 
 func (this *Requirement_Builder) clearWhitelistRegexp() *Requirement_Builder {
-	this.clr_(2)
+	this.x_.whitelist_regexp_ = nil
 	return this
 }
 
 func (this *Requirement) getWhitelistRegexpBytes(p0 int32) *ByteString {
-	return ByteString_copyFromUtf8(this.at_(2, p0).(string))
+	return ByteString_copyFromUtf8(pbAt_(this.x_.whitelist_regexp_, p0))
 }
 
 func (this *Requirement_Builder) getWhitelistRegexpBytes(p0 int32) *ByteString {
-	return ByteString_copyFromUtf8(this.at_(2, p0).(string))
+	return ByteString_copyFromUtf8(pbAt_(this.x_.whitelist_regexp_, p0))
 }
 
 func (this *Requirement_Builder) addWhitelistRegexpBytes(p0 *ByteString) *Requirement_Builder {
@@ -5363,27 +5732,27 @@ func (this *Requirement_Builder) addWhitelistRegexpBytes(p0 *ByteString) *Requir
 }
 
 func (this *Requirement) getAllowlistList() List {
-	return this.list_(3)
+	return pbListOf_(this.x_.allowlist_)
 }
 
 func (this *Requirement_Builder) getAllowlistList() List {
-	return this.list_(3)
+	return pbListOf_(this.x_.allowlist_)
 }
 
 func (this *Requirement) getAllowlist(p0 int32) string {
-	return this.at_(3, p0).(string)
+	return pbAt_(this.x_.allowlist_, p0)
 }
 
 func (this *Requirement_Builder) getAllowlist(p0 int32) string {
-	return this.at_(3, p0).(string)
+	return pbAt_(this.x_.allowlist_, p0)
 }
 
 func (this *Requirement) getAllowlistCount() int32 {
-	return this.cnt_(3)
+	return int32(len(this.x_.allowlist_))
 }
 
 func (this *Requirement_Builder) getAllowlistCount() int32 {
-	return this.cnt_(3)
+	return int32(len(this.x_.allowlist_))
 }
 
 func (this *Requirement_Builder) setAllowlist(p0 int32, p1 string) *Requirement_Builder {
@@ -5392,7 +5761,11 @@ func (this *Requirement_Builder) setAllowlist(p0 int32, p1 string) *Requirement_
 }
 
 func (this *Requirement_Builder) addAllowlist(p0 string) *Requirement_Builder {
-	this.add_(3, p0)
+	if p0 == nullstr_ {
+		pbNPE_()
+	}
+	this.own_()
+	this.x_.allowlist_ = append(this.x_.allowlist_, p0)
 	return this
 }
 
@@ -5402,16 +5775,16 @@ func (this *Requirement_Builder) addAllAllowlist(p0 Iterable) *Requirement_Build
 }
 
 func (this *Requirement_Builder) clearAllowlist() *Requirement_Builder {
-	this.clr_(3)
+	this.x_.allowlist_ = nil
 	return this
 }
 
 func (this *Requirement) getAllowlistBytes(p0 int32) *ByteString {
-	return ByteString_copyFromUtf8(this.at_(3, p0).(string))
+	return ByteString_copyFromUtf8(pbAt_(this.x_.allowlist_, p0))
 }
 
 func (this *Requirement_Builder) getAllowlistBytes(p0 int32) *ByteString {
-	return ByteString_copyFromUtf8(this.at_(3, p0).(string))
+	return ByteString_copyFromUtf8(pbAt_(this.x_.allowlist_, p0))
 }
 
 func (this *Requirement_Builder) addAllowlistBytes(p0 *ByteString) *Requirement_Builder {
@@ -5420,27 +5793,27 @@ func (this *Requirement_Builder) addAllowlistBytes(p0 *ByteString) *Requirement_
 }
 
 func (this *Requirement) getAllowlistRegexpList() List {
-	return this.list_(4)
+	return pbListOf_(this.x_.allowlist_regexp_)
 }
 
 func (this *Requirement_Builder) getAllowlistRegexpList() List {
-	return this.list_(4)
+	return pbListOf_(this.x_.allowlist_regexp_)
 }
 
 func (this *Requirement) getAllowlistRegexp(p0 int32) string {
-	return this.at_(4, p0).(string)
+	return pbAt_(this.x_.allowlist_regexp_, p0)
 }
 
 func (this *Requirement_Builder) getAllowlistRegexp(p0 int32) string {
-	return this.at_(4, p0).(string)
+	return pbAt_(this.x_.allowlist_regexp_, p0)
 }
 
 func (this *Requirement) getAllowlistRegexpCount() int32 {
-	return this.cnt_(4)
+	return int32(len(this.x_.allowlist_regexp_))
 }
 
 func (this *Requirement_Builder) getAllowlistRegexpCount() int32 {
-	return this.cnt_(4)
+	return int32(len(this.x_.allowlist_regexp_))
 }
 
 func (this *Requirement_Builder) setAllowlistRegexp(p0 int32, p1 string) *Requirement_Builder {
@@ -5449,7 +5822,11 @@ func (this *Requirement_Builder) setAllowlistRegexp(p0 int32, p1 string) *Requir
 }
 
 func (this *Requirement_Builder) addAllowlistRegexp(p0 string) *Requirement_Builder {
-	this.add_(4, p0)
+	if p0 == nullstr_ {
+		pbNPE_()
+	}
+	this.own_()
+	this.x_.allowlist_regexp_ = append(this.x_.allowlist_regexp_, p0)
 	return this
 }
 
@@ -5459,16 +5836,16 @@ func (this *Requirement_Builder) addAllAllowlistRegexp(p0 Iterable) *Requirement
 }
 
 func (this *Requirement_Builder) clearAllowlistRegexp() *Requirement_Builder {
-	this.clr_(4)
+	this.x_.allowlist_regexp_ = nil
 	return this
 }
 
 func (this *Requirement) getAllowlistRegexpBytes(p0 int32) *ByteString {
-	return ByteString_copyFromUtf8(this.at_(4, p0).(string))
+	return ByteString_copyFromUtf8(pbAt_(this.x_.allowlist_regexp_, p0))
 }
 
 func (this *Requirement_Builder) getAllowlistRegexpBytes(p0 int32) *ByteString {
-	return ByteString_copyFromUtf8(this.at_(4, p0).(string))
+	return ByteString_copyFromUtf8(pbAt_(this.x_.allowlist_regexp_, p0))
 }
 
 func (this *Requirement_Builder) addAllowlistRegexpBytes(p0 *ByteString) *Requirement_Builder {
@@ -5477,7 +5854,7 @@ func (this *Requirement_Builder) addAllowlistRegexpBytes(p0 *ByteString) *Requir
 }
 
 func (this *Requirement) getWhitelistEntryList() List {
-	return this.list_(5)
+	return pbListOf_(this.x_.whitelist_entry_)
 }
 
 func (this *Requirement_Builder) getWhitelistEntryList() List {
@@ -5485,31 +5862,31 @@ func (this *Requirement_Builder) getWhitelistEntryList() List {
 }
 
 func (this *Requirement) getWhitelistEntryCount() int32 {
-	return this.cnt_(5)
+	return int32(len(this.x_.whitelist_entry_))
 }
 
 func (this *Requirement_Builder) getWhitelistEntryCount() int32 {
-	return this.cnt_(5)
+	return int32(len(this.x_.whitelist_entry_))
 }
 
 func (this *Requirement) getWhitelistEntry(p0 int32) *RequirementScopeEntry {
-	return this.at_(5, p0).(*RequirementScopeEntry)
+	return pbAt_(this.x_.whitelist_entry_, p0)
 }
 
 func (this *Requirement_Builder) getWhitelistEntry(p0 int32) *RequirementScopeEntry {
-	return this.at_(5, p0).(*RequirementScopeEntry)
+	return (*RequirementScopeEntry)(this.atMsgP_(5, p0))
 }
 
 func (this *Requirement) getWhitelistEntryOrBuilder(p0 int32) RequirementScopeEntryOrBuilder {
-	return this.at_(5, p0).(*RequirementScopeEntry)
+	return pbAt_(this.x_.whitelist_entry_, p0)
 }
 
 func (this *Requirement_Builder) getWhitelistEntryOrBuilder(p0 int32) RequirementScopeEntryOrBuilder {
-	return this.at_(5, p0).(*RequirementScopeEntry)
+	return (*RequirementScopeEntry)(this.atMsgP_(5, p0))
 }
 
 func (this *Requirement) getWhitelistEntryOrBuilderList() List {
-	return this.list_(5)
+	return pbListOf_(this.x_.whitelist_entry_)
 }
 
 func (this *Requirement_Builder) getWhitelistEntryOrBuilderList() List {
@@ -5527,7 +5904,11 @@ func (this *Requirement_Builder) setWhitelistEntry_int_Builder(p0 int32, p1 *Req
 }
 
 func (this *Requirement_Builder) addWhitelistEntry(p0 *RequirementScopeEntry) *Requirement_Builder {
-	this.add_(5, obj_(p0))
+	if p0 == nil {
+		pbNPE_()
+	}
+	this.own_()
+	this.x_.whitelist_entry_ = append(this.x_.whitelist_entry_, p0)
 	return this
 }
 
@@ -5552,7 +5933,7 @@ func (this *Requirement_Builder) addAllWhitelistEntry(p0 Iterable) *Requirement_
 }
 
 func (this *Requirement_Builder) clearWhitelistEntry() *Requirement_Builder {
-	this.clr_(5)
+	this.x_.whitelist_entry_ = nil
 	return this
 }
 
@@ -5578,7 +5959,7 @@ func (this *Requirement_Builder) getWhitelistEntryBuilderList() List {
 }
 
 func (this *Requirement) getAllowlistEntryList() List {
-	return this.list_(6)
+	return pbListOf_(this.x_.allowlist_entry_)
 }
 
 func (this *Requirement_Builder) getAllowlistEntryList() List {
@@ -5586,31 +5967,31 @@ func (this *Requirement_Builder) getAllowlistEntryList() List {
 }
 
 func (this *Requirement) getAllowlistEntryCount() int32 {
-	return this.cnt_(6)
+	return int32(len(this.x_.allowlist_entry_))
 }
 
 func (this *Requirement_Builder) getAllowlistEntryCount() int32 {
-	return this.cnt_(6)
+	return int32(len(this.x_.allowlist_entry_))
 }
 
 func (this *Requirement) getAllowlistEntry(p0 int32) *RequirementScopeEntry {
-	return this.at_(6, p0).(*RequirementScopeEntry)
+	return pbAt_(this.x_.allowlist_entry_, p0)
 }
 
 func (this *Requirement_Builder) getAllowlistEntry(p0 int32) *RequirementScopeEntry {
-	return this.at_(6, p0).(*RequirementScopeEntry)
+	return (*RequirementScopeEntry)(this.atMsgP_(6, p0))
 }
 
 func (this *Requirement) getAllowlistEntryOrBuilder(p0 int32) RequirementScopeEntryOrBuilder {
-	return this.at_(6, p0).(*RequirementScopeEntry)
+	return pbAt_(this.x_.allowlist_entry_, p0)
 }
 
 func (this *Requirement_Builder) getAllowlistEntryOrBuilder(p0 int32) RequirementScopeEntryOrBuilder {
-	return this.at_(6, p0).(*RequirementScopeEntry)
+	return (*RequirementScopeEntry)(this.atMsgP_(6, p0))
 }
 
 func (this *Requirement) getAllowlistEntryOrBuilderList() List {
-	return this.list_(6)
+	return pbListOf_(this.x_.allowlist_entry_)
 }
 
 func (this *Requirement_Builder) getAllowlistEntryOrBuilderList() List {
@@ -5628,7 +6009,11 @@ func (this *Requirement_Builder) setAllowlistEntry_int_Builder(p0 int32, p1 *Req
 }
 
 func (this *Requirement_Builder) addAllowlistEntry(p0 *RequirementScopeEntry) *Requirement_Builder {
-	this.add_(6, obj_(p0))
+	if p0 == nil {
+		pbNPE_()
+	}
+	this.own_()
+	this.x_.allowlist_entry_ = append(this.x_.allowlist_entry_, p0)
 	return this
 }
 
@@ -5653,7 +6038,7 @@ func (this *Requirement_Builder) addAllAllowlistEntry(p0 Iterable) *Requirement_
 }
 
 func (this *Requirement_Builder) clearAllowlistEntry() *Requirement_Builder {
-	this.clr_(6)
+	this.x_.allowlist_entry_ = nil
 	return this
 }
 
@@ -5679,27 +6064,27 @@ func (this *Requirement_Builder) getAllowlistEntryBuilderList() List {
 }
 
 func (this *Requirement) getOnlyApplyToList() List {
-	return this.list_(7)
+	return pbListOf_(this.x_.only_apply_to_)
 }
 
 func (this *Requirement_Builder) getOnlyApplyToList() List {
-	return this.list_(7)
+	return pbListOf_(this.x_.only_apply_to_)
 }
 
 func (this *Requirement) getOnlyApplyTo(p0 int32) string {
-	return this.at_(7, p0).(string)
+	return pbAt_(this.x_.only_apply_to_, p0)
 }
 
 func (this *Requirement_Builder) getOnlyApplyTo(p0 int32) string {
-	return this.at_(7, p0).(string)
+	return pbAt_(this.x_.only_apply_to_, p0)
 }
 
 func (this *Requirement) getOnlyApplyToCount() int32 {
-	return this.cnt_(7)
+	return int32(len(this.x_.only_apply_to_))
 }
 
 func (this *Requirement_Builder) getOnlyApplyToCount() int32 {
-	return this.cnt_(7)
+	return int32(len(this.x_.only_apply_to_))
 }
 
 func (this *Requirement_Builder) setOnlyApplyTo(p0 int32, p1 string) *Requirement_Builder {
@@ -5708,7 +6093,11 @@ func (this *Requirement_Builder) setOnlyApplyTo(p0 int32, p1 string) *Requiremen
 }
 
 func (this *Requirement_Builder) addOnlyApplyTo(p0 string) *Requirement_Builder {
-	this.add_(7, p0)
+	if p0 == nullstr_ {
+		pbNPE_()
+	}
+	this.own_()
+	this.x_.only_apply_to_ = append(this.x_.only_apply_to_, p0)
 	return this
 }
 
@@ -5718,16 +6107,16 @@ func (this *Requirement_Builder) addAllOnlyApplyTo(p0 Iterable) *Requirement_Bui
 }
 
 func (this *Requirement_Builder) clearOnlyApplyTo() *Requirement_Builder {
-	this.clr_(7)
+	this.x_.only_apply_to_ = nil
 	return this
 }
 
 func (this *Requirement) getOnlyApplyToBytes(p0 int32) *ByteString {
-	return ByteString_copyFromUtf8(this.at_(7, p0).(string))
+	return ByteString_copyFromUtf8(pbAt_(this.x_.only_apply_to_, p0))
 }
 
 func (this *Requirement_Builder) getOnlyApplyToBytes(p0 int32) *ByteString {
-	return ByteString_copyFromUtf8(this.at_(7, p0).(string))
+	return ByteString_copyFromUtf8(pbAt_(this.x_.only_apply_to_, p0))
 }
 
 func (this *Requirement_Builder) addOnlyApplyToBytes(p0 *ByteString) *Requirement_Builder {
@@ -5736,27 +6125,27 @@ func (this *Requirement_Builder) addOnlyApplyToBytes(p0 *ByteString) *Requiremen
 }
 
 func (this *Requirement) getOnlyApplyToRegexpList() List {
-	return this.list_(8)
+	return pbListOf_(this.x_.only_apply_to_regexp_)
 }
 
 func (this *Requirement_Builder) getOnlyApplyToRegexpList() List {
-	return this.list_(8)
+	return pbListOf_(this.x_.only_apply_to_regexp_)
 }
 
 func (this *Requirement) getOnlyApplyToRegexp(p0 int32) string {
-	return this.at_(8, p0).(string)
+	return pbAt_(this.x_.only_apply_to_regexp_, p0)
 }
 
 func (this *Requirement_Builder) getOnlyApplyToRegexp(p0 int32) string {
-	return this.at_(8, p0).(string)
+	return pbAt_(this.x_.only_apply_to_regexp_, p0)
 }
 
 func (this *Requirement) getOnlyApplyToRegexpCount() int32 {
-	return this.cnt_(8)
+	return int32(len(this.x_.only_apply_to_regexp_))
 }
 
 func (this *Requirement_Builder) getOnlyApplyToRegexpCount() int32 {
-	return this.cnt_(8)
+	return int32(len(this.x_.only_apply_to_regexp_))
 }
 
 func (this *Requirement_Builder) setOnlyApplyToRegexp(p0 int32, p1 string) *Requirement_Builder {
@@ -5765,7 +6154,11 @@ func (this *Requirement_Builder) setOnlyApplyToRegexp(p0 int32, p1 string) *Requ
 }
 
 func (this *Requirement_Builder) addOnlyApplyToRegexp(p0 string) *Requirement_Builder {
-	this.add_(8, p0)
+	if p0 == nullstr_ {
+		pbNPE_()
+	}
+	this.own_()
+	this.x_.only_apply_to_regexp_ = append(this.x_.only_apply_to_regexp_, p0)
 	return this
 }
 
@@ -5775,16 +6168,16 @@ func (this *Requirement_Builder) addAllOnlyApplyToRegexp(p0 Iterable) *Requireme
 }
 
 func (this *Requirement_Builder) clearOnlyApplyToRegexp() *Requirement_Builder {
-	this.clr_(8)
+	this.x_.only_apply_to_regexp_ = nil
 	return this
 }
 
 func (this *Requirement) getOnlyApplyToRegexpBytes(p0 int32) *ByteString {
-	return ByteString_copyFromUtf8(this.at_(8, p0).(string))
+	return ByteString_copyFromUtf8(pbAt_(this.x_.only_apply_to_regexp_, p0))
 }
 
 func (this *Requirement_Builder) getOnlyApplyToRegexpBytes(p0 int32) *ByteString {
-	return ByteString_copyFromUtf8(this.at_(8, p0).(string))
+	return ByteString_copyFromUtf8(pbAt_(this.x_.only_apply_to_regexp_, p0))
 }
 
 func (this *Requirement_Builder) addOnlyApplyToRegexpBytes(p0 *ByteString) *Requirement_Builder {
@@ -5793,53 +6186,62 @@ func (this *Requirement_Builder) addOnlyApplyToRegexpBytes(p0 *ByteString) *Requ
 }
 
 func (this *Requirement) hasType() bool {
-	return this.has_(9)
+	return this.x_.pbHas_[0]&0x2 != 0
 }
 
 func (this *Requirement_Builder) hasType() bool {
-	return this.has_(9)
+	return this.x_.pbHas_[0]&0x2 != 0
 }
 
 func (this *Requirement) getType() Requirement_Type {
-	return Requirement_Type_ofNum_(this.gI32_(9))
+	if !(this.x_.pbHas_[0]&0x2 != 0) {
+		return Requirement_Type_ofNum_(int32(1))
+	}
+	return Requirement_Type_ofNum_(this.x_.type_)
 }
 
 func (this *Requirement_Builder) getType() Requirement_Type {
-	return Requirement_Type_ofNum_(this.gI32_(9))
+	if !(this.x_.pbHas_[0]&0x2 != 0) {
+		return Requirement_Type_ofNum_(int32(1))
+	}
+	return Requirement_Type_ofNum_(this.x_.type_)
 }
 
 func (this *Requirement_Builder) setType(p0 Requirement_Type) *Requirement_Builder {
-	this.set_(9, p0.getNumber())
+	v := p0.getNumber()
+	this.x_.pbHas_[0] |= 0x2
+	this.x_.type_ = v
 	return this
 }
 
 func (this *Requirement_Builder) clearType() *Requirement_Builder {
-	this.clr_(9)
+	this.x_.type_ = 0
+	this.x_.pbHas_[0] &^= 0x2
 	return this
 }
 
 func (this *Requirement) getValueList() List {
-	return this.list_(10)
+	return pbListOf_(this.x_.value_)
 }
 
 func (this *Requirement_Builder) getValueList() List {
-	return this.list_(10)
+	return pbListOf_(this.x_.value_)
 }
 
 func (this *Requirement) getValue(p0 int32) string {
-	return this.at_(10, p0).(string)
+	return pbAt_(this.x_.value_, p0)
 }
 
 func (this *Requirement_Builder) getValue(p0 int32) string {
-	return this.at_(10, p0).(string)
+	return pbAt_(this.x_.value_, p0)
 }
 
 func (this *Requirement) getValueCount() int32 {
-	return this.cnt_(10)
+	return int32(len(this.x_.value_))
 }
 
 func (this *Requirement_Builder) getValueCount() int32 {
-	return this.cnt_(10)
+	return int32(len(this.x_.value_))
 }
 
 func (this *Requirement_Builder) setValue(p0 int32, p1 string) *Requirement_Builder {
@@ -5848,7 +6250,11 @@ func (this *Requirement_Builder) setValue(p0 int32, p1 string) *Requirement_Buil
 }
 
 func (this *Requirement_Builder) addValue(p0 string) *Requirement_Builder {
-	this.add_(10, p0)
+	if p0 == nullstr_ {
+		pbNPE_()
+	}
+	this.own_()
+	this.x_.value_ = append(this.x_.value_, p0)
 	return this
 }
 
@@ -5858,16 +6264,16 @@ func (this *Requirement_Builder) addAllValue(p0 Iterable) *Requirement_Builder {
 }
 
 func (this *Requirement_Builder) clearValue() *Requirement_Builder {
-	this.clr_(10)
+	this.x_.value_ = nil
 	return this
 }
 
 func (this *Requirement) getValueBytes(p0 int32) *ByteString {
-	return ByteString_copyFromUtf8(this.at_(10, p0).(string))
+	return ByteString_copyFromUtf8(pbAt_(this.x_.value_, p0))
 }
 
 func (this *Requirement_Builder) getValueBytes(p0 int32) *ByteString {
-	return ByteString_copyFromUtf8(this.at_(10, p0).(string))
+	return ByteString_copyFromUtf8(pbAt_(this.x_.value_, p0))
 }
 
 func (this *Requirement_Builder) addValueBytes(p0 *ByteString) *Requirement_Builder {
@@ -5876,80 +6282,96 @@ func (this *Requirement_Builder) addValueBytes(p0 *ByteString) *Requirement_Buil
 }
 
 func (this *Requirement) hasAllowExtendingValue() bool {
-	return this.has_(11)
+	return this.x_.pbHas_[0]&0x4 != 0
 }
 
 func (this *Requirement_Builder) hasAllowExtendingValue() bool {
-	return this.has_(11)
+	return this.x_.pbHas_[0]&0x4 != 0
 }
 
 func (this *Requirement) getAllowExtendingValue() bool {
-	return this.gBool_(11)
+	return this.x_.allow_extending_value_
 }
 
 func (this *Requirement_Builder) getAllowExtendingValue() bool {
-	return this.gBool_(11)
+	return this.x_.allow_extending_value_
 }
 
 func (this *Requirement_Builder) setAllowExtendingValue(p0 bool) *Requirement_Builder {
-	this.set_(11, p0)
+	this.x_.pbHas_[0] |= 0x4
+	this.x_.allow_extending_value_ = p0
 	return this
 }
 
 func (this *Requirement_Builder) clearAllowExtendingValue() *Requirement_Builder {
-	this.clr_(11)
+	this.x_.allow_extending_value_ = false
+	this.x_.pbHas_[0] &^= 0x4
 	return this
 }
 
 func (this *Requirement) hasTypeMatchingStrategy() bool {
-	return this.has_(12)
+	return this.x_.pbHas_[0]&0x8 != 0
 }
 
 func (this *Requirement_Builder) hasTypeMatchingStrategy() bool {
-	return this.has_(12)
+	return this.x_.pbHas_[0]&0x8 != 0
 }
 
 func (this *Requirement) getTypeMatchingStrategy() Requirement_TypeMatchingStrategy {
-	return Requirement_TypeMatchingStrategy_ofNum_(this.gI32_(12))
+	if !(this.x_.pbHas_[0]&0x8 != 0) {
+		return Requirement_TypeMatchingStrategy_ofNum_(int32(1))
+	}
+	return Requirement_TypeMatchingStrategy_ofNum_(this.x_.type_matching_strategy_)
 }
 
 func (this *Requirement_Builder) getTypeMatchingStrategy() Requirement_TypeMatchingStrategy {
-	return Requirement_TypeMatchingStrategy_ofNum_(this.gI32_(12))
+	if !(this.x_.pbHas_[0]&0x8 != 0) {
+		return Requirement_TypeMatchingStrategy_ofNum_(int32(1))
+	}
+	return Requirement_TypeMatchingStrategy_ofNum_(this.x_.type_matching_strategy_)
 }
 
 func (this *Requirement_Builder) setTypeMatchingStrategy(p0 Requirement_TypeMatchingStrategy) *Requirement_Builder {
-	this.set_(12, p0.getNumber())
+	v := p0.getNumber()
+	this.x_.pbHas_[0] |= 0x8
+	this.x_.type_matching_strategy_ = v
 	return this
 }
 
 func (this *Requirement_Builder) clearTypeMatchingStrategy() *Requirement_Builder {
-	this.clr_(12)
+	this.x_.type_matching_strategy_ = 0
+	this.x_.pbHas_[0] &^= 0x8
 	return this
 }
 
 func (this *Requirement) hasJavaClass() bool {
-	return this.has_(13)
+	return this.x_.pbHas_[0]&0x10 != 0
 }
 
 func (this *Requirement_Builder) hasJavaClass() bool {
-	return this.has_(13)
+	return this.x_.pbHas_[0]&0x10 != 0
 }
 
 func (this *Requirement) getJavaClass() string {
-	return this.gStr_(13)
+	return this.x_.java_class_
 }
 
 func (this *Requirement_Builder) getJavaClass() string {
-	return this.gStr_(13)
+	return this.x_.java_class_
 }
 
 func (this *Requirement_Builder) setJavaClass(p0 string) *Requirement_Builder {
-	this.set_(13, p0)
+	if p0 == nullstr_ {
+		pbNPE_()
+	}
+	this.x_.pbHas_[0] |= 0x10
+	this.x_.java_class_ = p0
 	return this
 }
 
 func (this *Requirement_Builder) clearJavaClass() *Requirement_Builder {
-	this.clr_(13)
+	this.x_.java_class_ = ""
+	this.x_.pbHas_[0] &^= 0x10
 	return this
 }
 
@@ -5967,28 +6389,33 @@ func (this *Requirement_Builder) setJavaClassBytes(p0 *ByteString) *Requirement_
 }
 
 func (this *Requirement) hasRuleId() bool {
-	return this.has_(14)
+	return this.x_.pbHas_[0]&0x20 != 0
 }
 
 func (this *Requirement_Builder) hasRuleId() bool {
-	return this.has_(14)
+	return this.x_.pbHas_[0]&0x20 != 0
 }
 
 func (this *Requirement) getRuleId() string {
-	return this.gStr_(14)
+	return this.x_.rule_id_
 }
 
 func (this *Requirement_Builder) getRuleId() string {
-	return this.gStr_(14)
+	return this.x_.rule_id_
 }
 
 func (this *Requirement_Builder) setRuleId(p0 string) *Requirement_Builder {
-	this.set_(14, p0)
+	if p0 == nullstr_ {
+		pbNPE_()
+	}
+	this.x_.pbHas_[0] |= 0x20
+	this.x_.rule_id_ = p0
 	return this
 }
 
 func (this *Requirement_Builder) clearRuleId() *Requirement_Builder {
-	this.clr_(14)
+	this.x_.rule_id_ = ""
+	this.x_.pbHas_[0] &^= 0x20
 	return this
 }
 
@@ -6006,28 +6433,33 @@ func (this *Requirement_Builder) setRuleIdBytes(p0 *ByteString) *Requirement_Bui
 }
 
 func (this *Requirement) hasExtends() bool {
-	return this.has_(15)
+	return this.x_.pbHas_[0]&0x40 != 0
 }
 
 func (this *Requirement_Builder) hasExtends() bool {
-	return this.has_(15)
+	return this.x_.pbHas_[0]&0x40 != 0
 }
 
 func (this *Requirement) getExtends() string {
-	return this.gStr_(15)
+	return this.x_.extends_
 }
 
 func (this *Requirement_Builder) getExtends() string {
-	return this.gStr_(15)
+	return this.x_.extends_
 }
 
 func (this *Requirement_Builder) setExtends(p0 string) *Requirement_Builder {
-	this.set_(15, p0)
+	if p0 == nullstr_ {
+		pbNPE_()
+	}
+	this.x_.pbHas_[0] |= 0x40
+	this.x_.extends_ = p0
 	return this
 }
 
 func (this *Requirement_Builder) clearExtends() *Requirement_Builder {
-	this.clr_(15)
+	this.x_.extends_ = ""
+	this.x_.pbHas_[0] &^= 0x40
 	return this
 }
 
@@ -6045,79 +6477,96 @@ func (this *Requirement_Builder) setExtendsBytes(p0 *ByteString) *Requirement_Bu
 }
 
 func (this *Requirement) hasReportLooseTypeViolations() bool {
-	return this.has_(16)
+	return this.x_.pbHas_[0]&0x80 != 0
 }
 
 func (this *Requirement_Builder) hasReportLooseTypeViolations() bool {
-	return this.has_(16)
+	return this.x_.pbHas_[0]&0x80 != 0
 }
 
 func (this *Requirement) getReportLooseTypeViolations() bool {
-	return this.gBool_(16)
+	if !(this.x_.pbHas_[0]&0x80 != 0) {
+		return true
+	}
+	return this.x_.report_loose_type_violations_
 }
 
 func (this *Requirement_Builder) getReportLooseTypeViolations() bool {
-	return this.gBool_(16)
+	if !(this.x_.pbHas_[0]&0x80 != 0) {
+		return true
+	}
+	return this.x_.report_loose_type_violations_
 }
 
 func (this *Requirement_Builder) setReportLooseTypeViolations(p0 bool) *Requirement_Builder {
-	this.set_(16, p0)
+	this.x_.pbHas_[0] |= 0x80
+	this.x_.report_loose_type_violations_ = p0
 	return this
 }
 
 func (this *Requirement_Builder) clearReportLooseTypeViolations() *Requirement_Builder {
-	this.clr_(16)
+	this.x_.report_loose_type_violations_ = false
+	this.x_.pbHas_[0] &^= 0x80
 	return this
 }
 
 func (this *Requirement) hasSeverity() bool {
-	return this.has_(17)
+	return this.x_.pbHas_[0]&0x100 != 0
 }
 
 func (this *Requirement_Builder) hasSeverity() bool {
-	return this.has_(17)
+	return this.x_.pbHas_[0]&0x100 != 0
 }
 
 func (this *Requirement) getSeverity() Requirement_Severity {
-	return Requirement_Severity_ofNum_(this.gI32_(17))
+	if !(this.x_.pbHas_[0]&0x100 != 0) {
+		return Requirement_Severity_ofNum_(int32(1))
+	}
+	return Requirement_Severity_ofNum_(this.x_.severity_)
 }
 
 func (this *Requirement_Builder) getSeverity() Requirement_Severity {
-	return Requirement_Severity_ofNum_(this.gI32_(17))
+	if !(this.x_.pbHas_[0]&0x100 != 0) {
+		return Requirement_Severity_ofNum_(int32(1))
+	}
+	return Requirement_Severity_ofNum_(this.x_.severity_)
 }
 
 func (this *Requirement_Builder) setSeverity(p0 Requirement_Severity) *Requirement_Builder {
-	this.set_(17, p0.getNumber())
+	v := p0.getNumber()
+	this.x_.pbHas_[0] |= 0x100
+	this.x_.severity_ = v
 	return this
 }
 
 func (this *Requirement_Builder) clearSeverity() *Requirement_Builder {
-	this.clr_(17)
+	this.x_.severity_ = 0
+	this.x_.pbHas_[0] &^= 0x100
 	return this
 }
 
 func (this *Requirement) getConfigFileList() List {
-	return this.list_(18)
+	return pbListOf_(this.x_.config_file_)
 }
 
 func (this *Requirement_Builder) getConfigFileList() List {
-	return this.list_(18)
+	return pbListOf_(this.x_.config_file_)
 }
 
 func (this *Requirement) getConfigFile(p0 int32) string {
-	return this.at_(18, p0).(string)
+	return pbAt_(this.x_.config_file_, p0)
 }
 
 func (this *Requirement_Builder) getConfigFile(p0 int32) string {
-	return this.at_(18, p0).(string)
+	return pbAt_(this.x_.config_file_, p0)
 }
 
 func (this *Requirement) getConfigFileCount() int32 {
-	return this.cnt_(18)
+	return int32(len(this.x_.config_file_))
 }
 
 func (this *Requirement_Builder) getConfigFileCount() int32 {
-	return this.cnt_(18)
+	return int32(len(this.x_.config_file_))
 }
 
 func (this *Requirement_Builder) setConfigFile(p0 int32, p1 string) *Requirement_Builder {
@@ -6126,7 +6575,11 @@ func (this *Requirement_Builder) setConfigFile(p0 int32, p1 string) *Requirement
 }
 
 func (this *Requirement_Builder) addConfigFile(p0 string) *Requirement_Builder {
-	this.add_(18, p0)
+	if p0 == nullstr_ {
+		pbNPE_()
+	}
+	this.own_()
+	this.x_.config_file_ = append(this.x_.config_file_, p0)
 	return this
 }
 
@@ -6136,16 +6589,16 @@ func (this *Requirement_Builder) addAllConfigFile(p0 Iterable) *Requirement_Buil
 }
 
 func (this *Requirement_Builder) clearConfigFile() *Requirement_Builder {
-	this.clr_(18)
+	this.x_.config_file_ = nil
 	return this
 }
 
 func (this *Requirement) getConfigFileBytes(p0 int32) *ByteString {
-	return ByteString_copyFromUtf8(this.at_(18, p0).(string))
+	return ByteString_copyFromUtf8(pbAt_(this.x_.config_file_, p0))
 }
 
 func (this *Requirement_Builder) getConfigFileBytes(p0 int32) *ByteString {
-	return ByteString_copyFromUtf8(this.at_(18, p0).(string))
+	return ByteString_copyFromUtf8(pbAt_(this.x_.config_file_, p0))
 }
 
 func (this *Requirement_Builder) addConfigFileBytes(p0 *ByteString) *Requirement_Builder {
@@ -6160,8 +6613,20 @@ func (this *Requirement_Builder) mergeFrom_Requirement(p0 *Requirement) *Require
 
 // ---- message jscomp.RequirementScopeEntry
 
+type RequirementScopeEntry_x_ struct {
+	prefix_                                                                      []string
+	regexp_                                                                      []string
+	explanation_                                                                 string
+	comment_                                                                     []string
+	pbHas_                                                                       [1]uint32
+	reason_                                                                      int32
+	automatically_prune_                                                         bool
+	do_not_record_violations_in_summary_because_this_is_gencode_and_always_safe_ bool
+}
+
 type RequirementScopeEntry struct {
 	GeneratedMessage
+	x_ RequirementScopeEntry_x_
 }
 
 func (this *RequirementScopeEntry) up_GeneratedMessage() *GeneratedMessage {
@@ -6173,6 +6638,7 @@ func (this *RequirementScopeEntry) up_GeneratedMessage() *GeneratedMessage {
 
 type RequirementScopeEntry_Builder struct {
 	GeneratedMessage_Builder
+	x_ RequirementScopeEntry_x_
 }
 
 func (this *RequirementScopeEntry_Builder) up_GeneratedMessage_Builder() *GeneratedMessage_Builder {
@@ -6183,15 +6649,18 @@ func (this *RequirementScopeEntry_Builder) up_GeneratedMessage_Builder() *Genera
 }
 
 var RequirementScopeEntry_desc_ = pbReg_(&pbDesc_{name: "jscomp.RequirementScopeEntry", oneofs: []string{},
-	newM: func() any { return &RequirementScopeEntry{} }, newB: func() any { return &RequirementScopeEntry_Builder{} },
+	newM: func() *pbData_ { return &new(RequirementScopeEntry).pbData_ }, newB: func() *pbData_ { return &new(RequirementScopeEntry_Builder).pbData_ },
+	asM: func(p unsafe.Pointer) any { return (*RequirementScopeEntry)(p) }, asB: func(p unsafe.Pointer) any { return (*RequirementScopeEntry_Builder)(p) },
+	cp:   func(dst, src unsafe.Pointer) { (*RequirementScopeEntry)(dst).x_ = (*RequirementScopeEntry)(src).x_ },
+	xoff: unsafe.Offsetof(RequirementScopeEntry{}.x_), hoff: unsafe.Offsetof(RequirementScopeEntry{}.x_.pbHas_),
 	fields: []*pbField_{
-		{name: "reason", num: 1, kind: pbEnum_, pres: true, tname: "jscomp.RequirementScopeEntry.Reason"},
-		{name: "prefix", num: 2, kind: pbString_, rep: true},
-		{name: "regexp", num: 3, kind: pbString_, rep: true},
-		{name: "explanation", num: 4, kind: pbString_, pres: true},
-		{name: "comment", num: 5, kind: pbString_, rep: true},
-		{name: "automatically_prune", num: 6, kind: pbBool_, pres: true},
-		{name: "do_not_record_violations_in_summary_because_this_is_gencode_and_always_safe", num: 7, kind: pbBool_, pres: true},
+		{name: "reason", num: 1, kind: pbEnum_, pres: true, tname: "jscomp.RequirementScopeEntry.Reason", off: unsafe.Offsetof(RequirementScopeEntry{}.x_.reason_), hb: 1},
+		{name: "prefix", num: 2, kind: pbString_, rep: true, off: unsafe.Offsetof(RequirementScopeEntry{}.x_.prefix_)},
+		{name: "regexp", num: 3, kind: pbString_, rep: true, off: unsafe.Offsetof(RequirementScopeEntry{}.x_.regexp_)},
+		{name: "explanation", num: 4, kind: pbString_, pres: true, off: unsafe.Offsetof(RequirementScopeEntry{}.x_.explanation_), hb: 2},
+		{name: "comment", num: 5, kind: pbString_, rep: true, off: unsafe.Offsetof(RequirementScopeEntry{}.x_.comment_)},
+		{name: "automatically_prune", num: 6, kind: pbBool_, pres: true, off: unsafe.Offsetof(RequirementScopeEntry{}.x_.automatically_prune_), hb: 3},
+		{name: "do_not_record_violations_in_summary_because_this_is_gencode_and_always_safe", num: 7, kind: pbBool_, pres: true, off: unsafe.Offsetof(RequirementScopeEntry{}.x_.do_not_record_violations_in_summary_because_this_is_gencode_and_always_safe_), hb: 4},
 	}})
 
 const (
@@ -6205,7 +6674,7 @@ const (
 )
 
 func RequirementScopeEntry_getDefaultInstance() *RequirementScopeEntry {
-	return RequirementScopeEntry_desc_.default_().(*RequirementScopeEntry)
+	return (*RequirementScopeEntry)(unsafe.Pointer(RequirementScopeEntry_desc_.default_()))
 }
 
 func RequirementScopeEntry_getDescriptor() *Descriptors_Descriptor {
@@ -6213,7 +6682,7 @@ func RequirementScopeEntry_getDescriptor() *Descriptors_Descriptor {
 }
 
 func RequirementScopeEntry_newBuilder() *RequirementScopeEntry_Builder {
-	return RequirementScopeEntry_desc_.newBuilder_().me_.(*RequirementScopeEntry_Builder)
+	return (*RequirementScopeEntry_Builder)(unsafe.Pointer(RequirementScopeEntry_desc_.newBuilder_()))
 }
 
 func RequirementScopeEntry_newBuilder_RequirementScopeEntry(p0 *RequirementScopeEntry) *RequirementScopeEntry_Builder {
@@ -6245,53 +6714,56 @@ func RequirementScopeEntry_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *
 }
 
 func (this *RequirementScopeEntry) hasReason() bool {
-	return this.has_(0)
+	return this.x_.pbHas_[0]&0x1 != 0
 }
 
 func (this *RequirementScopeEntry_Builder) hasReason() bool {
-	return this.has_(0)
+	return this.x_.pbHas_[0]&0x1 != 0
 }
 
 func (this *RequirementScopeEntry) getReason() RequirementScopeEntry_Reason {
-	return RequirementScopeEntry_Reason_ofNum_(this.gI32_(0))
+	return RequirementScopeEntry_Reason_ofNum_(this.x_.reason_)
 }
 
 func (this *RequirementScopeEntry_Builder) getReason() RequirementScopeEntry_Reason {
-	return RequirementScopeEntry_Reason_ofNum_(this.gI32_(0))
+	return RequirementScopeEntry_Reason_ofNum_(this.x_.reason_)
 }
 
 func (this *RequirementScopeEntry_Builder) setReason(p0 RequirementScopeEntry_Reason) *RequirementScopeEntry_Builder {
-	this.set_(0, p0.getNumber())
+	v := p0.getNumber()
+	this.x_.pbHas_[0] |= 0x1
+	this.x_.reason_ = v
 	return this
 }
 
 func (this *RequirementScopeEntry_Builder) clearReason() *RequirementScopeEntry_Builder {
-	this.clr_(0)
+	this.x_.reason_ = 0
+	this.x_.pbHas_[0] &^= 0x1
 	return this
 }
 
 func (this *RequirementScopeEntry) getPrefixList() List {
-	return this.list_(1)
+	return pbListOf_(this.x_.prefix_)
 }
 
 func (this *RequirementScopeEntry_Builder) getPrefixList() List {
-	return this.list_(1)
+	return pbListOf_(this.x_.prefix_)
 }
 
 func (this *RequirementScopeEntry) getPrefix(p0 int32) string {
-	return this.at_(1, p0).(string)
+	return pbAt_(this.x_.prefix_, p0)
 }
 
 func (this *RequirementScopeEntry_Builder) getPrefix(p0 int32) string {
-	return this.at_(1, p0).(string)
+	return pbAt_(this.x_.prefix_, p0)
 }
 
 func (this *RequirementScopeEntry) getPrefixCount() int32 {
-	return this.cnt_(1)
+	return int32(len(this.x_.prefix_))
 }
 
 func (this *RequirementScopeEntry_Builder) getPrefixCount() int32 {
-	return this.cnt_(1)
+	return int32(len(this.x_.prefix_))
 }
 
 func (this *RequirementScopeEntry_Builder) setPrefix(p0 int32, p1 string) *RequirementScopeEntry_Builder {
@@ -6300,7 +6772,11 @@ func (this *RequirementScopeEntry_Builder) setPrefix(p0 int32, p1 string) *Requi
 }
 
 func (this *RequirementScopeEntry_Builder) addPrefix(p0 string) *RequirementScopeEntry_Builder {
-	this.add_(1, p0)
+	if p0 == nullstr_ {
+		pbNPE_()
+	}
+	this.own_()
+	this.x_.prefix_ = append(this.x_.prefix_, p0)
 	return this
 }
 
@@ -6310,16 +6786,16 @@ func (this *RequirementScopeEntry_Builder) addAllPrefix(p0 Iterable) *Requiremen
 }
 
 func (this *RequirementScopeEntry_Builder) clearPrefix() *RequirementScopeEntry_Builder {
-	this.clr_(1)
+	this.x_.prefix_ = nil
 	return this
 }
 
 func (this *RequirementScopeEntry) getPrefixBytes(p0 int32) *ByteString {
-	return ByteString_copyFromUtf8(this.at_(1, p0).(string))
+	return ByteString_copyFromUtf8(pbAt_(this.x_.prefix_, p0))
 }
 
 func (this *RequirementScopeEntry_Builder) getPrefixBytes(p0 int32) *ByteString {
-	return ByteString_copyFromUtf8(this.at_(1, p0).(string))
+	return ByteString_copyFromUtf8(pbAt_(this.x_.prefix_, p0))
 }
 
 func (this *RequirementScopeEntry_Builder) addPrefixBytes(p0 *ByteString) *RequirementScopeEntry_Builder {
@@ -6328,27 +6804,27 @@ func (this *RequirementScopeEntry_Builder) addPrefixBytes(p0 *ByteString) *Requi
 }
 
 func (this *RequirementScopeEntry) getRegexpList() List {
-	return this.list_(2)
+	return pbListOf_(this.x_.regexp_)
 }
 
 func (this *RequirementScopeEntry_Builder) getRegexpList() List {
-	return this.list_(2)
+	return pbListOf_(this.x_.regexp_)
 }
 
 func (this *RequirementScopeEntry) getRegexp(p0 int32) string {
-	return this.at_(2, p0).(string)
+	return pbAt_(this.x_.regexp_, p0)
 }
 
 func (this *RequirementScopeEntry_Builder) getRegexp(p0 int32) string {
-	return this.at_(2, p0).(string)
+	return pbAt_(this.x_.regexp_, p0)
 }
 
 func (this *RequirementScopeEntry) getRegexpCount() int32 {
-	return this.cnt_(2)
+	return int32(len(this.x_.regexp_))
 }
 
 func (this *RequirementScopeEntry_Builder) getRegexpCount() int32 {
-	return this.cnt_(2)
+	return int32(len(this.x_.regexp_))
 }
 
 func (this *RequirementScopeEntry_Builder) setRegexp(p0 int32, p1 string) *RequirementScopeEntry_Builder {
@@ -6357,7 +6833,11 @@ func (this *RequirementScopeEntry_Builder) setRegexp(p0 int32, p1 string) *Requi
 }
 
 func (this *RequirementScopeEntry_Builder) addRegexp(p0 string) *RequirementScopeEntry_Builder {
-	this.add_(2, p0)
+	if p0 == nullstr_ {
+		pbNPE_()
+	}
+	this.own_()
+	this.x_.regexp_ = append(this.x_.regexp_, p0)
 	return this
 }
 
@@ -6367,16 +6847,16 @@ func (this *RequirementScopeEntry_Builder) addAllRegexp(p0 Iterable) *Requiremen
 }
 
 func (this *RequirementScopeEntry_Builder) clearRegexp() *RequirementScopeEntry_Builder {
-	this.clr_(2)
+	this.x_.regexp_ = nil
 	return this
 }
 
 func (this *RequirementScopeEntry) getRegexpBytes(p0 int32) *ByteString {
-	return ByteString_copyFromUtf8(this.at_(2, p0).(string))
+	return ByteString_copyFromUtf8(pbAt_(this.x_.regexp_, p0))
 }
 
 func (this *RequirementScopeEntry_Builder) getRegexpBytes(p0 int32) *ByteString {
-	return ByteString_copyFromUtf8(this.at_(2, p0).(string))
+	return ByteString_copyFromUtf8(pbAt_(this.x_.regexp_, p0))
 }
 
 func (this *RequirementScopeEntry_Builder) addRegexpBytes(p0 *ByteString) *RequirementScopeEntry_Builder {
@@ -6385,28 +6865,33 @@ func (this *RequirementScopeEntry_Builder) addRegexpBytes(p0 *ByteString) *Requi
 }
 
 func (this *RequirementScopeEntry) hasExplanation() bool {
-	return this.has_(3)
+	return this.x_.pbHas_[0]&0x2 != 0
 }
 
 func (this *RequirementScopeEntry_Builder) hasExplanation() bool {
-	return this.has_(3)
+	return this.x_.pbHas_[0]&0x2 != 0
 }
 
 func (this *RequirementScopeEntry) getExplanation() string {
-	return this.gStr_(3)
+	return this.x_.explanation_
 }
 
 func (this *RequirementScopeEntry_Builder) getExplanation() string {
-	return this.gStr_(3)
+	return this.x_.explanation_
 }
 
 func (this *RequirementScopeEntry_Builder) setExplanation(p0 string) *RequirementScopeEntry_Builder {
-	this.set_(3, p0)
+	if p0 == nullstr_ {
+		pbNPE_()
+	}
+	this.x_.pbHas_[0] |= 0x2
+	this.x_.explanation_ = p0
 	return this
 }
 
 func (this *RequirementScopeEntry_Builder) clearExplanation() *RequirementScopeEntry_Builder {
-	this.clr_(3)
+	this.x_.explanation_ = ""
+	this.x_.pbHas_[0] &^= 0x2
 	return this
 }
 
@@ -6424,27 +6909,27 @@ func (this *RequirementScopeEntry_Builder) setExplanationBytes(p0 *ByteString) *
 }
 
 func (this *RequirementScopeEntry) getCommentList() List {
-	return this.list_(4)
+	return pbListOf_(this.x_.comment_)
 }
 
 func (this *RequirementScopeEntry_Builder) getCommentList() List {
-	return this.list_(4)
+	return pbListOf_(this.x_.comment_)
 }
 
 func (this *RequirementScopeEntry) getComment(p0 int32) string {
-	return this.at_(4, p0).(string)
+	return pbAt_(this.x_.comment_, p0)
 }
 
 func (this *RequirementScopeEntry_Builder) getComment(p0 int32) string {
-	return this.at_(4, p0).(string)
+	return pbAt_(this.x_.comment_, p0)
 }
 
 func (this *RequirementScopeEntry) getCommentCount() int32 {
-	return this.cnt_(4)
+	return int32(len(this.x_.comment_))
 }
 
 func (this *RequirementScopeEntry_Builder) getCommentCount() int32 {
-	return this.cnt_(4)
+	return int32(len(this.x_.comment_))
 }
 
 func (this *RequirementScopeEntry_Builder) setComment(p0 int32, p1 string) *RequirementScopeEntry_Builder {
@@ -6453,7 +6938,11 @@ func (this *RequirementScopeEntry_Builder) setComment(p0 int32, p1 string) *Requ
 }
 
 func (this *RequirementScopeEntry_Builder) addComment(p0 string) *RequirementScopeEntry_Builder {
-	this.add_(4, p0)
+	if p0 == nullstr_ {
+		pbNPE_()
+	}
+	this.own_()
+	this.x_.comment_ = append(this.x_.comment_, p0)
 	return this
 }
 
@@ -6463,16 +6952,16 @@ func (this *RequirementScopeEntry_Builder) addAllComment(p0 Iterable) *Requireme
 }
 
 func (this *RequirementScopeEntry_Builder) clearComment() *RequirementScopeEntry_Builder {
-	this.clr_(4)
+	this.x_.comment_ = nil
 	return this
 }
 
 func (this *RequirementScopeEntry) getCommentBytes(p0 int32) *ByteString {
-	return ByteString_copyFromUtf8(this.at_(4, p0).(string))
+	return ByteString_copyFromUtf8(pbAt_(this.x_.comment_, p0))
 }
 
 func (this *RequirementScopeEntry_Builder) getCommentBytes(p0 int32) *ByteString {
-	return ByteString_copyFromUtf8(this.at_(4, p0).(string))
+	return ByteString_copyFromUtf8(pbAt_(this.x_.comment_, p0))
 }
 
 func (this *RequirementScopeEntry_Builder) addCommentBytes(p0 *ByteString) *RequirementScopeEntry_Builder {
@@ -6481,54 +6970,58 @@ func (this *RequirementScopeEntry_Builder) addCommentBytes(p0 *ByteString) *Requ
 }
 
 func (this *RequirementScopeEntry) hasAutomaticallyPrune() bool {
-	return this.has_(5)
+	return this.x_.pbHas_[0]&0x4 != 0
 }
 
 func (this *RequirementScopeEntry_Builder) hasAutomaticallyPrune() bool {
-	return this.has_(5)
+	return this.x_.pbHas_[0]&0x4 != 0
 }
 
 func (this *RequirementScopeEntry) getAutomaticallyPrune() bool {
-	return this.gBool_(5)
+	return this.x_.automatically_prune_
 }
 
 func (this *RequirementScopeEntry_Builder) getAutomaticallyPrune() bool {
-	return this.gBool_(5)
+	return this.x_.automatically_prune_
 }
 
 func (this *RequirementScopeEntry_Builder) setAutomaticallyPrune(p0 bool) *RequirementScopeEntry_Builder {
-	this.set_(5, p0)
+	this.x_.pbHas_[0] |= 0x4
+	this.x_.automatically_prune_ = p0
 	return this
 }
 
 func (this *RequirementScopeEntry_Builder) clearAutomaticallyPrune() *RequirementScopeEntry_Builder {
-	this.clr_(5)
+	this.x_.automatically_prune_ = false
+	this.x_.pbHas_[0] &^= 0x4
 	return this
 }
 
 func (this *RequirementScopeEntry) hasDoNotRecordViolationsInSummaryBecauseThisIsGencodeAndAlwaysSafe() bool {
-	return this.has_(6)
+	return this.x_.pbHas_[0]&0x8 != 0
 }
 
 func (this *RequirementScopeEntry_Builder) hasDoNotRecordViolationsInSummaryBecauseThisIsGencodeAndAlwaysSafe() bool {
-	return this.has_(6)
+	return this.x_.pbHas_[0]&0x8 != 0
 }
 
 func (this *RequirementScopeEntry) getDoNotRecordViolationsInSummaryBecauseThisIsGencodeAndAlwaysSafe() bool {
-	return this.gBool_(6)
+	return this.x_.do_not_record_violations_in_summary_because_this_is_gencode_and_always_safe_
 }
 
 func (this *RequirementScopeEntry_Builder) getDoNotRecordViolationsInSummaryBecauseThisIsGencodeAndAlwaysSafe() bool {
-	return this.gBool_(6)
+	return this.x_.do_not_record_violations_in_summary_because_this_is_gencode_and_always_safe_
 }
 
 func (this *RequirementScopeEntry_Builder) setDoNotRecordViolationsInSummaryBecauseThisIsGencodeAndAlwaysSafe(p0 bool) *RequirementScopeEntry_Builder {
-	this.set_(6, p0)
+	this.x_.pbHas_[0] |= 0x8
+	this.x_.do_not_record_violations_in_summary_because_this_is_gencode_and_always_safe_ = p0
 	return this
 }
 
 func (this *RequirementScopeEntry_Builder) clearDoNotRecordViolationsInSummaryBecauseThisIsGencodeAndAlwaysSafe() *RequirementScopeEntry_Builder {
-	this.clr_(6)
+	this.x_.do_not_record_violations_in_summary_because_this_is_gencode_and_always_safe_ = false
+	this.x_.pbHas_[0] &^= 0x8
 	return this
 }
 
@@ -6539,8 +7032,16 @@ func (this *RequirementScopeEntry_Builder) mergeFrom_RequirementScopeEntry(p0 *R
 
 // ---- message jscomp.RequirementScope
 
+type RequirementScope_x_ struct {
+	rule_id_       string
+	allowlist_     []*RequirementScopeEntry
+	only_apply_to_ []*RequirementScopeEntry
+	pbHas_         [1]uint32
+}
+
 type RequirementScope struct {
 	GeneratedMessage
+	x_ RequirementScope_x_
 }
 
 func (this *RequirementScope) up_GeneratedMessage() *GeneratedMessage {
@@ -6552,6 +7053,7 @@ func (this *RequirementScope) up_GeneratedMessage() *GeneratedMessage {
 
 type RequirementScope_Builder struct {
 	GeneratedMessage_Builder
+	x_ RequirementScope_x_
 }
 
 func (this *RequirementScope_Builder) up_GeneratedMessage_Builder() *GeneratedMessage_Builder {
@@ -6562,11 +7064,14 @@ func (this *RequirementScope_Builder) up_GeneratedMessage_Builder() *GeneratedMe
 }
 
 var RequirementScope_desc_ = pbReg_(&pbDesc_{name: "jscomp.RequirementScope", oneofs: []string{},
-	newM: func() any { return &RequirementScope{} }, newB: func() any { return &RequirementScope_Builder{} },
+	newM: func() *pbData_ { return &new(RequirementScope).pbData_ }, newB: func() *pbData_ { return &new(RequirementScope_Builder).pbData_ },
+	asM: func(p unsafe.Pointer) any { return (*RequirementScope)(p) }, asB: func(p unsafe.Pointer) any { return (*RequirementScope_Builder)(p) },
+	cp:   func(dst, src unsafe.Pointer) { (*RequirementScope)(dst).x_ = (*RequirementScope)(src).x_ },
+	xoff: unsafe.Offsetof(RequirementScope{}.x_), hoff: unsafe.Offsetof(RequirementScope{}.x_.pbHas_),
 	fields: []*pbField_{
-		{name: "rule_id", num: 1, kind: pbString_, pres: true},
-		{name: "allowlist", num: 2, kind: pbMessage_, rep: true, tname: "jscomp.RequirementScopeEntry"},
-		{name: "only_apply_to", num: 3, kind: pbMessage_, rep: true, tname: "jscomp.RequirementScopeEntry"},
+		{name: "rule_id", num: 1, kind: pbString_, pres: true, off: unsafe.Offsetof(RequirementScope{}.x_.rule_id_), hb: 1},
+		{name: "allowlist", num: 2, kind: pbMessage_, rep: true, tname: "jscomp.RequirementScopeEntry", off: unsafe.Offsetof(RequirementScope{}.x_.allowlist_)},
+		{name: "only_apply_to", num: 3, kind: pbMessage_, rep: true, tname: "jscomp.RequirementScopeEntry", off: unsafe.Offsetof(RequirementScope{}.x_.only_apply_to_)},
 	}})
 
 const (
@@ -6576,7 +7081,7 @@ const (
 )
 
 func RequirementScope_getDefaultInstance() *RequirementScope {
-	return RequirementScope_desc_.default_().(*RequirementScope)
+	return (*RequirementScope)(unsafe.Pointer(RequirementScope_desc_.default_()))
 }
 
 func RequirementScope_getDescriptor() *Descriptors_Descriptor {
@@ -6584,7 +7089,7 @@ func RequirementScope_getDescriptor() *Descriptors_Descriptor {
 }
 
 func RequirementScope_newBuilder() *RequirementScope_Builder {
-	return RequirementScope_desc_.newBuilder_().me_.(*RequirementScope_Builder)
+	return (*RequirementScope_Builder)(unsafe.Pointer(RequirementScope_desc_.newBuilder_()))
 }
 
 func RequirementScope_newBuilder_RequirementScope(p0 *RequirementScope) *RequirementScope_Builder {
@@ -6616,28 +7121,33 @@ func RequirementScope_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *Coded
 }
 
 func (this *RequirementScope) hasRuleId() bool {
-	return this.has_(0)
+	return this.x_.pbHas_[0]&0x1 != 0
 }
 
 func (this *RequirementScope_Builder) hasRuleId() bool {
-	return this.has_(0)
+	return this.x_.pbHas_[0]&0x1 != 0
 }
 
 func (this *RequirementScope) getRuleId() string {
-	return this.gStr_(0)
+	return this.x_.rule_id_
 }
 
 func (this *RequirementScope_Builder) getRuleId() string {
-	return this.gStr_(0)
+	return this.x_.rule_id_
 }
 
 func (this *RequirementScope_Builder) setRuleId(p0 string) *RequirementScope_Builder {
-	this.set_(0, p0)
+	if p0 == nullstr_ {
+		pbNPE_()
+	}
+	this.x_.pbHas_[0] |= 0x1
+	this.x_.rule_id_ = p0
 	return this
 }
 
 func (this *RequirementScope_Builder) clearRuleId() *RequirementScope_Builder {
-	this.clr_(0)
+	this.x_.rule_id_ = ""
+	this.x_.pbHas_[0] &^= 0x1
 	return this
 }
 
@@ -6655,7 +7165,7 @@ func (this *RequirementScope_Builder) setRuleIdBytes(p0 *ByteString) *Requiremen
 }
 
 func (this *RequirementScope) getAllowlistList() List {
-	return this.list_(1)
+	return pbListOf_(this.x_.allowlist_)
 }
 
 func (this *RequirementScope_Builder) getAllowlistList() List {
@@ -6663,31 +7173,31 @@ func (this *RequirementScope_Builder) getAllowlistList() List {
 }
 
 func (this *RequirementScope) getAllowlistCount() int32 {
-	return this.cnt_(1)
+	return int32(len(this.x_.allowlist_))
 }
 
 func (this *RequirementScope_Builder) getAllowlistCount() int32 {
-	return this.cnt_(1)
+	return int32(len(this.x_.allowlist_))
 }
 
 func (this *RequirementScope) getAllowlist(p0 int32) *RequirementScopeEntry {
-	return this.at_(1, p0).(*RequirementScopeEntry)
+	return pbAt_(this.x_.allowlist_, p0)
 }
 
 func (this *RequirementScope_Builder) getAllowlist(p0 int32) *RequirementScopeEntry {
-	return this.at_(1, p0).(*RequirementScopeEntry)
+	return (*RequirementScopeEntry)(this.atMsgP_(1, p0))
 }
 
 func (this *RequirementScope) getAllowlistOrBuilder(p0 int32) RequirementScopeEntryOrBuilder {
-	return this.at_(1, p0).(*RequirementScopeEntry)
+	return pbAt_(this.x_.allowlist_, p0)
 }
 
 func (this *RequirementScope_Builder) getAllowlistOrBuilder(p0 int32) RequirementScopeEntryOrBuilder {
-	return this.at_(1, p0).(*RequirementScopeEntry)
+	return (*RequirementScopeEntry)(this.atMsgP_(1, p0))
 }
 
 func (this *RequirementScope) getAllowlistOrBuilderList() List {
-	return this.list_(1)
+	return pbListOf_(this.x_.allowlist_)
 }
 
 func (this *RequirementScope_Builder) getAllowlistOrBuilderList() List {
@@ -6705,7 +7215,11 @@ func (this *RequirementScope_Builder) setAllowlist_int_Builder(p0 int32, p1 *Req
 }
 
 func (this *RequirementScope_Builder) addAllowlist(p0 *RequirementScopeEntry) *RequirementScope_Builder {
-	this.add_(1, obj_(p0))
+	if p0 == nil {
+		pbNPE_()
+	}
+	this.own_()
+	this.x_.allowlist_ = append(this.x_.allowlist_, p0)
 	return this
 }
 
@@ -6730,7 +7244,7 @@ func (this *RequirementScope_Builder) addAllAllowlist(p0 Iterable) *RequirementS
 }
 
 func (this *RequirementScope_Builder) clearAllowlist() *RequirementScope_Builder {
-	this.clr_(1)
+	this.x_.allowlist_ = nil
 	return this
 }
 
@@ -6756,7 +7270,7 @@ func (this *RequirementScope_Builder) getAllowlistBuilderList() List {
 }
 
 func (this *RequirementScope) getOnlyApplyToList() List {
-	return this.list_(2)
+	return pbListOf_(this.x_.only_apply_to_)
 }
 
 func (this *RequirementScope_Builder) getOnlyApplyToList() List {
@@ -6764,31 +7278,31 @@ func (this *RequirementScope_Builder) getOnlyApplyToList() List {
 }
 
 func (this *RequirementScope) getOnlyApplyToCount() int32 {
-	return this.cnt_(2)
+	return int32(len(this.x_.only_apply_to_))
 }
 
 func (this *RequirementScope_Builder) getOnlyApplyToCount() int32 {
-	return this.cnt_(2)
+	return int32(len(this.x_.only_apply_to_))
 }
 
 func (this *RequirementScope) getOnlyApplyTo(p0 int32) *RequirementScopeEntry {
-	return this.at_(2, p0).(*RequirementScopeEntry)
+	return pbAt_(this.x_.only_apply_to_, p0)
 }
 
 func (this *RequirementScope_Builder) getOnlyApplyTo(p0 int32) *RequirementScopeEntry {
-	return this.at_(2, p0).(*RequirementScopeEntry)
+	return (*RequirementScopeEntry)(this.atMsgP_(2, p0))
 }
 
 func (this *RequirementScope) getOnlyApplyToOrBuilder(p0 int32) RequirementScopeEntryOrBuilder {
-	return this.at_(2, p0).(*RequirementScopeEntry)
+	return pbAt_(this.x_.only_apply_to_, p0)
 }
 
 func (this *RequirementScope_Builder) getOnlyApplyToOrBuilder(p0 int32) RequirementScopeEntryOrBuilder {
-	return this.at_(2, p0).(*RequirementScopeEntry)
+	return (*RequirementScopeEntry)(this.atMsgP_(2, p0))
 }
 
 func (this *RequirementScope) getOnlyApplyToOrBuilderList() List {
-	return this.list_(2)
+	return pbListOf_(this.x_.only_apply_to_)
 }
 
 func (this *RequirementScope_Builder) getOnlyApplyToOrBuilderList() List {
@@ -6806,7 +7320,11 @@ func (this *RequirementScope_Builder) setOnlyApplyTo_int_Builder(p0 int32, p1 *R
 }
 
 func (this *RequirementScope_Builder) addOnlyApplyTo(p0 *RequirementScopeEntry) *RequirementScope_Builder {
-	this.add_(2, obj_(p0))
+	if p0 == nil {
+		pbNPE_()
+	}
+	this.own_()
+	this.x_.only_apply_to_ = append(this.x_.only_apply_to_, p0)
 	return this
 }
 
@@ -6831,7 +7349,7 @@ func (this *RequirementScope_Builder) addAllOnlyApplyTo(p0 Iterable) *Requiremen
 }
 
 func (this *RequirementScope_Builder) clearOnlyApplyTo() *RequirementScope_Builder {
-	this.clr_(2)
+	this.x_.only_apply_to_ = nil
 	return this
 }
 
@@ -7084,8 +7602,18 @@ var InstrumentationPointStats_Presence_desc_ = pbRegEnum_(&pbEnumDesc_{name: "th
 
 // ---- message third_party.java_src.jscomp.java.com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPoint
 
+type InstrumentationPoint_x_ struct {
+	file_name_     string
+	function_name_ string
+	pbHas_         [1]uint32
+	type_          int32
+	line_number_   int32
+	column_number_ int32
+}
+
 type InstrumentationPoint struct {
 	GeneratedMessage
+	x_ InstrumentationPoint_x_
 }
 
 func (this *InstrumentationPoint) up_GeneratedMessage() *GeneratedMessage {
@@ -7097,6 +7625,7 @@ func (this *InstrumentationPoint) up_GeneratedMessage() *GeneratedMessage {
 
 type InstrumentationPoint_Builder struct {
 	GeneratedMessage_Builder
+	x_ InstrumentationPoint_x_
 }
 
 func (this *InstrumentationPoint_Builder) up_GeneratedMessage_Builder() *GeneratedMessage_Builder {
@@ -7107,13 +7636,16 @@ func (this *InstrumentationPoint_Builder) up_GeneratedMessage_Builder() *Generat
 }
 
 var InstrumentationPoint_desc_ = pbReg_(&pbDesc_{name: "third_party.java_src.jscomp.java.com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPoint", oneofs: []string{},
-	newM: func() any { return &InstrumentationPoint{} }, newB: func() any { return &InstrumentationPoint_Builder{} },
+	newM: func() *pbData_ { return &new(InstrumentationPoint).pbData_ }, newB: func() *pbData_ { return &new(InstrumentationPoint_Builder).pbData_ },
+	asM: func(p unsafe.Pointer) any { return (*InstrumentationPoint)(p) }, asB: func(p unsafe.Pointer) any { return (*InstrumentationPoint_Builder)(p) },
+	cp:   func(dst, src unsafe.Pointer) { (*InstrumentationPoint)(dst).x_ = (*InstrumentationPoint)(src).x_ },
+	xoff: unsafe.Offsetof(InstrumentationPoint{}.x_), hoff: unsafe.Offsetof(InstrumentationPoint{}.x_.pbHas_),
 	fields: []*pbField_{
-		{name: "type", num: 1, kind: pbEnum_, pres: true, tname: "third_party.java_src.jscomp.java.com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPoint.Type"},
-		{name: "file_name", num: 2, kind: pbString_, pres: true},
-		{name: "function_name", num: 3, kind: pbString_, pres: true},
-		{name: "line_number", num: 4, kind: pbInt32_, pres: true},
-		{name: "column_number", num: 5, kind: pbInt32_, pres: true},
+		{name: "type", num: 1, kind: pbEnum_, pres: true, tname: "third_party.java_src.jscomp.java.com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPoint.Type", off: unsafe.Offsetof(InstrumentationPoint{}.x_.type_), hb: 1},
+		{name: "file_name", num: 2, kind: pbString_, pres: true, off: unsafe.Offsetof(InstrumentationPoint{}.x_.file_name_), hb: 2},
+		{name: "function_name", num: 3, kind: pbString_, pres: true, off: unsafe.Offsetof(InstrumentationPoint{}.x_.function_name_), hb: 3},
+		{name: "line_number", num: 4, kind: pbInt32_, pres: true, off: unsafe.Offsetof(InstrumentationPoint{}.x_.line_number_), hb: 4},
+		{name: "column_number", num: 5, kind: pbInt32_, pres: true, off: unsafe.Offsetof(InstrumentationPoint{}.x_.column_number_), hb: 5},
 	}})
 
 const (
@@ -7125,7 +7657,7 @@ const (
 )
 
 func InstrumentationPoint_getDefaultInstance() *InstrumentationPoint {
-	return InstrumentationPoint_desc_.default_().(*InstrumentationPoint)
+	return (*InstrumentationPoint)(unsafe.Pointer(InstrumentationPoint_desc_.default_()))
 }
 
 func InstrumentationPoint_getDescriptor() *Descriptors_Descriptor {
@@ -7133,7 +7665,7 @@ func InstrumentationPoint_getDescriptor() *Descriptors_Descriptor {
 }
 
 func InstrumentationPoint_newBuilder() *InstrumentationPoint_Builder {
-	return InstrumentationPoint_desc_.newBuilder_().me_.(*InstrumentationPoint_Builder)
+	return (*InstrumentationPoint_Builder)(unsafe.Pointer(InstrumentationPoint_desc_.newBuilder_()))
 }
 
 func InstrumentationPoint_newBuilder_InstrumentationPoint(p0 *InstrumentationPoint) *InstrumentationPoint_Builder {
@@ -7165,54 +7697,68 @@ func InstrumentationPoint_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *C
 }
 
 func (this *InstrumentationPoint) hasType() bool {
-	return this.has_(0)
+	return this.x_.pbHas_[0]&0x1 != 0
 }
 
 func (this *InstrumentationPoint_Builder) hasType() bool {
-	return this.has_(0)
+	return this.x_.pbHas_[0]&0x1 != 0
 }
 
 func (this *InstrumentationPoint) getType() InstrumentationPoint_Type {
-	return InstrumentationPoint_Type_ofNum_(this.gI32_(0))
+	if !(this.x_.pbHas_[0]&0x1 != 0) {
+		return InstrumentationPoint_Type_ofNum_(int32(1))
+	}
+	return InstrumentationPoint_Type_ofNum_(this.x_.type_)
 }
 
 func (this *InstrumentationPoint_Builder) getType() InstrumentationPoint_Type {
-	return InstrumentationPoint_Type_ofNum_(this.gI32_(0))
+	if !(this.x_.pbHas_[0]&0x1 != 0) {
+		return InstrumentationPoint_Type_ofNum_(int32(1))
+	}
+	return InstrumentationPoint_Type_ofNum_(this.x_.type_)
 }
 
 func (this *InstrumentationPoint_Builder) setType(p0 InstrumentationPoint_Type) *InstrumentationPoint_Builder {
-	this.set_(0, p0.getNumber())
+	v := p0.getNumber()
+	this.x_.pbHas_[0] |= 0x1
+	this.x_.type_ = v
 	return this
 }
 
 func (this *InstrumentationPoint_Builder) clearType() *InstrumentationPoint_Builder {
-	this.clr_(0)
+	this.x_.type_ = 0
+	this.x_.pbHas_[0] &^= 0x1
 	return this
 }
 
 func (this *InstrumentationPoint) hasFileName() bool {
-	return this.has_(1)
+	return this.x_.pbHas_[0]&0x2 != 0
 }
 
 func (this *InstrumentationPoint_Builder) hasFileName() bool {
-	return this.has_(1)
+	return this.x_.pbHas_[0]&0x2 != 0
 }
 
 func (this *InstrumentationPoint) getFileName() string {
-	return this.gStr_(1)
+	return this.x_.file_name_
 }
 
 func (this *InstrumentationPoint_Builder) getFileName() string {
-	return this.gStr_(1)
+	return this.x_.file_name_
 }
 
 func (this *InstrumentationPoint_Builder) setFileName(p0 string) *InstrumentationPoint_Builder {
-	this.set_(1, p0)
+	if p0 == nullstr_ {
+		pbNPE_()
+	}
+	this.x_.pbHas_[0] |= 0x2
+	this.x_.file_name_ = p0
 	return this
 }
 
 func (this *InstrumentationPoint_Builder) clearFileName() *InstrumentationPoint_Builder {
-	this.clr_(1)
+	this.x_.file_name_ = ""
+	this.x_.pbHas_[0] &^= 0x2
 	return this
 }
 
@@ -7230,28 +7776,33 @@ func (this *InstrumentationPoint_Builder) setFileNameBytes(p0 *ByteString) *Inst
 }
 
 func (this *InstrumentationPoint) hasFunctionName() bool {
-	return this.has_(2)
+	return this.x_.pbHas_[0]&0x4 != 0
 }
 
 func (this *InstrumentationPoint_Builder) hasFunctionName() bool {
-	return this.has_(2)
+	return this.x_.pbHas_[0]&0x4 != 0
 }
 
 func (this *InstrumentationPoint) getFunctionName() string {
-	return this.gStr_(2)
+	return this.x_.function_name_
 }
 
 func (this *InstrumentationPoint_Builder) getFunctionName() string {
-	return this.gStr_(2)
+	return this.x_.function_name_
 }
 
 func (this *InstrumentationPoint_Builder) setFunctionName(p0 string) *InstrumentationPoint_Builder {
-	this.set_(2, p0)
+	if p0 == nullstr_ {
+		pbNPE_()
+	}
+	this.x_.pbHas_[0] |= 0x4
+	this.x_.function_name_ = p0
 	return this
 }
 
 func (this *InstrumentationPoint_Builder) clearFunctionName() *InstrumentationPoint_Builder {
-	this.clr_(2)
+	this.x_.function_name_ = ""
+	this.x_.pbHas_[0] &^= 0x4
 	return this
 }
 
@@ -7269,54 +7820,58 @@ func (this *InstrumentationPoint_Builder) setFunctionNameBytes(p0 *ByteString) *
 }
 
 func (this *InstrumentationPoint) hasLineNumber() bool {
-	return this.has_(3)
+	return this.x_.pbHas_[0]&0x8 != 0
 }
 
 func (this *InstrumentationPoint_Builder) hasLineNumber() bool {
-	return this.has_(3)
+	return this.x_.pbHas_[0]&0x8 != 0
 }
 
 func (this *InstrumentationPoint) getLineNumber() int32 {
-	return this.gI32_(3)
+	return this.x_.line_number_
 }
 
 func (this *InstrumentationPoint_Builder) getLineNumber() int32 {
-	return this.gI32_(3)
+	return this.x_.line_number_
 }
 
 func (this *InstrumentationPoint_Builder) setLineNumber(p0 int32) *InstrumentationPoint_Builder {
-	this.set_(3, p0)
+	this.x_.pbHas_[0] |= 0x8
+	this.x_.line_number_ = p0
 	return this
 }
 
 func (this *InstrumentationPoint_Builder) clearLineNumber() *InstrumentationPoint_Builder {
-	this.clr_(3)
+	this.x_.line_number_ = 0
+	this.x_.pbHas_[0] &^= 0x8
 	return this
 }
 
 func (this *InstrumentationPoint) hasColumnNumber() bool {
-	return this.has_(4)
+	return this.x_.pbHas_[0]&0x10 != 0
 }
 
 func (this *InstrumentationPoint_Builder) hasColumnNumber() bool {
-	return this.has_(4)
+	return this.x_.pbHas_[0]&0x10 != 0
 }
 
 func (this *InstrumentationPoint) getColumnNumber() int32 {
-	return this.gI32_(4)
+	return this.x_.column_number_
 }
 
 func (this *InstrumentationPoint_Builder) getColumnNumber() int32 {
-	return this.gI32_(4)
+	return this.x_.column_number_
 }
 
 func (this *InstrumentationPoint_Builder) setColumnNumber(p0 int32) *InstrumentationPoint_Builder {
-	this.set_(4, p0)
+	this.x_.pbHas_[0] |= 0x10
+	this.x_.column_number_ = p0
 	return this
 }
 
 func (this *InstrumentationPoint_Builder) clearColumnNumber() *InstrumentationPoint_Builder {
-	this.clr_(4)
+	this.x_.column_number_ = 0
+	this.x_.pbHas_[0] &^= 0x10
 	return this
 }
 
@@ -7327,8 +7882,16 @@ func (this *InstrumentationPoint_Builder) mergeFrom_InstrumentationPoint(p0 *Ins
 
 // ---- message third_party.java_src.jscomp.java.com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPointStats
 
+type InstrumentationPointStats_x_ struct {
+	point_          *InstrumentationPoint
+	times_executed_ int64
+	pbHas_          [1]uint32
+	point_presence_ int32
+}
+
 type InstrumentationPointStats struct {
 	GeneratedMessage
+	x_ InstrumentationPointStats_x_
 }
 
 func (this *InstrumentationPointStats) up_GeneratedMessage() *GeneratedMessage {
@@ -7340,6 +7903,7 @@ func (this *InstrumentationPointStats) up_GeneratedMessage() *GeneratedMessage {
 
 type InstrumentationPointStats_Builder struct {
 	GeneratedMessage_Builder
+	x_ InstrumentationPointStats_x_
 }
 
 func (this *InstrumentationPointStats_Builder) up_GeneratedMessage_Builder() *GeneratedMessage_Builder {
@@ -7350,11 +7914,16 @@ func (this *InstrumentationPointStats_Builder) up_GeneratedMessage_Builder() *Ge
 }
 
 var InstrumentationPointStats_desc_ = pbReg_(&pbDesc_{name: "third_party.java_src.jscomp.java.com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPointStats", oneofs: []string{},
-	newM: func() any { return &InstrumentationPointStats{} }, newB: func() any { return &InstrumentationPointStats_Builder{} },
+	newM: func() *pbData_ { return &new(InstrumentationPointStats).pbData_ }, newB: func() *pbData_ { return &new(InstrumentationPointStats_Builder).pbData_ },
+	asM: func(p unsafe.Pointer) any { return (*InstrumentationPointStats)(p) }, asB: func(p unsafe.Pointer) any { return (*InstrumentationPointStats_Builder)(p) },
+	cp: func(dst, src unsafe.Pointer) {
+		(*InstrumentationPointStats)(dst).x_ = (*InstrumentationPointStats)(src).x_
+	},
+	xoff: unsafe.Offsetof(InstrumentationPointStats{}.x_), hoff: unsafe.Offsetof(InstrumentationPointStats{}.x_.pbHas_),
 	fields: []*pbField_{
-		{name: "point", num: 1, kind: pbMessage_, pres: true, tname: "third_party.java_src.jscomp.java.com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPoint"},
-		{name: "times_executed", num: 2, kind: pbInt64_, pres: true},
-		{name: "point_presence", num: 3, kind: pbEnum_, pres: true, tname: "third_party.java_src.jscomp.java.com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPointStats.Presence"},
+		{name: "point", num: 1, kind: pbMessage_, pres: true, tname: "third_party.java_src.jscomp.java.com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPoint", off: unsafe.Offsetof(InstrumentationPointStats{}.x_.point_)},
+		{name: "times_executed", num: 2, kind: pbInt64_, pres: true, off: unsafe.Offsetof(InstrumentationPointStats{}.x_.times_executed_), hb: 1},
+		{name: "point_presence", num: 3, kind: pbEnum_, pres: true, tname: "third_party.java_src.jscomp.java.com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPointStats.Presence", off: unsafe.Offsetof(InstrumentationPointStats{}.x_.point_presence_), hb: 2},
 	}})
 
 const (
@@ -7364,7 +7933,7 @@ const (
 )
 
 func InstrumentationPointStats_getDefaultInstance() *InstrumentationPointStats {
-	return InstrumentationPointStats_desc_.default_().(*InstrumentationPointStats)
+	return (*InstrumentationPointStats)(unsafe.Pointer(InstrumentationPointStats_desc_.default_()))
 }
 
 func InstrumentationPointStats_getDescriptor() *Descriptors_Descriptor {
@@ -7372,7 +7941,7 @@ func InstrumentationPointStats_getDescriptor() *Descriptors_Descriptor {
 }
 
 func InstrumentationPointStats_newBuilder() *InstrumentationPointStats_Builder {
-	return InstrumentationPointStats_desc_.newBuilder_().me_.(*InstrumentationPointStats_Builder)
+	return (*InstrumentationPointStats_Builder)(unsafe.Pointer(InstrumentationPointStats_desc_.newBuilder_()))
 }
 
 func InstrumentationPointStats_newBuilder_InstrumentationPointStats(p0 *InstrumentationPointStats) *InstrumentationPointStats_Builder {
@@ -7404,36 +7973,42 @@ func InstrumentationPointStats_parseFrom_CodedInputStream_ExtensionRegistryLite(
 }
 
 func (this *InstrumentationPointStats) hasPoint() bool {
-	return this.has_(0)
+	return this.x_.point_ != nil
 }
 
 func (this *InstrumentationPointStats_Builder) hasPoint() bool {
-	return this.has_(0)
+	return this.x_.point_ != nil
 }
 
 func (this *InstrumentationPointStats) getPoint() *InstrumentationPoint {
-	return this.gMsg_(0).(*InstrumentationPoint)
+	if p := this.x_.point_; p != nil {
+		return p
+	}
+	return (*InstrumentationPoint)(unsafe.Pointer(InstrumentationPoint_desc_.default_()))
 }
 
 func (this *InstrumentationPointStats_Builder) getPoint() *InstrumentationPoint {
-	return this.gMsg_(0).(*InstrumentationPoint)
+	return (*InstrumentationPoint)(this.gMsgP_(0))
 }
 
 func (this *InstrumentationPointStats) getPointOrBuilder() InstrumentationPointOrBuilder {
-	return this.gMsg_(0).(*InstrumentationPoint)
+	if p := this.x_.point_; p != nil {
+		return p
+	}
+	return (*InstrumentationPoint)(unsafe.Pointer(InstrumentationPoint_desc_.default_()))
 }
 
 func (this *InstrumentationPointStats_Builder) getPointOrBuilder() InstrumentationPointOrBuilder {
-	return this.gMsg_(0).(*InstrumentationPoint)
+	return (*InstrumentationPoint)(this.gMsgP_(0))
 }
 
 func (this *InstrumentationPointStats_Builder) setPoint(p0 *InstrumentationPoint) *InstrumentationPointStats_Builder {
-	this.set_(0, obj_(p0))
+	this.setMsg_(0, unsafe.Pointer(p0))
 	return this
 }
 
 func (this *InstrumentationPointStats_Builder) setPoint_Builder(p0 *InstrumentationPoint_Builder) *InstrumentationPointStats_Builder {
-	this.set_(0, p0.build())
+	this.setMsg_(0, unsafe.Pointer(p0.build_()))
 	return this
 }
 
@@ -7443,7 +8018,7 @@ func (this *InstrumentationPointStats_Builder) mergePoint(p0 *InstrumentationPoi
 }
 
 func (this *InstrumentationPointStats_Builder) clearPoint() *InstrumentationPointStats_Builder {
-	this.clr_(0)
+	this.x_.point_ = nil
 	return this
 }
 
@@ -7452,54 +8027,59 @@ func (this *InstrumentationPointStats_Builder) getPointBuilder() *Instrumentatio
 }
 
 func (this *InstrumentationPointStats) hasTimesExecuted() bool {
-	return this.has_(1)
+	return this.x_.pbHas_[0]&0x1 != 0
 }
 
 func (this *InstrumentationPointStats_Builder) hasTimesExecuted() bool {
-	return this.has_(1)
+	return this.x_.pbHas_[0]&0x1 != 0
 }
 
 func (this *InstrumentationPointStats) getTimesExecuted() int64 {
-	return this.gI64_(1)
+	return this.x_.times_executed_
 }
 
 func (this *InstrumentationPointStats_Builder) getTimesExecuted() int64 {
-	return this.gI64_(1)
+	return this.x_.times_executed_
 }
 
 func (this *InstrumentationPointStats_Builder) setTimesExecuted(p0 int64) *InstrumentationPointStats_Builder {
-	this.set_(1, p0)
+	this.x_.pbHas_[0] |= 0x1
+	this.x_.times_executed_ = p0
 	return this
 }
 
 func (this *InstrumentationPointStats_Builder) clearTimesExecuted() *InstrumentationPointStats_Builder {
-	this.clr_(1)
+	this.x_.times_executed_ = 0
+	this.x_.pbHas_[0] &^= 0x1
 	return this
 }
 
 func (this *InstrumentationPointStats) hasPointPresence() bool {
-	return this.has_(2)
+	return this.x_.pbHas_[0]&0x2 != 0
 }
 
 func (this *InstrumentationPointStats_Builder) hasPointPresence() bool {
-	return this.has_(2)
+	return this.x_.pbHas_[0]&0x2 != 0
 }
 
 func (this *InstrumentationPointStats) getPointPresence() InstrumentationPointStats_Presence {
-	return InstrumentationPointStats_Presence_ofNum_(this.gI32_(2))
+	return InstrumentationPointStats_Presence_ofNum_(this.x_.point_presence_)
 }
 
 func (this *InstrumentationPointStats_Builder) getPointPresence() InstrumentationPointStats_Presence {
-	return InstrumentationPointStats_Presence_ofNum_(this.gI32_(2))
+	return InstrumentationPointStats_Presence_ofNum_(this.x_.point_presence_)
 }
 
 func (this *InstrumentationPointStats_Builder) setPointPresence(p0 InstrumentationPointStats_Presence) *InstrumentationPointStats_Builder {
-	this.set_(2, p0.getNumber())
+	v := p0.getNumber()
+	this.x_.pbHas_[0] |= 0x2
+	this.x_.point_presence_ = v
 	return this
 }
 
 func (this *InstrumentationPointStats_Builder) clearPointPresence() *InstrumentationPointStats_Builder {
-	this.clr_(2)
+	this.x_.point_presence_ = 0
+	this.x_.pbHas_[0] &^= 0x2
 	return this
 }
 
@@ -7510,8 +8090,15 @@ func (this *InstrumentationPointStats_Builder) mergeFrom_InstrumentationPointSta
 
 // ---- message third_party.java_src.jscomp.java.com.google.javascript.jscomp.instrumentation.reporter.proto.FileProfile
 
+type FileProfile_x_ struct {
+	file_name_                    string
+	instrumentation_points_stats_ []*InstrumentationPointStats
+	pbHas_                        [1]uint32
+}
+
 type FileProfile struct {
 	GeneratedMessage
+	x_ FileProfile_x_
 }
 
 func (this *FileProfile) up_GeneratedMessage() *GeneratedMessage {
@@ -7523,6 +8110,7 @@ func (this *FileProfile) up_GeneratedMessage() *GeneratedMessage {
 
 type FileProfile_Builder struct {
 	GeneratedMessage_Builder
+	x_ FileProfile_x_
 }
 
 func (this *FileProfile_Builder) up_GeneratedMessage_Builder() *GeneratedMessage_Builder {
@@ -7533,10 +8121,13 @@ func (this *FileProfile_Builder) up_GeneratedMessage_Builder() *GeneratedMessage
 }
 
 var FileProfile_desc_ = pbReg_(&pbDesc_{name: "third_party.java_src.jscomp.java.com.google.javascript.jscomp.instrumentation.reporter.proto.FileProfile", oneofs: []string{},
-	newM: func() any { return &FileProfile{} }, newB: func() any { return &FileProfile_Builder{} },
+	newM: func() *pbData_ { return &new(FileProfile).pbData_ }, newB: func() *pbData_ { return &new(FileProfile_Builder).pbData_ },
+	asM: func(p unsafe.Pointer) any { return (*FileProfile)(p) }, asB: func(p unsafe.Pointer) any { return (*FileProfile_Builder)(p) },
+	cp:   func(dst, src unsafe.Pointer) { (*FileProfile)(dst).x_ = (*FileProfile)(src).x_ },
+	xoff: unsafe.Offsetof(FileProfile{}.x_), hoff: unsafe.Offsetof(FileProfile{}.x_.pbHas_),
 	fields: []*pbField_{
-		{name: "file_name", num: 1, kind: pbString_, pres: true},
-		{name: "instrumentation_points_stats", num: 2, kind: pbMessage_, rep: true, tname: "third_party.java_src.jscomp.java.com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPointStats"},
+		{name: "file_name", num: 1, kind: pbString_, pres: true, off: unsafe.Offsetof(FileProfile{}.x_.file_name_), hb: 1},
+		{name: "instrumentation_points_stats", num: 2, kind: pbMessage_, rep: true, tname: "third_party.java_src.jscomp.java.com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPointStats", off: unsafe.Offsetof(FileProfile{}.x_.instrumentation_points_stats_)},
 	}})
 
 const (
@@ -7545,7 +8136,7 @@ const (
 )
 
 func FileProfile_getDefaultInstance() *FileProfile {
-	return FileProfile_desc_.default_().(*FileProfile)
+	return (*FileProfile)(unsafe.Pointer(FileProfile_desc_.default_()))
 }
 
 func FileProfile_getDescriptor() *Descriptors_Descriptor {
@@ -7553,7 +8144,7 @@ func FileProfile_getDescriptor() *Descriptors_Descriptor {
 }
 
 func FileProfile_newBuilder() *FileProfile_Builder {
-	return FileProfile_desc_.newBuilder_().me_.(*FileProfile_Builder)
+	return (*FileProfile_Builder)(unsafe.Pointer(FileProfile_desc_.newBuilder_()))
 }
 
 func FileProfile_newBuilder_FileProfile(p0 *FileProfile) *FileProfile_Builder {
@@ -7585,28 +8176,33 @@ func FileProfile_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInput
 }
 
 func (this *FileProfile) hasFileName() bool {
-	return this.has_(0)
+	return this.x_.pbHas_[0]&0x1 != 0
 }
 
 func (this *FileProfile_Builder) hasFileName() bool {
-	return this.has_(0)
+	return this.x_.pbHas_[0]&0x1 != 0
 }
 
 func (this *FileProfile) getFileName() string {
-	return this.gStr_(0)
+	return this.x_.file_name_
 }
 
 func (this *FileProfile_Builder) getFileName() string {
-	return this.gStr_(0)
+	return this.x_.file_name_
 }
 
 func (this *FileProfile_Builder) setFileName(p0 string) *FileProfile_Builder {
-	this.set_(0, p0)
+	if p0 == nullstr_ {
+		pbNPE_()
+	}
+	this.x_.pbHas_[0] |= 0x1
+	this.x_.file_name_ = p0
 	return this
 }
 
 func (this *FileProfile_Builder) clearFileName() *FileProfile_Builder {
-	this.clr_(0)
+	this.x_.file_name_ = ""
+	this.x_.pbHas_[0] &^= 0x1
 	return this
 }
 
@@ -7624,7 +8220,7 @@ func (this *FileProfile_Builder) setFileNameBytes(p0 *ByteString) *FileProfile_B
 }
 
 func (this *FileProfile) getInstrumentationPointsStatsList() List {
-	return this.list_(1)
+	return pbListOf_(this.x_.instrumentation_points_stats_)
 }
 
 func (this *FileProfile_Builder) getInstrumentationPointsStatsList() List {
@@ -7632,31 +8228,31 @@ func (this *FileProfile_Builder) getInstrumentationPointsStatsList() List {
 }
 
 func (this *FileProfile) getInstrumentationPointsStatsCount() int32 {
-	return this.cnt_(1)
+	return int32(len(this.x_.instrumentation_points_stats_))
 }
 
 func (this *FileProfile_Builder) getInstrumentationPointsStatsCount() int32 {
-	return this.cnt_(1)
+	return int32(len(this.x_.instrumentation_points_stats_))
 }
 
 func (this *FileProfile) getInstrumentationPointsStats(p0 int32) *InstrumentationPointStats {
-	return this.at_(1, p0).(*InstrumentationPointStats)
+	return pbAt_(this.x_.instrumentation_points_stats_, p0)
 }
 
 func (this *FileProfile_Builder) getInstrumentationPointsStats(p0 int32) *InstrumentationPointStats {
-	return this.at_(1, p0).(*InstrumentationPointStats)
+	return (*InstrumentationPointStats)(this.atMsgP_(1, p0))
 }
 
 func (this *FileProfile) getInstrumentationPointsStatsOrBuilder(p0 int32) InstrumentationPointStatsOrBuilder {
-	return this.at_(1, p0).(*InstrumentationPointStats)
+	return pbAt_(this.x_.instrumentation_points_stats_, p0)
 }
 
 func (this *FileProfile_Builder) getInstrumentationPointsStatsOrBuilder(p0 int32) InstrumentationPointStatsOrBuilder {
-	return this.at_(1, p0).(*InstrumentationPointStats)
+	return (*InstrumentationPointStats)(this.atMsgP_(1, p0))
 }
 
 func (this *FileProfile) getInstrumentationPointsStatsOrBuilderList() List {
-	return this.list_(1)
+	return pbListOf_(this.x_.instrumentation_points_stats_)
 }
 
 func (this *FileProfile_Builder) getInstrumentationPointsStatsOrBuilderList() List {
@@ -7674,7 +8270,11 @@ func (this *FileProfile_Builder) setInstrumentationPointsStats_int_Builder(p0 in
 }
 
 func (this *FileProfile_Builder) addInstrumentationPointsStats(p0 *InstrumentationPointStats) *FileProfile_Builder {
-	this.add_(1, obj_(p0))
+	if p0 == nil {
+		pbNPE_()
+	}
+	this.own_()
+	this.x_.instrumentation_points_stats_ = append(this.x_.instrumentation_points_stats_, p0)
 	return this
 }
 
@@ -7699,7 +8299,7 @@ func (this *FileProfile_Builder) addAllInstrumentationPointsStats(p0 Iterable) *
 }
 
 func (this *FileProfile_Builder) clearInstrumentationPointsStats() *FileProfile_Builder {
-	this.clr_(1)
+	this.x_.instrumentation_points_stats_ = nil
 	return this
 }
 
@@ -7731,8 +8331,13 @@ func (this *FileProfile_Builder) mergeFrom_FileProfile(p0 *FileProfile) *FilePro
 
 // ---- message third_party.java_src.jscomp.java.com.google.javascript.jscomp.instrumentation.reporter.proto.ReportProfile
 
+type ReportProfile_x_ struct {
+	file_profile_ []*FileProfile
+}
+
 type ReportProfile struct {
 	GeneratedMessage
+	x_ ReportProfile_x_
 }
 
 func (this *ReportProfile) up_GeneratedMessage() *GeneratedMessage {
@@ -7744,6 +8349,7 @@ func (this *ReportProfile) up_GeneratedMessage() *GeneratedMessage {
 
 type ReportProfile_Builder struct {
 	GeneratedMessage_Builder
+	x_ ReportProfile_x_
 }
 
 func (this *ReportProfile_Builder) up_GeneratedMessage_Builder() *GeneratedMessage_Builder {
@@ -7754,9 +8360,12 @@ func (this *ReportProfile_Builder) up_GeneratedMessage_Builder() *GeneratedMessa
 }
 
 var ReportProfile_desc_ = pbReg_(&pbDesc_{name: "third_party.java_src.jscomp.java.com.google.javascript.jscomp.instrumentation.reporter.proto.ReportProfile", oneofs: []string{},
-	newM: func() any { return &ReportProfile{} }, newB: func() any { return &ReportProfile_Builder{} },
+	newM: func() *pbData_ { return &new(ReportProfile).pbData_ }, newB: func() *pbData_ { return &new(ReportProfile_Builder).pbData_ },
+	asM: func(p unsafe.Pointer) any { return (*ReportProfile)(p) }, asB: func(p unsafe.Pointer) any { return (*ReportProfile_Builder)(p) },
+	cp:   func(dst, src unsafe.Pointer) { (*ReportProfile)(dst).x_ = (*ReportProfile)(src).x_ },
+	xoff: unsafe.Offsetof(ReportProfile{}.x_),
 	fields: []*pbField_{
-		{name: "file_profile", num: 1, kind: pbMessage_, rep: true, tname: "third_party.java_src.jscomp.java.com.google.javascript.jscomp.instrumentation.reporter.proto.FileProfile"},
+		{name: "file_profile", num: 1, kind: pbMessage_, rep: true, tname: "third_party.java_src.jscomp.java.com.google.javascript.jscomp.instrumentation.reporter.proto.FileProfile", off: unsafe.Offsetof(ReportProfile{}.x_.file_profile_)},
 	}})
 
 const (
@@ -7764,7 +8373,7 @@ const (
 )
 
 func ReportProfile_getDefaultInstance() *ReportProfile {
-	return ReportProfile_desc_.default_().(*ReportProfile)
+	return (*ReportProfile)(unsafe.Pointer(ReportProfile_desc_.default_()))
 }
 
 func ReportProfile_getDescriptor() *Descriptors_Descriptor {
@@ -7772,7 +8381,7 @@ func ReportProfile_getDescriptor() *Descriptors_Descriptor {
 }
 
 func ReportProfile_newBuilder() *ReportProfile_Builder {
-	return ReportProfile_desc_.newBuilder_().me_.(*ReportProfile_Builder)
+	return (*ReportProfile_Builder)(unsafe.Pointer(ReportProfile_desc_.newBuilder_()))
 }
 
 func ReportProfile_newBuilder_ReportProfile(p0 *ReportProfile) *ReportProfile_Builder {
@@ -7804,7 +8413,7 @@ func ReportProfile_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInp
 }
 
 func (this *ReportProfile) getFileProfileList() List {
-	return this.list_(0)
+	return pbListOf_(this.x_.file_profile_)
 }
 
 func (this *ReportProfile_Builder) getFileProfileList() List {
@@ -7812,31 +8421,31 @@ func (this *ReportProfile_Builder) getFileProfileList() List {
 }
 
 func (this *ReportProfile) getFileProfileCount() int32 {
-	return this.cnt_(0)
+	return int32(len(this.x_.file_profile_))
 }
 
 func (this *ReportProfile_Builder) getFileProfileCount() int32 {
-	return this.cnt_(0)
+	return int32(len(this.x_.file_profile_))
 }
 
 func (this *ReportProfile) getFileProfile(p0 int32) *FileProfile {
-	return this.at_(0, p0).(*FileProfile)
+	return pbAt_(this.x_.file_profile_, p0)
 }
 
 func (this *ReportProfile_Builder) getFileProfile(p0 int32) *FileProfile {
-	return this.at_(0, p0).(*FileProfile)
+	return (*FileProfile)(this.atMsgP_(0, p0))
 }
 
 func (this *ReportProfile) getFileProfileOrBuilder(p0 int32) FileProfileOrBuilder {
-	return this.at_(0, p0).(*FileProfile)
+	return pbAt_(this.x_.file_profile_, p0)
 }
 
 func (this *ReportProfile_Builder) getFileProfileOrBuilder(p0 int32) FileProfileOrBuilder {
-	return this.at_(0, p0).(*FileProfile)
+	return (*FileProfile)(this.atMsgP_(0, p0))
 }
 
 func (this *ReportProfile) getFileProfileOrBuilderList() List {
-	return this.list_(0)
+	return pbListOf_(this.x_.file_profile_)
 }
 
 func (this *ReportProfile_Builder) getFileProfileOrBuilderList() List {
@@ -7854,7 +8463,11 @@ func (this *ReportProfile_Builder) setFileProfile_int_Builder(p0 int32, p1 *File
 }
 
 func (this *ReportProfile_Builder) addFileProfile(p0 *FileProfile) *ReportProfile_Builder {
-	this.add_(0, obj_(p0))
+	if p0 == nil {
+		pbNPE_()
+	}
+	this.own_()
+	this.x_.file_profile_ = append(this.x_.file_profile_, p0)
 	return this
 }
 
@@ -7879,7 +8492,7 @@ func (this *ReportProfile_Builder) addAllFileProfile(p0 Iterable) *ReportProfile
 }
 
 func (this *ReportProfile_Builder) clearFileProfile() *ReportProfile_Builder {
-	this.clr_(0)
+	this.x_.file_profile_ = nil
 	return this
 }
 
@@ -8016,8 +8629,17 @@ var JsCompilerConformanceReport_ConformanceViolation_LibraryDepsConformanceCheck
 
 // ---- message jscomp.JsCompilerConformanceReportWrapper
 
+type JsCompilerConformanceReportWrapper_x_ struct {
+	main_report_                  *JsCompilerConformanceReport
+	library_level_boq_web_report_ *JsCompilerConformanceReport
+	library_level_jscp_report_    *JsCompilerConformanceReport
+	binary_level_report_          *JsCompilerConformanceReport
+	tsetse_report_                *JsCompilerConformanceReport
+}
+
 type JsCompilerConformanceReportWrapper struct {
 	GeneratedMessage
+	x_ JsCompilerConformanceReportWrapper_x_
 }
 
 func (this *JsCompilerConformanceReportWrapper) up_GeneratedMessage() *GeneratedMessage {
@@ -8029,6 +8651,7 @@ func (this *JsCompilerConformanceReportWrapper) up_GeneratedMessage() *Generated
 
 type JsCompilerConformanceReportWrapper_Builder struct {
 	GeneratedMessage_Builder
+	x_ JsCompilerConformanceReportWrapper_x_
 }
 
 func (this *JsCompilerConformanceReportWrapper_Builder) up_GeneratedMessage_Builder() *GeneratedMessage_Builder {
@@ -8039,13 +8662,18 @@ func (this *JsCompilerConformanceReportWrapper_Builder) up_GeneratedMessage_Buil
 }
 
 var JsCompilerConformanceReportWrapper_desc_ = pbReg_(&pbDesc_{name: "jscomp.JsCompilerConformanceReportWrapper", oneofs: []string{},
-	newM: func() any { return &JsCompilerConformanceReportWrapper{} }, newB: func() any { return &JsCompilerConformanceReportWrapper_Builder{} },
+	newM: func() *pbData_ { return &new(JsCompilerConformanceReportWrapper).pbData_ }, newB: func() *pbData_ { return &new(JsCompilerConformanceReportWrapper_Builder).pbData_ },
+	asM: func(p unsafe.Pointer) any { return (*JsCompilerConformanceReportWrapper)(p) }, asB: func(p unsafe.Pointer) any { return (*JsCompilerConformanceReportWrapper_Builder)(p) },
+	cp: func(dst, src unsafe.Pointer) {
+		(*JsCompilerConformanceReportWrapper)(dst).x_ = (*JsCompilerConformanceReportWrapper)(src).x_
+	},
+	xoff: unsafe.Offsetof(JsCompilerConformanceReportWrapper{}.x_),
 	fields: []*pbField_{
-		{name: "main_report", num: 1, kind: pbMessage_, pres: true, tname: "jscomp.JsCompilerConformanceReport"},
-		{name: "library_level_boq_web_report", num: 2, kind: pbMessage_, pres: true, tname: "jscomp.JsCompilerConformanceReport"},
-		{name: "library_level_jscp_report", num: 3, kind: pbMessage_, pres: true, tname: "jscomp.JsCompilerConformanceReport"},
-		{name: "binary_level_report", num: 4, kind: pbMessage_, pres: true, tname: "jscomp.JsCompilerConformanceReport"},
-		{name: "tsetse_report", num: 5, kind: pbMessage_, pres: true, tname: "jscomp.JsCompilerConformanceReport"},
+		{name: "main_report", num: 1, kind: pbMessage_, pres: true, tname: "jscomp.JsCompilerConformanceReport", off: unsafe.Offsetof(JsCompilerConformanceReportWrapper{}.x_.main_report_)},
+		{name: "library_level_boq_web_report", num: 2, kind: pbMessage_, pres: true, tname: "jscomp.JsCompilerConformanceReport", off: unsafe.Offsetof(JsCompilerConformanceReportWrapper{}.x_.library_level_boq_web_report_)},
+		{name: "library_level_jscp_report", num: 3, kind: pbMessage_, pres: true, tname: "jscomp.JsCompilerConformanceReport", off: unsafe.Offsetof(JsCompilerConformanceReportWrapper{}.x_.library_level_jscp_report_)},
+		{name: "binary_level_report", num: 4, kind: pbMessage_, pres: true, tname: "jscomp.JsCompilerConformanceReport", off: unsafe.Offsetof(JsCompilerConformanceReportWrapper{}.x_.binary_level_report_)},
+		{name: "tsetse_report", num: 5, kind: pbMessage_, pres: true, tname: "jscomp.JsCompilerConformanceReport", off: unsafe.Offsetof(JsCompilerConformanceReportWrapper{}.x_.tsetse_report_)},
 	}})
 
 const (
@@ -8057,7 +8685,7 @@ const (
 )
 
 func JsCompilerConformanceReportWrapper_getDefaultInstance() *JsCompilerConformanceReportWrapper {
-	return JsCompilerConformanceReportWrapper_desc_.default_().(*JsCompilerConformanceReportWrapper)
+	return (*JsCompilerConformanceReportWrapper)(unsafe.Pointer(JsCompilerConformanceReportWrapper_desc_.default_()))
 }
 
 func JsCompilerConformanceReportWrapper_getDescriptor() *Descriptors_Descriptor {
@@ -8065,7 +8693,7 @@ func JsCompilerConformanceReportWrapper_getDescriptor() *Descriptors_Descriptor 
 }
 
 func JsCompilerConformanceReportWrapper_newBuilder() *JsCompilerConformanceReportWrapper_Builder {
-	return JsCompilerConformanceReportWrapper_desc_.newBuilder_().me_.(*JsCompilerConformanceReportWrapper_Builder)
+	return (*JsCompilerConformanceReportWrapper_Builder)(unsafe.Pointer(JsCompilerConformanceReportWrapper_desc_.newBuilder_()))
 }
 
 func JsCompilerConformanceReportWrapper_newBuilder_JsCompilerConformanceReportWrapper(p0 *JsCompilerConformanceReportWrapper) *JsCompilerConformanceReportWrapper_Builder {
@@ -8097,36 +8725,42 @@ func JsCompilerConformanceReportWrapper_parseFrom_CodedInputStream_ExtensionRegi
 }
 
 func (this *JsCompilerConformanceReportWrapper) hasMainReport() bool {
-	return this.has_(0)
+	return this.x_.main_report_ != nil
 }
 
 func (this *JsCompilerConformanceReportWrapper_Builder) hasMainReport() bool {
-	return this.has_(0)
+	return this.x_.main_report_ != nil
 }
 
 func (this *JsCompilerConformanceReportWrapper) getMainReport() *JsCompilerConformanceReport {
-	return this.gMsg_(0).(*JsCompilerConformanceReport)
+	if p := this.x_.main_report_; p != nil {
+		return p
+	}
+	return (*JsCompilerConformanceReport)(unsafe.Pointer(JsCompilerConformanceReport_desc_.default_()))
 }
 
 func (this *JsCompilerConformanceReportWrapper_Builder) getMainReport() *JsCompilerConformanceReport {
-	return this.gMsg_(0).(*JsCompilerConformanceReport)
+	return (*JsCompilerConformanceReport)(this.gMsgP_(0))
 }
 
 func (this *JsCompilerConformanceReportWrapper) getMainReportOrBuilder() JsCompilerConformanceReportOrBuilder {
-	return this.gMsg_(0).(*JsCompilerConformanceReport)
+	if p := this.x_.main_report_; p != nil {
+		return p
+	}
+	return (*JsCompilerConformanceReport)(unsafe.Pointer(JsCompilerConformanceReport_desc_.default_()))
 }
 
 func (this *JsCompilerConformanceReportWrapper_Builder) getMainReportOrBuilder() JsCompilerConformanceReportOrBuilder {
-	return this.gMsg_(0).(*JsCompilerConformanceReport)
+	return (*JsCompilerConformanceReport)(this.gMsgP_(0))
 }
 
 func (this *JsCompilerConformanceReportWrapper_Builder) setMainReport(p0 *JsCompilerConformanceReport) *JsCompilerConformanceReportWrapper_Builder {
-	this.set_(0, obj_(p0))
+	this.setMsg_(0, unsafe.Pointer(p0))
 	return this
 }
 
 func (this *JsCompilerConformanceReportWrapper_Builder) setMainReport_Builder(p0 *JsCompilerConformanceReport_Builder) *JsCompilerConformanceReportWrapper_Builder {
-	this.set_(0, p0.build())
+	this.setMsg_(0, unsafe.Pointer(p0.build_()))
 	return this
 }
 
@@ -8136,7 +8770,7 @@ func (this *JsCompilerConformanceReportWrapper_Builder) mergeMainReport(p0 *JsCo
 }
 
 func (this *JsCompilerConformanceReportWrapper_Builder) clearMainReport() *JsCompilerConformanceReportWrapper_Builder {
-	this.clr_(0)
+	this.x_.main_report_ = nil
 	return this
 }
 
@@ -8145,36 +8779,42 @@ func (this *JsCompilerConformanceReportWrapper_Builder) getMainReportBuilder() *
 }
 
 func (this *JsCompilerConformanceReportWrapper) hasLibraryLevelBoqWebReport() bool {
-	return this.has_(1)
+	return this.x_.library_level_boq_web_report_ != nil
 }
 
 func (this *JsCompilerConformanceReportWrapper_Builder) hasLibraryLevelBoqWebReport() bool {
-	return this.has_(1)
+	return this.x_.library_level_boq_web_report_ != nil
 }
 
 func (this *JsCompilerConformanceReportWrapper) getLibraryLevelBoqWebReport() *JsCompilerConformanceReport {
-	return this.gMsg_(1).(*JsCompilerConformanceReport)
+	if p := this.x_.library_level_boq_web_report_; p != nil {
+		return p
+	}
+	return (*JsCompilerConformanceReport)(unsafe.Pointer(JsCompilerConformanceReport_desc_.default_()))
 }
 
 func (this *JsCompilerConformanceReportWrapper_Builder) getLibraryLevelBoqWebReport() *JsCompilerConformanceReport {
-	return this.gMsg_(1).(*JsCompilerConformanceReport)
+	return (*JsCompilerConformanceReport)(this.gMsgP_(1))
 }
 
 func (this *JsCompilerConformanceReportWrapper) getLibraryLevelBoqWebReportOrBuilder() JsCompilerConformanceReportOrBuilder {
-	return this.gMsg_(1).(*JsCompilerConformanceReport)
+	if p := this.x_.library_level_boq_web_report_; p != nil {
+		return p
+	}
+	return (*JsCompilerConformanceReport)(unsafe.Pointer(JsCompilerConformanceReport_desc_.default_()))
 }
 
 func (this *JsCompilerConformanceReportWrapper_Builder) getLibraryLevelBoqWebReportOrBuilder() JsCompilerConformanceReportOrBuilder {
-	return this.gMsg_(1).(*JsCompilerConformanceReport)
+	return (*JsCompilerConformanceReport)(this.gMsgP_(1))
 }
 
 func (this *JsCompilerConformanceReportWrapper_Builder) setLibraryLevelBoqWebReport(p0 *JsCompilerConformanceReport) *JsCompilerConformanceReportWrapper_Builder {
-	this.set_(1, obj_(p0))
+	this.setMsg_(1, unsafe.Pointer(p0))
 	return this
 }
 
 func (this *JsCompilerConformanceReportWrapper_Builder) setLibraryLevelBoqWebReport_Builder(p0 *JsCompilerConformanceReport_Builder) *JsCompilerConformanceReportWrapper_Builder {
-	this.set_(1, p0.build())
+	this.setMsg_(1, unsafe.Pointer(p0.build_()))
 	return this
 }
 
@@ -8184,7 +8824,7 @@ func (this *JsCompilerConformanceReportWrapper_Builder) mergeLibraryLevelBoqWebR
 }
 
 func (this *JsCompilerConformanceReportWrapper_Builder) clearLibraryLevelBoqWebReport() *JsCompilerConformanceReportWrapper_Builder {
-	this.clr_(1)
+	this.x_.library_level_boq_web_report_ = nil
 	return this
 }
 
@@ -8193,36 +8833,42 @@ func (this *JsCompilerConformanceReportWrapper_Builder) getLibraryLevelBoqWebRep
 }
 
 func (this *JsCompilerConformanceReportWrapper) hasLibraryLevelJscpReport() bool {
-	return this.has_(2)
+	return this.x_.library_level_jscp_report_ != nil
 }
 
 func (this *JsCompilerConformanceReportWrapper_Builder) hasLibraryLevelJscpReport() bool {
-	return this.has_(2)
+	return this.x_.library_level_jscp_report_ != nil
 }
 
 func (this *JsCompilerConformanceReportWrapper) getLibraryLevelJscpReport() *JsCompilerConformanceReport {
-	return this.gMsg_(2).(*JsCompilerConformanceReport)
+	if p := this.x_.library_level_jscp_report_; p != nil {
+		return p
+	}
+	return (*JsCompilerConformanceReport)(unsafe.Pointer(JsCompilerConformanceReport_desc_.default_()))
 }
 
 func (this *JsCompilerConformanceReportWrapper_Builder) getLibraryLevelJscpReport() *JsCompilerConformanceReport {
-	return this.gMsg_(2).(*JsCompilerConformanceReport)
+	return (*JsCompilerConformanceReport)(this.gMsgP_(2))
 }
 
 func (this *JsCompilerConformanceReportWrapper) getLibraryLevelJscpReportOrBuilder() JsCompilerConformanceReportOrBuilder {
-	return this.gMsg_(2).(*JsCompilerConformanceReport)
+	if p := this.x_.library_level_jscp_report_; p != nil {
+		return p
+	}
+	return (*JsCompilerConformanceReport)(unsafe.Pointer(JsCompilerConformanceReport_desc_.default_()))
 }
 
 func (this *JsCompilerConformanceReportWrapper_Builder) getLibraryLevelJscpReportOrBuilder() JsCompilerConformanceReportOrBuilder {
-	return this.gMsg_(2).(*JsCompilerConformanceReport)
+	return (*JsCompilerConformanceReport)(this.gMsgP_(2))
 }
 
 func (this *JsCompilerConformanceReportWrapper_Builder) setLibraryLevelJscpReport(p0 *JsCompilerConformanceReport) *JsCompilerConformanceReportWrapper_Builder {
-	this.set_(2, obj_(p0))
+	this.setMsg_(2, unsafe.Pointer(p0))
 	return this
 }
 
 func (this *JsCompilerConformanceReportWrapper_Builder) setLibraryLevelJscpReport_Builder(p0 *JsCompilerConformanceReport_Builder) *JsCompilerConformanceReportWrapper_Builder {
-	this.set_(2, p0.build())
+	this.setMsg_(2, unsafe.Pointer(p0.build_()))
 	return this
 }
 
@@ -8232,7 +8878,7 @@ func (this *JsCompilerConformanceReportWrapper_Builder) mergeLibraryLevelJscpRep
 }
 
 func (this *JsCompilerConformanceReportWrapper_Builder) clearLibraryLevelJscpReport() *JsCompilerConformanceReportWrapper_Builder {
-	this.clr_(2)
+	this.x_.library_level_jscp_report_ = nil
 	return this
 }
 
@@ -8241,36 +8887,42 @@ func (this *JsCompilerConformanceReportWrapper_Builder) getLibraryLevelJscpRepor
 }
 
 func (this *JsCompilerConformanceReportWrapper) hasBinaryLevelReport() bool {
-	return this.has_(3)
+	return this.x_.binary_level_report_ != nil
 }
 
 func (this *JsCompilerConformanceReportWrapper_Builder) hasBinaryLevelReport() bool {
-	return this.has_(3)
+	return this.x_.binary_level_report_ != nil
 }
 
 func (this *JsCompilerConformanceReportWrapper) getBinaryLevelReport() *JsCompilerConformanceReport {
-	return this.gMsg_(3).(*JsCompilerConformanceReport)
+	if p := this.x_.binary_level_report_; p != nil {
+		return p
+	}
+	return (*JsCompilerConformanceReport)(unsafe.Pointer(JsCompilerConformanceReport_desc_.default_()))
 }
 
 func (this *JsCompilerConformanceReportWrapper_Builder) getBinaryLevelReport() *JsCompilerConformanceReport {
-	return this.gMsg_(3).(*JsCompilerConformanceReport)
+	return (*JsCompilerConformanceReport)(this.gMsgP_(3))
 }
 
 func (this *JsCompilerConformanceReportWrapper) getBinaryLevelReportOrBuilder() JsCompilerConformanceReportOrBuilder {
-	return this.gMsg_(3).(*JsCompilerConformanceReport)
+	if p := this.x_.binary_level_report_; p != nil {
+		return p
+	}
+	return (*JsCompilerConformanceReport)(unsafe.Pointer(JsCompilerConformanceReport_desc_.default_()))
 }
 
 func (this *JsCompilerConformanceReportWrapper_Builder) getBinaryLevelReportOrBuilder() JsCompilerConformanceReportOrBuilder {
-	return this.gMsg_(3).(*JsCompilerConformanceReport)
+	return (*JsCompilerConformanceReport)(this.gMsgP_(3))
 }
 
 func (this *JsCompilerConformanceReportWrapper_Builder) setBinaryLevelReport(p0 *JsCompilerConformanceReport) *JsCompilerConformanceReportWrapper_Builder {
-	this.set_(3, obj_(p0))
+	this.setMsg_(3, unsafe.Pointer(p0))
 	return this
 }
 
 func (this *JsCompilerConformanceReportWrapper_Builder) setBinaryLevelReport_Builder(p0 *JsCompilerConformanceReport_Builder) *JsCompilerConformanceReportWrapper_Builder {
-	this.set_(3, p0.build())
+	this.setMsg_(3, unsafe.Pointer(p0.build_()))
 	return this
 }
 
@@ -8280,7 +8932,7 @@ func (this *JsCompilerConformanceReportWrapper_Builder) mergeBinaryLevelReport(p
 }
 
 func (this *JsCompilerConformanceReportWrapper_Builder) clearBinaryLevelReport() *JsCompilerConformanceReportWrapper_Builder {
-	this.clr_(3)
+	this.x_.binary_level_report_ = nil
 	return this
 }
 
@@ -8289,36 +8941,42 @@ func (this *JsCompilerConformanceReportWrapper_Builder) getBinaryLevelReportBuil
 }
 
 func (this *JsCompilerConformanceReportWrapper) hasTsetseReport() bool {
-	return this.has_(4)
+	return this.x_.tsetse_report_ != nil
 }
 
 func (this *JsCompilerConformanceReportWrapper_Builder) hasTsetseReport() bool {
-	return this.has_(4)
+	return this.x_.tsetse_report_ != nil
 }
 
 func (this *JsCompilerConformanceReportWrapper) getTsetseReport() *JsCompilerConformanceReport {
-	return this.gMsg_(4).(*JsCompilerConformanceReport)
+	if p := this.x_.tsetse_report_; p != nil {
+		return p
+	}
+	return (*JsCompilerConformanceReport)(unsafe.Pointer(JsCompilerConformanceReport_desc_.default_()))
 }
 
 func (this *JsCompilerConformanceReportWrapper_Builder) getTsetseReport() *JsCompilerConformanceReport {
-	return this.gMsg_(4).(*JsCompilerConformanceReport)
+	return (*JsCompilerConformanceReport)(this.gMsgP_(4))
 }
 
 func (this *JsCompilerConformanceReportWrapper) getTsetseReportOrBuilder() JsCompilerConformanceReportOrBuilder {
-	return this.gMsg_(4).(*JsCompilerConformanceReport)
+	if p := this.x_.tsetse_report_; p != nil {
+		return p
+	}
+	return (*JsCompilerConformanceReport)(unsafe.Pointer(JsCompilerConformanceReport_desc_.default_()))
 }
 
 func (this *JsCompilerConformanceReportWrapper_Builder) getTsetseReportOrBuilder() JsCompilerConformanceReportOrBuilder {
-	return this.gMsg_(4).(*JsCompilerConformanceReport)
+	return (*JsCompilerConformanceReport)(this.gMsgP_(4))
 }
 
 func (this *JsCompilerConformanceReportWrapper_Builder) setTsetseReport(p0 *JsCompilerConformanceReport) *JsCompilerConformanceReportWrapper_Builder {
-	this.set_(4, obj_(p0))
+	this.setMsg_(4, unsafe.Pointer(p0))
 	return this
 }
 
 func (this *JsCompilerConformanceReportWrapper_Builder) setTsetseReport_Builder(p0 *JsCompilerConformanceReport_Builder) *JsCompilerConformanceReportWrapper_Builder {
-	this.set_(4, p0.build())
+	this.setMsg_(4, unsafe.Pointer(p0.build_()))
 	return this
 }
 
@@ -8328,7 +8986,7 @@ func (this *JsCompilerConformanceReportWrapper_Builder) mergeTsetseReport(p0 *Js
 }
 
 func (this *JsCompilerConformanceReportWrapper_Builder) clearTsetseReport() *JsCompilerConformanceReportWrapper_Builder {
-	this.clr_(4)
+	this.x_.tsetse_report_ = nil
 	return this
 }
 
@@ -8362,8 +9020,17 @@ type JsCompilerConformanceReportWrapperOrBuilder interface {
 
 // ---- message jscomp.JsCompilerConformanceReport
 
+type JsCompilerConformanceReport_x_ struct {
+	filename_                  string
+	wrapping_raw_js_file_name_ string
+	violations_                []*JsCompilerConformanceReport_ConformanceViolation
+	pbHas_                     [1]uint32
+	unanalyzed_                bool
+}
+
 type JsCompilerConformanceReport struct {
 	GeneratedMessage
+	x_ JsCompilerConformanceReport_x_
 }
 
 func (this *JsCompilerConformanceReport) up_GeneratedMessage() *GeneratedMessage {
@@ -8375,6 +9042,7 @@ func (this *JsCompilerConformanceReport) up_GeneratedMessage() *GeneratedMessage
 
 type JsCompilerConformanceReport_Builder struct {
 	GeneratedMessage_Builder
+	x_ JsCompilerConformanceReport_x_
 }
 
 func (this *JsCompilerConformanceReport_Builder) up_GeneratedMessage_Builder() *GeneratedMessage_Builder {
@@ -8385,12 +9053,17 @@ func (this *JsCompilerConformanceReport_Builder) up_GeneratedMessage_Builder() *
 }
 
 var JsCompilerConformanceReport_desc_ = pbReg_(&pbDesc_{name: "jscomp.JsCompilerConformanceReport", oneofs: []string{},
-	newM: func() any { return &JsCompilerConformanceReport{} }, newB: func() any { return &JsCompilerConformanceReport_Builder{} },
+	newM: func() *pbData_ { return &new(JsCompilerConformanceReport).pbData_ }, newB: func() *pbData_ { return &new(JsCompilerConformanceReport_Builder).pbData_ },
+	asM: func(p unsafe.Pointer) any { return (*JsCompilerConformanceReport)(p) }, asB: func(p unsafe.Pointer) any { return (*JsCompilerConformanceReport_Builder)(p) },
+	cp: func(dst, src unsafe.Pointer) {
+		(*JsCompilerConformanceReport)(dst).x_ = (*JsCompilerConformanceReport)(src).x_
+	},
+	xoff: unsafe.Offsetof(JsCompilerConformanceReport{}.x_), hoff: unsafe.Offsetof(JsCompilerConformanceReport{}.x_.pbHas_),
 	fields: []*pbField_{
-		{name: "filename", num: 1, kind: pbString_, pres: true, utf8: true},
-		{name: "unanalyzed", num: 2, kind: pbBool_, pres: true},
-		{name: "wrapping_raw_js_file_name", num: 3, kind: pbString_, pres: true, utf8: true},
-		{name: "violations", num: 4, kind: pbMessage_, rep: true, tname: "jscomp.JsCompilerConformanceReport.ConformanceViolation"},
+		{name: "filename", num: 1, kind: pbString_, pres: true, utf8: true, off: unsafe.Offsetof(JsCompilerConformanceReport{}.x_.filename_), hb: 1},
+		{name: "unanalyzed", num: 2, kind: pbBool_, pres: true, off: unsafe.Offsetof(JsCompilerConformanceReport{}.x_.unanalyzed_), hb: 2},
+		{name: "wrapping_raw_js_file_name", num: 3, kind: pbString_, pres: true, utf8: true, off: unsafe.Offsetof(JsCompilerConformanceReport{}.x_.wrapping_raw_js_file_name_), hb: 3},
+		{name: "violations", num: 4, kind: pbMessage_, rep: true, tname: "jscomp.JsCompilerConformanceReport.ConformanceViolation", off: unsafe.Offsetof(JsCompilerConformanceReport{}.x_.violations_)},
 	}})
 
 const (
@@ -8401,7 +9074,7 @@ const (
 )
 
 func JsCompilerConformanceReport_getDefaultInstance() *JsCompilerConformanceReport {
-	return JsCompilerConformanceReport_desc_.default_().(*JsCompilerConformanceReport)
+	return (*JsCompilerConformanceReport)(unsafe.Pointer(JsCompilerConformanceReport_desc_.default_()))
 }
 
 func JsCompilerConformanceReport_getDescriptor() *Descriptors_Descriptor {
@@ -8409,7 +9082,7 @@ func JsCompilerConformanceReport_getDescriptor() *Descriptors_Descriptor {
 }
 
 func JsCompilerConformanceReport_newBuilder() *JsCompilerConformanceReport_Builder {
-	return JsCompilerConformanceReport_desc_.newBuilder_().me_.(*JsCompilerConformanceReport_Builder)
+	return (*JsCompilerConformanceReport_Builder)(unsafe.Pointer(JsCompilerConformanceReport_desc_.newBuilder_()))
 }
 
 func JsCompilerConformanceReport_newBuilder_JsCompilerConformanceReport(p0 *JsCompilerConformanceReport) *JsCompilerConformanceReport_Builder {
@@ -8441,28 +9114,33 @@ func JsCompilerConformanceReport_parseFrom_CodedInputStream_ExtensionRegistryLit
 }
 
 func (this *JsCompilerConformanceReport) hasFilename() bool {
-	return this.has_(0)
+	return this.x_.pbHas_[0]&0x1 != 0
 }
 
 func (this *JsCompilerConformanceReport_Builder) hasFilename() bool {
-	return this.has_(0)
+	return this.x_.pbHas_[0]&0x1 != 0
 }
 
 func (this *JsCompilerConformanceReport) getFilename() string {
-	return this.gStr_(0)
+	return this.x_.filename_
 }
 
 func (this *JsCompilerConformanceReport_Builder) getFilename() string {
-	return this.gStr_(0)
+	return this.x_.filename_
 }
 
 func (this *JsCompilerConformanceReport_Builder) setFilename(p0 string) *JsCompilerConformanceReport_Builder {
-	this.set_(0, p0)
+	if p0 == nullstr_ {
+		pbNPE_()
+	}
+	this.x_.pbHas_[0] |= 0x1
+	this.x_.filename_ = p0
 	return this
 }
 
 func (this *JsCompilerConformanceReport_Builder) clearFilename() *JsCompilerConformanceReport_Builder {
-	this.clr_(0)
+	this.x_.filename_ = ""
+	this.x_.pbHas_[0] &^= 0x1
 	return this
 }
 
@@ -8480,54 +9158,61 @@ func (this *JsCompilerConformanceReport_Builder) setFilenameBytes(p0 *ByteString
 }
 
 func (this *JsCompilerConformanceReport) hasUnanalyzed() bool {
-	return this.has_(1)
+	return this.x_.pbHas_[0]&0x2 != 0
 }
 
 func (this *JsCompilerConformanceReport_Builder) hasUnanalyzed() bool {
-	return this.has_(1)
+	return this.x_.pbHas_[0]&0x2 != 0
 }
 
 func (this *JsCompilerConformanceReport) getUnanalyzed() bool {
-	return this.gBool_(1)
+	return this.x_.unanalyzed_
 }
 
 func (this *JsCompilerConformanceReport_Builder) getUnanalyzed() bool {
-	return this.gBool_(1)
+	return this.x_.unanalyzed_
 }
 
 func (this *JsCompilerConformanceReport_Builder) setUnanalyzed(p0 bool) *JsCompilerConformanceReport_Builder {
-	this.set_(1, p0)
+	this.x_.pbHas_[0] |= 0x2
+	this.x_.unanalyzed_ = p0
 	return this
 }
 
 func (this *JsCompilerConformanceReport_Builder) clearUnanalyzed() *JsCompilerConformanceReport_Builder {
-	this.clr_(1)
+	this.x_.unanalyzed_ = false
+	this.x_.pbHas_[0] &^= 0x2
 	return this
 }
 
 func (this *JsCompilerConformanceReport) hasWrappingRawJsFileName() bool {
-	return this.has_(2)
+	return this.x_.pbHas_[0]&0x4 != 0
 }
 
 func (this *JsCompilerConformanceReport_Builder) hasWrappingRawJsFileName() bool {
-	return this.has_(2)
+	return this.x_.pbHas_[0]&0x4 != 0
 }
 
 func (this *JsCompilerConformanceReport) getWrappingRawJsFileName() string {
-	return this.gStr_(2)
+	return this.x_.wrapping_raw_js_file_name_
 }
 
 func (this *JsCompilerConformanceReport_Builder) getWrappingRawJsFileName() string {
-	return this.gStr_(2)
+	return this.x_.wrapping_raw_js_file_name_
 }
 
 func (this *JsCompilerConformanceReport_Builder) setWrappingRawJsFileName(p0 string) *JsCompilerConformanceReport_Builder {
-	this.set_(2, p0)
+	if p0 == nullstr_ {
+		pbNPE_()
+	}
+	this.x_.pbHas_[0] |= 0x4
+	this.x_.wrapping_raw_js_file_name_ = p0
 	return this
 }
 
 func (this *JsCompilerConformanceReport_Builder) clearWrappingRawJsFileName() *JsCompilerConformanceReport_Builder {
-	this.clr_(2)
+	this.x_.wrapping_raw_js_file_name_ = ""
+	this.x_.pbHas_[0] &^= 0x4
 	return this
 }
 
@@ -8545,7 +9230,7 @@ func (this *JsCompilerConformanceReport_Builder) setWrappingRawJsFileNameBytes(p
 }
 
 func (this *JsCompilerConformanceReport) getViolationsList() List {
-	return this.list_(3)
+	return pbListOf_(this.x_.violations_)
 }
 
 func (this *JsCompilerConformanceReport_Builder) getViolationsList() List {
@@ -8553,31 +9238,31 @@ func (this *JsCompilerConformanceReport_Builder) getViolationsList() List {
 }
 
 func (this *JsCompilerConformanceReport) getViolationsCount() int32 {
-	return this.cnt_(3)
+	return int32(len(this.x_.violations_))
 }
 
 func (this *JsCompilerConformanceReport_Builder) getViolationsCount() int32 {
-	return this.cnt_(3)
+	return int32(len(this.x_.violations_))
 }
 
 func (this *JsCompilerConformanceReport) getViolations(p0 int32) *JsCompilerConformanceReport_ConformanceViolation {
-	return this.at_(3, p0).(*JsCompilerConformanceReport_ConformanceViolation)
+	return pbAt_(this.x_.violations_, p0)
 }
 
 func (this *JsCompilerConformanceReport_Builder) getViolations(p0 int32) *JsCompilerConformanceReport_ConformanceViolation {
-	return this.at_(3, p0).(*JsCompilerConformanceReport_ConformanceViolation)
+	return (*JsCompilerConformanceReport_ConformanceViolation)(this.atMsgP_(3, p0))
 }
 
 func (this *JsCompilerConformanceReport) getViolationsOrBuilder(p0 int32) JsCompilerConformanceReport_ConformanceViolationOrBuilder {
-	return this.at_(3, p0).(*JsCompilerConformanceReport_ConformanceViolation)
+	return pbAt_(this.x_.violations_, p0)
 }
 
 func (this *JsCompilerConformanceReport_Builder) getViolationsOrBuilder(p0 int32) JsCompilerConformanceReport_ConformanceViolationOrBuilder {
-	return this.at_(3, p0).(*JsCompilerConformanceReport_ConformanceViolation)
+	return (*JsCompilerConformanceReport_ConformanceViolation)(this.atMsgP_(3, p0))
 }
 
 func (this *JsCompilerConformanceReport) getViolationsOrBuilderList() List {
-	return this.list_(3)
+	return pbListOf_(this.x_.violations_)
 }
 
 func (this *JsCompilerConformanceReport_Builder) getViolationsOrBuilderList() List {
@@ -8595,7 +9280,11 @@ func (this *JsCompilerConformanceReport_Builder) setViolations_int_Builder(p0 in
 }
 
 func (this *JsCompilerConformanceReport_Builder) addViolations(p0 *JsCompilerConformanceReport_ConformanceViolation) *JsCompilerConformanceReport_Builder {
-	this.add_(3, obj_(p0))
+	if p0 == nil {
+		pbNPE_()
+	}
+	this.own_()
+	this.x_.violations_ = append(this.x_.violations_, p0)
 	return this
 }
 
@@ -8620,7 +9309,7 @@ func (this *JsCompilerConformanceReport_Builder) addAllViolations(p0 Iterable) *
 }
 
 func (this *JsCompilerConformanceReport_Builder) clearViolations() *JsCompilerConformanceReport_Builder {
-	this.clr_(3)
+	this.x_.violations_ = nil
 	return this
 }
 
@@ -8669,8 +9358,20 @@ type JsCompilerConformanceReportOrBuilder interface {
 
 // ---- message jscomp.JsCompilerConformanceReport.ConformanceViolation
 
+type JsCompilerConformanceReport_ConformanceViolation_x_ struct {
+	requirement_                                       *Requirement
+	allowlist_entry_                                   *RequirementScopeEntry
+	path_                                              string
+	rule_id_                                           string
+	pbHas_                                             [1]uint32
+	line_no_                                           int32
+	col_no_                                            int32
+	library_deps_conformance_checker_allowlist_reason_ int32
+}
+
 type JsCompilerConformanceReport_ConformanceViolation struct {
 	GeneratedMessage
+	x_ JsCompilerConformanceReport_ConformanceViolation_x_
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation) up_GeneratedMessage() *GeneratedMessage {
@@ -8682,6 +9383,7 @@ func (this *JsCompilerConformanceReport_ConformanceViolation) up_GeneratedMessag
 
 type JsCompilerConformanceReport_ConformanceViolation_Builder struct {
 	GeneratedMessage_Builder
+	x_ JsCompilerConformanceReport_ConformanceViolation_x_
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation_Builder) up_GeneratedMessage_Builder() *GeneratedMessage_Builder {
@@ -8692,15 +9394,20 @@ func (this *JsCompilerConformanceReport_ConformanceViolation_Builder) up_Generat
 }
 
 var JsCompilerConformanceReport_ConformanceViolation_desc_ = pbReg_(&pbDesc_{name: "jscomp.JsCompilerConformanceReport.ConformanceViolation", oneofs: []string{},
-	newM: func() any { return &JsCompilerConformanceReport_ConformanceViolation{} }, newB: func() any { return &JsCompilerConformanceReport_ConformanceViolation_Builder{} },
+	newM: func() *pbData_ { return &new(JsCompilerConformanceReport_ConformanceViolation).pbData_ }, newB: func() *pbData_ { return &new(JsCompilerConformanceReport_ConformanceViolation_Builder).pbData_ },
+	asM: func(p unsafe.Pointer) any { return (*JsCompilerConformanceReport_ConformanceViolation)(p) }, asB: func(p unsafe.Pointer) any { return (*JsCompilerConformanceReport_ConformanceViolation_Builder)(p) },
+	cp: func(dst, src unsafe.Pointer) {
+		(*JsCompilerConformanceReport_ConformanceViolation)(dst).x_ = (*JsCompilerConformanceReport_ConformanceViolation)(src).x_
+	},
+	xoff: unsafe.Offsetof(JsCompilerConformanceReport_ConformanceViolation{}.x_), hoff: unsafe.Offsetof(JsCompilerConformanceReport_ConformanceViolation{}.x_.pbHas_),
 	fields: []*pbField_{
-		{name: "requirement", num: 1, kind: pbMessage_, pres: true, tname: "jscomp.Requirement"},
-		{name: "allowlist_entry", num: 2, kind: pbMessage_, pres: true, tname: "jscomp.RequirementScopeEntry"},
-		{name: "path", num: 3, kind: pbString_, pres: true, utf8: true},
-		{name: "line_no", num: 4, kind: pbInt32_, pres: true},
-		{name: "col_no", num: 5, kind: pbInt32_, pres: true},
-		{name: "rule_id", num: 6, kind: pbString_, pres: true, utf8: true},
-		{name: "library_deps_conformance_checker_allowlist_reason", num: 7, kind: pbEnum_, pres: true, tname: "jscomp.JsCompilerConformanceReport.ConformanceViolation.LibraryDepsConformanceCheckerAllowlistReason"},
+		{name: "requirement", num: 1, kind: pbMessage_, pres: true, tname: "jscomp.Requirement", off: unsafe.Offsetof(JsCompilerConformanceReport_ConformanceViolation{}.x_.requirement_)},
+		{name: "allowlist_entry", num: 2, kind: pbMessage_, pres: true, tname: "jscomp.RequirementScopeEntry", off: unsafe.Offsetof(JsCompilerConformanceReport_ConformanceViolation{}.x_.allowlist_entry_)},
+		{name: "path", num: 3, kind: pbString_, pres: true, utf8: true, off: unsafe.Offsetof(JsCompilerConformanceReport_ConformanceViolation{}.x_.path_), hb: 1},
+		{name: "line_no", num: 4, kind: pbInt32_, pres: true, off: unsafe.Offsetof(JsCompilerConformanceReport_ConformanceViolation{}.x_.line_no_), hb: 2},
+		{name: "col_no", num: 5, kind: pbInt32_, pres: true, off: unsafe.Offsetof(JsCompilerConformanceReport_ConformanceViolation{}.x_.col_no_), hb: 3},
+		{name: "rule_id", num: 6, kind: pbString_, pres: true, utf8: true, off: unsafe.Offsetof(JsCompilerConformanceReport_ConformanceViolation{}.x_.rule_id_), hb: 4},
+		{name: "library_deps_conformance_checker_allowlist_reason", num: 7, kind: pbEnum_, pres: true, tname: "jscomp.JsCompilerConformanceReport.ConformanceViolation.LibraryDepsConformanceCheckerAllowlistReason", off: unsafe.Offsetof(JsCompilerConformanceReport_ConformanceViolation{}.x_.library_deps_conformance_checker_allowlist_reason_), hb: 5},
 	}})
 
 const (
@@ -8714,7 +9421,7 @@ const (
 )
 
 func JsCompilerConformanceReport_ConformanceViolation_getDefaultInstance() *JsCompilerConformanceReport_ConformanceViolation {
-	return JsCompilerConformanceReport_ConformanceViolation_desc_.default_().(*JsCompilerConformanceReport_ConformanceViolation)
+	return (*JsCompilerConformanceReport_ConformanceViolation)(unsafe.Pointer(JsCompilerConformanceReport_ConformanceViolation_desc_.default_()))
 }
 
 func JsCompilerConformanceReport_ConformanceViolation_getDescriptor() *Descriptors_Descriptor {
@@ -8722,7 +9429,7 @@ func JsCompilerConformanceReport_ConformanceViolation_getDescriptor() *Descripto
 }
 
 func JsCompilerConformanceReport_ConformanceViolation_newBuilder() *JsCompilerConformanceReport_ConformanceViolation_Builder {
-	return JsCompilerConformanceReport_ConformanceViolation_desc_.newBuilder_().me_.(*JsCompilerConformanceReport_ConformanceViolation_Builder)
+	return (*JsCompilerConformanceReport_ConformanceViolation_Builder)(unsafe.Pointer(JsCompilerConformanceReport_ConformanceViolation_desc_.newBuilder_()))
 }
 
 func JsCompilerConformanceReport_ConformanceViolation_newBuilder_ConformanceViolation(p0 *JsCompilerConformanceReport_ConformanceViolation) *JsCompilerConformanceReport_ConformanceViolation_Builder {
@@ -8754,36 +9461,42 @@ func JsCompilerConformanceReport_ConformanceViolation_parseFrom_CodedInputStream
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation) hasRequirement() bool {
-	return this.has_(0)
+	return this.x_.requirement_ != nil
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation_Builder) hasRequirement() bool {
-	return this.has_(0)
+	return this.x_.requirement_ != nil
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation) getRequirement() *Requirement {
-	return this.gMsg_(0).(*Requirement)
+	if p := this.x_.requirement_; p != nil {
+		return p
+	}
+	return (*Requirement)(unsafe.Pointer(Requirement_desc_.default_()))
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation_Builder) getRequirement() *Requirement {
-	return this.gMsg_(0).(*Requirement)
+	return (*Requirement)(this.gMsgP_(0))
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation) getRequirementOrBuilder() RequirementOrBuilder {
-	return this.gMsg_(0).(*Requirement)
+	if p := this.x_.requirement_; p != nil {
+		return p
+	}
+	return (*Requirement)(unsafe.Pointer(Requirement_desc_.default_()))
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation_Builder) getRequirementOrBuilder() RequirementOrBuilder {
-	return this.gMsg_(0).(*Requirement)
+	return (*Requirement)(this.gMsgP_(0))
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation_Builder) setRequirement(p0 *Requirement) *JsCompilerConformanceReport_ConformanceViolation_Builder {
-	this.set_(0, obj_(p0))
+	this.setMsg_(0, unsafe.Pointer(p0))
 	return this
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation_Builder) setRequirement_Builder(p0 *Requirement_Builder) *JsCompilerConformanceReport_ConformanceViolation_Builder {
-	this.set_(0, p0.build())
+	this.setMsg_(0, unsafe.Pointer(p0.build_()))
 	return this
 }
 
@@ -8793,7 +9506,7 @@ func (this *JsCompilerConformanceReport_ConformanceViolation_Builder) mergeRequi
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation_Builder) clearRequirement() *JsCompilerConformanceReport_ConformanceViolation_Builder {
-	this.clr_(0)
+	this.x_.requirement_ = nil
 	return this
 }
 
@@ -8802,36 +9515,42 @@ func (this *JsCompilerConformanceReport_ConformanceViolation_Builder) getRequire
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation) hasAllowlistEntry() bool {
-	return this.has_(1)
+	return this.x_.allowlist_entry_ != nil
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation_Builder) hasAllowlistEntry() bool {
-	return this.has_(1)
+	return this.x_.allowlist_entry_ != nil
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation) getAllowlistEntry() *RequirementScopeEntry {
-	return this.gMsg_(1).(*RequirementScopeEntry)
+	if p := this.x_.allowlist_entry_; p != nil {
+		return p
+	}
+	return (*RequirementScopeEntry)(unsafe.Pointer(RequirementScopeEntry_desc_.default_()))
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation_Builder) getAllowlistEntry() *RequirementScopeEntry {
-	return this.gMsg_(1).(*RequirementScopeEntry)
+	return (*RequirementScopeEntry)(this.gMsgP_(1))
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation) getAllowlistEntryOrBuilder() RequirementScopeEntryOrBuilder {
-	return this.gMsg_(1).(*RequirementScopeEntry)
+	if p := this.x_.allowlist_entry_; p != nil {
+		return p
+	}
+	return (*RequirementScopeEntry)(unsafe.Pointer(RequirementScopeEntry_desc_.default_()))
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation_Builder) getAllowlistEntryOrBuilder() RequirementScopeEntryOrBuilder {
-	return this.gMsg_(1).(*RequirementScopeEntry)
+	return (*RequirementScopeEntry)(this.gMsgP_(1))
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation_Builder) setAllowlistEntry(p0 *RequirementScopeEntry) *JsCompilerConformanceReport_ConformanceViolation_Builder {
-	this.set_(1, obj_(p0))
+	this.setMsg_(1, unsafe.Pointer(p0))
 	return this
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation_Builder) setAllowlistEntry_Builder(p0 *RequirementScopeEntry_Builder) *JsCompilerConformanceReport_ConformanceViolation_Builder {
-	this.set_(1, p0.build())
+	this.setMsg_(1, unsafe.Pointer(p0.build_()))
 	return this
 }
 
@@ -8841,7 +9560,7 @@ func (this *JsCompilerConformanceReport_ConformanceViolation_Builder) mergeAllow
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation_Builder) clearAllowlistEntry() *JsCompilerConformanceReport_ConformanceViolation_Builder {
-	this.clr_(1)
+	this.x_.allowlist_entry_ = nil
 	return this
 }
 
@@ -8850,28 +9569,33 @@ func (this *JsCompilerConformanceReport_ConformanceViolation_Builder) getAllowli
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation) hasPath() bool {
-	return this.has_(2)
+	return this.x_.pbHas_[0]&0x1 != 0
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation_Builder) hasPath() bool {
-	return this.has_(2)
+	return this.x_.pbHas_[0]&0x1 != 0
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation) getPath() string {
-	return this.gStr_(2)
+	return this.x_.path_
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation_Builder) getPath() string {
-	return this.gStr_(2)
+	return this.x_.path_
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation_Builder) setPath(p0 string) *JsCompilerConformanceReport_ConformanceViolation_Builder {
-	this.set_(2, p0)
+	if p0 == nullstr_ {
+		pbNPE_()
+	}
+	this.x_.pbHas_[0] |= 0x1
+	this.x_.path_ = p0
 	return this
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation_Builder) clearPath() *JsCompilerConformanceReport_ConformanceViolation_Builder {
-	this.clr_(2)
+	this.x_.path_ = ""
+	this.x_.pbHas_[0] &^= 0x1
 	return this
 }
 
@@ -8889,80 +9613,89 @@ func (this *JsCompilerConformanceReport_ConformanceViolation_Builder) setPathByt
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation) hasLineNo() bool {
-	return this.has_(3)
+	return this.x_.pbHas_[0]&0x2 != 0
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation_Builder) hasLineNo() bool {
-	return this.has_(3)
+	return this.x_.pbHas_[0]&0x2 != 0
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation) getLineNo() int32 {
-	return this.gI32_(3)
+	return this.x_.line_no_
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation_Builder) getLineNo() int32 {
-	return this.gI32_(3)
+	return this.x_.line_no_
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation_Builder) setLineNo(p0 int32) *JsCompilerConformanceReport_ConformanceViolation_Builder {
-	this.set_(3, p0)
+	this.x_.pbHas_[0] |= 0x2
+	this.x_.line_no_ = p0
 	return this
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation_Builder) clearLineNo() *JsCompilerConformanceReport_ConformanceViolation_Builder {
-	this.clr_(3)
+	this.x_.line_no_ = 0
+	this.x_.pbHas_[0] &^= 0x2
 	return this
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation) hasColNo() bool {
-	return this.has_(4)
+	return this.x_.pbHas_[0]&0x4 != 0
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation_Builder) hasColNo() bool {
-	return this.has_(4)
+	return this.x_.pbHas_[0]&0x4 != 0
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation) getColNo() int32 {
-	return this.gI32_(4)
+	return this.x_.col_no_
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation_Builder) getColNo() int32 {
-	return this.gI32_(4)
+	return this.x_.col_no_
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation_Builder) setColNo(p0 int32) *JsCompilerConformanceReport_ConformanceViolation_Builder {
-	this.set_(4, p0)
+	this.x_.pbHas_[0] |= 0x4
+	this.x_.col_no_ = p0
 	return this
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation_Builder) clearColNo() *JsCompilerConformanceReport_ConformanceViolation_Builder {
-	this.clr_(4)
+	this.x_.col_no_ = 0
+	this.x_.pbHas_[0] &^= 0x4
 	return this
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation) hasRuleId() bool {
-	return this.has_(5)
+	return this.x_.pbHas_[0]&0x8 != 0
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation_Builder) hasRuleId() bool {
-	return this.has_(5)
+	return this.x_.pbHas_[0]&0x8 != 0
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation) getRuleId() string {
-	return this.gStr_(5)
+	return this.x_.rule_id_
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation_Builder) getRuleId() string {
-	return this.gStr_(5)
+	return this.x_.rule_id_
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation_Builder) setRuleId(p0 string) *JsCompilerConformanceReport_ConformanceViolation_Builder {
-	this.set_(5, p0)
+	if p0 == nullstr_ {
+		pbNPE_()
+	}
+	this.x_.pbHas_[0] |= 0x8
+	this.x_.rule_id_ = p0
 	return this
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation_Builder) clearRuleId() *JsCompilerConformanceReport_ConformanceViolation_Builder {
-	this.clr_(5)
+	this.x_.rule_id_ = ""
+	this.x_.pbHas_[0] &^= 0x8
 	return this
 }
 
@@ -8980,41 +9713,45 @@ func (this *JsCompilerConformanceReport_ConformanceViolation_Builder) setRuleIdB
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation) hasLibraryDepsConformanceCheckerAllowlistReason() bool {
-	return this.has_(6)
+	return this.x_.pbHas_[0]&0x10 != 0
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation_Builder) hasLibraryDepsConformanceCheckerAllowlistReason() bool {
-	return this.has_(6)
+	return this.x_.pbHas_[0]&0x10 != 0
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation) getLibraryDepsConformanceCheckerAllowlistReason() JsCompilerConformanceReport_ConformanceViolation_LibraryDepsConformanceCheckerAllowlistReason {
-	return JsCompilerConformanceReport_ConformanceViolation_LibraryDepsConformanceCheckerAllowlistReason_ofNum_(this.gI32_(6))
+	return JsCompilerConformanceReport_ConformanceViolation_LibraryDepsConformanceCheckerAllowlistReason_ofNum_(this.x_.library_deps_conformance_checker_allowlist_reason_)
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation_Builder) getLibraryDepsConformanceCheckerAllowlistReason() JsCompilerConformanceReport_ConformanceViolation_LibraryDepsConformanceCheckerAllowlistReason {
-	return JsCompilerConformanceReport_ConformanceViolation_LibraryDepsConformanceCheckerAllowlistReason_ofNum_(this.gI32_(6))
+	return JsCompilerConformanceReport_ConformanceViolation_LibraryDepsConformanceCheckerAllowlistReason_ofNum_(this.x_.library_deps_conformance_checker_allowlist_reason_)
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation_Builder) setLibraryDepsConformanceCheckerAllowlistReason(p0 JsCompilerConformanceReport_ConformanceViolation_LibraryDepsConformanceCheckerAllowlistReason) *JsCompilerConformanceReport_ConformanceViolation_Builder {
-	this.set_(6, p0.getNumber())
+	v := p0.getNumber()
+	this.x_.pbHas_[0] |= 0x10
+	this.x_.library_deps_conformance_checker_allowlist_reason_ = v
 	return this
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation_Builder) clearLibraryDepsConformanceCheckerAllowlistReason() *JsCompilerConformanceReport_ConformanceViolation_Builder {
-	this.clr_(6)
+	this.x_.library_deps_conformance_checker_allowlist_reason_ = 0
+	this.x_.pbHas_[0] &^= 0x10
 	return this
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation) getLibraryDepsConformanceCheckerAllowlistReasonValue() int32 {
-	return this.gI32_(6)
+	return this.x_.library_deps_conformance_checker_allowlist_reason_
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation_Builder) getLibraryDepsConformanceCheckerAllowlistReasonValue() int32 {
-	return this.gI32_(6)
+	return this.x_.library_deps_conformance_checker_allowlist_reason_
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation_Builder) setLibraryDepsConformanceCheckerAllowlistReasonValue(p0 int32) *JsCompilerConformanceReport_ConformanceViolation_Builder {
-	this.set_(6, p0)
+	this.x_.pbHas_[0] |= 0x10
+	this.x_.library_deps_conformance_checker_allowlist_reason_ = p0
 	return this
 }
 
@@ -9298,8 +10035,18 @@ var JsdocTag_desc_ = pbRegEnum_(&pbEnumDesc_{name: "jscomp.JsdocTag", closed: fa
 
 // ---- message jscomp.OptimizationJsdoc
 
+type OptimizationJsdoc_x_ struct {
+	kind_                         []int32
+	license_text_pointer_         int32
+	description_pointer_          int32
+	meaning_pointer_              int32
+	alternate_message_id_pointer_ int32
+	closure_unaware_mode_pointer_ int32
+}
+
 type OptimizationJsdoc struct {
 	GeneratedMessage
+	x_ OptimizationJsdoc_x_
 }
 
 func (this *OptimizationJsdoc) up_GeneratedMessage() *GeneratedMessage {
@@ -9311,6 +10058,7 @@ func (this *OptimizationJsdoc) up_GeneratedMessage() *GeneratedMessage {
 
 type OptimizationJsdoc_Builder struct {
 	GeneratedMessage_Builder
+	x_ OptimizationJsdoc_x_
 }
 
 func (this *OptimizationJsdoc_Builder) up_GeneratedMessage_Builder() *GeneratedMessage_Builder {
@@ -9321,14 +10069,17 @@ func (this *OptimizationJsdoc_Builder) up_GeneratedMessage_Builder() *GeneratedM
 }
 
 var OptimizationJsdoc_desc_ = pbReg_(&pbDesc_{name: "jscomp.OptimizationJsdoc", oneofs: []string{},
-	newM: func() any { return &OptimizationJsdoc{} }, newB: func() any { return &OptimizationJsdoc_Builder{} },
+	newM: func() *pbData_ { return &new(OptimizationJsdoc).pbData_ }, newB: func() *pbData_ { return &new(OptimizationJsdoc_Builder).pbData_ },
+	asM: func(p unsafe.Pointer) any { return (*OptimizationJsdoc)(p) }, asB: func(p unsafe.Pointer) any { return (*OptimizationJsdoc_Builder)(p) },
+	cp:   func(dst, src unsafe.Pointer) { (*OptimizationJsdoc)(dst).x_ = (*OptimizationJsdoc)(src).x_ },
+	xoff: unsafe.Offsetof(OptimizationJsdoc{}.x_),
 	fields: []*pbField_{
-		{name: "kind", num: 1, kind: pbEnum_, rep: true, packed: true, tname: "jscomp.JsdocTag"},
-		{name: "license_text_pointer", num: 2, kind: pbInt32_},
-		{name: "description_pointer", num: 3, kind: pbInt32_},
-		{name: "meaning_pointer", num: 4, kind: pbInt32_},
-		{name: "alternate_message_id_pointer", num: 5, kind: pbInt32_},
-		{name: "closure_unaware_mode_pointer", num: 6, kind: pbInt32_},
+		{name: "kind", num: 1, kind: pbEnum_, rep: true, packed: true, tname: "jscomp.JsdocTag", off: unsafe.Offsetof(OptimizationJsdoc{}.x_.kind_)},
+		{name: "license_text_pointer", num: 2, kind: pbInt32_, off: unsafe.Offsetof(OptimizationJsdoc{}.x_.license_text_pointer_)},
+		{name: "description_pointer", num: 3, kind: pbInt32_, off: unsafe.Offsetof(OptimizationJsdoc{}.x_.description_pointer_)},
+		{name: "meaning_pointer", num: 4, kind: pbInt32_, off: unsafe.Offsetof(OptimizationJsdoc{}.x_.meaning_pointer_)},
+		{name: "alternate_message_id_pointer", num: 5, kind: pbInt32_, off: unsafe.Offsetof(OptimizationJsdoc{}.x_.alternate_message_id_pointer_)},
+		{name: "closure_unaware_mode_pointer", num: 6, kind: pbInt32_, off: unsafe.Offsetof(OptimizationJsdoc{}.x_.closure_unaware_mode_pointer_)},
 	}})
 
 const (
@@ -9341,7 +10092,7 @@ const (
 )
 
 func OptimizationJsdoc_getDefaultInstance() *OptimizationJsdoc {
-	return OptimizationJsdoc_desc_.default_().(*OptimizationJsdoc)
+	return (*OptimizationJsdoc)(unsafe.Pointer(OptimizationJsdoc_desc_.default_()))
 }
 
 func OptimizationJsdoc_getDescriptor() *Descriptors_Descriptor {
@@ -9349,7 +10100,7 @@ func OptimizationJsdoc_getDescriptor() *Descriptors_Descriptor {
 }
 
 func OptimizationJsdoc_newBuilder() *OptimizationJsdoc_Builder {
-	return OptimizationJsdoc_desc_.newBuilder_().me_.(*OptimizationJsdoc_Builder)
+	return (*OptimizationJsdoc_Builder)(unsafe.Pointer(OptimizationJsdoc_desc_.newBuilder_()))
 }
 
 func OptimizationJsdoc_newBuilder_OptimizationJsdoc(p0 *OptimizationJsdoc) *OptimizationJsdoc_Builder {
@@ -9389,19 +10140,19 @@ func (this *OptimizationJsdoc_Builder) getKindList() List {
 }
 
 func (this *OptimizationJsdoc) getKind(p0 int32) JsdocTag {
-	return JsdocTag_ofNum_(this.at_(0, p0).(int32))
+	return JsdocTag_ofNum_(pbAt_(this.x_.kind_, p0))
 }
 
 func (this *OptimizationJsdoc_Builder) getKind(p0 int32) JsdocTag {
-	return JsdocTag_ofNum_(this.at_(0, p0).(int32))
+	return JsdocTag_ofNum_(pbAt_(this.x_.kind_, p0))
 }
 
 func (this *OptimizationJsdoc) getKindCount() int32 {
-	return this.cnt_(0)
+	return int32(len(this.x_.kind_))
 }
 
 func (this *OptimizationJsdoc_Builder) getKindCount() int32 {
-	return this.cnt_(0)
+	return int32(len(this.x_.kind_))
 }
 
 func (this *OptimizationJsdoc_Builder) setKind(p0 int32, p1 JsdocTag) *OptimizationJsdoc_Builder {
@@ -9410,7 +10161,9 @@ func (this *OptimizationJsdoc_Builder) setKind(p0 int32, p1 JsdocTag) *Optimizat
 }
 
 func (this *OptimizationJsdoc_Builder) addKind(p0 JsdocTag) *OptimizationJsdoc_Builder {
-	this.add_(0, p0.getNumber())
+	v := p0.getNumber()
+	this.own_()
+	this.x_.kind_ = append(this.x_.kind_, v)
 	return this
 }
 
@@ -9420,24 +10173,24 @@ func (this *OptimizationJsdoc_Builder) addAllKind(p0 Iterable) *OptimizationJsdo
 }
 
 func (this *OptimizationJsdoc_Builder) clearKind() *OptimizationJsdoc_Builder {
-	this.clr_(0)
+	this.x_.kind_ = nil
 	return this
 }
 
 func (this *OptimizationJsdoc) getKindValueList() List {
-	return this.list_(0)
+	return pbListOf_(this.x_.kind_)
 }
 
 func (this *OptimizationJsdoc_Builder) getKindValueList() List {
-	return this.list_(0)
+	return pbListOf_(this.x_.kind_)
 }
 
 func (this *OptimizationJsdoc) getKindValue(p0 int32) int32 {
-	return this.at_(0, p0).(int32)
+	return pbAt_(this.x_.kind_, p0)
 }
 
 func (this *OptimizationJsdoc_Builder) getKindValue(p0 int32) int32 {
-	return this.at_(0, p0).(int32)
+	return pbAt_(this.x_.kind_, p0)
 }
 
 func (this *OptimizationJsdoc_Builder) setKindValue(p0 int32, p1 int32) *OptimizationJsdoc_Builder {
@@ -9446,7 +10199,8 @@ func (this *OptimizationJsdoc_Builder) setKindValue(p0 int32, p1 int32) *Optimiz
 }
 
 func (this *OptimizationJsdoc_Builder) addKindValue(p0 int32) *OptimizationJsdoc_Builder {
-	this.add_(0, p0)
+	this.own_()
+	this.x_.kind_ = append(this.x_.kind_, p0)
 	return this
 }
 
@@ -9456,92 +10210,92 @@ func (this *OptimizationJsdoc_Builder) addAllKindValue(p0 Iterable) *Optimizatio
 }
 
 func (this *OptimizationJsdoc) getLicenseTextPointer() int32 {
-	return this.gI32_(1)
+	return this.x_.license_text_pointer_
 }
 
 func (this *OptimizationJsdoc_Builder) getLicenseTextPointer() int32 {
-	return this.gI32_(1)
+	return this.x_.license_text_pointer_
 }
 
 func (this *OptimizationJsdoc_Builder) setLicenseTextPointer(p0 int32) *OptimizationJsdoc_Builder {
-	this.set_(1, p0)
+	this.x_.license_text_pointer_ = p0
 	return this
 }
 
 func (this *OptimizationJsdoc_Builder) clearLicenseTextPointer() *OptimizationJsdoc_Builder {
-	this.clr_(1)
+	this.x_.license_text_pointer_ = 0
 	return this
 }
 
 func (this *OptimizationJsdoc) getDescriptionPointer() int32 {
-	return this.gI32_(2)
+	return this.x_.description_pointer_
 }
 
 func (this *OptimizationJsdoc_Builder) getDescriptionPointer() int32 {
-	return this.gI32_(2)
+	return this.x_.description_pointer_
 }
 
 func (this *OptimizationJsdoc_Builder) setDescriptionPointer(p0 int32) *OptimizationJsdoc_Builder {
-	this.set_(2, p0)
+	this.x_.description_pointer_ = p0
 	return this
 }
 
 func (this *OptimizationJsdoc_Builder) clearDescriptionPointer() *OptimizationJsdoc_Builder {
-	this.clr_(2)
+	this.x_.description_pointer_ = 0
 	return this
 }
 
 func (this *OptimizationJsdoc) getMeaningPointer() int32 {
-	return this.gI32_(3)
+	return this.x_.meaning_pointer_
 }
 
 func (this *OptimizationJsdoc_Builder) getMeaningPointer() int32 {
-	return this.gI32_(3)
+	return this.x_.meaning_pointer_
 }
 
 func (this *OptimizationJsdoc_Builder) setMeaningPointer(p0 int32) *OptimizationJsdoc_Builder {
-	this.set_(3, p0)
+	this.x_.meaning_pointer_ = p0
 	return this
 }
 
 func (this *OptimizationJsdoc_Builder) clearMeaningPointer() *OptimizationJsdoc_Builder {
-	this.clr_(3)
+	this.x_.meaning_pointer_ = 0
 	return this
 }
 
 func (this *OptimizationJsdoc) getAlternateMessageIdPointer() int32 {
-	return this.gI32_(4)
+	return this.x_.alternate_message_id_pointer_
 }
 
 func (this *OptimizationJsdoc_Builder) getAlternateMessageIdPointer() int32 {
-	return this.gI32_(4)
+	return this.x_.alternate_message_id_pointer_
 }
 
 func (this *OptimizationJsdoc_Builder) setAlternateMessageIdPointer(p0 int32) *OptimizationJsdoc_Builder {
-	this.set_(4, p0)
+	this.x_.alternate_message_id_pointer_ = p0
 	return this
 }
 
 func (this *OptimizationJsdoc_Builder) clearAlternateMessageIdPointer() *OptimizationJsdoc_Builder {
-	this.clr_(4)
+	this.x_.alternate_message_id_pointer_ = 0
 	return this
 }
 
 func (this *OptimizationJsdoc) getClosureUnawareModePointer() int32 {
-	return this.gI32_(5)
+	return this.x_.closure_unaware_mode_pointer_
 }
 
 func (this *OptimizationJsdoc_Builder) getClosureUnawareModePointer() int32 {
-	return this.gI32_(5)
+	return this.x_.closure_unaware_mode_pointer_
 }
 
 func (this *OptimizationJsdoc_Builder) setClosureUnawareModePointer(p0 int32) *OptimizationJsdoc_Builder {
-	this.set_(5, p0)
+	this.x_.closure_unaware_mode_pointer_ = p0
 	return this
 }
 
 func (this *OptimizationJsdoc_Builder) clearClosureUnawareModePointer() *OptimizationJsdoc_Builder {
-	this.clr_(5)
+	this.x_.closure_unaware_mode_pointer_ = 0
 	return this
 }
 
@@ -9656,8 +10410,13 @@ var SourceFileProto_SourceKind_desc_ = pbRegEnum_(&pbEnumDesc_{name: "jscomp.Sou
 
 // ---- message jscomp.SourceFilePool
 
+type SourceFilePool_x_ struct {
+	source_file_ []*SourceFileProto
+}
+
 type SourceFilePool struct {
 	GeneratedMessage
+	x_ SourceFilePool_x_
 }
 
 func (this *SourceFilePool) up_GeneratedMessage() *GeneratedMessage {
@@ -9669,6 +10428,7 @@ func (this *SourceFilePool) up_GeneratedMessage() *GeneratedMessage {
 
 type SourceFilePool_Builder struct {
 	GeneratedMessage_Builder
+	x_ SourceFilePool_x_
 }
 
 func (this *SourceFilePool_Builder) up_GeneratedMessage_Builder() *GeneratedMessage_Builder {
@@ -9679,9 +10439,12 @@ func (this *SourceFilePool_Builder) up_GeneratedMessage_Builder() *GeneratedMess
 }
 
 var SourceFilePool_desc_ = pbReg_(&pbDesc_{name: "jscomp.SourceFilePool", oneofs: []string{},
-	newM: func() any { return &SourceFilePool{} }, newB: func() any { return &SourceFilePool_Builder{} },
+	newM: func() *pbData_ { return &new(SourceFilePool).pbData_ }, newB: func() *pbData_ { return &new(SourceFilePool_Builder).pbData_ },
+	asM: func(p unsafe.Pointer) any { return (*SourceFilePool)(p) }, asB: func(p unsafe.Pointer) any { return (*SourceFilePool_Builder)(p) },
+	cp:   func(dst, src unsafe.Pointer) { (*SourceFilePool)(dst).x_ = (*SourceFilePool)(src).x_ },
+	xoff: unsafe.Offsetof(SourceFilePool{}.x_),
 	fields: []*pbField_{
-		{name: "source_file", num: 1, kind: pbMessage_, rep: true, tname: "jscomp.SourceFileProto"},
+		{name: "source_file", num: 1, kind: pbMessage_, rep: true, tname: "jscomp.SourceFileProto", off: unsafe.Offsetof(SourceFilePool{}.x_.source_file_)},
 	}})
 
 const (
@@ -9689,7 +10452,7 @@ const (
 )
 
 func SourceFilePool_getDefaultInstance() *SourceFilePool {
-	return SourceFilePool_desc_.default_().(*SourceFilePool)
+	return (*SourceFilePool)(unsafe.Pointer(SourceFilePool_desc_.default_()))
 }
 
 func SourceFilePool_getDescriptor() *Descriptors_Descriptor {
@@ -9697,7 +10460,7 @@ func SourceFilePool_getDescriptor() *Descriptors_Descriptor {
 }
 
 func SourceFilePool_newBuilder() *SourceFilePool_Builder {
-	return SourceFilePool_desc_.newBuilder_().me_.(*SourceFilePool_Builder)
+	return (*SourceFilePool_Builder)(unsafe.Pointer(SourceFilePool_desc_.newBuilder_()))
 }
 
 func SourceFilePool_newBuilder_SourceFilePool(p0 *SourceFilePool) *SourceFilePool_Builder {
@@ -9729,7 +10492,7 @@ func SourceFilePool_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedIn
 }
 
 func (this *SourceFilePool) getSourceFileList() List {
-	return this.list_(0)
+	return pbListOf_(this.x_.source_file_)
 }
 
 func (this *SourceFilePool_Builder) getSourceFileList() List {
@@ -9737,31 +10500,31 @@ func (this *SourceFilePool_Builder) getSourceFileList() List {
 }
 
 func (this *SourceFilePool) getSourceFileCount() int32 {
-	return this.cnt_(0)
+	return int32(len(this.x_.source_file_))
 }
 
 func (this *SourceFilePool_Builder) getSourceFileCount() int32 {
-	return this.cnt_(0)
+	return int32(len(this.x_.source_file_))
 }
 
 func (this *SourceFilePool) getSourceFile(p0 int32) *SourceFileProto {
-	return this.at_(0, p0).(*SourceFileProto)
+	return pbAt_(this.x_.source_file_, p0)
 }
 
 func (this *SourceFilePool_Builder) getSourceFile(p0 int32) *SourceFileProto {
-	return this.at_(0, p0).(*SourceFileProto)
+	return (*SourceFileProto)(this.atMsgP_(0, p0))
 }
 
 func (this *SourceFilePool) getSourceFileOrBuilder(p0 int32) SourceFileProtoOrBuilder {
-	return this.at_(0, p0).(*SourceFileProto)
+	return pbAt_(this.x_.source_file_, p0)
 }
 
 func (this *SourceFilePool_Builder) getSourceFileOrBuilder(p0 int32) SourceFileProtoOrBuilder {
-	return this.at_(0, p0).(*SourceFileProto)
+	return (*SourceFileProto)(this.atMsgP_(0, p0))
 }
 
 func (this *SourceFilePool) getSourceFileOrBuilderList() List {
-	return this.list_(0)
+	return pbListOf_(this.x_.source_file_)
 }
 
 func (this *SourceFilePool_Builder) getSourceFileOrBuilderList() List {
@@ -9779,7 +10542,11 @@ func (this *SourceFilePool_Builder) setSourceFile_int_Builder(p0 int32, p1 *Sour
 }
 
 func (this *SourceFilePool_Builder) addSourceFile(p0 *SourceFileProto) *SourceFilePool_Builder {
-	this.add_(0, obj_(p0))
+	if p0 == nil {
+		pbNPE_()
+	}
+	this.own_()
+	this.x_.source_file_ = append(this.x_.source_file_, p0)
 	return this
 }
 
@@ -9804,7 +10571,7 @@ func (this *SourceFilePool_Builder) addAllSourceFile(p0 Iterable) *SourceFilePoo
 }
 
 func (this *SourceFilePool_Builder) clearSourceFile() *SourceFilePool_Builder {
-	this.clr_(0)
+	this.x_.source_file_ = nil
 	return this
 }
 
@@ -9836,8 +10603,22 @@ func (this *SourceFilePool_Builder) mergeFrom_SourceFilePool(p0 *SourceFilePool)
 
 // ---- message jscomp.SourceFileProto
 
+type SourceFileProto_x_ struct {
+	filename_                string
+	preloaded_contents_      string
+	file_on_disk_            *SourceFileProto_FileOnDisk
+	zip_entry_               *SourceFileProto_ZipEntryOnDisk
+	pbHas_                   [1]uint32
+	source_kind_             int32
+	num_bytes_plus_one_      int32
+	num_lines_plus_one_      int32
+	stub_file_               bool
+	is_closure_unaware_code_ bool
+}
+
 type SourceFileProto struct {
 	GeneratedMessage
+	x_ SourceFileProto_x_
 }
 
 func (this *SourceFileProto) up_GeneratedMessage() *GeneratedMessage {
@@ -9849,6 +10630,7 @@ func (this *SourceFileProto) up_GeneratedMessage() *GeneratedMessage {
 
 type SourceFileProto_Builder struct {
 	GeneratedMessage_Builder
+	x_ SourceFileProto_x_
 }
 
 func (this *SourceFileProto_Builder) up_GeneratedMessage_Builder() *GeneratedMessage_Builder {
@@ -9859,17 +10641,20 @@ func (this *SourceFileProto_Builder) up_GeneratedMessage_Builder() *GeneratedMes
 }
 
 var SourceFileProto_desc_ = pbReg_(&pbDesc_{name: "jscomp.SourceFileProto", oneofs: []string{"loader"},
-	newM: func() any { return &SourceFileProto{} }, newB: func() any { return &SourceFileProto_Builder{} },
+	newM: func() *pbData_ { return &new(SourceFileProto).pbData_ }, newB: func() *pbData_ { return &new(SourceFileProto_Builder).pbData_ },
+	asM: func(p unsafe.Pointer) any { return (*SourceFileProto)(p) }, asB: func(p unsafe.Pointer) any { return (*SourceFileProto_Builder)(p) },
+	cp:   func(dst, src unsafe.Pointer) { (*SourceFileProto)(dst).x_ = (*SourceFileProto)(src).x_ },
+	xoff: unsafe.Offsetof(SourceFileProto{}.x_), hoff: unsafe.Offsetof(SourceFileProto{}.x_.pbHas_),
 	fields: []*pbField_{
-		{name: "filename", num: 1, kind: pbString_, utf8: true},
-		{name: "preloaded_contents", num: 2, kind: pbString_, pres: true, utf8: true, oneof: 1},
-		{name: "file_on_disk", num: 3, kind: pbMessage_, pres: true, oneof: 1, tname: "jscomp.SourceFileProto.FileOnDisk"},
-		{name: "zip_entry", num: 4, kind: pbMessage_, pres: true, oneof: 1, tname: "jscomp.SourceFileProto.ZipEntryOnDisk"},
-		{name: "stub_file", num: 9, kind: pbBool_, pres: true, oneof: 1},
-		{name: "source_kind", num: 5, kind: pbEnum_, tname: "jscomp.SourceFileProto.SourceKind"},
-		{name: "is_closure_unaware_code", num: 8, kind: pbBool_},
-		{name: "num_bytes_plus_one", num: 6, kind: pbUint32_},
-		{name: "num_lines_plus_one", num: 7, kind: pbUint32_},
+		{name: "filename", num: 1, kind: pbString_, utf8: true, off: unsafe.Offsetof(SourceFileProto{}.x_.filename_)},
+		{name: "preloaded_contents", num: 2, kind: pbString_, pres: true, utf8: true, oneof: 1, off: unsafe.Offsetof(SourceFileProto{}.x_.preloaded_contents_), hb: 1},
+		{name: "file_on_disk", num: 3, kind: pbMessage_, pres: true, oneof: 1, tname: "jscomp.SourceFileProto.FileOnDisk", off: unsafe.Offsetof(SourceFileProto{}.x_.file_on_disk_)},
+		{name: "zip_entry", num: 4, kind: pbMessage_, pres: true, oneof: 1, tname: "jscomp.SourceFileProto.ZipEntryOnDisk", off: unsafe.Offsetof(SourceFileProto{}.x_.zip_entry_)},
+		{name: "stub_file", num: 9, kind: pbBool_, pres: true, oneof: 1, off: unsafe.Offsetof(SourceFileProto{}.x_.stub_file_), hb: 2},
+		{name: "source_kind", num: 5, kind: pbEnum_, tname: "jscomp.SourceFileProto.SourceKind", off: unsafe.Offsetof(SourceFileProto{}.x_.source_kind_)},
+		{name: "is_closure_unaware_code", num: 8, kind: pbBool_, off: unsafe.Offsetof(SourceFileProto{}.x_.is_closure_unaware_code_)},
+		{name: "num_bytes_plus_one", num: 6, kind: pbUint32_, off: unsafe.Offsetof(SourceFileProto{}.x_.num_bytes_plus_one_)},
+		{name: "num_lines_plus_one", num: 7, kind: pbUint32_, off: unsafe.Offsetof(SourceFileProto{}.x_.num_lines_plus_one_)},
 	}})
 
 const (
@@ -9981,7 +10766,7 @@ func SourceFileProto_LoaderCase_ofNum_(n int32) SourceFileProto_LoaderCase {
 }
 
 func SourceFileProto_getDefaultInstance() *SourceFileProto {
-	return SourceFileProto_desc_.default_().(*SourceFileProto)
+	return (*SourceFileProto)(unsafe.Pointer(SourceFileProto_desc_.default_()))
 }
 
 func SourceFileProto_getDescriptor() *Descriptors_Descriptor {
@@ -9989,7 +10774,7 @@ func SourceFileProto_getDescriptor() *Descriptors_Descriptor {
 }
 
 func SourceFileProto_newBuilder() *SourceFileProto_Builder {
-	return SourceFileProto_desc_.newBuilder_().me_.(*SourceFileProto_Builder)
+	return (*SourceFileProto_Builder)(unsafe.Pointer(SourceFileProto_desc_.newBuilder_()))
 }
 
 func SourceFileProto_newBuilder_SourceFileProto(p0 *SourceFileProto) *SourceFileProto_Builder {
@@ -10021,20 +10806,23 @@ func SourceFileProto_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedI
 }
 
 func (this *SourceFileProto) getFilename() string {
-	return this.gStr_(0)
+	return this.x_.filename_
 }
 
 func (this *SourceFileProto_Builder) getFilename() string {
-	return this.gStr_(0)
+	return this.x_.filename_
 }
 
 func (this *SourceFileProto_Builder) setFilename(p0 string) *SourceFileProto_Builder {
-	this.set_(0, p0)
+	if p0 == nullstr_ {
+		pbNPE_()
+	}
+	this.x_.filename_ = p0
 	return this
 }
 
 func (this *SourceFileProto_Builder) clearFilename() *SourceFileProto_Builder {
-	this.clr_(0)
+	this.x_.filename_ = ""
 	return this
 }
 
@@ -10052,28 +10840,37 @@ func (this *SourceFileProto_Builder) setFilenameBytes(p0 *ByteString) *SourceFil
 }
 
 func (this *SourceFileProto) hasPreloadedContents() bool {
-	return this.has_(1)
+	return this.x_.pbHas_[0]&0x1 != 0
 }
 
 func (this *SourceFileProto_Builder) hasPreloadedContents() bool {
-	return this.has_(1)
+	return this.x_.pbHas_[0]&0x1 != 0
 }
 
 func (this *SourceFileProto) getPreloadedContents() string {
-	return this.gStr_(1)
+	return this.x_.preloaded_contents_
 }
 
 func (this *SourceFileProto_Builder) getPreloadedContents() string {
-	return this.gStr_(1)
+	return this.x_.preloaded_contents_
 }
 
 func (this *SourceFileProto_Builder) setPreloadedContents(p0 string) *SourceFileProto_Builder {
-	this.set_(1, p0)
+	if p0 == nullstr_ {
+		pbNPE_()
+	}
+	this.x_.file_on_disk_ = nil
+	this.x_.zip_entry_ = nil
+	this.x_.stub_file_ = false
+	this.x_.pbHas_[0] &^= 0x2
+	this.x_.pbHas_[0] |= 0x1
+	this.x_.preloaded_contents_ = p0
 	return this
 }
 
 func (this *SourceFileProto_Builder) clearPreloadedContents() *SourceFileProto_Builder {
-	this.clr_(1)
+	this.x_.preloaded_contents_ = ""
+	this.x_.pbHas_[0] &^= 0x1
 	return this
 }
 
@@ -10091,36 +10888,42 @@ func (this *SourceFileProto_Builder) setPreloadedContentsBytes(p0 *ByteString) *
 }
 
 func (this *SourceFileProto) hasFileOnDisk() bool {
-	return this.has_(2)
+	return this.x_.file_on_disk_ != nil
 }
 
 func (this *SourceFileProto_Builder) hasFileOnDisk() bool {
-	return this.has_(2)
+	return this.x_.file_on_disk_ != nil
 }
 
 func (this *SourceFileProto) getFileOnDisk() *SourceFileProto_FileOnDisk {
-	return this.gMsg_(2).(*SourceFileProto_FileOnDisk)
+	if p := this.x_.file_on_disk_; p != nil {
+		return p
+	}
+	return (*SourceFileProto_FileOnDisk)(unsafe.Pointer(SourceFileProto_FileOnDisk_desc_.default_()))
 }
 
 func (this *SourceFileProto_Builder) getFileOnDisk() *SourceFileProto_FileOnDisk {
-	return this.gMsg_(2).(*SourceFileProto_FileOnDisk)
+	return (*SourceFileProto_FileOnDisk)(this.gMsgP_(2))
 }
 
 func (this *SourceFileProto) getFileOnDiskOrBuilder() SourceFileProto_FileOnDiskOrBuilder {
-	return this.gMsg_(2).(*SourceFileProto_FileOnDisk)
+	if p := this.x_.file_on_disk_; p != nil {
+		return p
+	}
+	return (*SourceFileProto_FileOnDisk)(unsafe.Pointer(SourceFileProto_FileOnDisk_desc_.default_()))
 }
 
 func (this *SourceFileProto_Builder) getFileOnDiskOrBuilder() SourceFileProto_FileOnDiskOrBuilder {
-	return this.gMsg_(2).(*SourceFileProto_FileOnDisk)
+	return (*SourceFileProto_FileOnDisk)(this.gMsgP_(2))
 }
 
 func (this *SourceFileProto_Builder) setFileOnDisk_FileOnDisk(p0 *SourceFileProto_FileOnDisk) *SourceFileProto_Builder {
-	this.set_(2, obj_(p0))
+	this.setMsg_(2, unsafe.Pointer(p0))
 	return this
 }
 
 func (this *SourceFileProto_Builder) setFileOnDisk(p0 *SourceFileProto_FileOnDisk_Builder) *SourceFileProto_Builder {
-	this.set_(2, p0.build())
+	this.setMsg_(2, unsafe.Pointer(p0.build_()))
 	return this
 }
 
@@ -10130,7 +10933,7 @@ func (this *SourceFileProto_Builder) mergeFileOnDisk(p0 *SourceFileProto_FileOnD
 }
 
 func (this *SourceFileProto_Builder) clearFileOnDisk() *SourceFileProto_Builder {
-	this.clr_(2)
+	this.x_.file_on_disk_ = nil
 	return this
 }
 
@@ -10139,36 +10942,42 @@ func (this *SourceFileProto_Builder) getFileOnDiskBuilder() *SourceFileProto_Fil
 }
 
 func (this *SourceFileProto) hasZipEntry() bool {
-	return this.has_(3)
+	return this.x_.zip_entry_ != nil
 }
 
 func (this *SourceFileProto_Builder) hasZipEntry() bool {
-	return this.has_(3)
+	return this.x_.zip_entry_ != nil
 }
 
 func (this *SourceFileProto) getZipEntry() *SourceFileProto_ZipEntryOnDisk {
-	return this.gMsg_(3).(*SourceFileProto_ZipEntryOnDisk)
+	if p := this.x_.zip_entry_; p != nil {
+		return p
+	}
+	return (*SourceFileProto_ZipEntryOnDisk)(unsafe.Pointer(SourceFileProto_ZipEntryOnDisk_desc_.default_()))
 }
 
 func (this *SourceFileProto_Builder) getZipEntry() *SourceFileProto_ZipEntryOnDisk {
-	return this.gMsg_(3).(*SourceFileProto_ZipEntryOnDisk)
+	return (*SourceFileProto_ZipEntryOnDisk)(this.gMsgP_(3))
 }
 
 func (this *SourceFileProto) getZipEntryOrBuilder() SourceFileProto_ZipEntryOnDiskOrBuilder {
-	return this.gMsg_(3).(*SourceFileProto_ZipEntryOnDisk)
+	if p := this.x_.zip_entry_; p != nil {
+		return p
+	}
+	return (*SourceFileProto_ZipEntryOnDisk)(unsafe.Pointer(SourceFileProto_ZipEntryOnDisk_desc_.default_()))
 }
 
 func (this *SourceFileProto_Builder) getZipEntryOrBuilder() SourceFileProto_ZipEntryOnDiskOrBuilder {
-	return this.gMsg_(3).(*SourceFileProto_ZipEntryOnDisk)
+	return (*SourceFileProto_ZipEntryOnDisk)(this.gMsgP_(3))
 }
 
 func (this *SourceFileProto_Builder) setZipEntry(p0 *SourceFileProto_ZipEntryOnDisk) *SourceFileProto_Builder {
-	this.set_(3, obj_(p0))
+	this.setMsg_(3, unsafe.Pointer(p0))
 	return this
 }
 
 func (this *SourceFileProto_Builder) setZipEntry_Builder(p0 *SourceFileProto_ZipEntryOnDisk_Builder) *SourceFileProto_Builder {
-	this.set_(3, p0.build())
+	this.setMsg_(3, unsafe.Pointer(p0.build_()))
 	return this
 }
 
@@ -10178,7 +10987,7 @@ func (this *SourceFileProto_Builder) mergeZipEntry(p0 *SourceFileProto_ZipEntryO
 }
 
 func (this *SourceFileProto_Builder) clearZipEntry() *SourceFileProto_Builder {
-	this.clr_(3)
+	this.x_.zip_entry_ = nil
 	return this
 }
 
@@ -10187,122 +10996,153 @@ func (this *SourceFileProto_Builder) getZipEntryBuilder() *SourceFileProto_ZipEn
 }
 
 func (this *SourceFileProto) hasStubFile() bool {
-	return this.has_(4)
+	return this.x_.pbHas_[0]&0x2 != 0
 }
 
 func (this *SourceFileProto_Builder) hasStubFile() bool {
-	return this.has_(4)
+	return this.x_.pbHas_[0]&0x2 != 0
 }
 
 func (this *SourceFileProto) getStubFile() bool {
-	return this.gBool_(4)
+	return this.x_.stub_file_
 }
 
 func (this *SourceFileProto_Builder) getStubFile() bool {
-	return this.gBool_(4)
+	return this.x_.stub_file_
 }
 
 func (this *SourceFileProto_Builder) setStubFile(p0 bool) *SourceFileProto_Builder {
-	this.set_(4, p0)
+	this.x_.preloaded_contents_ = ""
+	this.x_.pbHas_[0] &^= 0x1
+	this.x_.file_on_disk_ = nil
+	this.x_.zip_entry_ = nil
+	this.x_.pbHas_[0] |= 0x2
+	this.x_.stub_file_ = p0
 	return this
 }
 
 func (this *SourceFileProto_Builder) clearStubFile() *SourceFileProto_Builder {
-	this.clr_(4)
+	this.x_.stub_file_ = false
+	this.x_.pbHas_[0] &^= 0x2
 	return this
 }
 
 func (this *SourceFileProto) getSourceKind() SourceFileProto_SourceKind {
-	return SourceFileProto_SourceKind_ofNum_(this.gI32_(5))
+	return SourceFileProto_SourceKind_ofNum_(this.x_.source_kind_)
 }
 
 func (this *SourceFileProto_Builder) getSourceKind() SourceFileProto_SourceKind {
-	return SourceFileProto_SourceKind_ofNum_(this.gI32_(5))
+	return SourceFileProto_SourceKind_ofNum_(this.x_.source_kind_)
 }
 
 func (this *SourceFileProto_Builder) setSourceKind(p0 SourceFileProto_SourceKind) *SourceFileProto_Builder {
-	this.set_(5, p0.getNumber())
+	v := p0.getNumber()
+	this.x_.source_kind_ = v
 	return this
 }
 
 func (this *SourceFileProto_Builder) clearSourceKind() *SourceFileProto_Builder {
-	this.clr_(5)
+	this.x_.source_kind_ = 0
 	return this
 }
 
 func (this *SourceFileProto) getSourceKindValue() int32 {
-	return this.gI32_(5)
+	return this.x_.source_kind_
 }
 
 func (this *SourceFileProto_Builder) getSourceKindValue() int32 {
-	return this.gI32_(5)
+	return this.x_.source_kind_
 }
 
 func (this *SourceFileProto_Builder) setSourceKindValue(p0 int32) *SourceFileProto_Builder {
-	this.set_(5, p0)
+	this.x_.source_kind_ = p0
 	return this
 }
 
 func (this *SourceFileProto) getIsClosureUnawareCode() bool {
-	return this.gBool_(6)
+	return this.x_.is_closure_unaware_code_
 }
 
 func (this *SourceFileProto_Builder) getIsClosureUnawareCode() bool {
-	return this.gBool_(6)
+	return this.x_.is_closure_unaware_code_
 }
 
 func (this *SourceFileProto_Builder) setIsClosureUnawareCode(p0 bool) *SourceFileProto_Builder {
-	this.set_(6, p0)
+	this.x_.is_closure_unaware_code_ = p0
 	return this
 }
 
 func (this *SourceFileProto_Builder) clearIsClosureUnawareCode() *SourceFileProto_Builder {
-	this.clr_(6)
+	this.x_.is_closure_unaware_code_ = false
 	return this
 }
 
 func (this *SourceFileProto) getNumBytesPlusOne() int32 {
-	return this.gI32_(7)
+	return this.x_.num_bytes_plus_one_
 }
 
 func (this *SourceFileProto_Builder) getNumBytesPlusOne() int32 {
-	return this.gI32_(7)
+	return this.x_.num_bytes_plus_one_
 }
 
 func (this *SourceFileProto_Builder) setNumBytesPlusOne(p0 int32) *SourceFileProto_Builder {
-	this.set_(7, p0)
+	this.x_.num_bytes_plus_one_ = p0
 	return this
 }
 
 func (this *SourceFileProto_Builder) clearNumBytesPlusOne() *SourceFileProto_Builder {
-	this.clr_(7)
+	this.x_.num_bytes_plus_one_ = 0
 	return this
 }
 
 func (this *SourceFileProto) getNumLinesPlusOne() int32 {
-	return this.gI32_(8)
+	return this.x_.num_lines_plus_one_
 }
 
 func (this *SourceFileProto_Builder) getNumLinesPlusOne() int32 {
-	return this.gI32_(8)
+	return this.x_.num_lines_plus_one_
 }
 
 func (this *SourceFileProto_Builder) setNumLinesPlusOne(p0 int32) *SourceFileProto_Builder {
-	this.set_(8, p0)
+	this.x_.num_lines_plus_one_ = p0
 	return this
 }
 
 func (this *SourceFileProto_Builder) clearNumLinesPlusOne() *SourceFileProto_Builder {
-	this.clr_(8)
+	this.x_.num_lines_plus_one_ = 0
 	return this
 }
 
 func (this *SourceFileProto) getLoaderCase() SourceFileProto_LoaderCase {
-	return SourceFileProto_LoaderCase_ofNum_(this.case_(1))
+	if this.x_.pbHas_[0]&0x1 != 0 {
+		return SourceFileProto_LoaderCase_PRELOADED_CONTENTS
+	}
+	if this.x_.file_on_disk_ != nil {
+		return SourceFileProto_LoaderCase_FILE_ON_DISK
+	}
+	if this.x_.zip_entry_ != nil {
+		return SourceFileProto_LoaderCase_ZIP_ENTRY
+	}
+	if this.x_.pbHas_[0]&0x2 != 0 {
+		return SourceFileProto_LoaderCase_STUB_FILE
+	}
+	return SourceFileProto_LoaderCase_LOADER_NOT_SET
 }
 
 func (this *SourceFileProto_Builder) getLoaderCase() SourceFileProto_LoaderCase {
-	return SourceFileProto_LoaderCase_ofNum_(this.case_(1))
+	if this.x_.pbHas_[0]&0x1 != 0 {
+		return SourceFileProto_LoaderCase_PRELOADED_CONTENTS
+	}
+	if this.x_.file_on_disk_ != nil {
+		return SourceFileProto_LoaderCase_FILE_ON_DISK
+	}
+	if this.x_.zip_entry_ != nil {
+		return SourceFileProto_LoaderCase_ZIP_ENTRY
+	}
+	if this.x_.pbHas_[0]&0x2 != 0 {
+		return SourceFileProto_LoaderCase_STUB_FILE
+	}
+	return SourceFileProto_LoaderCase_LOADER_NOT_SET
 }
 
 func (this *SourceFileProto_Builder) clearLoader() *SourceFileProto_Builder {
@@ -10317,8 +11157,14 @@ func (this *SourceFileProto_Builder) mergeFrom_SourceFileProto(p0 *SourceFilePro
 
 // ---- message jscomp.SourceFileProto.FileOnDisk
 
+type SourceFileProto_FileOnDisk_x_ struct {
+	actual_path_ string
+	charset_     string
+}
+
 type SourceFileProto_FileOnDisk struct {
 	GeneratedMessage
+	x_ SourceFileProto_FileOnDisk_x_
 }
 
 func (this *SourceFileProto_FileOnDisk) up_GeneratedMessage() *GeneratedMessage {
@@ -10330,6 +11176,7 @@ func (this *SourceFileProto_FileOnDisk) up_GeneratedMessage() *GeneratedMessage 
 
 type SourceFileProto_FileOnDisk_Builder struct {
 	GeneratedMessage_Builder
+	x_ SourceFileProto_FileOnDisk_x_
 }
 
 func (this *SourceFileProto_FileOnDisk_Builder) up_GeneratedMessage_Builder() *GeneratedMessage_Builder {
@@ -10340,10 +11187,15 @@ func (this *SourceFileProto_FileOnDisk_Builder) up_GeneratedMessage_Builder() *G
 }
 
 var SourceFileProto_FileOnDisk_desc_ = pbReg_(&pbDesc_{name: "jscomp.SourceFileProto.FileOnDisk", oneofs: []string{},
-	newM: func() any { return &SourceFileProto_FileOnDisk{} }, newB: func() any { return &SourceFileProto_FileOnDisk_Builder{} },
+	newM: func() *pbData_ { return &new(SourceFileProto_FileOnDisk).pbData_ }, newB: func() *pbData_ { return &new(SourceFileProto_FileOnDisk_Builder).pbData_ },
+	asM: func(p unsafe.Pointer) any { return (*SourceFileProto_FileOnDisk)(p) }, asB: func(p unsafe.Pointer) any { return (*SourceFileProto_FileOnDisk_Builder)(p) },
+	cp: func(dst, src unsafe.Pointer) {
+		(*SourceFileProto_FileOnDisk)(dst).x_ = (*SourceFileProto_FileOnDisk)(src).x_
+	},
+	xoff: unsafe.Offsetof(SourceFileProto_FileOnDisk{}.x_),
 	fields: []*pbField_{
-		{name: "actual_path", num: 1, kind: pbString_, utf8: true},
-		{name: "charset", num: 2, kind: pbString_, utf8: true},
+		{name: "actual_path", num: 1, kind: pbString_, utf8: true, off: unsafe.Offsetof(SourceFileProto_FileOnDisk{}.x_.actual_path_)},
+		{name: "charset", num: 2, kind: pbString_, utf8: true, off: unsafe.Offsetof(SourceFileProto_FileOnDisk{}.x_.charset_)},
 	}})
 
 const (
@@ -10352,7 +11204,7 @@ const (
 )
 
 func SourceFileProto_FileOnDisk_getDefaultInstance() *SourceFileProto_FileOnDisk {
-	return SourceFileProto_FileOnDisk_desc_.default_().(*SourceFileProto_FileOnDisk)
+	return (*SourceFileProto_FileOnDisk)(unsafe.Pointer(SourceFileProto_FileOnDisk_desc_.default_()))
 }
 
 func SourceFileProto_FileOnDisk_getDescriptor() *Descriptors_Descriptor {
@@ -10360,7 +11212,7 @@ func SourceFileProto_FileOnDisk_getDescriptor() *Descriptors_Descriptor {
 }
 
 func SourceFileProto_FileOnDisk_newBuilder() *SourceFileProto_FileOnDisk_Builder {
-	return SourceFileProto_FileOnDisk_desc_.newBuilder_().me_.(*SourceFileProto_FileOnDisk_Builder)
+	return (*SourceFileProto_FileOnDisk_Builder)(unsafe.Pointer(SourceFileProto_FileOnDisk_desc_.newBuilder_()))
 }
 
 func SourceFileProto_FileOnDisk_newBuilder_FileOnDisk(p0 *SourceFileProto_FileOnDisk) *SourceFileProto_FileOnDisk_Builder {
@@ -10392,20 +11244,23 @@ func SourceFileProto_FileOnDisk_parseFrom_CodedInputStream_ExtensionRegistryLite
 }
 
 func (this *SourceFileProto_FileOnDisk) getActualPath() string {
-	return this.gStr_(0)
+	return this.x_.actual_path_
 }
 
 func (this *SourceFileProto_FileOnDisk_Builder) getActualPath() string {
-	return this.gStr_(0)
+	return this.x_.actual_path_
 }
 
 func (this *SourceFileProto_FileOnDisk_Builder) setActualPath(p0 string) *SourceFileProto_FileOnDisk_Builder {
-	this.set_(0, p0)
+	if p0 == nullstr_ {
+		pbNPE_()
+	}
+	this.x_.actual_path_ = p0
 	return this
 }
 
 func (this *SourceFileProto_FileOnDisk_Builder) clearActualPath() *SourceFileProto_FileOnDisk_Builder {
-	this.clr_(0)
+	this.x_.actual_path_ = ""
 	return this
 }
 
@@ -10423,20 +11278,23 @@ func (this *SourceFileProto_FileOnDisk_Builder) setActualPathBytes(p0 *ByteStrin
 }
 
 func (this *SourceFileProto_FileOnDisk) getCharset() string {
-	return this.gStr_(1)
+	return this.x_.charset_
 }
 
 func (this *SourceFileProto_FileOnDisk_Builder) getCharset() string {
-	return this.gStr_(1)
+	return this.x_.charset_
 }
 
 func (this *SourceFileProto_FileOnDisk_Builder) setCharset(p0 string) *SourceFileProto_FileOnDisk_Builder {
-	this.set_(1, p0)
+	if p0 == nullstr_ {
+		pbNPE_()
+	}
+	this.x_.charset_ = p0
 	return this
 }
 
 func (this *SourceFileProto_FileOnDisk_Builder) clearCharset() *SourceFileProto_FileOnDisk_Builder {
-	this.clr_(1)
+	this.x_.charset_ = ""
 	return this
 }
 
@@ -10460,8 +11318,15 @@ func (this *SourceFileProto_FileOnDisk_Builder) mergeFrom_FileOnDisk(p0 *SourceF
 
 // ---- message jscomp.SourceFileProto.ZipEntryOnDisk
 
+type SourceFileProto_ZipEntryOnDisk_x_ struct {
+	zip_path_   string
+	entry_name_ string
+	charset_    string
+}
+
 type SourceFileProto_ZipEntryOnDisk struct {
 	GeneratedMessage
+	x_ SourceFileProto_ZipEntryOnDisk_x_
 }
 
 func (this *SourceFileProto_ZipEntryOnDisk) up_GeneratedMessage() *GeneratedMessage {
@@ -10473,6 +11338,7 @@ func (this *SourceFileProto_ZipEntryOnDisk) up_GeneratedMessage() *GeneratedMess
 
 type SourceFileProto_ZipEntryOnDisk_Builder struct {
 	GeneratedMessage_Builder
+	x_ SourceFileProto_ZipEntryOnDisk_x_
 }
 
 func (this *SourceFileProto_ZipEntryOnDisk_Builder) up_GeneratedMessage_Builder() *GeneratedMessage_Builder {
@@ -10483,11 +11349,16 @@ func (this *SourceFileProto_ZipEntryOnDisk_Builder) up_GeneratedMessage_Builder(
 }
 
 var SourceFileProto_ZipEntryOnDisk_desc_ = pbReg_(&pbDesc_{name: "jscomp.SourceFileProto.ZipEntryOnDisk", oneofs: []string{},
-	newM: func() any { return &SourceFileProto_ZipEntryOnDisk{} }, newB: func() any { return &SourceFileProto_ZipEntryOnDisk_Builder{} },
+	newM: func() *pbData_ { return &new(SourceFileProto_ZipEntryOnDisk).pbData_ }, newB: func() *pbData_ { return &new(SourceFileProto_ZipEntryOnDisk_Builder).pbData_ },
+	asM: func(p unsafe.Pointer) any { return (*SourceFileProto_ZipEntryOnDisk)(p) }, asB: func(p unsafe.Pointer) any { return (*SourceFileProto_ZipEntryOnDisk_Builder)(p) },
+	cp: func(dst, src unsafe.Pointer) {
+		(*SourceFileProto_ZipEntryOnDisk)(dst).x_ = (*SourceFileProto_ZipEntryOnDisk)(src).x_
+	},
+	xoff: unsafe.Offsetof(SourceFileProto_ZipEntryOnDisk{}.x_),
 	fields: []*pbField_{
-		{name: "zip_path", num: 1, kind: pbString_, utf8: true},
-		{name: "entry_name", num: 2, kind: pbString_, utf8: true},
-		{name: "charset", num: 3, kind: pbString_, utf8: true},
+		{name: "zip_path", num: 1, kind: pbString_, utf8: true, off: unsafe.Offsetof(SourceFileProto_ZipEntryOnDisk{}.x_.zip_path_)},
+		{name: "entry_name", num: 2, kind: pbString_, utf8: true, off: unsafe.Offsetof(SourceFileProto_ZipEntryOnDisk{}.x_.entry_name_)},
+		{name: "charset", num: 3, kind: pbString_, utf8: true, off: unsafe.Offsetof(SourceFileProto_ZipEntryOnDisk{}.x_.charset_)},
 	}})
 
 const (
@@ -10497,7 +11368,7 @@ const (
 )
 
 func SourceFileProto_ZipEntryOnDisk_getDefaultInstance() *SourceFileProto_ZipEntryOnDisk {
-	return SourceFileProto_ZipEntryOnDisk_desc_.default_().(*SourceFileProto_ZipEntryOnDisk)
+	return (*SourceFileProto_ZipEntryOnDisk)(unsafe.Pointer(SourceFileProto_ZipEntryOnDisk_desc_.default_()))
 }
 
 func SourceFileProto_ZipEntryOnDisk_getDescriptor() *Descriptors_Descriptor {
@@ -10505,7 +11376,7 @@ func SourceFileProto_ZipEntryOnDisk_getDescriptor() *Descriptors_Descriptor {
 }
 
 func SourceFileProto_ZipEntryOnDisk_newBuilder() *SourceFileProto_ZipEntryOnDisk_Builder {
-	return SourceFileProto_ZipEntryOnDisk_desc_.newBuilder_().me_.(*SourceFileProto_ZipEntryOnDisk_Builder)
+	return (*SourceFileProto_ZipEntryOnDisk_Builder)(unsafe.Pointer(SourceFileProto_ZipEntryOnDisk_desc_.newBuilder_()))
 }
 
 func SourceFileProto_ZipEntryOnDisk_newBuilder_ZipEntryOnDisk(p0 *SourceFileProto_ZipEntryOnDisk) *SourceFileProto_ZipEntryOnDisk_Builder {
@@ -10537,20 +11408,23 @@ func SourceFileProto_ZipEntryOnDisk_parseFrom_CodedInputStream_ExtensionRegistry
 }
 
 func (this *SourceFileProto_ZipEntryOnDisk) getZipPath() string {
-	return this.gStr_(0)
+	return this.x_.zip_path_
 }
 
 func (this *SourceFileProto_ZipEntryOnDisk_Builder) getZipPath() string {
-	return this.gStr_(0)
+	return this.x_.zip_path_
 }
 
 func (this *SourceFileProto_ZipEntryOnDisk_Builder) setZipPath(p0 string) *SourceFileProto_ZipEntryOnDisk_Builder {
-	this.set_(0, p0)
+	if p0 == nullstr_ {
+		pbNPE_()
+	}
+	this.x_.zip_path_ = p0
 	return this
 }
 
 func (this *SourceFileProto_ZipEntryOnDisk_Builder) clearZipPath() *SourceFileProto_ZipEntryOnDisk_Builder {
-	this.clr_(0)
+	this.x_.zip_path_ = ""
 	return this
 }
 
@@ -10568,20 +11442,23 @@ func (this *SourceFileProto_ZipEntryOnDisk_Builder) setZipPathBytes(p0 *ByteStri
 }
 
 func (this *SourceFileProto_ZipEntryOnDisk) getEntryName() string {
-	return this.gStr_(1)
+	return this.x_.entry_name_
 }
 
 func (this *SourceFileProto_ZipEntryOnDisk_Builder) getEntryName() string {
-	return this.gStr_(1)
+	return this.x_.entry_name_
 }
 
 func (this *SourceFileProto_ZipEntryOnDisk_Builder) setEntryName(p0 string) *SourceFileProto_ZipEntryOnDisk_Builder {
-	this.set_(1, p0)
+	if p0 == nullstr_ {
+		pbNPE_()
+	}
+	this.x_.entry_name_ = p0
 	return this
 }
 
 func (this *SourceFileProto_ZipEntryOnDisk_Builder) clearEntryName() *SourceFileProto_ZipEntryOnDisk_Builder {
-	this.clr_(1)
+	this.x_.entry_name_ = ""
 	return this
 }
 
@@ -10599,20 +11476,23 @@ func (this *SourceFileProto_ZipEntryOnDisk_Builder) setEntryNameBytes(p0 *ByteSt
 }
 
 func (this *SourceFileProto_ZipEntryOnDisk) getCharset() string {
-	return this.gStr_(2)
+	return this.x_.charset_
 }
 
 func (this *SourceFileProto_ZipEntryOnDisk_Builder) getCharset() string {
-	return this.gStr_(2)
+	return this.x_.charset_
 }
 
 func (this *SourceFileProto_ZipEntryOnDisk_Builder) setCharset(p0 string) *SourceFileProto_ZipEntryOnDisk_Builder {
-	this.set_(2, p0)
+	if p0 == nullstr_ {
+		pbNPE_()
+	}
+	this.x_.charset_ = p0
 	return this
 }
 
 func (this *SourceFileProto_ZipEntryOnDisk_Builder) clearCharset() *SourceFileProto_ZipEntryOnDisk_Builder {
-	this.clr_(2)
+	this.x_.charset_ = ""
 	return this
 }
 
@@ -11731,8 +12611,19 @@ var NodeProperty_desc_ = pbRegEnum_(&pbEnumDesc_{name: "jscomp.NodeProperty", cl
 
 // ---- message jscomp.TypedAst
 
+type TypedAst_x_ struct {
+	type_pool_                 *TypePool
+	string_pool_               *StringPoolProto
+	extern_ast_                []*LazyAst
+	code_ast_                  []*LazyAst
+	source_file_pool_          *SourceFilePool
+	externs_summary_           *ExternsSummary
+	runtime_library_to_inject_ []string
+}
+
 type TypedAst struct {
 	GeneratedMessage
+	x_ TypedAst_x_
 }
 
 func (this *TypedAst) up_GeneratedMessage() *GeneratedMessage {
@@ -11744,6 +12635,7 @@ func (this *TypedAst) up_GeneratedMessage() *GeneratedMessage {
 
 type TypedAst_Builder struct {
 	GeneratedMessage_Builder
+	x_ TypedAst_x_
 }
 
 func (this *TypedAst_Builder) up_GeneratedMessage_Builder() *GeneratedMessage_Builder {
@@ -11754,15 +12646,18 @@ func (this *TypedAst_Builder) up_GeneratedMessage_Builder() *GeneratedMessage_Bu
 }
 
 var TypedAst_desc_ = pbReg_(&pbDesc_{name: "jscomp.TypedAst", oneofs: []string{},
-	newM: func() any { return &TypedAst{} }, newB: func() any { return &TypedAst_Builder{} },
+	newM: func() *pbData_ { return &new(TypedAst).pbData_ }, newB: func() *pbData_ { return &new(TypedAst_Builder).pbData_ },
+	asM: func(p unsafe.Pointer) any { return (*TypedAst)(p) }, asB: func(p unsafe.Pointer) any { return (*TypedAst_Builder)(p) },
+	cp:   func(dst, src unsafe.Pointer) { (*TypedAst)(dst).x_ = (*TypedAst)(src).x_ },
+	xoff: unsafe.Offsetof(TypedAst{}.x_),
 	fields: []*pbField_{
-		{name: "type_pool", num: 1, kind: pbMessage_, pres: true, tname: "jscomp.TypePool"},
-		{name: "string_pool", num: 2, kind: pbMessage_, pres: true, tname: "jscomp.StringPoolProto"},
-		{name: "extern_ast", num: 3, kind: pbMessage_, rep: true, tname: "jscomp.LazyAst"},
-		{name: "code_ast", num: 4, kind: pbMessage_, rep: true, tname: "jscomp.LazyAst"},
-		{name: "source_file_pool", num: 5, kind: pbMessage_, pres: true, tname: "jscomp.SourceFilePool"},
-		{name: "externs_summary", num: 6, kind: pbMessage_, pres: true, tname: "jscomp.ExternsSummary"},
-		{name: "runtime_library_to_inject", num: 7, kind: pbString_, rep: true, utf8: true},
+		{name: "type_pool", num: 1, kind: pbMessage_, pres: true, tname: "jscomp.TypePool", off: unsafe.Offsetof(TypedAst{}.x_.type_pool_)},
+		{name: "string_pool", num: 2, kind: pbMessage_, pres: true, tname: "jscomp.StringPoolProto", off: unsafe.Offsetof(TypedAst{}.x_.string_pool_)},
+		{name: "extern_ast", num: 3, kind: pbMessage_, rep: true, tname: "jscomp.LazyAst", off: unsafe.Offsetof(TypedAst{}.x_.extern_ast_)},
+		{name: "code_ast", num: 4, kind: pbMessage_, rep: true, tname: "jscomp.LazyAst", off: unsafe.Offsetof(TypedAst{}.x_.code_ast_)},
+		{name: "source_file_pool", num: 5, kind: pbMessage_, pres: true, tname: "jscomp.SourceFilePool", off: unsafe.Offsetof(TypedAst{}.x_.source_file_pool_)},
+		{name: "externs_summary", num: 6, kind: pbMessage_, pres: true, tname: "jscomp.ExternsSummary", off: unsafe.Offsetof(TypedAst{}.x_.externs_summary_)},
+		{name: "runtime_library_to_inject", num: 7, kind: pbString_, rep: true, utf8: true, off: unsafe.Offsetof(TypedAst{}.x_.runtime_library_to_inject_)},
 	}})
 
 const (
@@ -11776,7 +12671,7 @@ const (
 )
 
 func TypedAst_getDefaultInstance() *TypedAst {
-	return TypedAst_desc_.default_().(*TypedAst)
+	return (*TypedAst)(unsafe.Pointer(TypedAst_desc_.default_()))
 }
 
 func TypedAst_getDescriptor() *Descriptors_Descriptor {
@@ -11784,7 +12679,7 @@ func TypedAst_getDescriptor() *Descriptors_Descriptor {
 }
 
 func TypedAst_newBuilder() *TypedAst_Builder {
-	return TypedAst_desc_.newBuilder_().me_.(*TypedAst_Builder)
+	return (*TypedAst_Builder)(unsafe.Pointer(TypedAst_desc_.newBuilder_()))
 }
 
 func TypedAst_newBuilder_TypedAst(p0 *TypedAst) *TypedAst_Builder {
@@ -11816,36 +12711,42 @@ func TypedAst_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInputStr
 }
 
 func (this *TypedAst) hasTypePool() bool {
-	return this.has_(0)
+	return this.x_.type_pool_ != nil
 }
 
 func (this *TypedAst_Builder) hasTypePool() bool {
-	return this.has_(0)
+	return this.x_.type_pool_ != nil
 }
 
 func (this *TypedAst) getTypePool() *TypePool {
-	return this.gMsg_(0).(*TypePool)
+	if p := this.x_.type_pool_; p != nil {
+		return p
+	}
+	return (*TypePool)(unsafe.Pointer(TypePool_desc_.default_()))
 }
 
 func (this *TypedAst_Builder) getTypePool() *TypePool {
-	return this.gMsg_(0).(*TypePool)
+	return (*TypePool)(this.gMsgP_(0))
 }
 
 func (this *TypedAst) getTypePoolOrBuilder() TypePoolOrBuilder {
-	return this.gMsg_(0).(*TypePool)
+	if p := this.x_.type_pool_; p != nil {
+		return p
+	}
+	return (*TypePool)(unsafe.Pointer(TypePool_desc_.default_()))
 }
 
 func (this *TypedAst_Builder) getTypePoolOrBuilder() TypePoolOrBuilder {
-	return this.gMsg_(0).(*TypePool)
+	return (*TypePool)(this.gMsgP_(0))
 }
 
 func (this *TypedAst_Builder) setTypePool(p0 *TypePool) *TypedAst_Builder {
-	this.set_(0, obj_(p0))
+	this.setMsg_(0, unsafe.Pointer(p0))
 	return this
 }
 
 func (this *TypedAst_Builder) setTypePool_Builder(p0 *TypePool_Builder) *TypedAst_Builder {
-	this.set_(0, p0.build())
+	this.setMsg_(0, unsafe.Pointer(p0.build_()))
 	return this
 }
 
@@ -11855,7 +12756,7 @@ func (this *TypedAst_Builder) mergeTypePool(p0 *TypePool) *TypedAst_Builder {
 }
 
 func (this *TypedAst_Builder) clearTypePool() *TypedAst_Builder {
-	this.clr_(0)
+	this.x_.type_pool_ = nil
 	return this
 }
 
@@ -11864,36 +12765,42 @@ func (this *TypedAst_Builder) getTypePoolBuilder() *TypePool_Builder {
 }
 
 func (this *TypedAst) hasStringPool() bool {
-	return this.has_(1)
+	return this.x_.string_pool_ != nil
 }
 
 func (this *TypedAst_Builder) hasStringPool() bool {
-	return this.has_(1)
+	return this.x_.string_pool_ != nil
 }
 
 func (this *TypedAst) getStringPool() *StringPoolProto {
-	return this.gMsg_(1).(*StringPoolProto)
+	if p := this.x_.string_pool_; p != nil {
+		return p
+	}
+	return (*StringPoolProto)(unsafe.Pointer(StringPoolProto_desc_.default_()))
 }
 
 func (this *TypedAst_Builder) getStringPool() *StringPoolProto {
-	return this.gMsg_(1).(*StringPoolProto)
+	return (*StringPoolProto)(this.gMsgP_(1))
 }
 
 func (this *TypedAst) getStringPoolOrBuilder() StringPoolProtoOrBuilder {
-	return this.gMsg_(1).(*StringPoolProto)
+	if p := this.x_.string_pool_; p != nil {
+		return p
+	}
+	return (*StringPoolProto)(unsafe.Pointer(StringPoolProto_desc_.default_()))
 }
 
 func (this *TypedAst_Builder) getStringPoolOrBuilder() StringPoolProtoOrBuilder {
-	return this.gMsg_(1).(*StringPoolProto)
+	return (*StringPoolProto)(this.gMsgP_(1))
 }
 
 func (this *TypedAst_Builder) setStringPool(p0 *StringPoolProto) *TypedAst_Builder {
-	this.set_(1, obj_(p0))
+	this.setMsg_(1, unsafe.Pointer(p0))
 	return this
 }
 
 func (this *TypedAst_Builder) setStringPool_Builder(p0 *StringPoolProto_Builder) *TypedAst_Builder {
-	this.set_(1, p0.build())
+	this.setMsg_(1, unsafe.Pointer(p0.build_()))
 	return this
 }
 
@@ -11903,7 +12810,7 @@ func (this *TypedAst_Builder) mergeStringPool(p0 *StringPoolProto) *TypedAst_Bui
 }
 
 func (this *TypedAst_Builder) clearStringPool() *TypedAst_Builder {
-	this.clr_(1)
+	this.x_.string_pool_ = nil
 	return this
 }
 
@@ -11912,7 +12819,7 @@ func (this *TypedAst_Builder) getStringPoolBuilder() *StringPoolProto_Builder {
 }
 
 func (this *TypedAst) getExternAstList() List {
-	return this.list_(2)
+	return pbListOf_(this.x_.extern_ast_)
 }
 
 func (this *TypedAst_Builder) getExternAstList() List {
@@ -11920,31 +12827,31 @@ func (this *TypedAst_Builder) getExternAstList() List {
 }
 
 func (this *TypedAst) getExternAstCount() int32 {
-	return this.cnt_(2)
+	return int32(len(this.x_.extern_ast_))
 }
 
 func (this *TypedAst_Builder) getExternAstCount() int32 {
-	return this.cnt_(2)
+	return int32(len(this.x_.extern_ast_))
 }
 
 func (this *TypedAst) getExternAst(p0 int32) *LazyAst {
-	return this.at_(2, p0).(*LazyAst)
+	return pbAt_(this.x_.extern_ast_, p0)
 }
 
 func (this *TypedAst_Builder) getExternAst(p0 int32) *LazyAst {
-	return this.at_(2, p0).(*LazyAst)
+	return (*LazyAst)(this.atMsgP_(2, p0))
 }
 
 func (this *TypedAst) getExternAstOrBuilder(p0 int32) LazyAstOrBuilder {
-	return this.at_(2, p0).(*LazyAst)
+	return pbAt_(this.x_.extern_ast_, p0)
 }
 
 func (this *TypedAst_Builder) getExternAstOrBuilder(p0 int32) LazyAstOrBuilder {
-	return this.at_(2, p0).(*LazyAst)
+	return (*LazyAst)(this.atMsgP_(2, p0))
 }
 
 func (this *TypedAst) getExternAstOrBuilderList() List {
-	return this.list_(2)
+	return pbListOf_(this.x_.extern_ast_)
 }
 
 func (this *TypedAst_Builder) getExternAstOrBuilderList() List {
@@ -11962,7 +12869,11 @@ func (this *TypedAst_Builder) setExternAst_int_Builder(p0 int32, p1 *LazyAst_Bui
 }
 
 func (this *TypedAst_Builder) addExternAst(p0 *LazyAst) *TypedAst_Builder {
-	this.add_(2, obj_(p0))
+	if p0 == nil {
+		pbNPE_()
+	}
+	this.own_()
+	this.x_.extern_ast_ = append(this.x_.extern_ast_, p0)
 	return this
 }
 
@@ -11987,7 +12898,7 @@ func (this *TypedAst_Builder) addAllExternAst(p0 Iterable) *TypedAst_Builder {
 }
 
 func (this *TypedAst_Builder) clearExternAst() *TypedAst_Builder {
-	this.clr_(2)
+	this.x_.extern_ast_ = nil
 	return this
 }
 
@@ -12013,7 +12924,7 @@ func (this *TypedAst_Builder) getExternAstBuilderList() List {
 }
 
 func (this *TypedAst) getCodeAstList() List {
-	return this.list_(3)
+	return pbListOf_(this.x_.code_ast_)
 }
 
 func (this *TypedAst_Builder) getCodeAstList() List {
@@ -12021,31 +12932,31 @@ func (this *TypedAst_Builder) getCodeAstList() List {
 }
 
 func (this *TypedAst) getCodeAstCount() int32 {
-	return this.cnt_(3)
+	return int32(len(this.x_.code_ast_))
 }
 
 func (this *TypedAst_Builder) getCodeAstCount() int32 {
-	return this.cnt_(3)
+	return int32(len(this.x_.code_ast_))
 }
 
 func (this *TypedAst) getCodeAst(p0 int32) *LazyAst {
-	return this.at_(3, p0).(*LazyAst)
+	return pbAt_(this.x_.code_ast_, p0)
 }
 
 func (this *TypedAst_Builder) getCodeAst(p0 int32) *LazyAst {
-	return this.at_(3, p0).(*LazyAst)
+	return (*LazyAst)(this.atMsgP_(3, p0))
 }
 
 func (this *TypedAst) getCodeAstOrBuilder(p0 int32) LazyAstOrBuilder {
-	return this.at_(3, p0).(*LazyAst)
+	return pbAt_(this.x_.code_ast_, p0)
 }
 
 func (this *TypedAst_Builder) getCodeAstOrBuilder(p0 int32) LazyAstOrBuilder {
-	return this.at_(3, p0).(*LazyAst)
+	return (*LazyAst)(this.atMsgP_(3, p0))
 }
 
 func (this *TypedAst) getCodeAstOrBuilderList() List {
-	return this.list_(3)
+	return pbListOf_(this.x_.code_ast_)
 }
 
 func (this *TypedAst_Builder) getCodeAstOrBuilderList() List {
@@ -12063,7 +12974,11 @@ func (this *TypedAst_Builder) setCodeAst_int_Builder(p0 int32, p1 *LazyAst_Build
 }
 
 func (this *TypedAst_Builder) addCodeAst(p0 *LazyAst) *TypedAst_Builder {
-	this.add_(3, obj_(p0))
+	if p0 == nil {
+		pbNPE_()
+	}
+	this.own_()
+	this.x_.code_ast_ = append(this.x_.code_ast_, p0)
 	return this
 }
 
@@ -12088,7 +13003,7 @@ func (this *TypedAst_Builder) addAllCodeAst(p0 Iterable) *TypedAst_Builder {
 }
 
 func (this *TypedAst_Builder) clearCodeAst() *TypedAst_Builder {
-	this.clr_(3)
+	this.x_.code_ast_ = nil
 	return this
 }
 
@@ -12114,36 +13029,42 @@ func (this *TypedAst_Builder) getCodeAstBuilderList() List {
 }
 
 func (this *TypedAst) hasSourceFilePool() bool {
-	return this.has_(4)
+	return this.x_.source_file_pool_ != nil
 }
 
 func (this *TypedAst_Builder) hasSourceFilePool() bool {
-	return this.has_(4)
+	return this.x_.source_file_pool_ != nil
 }
 
 func (this *TypedAst) getSourceFilePool() *SourceFilePool {
-	return this.gMsg_(4).(*SourceFilePool)
+	if p := this.x_.source_file_pool_; p != nil {
+		return p
+	}
+	return (*SourceFilePool)(unsafe.Pointer(SourceFilePool_desc_.default_()))
 }
 
 func (this *TypedAst_Builder) getSourceFilePool() *SourceFilePool {
-	return this.gMsg_(4).(*SourceFilePool)
+	return (*SourceFilePool)(this.gMsgP_(4))
 }
 
 func (this *TypedAst) getSourceFilePoolOrBuilder() SourceFilePoolOrBuilder {
-	return this.gMsg_(4).(*SourceFilePool)
+	if p := this.x_.source_file_pool_; p != nil {
+		return p
+	}
+	return (*SourceFilePool)(unsafe.Pointer(SourceFilePool_desc_.default_()))
 }
 
 func (this *TypedAst_Builder) getSourceFilePoolOrBuilder() SourceFilePoolOrBuilder {
-	return this.gMsg_(4).(*SourceFilePool)
+	return (*SourceFilePool)(this.gMsgP_(4))
 }
 
 func (this *TypedAst_Builder) setSourceFilePool(p0 *SourceFilePool) *TypedAst_Builder {
-	this.set_(4, obj_(p0))
+	this.setMsg_(4, unsafe.Pointer(p0))
 	return this
 }
 
 func (this *TypedAst_Builder) setSourceFilePool_Builder(p0 *SourceFilePool_Builder) *TypedAst_Builder {
-	this.set_(4, p0.build())
+	this.setMsg_(4, unsafe.Pointer(p0.build_()))
 	return this
 }
 
@@ -12153,7 +13074,7 @@ func (this *TypedAst_Builder) mergeSourceFilePool(p0 *SourceFilePool) *TypedAst_
 }
 
 func (this *TypedAst_Builder) clearSourceFilePool() *TypedAst_Builder {
-	this.clr_(4)
+	this.x_.source_file_pool_ = nil
 	return this
 }
 
@@ -12162,36 +13083,42 @@ func (this *TypedAst_Builder) getSourceFilePoolBuilder() *SourceFilePool_Builder
 }
 
 func (this *TypedAst) hasExternsSummary() bool {
-	return this.has_(5)
+	return this.x_.externs_summary_ != nil
 }
 
 func (this *TypedAst_Builder) hasExternsSummary() bool {
-	return this.has_(5)
+	return this.x_.externs_summary_ != nil
 }
 
 func (this *TypedAst) getExternsSummary() *ExternsSummary {
-	return this.gMsg_(5).(*ExternsSummary)
+	if p := this.x_.externs_summary_; p != nil {
+		return p
+	}
+	return (*ExternsSummary)(unsafe.Pointer(ExternsSummary_desc_.default_()))
 }
 
 func (this *TypedAst_Builder) getExternsSummary() *ExternsSummary {
-	return this.gMsg_(5).(*ExternsSummary)
+	return (*ExternsSummary)(this.gMsgP_(5))
 }
 
 func (this *TypedAst) getExternsSummaryOrBuilder() ExternsSummaryOrBuilder {
-	return this.gMsg_(5).(*ExternsSummary)
+	if p := this.x_.externs_summary_; p != nil {
+		return p
+	}
+	return (*ExternsSummary)(unsafe.Pointer(ExternsSummary_desc_.default_()))
 }
 
 func (this *TypedAst_Builder) getExternsSummaryOrBuilder() ExternsSummaryOrBuilder {
-	return this.gMsg_(5).(*ExternsSummary)
+	return (*ExternsSummary)(this.gMsgP_(5))
 }
 
 func (this *TypedAst_Builder) setExternsSummary_ExternsSummary(p0 *ExternsSummary) *TypedAst_Builder {
-	this.set_(5, obj_(p0))
+	this.setMsg_(5, unsafe.Pointer(p0))
 	return this
 }
 
 func (this *TypedAst_Builder) setExternsSummary(p0 *ExternsSummary_Builder) *TypedAst_Builder {
-	this.set_(5, p0.build())
+	this.setMsg_(5, unsafe.Pointer(p0.build_()))
 	return this
 }
 
@@ -12201,7 +13128,7 @@ func (this *TypedAst_Builder) mergeExternsSummary(p0 *ExternsSummary) *TypedAst_
 }
 
 func (this *TypedAst_Builder) clearExternsSummary() *TypedAst_Builder {
-	this.clr_(5)
+	this.x_.externs_summary_ = nil
 	return this
 }
 
@@ -12210,27 +13137,27 @@ func (this *TypedAst_Builder) getExternsSummaryBuilder() *ExternsSummary_Builder
 }
 
 func (this *TypedAst) getRuntimeLibraryToInjectList() List {
-	return this.list_(6)
+	return pbListOf_(this.x_.runtime_library_to_inject_)
 }
 
 func (this *TypedAst_Builder) getRuntimeLibraryToInjectList() List {
-	return this.list_(6)
+	return pbListOf_(this.x_.runtime_library_to_inject_)
 }
 
 func (this *TypedAst) getRuntimeLibraryToInject(p0 int32) string {
-	return this.at_(6, p0).(string)
+	return pbAt_(this.x_.runtime_library_to_inject_, p0)
 }
 
 func (this *TypedAst_Builder) getRuntimeLibraryToInject(p0 int32) string {
-	return this.at_(6, p0).(string)
+	return pbAt_(this.x_.runtime_library_to_inject_, p0)
 }
 
 func (this *TypedAst) getRuntimeLibraryToInjectCount() int32 {
-	return this.cnt_(6)
+	return int32(len(this.x_.runtime_library_to_inject_))
 }
 
 func (this *TypedAst_Builder) getRuntimeLibraryToInjectCount() int32 {
-	return this.cnt_(6)
+	return int32(len(this.x_.runtime_library_to_inject_))
 }
 
 func (this *TypedAst_Builder) setRuntimeLibraryToInject(p0 int32, p1 string) *TypedAst_Builder {
@@ -12239,7 +13166,11 @@ func (this *TypedAst_Builder) setRuntimeLibraryToInject(p0 int32, p1 string) *Ty
 }
 
 func (this *TypedAst_Builder) addRuntimeLibraryToInject(p0 string) *TypedAst_Builder {
-	this.add_(6, p0)
+	if p0 == nullstr_ {
+		pbNPE_()
+	}
+	this.own_()
+	this.x_.runtime_library_to_inject_ = append(this.x_.runtime_library_to_inject_, p0)
 	return this
 }
 
@@ -12249,16 +13180,16 @@ func (this *TypedAst_Builder) addAllRuntimeLibraryToInject(p0 Iterable) *TypedAs
 }
 
 func (this *TypedAst_Builder) clearRuntimeLibraryToInject() *TypedAst_Builder {
-	this.clr_(6)
+	this.x_.runtime_library_to_inject_ = nil
 	return this
 }
 
 func (this *TypedAst) getRuntimeLibraryToInjectBytes(p0 int32) *ByteString {
-	return ByteString_copyFromUtf8(this.at_(6, p0).(string))
+	return ByteString_copyFromUtf8(pbAt_(this.x_.runtime_library_to_inject_, p0))
 }
 
 func (this *TypedAst_Builder) getRuntimeLibraryToInjectBytes(p0 int32) *ByteString {
-	return ByteString_copyFromUtf8(this.at_(6, p0).(string))
+	return ByteString_copyFromUtf8(pbAt_(this.x_.runtime_library_to_inject_, p0))
 }
 
 func (this *TypedAst_Builder) addRuntimeLibraryToInjectBytes(p0 *ByteString) *TypedAst_Builder {
@@ -12273,8 +13204,13 @@ func (this *TypedAst_Builder) mergeFrom_TypedAst(p0 *TypedAst) *TypedAst_Builder
 
 // ---- message jscomp.TypedAst.List
 
+type TypedAst_List_x_ struct {
+	typed_asts_ []*TypedAst
+}
+
 type TypedAst_List struct {
 	GeneratedMessage
+	x_ TypedAst_List_x_
 }
 
 func (this *TypedAst_List) up_GeneratedMessage() *GeneratedMessage {
@@ -12286,6 +13222,7 @@ func (this *TypedAst_List) up_GeneratedMessage() *GeneratedMessage {
 
 type TypedAst_List_Builder struct {
 	GeneratedMessage_Builder
+	x_ TypedAst_List_x_
 }
 
 func (this *TypedAst_List_Builder) up_GeneratedMessage_Builder() *GeneratedMessage_Builder {
@@ -12296,9 +13233,12 @@ func (this *TypedAst_List_Builder) up_GeneratedMessage_Builder() *GeneratedMessa
 }
 
 var TypedAst_List_desc_ = pbReg_(&pbDesc_{name: "jscomp.TypedAst.List", oneofs: []string{},
-	newM: func() any { return &TypedAst_List{} }, newB: func() any { return &TypedAst_List_Builder{} },
+	newM: func() *pbData_ { return &new(TypedAst_List).pbData_ }, newB: func() *pbData_ { return &new(TypedAst_List_Builder).pbData_ },
+	asM: func(p unsafe.Pointer) any { return (*TypedAst_List)(p) }, asB: func(p unsafe.Pointer) any { return (*TypedAst_List_Builder)(p) },
+	cp:   func(dst, src unsafe.Pointer) { (*TypedAst_List)(dst).x_ = (*TypedAst_List)(src).x_ },
+	xoff: unsafe.Offsetof(TypedAst_List{}.x_),
 	fields: []*pbField_{
-		{name: "typed_asts", num: 1, kind: pbMessage_, rep: true, tname: "jscomp.TypedAst"},
+		{name: "typed_asts", num: 1, kind: pbMessage_, rep: true, tname: "jscomp.TypedAst", off: unsafe.Offsetof(TypedAst_List{}.x_.typed_asts_)},
 	}})
 
 const (
@@ -12306,7 +13246,7 @@ const (
 )
 
 func TypedAst_List_getDefaultInstance() *TypedAst_List {
-	return TypedAst_List_desc_.default_().(*TypedAst_List)
+	return (*TypedAst_List)(unsafe.Pointer(TypedAst_List_desc_.default_()))
 }
 
 func TypedAst_List_getDescriptor() *Descriptors_Descriptor {
@@ -12314,7 +13254,7 @@ func TypedAst_List_getDescriptor() *Descriptors_Descriptor {
 }
 
 func TypedAst_List_newBuilder() *TypedAst_List_Builder {
-	return TypedAst_List_desc_.newBuilder_().me_.(*TypedAst_List_Builder)
+	return (*TypedAst_List_Builder)(unsafe.Pointer(TypedAst_List_desc_.newBuilder_()))
 }
 
 func TypedAst_List_newBuilder_List(p0 *TypedAst_List) *TypedAst_List_Builder {
@@ -12346,7 +13286,7 @@ func TypedAst_List_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInp
 }
 
 func (this *TypedAst_List) getTypedAstsList() List {
-	return this.list_(0)
+	return pbListOf_(this.x_.typed_asts_)
 }
 
 func (this *TypedAst_List_Builder) getTypedAstsList() List {
@@ -12354,31 +13294,31 @@ func (this *TypedAst_List_Builder) getTypedAstsList() List {
 }
 
 func (this *TypedAst_List) getTypedAstsCount() int32 {
-	return this.cnt_(0)
+	return int32(len(this.x_.typed_asts_))
 }
 
 func (this *TypedAst_List_Builder) getTypedAstsCount() int32 {
-	return this.cnt_(0)
+	return int32(len(this.x_.typed_asts_))
 }
 
 func (this *TypedAst_List) getTypedAsts(p0 int32) *TypedAst {
-	return this.at_(0, p0).(*TypedAst)
+	return pbAt_(this.x_.typed_asts_, p0)
 }
 
 func (this *TypedAst_List_Builder) getTypedAsts(p0 int32) *TypedAst {
-	return this.at_(0, p0).(*TypedAst)
+	return (*TypedAst)(this.atMsgP_(0, p0))
 }
 
 func (this *TypedAst_List) getTypedAstsOrBuilder(p0 int32) TypedAstOrBuilder {
-	return this.at_(0, p0).(*TypedAst)
+	return pbAt_(this.x_.typed_asts_, p0)
 }
 
 func (this *TypedAst_List_Builder) getTypedAstsOrBuilder(p0 int32) TypedAstOrBuilder {
-	return this.at_(0, p0).(*TypedAst)
+	return (*TypedAst)(this.atMsgP_(0, p0))
 }
 
 func (this *TypedAst_List) getTypedAstsOrBuilderList() List {
-	return this.list_(0)
+	return pbListOf_(this.x_.typed_asts_)
 }
 
 func (this *TypedAst_List_Builder) getTypedAstsOrBuilderList() List {
@@ -12396,7 +13336,11 @@ func (this *TypedAst_List_Builder) setTypedAsts_int_Builder(p0 int32, p1 *TypedA
 }
 
 func (this *TypedAst_List_Builder) addTypedAsts(p0 *TypedAst) *TypedAst_List_Builder {
-	this.add_(0, obj_(p0))
+	if p0 == nil {
+		pbNPE_()
+	}
+	this.own_()
+	this.x_.typed_asts_ = append(this.x_.typed_asts_, p0)
 	return this
 }
 
@@ -12421,7 +13365,7 @@ func (this *TypedAst_List_Builder) addAllTypedAsts(p0 Iterable) *TypedAst_List_B
 }
 
 func (this *TypedAst_List_Builder) clearTypedAsts() *TypedAst_List_Builder {
-	this.clr_(0)
+	this.x_.typed_asts_ = nil
 	return this
 }
 
@@ -12453,8 +13397,15 @@ func (this *TypedAst_List_Builder) mergeFrom_List(p0 *TypedAst_List) *TypedAst_L
 
 // ---- message jscomp.LazyAst
 
+type LazyAst_x_ struct {
+	script_             *ByteString
+	source_mapping_url_ string
+	source_file_        int32
+}
+
 type LazyAst struct {
 	GeneratedMessage
+	x_ LazyAst_x_
 }
 
 func (this *LazyAst) up_GeneratedMessage() *GeneratedMessage {
@@ -12466,6 +13417,7 @@ func (this *LazyAst) up_GeneratedMessage() *GeneratedMessage {
 
 type LazyAst_Builder struct {
 	GeneratedMessage_Builder
+	x_ LazyAst_x_
 }
 
 func (this *LazyAst_Builder) up_GeneratedMessage_Builder() *GeneratedMessage_Builder {
@@ -12476,11 +13428,14 @@ func (this *LazyAst_Builder) up_GeneratedMessage_Builder() *GeneratedMessage_Bui
 }
 
 var LazyAst_desc_ = pbReg_(&pbDesc_{name: "jscomp.LazyAst", oneofs: []string{},
-	newM: func() any { return &LazyAst{} }, newB: func() any { return &LazyAst_Builder{} },
+	newM: func() *pbData_ { return &new(LazyAst).pbData_ }, newB: func() *pbData_ { return &new(LazyAst_Builder).pbData_ },
+	asM: func(p unsafe.Pointer) any { return (*LazyAst)(p) }, asB: func(p unsafe.Pointer) any { return (*LazyAst_Builder)(p) },
+	cp:   func(dst, src unsafe.Pointer) { (*LazyAst)(dst).x_ = (*LazyAst)(src).x_ },
+	xoff: unsafe.Offsetof(LazyAst{}.x_),
 	fields: []*pbField_{
-		{name: "script", num: 1, kind: pbBytes_},
-		{name: "source_file", num: 2, kind: pbUint32_},
-		{name: "source_mapping_url", num: 3, kind: pbString_, utf8: true},
+		{name: "script", num: 1, kind: pbBytes_, off: unsafe.Offsetof(LazyAst{}.x_.script_)},
+		{name: "source_file", num: 2, kind: pbUint32_, off: unsafe.Offsetof(LazyAst{}.x_.source_file_)},
+		{name: "source_mapping_url", num: 3, kind: pbString_, utf8: true, off: unsafe.Offsetof(LazyAst{}.x_.source_mapping_url_)},
 	}})
 
 const (
@@ -12490,7 +13445,7 @@ const (
 )
 
 func LazyAst_getDefaultInstance() *LazyAst {
-	return LazyAst_desc_.default_().(*LazyAst)
+	return (*LazyAst)(unsafe.Pointer(LazyAst_desc_.default_()))
 }
 
 func LazyAst_getDescriptor() *Descriptors_Descriptor {
@@ -12498,7 +13453,7 @@ func LazyAst_getDescriptor() *Descriptors_Descriptor {
 }
 
 func LazyAst_newBuilder() *LazyAst_Builder {
-	return LazyAst_desc_.newBuilder_().me_.(*LazyAst_Builder)
+	return (*LazyAst_Builder)(unsafe.Pointer(LazyAst_desc_.newBuilder_()))
 }
 
 func LazyAst_newBuilder_LazyAst(p0 *LazyAst) *LazyAst_Builder {
@@ -12530,56 +13485,71 @@ func LazyAst_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInputStre
 }
 
 func (this *LazyAst) getScript() *ByteString {
-	return this.gBytes_(0)
+	if b := this.x_.script_; b != nil {
+		return b
+	}
+	return ByteString_EMPTY
 }
 
 func (this *LazyAst_Builder) getScript() *ByteString {
-	return this.gBytes_(0)
+	if b := this.x_.script_; b != nil {
+		return b
+	}
+	return ByteString_EMPTY
 }
 
 func (this *LazyAst_Builder) setScript(p0 *ByteString) *LazyAst_Builder {
-	this.set_(0, obj_(p0))
+	if p0 == nil {
+		pbNPE_()
+	}
+	if len(p0.b_) == 0 {
+		p0 = nil
+	}
+	this.x_.script_ = p0
 	return this
 }
 
 func (this *LazyAst_Builder) clearScript() *LazyAst_Builder {
-	this.clr_(0)
+	this.x_.script_ = nil
 	return this
 }
 
 func (this *LazyAst) getSourceFile() int32 {
-	return this.gI32_(1)
+	return this.x_.source_file_
 }
 
 func (this *LazyAst_Builder) getSourceFile() int32 {
-	return this.gI32_(1)
+	return this.x_.source_file_
 }
 
 func (this *LazyAst_Builder) setSourceFile(p0 int32) *LazyAst_Builder {
-	this.set_(1, p0)
+	this.x_.source_file_ = p0
 	return this
 }
 
 func (this *LazyAst_Builder) clearSourceFile() *LazyAst_Builder {
-	this.clr_(1)
+	this.x_.source_file_ = 0
 	return this
 }
 
 func (this *LazyAst) getSourceMappingUrl() string {
-	return this.gStr_(2)
+	return this.x_.source_mapping_url_
 }
 
 func (this *LazyAst_Builder) getSourceMappingUrl() string {
-	return this.gStr_(2)
+	return this.x_.source_mapping_url_
 }
 
 func (this *LazyAst_Builder) setSourceMappingUrl(p0 string) *LazyAst_Builder {
-	this.set_(2, p0)
+	if p0 == nullstr_ {
+		pbNPE_()
+	}
+	this.x_.source_mapping_url_ = p0
 	return this
 }
 
 func (this *LazyAst_Builder) clearSourceMappingUrl() *LazyAst_Builder {
-	this.clr_(2)
+	this.x_.source_mapping_url_ = ""
 	return this
 }
 
@@ -12603,8 +13573,18 @@ func (this *LazyAst_Builder) mergeFrom_LazyAst(p0 *LazyAst) *LazyAst_Builder {
 
 // ---- message jscomp.NonLazyTypedAst
 
+type NonLazyTypedAst_x_ struct {
+	type_pool_        *TypePool
+	string_pool_      *StringPoolProto
+	extern_ast_       []*NonLazyAst
+	code_ast_         []*NonLazyAst
+	source_file_pool_ *SourceFilePool
+	externs_summary_  *ExternsSummary
+}
+
 type NonLazyTypedAst struct {
 	GeneratedMessage
+	x_ NonLazyTypedAst_x_
 }
 
 func (this *NonLazyTypedAst) up_GeneratedMessage() *GeneratedMessage {
@@ -12616,6 +13596,7 @@ func (this *NonLazyTypedAst) up_GeneratedMessage() *GeneratedMessage {
 
 type NonLazyTypedAst_Builder struct {
 	GeneratedMessage_Builder
+	x_ NonLazyTypedAst_x_
 }
 
 func (this *NonLazyTypedAst_Builder) up_GeneratedMessage_Builder() *GeneratedMessage_Builder {
@@ -12626,14 +13607,17 @@ func (this *NonLazyTypedAst_Builder) up_GeneratedMessage_Builder() *GeneratedMes
 }
 
 var NonLazyTypedAst_desc_ = pbReg_(&pbDesc_{name: "jscomp.NonLazyTypedAst", oneofs: []string{},
-	newM: func() any { return &NonLazyTypedAst{} }, newB: func() any { return &NonLazyTypedAst_Builder{} },
+	newM: func() *pbData_ { return &new(NonLazyTypedAst).pbData_ }, newB: func() *pbData_ { return &new(NonLazyTypedAst_Builder).pbData_ },
+	asM: func(p unsafe.Pointer) any { return (*NonLazyTypedAst)(p) }, asB: func(p unsafe.Pointer) any { return (*NonLazyTypedAst_Builder)(p) },
+	cp:   func(dst, src unsafe.Pointer) { (*NonLazyTypedAst)(dst).x_ = (*NonLazyTypedAst)(src).x_ },
+	xoff: unsafe.Offsetof(NonLazyTypedAst{}.x_),
 	fields: []*pbField_{
-		{name: "type_pool", num: 1, kind: pbMessage_, pres: true, tname: "jscomp.TypePool"},
-		{name: "string_pool", num: 2, kind: pbMessage_, pres: true, tname: "jscomp.StringPoolProto"},
-		{name: "extern_ast", num: 3, kind: pbMessage_, rep: true, tname: "jscomp.NonLazyAst"},
-		{name: "code_ast", num: 4, kind: pbMessage_, rep: true, tname: "jscomp.NonLazyAst"},
-		{name: "source_file_pool", num: 5, kind: pbMessage_, pres: true, tname: "jscomp.SourceFilePool"},
-		{name: "externs_summary", num: 6, kind: pbMessage_, pres: true, tname: "jscomp.ExternsSummary"},
+		{name: "type_pool", num: 1, kind: pbMessage_, pres: true, tname: "jscomp.TypePool", off: unsafe.Offsetof(NonLazyTypedAst{}.x_.type_pool_)},
+		{name: "string_pool", num: 2, kind: pbMessage_, pres: true, tname: "jscomp.StringPoolProto", off: unsafe.Offsetof(NonLazyTypedAst{}.x_.string_pool_)},
+		{name: "extern_ast", num: 3, kind: pbMessage_, rep: true, tname: "jscomp.NonLazyAst", off: unsafe.Offsetof(NonLazyTypedAst{}.x_.extern_ast_)},
+		{name: "code_ast", num: 4, kind: pbMessage_, rep: true, tname: "jscomp.NonLazyAst", off: unsafe.Offsetof(NonLazyTypedAst{}.x_.code_ast_)},
+		{name: "source_file_pool", num: 5, kind: pbMessage_, pres: true, tname: "jscomp.SourceFilePool", off: unsafe.Offsetof(NonLazyTypedAst{}.x_.source_file_pool_)},
+		{name: "externs_summary", num: 6, kind: pbMessage_, pres: true, tname: "jscomp.ExternsSummary", off: unsafe.Offsetof(NonLazyTypedAst{}.x_.externs_summary_)},
 	}})
 
 const (
@@ -12646,7 +13630,7 @@ const (
 )
 
 func NonLazyTypedAst_getDefaultInstance() *NonLazyTypedAst {
-	return NonLazyTypedAst_desc_.default_().(*NonLazyTypedAst)
+	return (*NonLazyTypedAst)(unsafe.Pointer(NonLazyTypedAst_desc_.default_()))
 }
 
 func NonLazyTypedAst_getDescriptor() *Descriptors_Descriptor {
@@ -12654,7 +13638,7 @@ func NonLazyTypedAst_getDescriptor() *Descriptors_Descriptor {
 }
 
 func NonLazyTypedAst_newBuilder() *NonLazyTypedAst_Builder {
-	return NonLazyTypedAst_desc_.newBuilder_().me_.(*NonLazyTypedAst_Builder)
+	return (*NonLazyTypedAst_Builder)(unsafe.Pointer(NonLazyTypedAst_desc_.newBuilder_()))
 }
 
 func NonLazyTypedAst_newBuilder_NonLazyTypedAst(p0 *NonLazyTypedAst) *NonLazyTypedAst_Builder {
@@ -12686,36 +13670,42 @@ func NonLazyTypedAst_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedI
 }
 
 func (this *NonLazyTypedAst) hasTypePool() bool {
-	return this.has_(0)
+	return this.x_.type_pool_ != nil
 }
 
 func (this *NonLazyTypedAst_Builder) hasTypePool() bool {
-	return this.has_(0)
+	return this.x_.type_pool_ != nil
 }
 
 func (this *NonLazyTypedAst) getTypePool() *TypePool {
-	return this.gMsg_(0).(*TypePool)
+	if p := this.x_.type_pool_; p != nil {
+		return p
+	}
+	return (*TypePool)(unsafe.Pointer(TypePool_desc_.default_()))
 }
 
 func (this *NonLazyTypedAst_Builder) getTypePool() *TypePool {
-	return this.gMsg_(0).(*TypePool)
+	return (*TypePool)(this.gMsgP_(0))
 }
 
 func (this *NonLazyTypedAst) getTypePoolOrBuilder() TypePoolOrBuilder {
-	return this.gMsg_(0).(*TypePool)
+	if p := this.x_.type_pool_; p != nil {
+		return p
+	}
+	return (*TypePool)(unsafe.Pointer(TypePool_desc_.default_()))
 }
 
 func (this *NonLazyTypedAst_Builder) getTypePoolOrBuilder() TypePoolOrBuilder {
-	return this.gMsg_(0).(*TypePool)
+	return (*TypePool)(this.gMsgP_(0))
 }
 
 func (this *NonLazyTypedAst_Builder) setTypePool(p0 *TypePool) *NonLazyTypedAst_Builder {
-	this.set_(0, obj_(p0))
+	this.setMsg_(0, unsafe.Pointer(p0))
 	return this
 }
 
 func (this *NonLazyTypedAst_Builder) setTypePool_Builder(p0 *TypePool_Builder) *NonLazyTypedAst_Builder {
-	this.set_(0, p0.build())
+	this.setMsg_(0, unsafe.Pointer(p0.build_()))
 	return this
 }
 
@@ -12725,7 +13715,7 @@ func (this *NonLazyTypedAst_Builder) mergeTypePool(p0 *TypePool) *NonLazyTypedAs
 }
 
 func (this *NonLazyTypedAst_Builder) clearTypePool() *NonLazyTypedAst_Builder {
-	this.clr_(0)
+	this.x_.type_pool_ = nil
 	return this
 }
 
@@ -12734,36 +13724,42 @@ func (this *NonLazyTypedAst_Builder) getTypePoolBuilder() *TypePool_Builder {
 }
 
 func (this *NonLazyTypedAst) hasStringPool() bool {
-	return this.has_(1)
+	return this.x_.string_pool_ != nil
 }
 
 func (this *NonLazyTypedAst_Builder) hasStringPool() bool {
-	return this.has_(1)
+	return this.x_.string_pool_ != nil
 }
 
 func (this *NonLazyTypedAst) getStringPool() *StringPoolProto {
-	return this.gMsg_(1).(*StringPoolProto)
+	if p := this.x_.string_pool_; p != nil {
+		return p
+	}
+	return (*StringPoolProto)(unsafe.Pointer(StringPoolProto_desc_.default_()))
 }
 
 func (this *NonLazyTypedAst_Builder) getStringPool() *StringPoolProto {
-	return this.gMsg_(1).(*StringPoolProto)
+	return (*StringPoolProto)(this.gMsgP_(1))
 }
 
 func (this *NonLazyTypedAst) getStringPoolOrBuilder() StringPoolProtoOrBuilder {
-	return this.gMsg_(1).(*StringPoolProto)
+	if p := this.x_.string_pool_; p != nil {
+		return p
+	}
+	return (*StringPoolProto)(unsafe.Pointer(StringPoolProto_desc_.default_()))
 }
 
 func (this *NonLazyTypedAst_Builder) getStringPoolOrBuilder() StringPoolProtoOrBuilder {
-	return this.gMsg_(1).(*StringPoolProto)
+	return (*StringPoolProto)(this.gMsgP_(1))
 }
 
 func (this *NonLazyTypedAst_Builder) setStringPool(p0 *StringPoolProto) *NonLazyTypedAst_Builder {
-	this.set_(1, obj_(p0))
+	this.setMsg_(1, unsafe.Pointer(p0))
 	return this
 }
 
 func (this *NonLazyTypedAst_Builder) setStringPool_Builder(p0 *StringPoolProto_Builder) *NonLazyTypedAst_Builder {
-	this.set_(1, p0.build())
+	this.setMsg_(1, unsafe.Pointer(p0.build_()))
 	return this
 }
 
@@ -12773,7 +13769,7 @@ func (this *NonLazyTypedAst_Builder) mergeStringPool(p0 *StringPoolProto) *NonLa
 }
 
 func (this *NonLazyTypedAst_Builder) clearStringPool() *NonLazyTypedAst_Builder {
-	this.clr_(1)
+	this.x_.string_pool_ = nil
 	return this
 }
 
@@ -12782,7 +13778,7 @@ func (this *NonLazyTypedAst_Builder) getStringPoolBuilder() *StringPoolProto_Bui
 }
 
 func (this *NonLazyTypedAst) getExternAstList() List {
-	return this.list_(2)
+	return pbListOf_(this.x_.extern_ast_)
 }
 
 func (this *NonLazyTypedAst_Builder) getExternAstList() List {
@@ -12790,31 +13786,31 @@ func (this *NonLazyTypedAst_Builder) getExternAstList() List {
 }
 
 func (this *NonLazyTypedAst) getExternAstCount() int32 {
-	return this.cnt_(2)
+	return int32(len(this.x_.extern_ast_))
 }
 
 func (this *NonLazyTypedAst_Builder) getExternAstCount() int32 {
-	return this.cnt_(2)
+	return int32(len(this.x_.extern_ast_))
 }
 
 func (this *NonLazyTypedAst) getExternAst(p0 int32) *NonLazyAst {
-	return this.at_(2, p0).(*NonLazyAst)
+	return pbAt_(this.x_.extern_ast_, p0)
 }
 
 func (this *NonLazyTypedAst_Builder) getExternAst(p0 int32) *NonLazyAst {
-	return this.at_(2, p0).(*NonLazyAst)
+	return (*NonLazyAst)(this.atMsgP_(2, p0))
 }
 
 func (this *NonLazyTypedAst) getExternAstOrBuilder(p0 int32) NonLazyAstOrBuilder {
-	return this.at_(2, p0).(*NonLazyAst)
+	return pbAt_(this.x_.extern_ast_, p0)
 }
 
 func (this *NonLazyTypedAst_Builder) getExternAstOrBuilder(p0 int32) NonLazyAstOrBuilder {
-	return this.at_(2, p0).(*NonLazyAst)
+	return (*NonLazyAst)(this.atMsgP_(2, p0))
 }
 
 func (this *NonLazyTypedAst) getExternAstOrBuilderList() List {
-	return this.list_(2)
+	return pbListOf_(this.x_.extern_ast_)
 }
 
 func (this *NonLazyTypedAst_Builder) getExternAstOrBuilderList() List {
@@ -12832,7 +13828,11 @@ func (this *NonLazyTypedAst_Builder) setExternAst_int_Builder(p0 int32, p1 *NonL
 }
 
 func (this *NonLazyTypedAst_Builder) addExternAst(p0 *NonLazyAst) *NonLazyTypedAst_Builder {
-	this.add_(2, obj_(p0))
+	if p0 == nil {
+		pbNPE_()
+	}
+	this.own_()
+	this.x_.extern_ast_ = append(this.x_.extern_ast_, p0)
 	return this
 }
 
@@ -12857,7 +13857,7 @@ func (this *NonLazyTypedAst_Builder) addAllExternAst(p0 Iterable) *NonLazyTypedA
 }
 
 func (this *NonLazyTypedAst_Builder) clearExternAst() *NonLazyTypedAst_Builder {
-	this.clr_(2)
+	this.x_.extern_ast_ = nil
 	return this
 }
 
@@ -12883,7 +13883,7 @@ func (this *NonLazyTypedAst_Builder) getExternAstBuilderList() List {
 }
 
 func (this *NonLazyTypedAst) getCodeAstList() List {
-	return this.list_(3)
+	return pbListOf_(this.x_.code_ast_)
 }
 
 func (this *NonLazyTypedAst_Builder) getCodeAstList() List {
@@ -12891,31 +13891,31 @@ func (this *NonLazyTypedAst_Builder) getCodeAstList() List {
 }
 
 func (this *NonLazyTypedAst) getCodeAstCount() int32 {
-	return this.cnt_(3)
+	return int32(len(this.x_.code_ast_))
 }
 
 func (this *NonLazyTypedAst_Builder) getCodeAstCount() int32 {
-	return this.cnt_(3)
+	return int32(len(this.x_.code_ast_))
 }
 
 func (this *NonLazyTypedAst) getCodeAst(p0 int32) *NonLazyAst {
-	return this.at_(3, p0).(*NonLazyAst)
+	return pbAt_(this.x_.code_ast_, p0)
 }
 
 func (this *NonLazyTypedAst_Builder) getCodeAst(p0 int32) *NonLazyAst {
-	return this.at_(3, p0).(*NonLazyAst)
+	return (*NonLazyAst)(this.atMsgP_(3, p0))
 }
 
 func (this *NonLazyTypedAst) getCodeAstOrBuilder(p0 int32) NonLazyAstOrBuilder {
-	return this.at_(3, p0).(*NonLazyAst)
+	return pbAt_(this.x_.code_ast_, p0)
 }
 
 func (this *NonLazyTypedAst_Builder) getCodeAstOrBuilder(p0 int32) NonLazyAstOrBuilder {
-	return this.at_(3, p0).(*NonLazyAst)
+	return (*NonLazyAst)(this.atMsgP_(3, p0))
 }
 
 func (this *NonLazyTypedAst) getCodeAstOrBuilderList() List {
-	return this.list_(3)
+	return pbListOf_(this.x_.code_ast_)
 }
 
 func (this *NonLazyTypedAst_Builder) getCodeAstOrBuilderList() List {
@@ -12933,7 +13933,11 @@ func (this *NonLazyTypedAst_Builder) setCodeAst_int_Builder(p0 int32, p1 *NonLaz
 }
 
 func (this *NonLazyTypedAst_Builder) addCodeAst(p0 *NonLazyAst) *NonLazyTypedAst_Builder {
-	this.add_(3, obj_(p0))
+	if p0 == nil {
+		pbNPE_()
+	}
+	this.own_()
+	this.x_.code_ast_ = append(this.x_.code_ast_, p0)
 	return this
 }
 
@@ -12958,7 +13962,7 @@ func (this *NonLazyTypedAst_Builder) addAllCodeAst(p0 Iterable) *NonLazyTypedAst
 }
 
 func (this *NonLazyTypedAst_Builder) clearCodeAst() *NonLazyTypedAst_Builder {
-	this.clr_(3)
+	this.x_.code_ast_ = nil
 	return this
 }
 
@@ -12984,36 +13988,42 @@ func (this *NonLazyTypedAst_Builder) getCodeAstBuilderList() List {
 }
 
 func (this *NonLazyTypedAst) hasSourceFilePool() bool {
-	return this.has_(4)
+	return this.x_.source_file_pool_ != nil
 }
 
 func (this *NonLazyTypedAst_Builder) hasSourceFilePool() bool {
-	return this.has_(4)
+	return this.x_.source_file_pool_ != nil
 }
 
 func (this *NonLazyTypedAst) getSourceFilePool() *SourceFilePool {
-	return this.gMsg_(4).(*SourceFilePool)
+	if p := this.x_.source_file_pool_; p != nil {
+		return p
+	}
+	return (*SourceFilePool)(unsafe.Pointer(SourceFilePool_desc_.default_()))
 }
 
 func (this *NonLazyTypedAst_Builder) getSourceFilePool() *SourceFilePool {
-	return this.gMsg_(4).(*SourceFilePool)
+	return (*SourceFilePool)(this.gMsgP_(4))
 }
 
 func (this *NonLazyTypedAst) getSourceFilePoolOrBuilder() SourceFilePoolOrBuilder {
-	return this.gMsg_(4).(*SourceFilePool)
+	if p := this.x_.source_file_pool_; p != nil {
+		return p
+	}
+	return (*SourceFilePool)(unsafe.Pointer(SourceFilePool_desc_.default_()))
 }
 
 func (this *NonLazyTypedAst_Builder) getSourceFilePoolOrBuilder() SourceFilePoolOrBuilder {
-	return this.gMsg_(4).(*SourceFilePool)
+	return (*SourceFilePool)(this.gMsgP_(4))
 }
 
 func (this *NonLazyTypedAst_Builder) setSourceFilePool(p0 *SourceFilePool) *NonLazyTypedAst_Builder {
-	this.set_(4, obj_(p0))
+	this.setMsg_(4, unsafe.Pointer(p0))
 	return this
 }
 
 func (this *NonLazyTypedAst_Builder) setSourceFilePool_Builder(p0 *SourceFilePool_Builder) *NonLazyTypedAst_Builder {
-	this.set_(4, p0.build())
+	this.setMsg_(4, unsafe.Pointer(p0.build_()))
 	return this
 }
 
@@ -13023,7 +14033,7 @@ func (this *NonLazyTypedAst_Builder) mergeSourceFilePool(p0 *SourceFilePool) *No
 }
 
 func (this *NonLazyTypedAst_Builder) clearSourceFilePool() *NonLazyTypedAst_Builder {
-	this.clr_(4)
+	this.x_.source_file_pool_ = nil
 	return this
 }
 
@@ -13032,36 +14042,42 @@ func (this *NonLazyTypedAst_Builder) getSourceFilePoolBuilder() *SourceFilePool_
 }
 
 func (this *NonLazyTypedAst) hasExternsSummary() bool {
-	return this.has_(5)
+	return this.x_.externs_summary_ != nil
 }
 
 func (this *NonLazyTypedAst_Builder) hasExternsSummary() bool {
-	return this.has_(5)
+	return this.x_.externs_summary_ != nil
 }
 
 func (this *NonLazyTypedAst) getExternsSummary() *ExternsSummary {
-	return this.gMsg_(5).(*ExternsSummary)
+	if p := this.x_.externs_summary_; p != nil {
+		return p
+	}
+	return (*ExternsSummary)(unsafe.Pointer(ExternsSummary_desc_.default_()))
 }
 
 func (this *NonLazyTypedAst_Builder) getExternsSummary() *ExternsSummary {
-	return this.gMsg_(5).(*ExternsSummary)
+	return (*ExternsSummary)(this.gMsgP_(5))
 }
 
 func (this *NonLazyTypedAst) getExternsSummaryOrBuilder() ExternsSummaryOrBuilder {
-	return this.gMsg_(5).(*ExternsSummary)
+	if p := this.x_.externs_summary_; p != nil {
+		return p
+	}
+	return (*ExternsSummary)(unsafe.Pointer(ExternsSummary_desc_.default_()))
 }
 
 func (this *NonLazyTypedAst_Builder) getExternsSummaryOrBuilder() ExternsSummaryOrBuilder {
-	return this.gMsg_(5).(*ExternsSummary)
+	return (*ExternsSummary)(this.gMsgP_(5))
 }
 
 func (this *NonLazyTypedAst_Builder) setExternsSummary(p0 *ExternsSummary) *NonLazyTypedAst_Builder {
-	this.set_(5, obj_(p0))
+	this.setMsg_(5, unsafe.Pointer(p0))
 	return this
 }
 
 func (this *NonLazyTypedAst_Builder) setExternsSummary_Builder(p0 *ExternsSummary_Builder) *NonLazyTypedAst_Builder {
-	this.set_(5, p0.build())
+	this.setMsg_(5, unsafe.Pointer(p0.build_()))
 	return this
 }
 
@@ -13071,7 +14087,7 @@ func (this *NonLazyTypedAst_Builder) mergeExternsSummary(p0 *ExternsSummary) *No
 }
 
 func (this *NonLazyTypedAst_Builder) clearExternsSummary() *NonLazyTypedAst_Builder {
-	this.clr_(5)
+	this.x_.externs_summary_ = nil
 	return this
 }
 
@@ -13112,8 +14128,13 @@ type NonLazyTypedAstOrBuilder interface {
 
 // ---- message jscomp.NonLazyTypedAst.List
 
+type NonLazyTypedAst_List_x_ struct {
+	typed_asts_ []*NonLazyTypedAst
+}
+
 type NonLazyTypedAst_List struct {
 	GeneratedMessage
+	x_ NonLazyTypedAst_List_x_
 }
 
 func (this *NonLazyTypedAst_List) up_GeneratedMessage() *GeneratedMessage {
@@ -13125,6 +14146,7 @@ func (this *NonLazyTypedAst_List) up_GeneratedMessage() *GeneratedMessage {
 
 type NonLazyTypedAst_List_Builder struct {
 	GeneratedMessage_Builder
+	x_ NonLazyTypedAst_List_x_
 }
 
 func (this *NonLazyTypedAst_List_Builder) up_GeneratedMessage_Builder() *GeneratedMessage_Builder {
@@ -13135,9 +14157,12 @@ func (this *NonLazyTypedAst_List_Builder) up_GeneratedMessage_Builder() *Generat
 }
 
 var NonLazyTypedAst_List_desc_ = pbReg_(&pbDesc_{name: "jscomp.NonLazyTypedAst.List", oneofs: []string{},
-	newM: func() any { return &NonLazyTypedAst_List{} }, newB: func() any { return &NonLazyTypedAst_List_Builder{} },
+	newM: func() *pbData_ { return &new(NonLazyTypedAst_List).pbData_ }, newB: func() *pbData_ { return &new(NonLazyTypedAst_List_Builder).pbData_ },
+	asM: func(p unsafe.Pointer) any { return (*NonLazyTypedAst_List)(p) }, asB: func(p unsafe.Pointer) any { return (*NonLazyTypedAst_List_Builder)(p) },
+	cp:   func(dst, src unsafe.Pointer) { (*NonLazyTypedAst_List)(dst).x_ = (*NonLazyTypedAst_List)(src).x_ },
+	xoff: unsafe.Offsetof(NonLazyTypedAst_List{}.x_),
 	fields: []*pbField_{
-		{name: "typed_asts", num: 1, kind: pbMessage_, rep: true, tname: "jscomp.NonLazyTypedAst"},
+		{name: "typed_asts", num: 1, kind: pbMessage_, rep: true, tname: "jscomp.NonLazyTypedAst", off: unsafe.Offsetof(NonLazyTypedAst_List{}.x_.typed_asts_)},
 	}})
 
 const (
@@ -13145,7 +14170,7 @@ const (
 )
 
 func NonLazyTypedAst_List_getDefaultInstance() *NonLazyTypedAst_List {
-	return NonLazyTypedAst_List_desc_.default_().(*NonLazyTypedAst_List)
+	return (*NonLazyTypedAst_List)(unsafe.Pointer(NonLazyTypedAst_List_desc_.default_()))
 }
 
 func NonLazyTypedAst_List_getDescriptor() *Descriptors_Descriptor {
@@ -13153,7 +14178,7 @@ func NonLazyTypedAst_List_getDescriptor() *Descriptors_Descriptor {
 }
 
 func NonLazyTypedAst_List_newBuilder() *NonLazyTypedAst_List_Builder {
-	return NonLazyTypedAst_List_desc_.newBuilder_().me_.(*NonLazyTypedAst_List_Builder)
+	return (*NonLazyTypedAst_List_Builder)(unsafe.Pointer(NonLazyTypedAst_List_desc_.newBuilder_()))
 }
 
 func NonLazyTypedAst_List_newBuilder_List(p0 *NonLazyTypedAst_List) *NonLazyTypedAst_List_Builder {
@@ -13185,7 +14210,7 @@ func NonLazyTypedAst_List_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *C
 }
 
 func (this *NonLazyTypedAst_List) getTypedAstsList() List {
-	return this.list_(0)
+	return pbListOf_(this.x_.typed_asts_)
 }
 
 func (this *NonLazyTypedAst_List_Builder) getTypedAstsList() List {
@@ -13193,31 +14218,31 @@ func (this *NonLazyTypedAst_List_Builder) getTypedAstsList() List {
 }
 
 func (this *NonLazyTypedAst_List) getTypedAstsCount() int32 {
-	return this.cnt_(0)
+	return int32(len(this.x_.typed_asts_))
 }
 
 func (this *NonLazyTypedAst_List_Builder) getTypedAstsCount() int32 {
-	return this.cnt_(0)
+	return int32(len(this.x_.typed_asts_))
 }
 
 func (this *NonLazyTypedAst_List) getTypedAsts(p0 int32) *NonLazyTypedAst {
-	return this.at_(0, p0).(*NonLazyTypedAst)
+	return pbAt_(this.x_.typed_asts_, p0)
 }
 
 func (this *NonLazyTypedAst_List_Builder) getTypedAsts(p0 int32) *NonLazyTypedAst {
-	return this.at_(0, p0).(*NonLazyTypedAst)
+	return (*NonLazyTypedAst)(this.atMsgP_(0, p0))
 }
 
 func (this *NonLazyTypedAst_List) getTypedAstsOrBuilder(p0 int32) NonLazyTypedAstOrBuilder {
-	return this.at_(0, p0).(*NonLazyTypedAst)
+	return pbAt_(this.x_.typed_asts_, p0)
 }
 
 func (this *NonLazyTypedAst_List_Builder) getTypedAstsOrBuilder(p0 int32) NonLazyTypedAstOrBuilder {
-	return this.at_(0, p0).(*NonLazyTypedAst)
+	return (*NonLazyTypedAst)(this.atMsgP_(0, p0))
 }
 
 func (this *NonLazyTypedAst_List) getTypedAstsOrBuilderList() List {
-	return this.list_(0)
+	return pbListOf_(this.x_.typed_asts_)
 }
 
 func (this *NonLazyTypedAst_List_Builder) getTypedAstsOrBuilderList() List {
@@ -13235,7 +14260,11 @@ func (this *NonLazyTypedAst_List_Builder) setTypedAsts_int_Builder(p0 int32, p1 
 }
 
 func (this *NonLazyTypedAst_List_Builder) addTypedAsts(p0 *NonLazyTypedAst) *NonLazyTypedAst_List_Builder {
-	this.add_(0, obj_(p0))
+	if p0 == nil {
+		pbNPE_()
+	}
+	this.own_()
+	this.x_.typed_asts_ = append(this.x_.typed_asts_, p0)
 	return this
 }
 
@@ -13260,7 +14289,7 @@ func (this *NonLazyTypedAst_List_Builder) addAllTypedAsts(p0 Iterable) *NonLazyT
 }
 
 func (this *NonLazyTypedAst_List_Builder) clearTypedAsts() *NonLazyTypedAst_List_Builder {
-	this.clr_(0)
+	this.x_.typed_asts_ = nil
 	return this
 }
 
@@ -13301,8 +14330,15 @@ type NonLazyTypedAst_ListOrBuilder interface {
 
 // ---- message jscomp.NonLazyAst
 
+type NonLazyAst_x_ struct {
+	script_             *AstNode
+	source_mapping_url_ string
+	source_file_        int32
+}
+
 type NonLazyAst struct {
 	GeneratedMessage
+	x_ NonLazyAst_x_
 }
 
 func (this *NonLazyAst) up_GeneratedMessage() *GeneratedMessage {
@@ -13314,6 +14350,7 @@ func (this *NonLazyAst) up_GeneratedMessage() *GeneratedMessage {
 
 type NonLazyAst_Builder struct {
 	GeneratedMessage_Builder
+	x_ NonLazyAst_x_
 }
 
 func (this *NonLazyAst_Builder) up_GeneratedMessage_Builder() *GeneratedMessage_Builder {
@@ -13324,11 +14361,14 @@ func (this *NonLazyAst_Builder) up_GeneratedMessage_Builder() *GeneratedMessage_
 }
 
 var NonLazyAst_desc_ = pbReg_(&pbDesc_{name: "jscomp.NonLazyAst", oneofs: []string{},
-	newM: func() any { return &NonLazyAst{} }, newB: func() any { return &NonLazyAst_Builder{} },
+	newM: func() *pbData_ { return &new(NonLazyAst).pbData_ }, newB: func() *pbData_ { return &new(NonLazyAst_Builder).pbData_ },
+	asM: func(p unsafe.Pointer) any { return (*NonLazyAst)(p) }, asB: func(p unsafe.Pointer) any { return (*NonLazyAst_Builder)(p) },
+	cp:   func(dst, src unsafe.Pointer) { (*NonLazyAst)(dst).x_ = (*NonLazyAst)(src).x_ },
+	xoff: unsafe.Offsetof(NonLazyAst{}.x_),
 	fields: []*pbField_{
-		{name: "script", num: 1, kind: pbMessage_, pres: true, tname: "jscomp.AstNode"},
-		{name: "source_file", num: 2, kind: pbUint32_},
-		{name: "source_mapping_url", num: 3, kind: pbString_, utf8: true},
+		{name: "script", num: 1, kind: pbMessage_, pres: true, tname: "jscomp.AstNode", off: unsafe.Offsetof(NonLazyAst{}.x_.script_)},
+		{name: "source_file", num: 2, kind: pbUint32_, off: unsafe.Offsetof(NonLazyAst{}.x_.source_file_)},
+		{name: "source_mapping_url", num: 3, kind: pbString_, utf8: true, off: unsafe.Offsetof(NonLazyAst{}.x_.source_mapping_url_)},
 	}})
 
 const (
@@ -13338,7 +14378,7 @@ const (
 )
 
 func NonLazyAst_getDefaultInstance() *NonLazyAst {
-	return NonLazyAst_desc_.default_().(*NonLazyAst)
+	return (*NonLazyAst)(unsafe.Pointer(NonLazyAst_desc_.default_()))
 }
 
 func NonLazyAst_getDescriptor() *Descriptors_Descriptor {
@@ -13346,7 +14386,7 @@ func NonLazyAst_getDescriptor() *Descriptors_Descriptor {
 }
 
 func NonLazyAst_newBuilder() *NonLazyAst_Builder {
-	return NonLazyAst_desc_.newBuilder_().me_.(*NonLazyAst_Builder)
+	return (*NonLazyAst_Builder)(unsafe.Pointer(NonLazyAst_desc_.newBuilder_()))
 }
 
 func NonLazyAst_newBuilder_NonLazyAst(p0 *NonLazyAst) *NonLazyAst_Builder {
@@ -13378,36 +14418,42 @@ func NonLazyAst_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInputS
 }
 
 func (this *NonLazyAst) hasScript() bool {
-	return this.has_(0)
+	return this.x_.script_ != nil
 }
 
 func (this *NonLazyAst_Builder) hasScript() bool {
-	return this.has_(0)
+	return this.x_.script_ != nil
 }
 
 func (this *NonLazyAst) getScript() *AstNode {
-	return this.gMsg_(0).(*AstNode)
+	if p := this.x_.script_; p != nil {
+		return p
+	}
+	return (*AstNode)(unsafe.Pointer(AstNode_desc_.default_()))
 }
 
 func (this *NonLazyAst_Builder) getScript() *AstNode {
-	return this.gMsg_(0).(*AstNode)
+	return (*AstNode)(this.gMsgP_(0))
 }
 
 func (this *NonLazyAst) getScriptOrBuilder() AstNodeOrBuilder {
-	return this.gMsg_(0).(*AstNode)
+	if p := this.x_.script_; p != nil {
+		return p
+	}
+	return (*AstNode)(unsafe.Pointer(AstNode_desc_.default_()))
 }
 
 func (this *NonLazyAst_Builder) getScriptOrBuilder() AstNodeOrBuilder {
-	return this.gMsg_(0).(*AstNode)
+	return (*AstNode)(this.gMsgP_(0))
 }
 
 func (this *NonLazyAst_Builder) setScript(p0 *AstNode) *NonLazyAst_Builder {
-	this.set_(0, obj_(p0))
+	this.setMsg_(0, unsafe.Pointer(p0))
 	return this
 }
 
 func (this *NonLazyAst_Builder) setScript_Builder(p0 *AstNode_Builder) *NonLazyAst_Builder {
-	this.set_(0, p0.build())
+	this.setMsg_(0, unsafe.Pointer(p0.build_()))
 	return this
 }
 
@@ -13417,7 +14463,7 @@ func (this *NonLazyAst_Builder) mergeScript(p0 *AstNode) *NonLazyAst_Builder {
 }
 
 func (this *NonLazyAst_Builder) clearScript() *NonLazyAst_Builder {
-	this.clr_(0)
+	this.x_.script_ = nil
 	return this
 }
 
@@ -13426,38 +14472,41 @@ func (this *NonLazyAst_Builder) getScriptBuilder() *AstNode_Builder {
 }
 
 func (this *NonLazyAst) getSourceFile() int32 {
-	return this.gI32_(1)
+	return this.x_.source_file_
 }
 
 func (this *NonLazyAst_Builder) getSourceFile() int32 {
-	return this.gI32_(1)
+	return this.x_.source_file_
 }
 
 func (this *NonLazyAst_Builder) setSourceFile(p0 int32) *NonLazyAst_Builder {
-	this.set_(1, p0)
+	this.x_.source_file_ = p0
 	return this
 }
 
 func (this *NonLazyAst_Builder) clearSourceFile() *NonLazyAst_Builder {
-	this.clr_(1)
+	this.x_.source_file_ = 0
 	return this
 }
 
 func (this *NonLazyAst) getSourceMappingUrl() string {
-	return this.gStr_(2)
+	return this.x_.source_mapping_url_
 }
 
 func (this *NonLazyAst_Builder) getSourceMappingUrl() string {
-	return this.gStr_(2)
+	return this.x_.source_mapping_url_
 }
 
 func (this *NonLazyAst_Builder) setSourceMappingUrl(p0 string) *NonLazyAst_Builder {
-	this.set_(2, p0)
+	if p0 == nullstr_ {
+		pbNPE_()
+	}
+	this.x_.source_mapping_url_ = p0
 	return this
 }
 
 func (this *NonLazyAst_Builder) clearSourceMappingUrl() *NonLazyAst_Builder {
-	this.clr_(2)
+	this.x_.source_mapping_url_ = ""
 	return this
 }
 
@@ -13491,8 +14540,14 @@ type NonLazyAstOrBuilder interface {
 
 // ---- message jscomp.StringPoolProto
 
+type StringPoolProto_x_ struct {
+	strings_    []*ByteString
+	max_length_ int32
+}
+
 type StringPoolProto struct {
 	GeneratedMessage
+	x_ StringPoolProto_x_
 }
 
 func (this *StringPoolProto) up_GeneratedMessage() *GeneratedMessage {
@@ -13504,6 +14559,7 @@ func (this *StringPoolProto) up_GeneratedMessage() *GeneratedMessage {
 
 type StringPoolProto_Builder struct {
 	GeneratedMessage_Builder
+	x_ StringPoolProto_x_
 }
 
 func (this *StringPoolProto_Builder) up_GeneratedMessage_Builder() *GeneratedMessage_Builder {
@@ -13514,10 +14570,13 @@ func (this *StringPoolProto_Builder) up_GeneratedMessage_Builder() *GeneratedMes
 }
 
 var StringPoolProto_desc_ = pbReg_(&pbDesc_{name: "jscomp.StringPoolProto", oneofs: []string{},
-	newM: func() any { return &StringPoolProto{} }, newB: func() any { return &StringPoolProto_Builder{} },
+	newM: func() *pbData_ { return &new(StringPoolProto).pbData_ }, newB: func() *pbData_ { return &new(StringPoolProto_Builder).pbData_ },
+	asM: func(p unsafe.Pointer) any { return (*StringPoolProto)(p) }, asB: func(p unsafe.Pointer) any { return (*StringPoolProto_Builder)(p) },
+	cp:   func(dst, src unsafe.Pointer) { (*StringPoolProto)(dst).x_ = (*StringPoolProto)(src).x_ },
+	xoff: unsafe.Offsetof(StringPoolProto{}.x_),
 	fields: []*pbField_{
-		{name: "strings", num: 1, kind: pbBytes_, rep: true},
-		{name: "max_length", num: 2, kind: pbInt32_},
+		{name: "strings", num: 1, kind: pbBytes_, rep: true, off: unsafe.Offsetof(StringPoolProto{}.x_.strings_)},
+		{name: "max_length", num: 2, kind: pbInt32_, off: unsafe.Offsetof(StringPoolProto{}.x_.max_length_)},
 	}})
 
 const (
@@ -13526,7 +14585,7 @@ const (
 )
 
 func StringPoolProto_getDefaultInstance() *StringPoolProto {
-	return StringPoolProto_desc_.default_().(*StringPoolProto)
+	return (*StringPoolProto)(unsafe.Pointer(StringPoolProto_desc_.default_()))
 }
 
 func StringPoolProto_getDescriptor() *Descriptors_Descriptor {
@@ -13534,7 +14593,7 @@ func StringPoolProto_getDescriptor() *Descriptors_Descriptor {
 }
 
 func StringPoolProto_newBuilder() *StringPoolProto_Builder {
-	return StringPoolProto_desc_.newBuilder_().me_.(*StringPoolProto_Builder)
+	return (*StringPoolProto_Builder)(unsafe.Pointer(StringPoolProto_desc_.newBuilder_()))
 }
 
 func StringPoolProto_newBuilder_StringPoolProto(p0 *StringPoolProto) *StringPoolProto_Builder {
@@ -13566,27 +14625,27 @@ func StringPoolProto_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedI
 }
 
 func (this *StringPoolProto) getStringsList() List {
-	return this.list_(0)
+	return pbListOf_(this.x_.strings_)
 }
 
 func (this *StringPoolProto_Builder) getStringsList() List {
-	return this.list_(0)
+	return pbListOf_(this.x_.strings_)
 }
 
 func (this *StringPoolProto) getStrings(p0 int32) *ByteString {
-	return this.at_(0, p0).(*ByteString)
+	return pbAt_(this.x_.strings_, p0)
 }
 
 func (this *StringPoolProto_Builder) getStrings(p0 int32) *ByteString {
-	return this.at_(0, p0).(*ByteString)
+	return pbAt_(this.x_.strings_, p0)
 }
 
 func (this *StringPoolProto) getStringsCount() int32 {
-	return this.cnt_(0)
+	return int32(len(this.x_.strings_))
 }
 
 func (this *StringPoolProto_Builder) getStringsCount() int32 {
-	return this.cnt_(0)
+	return int32(len(this.x_.strings_))
 }
 
 func (this *StringPoolProto_Builder) setStrings(p0 int32, p1 *ByteString) *StringPoolProto_Builder {
@@ -13595,7 +14654,11 @@ func (this *StringPoolProto_Builder) setStrings(p0 int32, p1 *ByteString) *Strin
 }
 
 func (this *StringPoolProto_Builder) addStrings(p0 *ByteString) *StringPoolProto_Builder {
-	this.add_(0, obj_(p0))
+	if p0 == nil {
+		pbNPE_()
+	}
+	this.own_()
+	this.x_.strings_ = append(this.x_.strings_, p0)
 	return this
 }
 
@@ -13605,25 +14668,25 @@ func (this *StringPoolProto_Builder) addAllStrings(p0 Iterable) *StringPoolProto
 }
 
 func (this *StringPoolProto_Builder) clearStrings() *StringPoolProto_Builder {
-	this.clr_(0)
+	this.x_.strings_ = nil
 	return this
 }
 
 func (this *StringPoolProto) getMaxLength() int32 {
-	return this.gI32_(1)
+	return this.x_.max_length_
 }
 
 func (this *StringPoolProto_Builder) getMaxLength() int32 {
-	return this.gI32_(1)
+	return this.x_.max_length_
 }
 
 func (this *StringPoolProto_Builder) setMaxLength(p0 int32) *StringPoolProto_Builder {
-	this.set_(1, p0)
+	this.x_.max_length_ = p0
 	return this
 }
 
 func (this *StringPoolProto_Builder) clearMaxLength() *StringPoolProto_Builder {
-	this.clr_(1)
+	this.x_.max_length_ = 0
 	return this
 }
 
@@ -13634,8 +14697,13 @@ func (this *StringPoolProto_Builder) mergeFrom_StringPoolProto(p0 *StringPoolPro
 
 // ---- message jscomp.ExternsSummary
 
+type ExternsSummary_x_ struct {
+	prop_name_ptr_ []int32
+}
+
 type ExternsSummary struct {
 	GeneratedMessage
+	x_ ExternsSummary_x_
 }
 
 func (this *ExternsSummary) up_GeneratedMessage() *GeneratedMessage {
@@ -13647,6 +14715,7 @@ func (this *ExternsSummary) up_GeneratedMessage() *GeneratedMessage {
 
 type ExternsSummary_Builder struct {
 	GeneratedMessage_Builder
+	x_ ExternsSummary_x_
 }
 
 func (this *ExternsSummary_Builder) up_GeneratedMessage_Builder() *GeneratedMessage_Builder {
@@ -13657,9 +14726,12 @@ func (this *ExternsSummary_Builder) up_GeneratedMessage_Builder() *GeneratedMess
 }
 
 var ExternsSummary_desc_ = pbReg_(&pbDesc_{name: "jscomp.ExternsSummary", oneofs: []string{},
-	newM: func() any { return &ExternsSummary{} }, newB: func() any { return &ExternsSummary_Builder{} },
+	newM: func() *pbData_ { return &new(ExternsSummary).pbData_ }, newB: func() *pbData_ { return &new(ExternsSummary_Builder).pbData_ },
+	asM: func(p unsafe.Pointer) any { return (*ExternsSummary)(p) }, asB: func(p unsafe.Pointer) any { return (*ExternsSummary_Builder)(p) },
+	cp:   func(dst, src unsafe.Pointer) { (*ExternsSummary)(dst).x_ = (*ExternsSummary)(src).x_ },
+	xoff: unsafe.Offsetof(ExternsSummary{}.x_),
 	fields: []*pbField_{
-		{name: "prop_name_ptr", num: 1, kind: pbInt32_, rep: true, packed: true},
+		{name: "prop_name_ptr", num: 1, kind: pbInt32_, rep: true, packed: true, off: unsafe.Offsetof(ExternsSummary{}.x_.prop_name_ptr_)},
 	}})
 
 const (
@@ -13667,7 +14739,7 @@ const (
 )
 
 func ExternsSummary_getDefaultInstance() *ExternsSummary {
-	return ExternsSummary_desc_.default_().(*ExternsSummary)
+	return (*ExternsSummary)(unsafe.Pointer(ExternsSummary_desc_.default_()))
 }
 
 func ExternsSummary_getDescriptor() *Descriptors_Descriptor {
@@ -13675,7 +14747,7 @@ func ExternsSummary_getDescriptor() *Descriptors_Descriptor {
 }
 
 func ExternsSummary_newBuilder() *ExternsSummary_Builder {
-	return ExternsSummary_desc_.newBuilder_().me_.(*ExternsSummary_Builder)
+	return (*ExternsSummary_Builder)(unsafe.Pointer(ExternsSummary_desc_.newBuilder_()))
 }
 
 func ExternsSummary_newBuilder_ExternsSummary(p0 *ExternsSummary) *ExternsSummary_Builder {
@@ -13707,27 +14779,27 @@ func ExternsSummary_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedIn
 }
 
 func (this *ExternsSummary) getPropNamePtrList() List {
-	return this.list_(0)
+	return pbListOf_(this.x_.prop_name_ptr_)
 }
 
 func (this *ExternsSummary_Builder) getPropNamePtrList() List {
-	return this.list_(0)
+	return pbListOf_(this.x_.prop_name_ptr_)
 }
 
 func (this *ExternsSummary) getPropNamePtr(p0 int32) int32 {
-	return this.at_(0, p0).(int32)
+	return pbAt_(this.x_.prop_name_ptr_, p0)
 }
 
 func (this *ExternsSummary_Builder) getPropNamePtr(p0 int32) int32 {
-	return this.at_(0, p0).(int32)
+	return pbAt_(this.x_.prop_name_ptr_, p0)
 }
 
 func (this *ExternsSummary) getPropNamePtrCount() int32 {
-	return this.cnt_(0)
+	return int32(len(this.x_.prop_name_ptr_))
 }
 
 func (this *ExternsSummary_Builder) getPropNamePtrCount() int32 {
-	return this.cnt_(0)
+	return int32(len(this.x_.prop_name_ptr_))
 }
 
 func (this *ExternsSummary_Builder) setPropNamePtr(p0 int32, p1 int32) *ExternsSummary_Builder {
@@ -13736,7 +14808,8 @@ func (this *ExternsSummary_Builder) setPropNamePtr(p0 int32, p1 int32) *ExternsS
 }
 
 func (this *ExternsSummary_Builder) addPropNamePtr(p0 int32) *ExternsSummary_Builder {
-	this.add_(0, p0)
+	this.own_()
+	this.x_.prop_name_ptr_ = append(this.x_.prop_name_ptr_, p0)
 	return this
 }
 
@@ -13746,7 +14819,7 @@ func (this *ExternsSummary_Builder) addAllPropNamePtr(p0 Iterable) *ExternsSumma
 }
 
 func (this *ExternsSummary_Builder) clearPropNamePtr() *ExternsSummary_Builder {
-	this.clr_(0)
+	this.x_.prop_name_ptr_ = nil
 	return this
 }
 
@@ -13757,8 +14830,25 @@ func (this *ExternsSummary_Builder) mergeFrom_ExternsSummary(p0 *ExternsSummary)
 
 // ---- message jscomp.AstNode
 
+type AstNode_x_ struct {
+	child_                 []*AstNode
+	template_string_value_ *TemplateStringValue
+	jsdoc_                 *OptimizationJsdoc
+	double_value_          float64
+	boolean_properties_    int64
+	pbHas_                 [1]uint32
+	kind_                  int32
+	string_value_pointer_  int32
+	relative_line_         int32
+	relative_column_       int32
+	original_name_pointer_ int32
+	type_                  int32
+	source_file_           int32
+}
+
 type AstNode struct {
 	GeneratedMessage
+	x_ AstNode_x_
 }
 
 func (this *AstNode) up_GeneratedMessage() *GeneratedMessage {
@@ -13770,6 +14860,7 @@ func (this *AstNode) up_GeneratedMessage() *GeneratedMessage {
 
 type AstNode_Builder struct {
 	GeneratedMessage_Builder
+	x_ AstNode_x_
 }
 
 func (this *AstNode_Builder) up_GeneratedMessage_Builder() *GeneratedMessage_Builder {
@@ -13780,20 +14871,23 @@ func (this *AstNode_Builder) up_GeneratedMessage_Builder() *GeneratedMessage_Bui
 }
 
 var AstNode_desc_ = pbReg_(&pbDesc_{name: "jscomp.AstNode", oneofs: []string{"value"},
-	newM: func() any { return &AstNode{} }, newB: func() any { return &AstNode_Builder{} },
+	newM: func() *pbData_ { return &new(AstNode).pbData_ }, newB: func() *pbData_ { return &new(AstNode_Builder).pbData_ },
+	asM: func(p unsafe.Pointer) any { return (*AstNode)(p) }, asB: func(p unsafe.Pointer) any { return (*AstNode_Builder)(p) },
+	cp:   func(dst, src unsafe.Pointer) { (*AstNode)(dst).x_ = (*AstNode)(src).x_ },
+	xoff: unsafe.Offsetof(AstNode{}.x_), hoff: unsafe.Offsetof(AstNode{}.x_.pbHas_),
 	fields: []*pbField_{
-		{name: "kind", num: 1, kind: pbEnum_, tname: "jscomp.NodeKind"},
-		{name: "child", num: 2, kind: pbMessage_, rep: true, tname: "jscomp.AstNode"},
-		{name: "string_value_pointer", num: 3, kind: pbUint32_, pres: true, oneof: 1},
-		{name: "double_value", num: 4, kind: pbDouble_, pres: true, oneof: 1},
-		{name: "template_string_value", num: 8, kind: pbMessage_, pres: true, oneof: 1, tname: "jscomp.TemplateStringValue"},
-		{name: "relative_line", num: 5, kind: pbSint32_},
-		{name: "relative_column", num: 6, kind: pbSint32_},
-		{name: "jsdoc", num: 7, kind: pbMessage_, pres: true, tname: "jscomp.OptimizationJsdoc"},
-		{name: "original_name_pointer", num: 9, kind: pbUint32_},
-		{name: "boolean_properties", num: 14, kind: pbInt64_},
-		{name: "type", num: 15, kind: pbInt32_, pres: true},
-		{name: "source_file", num: 16, kind: pbUint32_},
+		{name: "kind", num: 1, kind: pbEnum_, tname: "jscomp.NodeKind", off: unsafe.Offsetof(AstNode{}.x_.kind_)},
+		{name: "child", num: 2, kind: pbMessage_, rep: true, tname: "jscomp.AstNode", off: unsafe.Offsetof(AstNode{}.x_.child_)},
+		{name: "string_value_pointer", num: 3, kind: pbUint32_, pres: true, oneof: 1, off: unsafe.Offsetof(AstNode{}.x_.string_value_pointer_), hb: 1},
+		{name: "double_value", num: 4, kind: pbDouble_, pres: true, oneof: 1, off: unsafe.Offsetof(AstNode{}.x_.double_value_), hb: 2},
+		{name: "template_string_value", num: 8, kind: pbMessage_, pres: true, oneof: 1, tname: "jscomp.TemplateStringValue", off: unsafe.Offsetof(AstNode{}.x_.template_string_value_)},
+		{name: "relative_line", num: 5, kind: pbSint32_, off: unsafe.Offsetof(AstNode{}.x_.relative_line_)},
+		{name: "relative_column", num: 6, kind: pbSint32_, off: unsafe.Offsetof(AstNode{}.x_.relative_column_)},
+		{name: "jsdoc", num: 7, kind: pbMessage_, pres: true, tname: "jscomp.OptimizationJsdoc", off: unsafe.Offsetof(AstNode{}.x_.jsdoc_)},
+		{name: "original_name_pointer", num: 9, kind: pbUint32_, off: unsafe.Offsetof(AstNode{}.x_.original_name_pointer_)},
+		{name: "boolean_properties", num: 14, kind: pbInt64_, off: unsafe.Offsetof(AstNode{}.x_.boolean_properties_)},
+		{name: "type", num: 15, kind: pbInt32_, pres: true, off: unsafe.Offsetof(AstNode{}.x_.type_), hb: 3},
+		{name: "source_file", num: 16, kind: pbUint32_, off: unsafe.Offsetof(AstNode{}.x_.source_file_)},
 	}})
 
 const (
@@ -13902,7 +14996,7 @@ func AstNode_ValueCase_ofNum_(n int32) AstNode_ValueCase {
 }
 
 func AstNode_getDefaultInstance() *AstNode {
-	return AstNode_desc_.default_().(*AstNode)
+	return (*AstNode)(unsafe.Pointer(AstNode_desc_.default_()))
 }
 
 func AstNode_getDescriptor() *Descriptors_Descriptor {
@@ -13910,7 +15004,7 @@ func AstNode_getDescriptor() *Descriptors_Descriptor {
 }
 
 func AstNode_newBuilder() *AstNode_Builder {
-	return AstNode_desc_.newBuilder_().me_.(*AstNode_Builder)
+	return (*AstNode_Builder)(unsafe.Pointer(AstNode_desc_.newBuilder_()))
 }
 
 func AstNode_newBuilder_AstNode(p0 *AstNode) *AstNode_Builder {
@@ -13942,38 +15036,39 @@ func AstNode_parseFrom(p0 *CodedInputStream, p1 *ExtensionRegistryLite) *AstNode
 }
 
 func (this *AstNode) getKind() NodeKind {
-	return NodeKind_ofNum_(this.gI32_(0))
+	return NodeKind_ofNum_(this.x_.kind_)
 }
 
 func (this *AstNode_Builder) getKind() NodeKind {
-	return NodeKind_ofNum_(this.gI32_(0))
+	return NodeKind_ofNum_(this.x_.kind_)
 }
 
 func (this *AstNode_Builder) setKind(p0 NodeKind) *AstNode_Builder {
-	this.set_(0, p0.getNumber())
+	v := p0.getNumber()
+	this.x_.kind_ = v
 	return this
 }
 
 func (this *AstNode_Builder) clearKind() *AstNode_Builder {
-	this.clr_(0)
+	this.x_.kind_ = 0
 	return this
 }
 
 func (this *AstNode) getKindValue() int32 {
-	return this.gI32_(0)
+	return this.x_.kind_
 }
 
 func (this *AstNode_Builder) getKindValue() int32 {
-	return this.gI32_(0)
+	return this.x_.kind_
 }
 
 func (this *AstNode_Builder) setKindValue(p0 int32) *AstNode_Builder {
-	this.set_(0, p0)
+	this.x_.kind_ = p0
 	return this
 }
 
 func (this *AstNode) getChildList() List {
-	return this.list_(1)
+	return pbListOf_(this.x_.child_)
 }
 
 func (this *AstNode_Builder) getChildList() List {
@@ -13981,31 +15076,31 @@ func (this *AstNode_Builder) getChildList() List {
 }
 
 func (this *AstNode) getChildCount() int32 {
-	return this.cnt_(1)
+	return int32(len(this.x_.child_))
 }
 
 func (this *AstNode_Builder) getChildCount() int32 {
-	return this.cnt_(1)
+	return int32(len(this.x_.child_))
 }
 
 func (this *AstNode) getChild(p0 int32) *AstNode {
-	return this.at_(1, p0).(*AstNode)
+	return pbAt_(this.x_.child_, p0)
 }
 
 func (this *AstNode_Builder) getChild(p0 int32) *AstNode {
-	return this.at_(1, p0).(*AstNode)
+	return (*AstNode)(this.atMsgP_(1, p0))
 }
 
 func (this *AstNode) getChildOrBuilder(p0 int32) AstNodeOrBuilder {
-	return this.at_(1, p0).(*AstNode)
+	return pbAt_(this.x_.child_, p0)
 }
 
 func (this *AstNode_Builder) getChildOrBuilder(p0 int32) AstNodeOrBuilder {
-	return this.at_(1, p0).(*AstNode)
+	return (*AstNode)(this.atMsgP_(1, p0))
 }
 
 func (this *AstNode) getChildOrBuilderList() List {
-	return this.list_(1)
+	return pbListOf_(this.x_.child_)
 }
 
 func (this *AstNode_Builder) getChildOrBuilderList() List {
@@ -14023,7 +15118,11 @@ func (this *AstNode_Builder) setChild_int_Builder(p0 int32, p1 *AstNode_Builder)
 }
 
 func (this *AstNode_Builder) addChild(p0 *AstNode) *AstNode_Builder {
-	this.add_(1, obj_(p0))
+	if p0 == nil {
+		pbNPE_()
+	}
+	this.own_()
+	this.x_.child_ = append(this.x_.child_, p0)
 	return this
 }
 
@@ -14048,7 +15147,7 @@ func (this *AstNode_Builder) addAllChild(p0 Iterable) *AstNode_Builder {
 }
 
 func (this *AstNode_Builder) clearChild() *AstNode_Builder {
-	this.clr_(1)
+	this.x_.child_ = nil
 	return this
 }
 
@@ -14074,88 +15173,104 @@ func (this *AstNode_Builder) getChildBuilderList() List {
 }
 
 func (this *AstNode) hasStringValuePointer() bool {
-	return this.has_(2)
+	return this.x_.pbHas_[0]&0x1 != 0
 }
 
 func (this *AstNode_Builder) hasStringValuePointer() bool {
-	return this.has_(2)
+	return this.x_.pbHas_[0]&0x1 != 0
 }
 
 func (this *AstNode) getStringValuePointer() int32 {
-	return this.gI32_(2)
+	return this.x_.string_value_pointer_
 }
 
 func (this *AstNode_Builder) getStringValuePointer() int32 {
-	return this.gI32_(2)
+	return this.x_.string_value_pointer_
 }
 
 func (this *AstNode_Builder) setStringValuePointer(p0 int32) *AstNode_Builder {
-	this.set_(2, p0)
+	this.x_.double_value_ = 0
+	this.x_.pbHas_[0] &^= 0x2
+	this.x_.template_string_value_ = nil
+	this.x_.pbHas_[0] |= 0x1
+	this.x_.string_value_pointer_ = p0
 	return this
 }
 
 func (this *AstNode_Builder) clearStringValuePointer() *AstNode_Builder {
-	this.clr_(2)
+	this.x_.string_value_pointer_ = 0
+	this.x_.pbHas_[0] &^= 0x1
 	return this
 }
 
 func (this *AstNode) hasDoubleValue() bool {
-	return this.has_(3)
+	return this.x_.pbHas_[0]&0x2 != 0
 }
 
 func (this *AstNode_Builder) hasDoubleValue() bool {
-	return this.has_(3)
+	return this.x_.pbHas_[0]&0x2 != 0
 }
 
 func (this *AstNode) getDoubleValue() float64 {
-	return this.gF64_(3)
+	return this.x_.double_value_
 }
 
 func (this *AstNode_Builder) getDoubleValue() float64 {
-	return this.gF64_(3)
+	return this.x_.double_value_
 }
 
 func (this *AstNode_Builder) setDoubleValue(p0 float64) *AstNode_Builder {
-	this.set_(3, p0)
+	this.x_.string_value_pointer_ = 0
+	this.x_.pbHas_[0] &^= 0x1
+	this.x_.template_string_value_ = nil
+	this.x_.pbHas_[0] |= 0x2
+	this.x_.double_value_ = p0
 	return this
 }
 
 func (this *AstNode_Builder) clearDoubleValue() *AstNode_Builder {
-	this.clr_(3)
+	this.x_.double_value_ = 0
+	this.x_.pbHas_[0] &^= 0x2
 	return this
 }
 
 func (this *AstNode) hasTemplateStringValue() bool {
-	return this.has_(4)
+	return this.x_.template_string_value_ != nil
 }
 
 func (this *AstNode_Builder) hasTemplateStringValue() bool {
-	return this.has_(4)
+	return this.x_.template_string_value_ != nil
 }
 
 func (this *AstNode) getTemplateStringValue() *TemplateStringValue {
-	return this.gMsg_(4).(*TemplateStringValue)
+	if p := this.x_.template_string_value_; p != nil {
+		return p
+	}
+	return (*TemplateStringValue)(unsafe.Pointer(TemplateStringValue_desc_.default_()))
 }
 
 func (this *AstNode_Builder) getTemplateStringValue() *TemplateStringValue {
-	return this.gMsg_(4).(*TemplateStringValue)
+	return (*TemplateStringValue)(this.gMsgP_(4))
 }
 
 func (this *AstNode) getTemplateStringValueOrBuilder() TemplateStringValueOrBuilder {
-	return this.gMsg_(4).(*TemplateStringValue)
+	if p := this.x_.template_string_value_; p != nil {
+		return p
+	}
+	return (*TemplateStringValue)(unsafe.Pointer(TemplateStringValue_desc_.default_()))
 }
 
 func (this *AstNode_Builder) getTemplateStringValueOrBuilder() TemplateStringValueOrBuilder {
-	return this.gMsg_(4).(*TemplateStringValue)
+	return (*TemplateStringValue)(this.gMsgP_(4))
 }
 
 func (this *AstNode_Builder) setTemplateStringValue(p0 *TemplateStringValue) *AstNode_Builder {
-	this.set_(4, obj_(p0))
+	this.setMsg_(4, unsafe.Pointer(p0))
 	return this
 }
 
 func (this *AstNode_Builder) setTemplateStringValue_Builder(p0 *TemplateStringValue_Builder) *AstNode_Builder {
-	this.set_(4, p0.build())
+	this.setMsg_(4, unsafe.Pointer(p0.build_()))
 	return this
 }
 
@@ -14165,7 +15280,7 @@ func (this *AstNode_Builder) mergeTemplateStringValue(p0 *TemplateStringValue) *
 }
 
 func (this *AstNode_Builder) clearTemplateStringValue() *AstNode_Builder {
-	this.clr_(4)
+	this.x_.template_string_value_ = nil
 	return this
 }
 
@@ -14174,72 +15289,78 @@ func (this *AstNode_Builder) getTemplateStringValueBuilder() *TemplateStringValu
 }
 
 func (this *AstNode) getRelativeLine() int32 {
-	return this.gI32_(5)
+	return this.x_.relative_line_
 }
 
 func (this *AstNode_Builder) getRelativeLine() int32 {
-	return this.gI32_(5)
+	return this.x_.relative_line_
 }
 
 func (this *AstNode_Builder) setRelativeLine(p0 int32) *AstNode_Builder {
-	this.set_(5, p0)
+	this.x_.relative_line_ = p0
 	return this
 }
 
 func (this *AstNode_Builder) clearRelativeLine() *AstNode_Builder {
-	this.clr_(5)
+	this.x_.relative_line_ = 0
 	return this
 }
 
 func (this *AstNode) getRelativeColumn() int32 {
-	return this.gI32_(6)
+	return this.x_.relative_column_
 }
 
 func (this *AstNode_Builder) getRelativeColumn() int32 {
-	return this.gI32_(6)
+	return this.x_.relative_column_
 }
 
 func (this *AstNode_Builder) setRelativeColumn(p0 int32) *AstNode_Builder {
-	this.set_(6, p0)
+	this.x_.relative_column_ = p0
 	return this
 }
 
 func (this *AstNode_Builder) clearRelativeColumn() *AstNode_Builder {
-	this.clr_(6)
+	this.x_.relative_column_ = 0
 	return this
 }
 
 func (this *AstNode) hasJsdoc() bool {
-	return this.has_(7)
+	return this.x_.jsdoc_ != nil
 }
 
 func (this *AstNode_Builder) hasJsdoc() bool {
-	return this.has_(7)
+	return this.x_.jsdoc_ != nil
 }
 
 func (this *AstNode) getJsdoc() *OptimizationJsdoc {
-	return this.gMsg_(7).(*OptimizationJsdoc)
+	if p := this.x_.jsdoc_; p != nil {
+		return p
+	}
+	return (*OptimizationJsdoc)(unsafe.Pointer(OptimizationJsdoc_desc_.default_()))
 }
 
 func (this *AstNode_Builder) getJsdoc() *OptimizationJsdoc {
-	return this.gMsg_(7).(*OptimizationJsdoc)
+	return (*OptimizationJsdoc)(this.gMsgP_(7))
 }
 
 func (this *AstNode) getJsdocOrBuilder() OptimizationJsdocOrBuilder {
-	return this.gMsg_(7).(*OptimizationJsdoc)
+	if p := this.x_.jsdoc_; p != nil {
+		return p
+	}
+	return (*OptimizationJsdoc)(unsafe.Pointer(OptimizationJsdoc_desc_.default_()))
 }
 
 func (this *AstNode_Builder) getJsdocOrBuilder() OptimizationJsdocOrBuilder {
-	return this.gMsg_(7).(*OptimizationJsdoc)
+	return (*OptimizationJsdoc)(this.gMsgP_(7))
 }
 
 func (this *AstNode_Builder) setJsdoc(p0 *OptimizationJsdoc) *AstNode_Builder {
-	this.set_(7, obj_(p0))
+	this.setMsg_(7, unsafe.Pointer(p0))
 	return this
 }
 
 func (this *AstNode_Builder) setJsdoc_Builder(p0 *OptimizationJsdoc_Builder) *AstNode_Builder {
-	this.set_(7, p0.build())
+	this.setMsg_(7, unsafe.Pointer(p0.build_()))
 	return this
 }
 
@@ -14249,7 +15370,7 @@ func (this *AstNode_Builder) mergeJsdoc(p0 *OptimizationJsdoc) *AstNode_Builder 
 }
 
 func (this *AstNode_Builder) clearJsdoc() *AstNode_Builder {
-	this.clr_(7)
+	this.x_.jsdoc_ = nil
 	return this
 }
 
@@ -14258,91 +15379,111 @@ func (this *AstNode_Builder) getJsdocBuilder() *OptimizationJsdoc_Builder {
 }
 
 func (this *AstNode) getOriginalNamePointer() int32 {
-	return this.gI32_(8)
+	return this.x_.original_name_pointer_
 }
 
 func (this *AstNode_Builder) getOriginalNamePointer() int32 {
-	return this.gI32_(8)
+	return this.x_.original_name_pointer_
 }
 
 func (this *AstNode_Builder) setOriginalNamePointer(p0 int32) *AstNode_Builder {
-	this.set_(8, p0)
+	this.x_.original_name_pointer_ = p0
 	return this
 }
 
 func (this *AstNode_Builder) clearOriginalNamePointer() *AstNode_Builder {
-	this.clr_(8)
+	this.x_.original_name_pointer_ = 0
 	return this
 }
 
 func (this *AstNode) getBooleanProperties() int64 {
-	return this.gI64_(9)
+	return this.x_.boolean_properties_
 }
 
 func (this *AstNode_Builder) getBooleanProperties() int64 {
-	return this.gI64_(9)
+	return this.x_.boolean_properties_
 }
 
 func (this *AstNode_Builder) setBooleanProperties(p0 int64) *AstNode_Builder {
-	this.set_(9, p0)
+	this.x_.boolean_properties_ = p0
 	return this
 }
 
 func (this *AstNode_Builder) clearBooleanProperties() *AstNode_Builder {
-	this.clr_(9)
+	this.x_.boolean_properties_ = 0
 	return this
 }
 
 func (this *AstNode) hasType() bool {
-	return this.has_(10)
+	return this.x_.pbHas_[0]&0x4 != 0
 }
 
 func (this *AstNode_Builder) hasType() bool {
-	return this.has_(10)
+	return this.x_.pbHas_[0]&0x4 != 0
 }
 
 func (this *AstNode) getType() int32 {
-	return this.gI32_(10)
+	return this.x_.type_
 }
 
 func (this *AstNode_Builder) getType() int32 {
-	return this.gI32_(10)
+	return this.x_.type_
 }
 
 func (this *AstNode_Builder) setType(p0 int32) *AstNode_Builder {
-	this.set_(10, p0)
+	this.x_.pbHas_[0] |= 0x4
+	this.x_.type_ = p0
 	return this
 }
 
 func (this *AstNode_Builder) clearType() *AstNode_Builder {
-	this.clr_(10)
+	this.x_.type_ = 0
+	this.x_.pbHas_[0] &^= 0x4
 	return this
 }
 
 func (this *AstNode) getSourceFile() int32 {
-	return this.gI32_(11)
+	return this.x_.source_file_
 }
 
 func (this *AstNode_Builder) getSourceFile() int32 {
-	return this.gI32_(11)
+	return this.x_.source_file_
 }
 
 func (this *AstNode_Builder) setSourceFile(p0 int32) *AstNode_Builder {
-	this.set_(11, p0)
+	this.x_.source_file_ = p0
 	return this
 }
 
 func (this *AstNode_Builder) clearSourceFile() *AstNode_Builder {
-	this.clr_(11)
+	this.x_.source_file_ = 0
 	return this
 }
 
 func (this *AstNode) getValueCase() AstNode_ValueCase {
-	return AstNode_ValueCase_ofNum_(this.case_(1))
+	if this.x_.pbHas_[0]&0x1 != 0 {
+		return AstNode_ValueCase_STRING_VALUE_POINTER
+	}
+	if this.x_.pbHas_[0]&0x2 != 0 {
+		return AstNode_ValueCase_DOUBLE_VALUE
+	}
+	if this.x_.template_string_value_ != nil {
+		return AstNode_ValueCase_TEMPLATE_STRING_VALUE
+	}
+	return AstNode_ValueCase_VALUE_NOT_SET
 }
 
 func (this *AstNode_Builder) getValueCase() AstNode_ValueCase {
-	return AstNode_ValueCase_ofNum_(this.case_(1))
+	if this.x_.pbHas_[0]&0x1 != 0 {
+		return AstNode_ValueCase_STRING_VALUE_POINTER
+	}
+	if this.x_.pbHas_[0]&0x2 != 0 {
+		return AstNode_ValueCase_DOUBLE_VALUE
+	}
+	if this.x_.template_string_value_ != nil {
+		return AstNode_ValueCase_TEMPLATE_STRING_VALUE
+	}
+	return AstNode_ValueCase_VALUE_NOT_SET
 }
 
 func (this *AstNode_Builder) clearValue() *AstNode_Builder {
@@ -14357,8 +15498,14 @@ func (this *AstNode_Builder) mergeFrom_AstNode(p0 *AstNode) *AstNode_Builder {
 
 // ---- message jscomp.TemplateStringValue
 
+type TemplateStringValue_x_ struct {
+	raw_string_pointer_    int32
+	cooked_string_pointer_ int32
+}
+
 type TemplateStringValue struct {
 	GeneratedMessage
+	x_ TemplateStringValue_x_
 }
 
 func (this *TemplateStringValue) up_GeneratedMessage() *GeneratedMessage {
@@ -14370,6 +15517,7 @@ func (this *TemplateStringValue) up_GeneratedMessage() *GeneratedMessage {
 
 type TemplateStringValue_Builder struct {
 	GeneratedMessage_Builder
+	x_ TemplateStringValue_x_
 }
 
 func (this *TemplateStringValue_Builder) up_GeneratedMessage_Builder() *GeneratedMessage_Builder {
@@ -14380,10 +15528,13 @@ func (this *TemplateStringValue_Builder) up_GeneratedMessage_Builder() *Generate
 }
 
 var TemplateStringValue_desc_ = pbReg_(&pbDesc_{name: "jscomp.TemplateStringValue", oneofs: []string{},
-	newM: func() any { return &TemplateStringValue{} }, newB: func() any { return &TemplateStringValue_Builder{} },
+	newM: func() *pbData_ { return &new(TemplateStringValue).pbData_ }, newB: func() *pbData_ { return &new(TemplateStringValue_Builder).pbData_ },
+	asM: func(p unsafe.Pointer) any { return (*TemplateStringValue)(p) }, asB: func(p unsafe.Pointer) any { return (*TemplateStringValue_Builder)(p) },
+	cp:   func(dst, src unsafe.Pointer) { (*TemplateStringValue)(dst).x_ = (*TemplateStringValue)(src).x_ },
+	xoff: unsafe.Offsetof(TemplateStringValue{}.x_),
 	fields: []*pbField_{
-		{name: "raw_string_pointer", num: 1, kind: pbUint32_},
-		{name: "cooked_string_pointer", num: 2, kind: pbInt32_},
+		{name: "raw_string_pointer", num: 1, kind: pbUint32_, off: unsafe.Offsetof(TemplateStringValue{}.x_.raw_string_pointer_)},
+		{name: "cooked_string_pointer", num: 2, kind: pbInt32_, off: unsafe.Offsetof(TemplateStringValue{}.x_.cooked_string_pointer_)},
 	}})
 
 const (
@@ -14392,7 +15543,7 @@ const (
 )
 
 func TemplateStringValue_getDefaultInstance() *TemplateStringValue {
-	return TemplateStringValue_desc_.default_().(*TemplateStringValue)
+	return (*TemplateStringValue)(unsafe.Pointer(TemplateStringValue_desc_.default_()))
 }
 
 func TemplateStringValue_getDescriptor() *Descriptors_Descriptor {
@@ -14400,7 +15551,7 @@ func TemplateStringValue_getDescriptor() *Descriptors_Descriptor {
 }
 
 func TemplateStringValue_newBuilder() *TemplateStringValue_Builder {
-	return TemplateStringValue_desc_.newBuilder_().me_.(*TemplateStringValue_Builder)
+	return (*TemplateStringValue_Builder)(unsafe.Pointer(TemplateStringValue_desc_.newBuilder_()))
 }
 
 func TemplateStringValue_newBuilder_TemplateStringValue(p0 *TemplateStringValue) *TemplateStringValue_Builder {
@@ -14432,38 +15583,38 @@ func TemplateStringValue_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *Co
 }
 
 func (this *TemplateStringValue) getRawStringPointer() int32 {
-	return this.gI32_(0)
+	return this.x_.raw_string_pointer_
 }
 
 func (this *TemplateStringValue_Builder) getRawStringPointer() int32 {
-	return this.gI32_(0)
+	return this.x_.raw_string_pointer_
 }
 
 func (this *TemplateStringValue_Builder) setRawStringPointer(p0 int32) *TemplateStringValue_Builder {
-	this.set_(0, p0)
+	this.x_.raw_string_pointer_ = p0
 	return this
 }
 
 func (this *TemplateStringValue_Builder) clearRawStringPointer() *TemplateStringValue_Builder {
-	this.clr_(0)
+	this.x_.raw_string_pointer_ = 0
 	return this
 }
 
 func (this *TemplateStringValue) getCookedStringPointer() int32 {
-	return this.gI32_(1)
+	return this.x_.cooked_string_pointer_
 }
 
 func (this *TemplateStringValue_Builder) getCookedStringPointer() int32 {
-	return this.gI32_(1)
+	return this.x_.cooked_string_pointer_
 }
 
 func (this *TemplateStringValue_Builder) setCookedStringPointer(p0 int32) *TemplateStringValue_Builder {
-	this.set_(1, p0)
+	this.x_.cooked_string_pointer_ = p0
 	return this
 }
 
 func (this *TemplateStringValue_Builder) clearCookedStringPointer() *TemplateStringValue_Builder {
-	this.clr_(1)
+	this.x_.cooked_string_pointer_ = 0
 	return this
 }
 
@@ -14611,8 +15762,15 @@ var PrimitiveType_desc_ = pbRegEnum_(&pbEnumDesc_{name: "jscomp.PrimitiveType", 
 
 // ---- message jscomp.TypePool
 
+type TypePool_x_ struct {
+	type_                 []*TypeProto
+	disambiguation_edges_ []*SubtypingEdge
+	debug_info_           *TypePool_DebugInfo
+}
+
 type TypePool struct {
 	GeneratedMessage
+	x_ TypePool_x_
 }
 
 func (this *TypePool) up_GeneratedMessage() *GeneratedMessage {
@@ -14624,6 +15782,7 @@ func (this *TypePool) up_GeneratedMessage() *GeneratedMessage {
 
 type TypePool_Builder struct {
 	GeneratedMessage_Builder
+	x_ TypePool_x_
 }
 
 func (this *TypePool_Builder) up_GeneratedMessage_Builder() *GeneratedMessage_Builder {
@@ -14634,11 +15793,14 @@ func (this *TypePool_Builder) up_GeneratedMessage_Builder() *GeneratedMessage_Bu
 }
 
 var TypePool_desc_ = pbReg_(&pbDesc_{name: "jscomp.TypePool", oneofs: []string{},
-	newM: func() any { return &TypePool{} }, newB: func() any { return &TypePool_Builder{} },
+	newM: func() *pbData_ { return &new(TypePool).pbData_ }, newB: func() *pbData_ { return &new(TypePool_Builder).pbData_ },
+	asM: func(p unsafe.Pointer) any { return (*TypePool)(p) }, asB: func(p unsafe.Pointer) any { return (*TypePool_Builder)(p) },
+	cp:   func(dst, src unsafe.Pointer) { (*TypePool)(dst).x_ = (*TypePool)(src).x_ },
+	xoff: unsafe.Offsetof(TypePool{}.x_),
 	fields: []*pbField_{
-		{name: "type", num: 1, kind: pbMessage_, rep: true, tname: "jscomp.TypeProto"},
-		{name: "disambiguation_edges", num: 2, kind: pbMessage_, rep: true, tname: "jscomp.SubtypingEdge"},
-		{name: "debug_info", num: 3, kind: pbMessage_, pres: true, tname: "jscomp.TypePool.DebugInfo"},
+		{name: "type", num: 1, kind: pbMessage_, rep: true, tname: "jscomp.TypeProto", off: unsafe.Offsetof(TypePool{}.x_.type_)},
+		{name: "disambiguation_edges", num: 2, kind: pbMessage_, rep: true, tname: "jscomp.SubtypingEdge", off: unsafe.Offsetof(TypePool{}.x_.disambiguation_edges_)},
+		{name: "debug_info", num: 3, kind: pbMessage_, pres: true, tname: "jscomp.TypePool.DebugInfo", off: unsafe.Offsetof(TypePool{}.x_.debug_info_)},
 	}})
 
 const (
@@ -14648,7 +15810,7 @@ const (
 )
 
 func TypePool_getDefaultInstance() *TypePool {
-	return TypePool_desc_.default_().(*TypePool)
+	return (*TypePool)(unsafe.Pointer(TypePool_desc_.default_()))
 }
 
 func TypePool_getDescriptor() *Descriptors_Descriptor {
@@ -14656,7 +15818,7 @@ func TypePool_getDescriptor() *Descriptors_Descriptor {
 }
 
 func TypePool_newBuilder() *TypePool_Builder {
-	return TypePool_desc_.newBuilder_().me_.(*TypePool_Builder)
+	return (*TypePool_Builder)(unsafe.Pointer(TypePool_desc_.newBuilder_()))
 }
 
 func TypePool_newBuilder_TypePool(p0 *TypePool) *TypePool_Builder {
@@ -14688,7 +15850,7 @@ func TypePool_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInputStr
 }
 
 func (this *TypePool) getTypeList() List {
-	return this.list_(0)
+	return pbListOf_(this.x_.type_)
 }
 
 func (this *TypePool_Builder) getTypeList() List {
@@ -14696,31 +15858,31 @@ func (this *TypePool_Builder) getTypeList() List {
 }
 
 func (this *TypePool) getTypeCount() int32 {
-	return this.cnt_(0)
+	return int32(len(this.x_.type_))
 }
 
 func (this *TypePool_Builder) getTypeCount() int32 {
-	return this.cnt_(0)
+	return int32(len(this.x_.type_))
 }
 
 func (this *TypePool) getType(p0 int32) *TypeProto {
-	return this.at_(0, p0).(*TypeProto)
+	return pbAt_(this.x_.type_, p0)
 }
 
 func (this *TypePool_Builder) getType(p0 int32) *TypeProto {
-	return this.at_(0, p0).(*TypeProto)
+	return (*TypeProto)(this.atMsgP_(0, p0))
 }
 
 func (this *TypePool) getTypeOrBuilder(p0 int32) TypeProtoOrBuilder {
-	return this.at_(0, p0).(*TypeProto)
+	return pbAt_(this.x_.type_, p0)
 }
 
 func (this *TypePool_Builder) getTypeOrBuilder(p0 int32) TypeProtoOrBuilder {
-	return this.at_(0, p0).(*TypeProto)
+	return (*TypeProto)(this.atMsgP_(0, p0))
 }
 
 func (this *TypePool) getTypeOrBuilderList() List {
-	return this.list_(0)
+	return pbListOf_(this.x_.type_)
 }
 
 func (this *TypePool_Builder) getTypeOrBuilderList() List {
@@ -14738,7 +15900,11 @@ func (this *TypePool_Builder) setType_int_Builder(p0 int32, p1 *TypeProto_Builde
 }
 
 func (this *TypePool_Builder) addType(p0 *TypeProto) *TypePool_Builder {
-	this.add_(0, obj_(p0))
+	if p0 == nil {
+		pbNPE_()
+	}
+	this.own_()
+	this.x_.type_ = append(this.x_.type_, p0)
 	return this
 }
 
@@ -14763,7 +15929,7 @@ func (this *TypePool_Builder) addAllType(p0 Iterable) *TypePool_Builder {
 }
 
 func (this *TypePool_Builder) clearType() *TypePool_Builder {
-	this.clr_(0)
+	this.x_.type_ = nil
 	return this
 }
 
@@ -14789,7 +15955,7 @@ func (this *TypePool_Builder) getTypeBuilderList() List {
 }
 
 func (this *TypePool) getDisambiguationEdgesList() List {
-	return this.list_(1)
+	return pbListOf_(this.x_.disambiguation_edges_)
 }
 
 func (this *TypePool_Builder) getDisambiguationEdgesList() List {
@@ -14797,31 +15963,31 @@ func (this *TypePool_Builder) getDisambiguationEdgesList() List {
 }
 
 func (this *TypePool) getDisambiguationEdgesCount() int32 {
-	return this.cnt_(1)
+	return int32(len(this.x_.disambiguation_edges_))
 }
 
 func (this *TypePool_Builder) getDisambiguationEdgesCount() int32 {
-	return this.cnt_(1)
+	return int32(len(this.x_.disambiguation_edges_))
 }
 
 func (this *TypePool) getDisambiguationEdges(p0 int32) *SubtypingEdge {
-	return this.at_(1, p0).(*SubtypingEdge)
+	return pbAt_(this.x_.disambiguation_edges_, p0)
 }
 
 func (this *TypePool_Builder) getDisambiguationEdges(p0 int32) *SubtypingEdge {
-	return this.at_(1, p0).(*SubtypingEdge)
+	return (*SubtypingEdge)(this.atMsgP_(1, p0))
 }
 
 func (this *TypePool) getDisambiguationEdgesOrBuilder(p0 int32) SubtypingEdgeOrBuilder {
-	return this.at_(1, p0).(*SubtypingEdge)
+	return pbAt_(this.x_.disambiguation_edges_, p0)
 }
 
 func (this *TypePool_Builder) getDisambiguationEdgesOrBuilder(p0 int32) SubtypingEdgeOrBuilder {
-	return this.at_(1, p0).(*SubtypingEdge)
+	return (*SubtypingEdge)(this.atMsgP_(1, p0))
 }
 
 func (this *TypePool) getDisambiguationEdgesOrBuilderList() List {
-	return this.list_(1)
+	return pbListOf_(this.x_.disambiguation_edges_)
 }
 
 func (this *TypePool_Builder) getDisambiguationEdgesOrBuilderList() List {
@@ -14839,7 +16005,11 @@ func (this *TypePool_Builder) setDisambiguationEdges_int_Builder(p0 int32, p1 *S
 }
 
 func (this *TypePool_Builder) addDisambiguationEdges_SubtypingEdge(p0 *SubtypingEdge) *TypePool_Builder {
-	this.add_(1, obj_(p0))
+	if p0 == nil {
+		pbNPE_()
+	}
+	this.own_()
+	this.x_.disambiguation_edges_ = append(this.x_.disambiguation_edges_, p0)
 	return this
 }
 
@@ -14864,7 +16034,7 @@ func (this *TypePool_Builder) addAllDisambiguationEdges(p0 Iterable) *TypePool_B
 }
 
 func (this *TypePool_Builder) clearDisambiguationEdges() *TypePool_Builder {
-	this.clr_(1)
+	this.x_.disambiguation_edges_ = nil
 	return this
 }
 
@@ -14890,36 +16060,42 @@ func (this *TypePool_Builder) getDisambiguationEdgesBuilderList() List {
 }
 
 func (this *TypePool) hasDebugInfo() bool {
-	return this.has_(2)
+	return this.x_.debug_info_ != nil
 }
 
 func (this *TypePool_Builder) hasDebugInfo() bool {
-	return this.has_(2)
+	return this.x_.debug_info_ != nil
 }
 
 func (this *TypePool) getDebugInfo() *TypePool_DebugInfo {
-	return this.gMsg_(2).(*TypePool_DebugInfo)
+	if p := this.x_.debug_info_; p != nil {
+		return p
+	}
+	return (*TypePool_DebugInfo)(unsafe.Pointer(TypePool_DebugInfo_desc_.default_()))
 }
 
 func (this *TypePool_Builder) getDebugInfo() *TypePool_DebugInfo {
-	return this.gMsg_(2).(*TypePool_DebugInfo)
+	return (*TypePool_DebugInfo)(this.gMsgP_(2))
 }
 
 func (this *TypePool) getDebugInfoOrBuilder() TypePool_DebugInfoOrBuilder {
-	return this.gMsg_(2).(*TypePool_DebugInfo)
+	if p := this.x_.debug_info_; p != nil {
+		return p
+	}
+	return (*TypePool_DebugInfo)(unsafe.Pointer(TypePool_DebugInfo_desc_.default_()))
 }
 
 func (this *TypePool_Builder) getDebugInfoOrBuilder() TypePool_DebugInfoOrBuilder {
-	return this.gMsg_(2).(*TypePool_DebugInfo)
+	return (*TypePool_DebugInfo)(this.gMsgP_(2))
 }
 
 func (this *TypePool_Builder) setDebugInfo(p0 *TypePool_DebugInfo) *TypePool_Builder {
-	this.set_(2, obj_(p0))
+	this.setMsg_(2, unsafe.Pointer(p0))
 	return this
 }
 
 func (this *TypePool_Builder) setDebugInfo_Builder(p0 *TypePool_DebugInfo_Builder) *TypePool_Builder {
-	this.set_(2, p0.build())
+	this.setMsg_(2, unsafe.Pointer(p0.build_()))
 	return this
 }
 
@@ -14929,7 +16105,7 @@ func (this *TypePool_Builder) mergeDebugInfo(p0 *TypePool_DebugInfo) *TypePool_B
 }
 
 func (this *TypePool_Builder) clearDebugInfo() *TypePool_Builder {
-	this.clr_(2)
+	this.x_.debug_info_ = nil
 	return this
 }
 
@@ -14944,8 +16120,13 @@ func (this *TypePool_Builder) mergeFrom_TypePool(p0 *TypePool) *TypePool_Builder
 
 // ---- message jscomp.TypePool.DebugInfo
 
+type TypePool_DebugInfo_x_ struct {
+	mismatch_ []*TypePool_DebugInfo_Mismatch
+}
+
 type TypePool_DebugInfo struct {
 	GeneratedMessage
+	x_ TypePool_DebugInfo_x_
 }
 
 func (this *TypePool_DebugInfo) up_GeneratedMessage() *GeneratedMessage {
@@ -14957,6 +16138,7 @@ func (this *TypePool_DebugInfo) up_GeneratedMessage() *GeneratedMessage {
 
 type TypePool_DebugInfo_Builder struct {
 	GeneratedMessage_Builder
+	x_ TypePool_DebugInfo_x_
 }
 
 func (this *TypePool_DebugInfo_Builder) up_GeneratedMessage_Builder() *GeneratedMessage_Builder {
@@ -14967,9 +16149,12 @@ func (this *TypePool_DebugInfo_Builder) up_GeneratedMessage_Builder() *Generated
 }
 
 var TypePool_DebugInfo_desc_ = pbReg_(&pbDesc_{name: "jscomp.TypePool.DebugInfo", oneofs: []string{},
-	newM: func() any { return &TypePool_DebugInfo{} }, newB: func() any { return &TypePool_DebugInfo_Builder{} },
+	newM: func() *pbData_ { return &new(TypePool_DebugInfo).pbData_ }, newB: func() *pbData_ { return &new(TypePool_DebugInfo_Builder).pbData_ },
+	asM: func(p unsafe.Pointer) any { return (*TypePool_DebugInfo)(p) }, asB: func(p unsafe.Pointer) any { return (*TypePool_DebugInfo_Builder)(p) },
+	cp:   func(dst, src unsafe.Pointer) { (*TypePool_DebugInfo)(dst).x_ = (*TypePool_DebugInfo)(src).x_ },
+	xoff: unsafe.Offsetof(TypePool_DebugInfo{}.x_),
 	fields: []*pbField_{
-		{name: "mismatch", num: 1, kind: pbMessage_, rep: true, tname: "jscomp.TypePool.DebugInfo.Mismatch"},
+		{name: "mismatch", num: 1, kind: pbMessage_, rep: true, tname: "jscomp.TypePool.DebugInfo.Mismatch", off: unsafe.Offsetof(TypePool_DebugInfo{}.x_.mismatch_)},
 	}})
 
 const (
@@ -14977,7 +16162,7 @@ const (
 )
 
 func TypePool_DebugInfo_getDefaultInstance() *TypePool_DebugInfo {
-	return TypePool_DebugInfo_desc_.default_().(*TypePool_DebugInfo)
+	return (*TypePool_DebugInfo)(unsafe.Pointer(TypePool_DebugInfo_desc_.default_()))
 }
 
 func TypePool_DebugInfo_getDescriptor() *Descriptors_Descriptor {
@@ -14985,7 +16170,7 @@ func TypePool_DebugInfo_getDescriptor() *Descriptors_Descriptor {
 }
 
 func TypePool_DebugInfo_newBuilder() *TypePool_DebugInfo_Builder {
-	return TypePool_DebugInfo_desc_.newBuilder_().me_.(*TypePool_DebugInfo_Builder)
+	return (*TypePool_DebugInfo_Builder)(unsafe.Pointer(TypePool_DebugInfo_desc_.newBuilder_()))
 }
 
 func TypePool_DebugInfo_newBuilder_DebugInfo(p0 *TypePool_DebugInfo) *TypePool_DebugInfo_Builder {
@@ -15017,7 +16202,7 @@ func TypePool_DebugInfo_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *Cod
 }
 
 func (this *TypePool_DebugInfo) getMismatchList() List {
-	return this.list_(0)
+	return pbListOf_(this.x_.mismatch_)
 }
 
 func (this *TypePool_DebugInfo_Builder) getMismatchList() List {
@@ -15025,31 +16210,31 @@ func (this *TypePool_DebugInfo_Builder) getMismatchList() List {
 }
 
 func (this *TypePool_DebugInfo) getMismatchCount() int32 {
-	return this.cnt_(0)
+	return int32(len(this.x_.mismatch_))
 }
 
 func (this *TypePool_DebugInfo_Builder) getMismatchCount() int32 {
-	return this.cnt_(0)
+	return int32(len(this.x_.mismatch_))
 }
 
 func (this *TypePool_DebugInfo) getMismatch(p0 int32) *TypePool_DebugInfo_Mismatch {
-	return this.at_(0, p0).(*TypePool_DebugInfo_Mismatch)
+	return pbAt_(this.x_.mismatch_, p0)
 }
 
 func (this *TypePool_DebugInfo_Builder) getMismatch(p0 int32) *TypePool_DebugInfo_Mismatch {
-	return this.at_(0, p0).(*TypePool_DebugInfo_Mismatch)
+	return (*TypePool_DebugInfo_Mismatch)(this.atMsgP_(0, p0))
 }
 
 func (this *TypePool_DebugInfo) getMismatchOrBuilder(p0 int32) TypePool_DebugInfo_MismatchOrBuilder {
-	return this.at_(0, p0).(*TypePool_DebugInfo_Mismatch)
+	return pbAt_(this.x_.mismatch_, p0)
 }
 
 func (this *TypePool_DebugInfo_Builder) getMismatchOrBuilder(p0 int32) TypePool_DebugInfo_MismatchOrBuilder {
-	return this.at_(0, p0).(*TypePool_DebugInfo_Mismatch)
+	return (*TypePool_DebugInfo_Mismatch)(this.atMsgP_(0, p0))
 }
 
 func (this *TypePool_DebugInfo) getMismatchOrBuilderList() List {
-	return this.list_(0)
+	return pbListOf_(this.x_.mismatch_)
 }
 
 func (this *TypePool_DebugInfo_Builder) getMismatchOrBuilderList() List {
@@ -15067,7 +16252,11 @@ func (this *TypePool_DebugInfo_Builder) setMismatch_int_Builder(p0 int32, p1 *Ty
 }
 
 func (this *TypePool_DebugInfo_Builder) addMismatch(p0 *TypePool_DebugInfo_Mismatch) *TypePool_DebugInfo_Builder {
-	this.add_(0, obj_(p0))
+	if p0 == nil {
+		pbNPE_()
+	}
+	this.own_()
+	this.x_.mismatch_ = append(this.x_.mismatch_, p0)
 	return this
 }
 
@@ -15092,7 +16281,7 @@ func (this *TypePool_DebugInfo_Builder) addAllMismatch(p0 Iterable) *TypePool_De
 }
 
 func (this *TypePool_DebugInfo_Builder) clearMismatch() *TypePool_DebugInfo_Builder {
-	this.clr_(0)
+	this.x_.mismatch_ = nil
 	return this
 }
 
@@ -15124,8 +16313,14 @@ func (this *TypePool_DebugInfo_Builder) mergeFrom_DebugInfo(p0 *TypePool_DebugIn
 
 // ---- message jscomp.TypePool.DebugInfo.Mismatch
 
+type TypePool_DebugInfo_Mismatch_x_ struct {
+	source_ref_     string
+	involved_color_ []int32
+}
+
 type TypePool_DebugInfo_Mismatch struct {
 	GeneratedMessage
+	x_ TypePool_DebugInfo_Mismatch_x_
 }
 
 func (this *TypePool_DebugInfo_Mismatch) up_GeneratedMessage() *GeneratedMessage {
@@ -15137,6 +16332,7 @@ func (this *TypePool_DebugInfo_Mismatch) up_GeneratedMessage() *GeneratedMessage
 
 type TypePool_DebugInfo_Mismatch_Builder struct {
 	GeneratedMessage_Builder
+	x_ TypePool_DebugInfo_Mismatch_x_
 }
 
 func (this *TypePool_DebugInfo_Mismatch_Builder) up_GeneratedMessage_Builder() *GeneratedMessage_Builder {
@@ -15147,10 +16343,15 @@ func (this *TypePool_DebugInfo_Mismatch_Builder) up_GeneratedMessage_Builder() *
 }
 
 var TypePool_DebugInfo_Mismatch_desc_ = pbReg_(&pbDesc_{name: "jscomp.TypePool.DebugInfo.Mismatch", oneofs: []string{},
-	newM: func() any { return &TypePool_DebugInfo_Mismatch{} }, newB: func() any { return &TypePool_DebugInfo_Mismatch_Builder{} },
+	newM: func() *pbData_ { return &new(TypePool_DebugInfo_Mismatch).pbData_ }, newB: func() *pbData_ { return &new(TypePool_DebugInfo_Mismatch_Builder).pbData_ },
+	asM: func(p unsafe.Pointer) any { return (*TypePool_DebugInfo_Mismatch)(p) }, asB: func(p unsafe.Pointer) any { return (*TypePool_DebugInfo_Mismatch_Builder)(p) },
+	cp: func(dst, src unsafe.Pointer) {
+		(*TypePool_DebugInfo_Mismatch)(dst).x_ = (*TypePool_DebugInfo_Mismatch)(src).x_
+	},
+	xoff: unsafe.Offsetof(TypePool_DebugInfo_Mismatch{}.x_),
 	fields: []*pbField_{
-		{name: "source_ref", num: 1, kind: pbString_, utf8: true},
-		{name: "involved_color", num: 2, kind: pbInt32_, rep: true, packed: true},
+		{name: "source_ref", num: 1, kind: pbString_, utf8: true, off: unsafe.Offsetof(TypePool_DebugInfo_Mismatch{}.x_.source_ref_)},
+		{name: "involved_color", num: 2, kind: pbInt32_, rep: true, packed: true, off: unsafe.Offsetof(TypePool_DebugInfo_Mismatch{}.x_.involved_color_)},
 	}})
 
 const (
@@ -15159,7 +16360,7 @@ const (
 )
 
 func TypePool_DebugInfo_Mismatch_getDefaultInstance() *TypePool_DebugInfo_Mismatch {
-	return TypePool_DebugInfo_Mismatch_desc_.default_().(*TypePool_DebugInfo_Mismatch)
+	return (*TypePool_DebugInfo_Mismatch)(unsafe.Pointer(TypePool_DebugInfo_Mismatch_desc_.default_()))
 }
 
 func TypePool_DebugInfo_Mismatch_getDescriptor() *Descriptors_Descriptor {
@@ -15167,7 +16368,7 @@ func TypePool_DebugInfo_Mismatch_getDescriptor() *Descriptors_Descriptor {
 }
 
 func TypePool_DebugInfo_Mismatch_newBuilder() *TypePool_DebugInfo_Mismatch_Builder {
-	return TypePool_DebugInfo_Mismatch_desc_.newBuilder_().me_.(*TypePool_DebugInfo_Mismatch_Builder)
+	return (*TypePool_DebugInfo_Mismatch_Builder)(unsafe.Pointer(TypePool_DebugInfo_Mismatch_desc_.newBuilder_()))
 }
 
 func TypePool_DebugInfo_Mismatch_newBuilder_Mismatch(p0 *TypePool_DebugInfo_Mismatch) *TypePool_DebugInfo_Mismatch_Builder {
@@ -15199,20 +16400,23 @@ func TypePool_DebugInfo_Mismatch_parseFrom_CodedInputStream_ExtensionRegistryLit
 }
 
 func (this *TypePool_DebugInfo_Mismatch) getSourceRef() string {
-	return this.gStr_(0)
+	return this.x_.source_ref_
 }
 
 func (this *TypePool_DebugInfo_Mismatch_Builder) getSourceRef() string {
-	return this.gStr_(0)
+	return this.x_.source_ref_
 }
 
 func (this *TypePool_DebugInfo_Mismatch_Builder) setSourceRef(p0 string) *TypePool_DebugInfo_Mismatch_Builder {
-	this.set_(0, p0)
+	if p0 == nullstr_ {
+		pbNPE_()
+	}
+	this.x_.source_ref_ = p0
 	return this
 }
 
 func (this *TypePool_DebugInfo_Mismatch_Builder) clearSourceRef() *TypePool_DebugInfo_Mismatch_Builder {
-	this.clr_(0)
+	this.x_.source_ref_ = ""
 	return this
 }
 
@@ -15230,27 +16434,27 @@ func (this *TypePool_DebugInfo_Mismatch_Builder) setSourceRefBytes(p0 *ByteStrin
 }
 
 func (this *TypePool_DebugInfo_Mismatch) getInvolvedColorList() List {
-	return this.list_(1)
+	return pbListOf_(this.x_.involved_color_)
 }
 
 func (this *TypePool_DebugInfo_Mismatch_Builder) getInvolvedColorList() List {
-	return this.list_(1)
+	return pbListOf_(this.x_.involved_color_)
 }
 
 func (this *TypePool_DebugInfo_Mismatch) getInvolvedColor(p0 int32) int32 {
-	return this.at_(1, p0).(int32)
+	return pbAt_(this.x_.involved_color_, p0)
 }
 
 func (this *TypePool_DebugInfo_Mismatch_Builder) getInvolvedColor(p0 int32) int32 {
-	return this.at_(1, p0).(int32)
+	return pbAt_(this.x_.involved_color_, p0)
 }
 
 func (this *TypePool_DebugInfo_Mismatch) getInvolvedColorCount() int32 {
-	return this.cnt_(1)
+	return int32(len(this.x_.involved_color_))
 }
 
 func (this *TypePool_DebugInfo_Mismatch_Builder) getInvolvedColorCount() int32 {
-	return this.cnt_(1)
+	return int32(len(this.x_.involved_color_))
 }
 
 func (this *TypePool_DebugInfo_Mismatch_Builder) setInvolvedColor(p0 int32, p1 int32) *TypePool_DebugInfo_Mismatch_Builder {
@@ -15259,7 +16463,8 @@ func (this *TypePool_DebugInfo_Mismatch_Builder) setInvolvedColor(p0 int32, p1 i
 }
 
 func (this *TypePool_DebugInfo_Mismatch_Builder) addInvolvedColor(p0 int32) *TypePool_DebugInfo_Mismatch_Builder {
-	this.add_(1, p0)
+	this.own_()
+	this.x_.involved_color_ = append(this.x_.involved_color_, p0)
 	return this
 }
 
@@ -15269,7 +16474,7 @@ func (this *TypePool_DebugInfo_Mismatch_Builder) addAllInvolvedColor(p0 Iterable
 }
 
 func (this *TypePool_DebugInfo_Mismatch_Builder) clearInvolvedColor() *TypePool_DebugInfo_Mismatch_Builder {
-	this.clr_(1)
+	this.x_.involved_color_ = nil
 	return this
 }
 
@@ -15280,8 +16485,14 @@ func (this *TypePool_DebugInfo_Mismatch_Builder) mergeFrom_Mismatch(p0 *TypePool
 
 // ---- message jscomp.SubtypingEdge
 
+type SubtypingEdge_x_ struct {
+	subtype_   int32
+	supertype_ int32
+}
+
 type SubtypingEdge struct {
 	GeneratedMessage
+	x_ SubtypingEdge_x_
 }
 
 func (this *SubtypingEdge) up_GeneratedMessage() *GeneratedMessage {
@@ -15293,6 +16504,7 @@ func (this *SubtypingEdge) up_GeneratedMessage() *GeneratedMessage {
 
 type SubtypingEdge_Builder struct {
 	GeneratedMessage_Builder
+	x_ SubtypingEdge_x_
 }
 
 func (this *SubtypingEdge_Builder) up_GeneratedMessage_Builder() *GeneratedMessage_Builder {
@@ -15303,10 +16515,13 @@ func (this *SubtypingEdge_Builder) up_GeneratedMessage_Builder() *GeneratedMessa
 }
 
 var SubtypingEdge_desc_ = pbReg_(&pbDesc_{name: "jscomp.SubtypingEdge", oneofs: []string{},
-	newM: func() any { return &SubtypingEdge{} }, newB: func() any { return &SubtypingEdge_Builder{} },
+	newM: func() *pbData_ { return &new(SubtypingEdge).pbData_ }, newB: func() *pbData_ { return &new(SubtypingEdge_Builder).pbData_ },
+	asM: func(p unsafe.Pointer) any { return (*SubtypingEdge)(p) }, asB: func(p unsafe.Pointer) any { return (*SubtypingEdge_Builder)(p) },
+	cp:   func(dst, src unsafe.Pointer) { (*SubtypingEdge)(dst).x_ = (*SubtypingEdge)(src).x_ },
+	xoff: unsafe.Offsetof(SubtypingEdge{}.x_),
 	fields: []*pbField_{
-		{name: "subtype", num: 1, kind: pbInt32_},
-		{name: "supertype", num: 2, kind: pbInt32_},
+		{name: "subtype", num: 1, kind: pbInt32_, off: unsafe.Offsetof(SubtypingEdge{}.x_.subtype_)},
+		{name: "supertype", num: 2, kind: pbInt32_, off: unsafe.Offsetof(SubtypingEdge{}.x_.supertype_)},
 	}})
 
 const (
@@ -15315,7 +16530,7 @@ const (
 )
 
 func SubtypingEdge_getDefaultInstance() *SubtypingEdge {
-	return SubtypingEdge_desc_.default_().(*SubtypingEdge)
+	return (*SubtypingEdge)(unsafe.Pointer(SubtypingEdge_desc_.default_()))
 }
 
 func SubtypingEdge_getDescriptor() *Descriptors_Descriptor {
@@ -15323,7 +16538,7 @@ func SubtypingEdge_getDescriptor() *Descriptors_Descriptor {
 }
 
 func SubtypingEdge_newBuilder() *SubtypingEdge_Builder {
-	return SubtypingEdge_desc_.newBuilder_().me_.(*SubtypingEdge_Builder)
+	return (*SubtypingEdge_Builder)(unsafe.Pointer(SubtypingEdge_desc_.newBuilder_()))
 }
 
 func SubtypingEdge_newBuilder_SubtypingEdge(p0 *SubtypingEdge) *SubtypingEdge_Builder {
@@ -15355,38 +16570,38 @@ func SubtypingEdge_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInp
 }
 
 func (this *SubtypingEdge) getSubtype() int32 {
-	return this.gI32_(0)
+	return this.x_.subtype_
 }
 
 func (this *SubtypingEdge_Builder) getSubtype() int32 {
-	return this.gI32_(0)
+	return this.x_.subtype_
 }
 
 func (this *SubtypingEdge_Builder) setSubtype(p0 int32) *SubtypingEdge_Builder {
-	this.set_(0, p0)
+	this.x_.subtype_ = p0
 	return this
 }
 
 func (this *SubtypingEdge_Builder) clearSubtype() *SubtypingEdge_Builder {
-	this.clr_(0)
+	this.x_.subtype_ = 0
 	return this
 }
 
 func (this *SubtypingEdge) getSupertype() int32 {
-	return this.gI32_(1)
+	return this.x_.supertype_
 }
 
 func (this *SubtypingEdge_Builder) getSupertype() int32 {
-	return this.gI32_(1)
+	return this.x_.supertype_
 }
 
 func (this *SubtypingEdge_Builder) setSupertype(p0 int32) *SubtypingEdge_Builder {
-	this.set_(1, p0)
+	this.x_.supertype_ = p0
 	return this
 }
 
 func (this *SubtypingEdge_Builder) clearSupertype() *SubtypingEdge_Builder {
-	this.clr_(1)
+	this.x_.supertype_ = 0
 	return this
 }
 
@@ -15397,8 +16612,13 @@ func (this *SubtypingEdge_Builder) mergeFrom_SubtypingEdge(p0 *SubtypingEdge) *S
 
 // ---- message jscomp.UnionTypeProto
 
+type UnionTypeProto_x_ struct {
+	union_member_ []int32
+}
+
 type UnionTypeProto struct {
 	GeneratedMessage
+	x_ UnionTypeProto_x_
 }
 
 func (this *UnionTypeProto) up_GeneratedMessage() *GeneratedMessage {
@@ -15410,6 +16630,7 @@ func (this *UnionTypeProto) up_GeneratedMessage() *GeneratedMessage {
 
 type UnionTypeProto_Builder struct {
 	GeneratedMessage_Builder
+	x_ UnionTypeProto_x_
 }
 
 func (this *UnionTypeProto_Builder) up_GeneratedMessage_Builder() *GeneratedMessage_Builder {
@@ -15420,9 +16641,12 @@ func (this *UnionTypeProto_Builder) up_GeneratedMessage_Builder() *GeneratedMess
 }
 
 var UnionTypeProto_desc_ = pbReg_(&pbDesc_{name: "jscomp.UnionTypeProto", oneofs: []string{},
-	newM: func() any { return &UnionTypeProto{} }, newB: func() any { return &UnionTypeProto_Builder{} },
+	newM: func() *pbData_ { return &new(UnionTypeProto).pbData_ }, newB: func() *pbData_ { return &new(UnionTypeProto_Builder).pbData_ },
+	asM: func(p unsafe.Pointer) any { return (*UnionTypeProto)(p) }, asB: func(p unsafe.Pointer) any { return (*UnionTypeProto_Builder)(p) },
+	cp:   func(dst, src unsafe.Pointer) { (*UnionTypeProto)(dst).x_ = (*UnionTypeProto)(src).x_ },
+	xoff: unsafe.Offsetof(UnionTypeProto{}.x_),
 	fields: []*pbField_{
-		{name: "union_member", num: 1, kind: pbInt32_, rep: true, packed: true},
+		{name: "union_member", num: 1, kind: pbInt32_, rep: true, packed: true, off: unsafe.Offsetof(UnionTypeProto{}.x_.union_member_)},
 	}})
 
 const (
@@ -15430,7 +16654,7 @@ const (
 )
 
 func UnionTypeProto_getDefaultInstance() *UnionTypeProto {
-	return UnionTypeProto_desc_.default_().(*UnionTypeProto)
+	return (*UnionTypeProto)(unsafe.Pointer(UnionTypeProto_desc_.default_()))
 }
 
 func UnionTypeProto_getDescriptor() *Descriptors_Descriptor {
@@ -15438,7 +16662,7 @@ func UnionTypeProto_getDescriptor() *Descriptors_Descriptor {
 }
 
 func UnionTypeProto_newBuilder() *UnionTypeProto_Builder {
-	return UnionTypeProto_desc_.newBuilder_().me_.(*UnionTypeProto_Builder)
+	return (*UnionTypeProto_Builder)(unsafe.Pointer(UnionTypeProto_desc_.newBuilder_()))
 }
 
 func UnionTypeProto_newBuilder_UnionTypeProto(p0 *UnionTypeProto) *UnionTypeProto_Builder {
@@ -15470,27 +16694,27 @@ func UnionTypeProto_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedIn
 }
 
 func (this *UnionTypeProto) getUnionMemberList() List {
-	return this.list_(0)
+	return pbListOf_(this.x_.union_member_)
 }
 
 func (this *UnionTypeProto_Builder) getUnionMemberList() List {
-	return this.list_(0)
+	return pbListOf_(this.x_.union_member_)
 }
 
 func (this *UnionTypeProto) getUnionMember(p0 int32) int32 {
-	return this.at_(0, p0).(int32)
+	return pbAt_(this.x_.union_member_, p0)
 }
 
 func (this *UnionTypeProto_Builder) getUnionMember(p0 int32) int32 {
-	return this.at_(0, p0).(int32)
+	return pbAt_(this.x_.union_member_, p0)
 }
 
 func (this *UnionTypeProto) getUnionMemberCount() int32 {
-	return this.cnt_(0)
+	return int32(len(this.x_.union_member_))
 }
 
 func (this *UnionTypeProto_Builder) getUnionMemberCount() int32 {
-	return this.cnt_(0)
+	return int32(len(this.x_.union_member_))
 }
 
 func (this *UnionTypeProto_Builder) setUnionMember(p0 int32, p1 int32) *UnionTypeProto_Builder {
@@ -15499,7 +16723,8 @@ func (this *UnionTypeProto_Builder) setUnionMember(p0 int32, p1 int32) *UnionTyp
 }
 
 func (this *UnionTypeProto_Builder) addUnionMember(p0 int32) *UnionTypeProto_Builder {
-	this.add_(0, p0)
+	this.own_()
+	this.x_.union_member_ = append(this.x_.union_member_, p0)
 	return this
 }
 
@@ -15509,7 +16734,7 @@ func (this *UnionTypeProto_Builder) addAllUnionMember(p0 Iterable) *UnionTypePro
 }
 
 func (this *UnionTypeProto_Builder) clearUnionMember() *UnionTypeProto_Builder {
-	this.clr_(0)
+	this.x_.union_member_ = nil
 	return this
 }
 
@@ -15520,8 +16745,21 @@ func (this *UnionTypeProto_Builder) mergeFrom_UnionTypeProto(p0 *UnionTypeProto)
 
 // ---- message jscomp.ObjectTypeProto
 
+type ObjectTypeProto_x_ struct {
+	uuid_                          *ByteString
+	instance_type_                 []int32
+	prototype_                     []int32
+	own_property_                  []int32
+	debug_info_                    *ObjectTypeProto_DebugInfo
+	is_invalidating_               bool
+	properties_keep_original_name_ bool
+	marked_constructor_            bool
+	closure_assert_                bool
+}
+
 type ObjectTypeProto struct {
 	GeneratedMessage
+	x_ ObjectTypeProto_x_
 }
 
 func (this *ObjectTypeProto) up_GeneratedMessage() *GeneratedMessage {
@@ -15533,6 +16771,7 @@ func (this *ObjectTypeProto) up_GeneratedMessage() *GeneratedMessage {
 
 type ObjectTypeProto_Builder struct {
 	GeneratedMessage_Builder
+	x_ ObjectTypeProto_x_
 }
 
 func (this *ObjectTypeProto_Builder) up_GeneratedMessage_Builder() *GeneratedMessage_Builder {
@@ -15543,17 +16782,20 @@ func (this *ObjectTypeProto_Builder) up_GeneratedMessage_Builder() *GeneratedMes
 }
 
 var ObjectTypeProto_desc_ = pbReg_(&pbDesc_{name: "jscomp.ObjectTypeProto", oneofs: []string{},
-	newM: func() any { return &ObjectTypeProto{} }, newB: func() any { return &ObjectTypeProto_Builder{} },
+	newM: func() *pbData_ { return &new(ObjectTypeProto).pbData_ }, newB: func() *pbData_ { return &new(ObjectTypeProto_Builder).pbData_ },
+	asM: func(p unsafe.Pointer) any { return (*ObjectTypeProto)(p) }, asB: func(p unsafe.Pointer) any { return (*ObjectTypeProto_Builder)(p) },
+	cp:   func(dst, src unsafe.Pointer) { (*ObjectTypeProto)(dst).x_ = (*ObjectTypeProto)(src).x_ },
+	xoff: unsafe.Offsetof(ObjectTypeProto{}.x_),
 	fields: []*pbField_{
-		{name: "is_invalidating", num: 2, kind: pbBool_},
-		{name: "uuid", num: 3, kind: pbBytes_},
-		{name: "properties_keep_original_name", num: 4, kind: pbBool_},
-		{name: "instance_type", num: 5, kind: pbInt32_, rep: true, packed: true},
-		{name: "prototype", num: 6, kind: pbInt32_, rep: true, packed: true},
-		{name: "marked_constructor", num: 7, kind: pbBool_},
-		{name: "own_property", num: 8, kind: pbInt32_, rep: true, packed: true},
-		{name: "closure_assert", num: 9, kind: pbBool_},
-		{name: "debug_info", num: 15, kind: pbMessage_, pres: true, tname: "jscomp.ObjectTypeProto.DebugInfo"},
+		{name: "is_invalidating", num: 2, kind: pbBool_, off: unsafe.Offsetof(ObjectTypeProto{}.x_.is_invalidating_)},
+		{name: "uuid", num: 3, kind: pbBytes_, off: unsafe.Offsetof(ObjectTypeProto{}.x_.uuid_)},
+		{name: "properties_keep_original_name", num: 4, kind: pbBool_, off: unsafe.Offsetof(ObjectTypeProto{}.x_.properties_keep_original_name_)},
+		{name: "instance_type", num: 5, kind: pbInt32_, rep: true, packed: true, off: unsafe.Offsetof(ObjectTypeProto{}.x_.instance_type_)},
+		{name: "prototype", num: 6, kind: pbInt32_, rep: true, packed: true, off: unsafe.Offsetof(ObjectTypeProto{}.x_.prototype_)},
+		{name: "marked_constructor", num: 7, kind: pbBool_, off: unsafe.Offsetof(ObjectTypeProto{}.x_.marked_constructor_)},
+		{name: "own_property", num: 8, kind: pbInt32_, rep: true, packed: true, off: unsafe.Offsetof(ObjectTypeProto{}.x_.own_property_)},
+		{name: "closure_assert", num: 9, kind: pbBool_, off: unsafe.Offsetof(ObjectTypeProto{}.x_.closure_assert_)},
+		{name: "debug_info", num: 15, kind: pbMessage_, pres: true, tname: "jscomp.ObjectTypeProto.DebugInfo", off: unsafe.Offsetof(ObjectTypeProto{}.x_.debug_info_)},
 	}})
 
 const (
@@ -15569,7 +16811,7 @@ const (
 )
 
 func ObjectTypeProto_getDefaultInstance() *ObjectTypeProto {
-	return ObjectTypeProto_desc_.default_().(*ObjectTypeProto)
+	return (*ObjectTypeProto)(unsafe.Pointer(ObjectTypeProto_desc_.default_()))
 }
 
 func ObjectTypeProto_getDescriptor() *Descriptors_Descriptor {
@@ -15577,7 +16819,7 @@ func ObjectTypeProto_getDescriptor() *Descriptors_Descriptor {
 }
 
 func ObjectTypeProto_newBuilder() *ObjectTypeProto_Builder {
-	return ObjectTypeProto_desc_.newBuilder_().me_.(*ObjectTypeProto_Builder)
+	return (*ObjectTypeProto_Builder)(unsafe.Pointer(ObjectTypeProto_desc_.newBuilder_()))
 }
 
 func ObjectTypeProto_newBuilder_ObjectTypeProto(p0 *ObjectTypeProto) *ObjectTypeProto_Builder {
@@ -15609,81 +16851,93 @@ func ObjectTypeProto_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedI
 }
 
 func (this *ObjectTypeProto) getIsInvalidating() bool {
-	return this.gBool_(0)
+	return this.x_.is_invalidating_
 }
 
 func (this *ObjectTypeProto_Builder) getIsInvalidating() bool {
-	return this.gBool_(0)
+	return this.x_.is_invalidating_
 }
 
 func (this *ObjectTypeProto_Builder) setIsInvalidating(p0 bool) *ObjectTypeProto_Builder {
-	this.set_(0, p0)
+	this.x_.is_invalidating_ = p0
 	return this
 }
 
 func (this *ObjectTypeProto_Builder) clearIsInvalidating() *ObjectTypeProto_Builder {
-	this.clr_(0)
+	this.x_.is_invalidating_ = false
 	return this
 }
 
 func (this *ObjectTypeProto) getUuid() *ByteString {
-	return this.gBytes_(1)
+	if b := this.x_.uuid_; b != nil {
+		return b
+	}
+	return ByteString_EMPTY
 }
 
 func (this *ObjectTypeProto_Builder) getUuid() *ByteString {
-	return this.gBytes_(1)
+	if b := this.x_.uuid_; b != nil {
+		return b
+	}
+	return ByteString_EMPTY
 }
 
 func (this *ObjectTypeProto_Builder) setUuid(p0 *ByteString) *ObjectTypeProto_Builder {
-	this.set_(1, obj_(p0))
+	if p0 == nil {
+		pbNPE_()
+	}
+	if len(p0.b_) == 0 {
+		p0 = nil
+	}
+	this.x_.uuid_ = p0
 	return this
 }
 
 func (this *ObjectTypeProto_Builder) clearUuid() *ObjectTypeProto_Builder {
-	this.clr_(1)
+	this.x_.uuid_ = nil
 	return this
 }
 
 func (this *ObjectTypeProto) getPropertiesKeepOriginalName() bool {
-	return this.gBool_(2)
+	return this.x_.properties_keep_original_name_
 }
 
 func (this *ObjectTypeProto_Builder) getPropertiesKeepOriginalName() bool {
-	return this.gBool_(2)
+	return this.x_.properties_keep_original_name_
 }
 
 func (this *ObjectTypeProto_Builder) setPropertiesKeepOriginalName(p0 bool) *ObjectTypeProto_Builder {
-	this.set_(2, p0)
+	this.x_.properties_keep_original_name_ = p0
 	return this
 }
 
 func (this *ObjectTypeProto_Builder) clearPropertiesKeepOriginalName() *ObjectTypeProto_Builder {
-	this.clr_(2)
+	this.x_.properties_keep_original_name_ = false
 	return this
 }
 
 func (this *ObjectTypeProto) getInstanceTypeList() List {
-	return this.list_(3)
+	return pbListOf_(this.x_.instance_type_)
 }
 
 func (this *ObjectTypeProto_Builder) getInstanceTypeList() List {
-	return this.list_(3)
+	return pbListOf_(this.x_.instance_type_)
 }
 
 func (this *ObjectTypeProto) getInstanceType(p0 int32) int32 {
-	return this.at_(3, p0).(int32)
+	return pbAt_(this.x_.instance_type_, p0)
 }
 
 func (this *ObjectTypeProto_Builder) getInstanceType(p0 int32) int32 {
-	return this.at_(3, p0).(int32)
+	return pbAt_(this.x_.instance_type_, p0)
 }
 
 func (this *ObjectTypeProto) getInstanceTypeCount() int32 {
-	return this.cnt_(3)
+	return int32(len(this.x_.instance_type_))
 }
 
 func (this *ObjectTypeProto_Builder) getInstanceTypeCount() int32 {
-	return this.cnt_(3)
+	return int32(len(this.x_.instance_type_))
 }
 
 func (this *ObjectTypeProto_Builder) setInstanceType(p0 int32, p1 int32) *ObjectTypeProto_Builder {
@@ -15692,7 +16946,8 @@ func (this *ObjectTypeProto_Builder) setInstanceType(p0 int32, p1 int32) *Object
 }
 
 func (this *ObjectTypeProto_Builder) addInstanceType(p0 int32) *ObjectTypeProto_Builder {
-	this.add_(3, p0)
+	this.own_()
+	this.x_.instance_type_ = append(this.x_.instance_type_, p0)
 	return this
 }
 
@@ -15702,32 +16957,32 @@ func (this *ObjectTypeProto_Builder) addAllInstanceType(p0 Iterable) *ObjectType
 }
 
 func (this *ObjectTypeProto_Builder) clearInstanceType() *ObjectTypeProto_Builder {
-	this.clr_(3)
+	this.x_.instance_type_ = nil
 	return this
 }
 
 func (this *ObjectTypeProto) getPrototypeList() List {
-	return this.list_(4)
+	return pbListOf_(this.x_.prototype_)
 }
 
 func (this *ObjectTypeProto_Builder) getPrototypeList() List {
-	return this.list_(4)
+	return pbListOf_(this.x_.prototype_)
 }
 
 func (this *ObjectTypeProto) getPrototype(p0 int32) int32 {
-	return this.at_(4, p0).(int32)
+	return pbAt_(this.x_.prototype_, p0)
 }
 
 func (this *ObjectTypeProto_Builder) getPrototype(p0 int32) int32 {
-	return this.at_(4, p0).(int32)
+	return pbAt_(this.x_.prototype_, p0)
 }
 
 func (this *ObjectTypeProto) getPrototypeCount() int32 {
-	return this.cnt_(4)
+	return int32(len(this.x_.prototype_))
 }
 
 func (this *ObjectTypeProto_Builder) getPrototypeCount() int32 {
-	return this.cnt_(4)
+	return int32(len(this.x_.prototype_))
 }
 
 func (this *ObjectTypeProto_Builder) setPrototype(p0 int32, p1 int32) *ObjectTypeProto_Builder {
@@ -15736,7 +16991,8 @@ func (this *ObjectTypeProto_Builder) setPrototype(p0 int32, p1 int32) *ObjectTyp
 }
 
 func (this *ObjectTypeProto_Builder) addPrototype(p0 int32) *ObjectTypeProto_Builder {
-	this.add_(4, p0)
+	this.own_()
+	this.x_.prototype_ = append(this.x_.prototype_, p0)
 	return this
 }
 
@@ -15746,50 +17002,50 @@ func (this *ObjectTypeProto_Builder) addAllPrototype(p0 Iterable) *ObjectTypePro
 }
 
 func (this *ObjectTypeProto_Builder) clearPrototype() *ObjectTypeProto_Builder {
-	this.clr_(4)
+	this.x_.prototype_ = nil
 	return this
 }
 
 func (this *ObjectTypeProto) getMarkedConstructor() bool {
-	return this.gBool_(5)
+	return this.x_.marked_constructor_
 }
 
 func (this *ObjectTypeProto_Builder) getMarkedConstructor() bool {
-	return this.gBool_(5)
+	return this.x_.marked_constructor_
 }
 
 func (this *ObjectTypeProto_Builder) setMarkedConstructor(p0 bool) *ObjectTypeProto_Builder {
-	this.set_(5, p0)
+	this.x_.marked_constructor_ = p0
 	return this
 }
 
 func (this *ObjectTypeProto_Builder) clearMarkedConstructor() *ObjectTypeProto_Builder {
-	this.clr_(5)
+	this.x_.marked_constructor_ = false
 	return this
 }
 
 func (this *ObjectTypeProto) getOwnPropertyList() List {
-	return this.list_(6)
+	return pbListOf_(this.x_.own_property_)
 }
 
 func (this *ObjectTypeProto_Builder) getOwnPropertyList() List {
-	return this.list_(6)
+	return pbListOf_(this.x_.own_property_)
 }
 
 func (this *ObjectTypeProto) getOwnProperty(p0 int32) int32 {
-	return this.at_(6, p0).(int32)
+	return pbAt_(this.x_.own_property_, p0)
 }
 
 func (this *ObjectTypeProto_Builder) getOwnProperty(p0 int32) int32 {
-	return this.at_(6, p0).(int32)
+	return pbAt_(this.x_.own_property_, p0)
 }
 
 func (this *ObjectTypeProto) getOwnPropertyCount() int32 {
-	return this.cnt_(6)
+	return int32(len(this.x_.own_property_))
 }
 
 func (this *ObjectTypeProto_Builder) getOwnPropertyCount() int32 {
-	return this.cnt_(6)
+	return int32(len(this.x_.own_property_))
 }
 
 func (this *ObjectTypeProto_Builder) setOwnProperty(p0 int32, p1 int32) *ObjectTypeProto_Builder {
@@ -15798,7 +17054,8 @@ func (this *ObjectTypeProto_Builder) setOwnProperty(p0 int32, p1 int32) *ObjectT
 }
 
 func (this *ObjectTypeProto_Builder) addOwnProperty(p0 int32) *ObjectTypeProto_Builder {
-	this.add_(6, p0)
+	this.own_()
+	this.x_.own_property_ = append(this.x_.own_property_, p0)
 	return this
 }
 
@@ -15808,59 +17065,65 @@ func (this *ObjectTypeProto_Builder) addAllOwnProperty(p0 Iterable) *ObjectTypeP
 }
 
 func (this *ObjectTypeProto_Builder) clearOwnProperty() *ObjectTypeProto_Builder {
-	this.clr_(6)
+	this.x_.own_property_ = nil
 	return this
 }
 
 func (this *ObjectTypeProto) getClosureAssert() bool {
-	return this.gBool_(7)
+	return this.x_.closure_assert_
 }
 
 func (this *ObjectTypeProto_Builder) getClosureAssert() bool {
-	return this.gBool_(7)
+	return this.x_.closure_assert_
 }
 
 func (this *ObjectTypeProto_Builder) setClosureAssert(p0 bool) *ObjectTypeProto_Builder {
-	this.set_(7, p0)
+	this.x_.closure_assert_ = p0
 	return this
 }
 
 func (this *ObjectTypeProto_Builder) clearClosureAssert() *ObjectTypeProto_Builder {
-	this.clr_(7)
+	this.x_.closure_assert_ = false
 	return this
 }
 
 func (this *ObjectTypeProto) hasDebugInfo() bool {
-	return this.has_(8)
+	return this.x_.debug_info_ != nil
 }
 
 func (this *ObjectTypeProto_Builder) hasDebugInfo() bool {
-	return this.has_(8)
+	return this.x_.debug_info_ != nil
 }
 
 func (this *ObjectTypeProto) getDebugInfo() *ObjectTypeProto_DebugInfo {
-	return this.gMsg_(8).(*ObjectTypeProto_DebugInfo)
+	if p := this.x_.debug_info_; p != nil {
+		return p
+	}
+	return (*ObjectTypeProto_DebugInfo)(unsafe.Pointer(ObjectTypeProto_DebugInfo_desc_.default_()))
 }
 
 func (this *ObjectTypeProto_Builder) getDebugInfo() *ObjectTypeProto_DebugInfo {
-	return this.gMsg_(8).(*ObjectTypeProto_DebugInfo)
+	return (*ObjectTypeProto_DebugInfo)(this.gMsgP_(8))
 }
 
 func (this *ObjectTypeProto) getDebugInfoOrBuilder() ObjectTypeProto_DebugInfoOrBuilder {
-	return this.gMsg_(8).(*ObjectTypeProto_DebugInfo)
+	if p := this.x_.debug_info_; p != nil {
+		return p
+	}
+	return (*ObjectTypeProto_DebugInfo)(unsafe.Pointer(ObjectTypeProto_DebugInfo_desc_.default_()))
 }
 
 func (this *ObjectTypeProto_Builder) getDebugInfoOrBuilder() ObjectTypeProto_DebugInfoOrBuilder {
-	return this.gMsg_(8).(*ObjectTypeProto_DebugInfo)
+	return (*ObjectTypeProto_DebugInfo)(this.gMsgP_(8))
 }
 
 func (this *ObjectTypeProto_Builder) setDebugInfo(p0 *ObjectTypeProto_DebugInfo) *ObjectTypeProto_Builder {
-	this.set_(8, obj_(p0))
+	this.setMsg_(8, unsafe.Pointer(p0))
 	return this
 }
 
 func (this *ObjectTypeProto_Builder) setDebugInfo_Builder(p0 *ObjectTypeProto_DebugInfo_Builder) *ObjectTypeProto_Builder {
-	this.set_(8, p0.build())
+	this.setMsg_(8, unsafe.Pointer(p0.build_()))
 	return this
 }
 
@@ -15870,7 +17133,7 @@ func (this *ObjectTypeProto_Builder) mergeDebugInfo(p0 *ObjectTypeProto_DebugInf
 }
 
 func (this *ObjectTypeProto_Builder) clearDebugInfo() *ObjectTypeProto_Builder {
-	this.clr_(8)
+	this.x_.debug_info_ = nil
 	return this
 }
 
@@ -15885,8 +17148,13 @@ func (this *ObjectTypeProto_Builder) mergeFrom_ObjectTypeProto(p0 *ObjectTypePro
 
 // ---- message jscomp.ObjectTypeProto.DebugInfo
 
+type ObjectTypeProto_DebugInfo_x_ struct {
+	typename_pointer_ []int32
+}
+
 type ObjectTypeProto_DebugInfo struct {
 	GeneratedMessage
+	x_ ObjectTypeProto_DebugInfo_x_
 }
 
 func (this *ObjectTypeProto_DebugInfo) up_GeneratedMessage() *GeneratedMessage {
@@ -15898,6 +17166,7 @@ func (this *ObjectTypeProto_DebugInfo) up_GeneratedMessage() *GeneratedMessage {
 
 type ObjectTypeProto_DebugInfo_Builder struct {
 	GeneratedMessage_Builder
+	x_ ObjectTypeProto_DebugInfo_x_
 }
 
 func (this *ObjectTypeProto_DebugInfo_Builder) up_GeneratedMessage_Builder() *GeneratedMessage_Builder {
@@ -15908,9 +17177,14 @@ func (this *ObjectTypeProto_DebugInfo_Builder) up_GeneratedMessage_Builder() *Ge
 }
 
 var ObjectTypeProto_DebugInfo_desc_ = pbReg_(&pbDesc_{name: "jscomp.ObjectTypeProto.DebugInfo", oneofs: []string{},
-	newM: func() any { return &ObjectTypeProto_DebugInfo{} }, newB: func() any { return &ObjectTypeProto_DebugInfo_Builder{} },
+	newM: func() *pbData_ { return &new(ObjectTypeProto_DebugInfo).pbData_ }, newB: func() *pbData_ { return &new(ObjectTypeProto_DebugInfo_Builder).pbData_ },
+	asM: func(p unsafe.Pointer) any { return (*ObjectTypeProto_DebugInfo)(p) }, asB: func(p unsafe.Pointer) any { return (*ObjectTypeProto_DebugInfo_Builder)(p) },
+	cp: func(dst, src unsafe.Pointer) {
+		(*ObjectTypeProto_DebugInfo)(dst).x_ = (*ObjectTypeProto_DebugInfo)(src).x_
+	},
+	xoff: unsafe.Offsetof(ObjectTypeProto_DebugInfo{}.x_),
 	fields: []*pbField_{
-		{name: "typename_pointer", num: 1, kind: pbInt32_, rep: true, packed: true},
+		{name: "typename_pointer", num: 1, kind: pbInt32_, rep: true, packed: true, off: unsafe.Offsetof(ObjectTypeProto_DebugInfo{}.x_.typename_pointer_)},
 	}})
 
 const (
@@ -15918,7 +17192,7 @@ const (
 )
 
 func ObjectTypeProto_DebugInfo_getDefaultInstance() *ObjectTypeProto_DebugInfo {
-	return ObjectTypeProto_DebugInfo_desc_.default_().(*ObjectTypeProto_DebugInfo)
+	return (*ObjectTypeProto_DebugInfo)(unsafe.Pointer(ObjectTypeProto_DebugInfo_desc_.default_()))
 }
 
 func ObjectTypeProto_DebugInfo_getDescriptor() *Descriptors_Descriptor {
@@ -15926,7 +17200,7 @@ func ObjectTypeProto_DebugInfo_getDescriptor() *Descriptors_Descriptor {
 }
 
 func ObjectTypeProto_DebugInfo_newBuilder() *ObjectTypeProto_DebugInfo_Builder {
-	return ObjectTypeProto_DebugInfo_desc_.newBuilder_().me_.(*ObjectTypeProto_DebugInfo_Builder)
+	return (*ObjectTypeProto_DebugInfo_Builder)(unsafe.Pointer(ObjectTypeProto_DebugInfo_desc_.newBuilder_()))
 }
 
 func ObjectTypeProto_DebugInfo_newBuilder_DebugInfo(p0 *ObjectTypeProto_DebugInfo) *ObjectTypeProto_DebugInfo_Builder {
@@ -15958,27 +17232,27 @@ func ObjectTypeProto_DebugInfo_parseFrom_CodedInputStream_ExtensionRegistryLite(
 }
 
 func (this *ObjectTypeProto_DebugInfo) getTypenamePointerList() List {
-	return this.list_(0)
+	return pbListOf_(this.x_.typename_pointer_)
 }
 
 func (this *ObjectTypeProto_DebugInfo_Builder) getTypenamePointerList() List {
-	return this.list_(0)
+	return pbListOf_(this.x_.typename_pointer_)
 }
 
 func (this *ObjectTypeProto_DebugInfo) getTypenamePointer(p0 int32) int32 {
-	return this.at_(0, p0).(int32)
+	return pbAt_(this.x_.typename_pointer_, p0)
 }
 
 func (this *ObjectTypeProto_DebugInfo_Builder) getTypenamePointer(p0 int32) int32 {
-	return this.at_(0, p0).(int32)
+	return pbAt_(this.x_.typename_pointer_, p0)
 }
 
 func (this *ObjectTypeProto_DebugInfo) getTypenamePointerCount() int32 {
-	return this.cnt_(0)
+	return int32(len(this.x_.typename_pointer_))
 }
 
 func (this *ObjectTypeProto_DebugInfo_Builder) getTypenamePointerCount() int32 {
-	return this.cnt_(0)
+	return int32(len(this.x_.typename_pointer_))
 }
 
 func (this *ObjectTypeProto_DebugInfo_Builder) setTypenamePointer(p0 int32, p1 int32) *ObjectTypeProto_DebugInfo_Builder {
@@ -15987,7 +17261,8 @@ func (this *ObjectTypeProto_DebugInfo_Builder) setTypenamePointer(p0 int32, p1 i
 }
 
 func (this *ObjectTypeProto_DebugInfo_Builder) addTypenamePointer(p0 int32) *ObjectTypeProto_DebugInfo_Builder {
-	this.add_(0, p0)
+	this.own_()
+	this.x_.typename_pointer_ = append(this.x_.typename_pointer_, p0)
 	return this
 }
 
@@ -15997,7 +17272,7 @@ func (this *ObjectTypeProto_DebugInfo_Builder) addAllTypenamePointer(p0 Iterable
 }
 
 func (this *ObjectTypeProto_DebugInfo_Builder) clearTypenamePointer() *ObjectTypeProto_DebugInfo_Builder {
-	this.clr_(0)
+	this.x_.typename_pointer_ = nil
 	return this
 }
 
@@ -16015,8 +17290,14 @@ type ObjectTypeProto_DebugInfoOrBuilder interface {
 
 // ---- message jscomp.TypeProto
 
+type TypeProto_x_ struct {
+	object_ *ObjectTypeProto
+	union_  *UnionTypeProto
+}
+
 type TypeProto struct {
 	GeneratedMessage
+	x_ TypeProto_x_
 }
 
 func (this *TypeProto) up_GeneratedMessage() *GeneratedMessage {
@@ -16028,6 +17309,7 @@ func (this *TypeProto) up_GeneratedMessage() *GeneratedMessage {
 
 type TypeProto_Builder struct {
 	GeneratedMessage_Builder
+	x_ TypeProto_x_
 }
 
 func (this *TypeProto_Builder) up_GeneratedMessage_Builder() *GeneratedMessage_Builder {
@@ -16038,10 +17320,13 @@ func (this *TypeProto_Builder) up_GeneratedMessage_Builder() *GeneratedMessage_B
 }
 
 var TypeProto_desc_ = pbReg_(&pbDesc_{name: "jscomp.TypeProto", oneofs: []string{"kind"},
-	newM: func() any { return &TypeProto{} }, newB: func() any { return &TypeProto_Builder{} },
+	newM: func() *pbData_ { return &new(TypeProto).pbData_ }, newB: func() *pbData_ { return &new(TypeProto_Builder).pbData_ },
+	asM: func(p unsafe.Pointer) any { return (*TypeProto)(p) }, asB: func(p unsafe.Pointer) any { return (*TypeProto_Builder)(p) },
+	cp:   func(dst, src unsafe.Pointer) { (*TypeProto)(dst).x_ = (*TypeProto)(src).x_ },
+	xoff: unsafe.Offsetof(TypeProto{}.x_),
 	fields: []*pbField_{
-		{name: "object", num: 2, kind: pbMessage_, pres: true, oneof: 1, tname: "jscomp.ObjectTypeProto"},
-		{name: "union", num: 4, kind: pbMessage_, pres: true, oneof: 1, tname: "jscomp.UnionTypeProto"},
+		{name: "object", num: 2, kind: pbMessage_, pres: true, oneof: 1, tname: "jscomp.ObjectTypeProto", off: unsafe.Offsetof(TypeProto{}.x_.object_)},
+		{name: "union", num: 4, kind: pbMessage_, pres: true, oneof: 1, tname: "jscomp.UnionTypeProto", off: unsafe.Offsetof(TypeProto{}.x_.union_)},
 	}})
 
 const (
@@ -16136,7 +17421,7 @@ func TypeProto_KindCase_ofNum_(n int32) TypeProto_KindCase {
 }
 
 func TypeProto_getDefaultInstance() *TypeProto {
-	return TypeProto_desc_.default_().(*TypeProto)
+	return (*TypeProto)(unsafe.Pointer(TypeProto_desc_.default_()))
 }
 
 func TypeProto_getDescriptor() *Descriptors_Descriptor {
@@ -16144,7 +17429,7 @@ func TypeProto_getDescriptor() *Descriptors_Descriptor {
 }
 
 func TypeProto_newBuilder() *TypeProto_Builder {
-	return TypeProto_desc_.newBuilder_().me_.(*TypeProto_Builder)
+	return (*TypeProto_Builder)(unsafe.Pointer(TypeProto_desc_.newBuilder_()))
 }
 
 func TypeProto_newBuilder_TypeProto(p0 *TypeProto) *TypeProto_Builder {
@@ -16176,36 +17461,42 @@ func TypeProto_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInputSt
 }
 
 func (this *TypeProto) hasObject() bool {
-	return this.has_(0)
+	return this.x_.object_ != nil
 }
 
 func (this *TypeProto_Builder) hasObject() bool {
-	return this.has_(0)
+	return this.x_.object_ != nil
 }
 
 func (this *TypeProto) getObject() *ObjectTypeProto {
-	return this.gMsg_(0).(*ObjectTypeProto)
+	if p := this.x_.object_; p != nil {
+		return p
+	}
+	return (*ObjectTypeProto)(unsafe.Pointer(ObjectTypeProto_desc_.default_()))
 }
 
 func (this *TypeProto_Builder) getObject() *ObjectTypeProto {
-	return this.gMsg_(0).(*ObjectTypeProto)
+	return (*ObjectTypeProto)(this.gMsgP_(0))
 }
 
 func (this *TypeProto) getObjectOrBuilder() ObjectTypeProtoOrBuilder {
-	return this.gMsg_(0).(*ObjectTypeProto)
+	if p := this.x_.object_; p != nil {
+		return p
+	}
+	return (*ObjectTypeProto)(unsafe.Pointer(ObjectTypeProto_desc_.default_()))
 }
 
 func (this *TypeProto_Builder) getObjectOrBuilder() ObjectTypeProtoOrBuilder {
-	return this.gMsg_(0).(*ObjectTypeProto)
+	return (*ObjectTypeProto)(this.gMsgP_(0))
 }
 
 func (this *TypeProto_Builder) setObject(p0 *ObjectTypeProto) *TypeProto_Builder {
-	this.set_(0, obj_(p0))
+	this.setMsg_(0, unsafe.Pointer(p0))
 	return this
 }
 
 func (this *TypeProto_Builder) setObject_Builder(p0 *ObjectTypeProto_Builder) *TypeProto_Builder {
-	this.set_(0, p0.build())
+	this.setMsg_(0, unsafe.Pointer(p0.build_()))
 	return this
 }
 
@@ -16215,7 +17506,7 @@ func (this *TypeProto_Builder) mergeObject(p0 *ObjectTypeProto) *TypeProto_Build
 }
 
 func (this *TypeProto_Builder) clearObject() *TypeProto_Builder {
-	this.clr_(0)
+	this.x_.object_ = nil
 	return this
 }
 
@@ -16224,36 +17515,42 @@ func (this *TypeProto_Builder) getObjectBuilder() *ObjectTypeProto_Builder {
 }
 
 func (this *TypeProto) hasUnion() bool {
-	return this.has_(1)
+	return this.x_.union_ != nil
 }
 
 func (this *TypeProto_Builder) hasUnion() bool {
-	return this.has_(1)
+	return this.x_.union_ != nil
 }
 
 func (this *TypeProto) getUnion() *UnionTypeProto {
-	return this.gMsg_(1).(*UnionTypeProto)
+	if p := this.x_.union_; p != nil {
+		return p
+	}
+	return (*UnionTypeProto)(unsafe.Pointer(UnionTypeProto_desc_.default_()))
 }
 
 func (this *TypeProto_Builder) getUnion() *UnionTypeProto {
-	return this.gMsg_(1).(*UnionTypeProto)
+	return (*UnionTypeProto)(this.gMsgP_(1))
 }
 
 func (this *TypeProto) getUnionOrBuilder() UnionTypeProtoOrBuilder {
-	return this.gMsg_(1).(*UnionTypeProto)
+	if p := this.x_.union_; p != nil {
+		return p
+	}
+	return (*UnionTypeProto)(unsafe.Pointer(UnionTypeProto_desc_.default_()))
 }
 
 func (this *TypeProto_Builder) getUnionOrBuilder() UnionTypeProtoOrBuilder {
-	return this.gMsg_(1).(*UnionTypeProto)
+	return (*UnionTypeProto)(this.gMsgP_(1))
 }
 
 func (this *TypeProto_Builder) setUnion(p0 *UnionTypeProto) *TypeProto_Builder {
-	this.set_(1, obj_(p0))
+	this.setMsg_(1, unsafe.Pointer(p0))
 	return this
 }
 
 func (this *TypeProto_Builder) setUnion_Builder(p0 *UnionTypeProto_Builder) *TypeProto_Builder {
-	this.set_(1, p0.build())
+	this.setMsg_(1, unsafe.Pointer(p0.build_()))
 	return this
 }
 
@@ -16263,7 +17560,7 @@ func (this *TypeProto_Builder) mergeUnion(p0 *UnionTypeProto) *TypeProto_Builder
 }
 
 func (this *TypeProto_Builder) clearUnion() *TypeProto_Builder {
-	this.clr_(1)
+	this.x_.union_ = nil
 	return this
 }
 
@@ -16272,11 +17569,23 @@ func (this *TypeProto_Builder) getUnionBuilder() *UnionTypeProto_Builder {
 }
 
 func (this *TypeProto) getKindCase() TypeProto_KindCase {
-	return TypeProto_KindCase_ofNum_(this.case_(1))
+	if this.x_.object_ != nil {
+		return TypeProto_KindCase_OBJECT
+	}
+	if this.x_.union_ != nil {
+		return TypeProto_KindCase_UNION
+	}
+	return TypeProto_KindCase_KIND_NOT_SET
 }
 
 func (this *TypeProto_Builder) getKindCase() TypeProto_KindCase {
-	return TypeProto_KindCase_ofNum_(this.case_(1))
+	if this.x_.object_ != nil {
+		return TypeProto_KindCase_OBJECT
+	}
+	if this.x_.union_ != nil {
+		return TypeProto_KindCase_UNION
+	}
+	return TypeProto_KindCase_KIND_NOT_SET
 }
 
 func (this *TypeProto_Builder) clearKind() *TypeProto_Builder {
@@ -16291,8 +17600,13 @@ func (this *TypeProto_Builder) mergeFrom_TypeProto(p0 *TypeProto) *TypeProto_Bui
 
 // ---- message jscomp.TypePoolList
 
+type TypePoolList_x_ struct {
+	type_pool_ []*TypePool
+}
+
 type TypePoolList struct {
 	GeneratedMessage
+	x_ TypePoolList_x_
 }
 
 func (this *TypePoolList) up_GeneratedMessage() *GeneratedMessage {
@@ -16304,6 +17618,7 @@ func (this *TypePoolList) up_GeneratedMessage() *GeneratedMessage {
 
 type TypePoolList_Builder struct {
 	GeneratedMessage_Builder
+	x_ TypePoolList_x_
 }
 
 func (this *TypePoolList_Builder) up_GeneratedMessage_Builder() *GeneratedMessage_Builder {
@@ -16314,9 +17629,12 @@ func (this *TypePoolList_Builder) up_GeneratedMessage_Builder() *GeneratedMessag
 }
 
 var TypePoolList_desc_ = pbReg_(&pbDesc_{name: "jscomp.TypePoolList", oneofs: []string{},
-	newM: func() any { return &TypePoolList{} }, newB: func() any { return &TypePoolList_Builder{} },
+	newM: func() *pbData_ { return &new(TypePoolList).pbData_ }, newB: func() *pbData_ { return &new(TypePoolList_Builder).pbData_ },
+	asM: func(p unsafe.Pointer) any { return (*TypePoolList)(p) }, asB: func(p unsafe.Pointer) any { return (*TypePoolList_Builder)(p) },
+	cp:   func(dst, src unsafe.Pointer) { (*TypePoolList)(dst).x_ = (*TypePoolList)(src).x_ },
+	xoff: unsafe.Offsetof(TypePoolList{}.x_),
 	fields: []*pbField_{
-		{name: "type_pool", num: 1, kind: pbMessage_, rep: true, tname: "jscomp.TypePool"},
+		{name: "type_pool", num: 1, kind: pbMessage_, rep: true, tname: "jscomp.TypePool", off: unsafe.Offsetof(TypePoolList{}.x_.type_pool_)},
 	}})
 
 const (
@@ -16324,7 +17642,7 @@ const (
 )
 
 func TypePoolList_getDefaultInstance() *TypePoolList {
-	return TypePoolList_desc_.default_().(*TypePoolList)
+	return (*TypePoolList)(unsafe.Pointer(TypePoolList_desc_.default_()))
 }
 
 func TypePoolList_getDescriptor() *Descriptors_Descriptor {
@@ -16332,7 +17650,7 @@ func TypePoolList_getDescriptor() *Descriptors_Descriptor {
 }
 
 func TypePoolList_newBuilder() *TypePoolList_Builder {
-	return TypePoolList_desc_.newBuilder_().me_.(*TypePoolList_Builder)
+	return (*TypePoolList_Builder)(unsafe.Pointer(TypePoolList_desc_.newBuilder_()))
 }
 
 func TypePoolList_newBuilder_TypePoolList(p0 *TypePoolList) *TypePoolList_Builder {
@@ -16364,7 +17682,7 @@ func TypePoolList_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInpu
 }
 
 func (this *TypePoolList) getTypePoolList() List {
-	return this.list_(0)
+	return pbListOf_(this.x_.type_pool_)
 }
 
 func (this *TypePoolList_Builder) getTypePoolList() List {
@@ -16372,31 +17690,31 @@ func (this *TypePoolList_Builder) getTypePoolList() List {
 }
 
 func (this *TypePoolList) getTypePoolCount() int32 {
-	return this.cnt_(0)
+	return int32(len(this.x_.type_pool_))
 }
 
 func (this *TypePoolList_Builder) getTypePoolCount() int32 {
-	return this.cnt_(0)
+	return int32(len(this.x_.type_pool_))
 }
 
 func (this *TypePoolList) getTypePool(p0 int32) *TypePool {
-	return this.at_(0, p0).(*TypePool)
+	return pbAt_(this.x_.type_pool_, p0)
 }
 
 func (this *TypePoolList_Builder) getTypePool(p0 int32) *TypePool {
-	return this.at_(0, p0).(*TypePool)
+	return (*TypePool)(this.atMsgP_(0, p0))
 }
 
 func (this *TypePoolList) getTypePoolOrBuilder(p0 int32) TypePoolOrBuilder {
-	return this.at_(0, p0).(*TypePool)
+	return pbAt_(this.x_.type_pool_, p0)
 }
 
 func (this *TypePoolList_Builder) getTypePoolOrBuilder(p0 int32) TypePoolOrBuilder {
-	return this.at_(0, p0).(*TypePool)
+	return (*TypePool)(this.atMsgP_(0, p0))
 }
 
 func (this *TypePoolList) getTypePoolOrBuilderList() List {
-	return this.list_(0)
+	return pbListOf_(this.x_.type_pool_)
 }
 
 func (this *TypePoolList_Builder) getTypePoolOrBuilderList() List {
@@ -16414,7 +17732,11 @@ func (this *TypePoolList_Builder) setTypePool_int_Builder(p0 int32, p1 *TypePool
 }
 
 func (this *TypePoolList_Builder) addTypePool(p0 *TypePool) *TypePoolList_Builder {
-	this.add_(0, obj_(p0))
+	if p0 == nil {
+		pbNPE_()
+	}
+	this.own_()
+	this.x_.type_pool_ = append(this.x_.type_pool_, p0)
 	return this
 }
 
@@ -16439,7 +17761,7 @@ func (this *TypePoolList_Builder) addAllTypePool(p0 Iterable) *TypePoolList_Buil
 }
 
 func (this *TypePoolList_Builder) clearTypePool() *TypePoolList_Builder {
-	this.clr_(0)
+	this.x_.type_pool_ = nil
 	return this
 }
 
