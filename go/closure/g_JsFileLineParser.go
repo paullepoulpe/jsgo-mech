@@ -52,7 +52,7 @@ func (this *JsFileLineParser) didParseSucceed() bool {
 func (this *JsFileLineParser) doParse(filePath string, fileContents string) {
 	this.filePath = Optional_of[string](filePath)
 	this.parseSucceeded = true
-	var lines *TList[string] = TextFiles_splitLines(fileContents)
+	var lines *[]string = TextFiles_splitLines(fileContents)
 	var lineIndex int32 = 0
 	var line Optional[string] = Optional_empty[string]()
 	this.lineNum = 0
@@ -60,10 +60,10 @@ func (this *JsFileLineParser) doParse(filePath string, fileContents string) {
 	var inJsDocComment bool = false
 	var revisedLineU16 utf16_
 	for {
-		if lineIndex == lines.size() {
+		if lineIndex == int32(len(*lines)) {
 			break
 		}
-		line = Optional_ofNullable[string](lines.get(lineIndex))
+		line = Optional_ofNullable[string](sliceAt_(*lines, lineIndex))
 		lineIndex++
 		this.lineNum++
 		var revisedLine Optional[string] = line

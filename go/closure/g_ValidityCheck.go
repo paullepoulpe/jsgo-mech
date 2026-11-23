@@ -80,7 +80,7 @@ func ValidityCheck_clinit() {
 type ValidityCheck_VerifyConstants struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_             *AbstractCompiler
-	constantMap           *TMap[string, any]
+	constantMap           map[string]any
 	checkUserDeclarations bool
 }
 
@@ -92,7 +92,7 @@ func (this *ValidityCheck_VerifyConstants) up_NodeTraversal_AbstractPostOrderCal
 }
 
 func (this *ValidityCheck_VerifyConstants) finit_ValidityCheck_VerifyConstants() {
-	this.constantMap = newTMap_(tc_string, tc_Boolean)
+	this.constantMap = map[string]any{}
 }
 
 func (this *ValidityCheck_VerifyConstants) init_ValidityCheck_VerifyConstants(compiler *AbstractCompiler, checkUserDeclarations bool) {
@@ -155,9 +155,9 @@ func (this *ValidityCheck_VerifyConstants) visit_impl(t *NodeTraversal, n Node, 
 				}
 			}
 		}
-		var value any = this.constantMap.Get(name)
+		var value any = this.constantMap[name]
 		if value == nil {
-			this.constantMap.Put(name, bool(isConst))
+			this.constantMap[name] = bool(isConst)
 		} else if Boolean_booleanValue(value) != isConst {
 			panic(new_IllegalStateException_String(("The name " + sstr_(name) + " is not consistently annotated as constant. Current constness: " + boolstr_(isConst) + ", previous constness: " + boolstr_(Boolean_booleanValue(value)) + "\n\nAt node: " + tostrH_(n))))
 		}

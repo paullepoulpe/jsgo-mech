@@ -282,14 +282,14 @@ func (this *UnionType) getRestrictedUnion(type_ *JSType) *JSType {
 
 func (this *UnionType) appendTo_impl(sb *TypeStringBuilder) {
 	sb.append("(")
-	var names *TList[string] = newTList_(tc_string)
+	var names *[]string = &[]string{}
 	it_1 := this.alternates.each()
 	for it_1.next() {
 		var alt *JSType = it_1.v
-		names.add(sb.cloneWithConfig().appendJSType(alt).build())
+		*names = append(*names, sb.cloneWithConfig().appendJSType(alt).build())
 	}
-	Collections_sort(names.asList())
-	sb.appendAll(Iterable(names.asList()), "|")
+	Collections_sort(sliceViewP_(tc_string, names))
+	sb.appendAll(Iterable(slicePtrView_(tc_string, names)), "|")
 	sb.append(")")
 }
 

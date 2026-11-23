@@ -1,0 +1,21 @@
+package closure
+
+// Typed variants of the runtime's functional APIs (post-flip steps tfnapi and tcmp): the same
+// calls of the function, in the same order, with the same values, where the erased API boxed
+// the arguments for a lambda adapter (&X_tfn_T{f}) that unboxed them again and boxed f's result
+// for the API to unbox. A box of null is nil and its unboxing the conversion's null in both.
+
+// mapComputeIfAbsentT_ is mapComputeIfAbsent_ of a typed function: the value of k if the map has
+// one that is not null; else f(k), stored unless it is null.
+func mapComputeIfAbsentT_[K comparable, V any](vc *tconv_[V], m map[K]V, k K, f func(K) V) V {
+	mapNN_(m)
+	if v, ok := m[k]; ok && !vc.isNull(v) {
+		return v
+	}
+	v := f(k)
+	if vc.isNull(v) {
+		return vc.null
+	}
+	m[k] = v
+	return v
+}

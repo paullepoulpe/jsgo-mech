@@ -28,13 +28,13 @@ func (this *OptimizeReturns) process_3(externs Node, root Node, definitions *Opt
 	var logFile *LogFile = this.compiler_.createOrReopenIndexedLog(Object_getClass(this), "decisions.log", []string{})
 	defer closeResource_(logFile.self())
 	this.decisionsLog = logFile
-	var toOptimize *TList[ListT[Node]] = newTList_(tc_ListT_Node_)
+	var toOptimize []ListT[Node] = []ListT[Node]{}
 	for entry := range elemsT_(definitions.getNameReferences()) {
 		var key string = entry.getKey_t()
 		var refs ListT[Node] = entry.getValue_t()
 		if this.isCandidate(key, refs) {
 			this.decisionsLog.log_2("name %s\tremoving return value", []any{strobj_(key)})
-			toOptimize.add(refs)
+			toOptimize = append(toOptimize, refs)
 		}
 	}
 	for entry := range elemsT_(definitions.getPropReferences()) {
@@ -42,12 +42,10 @@ func (this *OptimizeReturns) process_3(externs Node, root Node, definitions *Opt
 		var refs ListT[Node] = entry.getValue_t()
 		if this.isCandidate(key, refs) {
 			this.decisionsLog.log_2("property %s\tremoving return value", []any{strobj_(key)})
-			toOptimize.add(refs)
+			toOptimize = append(toOptimize, refs)
 		}
 	}
-	it_6 := toOptimize.each()
-	for it_6.next() {
-		var refs ListT[Node] = it_6.v
+	for _, refs := range toOptimize {
 		for fn := range elemsT_(OptimizeCalls_ReferenceMap_getFunctionNodes(refs).values()) {
 			this.rewriteReturns(fn)
 		}
