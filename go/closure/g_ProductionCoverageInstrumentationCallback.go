@@ -249,21 +249,21 @@ func (this *ProductionCoverageInstrumentationCallback_ParameterMapping) getEncod
 	this.fileNameToIndex.putIfAbsent(fileName, int32(this.fileNameToIndex.size()))
 	this.functionNameToIndex.putIfAbsent(functionName, int32(this.functionNameToIndex.size()))
 	this.typeToIndex.putIfAbsent(type_.name(), int32(this.typeToIndex.size()))
-	var sb *StringBuilder = new_StringBuilder()
-	Base64VLQ_encode(StringBuilder_as_Appendable(sb), unbox_[int32](this.fileNameToIndex.get(fileName)))
-	Base64VLQ_encode(StringBuilder_as_Appendable(sb), unbox_[int32](this.functionNameToIndex.get(functionName)))
-	Base64VLQ_encode(StringBuilder_as_Appendable(sb), unbox_[int32](this.typeToIndex.get(type_.name())))
-	Base64VLQ_encode(StringBuilder_as_Appendable(sb), lineNo)
-	Base64VLQ_encode(StringBuilder_as_Appendable(sb), colNo)
+	var sb *strBuilder_ = &strBuilder_{}
+	Base64VLQ_encode(appendable_(sb), unbox_[int32](this.fileNameToIndex.get(fileName)))
+	Base64VLQ_encode(appendable_(sb), unbox_[int32](this.functionNameToIndex.get(functionName)))
+	Base64VLQ_encode(appendable_(sb), unbox_[int32](this.typeToIndex.get(type_.name())))
+	Base64VLQ_encode(appendable_(sb), lineNo)
+	Base64VLQ_encode(appendable_(sb), colNo)
 	var encodedParam string = sb.toString()
 	if !this.paramValueEncodings.containsKey(encodedParam) {
 		var uniqueIdentifier int64 = this.generateUniqueIdentifier()
 		if uniqueIdentifier > int64(int32(2147483647)) {
 			panic(new_ArithmeticException_String("Unique Identifier exceeds value of Integer.MAX_VALUE, could not encode with Base 64 VLQ"))
 		}
-		sb = new_StringBuilder()
+		sb = &strBuilder_{}
 		{
-			Base64VLQ_encode(StringBuilder_as_Appendable(sb), Math_toIntExact(uniqueIdentifier))
+			Base64VLQ_encode(appendable_(sb), Math_toIntExact(uniqueIdentifier))
 		}
 		this.paramValueEncodings.put(encodedParam, sb.toString())
 	}
