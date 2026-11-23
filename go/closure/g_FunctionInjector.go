@@ -634,7 +634,10 @@ func (this FunctionInjector_InliningMode) name() string {
 }
 
 func (this FunctionInjector_InliningMode) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this FunctionInjector_InliningMode) toString() string {
@@ -853,7 +856,10 @@ func (this FunctionInjector_CanInlineResult) name() string {
 }
 
 func (this FunctionInjector_CanInlineResult) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this FunctionInjector_CanInlineResult) toString() string {
