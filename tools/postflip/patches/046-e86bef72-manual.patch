@@ -1,0 +1,76 @@
+diff --git a/go/closure/g_JSType.go b/go/closure/g_JSType.go
+index e22c5f4a..a1ff036e 100644
+--- a/go/closure/g_JSType.go
++++ b/go/closure/g_JSType.go
+@@ -865,7 +865,7 @@ func (this *JSType) restrictByNotNull_impl() *JSType {
+ }
+ 
+ func (this *JSType) isSubtypeWithoutStructuralTyping(supertype *JSType) bool {
+-	return new_SubtypeChecker(this.registry).setSubtype(this).setSupertype(supertype).setUsingStructuralSubtyping(false).setSubtypingMode(JSType_SubtypingMode_NORMAL).check()
++	return this.registry.subtypeChecker_().setSubtype(this).setSupertype(supertype).setUsingStructuralSubtyping(false).setSubtypingMode(JSType_SubtypingMode_NORMAL).checkAndRelease_()
+ }
+ 
+ func (this *JSType) isSubtype(supertype *JSType) bool {
+@@ -877,11 +877,11 @@ func (this *JSType) isSubtype_2(supertype *JSType, mode *JSType_SubtypingMode) b
+ }
+ 
+ func (this *JSType) isSubtypeOf(supertype *JSType) bool {
+-	return new_SubtypeChecker(this.registry).setSubtype(this).setSupertype(supertype).setUsingStructuralSubtyping(true).setSubtypingMode(JSType_SubtypingMode_NORMAL).check()
++	return this.registry.subtypeChecker_().setSubtype(this).setSupertype(supertype).setUsingStructuralSubtyping(true).setSubtypingMode(JSType_SubtypingMode_NORMAL).checkAndRelease_()
+ }
+ 
+ func (this *JSType) isSubtypeOf_2(supertype *JSType, mode *JSType_SubtypingMode) bool {
+-	return new_SubtypeChecker(this.registry).setSubtype(this).setSupertype(supertype).setUsingStructuralSubtyping(true).setSubtypingMode(mode).check()
++	return this.registry.subtypeChecker_().setSubtype(this).setSupertype(supertype).setUsingStructuralSubtyping(true).setSubtypingMode(mode).checkAndRelease_()
+ }
+ 
+ func (this *JSType) visit(visitor Visitor) any {
+diff --git a/go/closure/g_JSTypeRegistry.go b/go/closure/g_JSTypeRegistry.go
+index 0db92262..c66d5da1 100644
+--- a/go/closure/g_JSTypeRegistry.go
++++ b/go/closure/g_JSTypeRegistry.go
+@@ -3,6 +3,7 @@
+ package closure
+ 
+ type JSTypeRegistry struct {
++	subtypeCheckerFree_ []*SubtypeChecker // checkers whose check is done (post-flip manual step)
+ 	iObjectIndexTemplateKey         *TemplateType
+ 	iObjectElementTemplateKey       *TemplateType
+ 	iterableValueTemplate           *TemplateType
+@@ -1717,3 +1718,16 @@ func (this *JSTypeRegistry_ClosureNamespace) hashCode() int32 {
+ 	h = h*31 + Objects_hashCode(this.type__.self())
+ 	return h
+ }
++
++// subtypeChecker_ is new SubtypeChecker(this): a checker from the free list, reset to the state
++// the constructor gives it, or a new one. A check started during another check takes its own.
++func (this *JSTypeRegistry) subtypeChecker_() *SubtypeChecker {
++	if n := len(this.subtypeCheckerFree_); n > 0 {
++		c := this.subtypeCheckerFree_[n-1]
++		this.subtypeCheckerFree_ = this.subtypeCheckerFree_[:n-1]
++		*c = SubtypeChecker{}
++		c.init_SubtypeChecker(this)
++		return c
++	}
++	return new_SubtypeChecker(this)
++}
+diff --git a/go/closure/g_SubtypeChecker.go b/go/closure/g_SubtypeChecker.go
+index 6d687d19..0a8a86c3 100644
+--- a/go/closure/g_SubtypeChecker.go
++++ b/go/closure/g_SubtypeChecker.go
+@@ -61,6 +61,15 @@ func (this *SubtypeChecker) checkHasNotRun() {
+ 	Preconditions_checkState(!this.hasRun)
+ }
+ 
++// checkAndRelease_ is check(), after which the checker goes back to its registry's free list
++// for the next subtype check (post-flip manual step: JSType.isSubtypeOf made a new checker
++// for every check). Nothing keeps a checker after its check.
++func (this *SubtypeChecker) checkAndRelease_() bool {
++	r := this.check()
++	this.registry.subtypeCheckerFree_ = append(this.registry.subtypeCheckerFree_, this)
++	return r
++}
++
+ func (this *SubtypeChecker) check() bool {
+ 	this.checkHasNotRun()
+ 	this.hasRun = true

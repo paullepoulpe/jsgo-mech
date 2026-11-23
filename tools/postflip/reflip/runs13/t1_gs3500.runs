@@ -1,0 +1,36 @@
+  flags3500/CHECKS tjava wall=39.73 cpu=81.16 round=0 load=1.72 rss=3149M exit=0
+  flags3500/OPTIMIZATIONS tjava wall=42.79 cpu=88.56 round=0 load=2.17 rss=5215M exit=0
+  flags3500/FINALIZATIONS tjava wall=11.93 cpu=36.69 round=0 load=3.21 rss=1812M exit=0
+  flags3500 tjava wall=94.45 cpu=206.41 round=0 load=3.21 sha=72b57cd286c9
+  flags3500/CHECKS tpf5 wall=50.63 cpu=64.11 round=0 load=2.08 rss=3635M exit=0
+  flags3500/OPTIMIZATIONS tpf5 wall=40.06 cpu=47.79 round=0 load=2.03 rss=2904M exit=0
+  flags3500/FINALIZATIONS tpf5 wall=9.06 cpu=11.33 round=0 load=1.87 rss=645M exit=0
+  flags3500 tpf5 wall=99.75 cpu=123.24 round=0 load=1.87 sha=72b57cd286c9
+  flags3500/CHECKS trt492 wall=51.43 cpu=67.09 round=0 load=1.56 rss=3039M exit=0
+  flags3500/OPTIMIZATIONS trt492 wall=38.08 cpu=42.53 round=0 load=1.34 rss=1905M exit=0
+  flags3500/FINALIZATIONS trt492 wall=8.73 cpu=10.51 round=0 load=1.32 rss=492M exit=0
+  flags3500 trt492 wall=98.24 cpu=120.14 round=0 load=1.29 sha=72b57cd286c9
+  flags3500/CHECKS trt492 wall=51.22 cpu=66.99 round=1 load=1.61 rss=2972M exit=0
+  flags3500/OPTIMIZATIONS trt492 wall=38.20 cpu=42.86 round=1 load=1.34 rss=1866M exit=0
+  flags3500/FINALIZATIONS trt492 wall=8.79 cpu=10.63 round=1 load=1.29 rss=495M exit=0
+  flags3500 trt492 wall=98.20 cpu=120.49 round=1 load=1.29 sha=72b57cd286c9
+  flags3500/CHECKS tpf5 wall=50.37 cpu=62.97 round=1 load=1.12 rss=3728M exit=0
+  flags3500/OPTIMIZATIONS tpf5 wall=40.88 cpu=48.84 round=1 load=1.61 rss=2983M exit=0
+  flags3500/FINALIZATIONS tpf5 wall=9.22 cpu=11.46 round=1 load=1.56 rss=596M exit=0
+  flags3500 tpf5 wall=100.47 cpu=123.28 round=1 load=1.56 sha=72b57cd286c9
+  flags3500/CHECKS tjava wall=41.21 cpu=85.20 round=1 load=1.31 rss=4161M exit=0
+  flags3500/OPTIMIZATIONS tjava wall=42.39 cpu=88.09 round=1 load=1.37 rss=5340M exit=0
+  flags3500/FINALIZATIONS tjava wall=11.66 cpu=35.93 round=1 load=1.73 rss=2067M exit=0
+  flags3500 tjava wall=95.26 cpu=209.23 round=1 load=1.73 sha=72b57cd286c9
+  flags3500/CHECKS tjava wall=41.10 cpu=84.10 round=2 load=1.75 rss=4250M exit=0
+  flags3500/OPTIMIZATIONS tjava wall=43.33 cpu=89.16 round=2 load=1.68 rss=6188M exit=0
+  flags3500/FINALIZATIONS tjava wall=12.32 cpu=37.73 round=2 load=2.11 rss=2524M exit=0
+  flags3500 tjava wall=96.75 cpu=210.99 round=2 load=2.11 sha=72b57cd286c9
+  flags3500/CHECKS tpf5 wall=51.11 cpu=65.05 round=2 load=1.52 rss=3695M exit=0
+  flags3500/OPTIMIZATIONS tpf5 wall=40.95 cpu=48.51 round=2 load=1.31 rss=2803M exit=0
+  flags3500/FINALIZATIONS tpf5 wall=8.96 cpu=11.00 round=2 load=1.29 rss=640M exit=0
+  flags3500 tpf5 wall=101.02 cpu=124.55 round=2 load=1.29 sha=72b57cd286c9
+  flags3500/CHECKS trt492 wall=51.83 cpu=68.24 round=2 load=1.37 rss=2994M exit=0
+  flags3500/OPTIMIZATIONS trt492 wall=38.43 cpu=43.14 round=2 load=1.20 rss=1862M exit=0
+  flags3500/FINALIZATIONS trt492 wall=8.66 cpu=10.42 round=2 load=1.17 rss=509M exit=0
+  flags3500 trt492 wall=98.92 cpu=121.80 round=2 load=1.17 sha=72b57cd286c9
