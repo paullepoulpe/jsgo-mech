@@ -79,7 +79,7 @@ func (this *Graph[N, E]) clearNodeAnnotations() {
 }
 
 func (this *Graph[N, E]) clearEdgeAnnotations() {
-	for e := range elemsAs_[Graph_GraphEdge[N, E]](this.getEdges()) {
+	for e := range elemsBy_(this.getEdges(), gcast_Graph_GraphEdge_N_E[N, E]) {
 		e.setAnnotation(nil)
 	}
 }

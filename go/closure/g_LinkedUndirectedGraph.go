@@ -63,12 +63,12 @@ func (this *LinkedUndirectedGraph[N, E]) connect_impl(srcValue N, edgeValue E, d
 	var dest *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E] = to_LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E](this.getNodeOrFail(destValue))
 	var edge *LinkedUndirectedGraph_LinkedUndirectedGraphEdge[N, E] = func() *LinkedUndirectedGraph_LinkedUndirectedGraphEdge[N, E] {
 		if this.useEdgeAnnotations {
-			return new_LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphEdge[N, E](cast_[UndiGraph_UndiGraphNode[N, E]](src.self()), edgeValue, cast_[UndiGraph_UndiGraphNode[N, E]](dest.self())).up_LinkedUndirectedGraph_LinkedUndirectedGraphEdge()
+			return new_LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphEdge[N, E](gcast_UndiGraph_UndiGraphNode_N_E[N, E](src.self()), edgeValue, gcast_UndiGraph_UndiGraphNode_N_E[N, E](dest.self())).up_LinkedUndirectedGraph_LinkedUndirectedGraphEdge()
 		}
-		return new_LinkedUndirectedGraph_LinkedUndirectedGraphEdge[N, E](cast_[UndiGraph_UndiGraphNode[N, E]](src.self()), edgeValue, cast_[UndiGraph_UndiGraphNode[N, E]](dest.self()))
+		return new_LinkedUndirectedGraph_LinkedUndirectedGraphEdge[N, E](gcast_UndiGraph_UndiGraphNode_N_E[N, E](src.self()), edgeValue, gcast_UndiGraph_UndiGraphNode_N_E[N, E](dest.self()))
 	}()
-	src.getNeighborEdges().add_t(cast_[UndiGraph_UndiGraphEdge[N, E]](edge.self()))
-	dest.getNeighborEdges().add_t(cast_[UndiGraph_UndiGraphEdge[N, E]](edge.self()))
+	src.getNeighborEdges().add_t(gcast_UndiGraph_UndiGraphEdge_N_E[N, E](edge.self()))
+	dest.getNeighborEdges().add_t(gcast_UndiGraph_UndiGraphEdge_N_E[N, E](edge.self()))
 }
 
 func (this *LinkedUndirectedGraph[N, E]) disconnect_impl(srcValue N, destValue N) {
@@ -81,7 +81,7 @@ func (this *LinkedUndirectedGraph[N, E]) disconnect_impl(srcValue N, destValue N
 }
 
 func (this *LinkedUndirectedGraph[N, E]) createUndirectedGraphNode_impl(nodeValue N) UndiGraph_UndiGraphNode[N, E] {
-	return cast_[UndiGraph_UndiGraphNode[N, E]](this.nodes_.ComputeIfAbsent(nodeValue, Function[N, *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E]](func(k N) *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E] {
+	return gcast_UndiGraph_UndiGraphNode_N_E[N, E](this.nodes_.ComputeIfAbsent(nodeValue, Function[N, *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E]](func(k N) *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E] {
 		return func() *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E] {
 			if this.useNodeAnnotations {
 				return new_LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphNode[N, E](k).up_LinkedUndirectedGraph_LinkedUndirectedGraphNode()
@@ -97,11 +97,11 @@ func (this *LinkedUndirectedGraph[N, E]) getNeighborNodes_impl(value N) ListT[Gr
 }
 
 func (this *LinkedUndirectedGraph[N, E]) getUndirectedGraphEdges_impl(n1 N, n2 N) ListT[UndiGraph_UndiGraphEdge[N, E]] {
-	var dNode1 UndiGraph_UndiGraphNode[N, E] = cast_[UndiGraph_UndiGraphNode[N, E]](this.nodes_.Get(n1).self())
+	var dNode1 UndiGraph_UndiGraphNode[N, E] = gcast_UndiGraph_UndiGraphNode_N_E[N, E](this.nodes_.Get(n1).self())
 	if dNode1 == nil {
 		return nil
 	}
-	var dNode2 UndiGraph_UndiGraphNode[N, E] = cast_[UndiGraph_UndiGraphNode[N, E]](this.nodes_.Get(n2).self())
+	var dNode2 UndiGraph_UndiGraphNode[N, E] = gcast_UndiGraph_UndiGraphNode_N_E[N, E](this.nodes_.Get(n2).self())
 	if dNode2 == nil {
 		return nil
 	}
@@ -115,7 +115,7 @@ func (this *LinkedUndirectedGraph[N, E]) getUndirectedGraphEdges_impl(n1 N, n2 N
 }
 
 func (this *LinkedUndirectedGraph[N, E]) getUndirectedGraphNode_impl(nodeValue N) UndiGraph_UndiGraphNode[N, E] {
-	return cast_[UndiGraph_UndiGraphNode[N, E]](this.nodes_.Get(nodeValue).self())
+	return gcast_UndiGraph_UndiGraphNode_N_E[N, E](this.nodes_.Get(nodeValue).self())
 }
 
 func (this *LinkedUndirectedGraph[N, E]) getUndirectedGraphNodes_impl() CollectionT[UndiGraph_UndiGraphNode[N, E]] {
@@ -143,8 +143,8 @@ func (this *LinkedUndirectedGraph[N, E]) getEdges_impl() List {
 }
 
 func (this *LinkedUndirectedGraph[N, E]) getFirstEdge_impl(n1 N, n2 N) Graph_GraphEdge[N, E] {
-	var dNode1 UndiGraph_UndiGraphNode[N, E] = cast_[UndiGraph_UndiGraphNode[N, E]](this.getNodeOrFail(n1))
-	var dNode2 UndiGraph_UndiGraphNode[N, E] = cast_[UndiGraph_UndiGraphNode[N, E]](this.getNodeOrFail(n2))
+	var dNode1 UndiGraph_UndiGraphNode[N, E] = gcast_UndiGraph_UndiGraphNode_N_E[N, E](this.getNodeOrFail(n1))
+	var dNode2 UndiGraph_UndiGraphNode[N, E] = gcast_UndiGraph_UndiGraphNode_N_E[N, E](this.getNodeOrFail(n2))
 	it_1 := jeachOf_(dNode1.getNeighborEdges())
 	for it_1.next() {
 		var outEdge UndiGraph_UndiGraphEdge[N, E] = it_1.v
@@ -168,11 +168,11 @@ func (this *LinkedUndirectedGraph[N, E]) isConnected_3_impl(n1 N, e E, n2 N) boo
 }
 
 func (this *LinkedUndirectedGraph[N, E]) isConnectedPredicate(n1 N, edgePredicate Predicate_base[E], n2 N) bool {
-	var dNode1 UndiGraph_UndiGraphNode[N, E] = cast_[UndiGraph_UndiGraphNode[N, E]](this.nodes_.Get(n1).self())
+	var dNode1 UndiGraph_UndiGraphNode[N, E] = gcast_UndiGraph_UndiGraphNode_N_E[N, E](this.nodes_.Get(n1).self())
 	if dNode1 == nil {
 		return false
 	}
-	var dNode2 UndiGraph_UndiGraphNode[N, E] = cast_[UndiGraph_UndiGraphNode[N, E]](this.nodes_.Get(n2).self())
+	var dNode2 UndiGraph_UndiGraphNode[N, E] = gcast_UndiGraph_UndiGraphNode_N_E[N, E](this.nodes_.Get(n2).self())
 	if dNode2 == nil {
 		return false
 	}
