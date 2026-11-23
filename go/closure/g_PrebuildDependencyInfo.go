@@ -24,7 +24,7 @@ func (this *PrebuildDependencyInfo) prebuild(allInputs IterableT[*CompilerInput]
 	it_1 := jeachOf_(allInputs)
 	for it_1.next() {
 		var input *CompilerInput = it_1.v
-		futureList.add(executorService.submit(Callable[any](func() any { return any(input.getDependencyInfo()) })))
+		futureList.add(executorService.submit(Callable[any](func() any { return input.getDependencyInfo() })))
 	}
 	poolExecutor.shutdown()
 	_ = func() (code_ int) {
