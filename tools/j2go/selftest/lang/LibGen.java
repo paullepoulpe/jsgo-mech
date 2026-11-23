@@ -7,6 +7,8 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSortedMap;
+import com.google.common.collect.ImmutableSortedSet;
 import java.util.AbstractCollection;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -21,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -1328,7 +1331,84 @@ public class LibGen {
     return r;
   }
 
+  // ---- rule candidate T2: the library types that piece `cls` did not reach
+
+  static ImmutableSortedSet<String> sortedOf(String... xs) {
+    return ImmutableSortedSet.copyOf(Arrays.asList(xs));
+  }
+
+  static String firsts(ImmutableSortedSet<String> s) {
+    String r = "";
+    for (String x : s) {
+      r += x.charAt(0);
+    }
+    return r;
+  }
+
+  /** Kind `sorted`: ImmutableSortedSet, ImmutableSortedMap, SortedSet at typed places. */
+  static String sorted() {
+    String r = "";
+    ImmutableSortedSet<String> s = sortedOf("b", "a", "c");
+    r += s + "" + s.size() + s.contains("a") + s.contains("z") + firsts(s) + s.asList().get(0);
+    ImmutableSortedSet<String> s2 = ImmutableSortedSet.<String>naturalOrder().add("y").add("x").addAll(s).build();
+    r += s2 + "" + s2.equals(sortedOf("a", "b", "c", "x", "y")) + (s2.hashCode() == ImmutableSet.copyOf(Arrays.asList("a", "b", "c", "x", "y")).hashCode()) + s2.descendingSet() + s2.tailSet("c", false);
+    ImmutableSortedSet<Integer> empty = ImmutableSortedSet.of();
+    r += empty.isEmpty() + "" + empty;
+    TreeSet<String> ts = new TreeSet<>();
+    ts.add("q");
+    ts.add("p");
+    ImmutableSortedSet<String> s3 = ImmutableSortedSet.copyOfSorted(ts);
+    Set<String> asSet = s3;
+    Collection<String> asColl = s3;
+    r += s3 + "" + asSet.contains("p") + asColl.size() + (asSet == s3);
+    Object o = s3;
+    r += (o instanceof ImmutableSortedSet) + "" + (o instanceof Set) + (o == s3) + o.equals(ts);
+    try {
+      s3.add("z");
+      r += "added";
+    } catch (UnsupportedOperationException e) {
+      r += "uoe";
+    }
+    SortedSet<String> ss = Collections.unmodifiableSortedSet(ts);
+    ts.add("o");
+    r += ss + "" + ss.size() + ss.contains("o");
+    for (String x : ss) {
+      r += x;
+    }
+    ImmutableSortedMap<String, Integer> m = ImmutableSortedMap.<String, Integer>naturalOrder().put("b", 2).put("a", 1).buildOrThrow();
+    for (Map.Entry<String, Integer> e : m.entrySet()) {
+      r += e.getKey() + e.getValue();
+    }
+    r += m.get("a") + "" + m.get("z") + m.keySet() + m.values() + m + m.containsKey("b") + m.size();
+    Map<String, Integer> lhm = new LinkedHashMap<>();
+    lhm.put("z", 26);
+    lhm.put("y", 25);
+    ImmutableSortedMap<String, Integer> m2 = ImmutableSortedMap.copyOf(lhm);
+    r += m2 + "" + m2.equals(lhm) + m2.keySet();
+    int sum = 0;
+    for (int v : m2.values()) {
+      sum += v;
+    }
+    r += sum;
+    ImmutableSortedSet<String> nul = null;
+    r += (nul == null);
+    try {
+      r += nul.size();
+    } catch (NullPointerException e) {
+      r += "npe";
+    }
+    Object back = s;
+    ImmutableSortedSet<?> w = (ImmutableSortedSet<?>) back;
+    r += w.size();
+    // (a cast of an ImmutableSet to ImmutableSortedSet passes in Go: both are the runtime's ImmutableCollection, with or without the kind)
+    Map<String, ImmutableSortedSet<String>> byKey = new LinkedHashMap<>();
+    byKey.put("k", s);
+    r += byKey.get("k").asList().get(2) + (byKey.get("k") == s) + byKey;
+    return r;
+  }
+
   public static String run() {
+    p(sorted());
     p(classes());
     p(methods());
     p(maps());

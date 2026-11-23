@@ -395,6 +395,18 @@ type Map_EntryT[K any, V any] interface { Map_Entry; getKey_t() K; getValue_t() 
   erased ones (a String key goes through the helpers `Map_get_s`...). `J2GO_LIBGEN=1` counts
   the erased methods still called on a typed receiver, and those of them that box an argument
   or give an element as `Object`.
+- Kinds of rule candidate T2 (`docs/javaisms6/JAVAISMS6.md`; `LibGen.CLASSES_T2`, each kind its
+  own switch): more library types whose places hold the typed interface of their collection
+  interface, by the mechanism of piece `cls`. A method of the type that its collection
+  interface (or one above it) does not declare, including the methods of other interfaces
+  (`NavigableSet.descendingSet`), is called on the object erased code knows.
+  - Kind `sorted`: `ImmutableSortedSet<X>` and `SortedSet<X>` are `SetT[X]`,
+    `ImmutableSortedMap<K, V>` is `MapT[K, V]`. Nothing is made typed for them: an erased sorted
+    immutable enters through `setAs_` / `mapAs_` (one wrapper per value; its elements are read
+    in the erased collection's order, unboxed as the erased loop cast them). `TreeMap` is not
+    in the kind: its 4 places have a key with type arguments (`Property<?>`), and a
+    `TreeMap` made for a typed place is the typed sorted map's view, on which the class's
+    navigable methods would fail.
 
 Refused (`typed library interfaces: refused: File.java:line: ...`, nothing is written):
 
@@ -412,14 +424,17 @@ Refused (`typed library interfaces: refused: File.java:line: ...`, nothing is wr
   collection's view, no object of that class. The tree has none. (The immutable classes are
   not refused: erased code sees an immutable typed collection as its twin, Guava's object.)
 
+- an unchecked cast to a use of a class of `LibGen.CLASSES_T2` whose kind is on
+  (`(ImmutableSortedSet<String>) sortedOfAny`), for the reason above (tools/j2go/unchecked-casts.txt
+  applies too; the tree has none);
 - a method that a class of `LibGen.CONCRETE` declares itself (no method of an interface or of
   `Object`: `ArrayList.ensureCapacity`), called on a receiver of the class with type arguments,
   unless `LibGen.OWN` lists it (piece `cls`; the tree has none).
 
-`tools/j2go/selftest/refused/RefusedLib.java` has one use of each kind (7); the self-test
+`tools/j2go/selftest/refused/RefusedLib.java` has one use of each kind (8); the self-test
 fails unless the translator refuses exactly those and writes nothing.
 
-Each kind and piece is a switch: `J2GO_NOLIBGEN=iter,coll,list,set,map,makers,views,place,cov,elems,wide,nncoll,readers,cls,meth`
+Each kind and piece is a switch: `J2GO_NOLIBGEN=iter,coll,list,set,map,makers,views,place,cov,elems,wide,nncoll,readers,cls,meth,sorted`
 (`all`: every one). A translation with any of them off is built with `-tags j2go_nolibgen`
 (`tools/prune/verify.sh` and the self-test do that when `J2GO_NOLIBGEN` is set): the erased
 factories that only such a translation names are in `go/closure/rt_lg_erased.go`, outside the

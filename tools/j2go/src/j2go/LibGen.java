@@ -102,6 +102,32 @@ final class LibGen {
       Map.entry("com.google.common.collect.ImmutableCollection", "java.util.Collection"),
       Map.entry("com.google.common.collect.ImmutableMap", "java.util.Map"));
 
+  /**
+   * Rule candidate T2 (docs/javaisms6): more library collection types whose places hold the typed
+   * interface of their collection interface, as piece `cls` does for CLASSES, each kind behind
+   * its own switch (the value: the interface, then the kind; J2GO_NOLIBGEN=kind is the
+   * translation without it). The class's own methods are called on the object erased code knows.
+   */
+  static final Map<String, String[]> CLASSES_T2 = Map.ofEntries(
+      Map.entry("com.google.common.collect.ImmutableSortedSet", new String[] {"java.util.Set", "sorted"}),
+      Map.entry("com.google.common.collect.ImmutableSortedMap", new String[] {"java.util.Map", "sorted"}),
+      Map.entry("java.util.SortedSet", new String[] {"java.util.Set", "sorted"}));
+
+  /** The collection interface whose typed interface a place of class qn holds (CLASSES, CLASSES_T2 where its kind is on), or null. */
+  static String clsIface(String qn) {
+    String iq = CLASSES.get(qn);
+    if (iq != null) return iq;
+    String[] e = CLASSES_T2.get(qn);
+    return e != null && on(e[1]) ? e[0] : null;
+  }
+
+  /** Whether t is a use of a class of CLASSES_T2 whose kind is on. */
+  static boolean t2(TypeMirror t) {
+    if (t == null || t.getKind() != TypeKind.DECLARED) return false;
+    String[] e = CLASSES_T2.get(Ctx.typeElement(t).getQualifiedName().toString());
+    return e != null && on(e[1]);
+  }
+
   /** Above 0 while a type is erased as the runtime declares it (rt): a collection class stays the class. */
   int rtDepth;
   /** Above 0 while cls decides a type: Go type names are given in the order of their first use, so none may be asked for. */
@@ -119,7 +145,7 @@ final class LibGen {
     DeclaredType d = (DeclaredType) t;
     if (d.getTypeArguments().isEmpty()) return null;
     String qn = Ctx.typeElement(t).getQualifiedName().toString();
-    String iq = CLASSES.get(qn);
+    String iq = clsIface(qn);
     if (iq == null) return null;
     TypeElement lib = cx.elems.getTypeElement(iq);
     if (!isLib(lib)) return null;
@@ -129,6 +155,8 @@ final class LibGen {
       TypeMirror n = erase(v);
       Ctx.CollKind ck = cx.collKindOf(t);
       if (qn.endsWith(".ImmutableCollection")) ck = cx.collKindOf(cx.types.getDeclaredType(cx.elems.getTypeElement("java.util.List"), d.getTypeArguments().toArray(new TypeMirror[0])));
+      // (a class of CLASSES_T2: whether the typed family can hold the elements of its interface's use)
+      if (!CLASSES.containsKey(qn)) ck = cx.collKindOf(v);
       deciding++;
       boolean holds = ck != null && cx.typedArgs(ck, t) != null;
       deciding--;
@@ -153,6 +181,11 @@ final class LibGen {
    */
   boolean served(ExecutableElement e, TypeMirror site) {
     TypeElement ro = cx.ownerOf(cx.root(e));
+    // (a class of CLASSES_T2: a method of another interface, NavigableSet.descendingSet, is the class's own)
+    if (site.getKind() == TypeKind.DECLARED && CLASSES_T2.containsKey(Ctx.typeElement(site).getQualifiedName().toString()) && !ro.getQualifiedName().contentEquals("java.lang.Object")) {
+      TypeMirror c = cls(site);
+      return c != null && cx.types.isSubtype(cx.types.erasure(c), cx.types.erasure(ro.asType()));
+    }
     // (a method of Object; a method of another interface, SequencedCollection.getFirst: the object is converted as any value of the place's interface)
     if (ro.getQualifiedName().contentEquals("java.lang.Object") || ro.getKind().isInterface() && !isLib(ro)) return true;
     TypeMirror c = cls(site);
@@ -719,7 +752,7 @@ final class LibGen {
         raw(t, target, 0);
         concrete(t, target, "cast to");
         TypeMirror from = trees.getTypeMirror(new TreePath(getCurrentPath(), t.getExpression()));
-        if (target != null && from != null && target.getKind() == TypeKind.DECLARED && isLib(Ctx.typeElement(target)) && is(cx.erase(target))
+        if (target != null && from != null && target.getKind() == TypeKind.DECLARED && (isLib(Ctx.typeElement(target)) && is(cx.erase(target)) || t2(target) && !((DeclaredType) target).getTypeArguments().isEmpty())
             && !allUnbounded((DeclaredType) target) && from.getKind() != TypeKind.NULL && !cx.types.isSubtype(from, target) && !uncheckedOk.contains(where())) {
           // an unchecked cast: the object may be a collection of other elements (a typed collection
           // made for another place, which refuses an element that Java's would take)
