@@ -1,6 +1,6 @@
 # The sixth flip (2026-11-21..23): the fifth flip's list on main's translator with rule "typed library interfaces"
 
-STATUS: DONE. The list replays unattended from the base to a gated tree (four MATCH, runtime tests ok); every census row
+STATUS: DONE (step 561 added at the end on 2026-11-23, its own section at the end). The list replays unattended from the base to a gated tree (four MATCH, runtime tests ok); every census row
 and tracked count that is worse than the fifth flip's is explained by cause with counts below, or fixed (toolfix 40
 second half, 42, 43, 44). Open items at the end.
 
@@ -236,3 +236,67 @@ No time or allocation was measured.
 - Worktrees: x5 and x6 (scratch of the second part) removed; replay6 (the working replay, tags flip6-pass0-402,
   flip6-pass1, flip6-pass2, flip6-pass3) kept with its cache $B/cache-replay6w; the first part's logs are
   kept ($B/logs/replay6-pass2.replay.log is the working replay's tool log up to the first part's end).
+
+## Step 561 (2026-11-23): node type handles found by the object (htabself)
+
+A Node keeps its JSType or Color as a uint32 handle (Node.jstypeOrColor, rt_ids.go's table of distinct
+values). Storing one (setJSType, setColor) looked the value's interface words up in the table's
+direct-mapped cache and, on a miss, its Go map. The rule (tools/postflip/htabself, rule and proof
+obligation at its head): a class whose objects the generated setters store with htab_set_ (found by
+type at the setters' calls: x.self() or obj_(x) of a class pointer x) gets a field htabId_ and a method
+htabSlot_ (promoted to every class that embeds it); the runtime patch reflip6-htabself-rt.patch makes
+htabRef_ assert the value to htabHolder_ and find its entry through the slot. The slot is believed only
+when the entry it names holds the same interface words as the value; an entry made while the slot was
+taken (the same object under another type) goes to the map, so which entry a value finds, the counts and
+the reuse of freed entries are those of the map alone (TestHandleTableSlots: a model of the table without
+slots over 50,000 random stores, copies, clears and pins of holders, embedded holders, their embedded
+part, plain values and holders with a foreign handle in their slot). Values of other classes (the
+source files that htab_pin_ keeps) take the map as before. Obligations the tool checks: htabId_ and
+htabSlot_ are declared by nobody else; no value of a struct type holding a slot is copied, compared,
+passed, returned, kept in a variable or used as a type argument (only &T{...} keyed, selection, &).
+Not checked: copies through unsafe or reflect in the runtime.
+
+    step 561: key 36636047 (tool dfff53a2, runtime patch reflip6-htabself-rt.patch), steps.txt at the end
+    htabself: 2 sinks (htab_set_, Node.jstypeOrColor_set_), 2 classes, 2 stores: JSType (27 classes embed
+              it by value), Color; left 0; 2 files (g_JSType.go, g_Color.go). Sizes unchanged (padding).
+
+Measured (CHECKS on the 3500 subset, one thread, two CPU runs per binary; before = $B/bin/m_flip6, the tree
+of tree6; the saved state sha256 1cb35c70ccb8... in all six runs):
+
+| cum (s) | before | after |
+|---|---|---|
+| htab_set_ | 0.54 / 0.57 | 0.10 / 0.09 |
+| htabRef_ | 0.53 / 0.58 | 0.10 / 0.11 |
+| Node.setJSType | 0.75 / 0.81 | 0.28 / 0.30 |
+| runtime.mapaccess2 (all callers) | 0.60 / 0.65 | 0.23 / 0.22 |
+| Node.getJSType (not this step's subject) | 1.17 / 1.24 | 1.10 / 1.12 |
+| total samples | 63.09 / 63.43 | 62.61 / 61.53 |
+
+Mallocs (JSGO_MEMSTATS) 269,976,120 -> 269,856,352; bytes allocated 13,423,737,160 -> 13,394,585,496.
+The typed read path for getJSType (handle -> *JSType without the any round trip) was not made: the slot
+gives an object's handle, not a handle's object; a typed read needs a second rewrite of the generated
+readers and its own obligation (as_JSType is the receiver of the promoted htabSlot_), not a consequence
+of this one. getJSType's cost (to_JSType's assertion, ~0.6 s flat here) is left as it was.
+
+    bash tools/postflip/reflip/replay6.sh replay6h   (a tail replay: $B/wt/replay6h made from replay6b's tip 2c5e324f)
+    REPLAY DONE: replayed 1 commit (step 561), tip 88e20f2d, go/ tree 04cbc7cffec3c32c8d7bcf9bc40ba05036c37c09,
+    go/closure tree 03874c988bbd6f536ac8ef1c82ce68ce5552e0eb (the step's four files byte-identical to the
+    measured tree); tree worktree $B/wt/tree6h (branch flip6-tree-h, at 88e20f2d); $B/gate.sh tree6h flip6h,
+    log $B/logs/gate-flip6h.log:
+
+      GATE FAILED flip6h       (the header: the j2go self-test line, as for every post-flip tree)
+      tests before: 101
+      lstat closure/g_*.go: no such file or directory
+      removed 0 declarations in 0 rounds
+      ok  	jsgomech/closure	3.060s
+      checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+      bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+      downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+      advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+      runtime lines: 26129  test lines: 10182
+      runtime lines of the default build: 26129  off-mode extras (build-tagged files): 0
+      tests after: 101
+
+The list now: 272 commits replayed (+ step 561), 166 with tool runs, 122 runtime patches, 1 manual patch.
+Not done: the replay from the base with step 561 (the tail replay resumes on replay6b's commits, whose
+overlay e7d680ff1 differs from this one by the 143 note, step 561 and this record only).
