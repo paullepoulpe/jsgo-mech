@@ -419,7 +419,7 @@ func (this *ScriptNodeDeserializer_Runner) run() Node {
 		var contextStack *JTList[FeatureCollector_FeatureContext] = jnewTList_(jtc_p_FeatureCollector_FeatureContext)
 		SequencedCollection_addLast(SequencedCollection(List_un_(contextStack.asListT())), obj_(FeatureCollector_FeatureContext_NONE))
 		var scriptNode Node = this.visit(AstNode_parseFrom(astStream, ExtensionRegistry_getEmptyRegistry().up_ExtensionRegistryLite()), contextStack, this.owner().createSourceInfoTemplate(this.owner().sourceFile))
-		scriptNode.setFeatureSet(obj_(this.featureCollector.allFeatures()))
+		scriptNode.setFeatureSet(this.featureCollector.allFeatures())
 		ret_1 = scriptNode
 		return 1
 		return 0
