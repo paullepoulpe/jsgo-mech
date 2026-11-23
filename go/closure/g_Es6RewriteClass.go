@@ -33,8 +33,8 @@ func (this *Es6RewriteClass) process_2(externs Node, root Node) {
 }
 
 func (this *Es6RewriteClass) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
-	switch n.getToken() {
-	case Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF:
+	switch n.ns_().token {
+	case tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF:
 		if FeatureSet_ES3.containsFeatureSet(this.compiler_.getOptions().getOutputFeatureSet()) {
 			TranspilationUtil_cannotConvert(this.compiler_, n, "ES5 getters/setters (consider using --language_out=ES5)")
 			return false

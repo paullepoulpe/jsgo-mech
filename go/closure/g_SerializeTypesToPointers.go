@@ -121,10 +121,10 @@ func (this *SerializeTypesToPointers_PropertySearchCallback) shouldTraverse(t *N
 }
 
 func (this *SerializeTypesToPointers_PropertySearchCallback) visit(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_GETPROP, Token_rhino_OPTCHAIN_GETPROP:
+	switch n.ns_().token {
+	case tokOrd1_GETPROP, tokOrd1_OPTCHAIN_GETPROP:
 		this.outer_.propertiesReferencedInAst.add_t(n.getString())
-	case Token_rhino_STRING_KEY, Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_MEMBER_FIELD_DEF, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF:
+	case tokOrd1_STRING_KEY, tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_MEMBER_FIELD_DEF, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF:
 		if !n.isQuotedStringKey() {
 			this.outer_.propertiesReferencedInAst.add_t(n.getString())
 		}

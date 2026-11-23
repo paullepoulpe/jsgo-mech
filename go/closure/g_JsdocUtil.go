@@ -155,14 +155,14 @@ func JsdocUtil_getJSDocForName(decl *Var, oldJSDoc *JSDocInfo) *JSDocInfo {
 		return nil
 	}
 	var typeAst Node = expr.getRoot()
-	switch typeAst.getToken() {
-	case Token_rhino_EQUALS:
+	switch typeAst.ns_().token {
+	case tokOrd1_EQUALS:
 		var typeRoot Node = typeAst.getFirstChild().cloneTree()
 		if !decl.isDefaultParam() {
 			typeRoot = new_Node_Token_Node_Node(Token_rhino_PIPE, typeRoot, IR_string("undefined"))
 		}
 		typeAst = typeRoot
-	case Token_rhino_ITER_REST:
+	case tokOrd1_ITER_REST:
 		var newType Node = new_Node_Token(Token_rhino_BANG)
 		var array Node = IR_string("Array")
 		newType.addChildToBack(array)
@@ -176,7 +176,7 @@ func JsdocUtil_getJSDocForName(decl *Var, oldJSDoc *JSDocInfo) *JSDocInfo {
 
 func JsdocUtil_isUnknownType(type_ *JSTypeExpression) bool {
 	var typeAst Node = type_.getRoot()
-	return ((typeAst.getToken() == Token_rhino_QMARK) && !typeAst.hasChildren())
+	return ((typeAst.ns_().token == tokOrd1_QMARK) && !typeAst.hasChildren())
 }
 
 const JsdocUtil_SYNTHETIC_FILE_NAME string = "<synthetic>"

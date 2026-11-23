@@ -224,15 +224,15 @@ func new_RenameProperties_ProcessProperties(outer_ *RenameProperties) *RenamePro
 }
 
 func (this *RenameProperties_ProcessProperties) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_GETPROP, Token_rhino_OPTCHAIN_GETPROP, Token_rhino_MEMBER_FIELD_DEF:
+	switch n.ns_().token {
+	case tokOrd1_GETPROP, tokOrd1_OPTCHAIN_GETPROP, tokOrd1_MEMBER_FIELD_DEF:
 		this.maybeMarkCandidate(n)
-	case Token_rhino_GETELEM, Token_rhino_OPTCHAIN_GETELEM:
+	case tokOrd1_GETELEM, tokOrd1_OPTCHAIN_GETELEM:
 		var child Node = n.getLastChild()
 		if (child != 0) && child.isStringLit() {
 			this.outer_.quotedNames.add(child.getString())
 		}
-	case Token_rhino_CALL:
+	case tokOrd1_CALL:
 		var fnName Node = n.getFirstChild()
 		if this.outer_.compiler_.getCodingConvention().isPropertyRenameFunction(fnName) {
 			this.outer_.callNodeToParentMap.put(n, parent)
@@ -246,20 +246,20 @@ func (this *RenameProperties_ProcessProperties) visit_impl(t *NodeTraversal, n N
 				}
 			}
 		}
-	case Token_rhino_MEMBER_FUNCTION_DEF:
+	case tokOrd1_MEMBER_FUNCTION_DEF:
 		Preconditions_checkState(!n.isQuotedStringKey())
 		if NodeUtil_isEs6ConstructorMemberFunctionDef(n) {
 			this.outer_.externedNames.add(n.getString())
 		} else {
 			this.maybeMarkCandidate(n)
 		}
-	case Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF, Token_rhino_STRING_KEY:
+	case tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF, tokOrd1_STRING_KEY:
 		if n.isQuotedStringKey() {
 			this.outer_.quotedNames.add(n.getString())
 		} else {
 			this.maybeMarkCandidate(n)
 		}
-	case Token_rhino_FUNCTION:
+	case tokOrd1_FUNCTION:
 		if NodeUtil_isFunctionDeclaration(n) {
 			var name string = n.getFirstChild().getString()
 			if NodeUtil_JSC_PROPERTY_NAME_FN == name {

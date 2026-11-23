@@ -102,16 +102,16 @@ L_2:
 		if n == 0 {
 			continue
 		}
-		switch n.getToken() {
-		case Token_rhino_IF, Token_rhino_WHILE, Token_rhino_DO:
+		switch n.ns_().token {
+		case tokOrd1_IF, tokOrd1_WHILE, tokOrd1_DO:
 			this.tryRemoveAssignment(t, NodeUtil_getConditionExpression(n), state, allVarsInFn)
 			continue L_2
-		case Token_rhino_FOR, Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF:
+		case tokOrd1_FOR, tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF:
 			if n.isVanillaFor() {
 				this.tryRemoveAssignment(t, NodeUtil_getConditionExpression(n), state, allVarsInFn)
 			}
 			continue L_2
-		case Token_rhino_SWITCH, Token_rhino_CASE, Token_rhino_RETURN:
+		case tokOrd1_SWITCH, tokOrd1_CASE, tokOrd1_RETURN:
 			if n.hasChildren() {
 				this.tryRemoveAssignment(t, n.getFirstChild(), state, allVarsInFn)
 			}
@@ -221,8 +221,8 @@ func (this *DeadAssignmentsElimination) tryRemoveAssignment_5(t *NodeTraversal, 
 func (this *DeadAssignmentsElimination) isVariableStillLiveWithinExpression(n Node, exprRoot Node, variable string) bool {
 	for n != exprRoot {
 		var state *DeadAssignmentsElimination_VariableLiveness = DeadAssignmentsElimination_VariableLiveness_MAYBE_LIVE
-		switch n.getParent().getToken() {
-		case Token_rhino_OR, Token_rhino_AND, Token_rhino_COALESCE, Token_rhino_OPTCHAIN_GETPROP, Token_rhino_OPTCHAIN_GETELEM, Token_rhino_OPTCHAIN_CALL:
+		switch n.getParent().ns_().token {
+		case tokOrd1_OR, tokOrd1_AND, tokOrd1_COALESCE, tokOrd1_OPTCHAIN_GETPROP, tokOrd1_OPTCHAIN_GETELEM, tokOrd1_OPTCHAIN_CALL:
 			{
 				var sibling Node = n.getNext()
 				for ; sibling != 0; sibling = sibling.getNext() {
@@ -235,7 +235,7 @@ func (this *DeadAssignmentsElimination) isVariableStillLiveWithinExpression(n No
 			if (n == n.getParent().getFirstChild()) && (state == DeadAssignmentsElimination_VariableLiveness_KILL) {
 				state = DeadAssignmentsElimination_VariableLiveness_MAYBE_LIVE
 			}
-		case Token_rhino_HOOK:
+		case tokOrd1_HOOK:
 			if (n.getNext() != 0) && (n.getNext().getNext() != 0) {
 				state = this.checkHookBranchReadBeforeKill(n.getNext(), n.getNext().getNext(), variable)
 			}
@@ -277,8 +277,8 @@ func (this *DeadAssignmentsElimination) isVariableReadBeforeKill(n Node, variabl
 			return DeadAssignmentsElimination_VariableLiveness_READ
 		}
 	}
-	switch n.getToken() {
-	case Token_rhino_OR, Token_rhino_AND, Token_rhino_COALESCE, Token_rhino_OPTCHAIN_GETPROP, Token_rhino_OPTCHAIN_GETELEM:
+	switch n.ns_().token {
+	case tokOrd1_OR, tokOrd1_AND, tokOrd1_COALESCE, tokOrd1_OPTCHAIN_GETPROP, tokOrd1_OPTCHAIN_GETELEM:
 		var v1 *DeadAssignmentsElimination_VariableLiveness = this.isVariableReadBeforeKill(n.getFirstChild(), variable)
 		var v2 *DeadAssignmentsElimination_VariableLiveness = this.isVariableReadBeforeKill(n.getLastChild(), variable)
 		if v1 != DeadAssignmentsElimination_VariableLiveness_MAYBE_LIVE {
@@ -288,7 +288,7 @@ func (this *DeadAssignmentsElimination) isVariableReadBeforeKill(n Node, variabl
 		} else {
 			return DeadAssignmentsElimination_VariableLiveness_MAYBE_LIVE
 		}
-	case Token_rhino_OPTCHAIN_CALL:
+	case tokOrd1_OPTCHAIN_CALL:
 		var v1 *DeadAssignmentsElimination_VariableLiveness = this.isVariableReadBeforeKill(n.getFirstChild(), variable)
 		if v1 != DeadAssignmentsElimination_VariableLiveness_MAYBE_LIVE {
 			return v1
@@ -308,7 +308,7 @@ func (this *DeadAssignmentsElimination) isVariableReadBeforeKill(n Node, variabl
 			}
 		}
 		return DeadAssignmentsElimination_VariableLiveness_MAYBE_LIVE
-	case Token_rhino_HOOK:
+	case tokOrd1_HOOK:
 		var first *DeadAssignmentsElimination_VariableLiveness = this.isVariableReadBeforeKill(n.getFirstChild(), variable)
 		if first != DeadAssignmentsElimination_VariableLiveness_MAYBE_LIVE {
 			return first

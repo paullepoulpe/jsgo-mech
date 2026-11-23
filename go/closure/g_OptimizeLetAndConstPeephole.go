@@ -28,10 +28,10 @@ func new_OptimizeLetAndConstPeephole(assumeOutputIsWrapped bool) *OptimizeLetAnd
 
 func (this *OptimizeLetAndConstPeephole) optimizeSubtree_impl(subtree Node) Node {
 	return func() Node {
-		switch subtree.getToken() {
-		case Token_rhino_LET:
+		switch subtree.ns_().token {
+		case tokOrd1_LET:
 			return this.processLet(subtree)
-		case Token_rhino_CONST:
+		case tokOrd1_CONST:
 			return this.processConst(subtree)
 		default:
 			return subtree

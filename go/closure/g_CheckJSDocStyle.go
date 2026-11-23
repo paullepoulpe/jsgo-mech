@@ -32,19 +32,19 @@ func (this *CheckJSDocStyle) process_2(externs Node, root Node) {
 }
 
 func (this *CheckJSDocStyle) visit_impl(t *NodeTraversal, n Node, unused Node) {
-	switch n.getToken() {
-	case Token_rhino_FUNCTION:
+	switch n.ns_().token {
+	case tokOrd1_FUNCTION:
 		this.visitFunction(t, n)
-	case Token_rhino_CLASS:
+	case tokOrd1_CLASS:
 		this.visitClass(t, n)
-	case Token_rhino_ASSIGN:
+	case tokOrd1_ASSIGN:
 		this.checkStyleForPrivateProperties(t, n)
-	case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST, Token_rhino_STRING_KEY:
-	case Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF:
+	case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST, tokOrd1_STRING_KEY:
+	case tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF:
 		if NodeUtil_getEnclosingClass(n) != 0 {
 			this.checkStyleForPrivateProperties(t, n)
 		}
-	case Token_rhino_SCRIPT:
+	case tokOrd1_SCRIPT:
 		this.checkLicenseComment(t, n)
 	default:
 		this.visitNonFunction(t, n)
