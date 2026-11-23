@@ -19,7 +19,9 @@ func new_SynthesizeExplicitConstructors(compiler *AbstractCompiler) *SynthesizeE
 }
 
 func (this *SynthesizeExplicitConstructors) synthesizeClassConstructorIfMissing(t *NodeTraversal, classNode Node) {
-	Preconditions_checkArgument(classNode.isClass())
+	if !classNode.isClass() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	if NodeUtil_getEs6ClassConstructorMemberFunctionDef(classNode) == 0 {
 		this.addSyntheticConstructor(t, classNode)
 	}
@@ -35,7 +37,7 @@ func (this *SynthesizeExplicitConstructors) addSyntheticConstructor(t *NodeTrave
 		memberDef = this.astFactory_.createMemberFunctionDef("constructor", function)
 	} else {
 		if !superClass.isQualifiedName() {
-			Preconditions_checkState_boolean_String_Object_H(false, "Expected Es6NormalizeClasses to make all extends clauses into qualified names, found %s", superClass)
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Expected Es6NormalizeClasses to make all extends clauses into qualified names, found %s", []any{superClass.box_()})).self())
 		}
 		var body Node = IR_block_0()
 		if !classNode.isFromExterns() && !this.isInterface(classNode) {

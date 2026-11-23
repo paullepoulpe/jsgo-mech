@@ -54,7 +54,7 @@ func (this *TranspileAndOptimizeClosureUnaware) reattachShadowNodes(inputs *Simp
 		var shadowAst *TranspileAndOptimizeClosureUnaware_ShadowAst = it_1.v
 		var script Node = shadowAst.script()
 		if ok_, a1_ := script.hasOneChild(), script.toStringTree(); !ok_ {
-			Preconditions_checkState_boolean_Object(false, a1_)
+			panic(new_IllegalStateException_String(objstr_(a1_)).self())
 		}
 		shadowAst.originalRoot().addChildToFront(script.detach())
 		script.setInputId(nil)
@@ -191,7 +191,7 @@ func (this *TranspileAndOptimizeClosureUnaware_CollectShadowAsts) visit(t *NodeT
 		return n.getGrandparent()
 	}()
 	if !callNode.isCall() {
-		Preconditions_checkState_boolean_Object_H(false, callNode)
+		panic(new_IllegalStateException_String(objstr_(callNode.box_())).self())
 	}
 	this.shadowAsts.put(t.getInput().getSourceFile(), new_TranspileAndOptimizeClosureUnaware_ShadowAst(shadow, callNode, shadow.getOnlyChild()))
 }

@@ -57,11 +57,11 @@ func (this *Es6RewriteClass) visitClass(t *NodeTraversal, classNode Node, parent
 	}
 	if metadata.hasSuperClass() {
 		if ok_, a1_ := metadata.superClassNameNode().isQualifiedName(), metadata.superClassNameNode(); !ok_ {
-			Preconditions_checkState_boolean_String_Object_H(false, "Expected Es6NormalizeClasses to make all extends clauses into qualified  names, found %s", a1_)
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Expected Es6NormalizeClasses to make all extends clauses into qualified  names, found %s", []any{a1_.box_()})).self())
 		}
 	}
 	if ok_, a1_ := NodeUtil_isStatement(metadata.insertionPoint().getNode()), metadata.insertionPoint().getNode(); !ok_ {
-		Preconditions_checkState_boolean_String_Object_H(false, "insertion point must be a statement: %s", a1_)
+		panic(new_IllegalStateException_String(Strings_lenientFormat("insertion point must be a statement: %s", []any{a1_.box_()})).self())
 	}
 	var constructor Node = 0
 	var classMembers Node = classNode.getLastChild()
@@ -81,18 +81,20 @@ func (this *Es6RewriteClass) visitClass(t *NodeTraversal, classNode Node, parent
 				}
 			} else if member.isEmpty() {
 			} else {
-				if !(member.isMemberFunctionDef() || member.isComputedProp()) {
-					Preconditions_checkState_boolean_String_Object_H(false, "Unexpected class member: (%s)", member)
+				if !member.isMemberFunctionDef() && !member.isComputedProp() {
+					panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected class member: (%s)", []any{member.box_()})).self())
 				}
 				if member.getBooleanProp(Node_COMPUTED_PROP_VARIABLE) {
-					Preconditions_checkState_boolean_String_Object_H(false, "Member variables should have been transpiled earlier: (%s)", member)
+					panic(new_IllegalStateException_String(Strings_lenientFormat("Member variables should have been transpiled earlier: (%s)", []any{member.box_()})).self())
 				}
 				this.visitMethod(member, metadata)
 			}
 			member = next
 		}
 	}
-	Preconditions_checkNotNull_Object_Object_T(constructor, "Es6RewriteClasses expects all classes to have (possibly synthetic) constructors")
+	if constructor == 0 {
+		panic(new_NullPointerException_String("Es6RewriteClasses expects all classes to have (possibly synthetic) constructors").self())
+	}
 	this.flushDefinePropertiesForPrototype(metadata, classNode)
 	this.flushDefinePropertiesForClass(metadata, classNode)
 	var classJSDoc *JSDocInfo = NodeUtil_getBestJSDocInfo(classNode)
@@ -177,7 +179,9 @@ func (this *Es6RewriteClass) flushPendingDefineProperties(metadata *Es6RewriteCl
 }
 
 func (this *Es6RewriteClass) addToDefinePropertiesObject(metadata *Es6RewriteClass_ClassDeclarationMetadata, member Node) {
-	Preconditions_checkArgument(!member.isComputedProp())
+	if member.isComputedProp() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var obj Node = func() Node {
 		if member.isStaticMember() {
 			return metadata.definePropertiesObjForClass()
@@ -258,7 +262,7 @@ func (this *Es6RewriteClass) visitNonMethodMember(member Node, metadata *Es6Rewr
 		return
 	}
 	if member.isComputedProp() {
-		Preconditions_checkState_boolean_Object_H(false, member)
+		panic(new_IllegalStateException_String(objstr_(member.box_())).self())
 	}
 	var membersToDeclare MapT[string, *Es6RewriteClass_ClassProperty] = metadata.classMembersToDeclare()
 	var builder *Es6RewriteClass_ClassProperty_Builder = Es6RewriteClass_ClassProperty_builder()

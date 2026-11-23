@@ -60,7 +60,9 @@ func new_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGener
 }
 
 func (this *RenameProperties) process_2(externs Node, root Node) {
-	Preconditions_checkState(this.compiler_.getLifeCycleStage().isNormalized())
+	if !this.compiler_.getLifeCycleStage().isNormalized() {
+		panic(new_IllegalStateException_0().self())
+	}
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(new_RenameProperties_ProcessProperties(this)))
 	var reservedNames *JTSet[string] = newTSetN_(jtc_string, (this.externedNames.size() + this.quotedNames.size()))
 	reservedNames.asSetT().addAll(Collection(this.externedNames.asSetT()))
@@ -80,7 +82,9 @@ func (this *RenameProperties) process_2(externs Node, root Node) {
 		}
 		var p *RenameProperties_Property = this.propertyMap.get(oldName)
 		if (p != nil) && p.newName.isPresent() {
-			Preconditions_checkState((oldName == p.oldName))
+			if oldName != p.oldName {
+				panic(new_IllegalStateException_0().self())
+			}
 			n.setString(p.newName.get())
 			if !(p.newName.get() == oldName) {
 				this.compiler_.reportChangeToEnclosingScope(n)
@@ -99,7 +103,9 @@ func (this *RenameProperties) process_2(externs Node, root Node) {
 			var p *RenameProperties_Property = this.propertyMap.get(oldName)
 			var replacement string
 			if (p != nil) && p.newName.isPresent() {
-				Preconditions_checkState((oldName == p.oldName))
+				if oldName != p.oldName {
+					panic(new_IllegalStateException_0().self())
+				}
 				if this.filteredOutNames.contains(oldName) {
 					replacement = oldName
 				} else {
@@ -247,7 +253,9 @@ func (this *RenameProperties_ProcessProperties) visit_impl(t *NodeTraversal, n N
 			}
 		}
 	case tokOrd1_MEMBER_FUNCTION_DEF:
-		Preconditions_checkState(!n.isQuotedStringKey())
+		if n.isQuotedStringKey() {
+			panic(new_IllegalStateException_0().self())
+		}
 		if NodeUtil_isEs6ConstructorMemberFunctionDef(n) {
 			this.outer_.externedNames.add(n.getString())
 		} else {

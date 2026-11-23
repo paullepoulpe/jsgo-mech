@@ -12,7 +12,9 @@ func (this *ColorRegistry) init_ColorRegistry(builder *ColorRegistry_Builder) {
 	this.nativeColors = immutableMapCopyOfT_(tce_p_ColorId, jtc_p_Color, builder.nativeColors)
 	this.colorToDisambiguationSupertypeGraph = builder.colorToDisambiguationSupertypeGraph.immutableCopy()
 	this.mismatchLocations = builder.mismatchLocations.immutableCopy()
-	Preconditions_checkState(Object_equals(lgBox_(setAs_(jtc_p_ColorId, this.nativeColors.asImm().keySet())), ColorRegistry_REQUIRED_IDS.asSet()))
+	if !Object_equals(lgBox_(setAs_(jtc_p_ColorId, this.nativeColors.asImm().keySet())), ColorRegistry_REQUIRED_IDS.asSet()) {
+		panic(new_IllegalStateException_0().self())
+	}
 }
 
 func new_ColorRegistry(builder *ColorRegistry_Builder) *ColorRegistry {
@@ -22,8 +24,14 @@ func new_ColorRegistry(builder *ColorRegistry_Builder) *ColorRegistry {
 }
 
 func (this *ColorRegistry) get(id *ColorId) *Color {
-	Preconditions_checkNotNull_T(id)
-	return Preconditions_checkNotNull_Object_String_Object_T(this.nativeColors.get(id), "Missing Color for %s", id)
+	if id == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	nn_ := this.nativeColors.get(id)
+	if nn_ == nil {
+		panic(new_NullPointerException_String(Strings_lenientFormat("Missing Color for %s", []any{id})).self())
+	}
+	return nn_
 }
 
 func (this *ColorRegistry) getDisambiguationSupertypes(x *Color) SetT[*Color] {
@@ -75,7 +83,7 @@ func new_ColorRegistry_Builder() *ColorRegistry_Builder {
 
 func (this *ColorRegistry_Builder) setNativeColor(x *Color) *ColorRegistry_Builder {
 	if !ColorRegistry_REQUIRED_IDS.contains(x.getId()) {
-		Preconditions_checkState_boolean_Object(false, x)
+		panic(new_IllegalStateException_String(objstr_(x)).self())
 	}
 	this.nativeColors.put(x.getId(), x)
 	return this

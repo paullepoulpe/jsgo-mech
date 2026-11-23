@@ -26,7 +26,10 @@ func (this *CompilerBasedTransformer) self() any {
 }
 
 func (this *CompilerBasedTransformer) init_CompilerBasedTransformer(compilerSupplier *CompilerBasedTransformer_CompilerSupplier) {
-	this.compilerSupplierField = Preconditions_checkNotNull_T(compilerSupplier)
+	if compilerSupplier == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.compilerSupplierField = compilerSupplier
 }
 
 func (this *CompilerBasedTransformer) transform(input *Source) *Source {
@@ -209,7 +212,10 @@ func (this *CompilerBasedTransformer_CompileResult) zero_CompilerBasedTransforme
 
 func (this *CompilerBasedTransformer_CompileResult) init_CompilerBasedTransformer_CompileResult(source string, errors *JTList[*JSError], transformed bool, sourceMap string) {
 	this.source = source
-	this.errors_ = Preconditions_checkNotNull_T(errors)
+	if errors == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.errors_ = errors
 	this.transformed_ = transformed
 	this.sourceMap_ = sourceMap
 }

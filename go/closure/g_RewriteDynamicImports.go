@@ -49,10 +49,10 @@ func (this *RewriteDynamicImports) aliasIsValid() bool {
 func (this *RewriteDynamicImports) process_2(externs Node, root Node) {
 	this.dynamicImportsRemoved = false
 	if !externs.isRoot() {
-		Preconditions_checkArgument_boolean_Object_H(false, externs)
+		panic(new_IllegalArgumentException_String(objstr_(externs.box_())).self())
 	}
 	if !root.isRoot() {
-		Preconditions_checkArgument_boolean_Object_H(false, root)
+		panic(new_IllegalArgumentException_String(objstr_(root.box_())).self())
 	}
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(this))
 	if this.wrappedDynamicImportCallback {
@@ -190,7 +190,9 @@ func (this *RewriteDynamicImports) addChainedThen(t *NodeTraversal, dynamicImpor
 }
 
 func (this *RewriteDynamicImports) aliasDynamicImport(t *NodeTraversal, dynamicImport Node) {
-	Preconditions_checkState(this.alias_.isPresent())
+	if !this.alias_.isPresent() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var aliasNode Node = this.astFactory_.createQNameWithUnknownType(this.alias_.get())
 	aliasNode.setOriginalName("import")
 	var moduleSpecifier Node = dynamicImport.removeFirstChild()
@@ -260,7 +262,9 @@ func new_RewriteDynamicImports_AliasInjectingTraversal(outer_ *RewriteDynamicImp
 }
 
 func (this *RewriteDynamicImports_AliasInjectingTraversal) shouldTraverse_impl(t *NodeTraversal, n Node, parent Node) bool {
-	Preconditions_checkState(this.outer_.aliasIsValid())
+	if !this.outer_.aliasIsValid() {
+		panic(new_IllegalStateException_0().self())
+	}
 	if NodeUtil_isValidSimpleName(this.outer_.alias_.get()) && (t.getScope().getVar_String_rVar(this.outer_.alias_.get()) != nil) {
 		return false
 	}

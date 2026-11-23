@@ -186,7 +186,9 @@ func (this *BranchCoverageInstrumentationCallback) newHeaderNode(traversal *Node
 		}
 		return nil
 	}()
-	Preconditions_checkNotNull_T(data)
+	if data == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	var objName string = CoverageInstrumentationPass_JS_INSTRUMENTATION_OBJECT_NAME
 	var nodes *JTList[Node] = jnewTList_(jtc_Node)
 	nodes.add(this.newArrayDeclarationNode(traversal))

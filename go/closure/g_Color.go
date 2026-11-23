@@ -192,7 +192,7 @@ func Color_createUnion(elements *JTSet[*Color]) *Color {
 
 func (this *Color) isPrimitive() bool {
 	if this.isUnion() {
-		Preconditions_checkState_boolean_Object(false, this)
+		panic(new_IllegalStateException_String(objstr_(this)).self())
 	}
 	return StandardColors_PRIMITIVE_COLORS.containsKey(this.getId())
 }
@@ -213,7 +213,9 @@ func (this *Color) subtractNullOrVoid() *Color {
 }
 
 func (this *Color) subtractNullOrVoidUncached() *Color {
-	Preconditions_checkState(this.isUnion())
+	if !this.isUnion() {
+		panic(new_IllegalStateException_0().self())
+	}
 	if !this.getUnionElements().contains(StandardColors_NULL_OR_VOID) {
 		return this
 	}
@@ -371,33 +373,35 @@ func (this *Color_Builder) buildInternal() *Color {
 func (this *Color_Builder) build() *Color {
 	var result *Color = this.buildInternal()
 	if !result.getUnionElements().isEmpty() {
-		Preconditions_checkState_boolean_Object(false, result)
+		panic(new_IllegalStateException_String(objstr_(result)).self())
 	}
-	if !(result.getBoxId() == nil) {
-		Preconditions_checkState_boolean_Object(false, result)
+	if result.getBoxId() != nil {
+		panic(new_IllegalStateException_String(objstr_(result)).self())
 	}
 	if StandardColors_AXIOMATIC_COLORS.containsKey(result.getId()) {
-		Preconditions_checkState_boolean_Object(false, result)
+		panic(new_IllegalStateException_String(objstr_(result)).self())
 	}
 	return result
 }
 
 func (this *Color_Builder) buildUnion() *Color {
 	var result *Color = this.buildInternal()
-	if !(result.getUnionElements().size() > 1) {
-		Preconditions_checkState_boolean_Object(false, result)
+	if result.getUnionElements().size() <= 1 {
+		panic(new_IllegalStateException_String(objstr_(result)).self())
 	}
-	if !(result.getBoxId() == nil) {
-		Preconditions_checkState_boolean_Object(false, result)
+	if result.getBoxId() != nil {
+		panic(new_IllegalStateException_String(objstr_(result)).self())
 	}
 	return result
 }
 
 func (this *Color_Builder) buildAxiomatic() *Color {
-	Preconditions_checkState_boolean_Object((StandardColors_AXIOMATIC_COLORS == nil), "StandardColors are all defined")
+	if StandardColors_AXIOMATIC_COLORS != nil {
+		panic(new_IllegalStateException_String(objstr_("StandardColors are all defined")).self())
+	}
 	var result *Color = this.buildInternal()
 	if !result.getUnionElements().isEmpty() {
-		Preconditions_checkState_boolean_Object(false, result)
+		panic(new_IllegalStateException_String(objstr_(result)).self())
 	}
 	return result
 }

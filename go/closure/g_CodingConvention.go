@@ -168,10 +168,10 @@ type CodingConvention_SubclassRelationship struct {
 
 func (this *CodingConvention_SubclassRelationship) init_CodingConvention_SubclassRelationship(type_ CodingConvention_SubclassType, subclassNode Node, superclassNode Node) {
 	if !subclassNode.isQualifiedName() {
-		Preconditions_checkArgument_boolean_String_Object_H(false, "Expected qualified name, found: %s", subclassNode)
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected qualified name, found: %s", []any{subclassNode.box_()})).self())
 	}
 	if !superclassNode.isQualifiedName() {
-		Preconditions_checkArgument_boolean_String_Object_H(false, "Expected qualified name, found: %s", superclassNode)
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected qualified name, found: %s", []any{superclassNode.box_()})).self())
 	}
 	this.type__ = type_
 	this.subclassName = Optional_of[string](subclassNode.getQualifiedName()).filter(Predicate[string](func(s string) bool {
@@ -428,7 +428,9 @@ func (this *CodingConvention_AssertionFunctionSpec_Builder) autoBuild() *CodingC
 
 func (this *CodingConvention_AssertionFunctionSpec_Builder) build() *CodingConvention_AssertionFunctionSpec {
 	var spec *CodingConvention_AssertionFunctionSpec = this.autoBuild()
-	Preconditions_checkState_boolean_Object((spec.getFunctionName().isPresent() || (spec.getClosurePrimitive() != 0)), "Must provide a function name or ClosurePrimitive for each spec")
+	if !spec.getFunctionName().isPresent() && spec.getClosurePrimitive() == 0 {
+		panic(new_IllegalStateException_String(objstr_("Must provide a function name or ClosurePrimitive for each spec")).self())
+	}
 	return spec
 }
 

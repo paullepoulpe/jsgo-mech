@@ -8,7 +8,9 @@ type CachingTranspiler struct {
 }
 
 func (this *CachingTranspiler) init_CachingTranspiler(delegate Transpiler_transpile, builder CacheBuilderOf[any, any]) {
-	Preconditions_checkNotNull_T(delegate)
+	if delegate == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	this.cache = loadingCacheAs_(tc_p_CachingTranspiler_Key, tc_p_TranspileResult, builder.build(new_CachingTranspiler_1(this, delegate).up_CacheLoader()))
 	this.runtimeField = Suppliers_memoize[string](Supplier_base[string](func() string { return delegate.runtime() }))
 }

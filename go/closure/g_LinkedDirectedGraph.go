@@ -259,7 +259,9 @@ func (this *LinkedDirectedGraph[N, E]) getDirectedPredNodes_Object_rListOf_Linke
 }
 
 func (this *LinkedDirectedGraph[N, E]) getDirectedPredNodesDiGraphNode_DiGraphNode_rListOf_LinkedDiGraphNode(dNode DiGraph_DiGraphNode[N, E]) ListT[*LinkedDirectedGraph_LinkedDiGraphNode[N, E]] {
-	Preconditions_checkNotNull_T(dNode)
+	if dNode == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	var lNode *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = to_LinkedDirectedGraph_LinkedDiGraphNode[N, E](dNode)
 	var nodeList *JTList[*LinkedDirectedGraph_LinkedDiGraphNode[N, E]] = jnewTListN_(tc_p_LinkedDirectedGraph_LinkedDiGraphNode_N__E_[N, E](), lNode.getInEdges_rListOf_LinkedDiGraphEdge().size())
 	it_1 := jeachOf_(lNode.getInEdges_rListOf_LinkedDiGraphEdge())
@@ -275,7 +277,9 @@ func (this *LinkedDirectedGraph[N, E]) getDirectedSuccNodes_Object_rListOf_Linke
 }
 
 func (this *LinkedDirectedGraph[N, E]) getDirectedSuccNodesDiGraphNode_DiGraphNode_rListOf_LinkedDiGraphNode(dNode DiGraph_DiGraphNode[N, E]) ListT[*LinkedDirectedGraph_LinkedDiGraphNode[N, E]] {
-	Preconditions_checkNotNull_T(dNode)
+	if dNode == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	var lNode *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = to_LinkedDirectedGraph_LinkedDiGraphNode[N, E](dNode)
 	var nodeList *JTList[*LinkedDirectedGraph_LinkedDiGraphNode[N, E]] = jnewTListN_(tc_p_LinkedDirectedGraph_LinkedDiGraphNode_N__E_[N, E](), lNode.getOutEdges_rListOf_LinkedDiGraphEdge().size())
 	it_1 := jeachOf_(lNode.getOutEdges_rListOf_LinkedDiGraphEdge())
@@ -496,12 +500,16 @@ func (this *LinkedDirectedGraph_LinkedDiGraphNode[N, E]) hasPriority() bool {
 }
 
 func (this *LinkedDirectedGraph_LinkedDiGraphNode[N, E]) getPriority() int32 {
-	Preconditions_checkState_boolean_Object((this.priority >= 0), "priority not set")
+	if this.priority < 0 {
+		panic(new_IllegalStateException_String(objstr_("priority not set")).self())
+	}
 	return this.priority
 }
 
 func (this *LinkedDirectedGraph_LinkedDiGraphNode[N, E]) setPriority(priority int32) {
-	Preconditions_checkArgument_boolean_Object((priority >= 0), "priorities must be non-negative")
+	if priority < 0 {
+		panic(new_IllegalArgumentException_String(objstr_("priorities must be non-negative")).self())
+	}
 	this.priority = priority
 }
 

@@ -49,7 +49,9 @@ func ApplySuggestedFixes_applyAllSuggestedFixChoicesToCode(fixChoices IterableT[
 		return jimmutableListOf_[MapT[string, string]](tc_MapT_string__string_, jtmapEmptyImm_(jtc_string, jtc_string).asMapT())
 	}
 	var alternativeCount int32 = Iterables_getFirstT_[*SuggestedFix](fixChoices, nil).getAlternatives().size()
-	Preconditions_checkArgument_boolean_Object(ApplySuggestedFixes_allHaveAlternativeCount(fixChoices, alternativeCount), "All SuggestedFixAlternatives must offer an equal number of choices for this utility to make sense")
+	if !ApplySuggestedFixes_allHaveAlternativeCount(fixChoices, alternativeCount) {
+		panic(new_IllegalArgumentException_String(objstr_("All SuggestedFixAlternatives must offer an equal number of choices for this utility to make sense")).self())
+	}
 	var result *TListBuilder[MapT[string, string]] = newTListBuilder_(tc_MapT_string__string_)
 	for i := int32(0); i < alternativeCount; i++ {
 		result.add(ApplySuggestedFixes_applySuggestedFixChoicesToCode(fixChoices, i, fileNameToCodeMap).asMapT())
@@ -104,7 +106,7 @@ func ApplySuggestedFixes_applySuggestedFixesToCode(fixes IterableT[*SuggestedFix
 func ApplySuggestedFixes_applyCodeReplacements(replacements CollectionT[*CodeReplacement], code string) string {
 	var sortedReplacements SetT[*CodeReplacement] = setAs_(tc_p_CodeReplacement, ImmutableSortedSet_as_Set(ImmutableSortedSet_copyOf(Collection_un_(replacements))))
 	if ok_, a1_ := !ApplySuggestedFixes_containsOverlaps(sortedReplacements), ApplySuggestedFixes_DOUBLE_LINE_JOINER.join(Iterable(Set_un_(sortedReplacements))); !ok_ {
-		Preconditions_checkArgument_boolean_String_Object(false, "Found overlap between code replacements:\n%s", a1_)
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Found overlap between code replacements:\n%s", []any{a1_})).self())
 	}
 	var sb *StringBuilder = new_StringBuilder()
 	var lastIndex int32 = 0
