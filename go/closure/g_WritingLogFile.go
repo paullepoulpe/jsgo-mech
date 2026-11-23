@@ -68,13 +68,12 @@ func (this *WritingLogFile) logJson_impl(producer func(*SimpleJsonWriter)) *LogF
 		this.writer.print(text)
 	}))
 	var closed *Outcome_base[any]
-	_ = func() (code_ int) {
+	func() {
 		defer func() {
 			this.writer.print(jsonWriter.takeText())
 			closed = this.writer.close()
 		}()
 		producer(jsonWriter)
-		return 0
 	}()
 	if closed.isErr() {
 		panic(new_AssertionError_Object(closed.error().self()))

@@ -21,16 +21,8 @@ func new_CachingTranspiler(delegate Transpiler_transpile, builder CacheBuilderOf
 	return this
 }
 
-func (this *CachingTranspiler) transpile(path string, code string) *TranspileResult {
-	var ret_1 *TranspileResult
-	code_1 := func() (code_ int) {
-		ret_1 = this.cache.getUnchecked_t(new_CachingTranspiler_Key(path, code))
-		return 1
-	}()
-	if code_1 == 1 {
-		return ret_1
-	}
-	panic("unreachable")
+func (this *CachingTranspiler) transpile(path string, code string) (ret_1 *TranspileResult) {
+	return this.cache.getUnchecked_t(new_CachingTranspiler_Key(path, code))
 }
 
 func (this *CachingTranspiler) runtime() string {
