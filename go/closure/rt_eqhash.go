@@ -51,10 +51,16 @@ func objhashBy_[T comparable](a T, h func(T) int32) int32 {
 }
 
 // objhashId_ is Objects.hashCode(a) for a class without a hashCode method: the identity hash.
+// A Node's is the hash of its handle, as identityHash_ takes it from the box, read here
+// without boxing the handle (an allocation: steps written before Node was a handle class call
+// this function, not objhashHandle_).
 func objhashId_[T comparable](a T) int32 {
 	var zero T
 	if a == zero {
 		return 0
+	}
+	if n, ok := any(&a).(*Node); ok {
+		return handleHash_(uint32(*n))
 	}
 	return identityHash_(a)
 }
@@ -143,6 +149,9 @@ func hashId_[T comparable](a T) int32 {
 	var zero T
 	if a == zero {
 		panic(new_NullPointerException_0().self())
+	}
+	if n, ok := any(&a).(*Node); ok {
+		return handleHash_(uint32(*n)) // as objhashId_
 	}
 	return identityHash_(a)
 }
