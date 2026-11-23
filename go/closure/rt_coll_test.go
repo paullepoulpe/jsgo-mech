@@ -54,7 +54,7 @@ func sameSlice_(a, b []any) bool {
 }
 
 // TestHashMapAgainstModel drives a LinkedHashMap and the model with the same random
-// operations (string, boxed int, identity and equals/hashCode keys; removal directly, through
+// operations (string, boxed int, node handle, identity and equals/hashCode keys; removal directly, through
 // the views and through iterators; entry objects) and compares contents and order throughout.
 func TestHashMapAgainstModel(t *testing.T) {
 	for seed := int64(1); seed <= 60; seed++ {
@@ -78,6 +78,10 @@ func TestHashMapAgainstModel(t *testing.T) {
 			case 3:
 				if n == 0 {
 					return nil, nullstr_, true
+				}
+			case 4:
+				if seed%3 == 0 {
+					return Node(n + 1), "", false // a node handle, found by findNode
 				}
 			}
 			s := "k" + istr_(int64(n))
@@ -437,5 +441,12 @@ func TestTMapHashedKeysAgainstModel(t *testing.T) {
 			}
 			check("step")
 		}
+	}
+}
+
+// A node handle has no equals or hashCode of its own: the tables find it by value (findNode).
+func TestNodeKeyIsPlain(t *testing.T) {
+	if _, ok := any(Node(1)).(hashed_); ok {
+		t.Fatal("Node implements hashed_; htable_.findNode would not call its equals")
 	}
 }
