@@ -150,7 +150,6 @@ func PureFunctionIdentifier_collectCallableLeavesInternal(expr Node, results *JT
 	default:
 		return false
 	}
-	panic("unreachable")
 }
 
 func PureFunctionIdentifier_isDefinitelyRValue(rvalue Node) bool {
@@ -170,7 +169,6 @@ func PureFunctionIdentifier_isDefinitelyRValue(rvalue Node) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -417,7 +415,6 @@ func PureFunctionIdentifier_nameForReference(nameRef Node) Optional[string] {
 		default:
 			panic(new_IllegalStateException_String(("Unexpected name reference: " + tostrH_(nameRef))).self())
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -458,7 +455,6 @@ func PureFunctionIdentifier_clinit() {
 	PureFunctionIdentifier_FIND_RHS_AND_CHECK_FOR_LOCAL_VALUE = Predicate[Node](func(lhs Node) bool {
 		var rhs Node = NodeUtil_getRValueOfLValue(lhs)
 		return ((rhs == 0) || NodeUtil_evaluatesToLocalValue(rhs))
-		panic("unreachable")
 	})
 
 }

@@ -59,7 +59,6 @@ func (this *CheckNoMutatedEs6Exports) shouldTraverse(t *NodeTraversal, n Node, p
 		default:
 			return true
 		}
-		panic("unreachable")
 	}()
 }
 

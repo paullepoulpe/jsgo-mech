@@ -558,7 +558,6 @@ func ControlFlowAnalysis_computeFollowNode_Node_Node_ControlFlowAnalysis(fromNod
 	} else {
 		return ControlFlowAnalysis_computeFollowNode_Node_Node_ControlFlowAnalysis(fromNode, parent, cfa)
 	}
-	panic("unreachable")
 }
 
 func ControlFlowAnalysis_computeFallThrough(n Node) Node {
@@ -573,7 +572,6 @@ func ControlFlowAnalysis_computeFallThrough(n Node) Node {
 		default:
 			return n
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -697,7 +695,6 @@ func ControlFlowAnalysis_isBreakStructure(n Node, labeled bool) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 

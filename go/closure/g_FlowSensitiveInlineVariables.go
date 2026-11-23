@@ -490,7 +490,6 @@ func (this *FlowSensitiveInlineVariables_Candidate) isRhsSafeToInline(usageScope
 		default:
 		}
 		return false
-		panic("unreachable")
 	}), Predicate_base[Node](func(input Node) bool {
 		return !input.isFunction()
 	})) {
@@ -504,7 +503,6 @@ func (this *FlowSensitiveInlineVariables_Candidate) isRhsSafeToInline(usageScope
 			}
 		}
 		return false
-		panic("unreachable")
 	}), Predicates_alwaysTrue[Node]()) {
 		return false
 	}

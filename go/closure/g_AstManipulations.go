@@ -40,5 +40,4 @@ func AstManipulations_fuseExpressions(exp1 Node, exp2 Node) Node {
 		comma.addChildToBack(exp2)
 		return comma
 	}
-	panic("unreachable")
 }

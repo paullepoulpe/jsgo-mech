@@ -35,10 +35,9 @@ func (this *PrebuildAst) prebuild(allInputs IterableT[*CompilerInput]) {
 		defer func() {
 			if r_ := recover(); r_ != nil {
 				ex_ := catch_(r_)
-				if is_InterruptedException(ex_) || is_ExecutionException(ex_) {
+				if is_ExecutionException(ex_) {
 					var e *Exception = to_Exception(ex_)
 					panic(new_RuntimeException_Throwable(e.up_Throwable()).self())
-					return
 				}
 				panic(r_)
 			}
@@ -53,5 +52,4 @@ var lambda_PrebuildAst_prebuild_1_ = &ThreadFactory_fn{func(r Runnable) *Thread 
 	var t *Thread = new_Thread_ThreadGroup_Runnable_String_long(nil, r, "jscompiler-PrebuildAst", CompilerExecutor_COMPILER_STACK_SIZE)
 	t.setDaemon(true)
 	return t
-	panic("unreachable")
 }}

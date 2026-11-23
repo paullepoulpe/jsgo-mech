@@ -40,7 +40,6 @@ func (this *ClosureReverseAbstractInterpreter) init_ClosureReverseAbstractInterp
 			return this.restrictToNotObjectVisitor
 		}()
 		return to_JSType(p.type__.visit(visitor))
-		panic("unreachable")
 	}))
 }
 
@@ -76,7 +75,6 @@ func (this *ClosureReverseAbstractInterpreter) restrictParameter(parameter Node,
 	} else {
 		return blindScope
 	}
-	panic("unreachable")
 }
 
 type ClosureReverseAbstractInterpreter_TypeRestriction struct {

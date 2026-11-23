@@ -124,7 +124,6 @@ func (this *RenameVars) getNewGlobalName(n Node) Optional[string] {
 	} else {
 		return Optional_empty[string]()
 	}
-	panic("unreachable")
 }
 
 func (this *RenameVars) getNewLocalName(n Node) Optional[string] {

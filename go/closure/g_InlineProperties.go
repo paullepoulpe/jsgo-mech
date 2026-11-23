@@ -40,7 +40,6 @@ func (this *InlineProperties) getColor(n Node) *Color {
 	} else {
 		return color
 	}
-	panic("unreachable")
 }
 
 func (this *InlineProperties) process_2(externs Node, root Node) {
@@ -300,7 +299,6 @@ func (this *InlineProperties_ReplaceCandidates) hasInSupertypesList(subCtor *Col
 		}
 		ret_1 = false
 		return 1
-		return 0
 	}()
 	if code_1 == 1 {
 		return ret_1

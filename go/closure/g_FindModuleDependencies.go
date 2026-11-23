@@ -150,7 +150,6 @@ func (this *FindModuleDependencies) getEs6ModuleNameFromImportNode(t *NodeTraver
 		}
 		return modulePath.toModuleName()
 	}
-	panic("unreachable")
 }
 
 func (this *FindModuleDependencies) convertToEs6Module(root Node, skipGoogProvideModuleCheck bool) bool {

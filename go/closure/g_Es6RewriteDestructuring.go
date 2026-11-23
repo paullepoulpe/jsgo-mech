@@ -432,7 +432,6 @@ func (this *Es6RewriteDestructuring) deletionNodeForRestProperty(restTempVarName
 		default:
 			panic(new_IllegalStateException_String(("Unexpected property to delete node: " + sstr_(property.toStringTree()))).self())
 		}
-		panic("unreachable")
 	}()
 	return this.astFactory_.createDelProp(get)
 }
