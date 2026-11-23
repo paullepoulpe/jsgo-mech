@@ -236,6 +236,8 @@ d0352d87 run t vdispatch -enums && f
 44fb3323 patch 097-44fb3323-rt.patch
 # 99. postflip step: 192 of 228 Java enums are uint8 types (tools/postflip/enums)
 e9c01a2d run t enums && f
+#=7 e9c01a2d runtime patch added (seventh flip): reflip7-enumnull-rt.patch: jisnull_ (the translator's generic null test, rt_generic.go) takes the zero of an integer enum as null (its self() is nil), as the box of a null enum object was. Piece fns calls it from its generic twins (rt_lgfn.go) with an enum element type: without the patch Map_mergeT_ of GatherGetterAndSetterProperties' map of PropertyAccessKind called the merge function with the null enum (index out of range in unionWith; all four e2e comparisons failed with INTERNAL COMPILER ERROR). Test TestGenericNullOfIntegerEnum
+e9c01a2d patch reflip7-enumnull-rt.patch
 # 100. postflip step: an integer enum's name, ordinal, toString and compareTo go through enum_(), so null is a NullPointerException
 51b60588 run sed -i -E 's/\b[A-Za-z0-9_]+_enum_\[this-1\]\.(name_|ordinal_|compareTo\(o\))/this.enum_().\1/' go/closure/g_*.go
 # 101. Revert the node-properties prototype (1cdb142): boolean Node properties are in the property list again
