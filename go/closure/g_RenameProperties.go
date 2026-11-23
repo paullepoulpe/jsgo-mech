@@ -100,7 +100,7 @@ func (this *RenameProperties) process_2(externs Node, root Node) {
 		var nodeEntry *TEntry[Node, Node] = it_3.entry()
 		var parent Node = nodeEntry.getValue()
 		var firstArg Node = nodeEntry.getKey().getSecondChild()
-		var sb *StringBuilder = new_StringBuilder()
+		var sb strBuilder_
 		it_5 := foreach_(RenameProperties_DOT_SPLITTER.split_s(firstArg.getString()))
 		for it_5.next() {
 			var oldName string = str_(it_5.v)
@@ -121,7 +121,7 @@ func (this *RenameProperties) process_2(externs Node, root Node) {
 			}
 			sb.append(replacement)
 		}
-		nodeEntry.getKey().replaceWith(IR_string(tostrR_(sb)))
+		nodeEntry.getKey().replaceWith(IR_string(sb.toString()))
 		this.compiler_.reportChangeToEnclosingScope(parent)
 	}
 	it_7 := this.toRemove.each()

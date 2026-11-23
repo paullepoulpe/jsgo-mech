@@ -520,7 +520,7 @@ func (this *IRFactory) hasAnyPendingCommentBefore(pos *SourcePosition_util, with
 
 func (this *IRFactory) parseNonJSDocCommentAt(pos *SourcePosition_util, isInline bool) *NonJSDocComment {
 	var withinClosureUnawareCodeRange bool = this.withinClosureUnawareCodeRange(pos.line_, pos.column_)
-	var result *StringBuilder = new_StringBuilder()
+	var result strBuilder_
 	var firstComment *Comment = nil
 	var lastComment *Comment = nil
 	for this.hasAnyPendingCommentBefore(pos, withinClosureUnawareCodeRange) {
@@ -560,7 +560,7 @@ func (this *IRFactory) parseNonJSDocCommentAt(pos *SourcePosition_util, isInline
 	if this.config.jsDocParsingMode() != Config_JsDocParsing_INCLUDE_ALL_COMMENTS {
 		return nil
 	}
-	var nonJSDocComment *NonJSDocComment = new_NonJSDocComment(firstComment.location_.start_, lastComment.location_.end_, tostrR_(result))
+	var nonJSDocComment *NonJSDocComment = new_NonJSDocComment(firstComment.location_.start_, lastComment.location_.end_, result.toString())
 	nonJSDocComment.setEndsAsLineComment((lastComment.type__ == Comment_Type_LINE))
 	nonJSDocComment.setIsInline(isInline)
 	return nonJSDocComment
@@ -573,7 +573,7 @@ func (this *IRFactory) parseTrailingNonJSDocCommentAt(tokenEnd *SourcePosition_u
 	if !this.nonJsdocTracker.hasPendingCommentBefore(possibleNextTokenStart) {
 		return nil
 	}
-	var result *StringBuilder = new_StringBuilder()
+	var result strBuilder_
 	var comment *Comment = this.nonJsdocTracker.current()
 	if tokenEnd.line_ != comment.location_.start_.line_ {
 		return nil
@@ -587,7 +587,7 @@ func (this *IRFactory) parseTrailingNonJSDocCommentAt(tokenEnd *SourcePosition_u
 	}
 	result.append(comment.value_)
 	this.nonJsdocTracker.advance()
-	var nonJSDocComment *NonJSDocComment = new_NonJSDocComment(comment.location_.start_, comment.location_.end_, tostrR_(result))
+	var nonJSDocComment *NonJSDocComment = new_NonJSDocComment(comment.location_.start_, comment.location_.end_, result.toString())
 	nonJSDocComment.setEndsAsLineComment((comment.type__ == Comment_Type_LINE))
 	return nonJSDocComment
 }

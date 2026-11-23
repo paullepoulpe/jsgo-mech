@@ -79,11 +79,11 @@ func CheckProvidesSorted_getNamespace(n Node) string {
 }
 
 func CheckProvidesSorted_formatProvide(namespace string) string {
-	var sb *StringBuilder = new_StringBuilder()
+	var sb strBuilder_
 	sb.append("goog.provide('")
 	sb.append(namespace)
 	sb.append("');")
-	return tostrR_(sb)
+	return sb.toString()
 }
 
 func (this *CheckProvidesSorted) checkCanonical(t *NodeTraversal) {

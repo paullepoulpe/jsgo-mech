@@ -30,7 +30,8 @@ func FilePaths_clean(path string) string {
 }
 
 func FilePaths_join(first string, more []string) string {
-	var path *StringBuilder = new_StringBuilder_String(first)
+	var path strBuilder_
+	path.append(first)
 	for _, part := range more {
 		if !String_isEmpty(part) {
 			if path.length() > 0 {
@@ -39,7 +40,7 @@ func FilePaths_join(first string, more []string) string {
 			path.append(part)
 		}
 	}
-	return FilePaths_clean(tostrR_(path))
+	return FilePaths_clean(path.toString())
 }
 
 func FilePaths_isAbsolute(path string) bool {
@@ -89,14 +90,14 @@ func FilePaths_names(plain string) *JTList[string] {
 }
 
 func FilePaths_joinNames(names *JTList[string], from int32) string {
-	var path *StringBuilder = new_StringBuilder()
+	var path strBuilder_
 	for i := int32(from); i < names.size(); i++ {
 		if i > from {
 			path.append_char('/')
 		}
 		path.append(names.get(i))
 	}
-	return tostrR_(path)
+	return path.toString()
 }
 
 func FilePaths_normalize(path string) string {
