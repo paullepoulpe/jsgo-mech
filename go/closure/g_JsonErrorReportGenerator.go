@@ -96,7 +96,7 @@ func (this *JsonErrorReportGenerator) generateReport(manager *SortingErrorManage
 		if manager.getTypedPercent() > 0.0 {
 			summaryBuilder.append(String_format("%d error(s), %d warning(s), %.1f%% typed", []any{int32(manager.getErrorCount()), int32(manager.getWarningCount()), float64(manager.getTypedPercent())}))
 		} else {
-			summaryBuilder.append(String_format("%d error(s), %d warning(s)", []any{int32(manager.getErrorCount()), int32(manager.getWarningCount())}))
+			summaryBuilder.append((istr_(int64(int32(manager.getErrorCount()))) + " error(s), " + istr_(int64(int32(manager.getWarningCount()))) + " warning(s)"))
 		}
 		jsonWriter.beginObject()
 		jsonWriter.name("level").stringValue(Optional_of[string]("info"))

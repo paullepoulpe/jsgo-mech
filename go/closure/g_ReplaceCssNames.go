@@ -2,6 +2,11 @@
 
 package closure
 
+import (
+	"strconv"
+	"strings"
+)
+
 type ReplaceCssNames struct {
 	compiler_                    *AbstractCompiler
 	astFactory_                  *AstFactory
@@ -54,7 +59,7 @@ func (this *ReplaceCssNames) gatherGetCssNameInstances(root Node) *JTList[*Repla
 
 func (this *ReplaceCssNames) isNotInCssClosureFile(node Node) bool {
 	var sourceFileName string = node.getSourceFileName()
-	return (String_isEmpty(sourceFileName) || !String_endsWith(sourceFileName, ".css.closure.js"))
+	return (sourceFileName == "" || !strings.HasSuffix(sourceFileName, ".css.closure.js"))
 }
 
 func (this *ReplaceCssNames) isGetCssNameCall(node Node) bool {
@@ -75,7 +80,7 @@ func (this *ReplaceCssNames) validateGetCssNameCall(callNode Node) *JSError {
 		case 3:
 			return this.validateTwoArgGetCssNameCall(callNode)
 		default:
-			return JSError_make_Node_DiagnosticType_StringArr(callNode, ReplaceCssNames_INVALID_NUM_ARGUMENTS_ERROR, []string{String_valueOf(childCount)})
+			return JSError_make_Node_DiagnosticType_StringArr(callNode, ReplaceCssNames_INVALID_NUM_ARGUMENTS_ERROR, []string{strconv.Itoa(int(childCount))})
 		}
 		panic("unreachable")
 	}()
@@ -121,7 +126,7 @@ func (this *ReplaceCssNames) processStringNode(n Node) {
 	var parts []string = ReplaceCssNames_DASH_PATTERN.split(name)
 	if this.symbolMap != nil {
 		var replacement Optional[string] = Optional_empty[string]()
-		if String_startsWith(name, "--") {
+		if strings.HasPrefix(name, "--") {
 			replacement = this.symbolMap.get(name)
 			if replacement.isEmpty() {
 				this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ReplaceCssNames_UNKNOWN_SYMBOL_WARNING, []string{name, name}))
@@ -447,7 +452,7 @@ func (this *ReplaceCssNames_GetCssNameInstance) getCssClosureClassesMemberName()
 			return Optional_of[string]((sstr_(this.cssClosureClassesQualifiedName.get()) + "." + sstr_(ancestor.getString())))
 		}
 	}
-	panic(new_IllegalStateException_String(String_format("No css closure classes member name found: %s", []any{this.callNode_.box_()})).self())
+	panic(new_IllegalStateException_String(("No css closure classes member name found: " + objstr_(this.callNode_.box_()))).self())
 }
 
 func (this *ReplaceCssNames_GetCssNameInstance) getCssClassName() Optional[string] {
@@ -512,7 +517,7 @@ func (this *ReplaceCssNames_CountCssNamesBySymbol) shouldTraverse(t *NodeTravers
 
 func (this *ReplaceCssNames_CountCssNamesBySymbol) visit(t *NodeTraversal, n Node, parent Node) {
 	var classesObjectQualifiedName string = n.getQualifiedName()
-	if String_isEmpty(classesObjectQualifiedName) || !this.outer_.classesObjectsQualifiedNames.contains(classesObjectQualifiedName) {
+	if classesObjectQualifiedName == "" || !this.outer_.classesObjectsQualifiedNames.contains(classesObjectQualifiedName) {
 		return
 	}
 	var classNameNode Node = n.getParent()
@@ -521,7 +526,7 @@ func (this *ReplaceCssNames_CountCssNamesBySymbol) visit(t *NodeTraversal, n Nod
 		return
 	}
 	var classQualifiedName string = classNameNode.getQualifiedName()
-	if String_isEmpty(classQualifiedName) || !this.outer_.cssNamesBySymbol.containsKey(classQualifiedName) {
+	if classQualifiedName == "" || !this.outer_.cssNamesBySymbol.containsKey(classQualifiedName) {
 		this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ReplaceCssNames_UNKNOWN_SYMBOL_ERROR, []string{classNameNode.getString()}))
 		return
 	}

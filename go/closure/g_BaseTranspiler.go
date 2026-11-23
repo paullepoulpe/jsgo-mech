@@ -36,7 +36,7 @@ func (this *BaseTranspiler) transpile(path string, code string) *TranspileResult
 
 func (this *BaseTranspiler) runtime() string {
 	var sb strBuilder_
-	if !String_isEmpty(this.runtimeLibraryName) {
+	if this.runtimeLibraryName != "" {
 		sb.append(this.compilerSupplier.runtime(this.runtimeLibraryName))
 	}
 	sb.append(this.compilerSupplier.runtime("modules"))

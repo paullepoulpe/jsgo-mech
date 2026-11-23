@@ -164,7 +164,7 @@ func new_RescopeGlobalSymbols_FindCrossChunkNamesCallback(compiler *AbstractComp
 func (this *RescopeGlobalSymbols_FindCrossChunkNamesCallback) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	if n.isName() {
 		var name string = n.getString()
-		if String_isEmpty(name) || (!this.trackLocalAccessSets && this.crossChunkNames_.contains(name)) {
+		if name == "" || (!this.trackLocalAccessSets && this.crossChunkNames_.contains(name)) {
 			return
 		}
 		this.renameHelperBuilder.recordExistingName(name)
@@ -267,7 +267,7 @@ func new_RescopeGlobalSymbols_FindNamesReferencingThis() *RescopeGlobalSymbols_F
 func (this *RescopeGlobalSymbols_FindNamesReferencingThis) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	if n.isName() {
 		var name string = n.getString()
-		if String_isEmpty(name) {
+		if name == "" {
 			return
 		}
 		var value Node = 0

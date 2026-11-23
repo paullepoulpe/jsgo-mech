@@ -384,13 +384,13 @@ func (this *ReplaceIdGenerators_GatherGenerators) visit_impl(unused *NodeTravers
 	var name Optional[string] = Optional_empty[string]()
 	if n.isAssign() {
 		name = Optional_of[string](n.getFirstChild().getQualifiedName()).filter(Predicate[string](func(s string) bool {
-			return !String_isEmpty(s)
+			return s != ""
 		}))
 	} else if NodeUtil_isNameDeclaration(n) {
 		name = Optional_of[string](n.getFirstChild().getString())
 	} else if n.isFunction() {
 		name = Optional_of[string](n.getFirstChild().getString())
-		if String_isEmpty(name.get()) {
+		if name.get() == "" {
 			return
 		}
 	}
@@ -493,11 +493,11 @@ func (this *ReplaceIdGenerators_ReplaceGenerators) visit_impl(t *NodeTraversal, 
 	}
 	if n.isCall() {
 		this.maybeReplaceCall(t, n, Optional_of[string](callName).filter(Predicate[string](func(s string) bool {
-			return !String_isEmpty(s)
+			return s != ""
 		})), nameGenerator)
 	} else {
 		this.maybeReplaceTaggedTemplateLit(t, n, Optional_of[string](callName).filter(Predicate[string](func(s string) bool {
-			return !String_isEmpty(s)
+			return s != ""
 		})), nameGenerator)
 	}
 }

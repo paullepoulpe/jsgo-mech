@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type CheckJSDoc struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_              *AbstractCompiler
@@ -58,7 +60,7 @@ func (this *CheckJSDoc) checkJsDocInBlockComments(fileName Optional[string]) {
 func (this *CheckJSDoc) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	if n.isScript() {
 		this.checkJsDocInBlockComments(Optional_of[string](n.getSourceFileName()).filter(Predicate[string](func(s string) bool {
-			return !String_isEmpty(s)
+			return s != ""
 		})))
 	}
 	var info *JSDocInfo = n.getJSDocInfo()
@@ -322,9 +324,9 @@ func (this *CheckJSDoc) validateMsgJsDoc(n Node, info *JSDocInfo) {
 
 func CheckJSDoc_isValidMsgName(nameNode Node) bool {
 	if nameNode.isName() || nameNode.isStringKey() {
-		return String_startsWith(nameNode.getString(), "MSG_")
+		return strings.HasPrefix(nameNode.getString(), "MSG_")
 	} else if nameNode.isQualifiedName() {
-		return String_startsWith(nameNode.getString(), "MSG_")
+		return strings.HasPrefix(nameNode.getString(), "MSG_")
 	} else {
 		return false
 	}
@@ -581,12 +583,12 @@ func (this *CheckJSDoc_CheckJsdocTypes) visit(typeRefNode Node) {
 		return
 	}
 	var typeName string = typeRefNode.getString()
-	var dot int32 = String_indexOf(typeName, 46)
+	var dot int32 = int32(strings.IndexByte(typeName, '.'))
 	var rootOfType string = func() string {
 		if dot == -1 {
 			return typeName
 		}
-		return String_substring(typeName, 0, dot)
+		return typeName[:dot]
 	}()
 	if ClosureRewriteModule_isModuleExport(rootOfType) || ClosureRewriteModule_isModuleContent(rootOfType) {
 		typeRefNode.setString(("UnrecognizedType_" + sstr_(typeName)))

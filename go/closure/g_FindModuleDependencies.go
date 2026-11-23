@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type FindModuleDependencies struct {
 	compiler_               *AbstractCompiler
 	moduleType_             CompilerInput_ModuleType
@@ -96,7 +98,7 @@ func (this *FindModuleDependencies) visit(t *NodeTraversal, n Node, parent Node)
 		} else if ProcessCommonJSModules_isCommonJsImport(n, resolutionMode) {
 			var path string = ProcessCommonJSModules_getCommonJsImportPath(n, resolutionMode)
 			var modulePath *ModuleLoader_ModulePath = t.getInput().getPath().resolveJsModule(path, Optional_of[string](n.getSourceFileName()).filter(Predicate[string](func(s string) bool {
-				return !String_isEmpty(s)
+				return s != ""
 			})), n.getLineno(), n.getCharno())
 			if modulePath != nil {
 				if (this.dynamicImportScope != nil) || ProcessCommonJSModules_isCommonJsDynamicImportCallback(NodeUtil_getEnclosingFunction(n), resolutionMode) {
@@ -109,7 +111,7 @@ func (this *FindModuleDependencies) visit(t *NodeTraversal, n Node, parent Node)
 	}
 	if ((((parent != 0) && (parent.isExprResult() || !t.inGlobalHoistScope())) && NodeUtil_isGoogRequireCall(n)) && (n.getSecondChild() != 0)) && n.getSecondChild().isStringLit() {
 		var namespace string = n.getSecondChild().getString()
-		if String_startsWith(namespace, "goog.") {
+		if strings.HasPrefix(namespace, "goog.") {
 			t.getInput().addOrderedRequire(DependencyInfo_Require_BASE)
 		}
 		t.getInput().addOrderedRequire(DependencyInfo_Require_googRequireSymbol(namespace))
@@ -128,7 +130,7 @@ func (this *FindModuleDependencies) exitScope(t *NodeTraversal) {
 
 func (this *FindModuleDependencies) addEs6ModuleImportToGraph(t *NodeTraversal, n Node) {
 	var moduleName string = this.getEs6ModuleNameFromImportNode(t, n)
-	if String_startsWith(moduleName, "goog.") {
+	if strings.HasPrefix(moduleName, "goog.") {
 		t.getInput().addOrderedRequire(DependencyInfo_Require_BASE)
 	}
 	t.getInput().addOrderedRequire(DependencyInfo_Require_es6Import(moduleName, n.getLastChild().getString()))
@@ -136,12 +138,12 @@ func (this *FindModuleDependencies) addEs6ModuleImportToGraph(t *NodeTraversal, 
 
 func (this *FindModuleDependencies) getEs6ModuleNameFromImportNode(t *NodeTraversal, n Node) string {
 	var importName string = n.getLastChild().getString()
-	var isNamespaceImport bool = String_startsWith(importName, "goog:")
+	var isNamespaceImport bool = strings.HasPrefix(importName, "goog:")
 	if isNamespaceImport {
-		return String_substring_int(importName, String_length("goog:"))
+		return String_substring_int(importName, int32(len("goog:")))
 	} else {
 		var modulePath *ModuleLoader_ModulePath = t.getInput().getPath().resolveJsModule(importName, Optional_of[string](n.getSourceFileName()).filter(Predicate[string](func(s string) bool {
-			return !String_isEmpty(s)
+			return s != ""
 		})), n.getLineno(), n.getCharno())
 		if modulePath == nil {
 			modulePath = t.getInput().getPath().resolveModuleAsPath(importName)

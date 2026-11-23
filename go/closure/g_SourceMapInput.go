@@ -43,7 +43,7 @@ func (this *SourceMapInput) getSourceMap(errorManager ErrorManager) *SourceMapCo
 			errorManager.report_2(error_.defaultLevel(), error_)
 			return this.parsedSourceMap
 		}
-		if (((((consumer.getFile().isPresent() && !String_isEmpty(consumer.getFile().get())) && (consumer.getOriginalSources().size() == 1)) && Collection_contains_s(Collection_un_(consumer.getOriginalSources()), consumer.getFile().get())) && (consumer.getOriginalSourcesContent().size() == 1)) && consumer.getOriginalNames().isEmpty()) && (consumer.getLineCount() == -1) {
+		if (((((consumer.getFile().isPresent() && consumer.getFile().get() != "") && (consumer.getOriginalSources().size() == 1)) && Collection_contains_s(Collection_un_(consumer.getOriginalSources()), consumer.getFile().get())) && (consumer.getOriginalSourcesContent().size() == 1)) && consumer.getOriginalNames().isEmpty()) && (consumer.getLineCount() == -1) {
 			consumer = nil
 		}
 		this.parsedSourceMap = consumer
