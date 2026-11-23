@@ -1,0 +1,44 @@
+diff --git a/go/closure/rt_node_props_test.go b/go/closure/rt_node_props_test.go
+index 3cb494a1..b5d3afb1 100644
+--- a/go/closure/rt_node_props_test.go
++++ b/go/closure/rt_node_props_test.go
+@@ -183,3 +183,39 @@ func TestNodePropsAgainstJavaList(t *testing.T) {
+ 		}
+ 	}
+ }
++
++// A node's JSType is kept in the table of distinct values as the *JSType itself (post-flip
++// manual step), so getJSType is one type comparison; whatever reads the field as an Object
++// still sees the type's own object, a nil type clears the field, and colors are unaffected.
++func TestNodeJSTypeField(t *testing.T) {
++	nt := &NumberType{}
++	nt.self_ = nt
++	base := nt.as_JSType()
++	n := new_Node_Token(Token_rhino_NAME)
++	if n.getJSType() != nil || n.jstypeOrColor_get_() != nil {
++		t.Fatal("a new node has a type")
++	}
++	n.setJSType(base)
++	if n.getJSType() != base {
++		t.Fatal("getJSType is not the type that was set")
++	}
++	if n.jstypeOrColor_get_() != any(nt) {
++		t.Fatalf("the field as an Object is %T, want the type's own object", n.jstypeOrColor_get_())
++	}
++	if n.getColor() != nil {
++		t.Fatal("a JSType reads as a color")
++	}
++	m := new_Node_Token(Token_rhino_NAME)
++	m.copyTypeFrom(n)
++	if m.getJSType() != base || m.jstypeOrColor_get_() != any(nt) {
++		t.Fatal("copyTypeFrom lost the type")
++	}
++	n.setJSType(nil)
++	if n.getJSType() != nil || n.jstypeOrColor_get_() != nil || n.cs_().jstypeOrColor != 0 {
++		t.Fatal("setJSType(nil) left a type")
++	}
++	if m.getJSType() != base {
++		t.Fatal("clearing one node's type cleared another's")
++	}
++	m.setJSType(nil)
++}

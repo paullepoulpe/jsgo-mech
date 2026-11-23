@@ -1,0 +1,85 @@
+diff --git a/go/closure/rt_string.go b/go/closure/rt_string.go
+index 64d29a26..369d1d3a 100644
+--- a/go/closure/rt_string.go
++++ b/go/closure/rt_string.go
+@@ -260,11 +260,11 @@ func stringUnits_(s string) iter.Seq2[int32, uint16] {
+ 	}
+ }
+ 
+-// asciiCharAt_ is String_charAt of a constant string that is all ASCII (post-flip step
+-// strunits): unit i is byte i.
++// asciiCharAt_ is String_charAt of a string that is all ASCII (post-flip steps strunits and
++// strnative): unit i is byte i. An index outside the string throws what String_charAt throws.
+ func asciiCharAt_(s string, i int32) uint16 {
+-	if i < 0 || int(i) >= len(s) {
+-		panic(new_StringIndexOutOfBoundsException_String("index " + istr_(int64(i)) + ", length " + istr_(int64(len(s)))).self())
++	if uint32(i) >= uint32(len(s)) {
++		return String_charAt(s, i)
+ 	}
+ 	return uint16(s[i])
+ }
+@@ -460,7 +460,10 @@ func String_valueOf_double(d float64) string { return Double_toString(d) }
+ func String_valueOf_Object(v any) string     { return objstr_(v) }
+ func String_toString(s string) string        { return s }
+ 
+-func String_hashCode(s string) int32 {
++func String_hashCode(s string) int32 { return utf16Hash_(s) }
++
++// utf16Hash_ is Java's String.hashCode: h = 31*h + u over the UTF-16 units u of s.
++func utf16Hash_(s string) int32 {
+ 	var h int32
+ 	for i := 0; i < len(s); {
+ 		if s[i] < 0x80 {
+@@ -481,7 +484,12 @@ func String_hashCode(s string) int32 {
+ 	return h
+ }
+ 
+-func String_compareTo(a string, b string) int32 {
++func String_compareTo(a string, b string) int32 { return utf16Compare_(a, b) }
++
++// utf16Compare_ is Java's String.compareTo: the difference of the first UTF-16 units that
++// differ, else of the lengths in units. Its sign is UTF-16 order, which differs from the byte
++// order of strings.Compare where a supplementary character meets one in U+E000-U+FFFF.
++func utf16Compare_(a string, b string) int32 {
+ 	n := len(a)
+ 	if len(b) < n {
+ 		n = len(b)
+@@ -615,6 +623,11 @@ func String_lastIndexOf_String_int(s string, sub string, from int32) int32 {
+ 	return String_lastIndexOf_String(String_substring(s, 0, end), sub)
+ }
+ 
++// javaSpace_ is what String.trim removes from both ends: every char up to U+0020. In WTF-8
++// those are the bytes 0x00-0x20 (every byte of a longer sequence is 0x80 or above), so
++// strings.Trim(s, javaSpace_) is s.trim() (post-flip step strnative).
++const javaSpace_ = "\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f "
++
+ func String_trim(s string) string {
+ 	a, b := 0, len(s)
+ 	for a < b && s[a] <= ' ' {
+@@ -689,6 +702,26 @@ func String_join_CharSequence_CharSequenceArr(sep any, vs []any) string {
+ 	return strings.Join(parts, csString_(sep))
+ }
+ 
++// joinStrings_ is String.join(sep, elems) of a native list of Strings (post-flip step
++// strnative): strings.Join, with Java's null handling (a null list or separator throws
++// NullPointerException, a null element is "null").
++func joinStrings_(elems []string, sep string) string {
++	if elems == nil {
++		panic(new_NullPointerException_0().self())
++	}
++	sep = csStr_(sep)
++	for _, e := range elems {
++		if e == nullstr_ {
++			parts := make([]string, len(elems))
++			for i, e := range elems {
++				parts[i] = sstr_(e)
++			}
++			return strings.Join(parts, sep)
++		}
++	}
++	return strings.Join(elems, sep)
++}
++
+ // ---- CharSequence
+ 
+ func CharSequence_length(v any) int32 {

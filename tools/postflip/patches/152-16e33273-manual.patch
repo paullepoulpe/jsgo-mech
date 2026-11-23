@@ -1,0 +1,65 @@
+diff --git a/go/closure/g_ControlFlowAnalysis.go b/go/closure/g_ControlFlowAnalysis.go
+index d62c4206..d8db3562 100644
+--- a/go/closure/g_ControlFlowAnalysis.go
++++ b/go/closure/g_ControlFlowAnalysis.go
+@@ -3,9 +3,11 @@
+ package closure
+ 
+ type ControlFlowAnalysis struct {
+-	compiler_               *AbstractCompiler
+-	cfg                     *ControlFlowGraph
+-	astPosition             *LinkedIdentityHashMap
++	compiler_ *AbstractCompiler
++	cfg       *ControlFlowGraph
++	// The AST position of each node, by node identity: only put to and read, so a Go map of
++	// ints (post-flip manual step), not a LinkedIdentityHashMap of boxed Integers.
++	astPosition             map[Node]int32
+ 	priorityComparator      ComparatorOf[DiGraph_DiGraphNode]
+ 	astPositionCounter      int32
+ 	priorityCounter         int32
+@@ -20,7 +22,11 @@ func (this *ControlFlowAnalysis) finit_ControlFlowAnalysis() {
+ 	this.priorityComparator = Comparator_comparingInt_f(func(digraphNode_ any) int32 {
+ 		var digraphNode DiGraph_DiGraphNode = icast_DiGraph_DiGraphNode(digraphNode_)
+ 		_ = digraphNode
+-		return unbox_[int32](Preconditions_checkNotNull_Object_Object(this.astPosition.get(digraphNode.getValue()), digraphNode.getValue()))
++		pos, ok := this.astPosition[Node_of_(digraphNode.getValue())]
++		if !ok {
++			Preconditions_checkNotNull_Object_Object(nil, digraphNode.getValue())
++		}
++		return pos
+ 	})
+ 	this.exceptionHandler = []Node{}
+ 	this.finallyMap = SimpleSetMultimap_createInsertionOrdered()
+@@ -52,12 +58,12 @@ func (this *ControlFlowAnalysis) computeCfg(root Node) {
+ 		Preconditions_checkArgument_boolean_String_Object(false, "Unexpected control flow graph root %s", root.box_())
+ 	}
+ 	this.root = root
+-	this.astPosition = new_LinkedIdentityHashMap()
++	this.astPosition = map[Node]int32{}
+ 	this.astPositionCounter = 0
+ 	this.cfg = new_ControlFlowAnalysis_AstControlFlowGraph(ControlFlowAnalysis_computeFallThrough(root), this.edgeAnnotations).up_ControlFlowGraph()
+ 	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(any(this)))
+ 	this.astPositionCounter++
+-	this.astPosition.put(nil, any(int32(this.astPositionCounter)))
++	this.astPosition[0] = this.astPositionCounter
+ 	this.priorityCounter = 0
+ 	var entry DiGraph_DiGraphNode = this.cfg.getEntry()
+ 	this.prioritizeFromEntryNode(entry)
+@@ -104,7 +110,7 @@ func (this *ControlFlowAnalysis) prioritizeFromEntryNode(entry DiGraph_DiGraphNo
+ 
+ func (this *ControlFlowAnalysis) shouldTraverse(nodeTraversal *NodeTraversal, n Node, parent Node) bool {
+ 	if this.shouldTraverseIntoChildren(n, parent) {
+-		this.astPosition.put(n.box_(), any(int32(this.astPositionCounter)))
++		this.astPosition[n] = this.astPositionCounter
+ 		this.astPositionCounter++
+ 		return true
+ 	}
+@@ -129,7 +135,7 @@ func (this *ControlFlowAnalysis) shouldTraverseIntoChildren(n Node, parent Node)
+ 		case tokOrd1_FOR, tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF:
+ 			var shouldTraverseForChild bool = (n == parent.getLastChild())
+ 			if !shouldTraverseForChild {
+-				this.astPosition.put(n.box_(), any(int32(this.astPositionCounter)))
++				this.astPosition[n] = this.astPositionCounter
+ 				this.astPositionCounter++
+ 			}
+ 			return shouldTraverseForChild
