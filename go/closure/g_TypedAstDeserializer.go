@@ -82,7 +82,7 @@ func TypedAstDeserializer_deserialize(compiler *AbstractCompiler, syntheticExter
 }
 
 func (this *TypedAstDeserializer) toDeserializedAst() *TypedAstDeserializer_DeserializedAst {
-	var registry Optional_baseOf[*ColorRegistry] = func() *Optional_base {
+	var registry Optional_baseOf[*ColorRegistry] = func() Optional_base {
 		if eqR_(this.mode_, TypedAstDeserializer_Mode_RUNTIME_LIBRARY_ONLY) || !this.colorPoolBuilder.isPresent() {
 			return Optional_base_absent()
 		}
@@ -355,7 +355,7 @@ func (this *TypedAstDeserializer_DeserializedAst) init_TypedAstDeserializer_Dese
 	if getFilesystem == nil {
 		panic(new_NullPointerException_String("getFilesystem"))
 	}
-	if getColorRegistry == nil {
+	if optBaseNull_(getColorRegistry) {
 		panic(new_NullPointerException_String("getColorRegistry"))
 	}
 	if getRuntimeLibraries == nil {
@@ -385,7 +385,7 @@ func (this *TypedAstDeserializer_DeserializedAst) getFilesystem() ConcurrentMap 
 	return this.getFilesystem_
 }
 
-func (this *TypedAstDeserializer_DeserializedAst) getColorRegistry() *Optional_base {
+func (this *TypedAstDeserializer_DeserializedAst) getColorRegistry() Optional_base {
 	return this.getColorRegistry_
 }
 
