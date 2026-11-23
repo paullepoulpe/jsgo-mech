@@ -3,8 +3,8 @@
 package closure
 
 type NameGenerator interface {
-	reset(*JTSet[string], string, *JTSet[any])
-	reset_4(SetT[string], string, *JTSet[any], *JTSet[any])
-	clone(*JTSet[string], string, *JTSet[any]) NameGenerator
+	reset(*TSet[string], string, *TSet[any])
+	reset_4(SetT[string], string, *TSet[any], *TSet[any])
+	clone(*TSet[string], string, *TSet[any]) NameGenerator
 	generateNextName() string
 }

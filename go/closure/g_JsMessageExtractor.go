@@ -31,12 +31,12 @@ func new_JsMessageExtractor_IdGenerator_CompilerOptions_boolean(idGenerator JsMe
 }
 
 func (this *JsMessageExtractor) extractMessages(inputs []*SourceFile_jscomp) CollectionT[*JsMessage] {
-	return this.extractMessagesIterable(jimmutableListCopyOfArr_(jtc_p_SourceFile_jscomp, inputs).asIterable())
+	return this.extractMessagesIterable(immutableListCopyOfArr_(tc_p_SourceFile_jscomp, inputs).asIterable())
 }
 
 func (this *JsMessageExtractor) extractMessagesIterable(inputs IterableT[*SourceFile_jscomp]) CollectionT[*JsMessage] {
 	var compiler *Compiler = new_Compiler_0()
-	compiler.init(jtlistEmptyImm_(jtc_p_SourceFile_jscomp).asListT(), jimmutableListCopyOf_(jtc_p_SourceFile_jscomp, Iterable_un_(inputs)).asListT(), this.options_)
+	compiler.init(tlistEmptyImm_(tc_p_SourceFile_jscomp).asListT(), immutableListCopyOf_(tc_p_SourceFile_jscomp, Iterable_un_(inputs)).asListT(), this.options_)
 	compiler.runInCompilerThread(Callable[any](func() any {
 		compiler.parseInputs()
 		return nil
@@ -45,7 +45,7 @@ func (this *JsMessageExtractor) extractMessagesIterable(inputs IterableT[*Source
 	if compiler.getErrors().isEmpty() {
 		extractCompilerPass.process_2(0, compiler.getRoot())
 	}
-	var errors *JTList[*JSError] = compiler.getErrors()
+	var errors *TList[*JSError] = compiler.getErrors()
 	if !errors.isEmpty() {
 		var msg strBuilder_
 		msg.append("JSCompiler errors\n")
@@ -63,7 +63,7 @@ func (this *JsMessageExtractor) extractMessagesIterable(inputs IterableT[*Source
 type JsMessageExtractor_ExtractMessagesVisitor struct {
 	JsMessageVisitor
 	outer_   *JsMessageExtractor
-	messages *JTList[*JsMessage]
+	messages *TList[*JsMessage]
 }
 
 func (this *JsMessageExtractor_ExtractMessagesVisitor) up_JsMessageVisitor() *JsMessageVisitor {
@@ -81,7 +81,7 @@ func (this *JsMessageExtractor_ExtractMessagesVisitor) up_NodeTraversal_Abstract
 }
 
 func (this *JsMessageExtractor_ExtractMessagesVisitor) finit_JsMessageExtractor_ExtractMessagesVisitor() {
-	this.messages = jnewTList_(jtc_p_JsMessage)
+	this.messages = newTList_(tc_p_JsMessage)
 }
 
 func (this *JsMessageExtractor_ExtractMessagesVisitor) init_JsMessageExtractor_ExtractMessagesVisitor(compiler *AbstractCompiler) {

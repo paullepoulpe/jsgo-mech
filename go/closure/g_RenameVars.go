@@ -6,19 +6,19 @@ import "strings"
 
 type RenameVars struct {
 	compiler_                      *AbstractCompiler
-	globalNameNodes                *JTList[Node]
-	localNameNodes                 *JTList[Node]
-	originalNameByNode             *JTMap[Node, string]
-	pseudoNameMap                  *JTMap[Node, string]
-	externNames_                   *JTSet[string]
-	reservedNames                  *JTSet[string]
-	renameMap                      *JTMap[string, string]
+	globalNameNodes                *TList[Node]
+	localNameNodes                 *TList[Node]
+	originalNameByNode             *TMap[Node, string]
+	pseudoNameMap                  *TMap[Node, string]
+	externNames_                   *TSet[string]
+	reservedNames                  *TSet[string]
+	renameMap                      *TMap[string, string]
 	prevUsedRenameMap              *VariableMap
 	prefix_                        string
-	localBleedingFunctions         *JTSet[*Var]
+	localBleedingFunctions         *TSet[*Var]
 	localBleedingFunctionsPerScope *SimpleListMultimap[*Scope, *Var]
-	assignments                    *JTMap[string, *RenameVars_Assignment]
-	reservedCharacters             *JTSet[any]
+	assignments                    *TMap[string, *RenameVars_Assignment]
+	reservedCharacters             *TSet[any]
 	nameGenerator                  NameGenerator
 	assignmentCount                int32
 	localRenamingOnly              bool
@@ -30,23 +30,23 @@ func (this *RenameVars) zero_RenameVars() {
 }
 
 func (this *RenameVars) finit_RenameVars() {
-	this.globalNameNodes = jnewTList_(jtc_Node)
-	this.localNameNodes = jnewTList_(jtc_Node)
-	this.originalNameByNode = jnewTMap_(jtc_Node, jtc_string)
-	this.renameMap = jnewTMap_(jtc_string, jtc_string)
+	this.globalNameNodes = newTList_(tc_Node)
+	this.localNameNodes = newTList_(tc_Node)
+	this.originalNameByNode = newTMap_(tc_Node, tc_string)
+	this.renameMap = newTMap_(tc_string, tc_string)
 	this.assignmentCount = 0
-	this.localBleedingFunctions = jnewTSet_(tce_p_Var)
+	this.localBleedingFunctions = newTSet_(tch_p_Var)
 	this.localBleedingFunctionsPerScope = SimpleListMultimap_create[*Scope, *Var]()
-	this.assignments = jnewTMap_(jtc_string, jtc_p_RenameVars_Assignment)
+	this.assignments = newTMap_(tc_string, tc_p_RenameVars_Assignment)
 }
 
-func (this *RenameVars) init_RenameVars(compiler *AbstractCompiler, prefix Optional[string], localRenamingOnly bool, generatePseudoNames bool, preferStableNames bool, prevUsedRenameMap *VariableMap, reservedCharacters *JTSet[any], reservedNames *JTSet[string], nameGenerator NameGenerator) {
+func (this *RenameVars) init_RenameVars(compiler *AbstractCompiler, prefix Optional[string], localRenamingOnly bool, generatePseudoNames bool, preferStableNames bool, prevUsedRenameMap *VariableMap, reservedCharacters *TSet[any], reservedNames *TSet[string], nameGenerator NameGenerator) {
 	this.finit_RenameVars()
 	this.compiler_ = compiler
 	this.prefix_ = prefix.orElse("")
 	this.localRenamingOnly = localRenamingOnly
 	if generatePseudoNames {
-		this.pseudoNameMap = jnewTMap_(jtc_Node, jtc_string)
+		this.pseudoNameMap = newTMap_(tc_Node, tc_string)
 	} else {
 		this.pseudoNameMap = nil
 	}
@@ -54,14 +54,14 @@ func (this *RenameVars) init_RenameVars(compiler *AbstractCompiler, prefix Optio
 	this.reservedCharacters = reservedCharacters
 	this.preferStableNames = preferStableNames
 	if reservedNames == nil {
-		this.reservedNames = jnewTSet_(jtc_string)
+		this.reservedNames = newTSet_(tc_string)
 	} else {
-		this.reservedNames = tsetCopy_(jtc_string, reservedNames)
+		this.reservedNames = tsetCopy_(tc_string, reservedNames)
 	}
 	this.nameGenerator = nameGenerator
 }
 
-func new_RenameVars(compiler *AbstractCompiler, prefix Optional[string], localRenamingOnly bool, generatePseudoNames bool, preferStableNames bool, prevUsedRenameMap *VariableMap, reservedCharacters *JTSet[any], reservedNames *JTSet[string], nameGenerator NameGenerator) *RenameVars {
+func new_RenameVars(compiler *AbstractCompiler, prefix Optional[string], localRenamingOnly bool, generatePseudoNames bool, preferStableNames bool, prevUsedRenameMap *VariableMap, reservedCharacters *TSet[any], reservedNames *TSet[string], nameGenerator NameGenerator) *RenameVars {
 	this := &RenameVars{}
 	this.zero_RenameVars()
 	this.init_RenameVars(compiler, prefix, localRenamingOnly, generatePseudoNames, preferStableNames, prevUsedRenameMap, reservedCharacters, reservedNames, nameGenerator)
@@ -77,10 +77,10 @@ func RenameVars_frequencyComparator(a1 *RenameVars_Assignment, a2 *RenameVars_As
 
 func (this *RenameVars) process_2(externs Node, root Node) {
 	this.externNames_ = NodeUtil_collectExternVariableNames(this.compiler_, externs)
-	this.originalNameByNode.clear()
+	this.originalNameByNode.Clear()
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(new_RenameVars_ProcessVars(this)))
 	this.reservedNames.asSetT().addAll(Collection(this.externNames_.asSetT()))
-	var varsByFrequency *JTSet[*RenameVars_Assignment] = newTSortedSetC_(jtc_p_RenameVars_Assignment, Comparator[any](func(p0 any, p1 any) int32 {
+	var varsByFrequency *TSet[*RenameVars_Assignment] = newTSortedSetC_(tc_p_RenameVars_Assignment, Comparator[any](func(p0 any, p1 any) int32 {
 		return RenameVars_frequencyComparator(cast_[*RenameVars_Assignment](p0), cast_[*RenameVars_Assignment](p1))
 	}))
 	varsByFrequency.asSetT().addAll(Collection_un_(this.assignments.valuesT()))
@@ -103,7 +103,7 @@ func (this *RenameVars) process_2(externs Node, root Node) {
 func (this *RenameVars) setNameAndReport(n Node, newName Optional[string]) {
 	if newName.isPresent() && !(newName.get() == n.getString()) {
 		n.setString(newName.get())
-		if !(newName.get() == this.originalNameByNode.get(n)) {
+		if !(newName.get() == this.originalNameByNode.Get(n)) {
 			this.compiler_.reportChangeToEnclosingScope(n)
 			var parent Node = n.getParent()
 			if parent.isFunction() && NodeUtil_isFunctionDeclaration(parent) {
@@ -115,10 +115,10 @@ func (this *RenameVars) setNameAndReport(n Node, newName Optional[string]) {
 
 func (this *RenameVars) getNewGlobalName(n Node) Optional[string] {
 	var oldName string = n.getString()
-	var a *RenameVars_Assignment = this.assignments.get(oldName)
+	var a *RenameVars_Assignment = this.assignments.Get(oldName)
 	if a.newName.isPresent() && !(a.newName.get() == oldName) {
 		if this.pseudoNameMap != nil {
-			return Optional_ofNullable[string](this.pseudoNameMap.get(n))
+			return Optional_ofNullable[string](this.pseudoNameMap.Get(n))
 		}
 		return a.newName
 	} else {
@@ -128,10 +128,10 @@ func (this *RenameVars) getNewGlobalName(n Node) Optional[string] {
 
 func (this *RenameVars) getNewLocalName(n Node) Optional[string] {
 	var oldTempName string = n.getString()
-	var a *RenameVars_Assignment = this.assignments.get(oldTempName)
+	var a *RenameVars_Assignment = this.assignments.Get(oldTempName)
 	if !(a.newName.get() == oldTempName) {
 		if this.pseudoNameMap != nil {
-			return Optional_ofNullable[string](this.pseudoNameMap.get(n))
+			return Optional_ofNullable[string](this.pseudoNameMap.Get(n))
 		}
 		return a.newName
 	}
@@ -139,10 +139,10 @@ func (this *RenameVars) getNewLocalName(n Node) Optional[string] {
 }
 
 func (this *RenameVars) recordPseudoName(n Node) {
-	this.pseudoNameMap.put(n, ("$" + sstr_(n.getString()) + "$$"))
+	this.pseudoNameMap.Put(n, ("$" + sstr_(n.getString()) + "$$"))
 }
 
-func (this *RenameVars) reusePreviouslyUsedVariableMap(varsToRename *JTSet[*RenameVars_Assignment]) {
+func (this *RenameVars) reusePreviouslyUsedVariableMap(varsToRename *TSet[*RenameVars_Assignment]) {
 	if this.prevUsedRenameMap.getNewNameToOriginalNameMap() == nil {
 		panic(new_NullPointerException_0())
 	}
@@ -150,17 +150,17 @@ func (this *RenameVars) reusePreviouslyUsedVariableMap(varsToRename *JTSet[*Rena
 	for it_1.next() {
 		var a *RenameVars_Assignment = it_1.v
 		var prevNewName Optional[string] = this.prevUsedRenameMap.lookupNewName(a.oldName)
-		if prevNewName.isEmpty() || this.reservedNames.contains(prevNewName.get()) {
+		if prevNewName.isEmpty() || this.reservedNames.Has(prevNewName.get()) {
 			continue
 		}
-		if a.isLocal_ || (!this.externNames_.contains(a.oldName) && strings.HasPrefix(prevNewName.get(), this.prefix_)) {
-			this.reservedNames.add(prevNewName.get())
+		if a.isLocal_ || (!this.externNames_.Has(a.oldName) && strings.HasPrefix(prevNewName.get(), this.prefix_)) {
+			this.reservedNames.Add(prevNewName.get())
 			this.finalizeNameAssignment(a, prevNewName.get())
 		}
 	}
 }
 
-func (this *RenameVars) assignNames(varsToRename *JTSet[*RenameVars_Assignment]) {
+func (this *RenameVars) assignNames(varsToRename *TSet[*RenameVars_Assignment]) {
 	this.nameGenerator.reset(this.reservedNames, this.prefix_, this.reservedCharacters)
 	var globalNameGenerator NameGenerator = this.nameGenerator
 	var localNameGenerator NameGenerator = func() NameGenerator {
@@ -169,15 +169,15 @@ func (this *RenameVars) assignNames(varsToRename *JTSet[*RenameVars_Assignment])
 		}
 		return this.nameGenerator.clone(this.reservedNames, "", this.reservedCharacters)
 	}()
-	var pendingAssignments *JTList[*RenameVars_Assignment] = jnewTList_(jtc_p_RenameVars_Assignment)
-	var generatedNamesForAssignments *JTList[string] = jnewTList_(jtc_string)
+	var pendingAssignments *TList[*RenameVars_Assignment] = newTList_(tc_p_RenameVars_Assignment)
+	var generatedNamesForAssignments *TList[string] = newTList_(tc_string)
 	it_1 := varsToRename.each()
 	for it_1.next() {
 		var a *RenameVars_Assignment = it_1.v
 		if a.newName.isPresent() {
 			continue
 		}
-		if this.externNames_.contains(a.oldName) {
+		if this.externNames_.Has(a.oldName) {
 			continue
 		}
 		var newName string
@@ -189,11 +189,11 @@ func (this *RenameVars) assignNames(varsToRename *JTSet[*RenameVars_Assignment])
 			pendingAssignments.add(a)
 			generatedNamesForAssignments.add(newName)
 		}
-		this.reservedNames.add(newName)
+		this.reservedNames.Add(newName)
 	}
 	var numPendingAssignments int32 = generatedNamesForAssignments.size()
 	for i := int32(0); i < numPendingAssignments; {
-		var varsByOrderOfOccurrence *JTSet[*RenameVars_Assignment] = newTSortedSetC_(jtc_p_RenameVars_Assignment, func() Comparator[any] {
+		var varsByOrderOfOccurrence *TSet[*RenameVars_Assignment] = newTSortedSetC_(tc_p_RenameVars_Assignment, func() Comparator[any] {
 			f_ := RenameVars_ORDER_OF_OCCURRENCE_COMPARATOR
 			if f_ == nil {
 				return nil
@@ -204,7 +204,7 @@ func (this *RenameVars) assignNames(varsToRename *JTSet[*RenameVars_Assignment])
 		}())
 		var len_ int32 = String_length(generatedNamesForAssignments.get(i))
 		for j := int32(i); (j < numPendingAssignments) && (String_length(generatedNamesForAssignments.get(j)) == len_); j++ {
-			varsByOrderOfOccurrence.add(pendingAssignments.get(j))
+			varsByOrderOfOccurrence.Add(pendingAssignments.get(j))
 		}
 		it_5 := varsByOrderOfOccurrence.each()
 		for it_5.next() {
@@ -217,11 +217,11 @@ func (this *RenameVars) assignNames(varsToRename *JTSet[*RenameVars_Assignment])
 
 func (this *RenameVars) finalizeNameAssignment(a *RenameVars_Assignment, newName string) {
 	a.setNewName(newName)
-	this.renameMap.put(a.oldName, newName)
+	this.renameMap.Put(a.oldName, newName)
 }
 
 func (this *RenameVars) getVariableMap() *VariableMap {
-	return new_VariableMap(immutableMapCopyOfT_(jtc_string, jtc_string, this.renameMap))
+	return new_VariableMap(immutableMapCopyOfT_(tc_string, tc_string, this.renameMap))
 }
 
 func (this *RenameVars) okToRenameVar(name string, isLocal bool) bool {
@@ -234,7 +234,7 @@ func (this *RenameVars) getLocalVarIndex(v *Var) int32 {
 	if s == nil {
 		panic(new_IllegalArgumentException_String("Var is not local"))
 	}
-	var isBleedingIntoScope bool = ((s.getParent_rScope() != nil) && this.localBleedingFunctions.contains(v))
+	var isBleedingIntoScope bool = ((s.getParent_rScope() != nil) && this.localBleedingFunctions.Has(v))
 	for s.getParent_rScope() != nil {
 		if isBleedingIntoScope {
 			num += (this.localBleedingFunctionsPerScope.get(s).indexOf(obj_(v)) + 1)
@@ -345,7 +345,7 @@ func (this *RenameVars_ProcessVars) enterScope(t *NodeTraversal) {
 	var scope *Scope = t.getScope()
 	for current := range elemsT_(scope.getVarIterable_rIterableOf_Var()) {
 		if current.isBleedingFunction() {
-			this.outer_.localBleedingFunctions.add(current)
+			this.outer_.localBleedingFunctions.Add(current)
 			this.outer_.localBleedingFunctionsPerScope.put(scope.getParent_rScope(), current)
 		}
 	}
@@ -369,11 +369,11 @@ func (this *RenameVars_ProcessVars) visit_impl(t *NodeTraversal, n Node, parent 
 	var var_ *Var = t.getScope().getVar_String_rVar(name)
 	var local bool = (((var_ != nil) && var_.isLocal()) && (var_.getScope_rAbstractScope_rScope().getParent_rScope().isLocal() || !var_.isBleedingFunction()))
 	if (var_ != nil) && var_.isArguments() {
-		this.outer_.reservedNames.add(name)
+		this.outer_.reservedNames.Add(name)
 		return
 	}
 	if !local && this.outer_.localRenamingOnly {
-		this.outer_.reservedNames.add(name)
+		this.outer_.reservedNames.Add(name)
 		return
 	}
 	if !this.outer_.okToRenameVar(name, local) {
@@ -392,7 +392,7 @@ func (this *RenameVars_ProcessVars) visit_impl(t *NodeTraversal, n Node, parent 
 		var tempName string = (sstr_(RenameVars_LOCAL_VAR_PREFIX) + istr_(int64(this.outer_.getLocalVarIndex(var_))))
 		this.incCount(tempName)
 		this.outer_.localNameNodes.add(n)
-		this.outer_.originalNameByNode.put(n, n.getString())
+		this.outer_.originalNameByNode.Put(n, n.getString())
 		n.setString(tempName)
 	} else if var_ != nil {
 		this.incCount(name)
@@ -401,7 +401,7 @@ func (this *RenameVars_ProcessVars) visit_impl(t *NodeTraversal, n Node, parent 
 }
 
 func (this *RenameVars_ProcessVars) incCount(name string) {
-	var s *RenameVars_Assignment = this.outer_.assignments.computeIfAbsent(name, Function[string, *RenameVars_Assignment](func(p0 string) *RenameVars_Assignment { return new_RenameVars_Assignment(this.outer_, p0) }))
+	var s *RenameVars_Assignment = this.outer_.assignments.ComputeIfAbsent(name, Function[string, *RenameVars_Assignment](func(p0 string) *RenameVars_Assignment { return new_RenameVars_Assignment(this.outer_, p0) }))
 	s.count_++
 }
 

@@ -1,0 +1,80 @@
+diff --git a/go/closure/rt_coll.go b/go/closure/rt_coll.go
+index 453a4d29..f6ef4eba 100644
+--- a/go/closure/rt_coll.go
++++ b/go/closure/rt_coll.go
+@@ -1647,6 +1647,11 @@ func Comparator_comparingInt(f ToIntFunction) Comparator {
+ 	return &intKeyCmp_{key: func(v any) int32 { return f.applyAsInt(v) }}
+ }
+ 
++// Comparator_comparingInt_f is Comparator_comparingInt with the key function as a Go func value.
++func Comparator_comparingInt_f(f func(any) int32) Comparator {
++	return &cmpFunc_{func(a, b any) int32 { return Integer_compare(f(a), f(b)) }}
++}
++
+ func Comparator_comparingLong(f ToLongFunction) Comparator {
+ 	return &longKeyCmp_{f}
+ }
+diff --git a/go/closure/rt_guava_util.go b/go/closure/rt_guava_util.go
+index 57c57d73..a463899d 100644
+--- a/go/closure/rt_guava_util.go
++++ b/go/closure/rt_guava_util.go
+@@ -172,6 +172,11 @@ func Iterables_filter(p0 Iterable, p1 Predicate_base) Iterable {
+ 	return &iterView_{func() Iterator { return filterIter_(p0.iterator(), p1.apply) }}
+ }
+ 
++// Iterables_filter_f is Iterables_filter with the predicate as a Go func value.
++func Iterables_filter_f(p0 Iterable, p1 func(any) bool) Iterable {
++	return &iterView_{func() Iterator { return filterIter_(p0.iterator(), p1) }}
++}
++
+ func Iterables_transform(p0 Iterable, p1 Function_base) Iterable {
+ 	return &iterView_{func() Iterator { return mapIter_(p0.iterator(), p1.apply) }}
+ }
+diff --git a/go/closure/rt_native.go b/go/closure/rt_native.go
+index 7a51e27e..5372a5cf 100644
+--- a/go/closure/rt_native.go
++++ b/go/closure/rt_native.go
+@@ -320,6 +320,20 @@ func mapComputeIfAbsent_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], m ma
+ 	return v
+ }
+ 
++// mapComputeIfAbsent_f is mapComputeIfAbsent_ with the function as a Go func value.
++func mapComputeIfAbsent_f[K comparable, V any](kc *tconv_[K], vc *tconv_[V], m map[K]V, k K, f func(any) any) V {
++	if v, ok := m[k]; ok && !vc.isNull(v) {
++		return v
++	}
++	r := f(kc.box(k))
++	if r == nil {
++		return vc.null
++	}
++	v := vc.unbox(r)
++	m[k] = v
++	return v
++}
++
+ // setRemove_ is Set.remove used as a value: whether k was there.
+ func setRemove_[K comparable](m map[K]struct{}, k K) bool {
+ 	if _, ok := m[k]; !ok {
+@@ -411,6 +425,22 @@ func mapComputeIfAbsentObj_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], m
+ 	return v
+ }
+ 
++// mapComputeIfAbsentObj_f is mapComputeIfAbsentObj_ with the function as a Go func value.
++func mapComputeIfAbsentObj_f[K comparable, V any](kc *tconv_[K], vc *tconv_[V], m map[K]V, k any, f func(any) any) any {
++	if kk, ok := kc.try(k); ok {
++		if old, ok := m[kk]; ok {
++			if b := vc.box(old); b != nil {
++				return b
++			}
++		}
++	}
++	v := f(k)
++	if v != nil {
++		m[kc.unbox(k)] = vc.unbox(v)
++	}
++	return v
++}
++
+ // setAddAllFrom_ is Set.addAll of an erased collection.
+ func setAddAllFrom_[K comparable](kc *tconv_[K], m map[K]struct{}, from Collection) bool {
+ 	changed := false

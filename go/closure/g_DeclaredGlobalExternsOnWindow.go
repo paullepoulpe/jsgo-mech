@@ -5,7 +5,7 @@ package closure
 type DeclaredGlobalExternsOnWindow struct {
 	NodeTraversal_AbstractShallowStatementCallback
 	compiler_       *AbstractCompiler
-	nodes_          *JTSet[Node]
+	nodes_          *TSet[Node]
 	windowInExterns bool
 }
 
@@ -17,7 +17,7 @@ func (this *DeclaredGlobalExternsOnWindow) up_NodeTraversal_AbstractShallowState
 }
 
 func (this *DeclaredGlobalExternsOnWindow) finit_DeclaredGlobalExternsOnWindow() {
-	this.nodes_ = jnewTSet_(jtc_Node)
+	this.nodes_ = newTSet_(tc_Node)
 	this.windowInExterns = false
 }
 
@@ -40,7 +40,7 @@ func (this *DeclaredGlobalExternsOnWindow) process_2(externs Node, root Node) {
 }
 
 func (this *DeclaredGlobalExternsOnWindow) addWindowProperties() {
-	if !this.nodes_.isEmpty() {
+	if !this.nodes_.IsEmpty() {
 		it_1 := this.nodes_.each()
 		for it_1.next() {
 			var node Node = it_1.v
@@ -90,7 +90,7 @@ func DeclaredGlobalExternsOnWindow_addExtern(node Node, defineOnWindow bool) {
 			}
 			builder = JSDocInfo_Builder_copyFrom(oldJSDocInfo)
 		}
-		builder.recordSuppressions(jimmutableSetOf_[string](jtc_string, "const", "duplicate"))
+		builder.recordSuppressions(immutableSetOf_[string](tc_string, "const", "duplicate"))
 		var jsDocInfo *JSDocInfo = builder.build()
 		newNode.setJSDocInfo(jsDocInfo)
 	}
@@ -102,7 +102,7 @@ func DeclaredGlobalExternsOnWindow_addExtern(node Node, defineOnWindow bool) {
 
 func (this *DeclaredGlobalExternsOnWindow) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	if n.isFunction() {
-		this.nodes_.add(n.getFirstChild())
+		this.nodes_.Add(n.getFirstChild())
 	} else if n.isVar() {
 		{
 			var c Node = n.getFirstChild()
@@ -112,7 +112,7 @@ func (this *DeclaredGlobalExternsOnWindow) visit_impl(t *NodeTraversal, n Node, 
 					continue
 				}
 				if !(c.getString() == "location") {
-					this.nodes_.add(c)
+					this.nodes_.Add(c)
 				}
 			}
 		}

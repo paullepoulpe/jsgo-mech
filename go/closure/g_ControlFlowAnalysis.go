@@ -24,7 +24,7 @@ func (this *ControlFlowAnalysis) finit_ControlFlowAnalysis() {
 		}
 		return unbox_[int32](nn_)
 	}))
-	this.exceptionHandler = newTDeque_(jtc_Node)
+	this.exceptionHandler = newTDeque_(tc_Node)
 	this.finallyMap = SimpleSetMultimap_createInsertionOrdered[Node, Node]()
 }
 

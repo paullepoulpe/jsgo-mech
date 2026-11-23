@@ -23,8 +23,8 @@ func (this *EmptyMessageBundle) getMessage(id string) *JsMessage {
 	return nil
 }
 
-func (this *EmptyMessageBundle) getAllMessages_rImmutableList() *JTList[*JsMessage] {
-	return jtlistEmptyImm_(jtc_p_JsMessage)
+func (this *EmptyMessageBundle) getAllMessages_rImmutableList() *TList[*JsMessage] {
+	return tlistEmptyImm_(tc_p_JsMessage)
 }
 
 func (this *EmptyMessageBundle) getAllMessages() IterableT[*JsMessage] {

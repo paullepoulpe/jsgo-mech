@@ -4,9 +4,9 @@ package closure
 
 type ComposeWarningsGuard struct {
 	WarningsGuard
-	orderOfAddition *JTMap[*WarningsGuard, any]
+	orderOfAddition *TMap[*WarningsGuard, any]
 	guardComparator Comparator[*WarningsGuard]
-	guards          *JTSet[*WarningsGuard]
+	guards          *TSet[*WarningsGuard]
 	numberOfAdds    int32
 	demoteErrors    bool
 }
@@ -19,7 +19,7 @@ func (this *ComposeWarningsGuard) up_WarningsGuard() *WarningsGuard {
 }
 
 func (this *ComposeWarningsGuard) finit_ComposeWarningsGuard() {
-	this.orderOfAddition = jnewTMap_(jtc_p_WarningsGuard, tc_Integer)
+	this.orderOfAddition = newTMap_(tc_p_WarningsGuard, tc_Integer)
 	this.numberOfAdds = 0
 	this.guardComparator = func() Comparator[*WarningsGuard] {
 		v_ := new_ComposeWarningsGuard_GuardComparator(this.orderOfAddition)
@@ -29,7 +29,7 @@ func (this *ComposeWarningsGuard) finit_ComposeWarningsGuard() {
 		return v_.compare
 	}()
 	this.demoteErrors = false
-	this.guards = newTSortedSetC_(jtc_p_WarningsGuard, func() Comparator[any] {
+	this.guards = newTSortedSetC_(tc_p_WarningsGuard, func() Comparator[any] {
 		f_ := this.guardComparator
 		if f_ == nil {
 			return nil
@@ -38,13 +38,13 @@ func (this *ComposeWarningsGuard) finit_ComposeWarningsGuard() {
 	}())
 }
 
-func (this *ComposeWarningsGuard) init_ComposeWarningsGuard(guards *JTList[*WarningsGuard]) {
+func (this *ComposeWarningsGuard) init_ComposeWarningsGuard(guards *TList[*WarningsGuard]) {
 	this.WarningsGuard.init_WarningsGuard()
 	this.finit_ComposeWarningsGuard()
 	this.addGuards(guards.asIterable())
 }
 
-func new_ComposeWarningsGuard(guards *JTList[*WarningsGuard]) *ComposeWarningsGuard {
+func new_ComposeWarningsGuard(guards *TList[*WarningsGuard]) *ComposeWarningsGuard {
 	this := &ComposeWarningsGuard{}
 	this.self_ = this
 	this.init_ComposeWarningsGuard(guards)
@@ -52,7 +52,7 @@ func new_ComposeWarningsGuard(guards *JTList[*WarningsGuard]) *ComposeWarningsGu
 }
 
 func ComposeWarningsGuard_createFromGuards(guards []*WarningsGuard) *ComposeWarningsGuard {
-	return new_ComposeWarningsGuard(jimmutableListCopyOfArr_(jtc_p_WarningsGuard, guards))
+	return new_ComposeWarningsGuard(immutableListCopyOfArr_(tc_p_WarningsGuard, guards))
 }
 
 func (this *ComposeWarningsGuard) addGuard(guard *WarningsGuard) {
@@ -70,12 +70,12 @@ func (this *ComposeWarningsGuard) addGuard(guard *WarningsGuard) {
 		if composeGuard.demoteErrors {
 			this.demoteErrors = composeGuard.demoteErrors
 		}
-		this.addGuards(jtlistFrom_(jtc_p_WarningsGuard, Collection(composeGuard.guards.asSorted().descendingSet())).asIterable())
+		this.addGuards(tlistFrom_(tc_p_WarningsGuard, Collection(composeGuard.guards.asSorted().descendingSet())).asIterable())
 	} else {
 		this.numberOfAdds++
-		this.orderOfAddition.put(guard, int32(this.numberOfAdds))
-		this.guards.remove(guard)
-		this.guards.add(guard)
+		this.orderOfAddition.Put(guard, int32(this.numberOfAdds))
+		this.guards.Delete(guard)
+		this.guards.Add(guard)
 	}
 }
 
@@ -163,14 +163,14 @@ func (this *ComposeWarningsGuard) toString() string {
 const ComposeWarningsGuard_serialVersionUID int64 = 1
 
 type ComposeWarningsGuard_GuardComparator struct {
-	orderOfAddition *JTMap[*WarningsGuard, any]
+	orderOfAddition *TMap[*WarningsGuard, any]
 }
 
-func (this *ComposeWarningsGuard_GuardComparator) init_ComposeWarningsGuard_GuardComparator(orderOfAddition *JTMap[*WarningsGuard, any]) {
+func (this *ComposeWarningsGuard_GuardComparator) init_ComposeWarningsGuard_GuardComparator(orderOfAddition *TMap[*WarningsGuard, any]) {
 	this.orderOfAddition = orderOfAddition
 }
 
-func new_ComposeWarningsGuard_GuardComparator(orderOfAddition *JTMap[*WarningsGuard, any]) *ComposeWarningsGuard_GuardComparator {
+func new_ComposeWarningsGuard_GuardComparator(orderOfAddition *TMap[*WarningsGuard, any]) *ComposeWarningsGuard_GuardComparator {
 	this := &ComposeWarningsGuard_GuardComparator{}
 	this.init_ComposeWarningsGuard_GuardComparator(orderOfAddition)
 	return this
@@ -181,7 +181,7 @@ func (this *ComposeWarningsGuard_GuardComparator) compare(a *WarningsGuard, b *W
 	if priorityDiff != 0 {
 		return priorityDiff
 	}
-	return (Integer_intValue(this.orderOfAddition.get(b)) - Integer_intValue(this.orderOfAddition.get(a)))
+	return (Integer_intValue(this.orderOfAddition.Get(b)) - Integer_intValue(this.orderOfAddition.Get(a)))
 }
 
 const ComposeWarningsGuard_GuardComparator_serialVersionUID int64 = 1

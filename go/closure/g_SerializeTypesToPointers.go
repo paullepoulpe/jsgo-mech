@@ -30,7 +30,7 @@ func new_SerializeTypesToPointers(compiler *AbstractCompiler, jstypeReconseriali
 
 func SerializeTypesToPointers_create(compiler *AbstractCompiler, stringPoolBuilder *StringPool_Builder, serializationOptions *SerializationOptions) *SerializeTypesToPointers {
 	var invalidatingTypes *InvalidatingTypes = new_InvalidatingTypes_Builder(compiler.getTypeRegistry()).addAllTypeMismatches(compiler.getTypeMismatches()).build()
-	var propertiesReferencedInAst SetT[string] = jnewTSet_(jtc_string).asSetT()
+	var propertiesReferencedInAst SetT[string] = newTSet_(tc_string).asSetT()
 	var jsTypeReconserializer *JSTypeReconserializer = JSTypeReconserializer_create(compiler.getTypeRegistry(), invalidatingTypes, stringPoolBuilder, Predicate[string](func(p0 string) bool { return Collection_contains_s(Collection(Set_un_(propertiesReferencedInAst)), p0) }), serializationOptions)
 	return new_SerializeTypesToPointers(compiler, jsTypeReconserializer, propertiesReferencedInAst)
 }
@@ -177,7 +177,7 @@ func (this *SerializeTypesToPointers_StreamObjectUuidsJson) writeJson(jsonWriter
 	for entry := range elemsT_(this.allSerializedTypes.entrySet_t()) {
 		jsonWriter.name(entry.getKey_t())
 		jsonWriter.beginArray()
-		var jstypes *JTList[string] = jnewTList_(jtc_string)
+		var jstypes *TList[string] = newTList_(tc_string)
 		for jstype := range elemsT_(entry.getValue_t()) {
 			jstypes.add(jstype.toString())
 		}
@@ -238,7 +238,7 @@ func SerializeTypesToPointers_TypeMismatchJson_typePointerToId(poolOffset int32,
 	var typeProto *TypeProto = listAs_(tc_p_TypeProto, typePool.getTypeList()).get_t(TypePointers_trimOffset(poolOffset))
 	switch typeProto.getKindCase() {
 	case TypeProto_KindCase_UNION:
-		var memberIds *TSetBuilder[*ColorId] = newTSetBuilder_(tce_p_ColorId)
+		var memberIds *ImmutableSet_Builder[*ColorId] = immutableSetBuilder_(tch_p_ColorId)
 		for pointer := range elems_(typeProto.getUnion().getUnionMemberList()) {
 			memberIds.add(SerializeTypesToPointers_TypeMismatchJson_typePointerToId(unbox_[int32](pointer), typePool))
 		}

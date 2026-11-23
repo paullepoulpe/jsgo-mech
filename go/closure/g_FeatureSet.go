@@ -3,11 +3,11 @@
 package closure
 
 type FeatureSet struct {
-	features_ *JTSet[FeatureSet_Feature]
+	features_ *TSet[FeatureSet_Feature]
 }
 
 func (this *FeatureSet) init_FeatureSet(features EnumSetOf[FeatureSet_Feature]) {
-	this.features_ = jimmutableSetCopyOf_(jtc_p_FeatureSet_Feature, EnumSet_as_Collection(features))
+	this.features_ = immutableSetCopyOf_(tc_p_FeatureSet_Feature, EnumSet_as_Collection(features))
 }
 
 func new_FeatureSet(features EnumSetOf[FeatureSet_Feature]) *FeatureSet {
@@ -67,7 +67,7 @@ func (this *FeatureSet) versionForDebugging() string {
 }
 
 func (this *FeatureSet) without_2(featureToRemove FeatureSet_Feature, moreFeaturesToRemove []FeatureSet_Feature) *FeatureSet {
-	return new_FeatureSet(FeatureSet_difference(this.features_, setAs_(jtc_p_FeatureSet_Feature, EnumSet_as_Set(EnumSet_of_Enum_EnumArr(featureToRemove.enum_(), arrmap_(moreFeaturesToRemove, func(v_ FeatureSet_Feature) *Enum { return v_.enum_() }))))))
+	return new_FeatureSet(FeatureSet_difference(this.features_, setAs_(tc_p_FeatureSet_Feature, EnumSet_as_Set(EnumSet_of_Enum_EnumArr(featureToRemove.enum_(), arrmap_(moreFeaturesToRemove, func(v_ FeatureSet_Feature) *Enum { return v_.enum_() }))))))
 }
 
 func (this *FeatureSet) without(other *FeatureSet) *FeatureSet {
@@ -75,7 +75,7 @@ func (this *FeatureSet) without(other *FeatureSet) *FeatureSet {
 }
 
 func (this *FeatureSet) withoutTypes() *FeatureSet {
-	return new_FeatureSet(FeatureSet_difference(this.features_, setAs_(jtc_p_FeatureSet_Feature, EnumSet_as_Set(FeatureSet_LangVersion_TYPESCRIPT.features()))))
+	return new_FeatureSet(FeatureSet_difference(this.features_, setAs_(tc_p_FeatureSet_Feature, EnumSet_as_Set(FeatureSet_LangVersion_TYPESCRIPT.features()))))
 }
 
 func (this *FeatureSet) union(other *FeatureSet) *FeatureSet {
@@ -86,7 +86,7 @@ func (this *FeatureSet) containsAtLeastOneOf(other *FeatureSet) bool {
 	it_1 := other.features_.each()
 	for it_1.next() {
 		var otherFeature FeatureSet_Feature = it_1.v
-		if this.features_.contains(otherFeature) {
+		if this.features_.Has(otherFeature) {
 			return true
 		}
 	}
@@ -105,42 +105,42 @@ func FeatureSet_emptyEnumSet() EnumSetOf[FeatureSet_Feature] {
 	return EnumSet_noneOf(classOf_("com.google.javascript.jscomp.parsing.parser.FeatureSet.Feature"))
 }
 
-func FeatureSet_enumSetOf(set *JTSet[FeatureSet_Feature]) EnumSetOf[FeatureSet_Feature] {
+func FeatureSet_enumSetOf(set *TSet[FeatureSet_Feature]) EnumSetOf[FeatureSet_Feature] {
 	return func() *EnumSet {
-		if set.isEmpty() {
+		if set.IsEmpty() {
 			return FeatureSet_emptyEnumSet()
 		}
 		return EnumSet_copyOf(Collection(set.asSet()))
 	}()
 }
 
-func FeatureSet_add(features *JTSet[FeatureSet_Feature], feature FeatureSet_Feature) EnumSetOf[FeatureSet_Feature] {
+func FeatureSet_add(features *TSet[FeatureSet_Feature], feature FeatureSet_Feature) EnumSetOf[FeatureSet_Feature] {
 	var result EnumSetOf[FeatureSet_Feature] = FeatureSet_enumSetOf(features)
 	result.add(obj_(feature))
 	return result
 }
 
-func FeatureSet_union(features *JTSet[FeatureSet_Feature], newFeatures SetT[FeatureSet_Feature]) EnumSetOf[FeatureSet_Feature] {
+func FeatureSet_union(features *TSet[FeatureSet_Feature], newFeatures SetT[FeatureSet_Feature]) EnumSetOf[FeatureSet_Feature] {
 	var result EnumSetOf[FeatureSet_Feature] = FeatureSet_enumSetOf(features)
 	result.addAll(Collection(Set_un_(newFeatures)))
 	return result
 }
 
-func FeatureSet_difference(features *JTSet[FeatureSet_Feature], removedFeatures SetT[FeatureSet_Feature]) EnumSetOf[FeatureSet_Feature] {
+func FeatureSet_difference(features *TSet[FeatureSet_Feature], removedFeatures SetT[FeatureSet_Feature]) EnumSetOf[FeatureSet_Feature] {
 	var result EnumSetOf[FeatureSet_Feature] = FeatureSet_enumSetOf(features)
 	result.removeAll(Collection(Set_un_(removedFeatures)))
 	return result
 }
 
 func (this *FeatureSet) with(feature FeatureSet_Feature) *FeatureSet {
-	if this.features_.contains(feature) {
+	if this.features_.Has(feature) {
 		return this
 	}
 	return new_FeatureSet(FeatureSet_add(this.features_, feature))
 }
 
 func (this *FeatureSet) withFeatureVarargs(newFeatures []FeatureSet_Feature) *FeatureSet {
-	return new_FeatureSet(FeatureSet_union(this.features_, setAs_(jtc_p_FeatureSet_Feature, ImmutableSet_as_Set(ImmutableSet_copyOf_ObjectArr(arrmap_(newFeatures, func(v_ FeatureSet_Feature) any { return obj_(v_) }))))))
+	return new_FeatureSet(FeatureSet_union(this.features_, setAs_(tc_p_FeatureSet_Feature, ImmutableSet_as_Set(ImmutableSet_copyOf_ObjectArr(arrmap_(newFeatures, func(v_ FeatureSet_Feature) any { return obj_(v_) }))))))
 }
 
 func (this *FeatureSet) withSet(newFeatures SetT[FeatureSet_Feature]) *FeatureSet {
@@ -152,10 +152,10 @@ func (this *FeatureSet) withFeatureSet(newFeatures *FeatureSet) *FeatureSet {
 }
 
 func (this *FeatureSet) has(feature FeatureSet_Feature) bool {
-	return this.features_.contains(feature)
+	return this.features_.Has(feature)
 }
 
-func (this *FeatureSet) getFeatures() *JTSet[FeatureSet_Feature] {
+func (this *FeatureSet) getFeatures() *TSet[FeatureSet_Feature] {
 	return this.features_
 }
 
@@ -285,27 +285,27 @@ func FeatureSet_clinit() {
 	}
 	FeatureSet_clinit_done = true
 	FeatureSet_BARE_MINIMUM = new_FeatureSet(FeatureSet_emptyEnumSet())
-	FeatureSet_ES3 = FeatureSet_BARE_MINIMUM.withSet(setAs_(jtc_p_FeatureSet_Feature, EnumSet_as_Set(FeatureSet_LangVersion_ES3.features())))
-	FeatureSet_ES5 = FeatureSet_ES3.withSet(setAs_(jtc_p_FeatureSet_Feature, EnumSet_as_Set(FeatureSet_LangVersion_ES5.features())))
-	FeatureSet_ES2015_MODULES = FeatureSet_ES5.withSet(setAs_(jtc_p_FeatureSet_Feature, EnumSet_as_Set(FeatureSet_LangVersion_ES2015.features())))
+	FeatureSet_ES3 = FeatureSet_BARE_MINIMUM.withSet(setAs_(tc_p_FeatureSet_Feature, EnumSet_as_Set(FeatureSet_LangVersion_ES3.features())))
+	FeatureSet_ES5 = FeatureSet_ES3.withSet(setAs_(tc_p_FeatureSet_Feature, EnumSet_as_Set(FeatureSet_LangVersion_ES5.features())))
+	FeatureSet_ES2015_MODULES = FeatureSet_ES5.withSet(setAs_(tc_p_FeatureSet_Feature, EnumSet_as_Set(FeatureSet_LangVersion_ES2015.features())))
 	FeatureSet_ES2015 = FeatureSet_ES2015_MODULES.without_2(FeatureSet_Feature_MODULES, []FeatureSet_Feature{})
-	FeatureSet_ES2016_MODULES = FeatureSet_ES2015_MODULES.withSet(setAs_(jtc_p_FeatureSet_Feature, EnumSet_as_Set(FeatureSet_LangVersion_ES2016.features())))
+	FeatureSet_ES2016_MODULES = FeatureSet_ES2015_MODULES.withSet(setAs_(tc_p_FeatureSet_Feature, EnumSet_as_Set(FeatureSet_LangVersion_ES2016.features())))
 	FeatureSet_ES2016 = FeatureSet_ES2016_MODULES.without_2(FeatureSet_Feature_MODULES, []FeatureSet_Feature{})
-	FeatureSet_ES2017_MODULES = FeatureSet_ES2016_MODULES.withSet(setAs_(jtc_p_FeatureSet_Feature, EnumSet_as_Set(FeatureSet_LangVersion_ES2017.features())))
+	FeatureSet_ES2017_MODULES = FeatureSet_ES2016_MODULES.withSet(setAs_(tc_p_FeatureSet_Feature, EnumSet_as_Set(FeatureSet_LangVersion_ES2017.features())))
 	FeatureSet_ES2017 = FeatureSet_ES2017_MODULES.without_2(FeatureSet_Feature_MODULES, []FeatureSet_Feature{})
-	FeatureSet_ES2018_MODULES = FeatureSet_ES2017_MODULES.withSet(setAs_(jtc_p_FeatureSet_Feature, EnumSet_as_Set(FeatureSet_LangVersion_ES2018.features())))
+	FeatureSet_ES2018_MODULES = FeatureSet_ES2017_MODULES.withSet(setAs_(tc_p_FeatureSet_Feature, EnumSet_as_Set(FeatureSet_LangVersion_ES2018.features())))
 	FeatureSet_ES2018 = FeatureSet_ES2018_MODULES.without_2(FeatureSet_Feature_MODULES, []FeatureSet_Feature{})
-	FeatureSet_ES2019_MODULES = FeatureSet_ES2018_MODULES.withSet(setAs_(jtc_p_FeatureSet_Feature, EnumSet_as_Set(FeatureSet_LangVersion_ES2019.features())))
+	FeatureSet_ES2019_MODULES = FeatureSet_ES2018_MODULES.withSet(setAs_(tc_p_FeatureSet_Feature, EnumSet_as_Set(FeatureSet_LangVersion_ES2019.features())))
 	FeatureSet_ES2019 = FeatureSet_ES2019_MODULES.without_2(FeatureSet_Feature_MODULES, []FeatureSet_Feature{})
-	FeatureSet_ES2020_MODULES = FeatureSet_ES2019_MODULES.withSet(setAs_(jtc_p_FeatureSet_Feature, EnumSet_as_Set(FeatureSet_LangVersion_ES2020.features())))
+	FeatureSet_ES2020_MODULES = FeatureSet_ES2019_MODULES.withSet(setAs_(tc_p_FeatureSet_Feature, EnumSet_as_Set(FeatureSet_LangVersion_ES2020.features())))
 	FeatureSet_ES2020 = FeatureSet_ES2020_MODULES.without_2(FeatureSet_Feature_MODULES, []FeatureSet_Feature{})
-	FeatureSet_ES2021_MODULES = FeatureSet_ES2020_MODULES.withSet(setAs_(jtc_p_FeatureSet_Feature, EnumSet_as_Set(FeatureSet_LangVersion_ES2021.features())))
+	FeatureSet_ES2021_MODULES = FeatureSet_ES2020_MODULES.withSet(setAs_(tc_p_FeatureSet_Feature, EnumSet_as_Set(FeatureSet_LangVersion_ES2021.features())))
 	FeatureSet_ES2021 = FeatureSet_ES2021_MODULES.without_2(FeatureSet_Feature_MODULES, []FeatureSet_Feature{})
-	FeatureSet_ES2022_MODULES = FeatureSet_ES2021_MODULES.withSet(setAs_(jtc_p_FeatureSet_Feature, EnumSet_as_Set(FeatureSet_LangVersion_ES2022.features())))
+	FeatureSet_ES2022_MODULES = FeatureSet_ES2021_MODULES.withSet(setAs_(tc_p_FeatureSet_Feature, EnumSet_as_Set(FeatureSet_LangVersion_ES2022.features())))
 	FeatureSet_ES2022 = FeatureSet_ES2022_MODULES.without_2(FeatureSet_Feature_MODULES, []FeatureSet_Feature{})
-	FeatureSet_ES_NEXT = FeatureSet_ES2022_MODULES.withSet(setAs_(jtc_p_FeatureSet_Feature, EnumSet_as_Set(FeatureSet_LangVersion_ES_NEXT.features())))
-	FeatureSet_ES_UNSTABLE = FeatureSet_ES_NEXT.withSet(setAs_(jtc_p_FeatureSet_Feature, EnumSet_as_Set(FeatureSet_LangVersion_ES_UNSTABLE.features())))
-	FeatureSet_ES_UNSUPPORTED = FeatureSet_ES_UNSTABLE.withSet(setAs_(jtc_p_FeatureSet_Feature, EnumSet_as_Set(FeatureSet_LangVersion_ES_UNSUPPORTED.features())))
+	FeatureSet_ES_NEXT = FeatureSet_ES2022_MODULES.withSet(setAs_(tc_p_FeatureSet_Feature, EnumSet_as_Set(FeatureSet_LangVersion_ES_NEXT.features())))
+	FeatureSet_ES_UNSTABLE = FeatureSet_ES_NEXT.withSet(setAs_(tc_p_FeatureSet_Feature, EnumSet_as_Set(FeatureSet_LangVersion_ES_UNSTABLE.features())))
+	FeatureSet_ES_UNSUPPORTED = FeatureSet_ES_UNSTABLE.withSet(setAs_(tc_p_FeatureSet_Feature, EnumSet_as_Set(FeatureSet_LangVersion_ES_UNSUPPORTED.features())))
 	FeatureSet_BROWSER_2019 = FeatureSet_ES2018_MODULES.without_2(FeatureSet_Feature_OBJECT_LITERALS_WITH_SPREAD, []FeatureSet_Feature{FeatureSet_Feature_OBJECT_PATTERN_REST, FeatureSet_Feature_ASYNC_GENERATORS, FeatureSet_Feature_FOR_AWAIT_OF, FeatureSet_Feature_REGEXP_FLAG_S, FeatureSet_Feature_REGEXP_LOOKBEHIND, FeatureSet_Feature_REGEXP_NAMED_GROUPS, FeatureSet_Feature_REGEXP_UNICODE_PROPERTY_ESCAPE})
 	FeatureSet_BROWSER_2020 = FeatureSet_ES2019_MODULES.without_2(FeatureSet_Feature_REGEXP_FLAG_S, []FeatureSet_Feature{FeatureSet_Feature_REGEXP_NAMED_GROUPS, FeatureSet_Feature_REGEXP_UNICODE_PROPERTY_ESCAPE, FeatureSet_Feature_REGEXP_LOOKBEHIND})
 	FeatureSet_BROWSER_2021 = FeatureSet_ES2020_MODULES.without_2(FeatureSet_Feature_REGEXP_LOOKBEHIND, []FeatureSet_Feature{})
@@ -314,7 +314,7 @@ func FeatureSet_clinit() {
 	FeatureSet_BROWSER_2024 = FeatureSet_ES2022_MODULES
 	FeatureSet_BROWSER_2025 = FeatureSet_ES2022_MODULES
 	FeatureSet_BROWSER_2026 = FeatureSet_ES2022_MODULES
-	FeatureSet_ALL = FeatureSet_ES_UNSUPPORTED.withSet(setAs_(jtc_p_FeatureSet_Feature, EnumSet_as_Set(FeatureSet_LangVersion_TYPESCRIPT.features())))
+	FeatureSet_ALL = FeatureSet_ES_UNSUPPORTED.withSet(setAs_(tc_p_FeatureSet_Feature, EnumSet_as_Set(FeatureSet_LangVersion_TYPESCRIPT.features())))
 
 }
 

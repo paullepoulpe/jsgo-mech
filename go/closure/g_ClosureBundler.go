@@ -40,7 +40,7 @@ func new_ClosureBundler_Transpiler(transpiler Transpiler_transpile) *ClosureBund
 }
 
 func (this *ClosureBundler) init_ClosureBundler_Transpiler_Transpiler(transpiler Transpiler_transpile, es6ModuleTranspiler Transpiler_transpile) {
-	this.init_ClosureBundler_Transpiler_Transpiler_EvalMode_Optional_String_Object_Map_boolean(transpiler, es6ModuleTranspiler, ClosureBundler_EvalMode_NORMAL, Optional_empty[string](), "unknown_source", nil, mapAs_(jtc_string, jtc_string, Map(new_ConcurrentHashMap())), false)
+	this.init_ClosureBundler_Transpiler_Transpiler_EvalMode_Optional_String_Object_Map_boolean(transpiler, es6ModuleTranspiler, ClosureBundler_EvalMode_NORMAL, Optional_empty[string](), "unknown_source", nil, mapAs_(tc_string, tc_string, Map(new_ConcurrentHashMap())), false)
 }
 
 func new_ClosureBundler_Transpiler_Transpiler(transpiler Transpiler_transpile, es6ModuleTranspiler Transpiler_transpile) *ClosureBundler {

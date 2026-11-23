@@ -3,7 +3,7 @@
 package closure
 
 type SimpleListMultimap[K comparable, V comparable] struct {
-	map__  *JTMap[K, ListT[V]]
+	map__  *TMap[K, ListT[V]]
 	frozen bool
 }
 
@@ -15,7 +15,7 @@ func is_SimpleListMultimap(v any) bool {
 }
 
 func (this *SimpleListMultimap[K, V]) finit_SimpleListMultimap() {
-	this.map__ = jnewTMap_(tceT_[K](), tc_ListT_V_[V]())
+	this.map__ = newTMap_(tchT_[K](), tc_ListT_V_[V]())
 	this.frozen = false
 }
 
@@ -38,7 +38,7 @@ func (this *SimpleListMultimap[K, V]) immutableCopy() *SimpleListMultimap[K, V] 
 	it_1 := this.map__.eachEntry()
 	for it_1.next() {
 		var e *TEntry[K, ListT[V]] = it_1.entry()
-		copy_.map__.put(e.getKey(), jtlistFrom_(tcT_[V](), Collection(List_un_(e.getValue()))).asListT())
+		copy_.map__.Put(e.getKey(), tlistFrom_(tcT_[V](), Collection(List_un_(e.getValue()))).asListT())
 	}
 	copy_.frozen = true
 	return copy_
@@ -48,10 +48,10 @@ func (this *SimpleListMultimap[K, V]) put(key K, value V) *SimpleListMultimap[K,
 	if this.frozen {
 		panic(new_IllegalStateException_String(objstr_("immutable")))
 	}
-	var values ListT[V] = this.map__.get(key)
+	var values ListT[V] = this.map__.Get(key)
 	if values == nil {
-		values = jnewTList_(tcT_[V]()).asListT()
-		this.map__.put(key, values)
+		values = newTList_(tcT_[V]()).asListT()
+		this.map__.Put(key, values)
 	}
 	values.add_t(value)
 	return this
@@ -68,39 +68,39 @@ func (this *SimpleListMultimap[K, V]) replaceValues(key K, values IterableT[V]) 
 	if this.frozen {
 		panic(new_IllegalStateException_String(objstr_("immutable")))
 	}
-	var newValues *JTList[V] = jnewTList_(tcT_[V]())
+	var newValues *TList[V] = newTList_(tcT_[V]())
 	Iterables_addAll(Collection(newValues.asList()), Iterable_un_(values))
 	if newValues.isEmpty() {
-		this.map__.remove(key)
+		this.map__.Delete(key)
 	} else {
-		this.map__.put(key, newValues.asListT())
+		this.map__.Put(key, newValues.asListT())
 	}
 }
 
 func (this *SimpleListMultimap[K, V]) get(key K) ListT[V] {
-	var values ListT[V] = this.map__.get(key)
+	var values ListT[V] = this.map__.Get(key)
 	return func() ListT[V] {
 		if values == nil {
-			return jtlistEmptyImm_(tcT_[V]()).asListT()
+			return tlistEmptyImm_(tcT_[V]()).asListT()
 		}
 		return values
 	}()
 }
 
 func (this *SimpleListMultimap[K, V]) containsKey(key K) bool {
-	return this.map__.containsKey(key)
+	return this.map__.Has(key)
 }
 
 func (this *SimpleListMultimap[K, V]) remove(key K, value V) bool {
 	if this.frozen {
 		panic(new_IllegalStateException_String(objstr_("immutable")))
 	}
-	var values ListT[V] = this.map__.get(key)
+	var values ListT[V] = this.map__.Get(key)
 	if (values == nil) || !values.remove_Object(boxT_(value)) {
 		return false
 	}
 	if values.isEmpty() {
-		this.map__.remove(key)
+		this.map__.Delete(key)
 	}
 	return true
 }
@@ -109,10 +109,10 @@ func (this *SimpleListMultimap[K, V]) removeAll(key K) ListT[V] {
 	if this.frozen {
 		panic(new_IllegalStateException_String(objstr_("immutable")))
 	}
-	var values ListT[V] = this.map__.remove(key)
+	var values ListT[V] = this.map__.Delete(key)
 	return func() ListT[V] {
 		if values == nil {
-			return jtlistEmptyImm_(tcT_[V]()).asListT()
+			return tlistEmptyImm_(tcT_[V]()).asListT()
 		}
 		return values
 	}()
@@ -136,7 +136,7 @@ func (this *SimpleListMultimap[K, V]) untypedMap() MapOf[any, any] {
 
 func (this *SimpleListMultimap[K, V]) size() int32 {
 	var size int32 = 0
-	it_1 := this.map__.eachValue()
+	it_1 := this.map__.each()
 	for it_1.next() {
 		var values ListT[V] = it_1.v
 		size += values.size()
@@ -145,7 +145,7 @@ func (this *SimpleListMultimap[K, V]) size() int32 {
 }
 
 func (this *SimpleListMultimap[K, V]) isEmpty() bool {
-	return this.map__.isEmpty()
+	return this.map__.IsEmpty()
 }
 
 func (this *SimpleListMultimap[K, V]) equals(o any) bool {

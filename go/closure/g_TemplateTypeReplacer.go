@@ -37,13 +37,13 @@ func new_TemplateTypeReplacer(registry *JSTypeRegistry, bindings *TemplateTypeMa
 	return this
 }
 
-func TemplateTypeReplacer_forInference(registry *JSTypeRegistry, bindings *JTMap[*TemplateType, *JSType]) *TemplateTypeReplacer {
-	var keys *JTList[*TemplateType] = jimmutableListCopyOf_(jtc_p_TemplateType, Collection(Set_un_(bindings.keySetT())))
-	var values *TListBuilder[*JSType] = newTListBuilder_(jtc_p_JSType)
+func TemplateTypeReplacer_forInference(registry *JSTypeRegistry, bindings *TMap[*TemplateType, *JSType]) *TemplateTypeReplacer {
+	var keys *TList[*TemplateType] = immutableListCopyOf_(tc_p_TemplateType, Collection(Set_un_(bindings.keySetT())))
+	var values *ImmutableList_Builder[*JSType] = immutableListBuilder_(tc_p_JSType)
 	it_1 := keys.each()
 	for it_1.next() {
 		var key *TemplateType = it_1.v
-		var value *JSType = bindings.get(key)
+		var value *JSType = bindings.Get(key)
 		values.add(func() *JSType {
 			if value != nil {
 				return value
@@ -69,7 +69,7 @@ func (this *TemplateTypeReplacer) hasMadeReplacement() bool {
 
 func (this *TemplateTypeReplacer) initSeenTypes() {
 	if this.seenTypes == nil {
-		this.seenTypes = setAs_(jtc_p_JSType, Sets_newIdentityHashSet())
+		this.seenTypes = setAs_(tc_p_JSType, Sets_newIdentityHashSet())
 	}
 }
 
@@ -142,7 +142,7 @@ func (this *TemplateTypeReplacer) caseFunctionTypeUnguarded(type_ *FunctionType)
 		}
 	}
 	if changed {
-		return type_.toBuilder().withParameters_1(func() *JTList[*FunctionType_Parameter] {
+		return type_.toBuilder().withParameters_1(func() *TList[*FunctionType_Parameter] {
 			if paramsChanged {
 				return paramBuilder.build()
 			}
@@ -205,7 +205,7 @@ func (this *TemplateTypeReplacer) caseTemplatizedTypeUnguarded(type_ *Templatize
 	if !(beforeBaseType == afterBaseType) {
 		changed = true
 	}
-	var builder *TListBuilder[*JSType] = newTListBuilder_(jtc_p_JSType)
+	var builder *ImmutableList_Builder[*JSType] = immutableListBuilder_(tc_p_JSType)
 	it_1 := type_.getTemplateTypes().each()
 	for it_1.next() {
 		var beforeTemplateType *JSType = it_1.v
@@ -255,8 +255,8 @@ func (this *TemplateTypeReplacer) caseUnionType(type_ *UnionType) any {
 
 func (this *TemplateTypeReplacer) caseUnionTypeUnguarded(type_ *UnionType) *JSType {
 	var changed bool = false
-	var results *JTList[*JSType] = jnewTList_(jtc_p_JSType)
-	var alternates *JTList[*JSType] = type_.getAlternates()
+	var results *TList[*JSType] = newTList_(tc_p_JSType)
+	var alternates *TList[*JSType] = type_.getAlternates()
 	var alternateCount int32 = alternates.size()
 	for i := int32(0); i < alternateCount; i++ {
 		var alternative *JSType = alternates.get(i)

@@ -114,7 +114,7 @@ func IR_blockNodeVarargs(stmts []Node) Node {
 	return block
 }
 
-func IR_blockList(stmts *JTList[Node]) Node {
+func IR_blockList(stmts *TList[Node]) Node {
 	var paramList Node = IR_block_0()
 	it_1 := stmts.each()
 	for it_1.next() {
@@ -146,7 +146,7 @@ func IR_script_NodeArr(stmts []Node) Node {
 	return block
 }
 
-func IR_scriptList(stmts *JTList[Node]) Node {
+func IR_scriptList(stmts *TList[Node]) Node {
 	var paramList Node = IR_script_0()
 	it_1 := stmts.each()
 	for it_1.next() {
@@ -758,7 +758,7 @@ func IR_propdef(string_ Node, value Node) Node {
 }
 
 func IR_arraylit(exprs []Node) Node {
-	return IR_arraylitIterable(iterableAs_(jtc_Node, Iterable(Arrays_asList(arrmap_(exprs, func(v_ Node) any { return v_.box_() })))))
+	return IR_arraylitIterable(iterableAs_(tc_Node, Iterable(Arrays_asList(arrmap_(exprs, func(v_ Node) any { return v_.box_() })))))
 }
 
 func IR_arraylitIterable(exprs IterableT[Node]) Node {
