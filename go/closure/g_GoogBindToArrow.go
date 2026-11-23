@@ -78,3 +78,21 @@ func GoogBindToArrow_clinit() {
 	GoogBindToArrow_GOOG_BIND_NAME = QualifiedName_of("goog.bind")
 
 }
+
+// matches: an object that is exactly a GoogBindToArrow calls its matches_impl directly (post-flip); others dispatch.
+func (this *GoogBindToArrow) matches(p0 Node, p1 *NodeMetadata) bool {
+	if this.self_ == any(this) {
+		return this.matches_impl(p0, p1)
+	}
+	return this.self_.(*GoogBindToArrow).matches_impl(p0, p1)
+}
+
+// processMatch_Match: an object that is exactly a GoogBindToArrow calls its processMatch_Match_impl directly (post-flip); others dispatch.
+func (this *GoogBindToArrow) processMatch_Match(p0 *Match) *JTList[*SuggestedFix] {
+	if this.self_ == any(this) {
+		return this.processMatch_Match_impl(p0)
+	}
+	return this.self_.(interface {
+		processMatch_Match_impl(*Match) *JTList[*SuggestedFix]
+	}).processMatch_Match_impl(p0)
+}

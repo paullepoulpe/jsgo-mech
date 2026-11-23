@@ -221,3 +221,14 @@ func Es6RewriteSpreadExpressions_clinit() {
 	Es6RewriteSpreadExpressions_concatFnType = AstFactory_typeColor(StandardColors_TOP_OBJECT)
 
 }
+
+// visit: an object that is exactly a Es6RewriteSpreadExpressions calls its visit_impl directly (post-flip); others dispatch.
+func (this *Es6RewriteSpreadExpressions) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}

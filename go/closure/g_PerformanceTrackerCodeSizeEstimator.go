@@ -87,3 +87,20 @@ func (this *PerformanceTrackerCodeSizeEstimator) getZippedCodeSize() int32 {
 	}
 	panic("unreachable")
 }
+
+// append: an object that is exactly a PerformanceTrackerCodeSizeEstimator calls its append_impl directly (post-flip); others dispatch.
+func (this *PerformanceTrackerCodeSizeEstimator) append(p0 string) {
+	if this.self_ == any(this) {
+		this.append_impl(p0)
+		return
+	}
+	this.self_.(interface{ append_impl(string) }).append_impl(p0)
+}
+
+// getLastChar: an object that is exactly a PerformanceTrackerCodeSizeEstimator calls its getLastChar_impl directly (post-flip); others dispatch.
+func (this *PerformanceTrackerCodeSizeEstimator) getLastChar() uint16 {
+	if this.self_ == any(this) {
+		return this.getLastChar_impl()
+	}
+	return this.self_.(interface{ getLastChar_impl() uint16 }).getLastChar_impl()
+}
