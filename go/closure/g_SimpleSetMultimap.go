@@ -11,10 +11,9 @@ type SimpleSetMultimap[K comparable, V comparable] struct {
 
 func (this *SimpleSetMultimap[K, V]) isa_SimpleSetMultimap_() {}
 
-func is_SimpleSetMultimap(v any) bool {
-	_, ok := v.(interface{ isa_SimpleSetMultimap_() })
-	return ok
-}
+// SimpleSetMultimap_isa is implemented by SimpleSetMultimap, at any type arguments, and by the classes that extend it:
+// `instanceof SimpleSetMultimap` asserts to it (post-flip).
+type SimpleSetMultimap_isa interface{ isa_SimpleSetMultimap_() }
 
 func (this *SimpleSetMultimap[K, V]) finit_SimpleSetMultimap() {
 	this.frozen = false
