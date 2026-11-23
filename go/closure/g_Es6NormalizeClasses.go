@@ -1345,21 +1345,6 @@ func (this *Es6NormalizeClasses_ResolvedPrivateMember) privateMember() *Es6Norma
 	return this.privateMember_
 }
 
-func (this *Es6NormalizeClasses_ResolvedPrivateMember) equals(p0 any) bool {
-	o, ok := p0.(*Es6NormalizeClasses_ResolvedPrivateMember)
-	if !ok || o == nil {
-		return false
-	}
-	return true && this.classRecord_ == o.classRecord_ && this.privateMember_ == o.privateMember_
-}
-
-func (this *Es6NormalizeClasses_ResolvedPrivateMember) hashCode() int32 {
-	var h int32
-	h = h*31 + objhashId_(this.classRecord_)
-	h = h*31 + objhashId_(this.privateMember_)
-	return h
-}
-
 func (this *Es6NormalizeClasses_ResolvedPrivateMember) toString() string {
 	return "ResolvedPrivateMember[" + "classRecord=" + jtostr_(this.classRecord_) + ", privateMember=" + jtostr_(this.privateMember_) + "]"
 }
@@ -1731,23 +1716,6 @@ func (this *Es6NormalizeClasses_NormalizedNames) shouldExtractClass() bool {
 
 func (this *Es6NormalizeClasses_NormalizedNames) shouldExtractExtends() bool {
 	return this.shouldExtractExtends_
-}
-
-func (this *Es6NormalizeClasses_NormalizedNames) equals(p0 any) bool {
-	o, ok := p0.(*Es6NormalizeClasses_NormalizedNames)
-	if !ok || o == nil {
-		return false
-	}
-	return true && this.classNameNode_ == o.classNameNode_ && Objects_equals(this.superClassNode_.box_(), o.superClassNode_.box_()) && this.shouldExtractClass_ == o.shouldExtractClass_ && this.shouldExtractExtends_ == o.shouldExtractExtends_
-}
-
-func (this *Es6NormalizeClasses_NormalizedNames) hashCode() int32 {
-	var h int32
-	h = h*31 + objhashId_(this.classNameNode_)
-	h = h*31 + Objects_hashCode(this.superClassNode_.box_())
-	h = h*31 + boolhash_(this.shouldExtractClass_)
-	h = h*31 + boolhash_(this.shouldExtractExtends_)
-	return h
 }
 
 func (this *Es6NormalizeClasses_NormalizedNames) toString() string {
