@@ -1,0 +1,20 @@
+diff --git a/go/closure/g_SourceFile.go b/go/closure/g_SourceFile.go
+index 2f8b3360..a28bc509 100644
+--- a/go/closure/g_SourceFile.go
++++ b/go/closure/g_SourceFile.go
+@@ -175,10 +175,12 @@ func (this *SourceFile_jscomp) setCodeAndDoBookkeeping(sourceCode string) {
+ 		var sourceCodeU16 utf16_
+ 		this.numBytes = sourceCodeU16.of(optstrGet_(sourceCode)).length()
+ 		var numLines int32 = 1
+-		for i := int32(0); i < sourceCodeU16.of(optstrGet_(sourceCode)).length(); i++ {
+-			var ch uint16 = sourceCodeU16.of(optstrGet_(sourceCode)).charAt(i)
++		// sourceCode is not assigned from here on: sourceCodeU16 stays the view the statement
++		// above made of it, and optstrGet_ passed there (post-flip manual step)
++		for i := int32(0); i < sourceCodeU16.length(); i++ {
++			var ch uint16 = sourceCodeU16.charAt(i)
+ 			if SourceFile_jscomp_isLineTerminator(ch) {
+-				if ((ch == '\r') && ((i + 1) < sourceCodeU16.of(optstrGet_(sourceCode)).length())) && (sourceCodeU16.of(optstrGet_(sourceCode)).charAt((i + 1)) == '\n') {
++				if ((ch == '\r') && ((i + 1) < sourceCodeU16.length())) && (sourceCodeU16.charAt((i + 1)) == '\n') {
+ 					i++
+ 				}
+ 				numLines++
