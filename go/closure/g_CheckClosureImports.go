@@ -83,6 +83,16 @@ func CheckClosureImports_clinit() {
 
 type CheckClosureImports_ClosureImport struct {
 	Enum
+	selfI_ CheckClosureImports_ClosureImport_I
+}
+
+// CheckClosureImports_ClosureImport_I holds the methods the dispatchers of enum CheckClosureImports_ClosureImport call on its
+// constant (selfI_, set with self_); every constant of the enum implements them (post-flip).
+type CheckClosureImports_ClosureImport_I interface {
+	aliasMustBeConstant_impl() bool
+	allowDestructuring_impl() bool
+	callName_impl() string
+	mustBeOrdered_impl() bool
 }
 
 func (this *CheckClosureImports_ClosureImport) as_CheckClosureImports_ClosureImport() *CheckClosureImports_ClosureImport {
@@ -124,19 +134,19 @@ func (this *CheckClosureImports_ClosureImport) init_CheckClosureImports_ClosureI
 }
 
 func (this *CheckClosureImports_ClosureImport) allowDestructuring() bool {
-	return this.self_.(interface{ allowDestructuring_impl() bool }).allowDestructuring_impl()
+	return this.selfI_.allowDestructuring_impl()
 }
 
 func (this *CheckClosureImports_ClosureImport) aliasMustBeConstant() bool {
-	return this.self_.(interface{ aliasMustBeConstant_impl() bool }).aliasMustBeConstant_impl()
+	return this.selfI_.aliasMustBeConstant_impl()
 }
 
 func (this *CheckClosureImports_ClosureImport) mustBeOrdered() bool {
-	return this.self_.(interface{ mustBeOrdered_impl() bool }).mustBeOrdered_impl()
+	return this.selfI_.mustBeOrdered_impl()
 }
 
 func (this *CheckClosureImports_ClosureImport) callName() string {
-	return this.self_.(interface{ callName_impl() string }).callName_impl()
+	return this.selfI_.callName_impl()
 }
 
 func CheckClosureImports_ClosureImport_values() []*CheckClosureImports_ClosureImport {
@@ -439,6 +449,7 @@ func (this *CheckClosureImports_ClosureImport_1) init_CheckClosureImports_Closur
 func new_CheckClosureImports_ClosureImport_1(name_ string, ordinal_ int32) *CheckClosureImports_ClosureImport_1 {
 	this := &CheckClosureImports_ClosureImport_1{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_CheckClosureImports_ClosureImport_1(name_, ordinal_)
 	return this
 }
@@ -511,6 +522,7 @@ func (this *CheckClosureImports_ClosureImport_2) init_CheckClosureImports_Closur
 func new_CheckClosureImports_ClosureImport_2(name_ string, ordinal_ int32) *CheckClosureImports_ClosureImport_2 {
 	this := &CheckClosureImports_ClosureImport_2{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_CheckClosureImports_ClosureImport_2(name_, ordinal_)
 	return this
 }
@@ -583,6 +595,7 @@ func (this *CheckClosureImports_ClosureImport_3) init_CheckClosureImports_Closur
 func new_CheckClosureImports_ClosureImport_3(name_ string, ordinal_ int32) *CheckClosureImports_ClosureImport_3 {
 	this := &CheckClosureImports_ClosureImport_3{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_CheckClosureImports_ClosureImport_3(name_, ordinal_)
 	return this
 }
@@ -655,6 +668,7 @@ func (this *CheckClosureImports_ClosureImport_4) init_CheckClosureImports_Closur
 func new_CheckClosureImports_ClosureImport_4(name_ string, ordinal_ int32) *CheckClosureImports_ClosureImport_4 {
 	this := &CheckClosureImports_ClosureImport_4{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_CheckClosureImports_ClosureImport_4(name_, ordinal_)
 	return this
 }
@@ -725,7 +739,7 @@ func (this *CheckClosureImports_ClosureImport_1) allowDestructuring() bool {
 	if this.self_ == any(this) {
 		return this.allowDestructuring_impl()
 	}
-	return this.self_.(interface{ allowDestructuring_impl() bool }).allowDestructuring_impl()
+	return this.selfI_.allowDestructuring_impl()
 }
 
 // aliasMustBeConstant: an object that is exactly a CheckClosureImports_ClosureImport_1 calls its aliasMustBeConstant_impl directly (post-flip); others dispatch.
@@ -733,7 +747,7 @@ func (this *CheckClosureImports_ClosureImport_1) aliasMustBeConstant() bool {
 	if this.self_ == any(this) {
 		return this.aliasMustBeConstant_impl()
 	}
-	return this.self_.(interface{ aliasMustBeConstant_impl() bool }).aliasMustBeConstant_impl()
+	return this.selfI_.aliasMustBeConstant_impl()
 }
 
 // mustBeOrdered: an object that is exactly a CheckClosureImports_ClosureImport_1 calls its mustBeOrdered_impl directly (post-flip); others dispatch.
@@ -741,7 +755,7 @@ func (this *CheckClosureImports_ClosureImport_1) mustBeOrdered() bool {
 	if this.self_ == any(this) {
 		return this.mustBeOrdered_impl()
 	}
-	return this.self_.(interface{ mustBeOrdered_impl() bool }).mustBeOrdered_impl()
+	return this.selfI_.mustBeOrdered_impl()
 }
 
 // callName: an object that is exactly a CheckClosureImports_ClosureImport_1 calls its callName_impl directly (post-flip); others dispatch.
@@ -749,7 +763,7 @@ func (this *CheckClosureImports_ClosureImport_1) callName() string {
 	if this.self_ == any(this) {
 		return this.callName_impl()
 	}
-	return this.self_.(interface{ callName_impl() string }).callName_impl()
+	return this.selfI_.callName_impl()
 }
 
 // allowDestructuring: an object that is exactly a CheckClosureImports_ClosureImport_2 calls its allowDestructuring_impl directly (post-flip); others dispatch.
@@ -757,7 +771,7 @@ func (this *CheckClosureImports_ClosureImport_2) allowDestructuring() bool {
 	if this.self_ == any(this) {
 		return this.allowDestructuring_impl()
 	}
-	return this.self_.(interface{ allowDestructuring_impl() bool }).allowDestructuring_impl()
+	return this.selfI_.allowDestructuring_impl()
 }
 
 // aliasMustBeConstant: an object that is exactly a CheckClosureImports_ClosureImport_2 calls its aliasMustBeConstant_impl directly (post-flip); others dispatch.
@@ -765,7 +779,7 @@ func (this *CheckClosureImports_ClosureImport_2) aliasMustBeConstant() bool {
 	if this.self_ == any(this) {
 		return this.aliasMustBeConstant_impl()
 	}
-	return this.self_.(interface{ aliasMustBeConstant_impl() bool }).aliasMustBeConstant_impl()
+	return this.selfI_.aliasMustBeConstant_impl()
 }
 
 // mustBeOrdered: an object that is exactly a CheckClosureImports_ClosureImport_2 calls its mustBeOrdered_impl directly (post-flip); others dispatch.
@@ -773,7 +787,7 @@ func (this *CheckClosureImports_ClosureImport_2) mustBeOrdered() bool {
 	if this.self_ == any(this) {
 		return this.mustBeOrdered_impl()
 	}
-	return this.self_.(interface{ mustBeOrdered_impl() bool }).mustBeOrdered_impl()
+	return this.selfI_.mustBeOrdered_impl()
 }
 
 // callName: an object that is exactly a CheckClosureImports_ClosureImport_2 calls its callName_impl directly (post-flip); others dispatch.
@@ -781,7 +795,7 @@ func (this *CheckClosureImports_ClosureImport_2) callName() string {
 	if this.self_ == any(this) {
 		return this.callName_impl()
 	}
-	return this.self_.(interface{ callName_impl() string }).callName_impl()
+	return this.selfI_.callName_impl()
 }
 
 // allowDestructuring: an object that is exactly a CheckClosureImports_ClosureImport_3 calls its allowDestructuring_impl directly (post-flip); others dispatch.
@@ -789,7 +803,7 @@ func (this *CheckClosureImports_ClosureImport_3) allowDestructuring() bool {
 	if this.self_ == any(this) {
 		return this.allowDestructuring_impl()
 	}
-	return this.self_.(interface{ allowDestructuring_impl() bool }).allowDestructuring_impl()
+	return this.selfI_.allowDestructuring_impl()
 }
 
 // aliasMustBeConstant: an object that is exactly a CheckClosureImports_ClosureImport_3 calls its aliasMustBeConstant_impl directly (post-flip); others dispatch.
@@ -797,7 +811,7 @@ func (this *CheckClosureImports_ClosureImport_3) aliasMustBeConstant() bool {
 	if this.self_ == any(this) {
 		return this.aliasMustBeConstant_impl()
 	}
-	return this.self_.(interface{ aliasMustBeConstant_impl() bool }).aliasMustBeConstant_impl()
+	return this.selfI_.aliasMustBeConstant_impl()
 }
 
 // mustBeOrdered: an object that is exactly a CheckClosureImports_ClosureImport_3 calls its mustBeOrdered_impl directly (post-flip); others dispatch.
@@ -805,7 +819,7 @@ func (this *CheckClosureImports_ClosureImport_3) mustBeOrdered() bool {
 	if this.self_ == any(this) {
 		return this.mustBeOrdered_impl()
 	}
-	return this.self_.(interface{ mustBeOrdered_impl() bool }).mustBeOrdered_impl()
+	return this.selfI_.mustBeOrdered_impl()
 }
 
 // callName: an object that is exactly a CheckClosureImports_ClosureImport_3 calls its callName_impl directly (post-flip); others dispatch.
@@ -813,7 +827,7 @@ func (this *CheckClosureImports_ClosureImport_3) callName() string {
 	if this.self_ == any(this) {
 		return this.callName_impl()
 	}
-	return this.self_.(interface{ callName_impl() string }).callName_impl()
+	return this.selfI_.callName_impl()
 }
 
 // allowDestructuring: an object that is exactly a CheckClosureImports_ClosureImport_4 calls its allowDestructuring_impl directly (post-flip); others dispatch.
@@ -821,7 +835,7 @@ func (this *CheckClosureImports_ClosureImport_4) allowDestructuring() bool {
 	if this.self_ == any(this) {
 		return this.allowDestructuring_impl()
 	}
-	return this.self_.(interface{ allowDestructuring_impl() bool }).allowDestructuring_impl()
+	return this.selfI_.allowDestructuring_impl()
 }
 
 // aliasMustBeConstant: an object that is exactly a CheckClosureImports_ClosureImport_4 calls its aliasMustBeConstant_impl directly (post-flip); others dispatch.
@@ -829,7 +843,7 @@ func (this *CheckClosureImports_ClosureImport_4) aliasMustBeConstant() bool {
 	if this.self_ == any(this) {
 		return this.aliasMustBeConstant_impl()
 	}
-	return this.self_.(interface{ aliasMustBeConstant_impl() bool }).aliasMustBeConstant_impl()
+	return this.selfI_.aliasMustBeConstant_impl()
 }
 
 // mustBeOrdered: an object that is exactly a CheckClosureImports_ClosureImport_4 calls its mustBeOrdered_impl directly (post-flip); others dispatch.
@@ -837,7 +851,7 @@ func (this *CheckClosureImports_ClosureImport_4) mustBeOrdered() bool {
 	if this.self_ == any(this) {
 		return this.mustBeOrdered_impl()
 	}
-	return this.self_.(interface{ mustBeOrdered_impl() bool }).mustBeOrdered_impl()
+	return this.selfI_.mustBeOrdered_impl()
 }
 
 // callName: an object that is exactly a CheckClosureImports_ClosureImport_4 calls its callName_impl directly (post-flip); others dispatch.
@@ -845,5 +859,5 @@ func (this *CheckClosureImports_ClosureImport_4) callName() string {
 	if this.self_ == any(this) {
 		return this.callName_impl()
 	}
-	return this.self_.(interface{ callName_impl() string }).callName_impl()
+	return this.selfI_.callName_impl()
 }

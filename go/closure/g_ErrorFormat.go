@@ -4,6 +4,13 @@ package closure
 
 type ErrorFormat struct {
 	Enum
+	selfI_ ErrorFormat_I
+}
+
+// ErrorFormat_I holds the methods the dispatchers of enum ErrorFormat call on its
+// constant (selfI_, set with self_); every constant of the enum implements them (post-flip).
+type ErrorFormat_I interface {
+	toFormatter_impl(SourceExcerptProvider, bool) MessageFormatter
 }
 
 func (this *ErrorFormat) as_ErrorFormat() *ErrorFormat { return this }
@@ -39,9 +46,7 @@ func (this *ErrorFormat) init_ErrorFormat(name_ string, ordinal_ int32) {
 }
 
 func (this *ErrorFormat) toFormatter(p0 SourceExcerptProvider, p1 bool) MessageFormatter {
-	return this.self_.(interface {
-		toFormatter_impl(SourceExcerptProvider, bool) MessageFormatter
-	}).toFormatter_impl(p0, p1)
+	return this.selfI_.toFormatter_impl(p0, p1)
 }
 
 func ErrorFormat_values() []*ErrorFormat {
@@ -104,6 +109,7 @@ func (this *ErrorFormat_1) init_ErrorFormat_1(name_ string, ordinal_ int32) {
 func new_ErrorFormat_1(name_ string, ordinal_ int32) *ErrorFormat_1 {
 	this := &ErrorFormat_1{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_ErrorFormat_1(name_, ordinal_)
 	return this
 }
@@ -166,6 +172,7 @@ func (this *ErrorFormat_2) init_ErrorFormat_2(name_ string, ordinal_ int32) {
 func new_ErrorFormat_2(name_ string, ordinal_ int32) *ErrorFormat_2 {
 	this := &ErrorFormat_2{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_ErrorFormat_2(name_, ordinal_)
 	return this
 }
@@ -228,6 +235,7 @@ func (this *ErrorFormat_3) init_ErrorFormat_3(name_ string, ordinal_ int32) {
 func new_ErrorFormat_3(name_ string, ordinal_ int32) *ErrorFormat_3 {
 	this := &ErrorFormat_3{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_ErrorFormat_3(name_, ordinal_)
 	return this
 }
@@ -290,6 +298,7 @@ func (this *ErrorFormat_4) init_ErrorFormat_4(name_ string, ordinal_ int32) {
 func new_ErrorFormat_4(name_ string, ordinal_ int32) *ErrorFormat_4 {
 	this := &ErrorFormat_4{}
 	this.self_ = this
+	this.selfI_ = this
 	this.init_ErrorFormat_4(name_, ordinal_)
 	return this
 }
@@ -332,9 +341,7 @@ func (this *ErrorFormat_1) toFormatter(p0 SourceExcerptProvider, p1 bool) Messag
 	if this.self_ == any(this) {
 		return this.toFormatter_impl(p0, p1)
 	}
-	return this.self_.(interface {
-		toFormatter_impl(SourceExcerptProvider, bool) MessageFormatter
-	}).toFormatter_impl(p0, p1)
+	return this.selfI_.toFormatter_impl(p0, p1)
 }
 
 // toFormatter: an object that is exactly a ErrorFormat_2 calls its toFormatter_impl directly (post-flip); others dispatch.
@@ -342,9 +349,7 @@ func (this *ErrorFormat_2) toFormatter(p0 SourceExcerptProvider, p1 bool) Messag
 	if this.self_ == any(this) {
 		return this.toFormatter_impl(p0, p1)
 	}
-	return this.self_.(interface {
-		toFormatter_impl(SourceExcerptProvider, bool) MessageFormatter
-	}).toFormatter_impl(p0, p1)
+	return this.selfI_.toFormatter_impl(p0, p1)
 }
 
 // toFormatter: an object that is exactly a ErrorFormat_3 calls its toFormatter_impl directly (post-flip); others dispatch.
@@ -352,9 +357,7 @@ func (this *ErrorFormat_3) toFormatter(p0 SourceExcerptProvider, p1 bool) Messag
 	if this.self_ == any(this) {
 		return this.toFormatter_impl(p0, p1)
 	}
-	return this.self_.(interface {
-		toFormatter_impl(SourceExcerptProvider, bool) MessageFormatter
-	}).toFormatter_impl(p0, p1)
+	return this.selfI_.toFormatter_impl(p0, p1)
 }
 
 // toFormatter: an object that is exactly a ErrorFormat_4 calls its toFormatter_impl directly (post-flip); others dispatch.
@@ -362,7 +365,5 @@ func (this *ErrorFormat_4) toFormatter(p0 SourceExcerptProvider, p1 bool) Messag
 	if this.self_ == any(this) {
 		return this.toFormatter_impl(p0, p1)
 	}
-	return this.self_.(interface {
-		toFormatter_impl(SourceExcerptProvider, bool) MessageFormatter
-	}).toFormatter_impl(p0, p1)
+	return this.selfI_.toFormatter_impl(p0, p1)
 }
