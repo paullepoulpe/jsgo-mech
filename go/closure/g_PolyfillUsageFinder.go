@@ -187,7 +187,6 @@ func (this *PolyfillUsageFinder) hasInSupertypesList(subCtor *Color, superCtor *
 		}
 		ret_1 = false
 		return 1
-		return 0
 	}()
 	if code_1 == 1 {
 		return ret_1

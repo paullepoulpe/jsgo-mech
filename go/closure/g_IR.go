@@ -975,7 +975,6 @@ func IR_mayBeStatementNoReturn(n Node) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -996,6 +995,5 @@ func IR_mayBeExpression(n Node) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }

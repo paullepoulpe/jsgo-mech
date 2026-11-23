@@ -55,7 +55,6 @@ func (this BooleanLiteralSet) fromOrdinal(ordinal int32) BooleanLiteralSet {
 		default:
 			panic(new_IllegalArgumentException_String(("Ordinal: " + istr_(int64(ordinal)))).self())
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -81,7 +80,6 @@ func (this BooleanLiteralSet) contains(literalValue bool) bool {
 		default:
 			panic(new_IndexOutOfBoundsException_String(("Ordinal: " + istr_(int64(this.ordinal())))).self())
 		}
-		panic("unreachable")
 	}()
 }
 

@@ -350,7 +350,6 @@ func (this *TemplateTypeReplacer) guardAgainstCycles(type_ *JSType, mapper Funct
 		}()
 		ret_1 = mapper.apply(type_)
 		return 1
-		return 0
 	}()
 	if code_1 == 1 {
 		return ret_1

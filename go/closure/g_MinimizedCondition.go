@@ -29,7 +29,6 @@ func MinimizedCondition_fromConditionNode(n Node) *MinimizedCondition {
 		default:
 			return MinimizedCondition_unoptimized(n)
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -39,7 +38,6 @@ func (this *MinimizedCondition) getMinimized(style MinimizedCondition_Minimizati
 	} else {
 		return this.negative.addNot()
 	}
-	panic("unreachable")
 }
 
 func MinimizedCondition_unoptimized(n Node) *MinimizedCondition {
@@ -108,7 +106,6 @@ func MinimizedCondition_computeMinimizedCondition(n Node) *MinimizedCondition {
 			var neg *MinimizedCondition_MeasuredNode = pos.negate()
 			return new_MinimizedCondition(pos, neg)
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -234,7 +231,6 @@ func (this *MinimizedCondition_MeasuredNode) negate() *MinimizedCondition_Measur
 		default:
 			return this.addNot()
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -253,7 +249,6 @@ func MinimizedCondition_MeasuredNode_normalizeChildren(node Node, children []*Mi
 		}
 		return measuredChildren
 	}
-	panic("unreachable")
 }
 
 func (this *MinimizedCondition_MeasuredNode) updateToken(token Token_rhino) *MinimizedCondition_MeasuredNode {

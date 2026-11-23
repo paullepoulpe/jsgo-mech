@@ -106,7 +106,6 @@ func (this *GoogleCodingConvention) getPackageName_impl(source StaticSourceFile)
 			return Optional_of[string](String_substring(name, 0, lastSlash))
 		}()
 	}
-	panic("unreachable")
 }
 
 const GoogleCodingConvention_serialVersionUID int64 = 1
