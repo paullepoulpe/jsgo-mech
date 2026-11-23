@@ -105,19 +105,19 @@ func (this CodingConvention_SubclassType) enum_() *Enum {
 }
 
 func (this CodingConvention_SubclassType) name() string {
-	return CodingConvention_SubclassType_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CodingConvention_SubclassType) ordinal() int32 {
-	return CodingConvention_SubclassType_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this CodingConvention_SubclassType) toString() string {
-	return CodingConvention_SubclassType_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CodingConvention_SubclassType) compareTo(o any) int32 {
-	return CodingConvention_SubclassType_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this CodingConvention_SubclassType) self() any {
@@ -308,19 +308,19 @@ func (this CodingConvention_AssertionFunctionSpec_AssertionKind) enum_() *Enum {
 }
 
 func (this CodingConvention_AssertionFunctionSpec_AssertionKind) name() string {
-	return CodingConvention_AssertionFunctionSpec_AssertionKind_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CodingConvention_AssertionFunctionSpec_AssertionKind) ordinal() int32 {
-	return CodingConvention_AssertionFunctionSpec_AssertionKind_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this CodingConvention_AssertionFunctionSpec_AssertionKind) toString() string {
-	return CodingConvention_AssertionFunctionSpec_AssertionKind_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CodingConvention_AssertionFunctionSpec_AssertionKind) compareTo(o any) int32 {
-	return CodingConvention_AssertionFunctionSpec_AssertionKind_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this CodingConvention_AssertionFunctionSpec_AssertionKind) self() any {

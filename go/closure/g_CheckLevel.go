@@ -18,13 +18,13 @@ func (this CheckLevel) enum_() *Enum {
 	return &CheckLevel_enum_[this-1]
 }
 
-func (this CheckLevel) name() string { return CheckLevel_enum_[this-1].name_ }
+func (this CheckLevel) name() string { return this.enum_().name_ }
 
-func (this CheckLevel) ordinal() int32 { return CheckLevel_enum_[this-1].ordinal_ }
+func (this CheckLevel) ordinal() int32 { return this.enum_().ordinal_ }
 
-func (this CheckLevel) toString() string { return CheckLevel_enum_[this-1].name_ }
+func (this CheckLevel) toString() string { return this.enum_().name_ }
 
-func (this CheckLevel) compareTo(o any) int32 { return CheckLevel_enum_[this-1].compareTo(o) }
+func (this CheckLevel) compareTo(o any) int32 { return this.enum_().compareTo(o) }
 
 func (this CheckLevel) self() any {
 	if this == 0 {

@@ -94,14 +94,14 @@ func (this Annotation_parsing) enum_() *Enum {
 	return &Annotation_parsing_enum_[this-1]
 }
 
-func (this Annotation_parsing) name() string { return Annotation_parsing_enum_[this-1].name_ }
+func (this Annotation_parsing) name() string { return this.enum_().name_ }
 
-func (this Annotation_parsing) ordinal() int32 { return Annotation_parsing_enum_[this-1].ordinal_ }
+func (this Annotation_parsing) ordinal() int32 { return this.enum_().ordinal_ }
 
-func (this Annotation_parsing) toString() string { return Annotation_parsing_enum_[this-1].name_ }
+func (this Annotation_parsing) toString() string { return this.enum_().name_ }
 
 func (this Annotation_parsing) compareTo(o any) int32 {
-	return Annotation_parsing_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this Annotation_parsing) self() any {

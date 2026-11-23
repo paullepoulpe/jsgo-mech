@@ -3575,14 +3575,14 @@ func (this Node_RecursionMode) enum_() *Enum {
 	return &Node_RecursionMode_enum_[this-1]
 }
 
-func (this Node_RecursionMode) name() string { return Node_RecursionMode_enum_[this-1].name_ }
+func (this Node_RecursionMode) name() string { return this.enum_().name_ }
 
-func (this Node_RecursionMode) ordinal() int32 { return Node_RecursionMode_enum_[this-1].ordinal_ }
+func (this Node_RecursionMode) ordinal() int32 { return this.enum_().ordinal_ }
 
-func (this Node_RecursionMode) toString() string { return Node_RecursionMode_enum_[this-1].name_ }
+func (this Node_RecursionMode) toString() string { return this.enum_().name_ }
 
 func (this Node_RecursionMode) compareTo(o any) int32 {
-	return Node_RecursionMode_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this Node_RecursionMode) self() any {
@@ -3646,14 +3646,14 @@ func (this Node_TypeComparison) enum_() *Enum {
 	return &Node_TypeComparison_enum_[this-1]
 }
 
-func (this Node_TypeComparison) name() string { return Node_TypeComparison_enum_[this-1].name_ }
+func (this Node_TypeComparison) name() string { return this.enum_().name_ }
 
-func (this Node_TypeComparison) ordinal() int32 { return Node_TypeComparison_enum_[this-1].ordinal_ }
+func (this Node_TypeComparison) ordinal() int32 { return this.enum_().ordinal_ }
 
-func (this Node_TypeComparison) toString() string { return Node_TypeComparison_enum_[this-1].name_ }
+func (this Node_TypeComparison) toString() string { return this.enum_().name_ }
 
 func (this Node_TypeComparison) compareTo(o any) int32 {
-	return Node_TypeComparison_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this Node_TypeComparison) self() any {
@@ -3708,14 +3708,14 @@ func (this Node_JsDocComparison) enum_() *Enum {
 	return &Node_JsDocComparison_enum_[this-1]
 }
 
-func (this Node_JsDocComparison) name() string { return Node_JsDocComparison_enum_[this-1].name_ }
+func (this Node_JsDocComparison) name() string { return this.enum_().name_ }
 
-func (this Node_JsDocComparison) ordinal() int32 { return Node_JsDocComparison_enum_[this-1].ordinal_ }
+func (this Node_JsDocComparison) ordinal() int32 { return this.enum_().ordinal_ }
 
-func (this Node_JsDocComparison) toString() string { return Node_JsDocComparison_enum_[this-1].name_ }
+func (this Node_JsDocComparison) toString() string { return this.enum_().name_ }
 
 func (this Node_JsDocComparison) compareTo(o any) int32 {
-	return Node_JsDocComparison_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this Node_JsDocComparison) self() any {
@@ -3771,19 +3771,19 @@ func (this Node_SideEffectComparison) enum_() *Enum {
 }
 
 func (this Node_SideEffectComparison) name() string {
-	return Node_SideEffectComparison_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this Node_SideEffectComparison) ordinal() int32 {
-	return Node_SideEffectComparison_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this Node_SideEffectComparison) toString() string {
-	return Node_SideEffectComparison_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this Node_SideEffectComparison) compareTo(o any) int32 {
-	return Node_SideEffectComparison_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this Node_SideEffectComparison) self() any {
