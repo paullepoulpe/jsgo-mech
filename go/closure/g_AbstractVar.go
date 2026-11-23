@@ -51,8 +51,8 @@ func (this *AbstractVar) zero_AbstractVar() {
 
 func (this *AbstractVar) init_AbstractVar(name string, nameNode Node, index int32, input *CompilerInput, implicitGoogNamespaceDefinition Node) {
 	this.ScopedName.init_ScopedName()
-	if !(index >= -1) {
-		Preconditions_checkArgument_boolean_Object(false, int32(index))
+	if index < -1 {
+		panic(new_IllegalArgumentException_String(objstr_(int32(index))).self())
 	}
 	this.name_ = name
 	if implicitGoogNamespaceDefinition != 0 {
@@ -174,14 +174,14 @@ func (this *AbstractVar) isImplicitGoogNamespace() bool {
 
 func (this *AbstractVar) addImplicitGoogNamespaceDefinition(definition Node) {
 	if !this.isImplicitGoogNamespace() {
-		Preconditions_checkState_boolean_Object(false, this)
+		panic(new_IllegalStateException_String(objstr_(this)).self())
 	}
 	this.implicitGoogNamespaceStrength = AbstractVar_strongerOf(this.implicitGoogNamespaceStrength, AbstractVar_strengthOf(definition))
 }
 
 func (this *AbstractVar) getImplicitGoogNamespaceStrength() StaticSourceFile_SourceKind {
 	if !this.isImplicitGoogNamespace() {
-		Preconditions_checkState_boolean_Object(false, this)
+		panic(new_IllegalStateException_String(objstr_(this)).self())
 	}
 	return this.implicitGoogNamespaceStrength
 }

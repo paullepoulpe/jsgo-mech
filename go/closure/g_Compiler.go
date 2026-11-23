@@ -177,7 +177,9 @@ func Compiler_createFromErrorManager(errorManager ErrorManager) *Compiler {
 }
 
 func (this *Compiler) setErrorManager(errorManager ErrorManager) {
-	Preconditions_checkNotNull_Object_Object_T(errorManager, "the error manager cannot be null")
+	if errorManager == nil {
+		panic(new_NullPointerException_String("the error manager cannot be null").self())
+	}
 	this.errorManager = new_ThreadSafeDelegatingErrorManager(errorManager)
 }
 
@@ -223,7 +225,7 @@ func (this *Compiler) initOptions(options *CompilerOptions) {
 	case Tri_TRUE:
 		var sufficientOptimizations *InlineFunctions_ShouldRequireInlining = InlineFunctions_checkOptimizationLevelSupportsRequireInlining(options)
 		if ok_, a1_ := sufficientOptimizations.shouldValidate(), sufficientOptimizations.optMessage(); !ok_ {
-			Preconditions_checkState_boolean_String_Object(false, "shouldValidateRequiredInlinings cannot be set unless CompilerOptions enables sufficient optimization, but found: %s", a1_)
+			panic(new_IllegalStateException_String(Strings_lenientFormat("shouldValidateRequiredInlinings cannot be set unless CompilerOptions enables sufficient optimization, but found: %s", []any{a1_})).self())
 		}
 	case Tri_FALSE:
 	case Tri_UNKNOWN:
@@ -355,7 +357,7 @@ func (this *Compiler) getTypedAstDeserializer_impl(file *SourceFile_jscomp) Supp
 	}
 	var ast Supplier[Node] = this.typedAstFilesystem.remove_t(obj_(file))
 	if !(((ast != nil) || String_startsWith(file.getName(), Compiler_SYNTHETIC_FILE_NAME_PREFIX)) || AbstractCompiler_isFillFileName(file.getName())) {
-		Preconditions_checkState_boolean_String_Object(false, "TypedAST filesystem initialized, but missing requested file: %s", file)
+		panic(new_IllegalStateException_String(Strings_lenientFormat("TypedAST filesystem initialized, but missing requested file: %s", []any{file})).self())
 	}
 	return ast
 }
@@ -388,7 +390,9 @@ func (this *Compiler) initChunksWithTypedAstFilesystem(externs ListT[*SourceFile
 }
 
 func (this *Compiler) mergeAndDeserializeTypedAsts(requiredInputFiles *JTSet[*SourceFile_jscomp], typedAstListStream []int8, options *CompilerOptions) {
-	Preconditions_checkState((this.typedAstFilesystem == nil))
+	if this.typedAstFilesystem != nil {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.maybeSetTracker()
 	this.setLifeCycleStage(AbstractCompiler_LifeCycleStage_COLORS_AND_SIMPLIFIED_JSDOC)
 	var deserializeTypes bool = options.requiresTypesForOptimization()
@@ -426,7 +430,9 @@ func (this *Compiler) mergeAndDeserializeTypedAsts(requiredInputFiles *JTSet[*So
 }
 
 func (this *Compiler) initRuntimeLibraryTypedAsts_impl(colorPoolBuilder Optional_baseOf[*ColorPool_Builder]) {
-	Preconditions_checkState((this.runtimeLibraryTypedAsts == nil))
+	if this.runtimeLibraryTypedAsts != nil {
+		panic(new_IllegalStateException_0().self())
+	}
 	var path string = String_join_CharSequence_CharSequenceArr("", []any{"runtime_libs.typedast"})
 	var typedAsts Optional[[]int8] = Io_readResource(path)
 	if typedAsts.isEmpty() {
@@ -576,7 +582,9 @@ func (this *Compiler) compileSourceFile(extern *SourceFile_jscomp, input *Source
 }
 
 func (this *Compiler) compile(externs *JTList[*SourceFile_jscomp], inputs *JTList[*SourceFile_jscomp], options *CompilerOptions) *Result {
-	Preconditions_checkState((this.jsRoot == 0))
+	if this.jsRoot != 0 {
+		panic(new_IllegalStateException_0().self())
+	}
 	_ = func() (code_ int) {
 		defer func() {
 			this.generateReport()
@@ -611,7 +619,9 @@ func (this *Compiler) generateReport() {
 }
 
 func (this *Compiler) compileChunks(externs *JTList[*SourceFile_jscomp], chunks *JTList[*JSChunk], options *CompilerOptions) *Result {
-	Preconditions_checkState((this.jsRoot == 0))
+	if this.jsRoot != 0 {
+		panic(new_IllegalStateException_0().self())
+	}
 	_ = func() (code_ int) {
 		defer func() {
 			this.generateReport()
@@ -640,9 +650,15 @@ func (this *Compiler) compileChunks(externs *JTList[*SourceFile_jscomp], chunks 
 }
 
 func (this *Compiler) stage1Passes() {
-	Preconditions_checkState_boolean_Object((this.chunkGraph != nil), "No inputs. Did you call init() or initChunks()?")
-	Preconditions_checkState(!this.hasErrors())
-	Preconditions_checkState(!this.options_.getInstrumentForCoverageOnly())
+	if this.chunkGraph == nil {
+		panic(new_IllegalStateException_String(objstr_("No inputs. Did you call init() or initChunks()?")).self())
+	}
+	if this.hasErrors() {
+		panic(new_IllegalStateException_0().self())
+	}
+	if this.options_.getInstrumentForCoverageOnly() {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.runInCompilerThread(Callable[any](func() any {
 		this.performChecks()
 		return nil
@@ -652,18 +668,26 @@ func (this *Compiler) stage1Passes() {
 
 func (this *Compiler) stage2Passes(segmentOfCompilationToRun CompilerOptions_SegmentOfCompilationToRun) {
 	if !(((segmentOfCompilationToRun == CompilerOptions_SegmentOfCompilationToRun_OPTIMIZATIONS) || (segmentOfCompilationToRun == CompilerOptions_SegmentOfCompilationToRun_OPTIMIZATIONS_FIRST_HALF)) || (segmentOfCompilationToRun == CompilerOptions_SegmentOfCompilationToRun_OPTIMIZATIONS_SECOND_HALF)) {
-		Preconditions_checkState_boolean_String_Object(false, "Unsupported segment of compilation to run in stage 2: %s", segmentOfCompilationToRun)
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Unsupported segment of compilation to run in stage 2: %s", []any{segmentOfCompilationToRun})).self())
 	}
-	Preconditions_checkState_boolean_Object((this.chunkGraph != nil), "No inputs. Did you call init() or initChunks()?")
-	Preconditions_checkState(!this.hasErrors())
-	Preconditions_checkState(!this.options_.getInstrumentForCoverageOnly())
+	if this.chunkGraph == nil {
+		panic(new_IllegalStateException_String(objstr_("No inputs. Did you call init() or initChunks()?")).self())
+	}
+	if this.hasErrors() {
+		panic(new_IllegalStateException_0().self())
+	}
+	if this.options_.getInstrumentForCoverageOnly() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var weakChunk *JSChunk = this.chunkGraph.getChunkByName(JSChunk_WEAK_CHUNK_NAME)
 	if weakChunk != nil {
 		it_1 := jeachOf_(this.chunkGraph.getAllInputs())
 		for it_1.next() {
 			var i *CompilerInput = it_1.v
 			if i.getSourceFile().isWeak() {
-				Preconditions_checkState_boolean_Object((i.getChunk() == weakChunk), "Expected all weak files to be in the weak chunk.")
+				if i.getChunk() != weakChunk {
+					panic(new_IllegalStateException_String(objstr_("Expected all weak files to be in the weak chunk.")).self())
+				}
 			}
 		}
 	}
@@ -677,11 +701,15 @@ func (this *Compiler) stage2Passes(segmentOfCompilationToRun CompilerOptions_Seg
 }
 
 func (this *Compiler) stage3Passes() {
-	Preconditions_checkState_boolean_Object((this.chunkGraph != nil), "No inputs. Did you call init() or initChunks()?")
-	if ok_, a1_ := !this.hasErrors(), this.getErrors().asList(); !ok_ {
-		Preconditions_checkState_boolean_String_Object(false, "Cannot run stage3Passes with errors present: %s", a1_)
+	if this.chunkGraph == nil {
+		panic(new_IllegalStateException_String(objstr_("No inputs. Did you call init() or initChunks()?")).self())
 	}
-	Preconditions_checkState(!this.options_.getInstrumentForCoverageOnly())
+	if ok_, a1_ := !this.hasErrors(), this.getErrors().asList(); !ok_ {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Cannot run stage3Passes with errors present: %s", []any{a1_})).self())
+	}
+	if this.options_.getInstrumentForCoverageOnly() {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.runInCompilerThread(Callable[any](func() any {
 		if this.options_.shouldOptimize() {
 			this.performFinalizations()
@@ -762,11 +790,19 @@ func (this *Compiler) performPostCompilationTasksInternal() {
 }
 
 func (this *Compiler) instrumentForCoverage() {
-	Preconditions_checkState_boolean_Object((this.chunkGraph != nil), "No inputs. Did you call init() or initChunks()?")
-	Preconditions_checkState(!this.hasErrors())
+	if this.chunkGraph == nil {
+		panic(new_IllegalStateException_String(objstr_("No inputs. Did you call init() or initChunks()?")).self())
+	}
+	if this.hasErrors() {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.runInCompilerThread(Callable[any](func() any {
-		Preconditions_checkState(this.options_.getInstrumentForCoverageOnly())
-		Preconditions_checkState(!this.hasErrors())
+		if !this.options_.getInstrumentForCoverageOnly() {
+			panic(new_IllegalStateException_0().self())
+		}
+		if this.hasErrors() {
+			panic(new_IllegalStateException_0().self())
+		}
 		if this.options_.getInstrumentForCoverageOption() != CompilerOptions_InstrumentOption_NONE {
 			this.instrumentForCoverageInternal(this.options_.getInstrumentForCoverageOption())
 		}
@@ -782,7 +818,9 @@ func (this *Compiler) instrumentForCoverageInternal(instrumentForCoverageOption 
 }
 
 func (this *Compiler) parseForCompilation() {
-	Preconditions_checkState_boolean_Object((this.typedAstFilesystem == nil), "Unnecessary if initWithTypedAstFilesystem was called")
+	if this.typedAstFilesystem != nil {
+		panic(new_IllegalStateException_String(objstr_("Unnecessary if initWithTypedAstFilesystem was called")).self())
+	}
 	this.runInCompilerThread(Callable[any](func() any {
 		this.parseForCompilationInternal()
 		return nil
@@ -818,8 +856,12 @@ func (this *Compiler) createPassConfigInternal() *PassConfig {
 }
 
 func (this *Compiler) setPassConfig(passes *PassConfig) {
-	Preconditions_checkNotNull_T(passes)
-	Preconditions_checkState_boolean_Object((this.passes == nil), "setPassConfig was already called")
+	if passes == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	if this.passes != nil {
+		panic(new_IllegalStateException_String(objstr_("setPassConfig was already called")).self())
+	}
 	this.passes = passes
 }
 
@@ -843,7 +885,9 @@ func (this *Compiler) markTranspiledFiles() {
 	{
 		var child Node = this.jsRoot.getFirstChild()
 		for ; child != 0; child = child.getNext() {
-			Preconditions_checkState(child.isScript())
+			if !child.isScript() {
+				panic(new_IllegalStateException_0().self())
+			}
 			var featureSet *FeatureSet = NodeUtil_getFeatureSetOfScript(child)
 			if !this.options_.getOutputFeatureSet().containsFeatureSet(featureSet) {
 				this.setTranspiledFiles(true)
@@ -1015,8 +1059,8 @@ func (this *Compiler) createOrReopenLog_impl(owner ClassOf[any], firstNamePart s
 }
 
 func (this *Compiler) createOrReopenIndexedLog_impl(owner ClassOf[any], firstNamePart string, restNameParts []string) *LogFile {
-	if !(this.currentPassIndex >= 0) {
-		Preconditions_checkState_boolean_Object(false, int32(this.currentPassIndex))
+	if this.currentPassIndex < 0 {
+		panic(new_IllegalStateException_String(objstr_(int32(this.currentPassIndex))).self())
 	}
 	var index string = Strings_padStart(Integer_toString(this.currentPassIndex), 3, '0')
 	var length int32 = int32(len(restNameParts))
@@ -1066,8 +1110,12 @@ func (this *Compiler) getCurrentJsSource() string {
 		return this.toSource()
 	}
 	if !fileNameRegexList.isEmpty() {
-		Preconditions_checkNotNull_T(this.externsRoot)
-		Preconditions_checkNotNull_T(this.jsRoot)
+		if this.externsRoot == 0 {
+			panic(new_NullPointerException_0().self())
+		}
+		if this.jsRoot == 0 {
+			panic(new_NullPointerException_0().self())
+		}
 		it_1 := foreach_(obj_(ImmutableList_of_Object_Object(this.externsRoot.box_(), this.jsRoot.box_())))
 		for it_1.next() {
 			var r Node = Node_of_(it_1.v)
@@ -1092,7 +1140,10 @@ func (this *Compiler) getCurrentJsSource() string {
 		}
 	}
 	if !chunkNameRegexList.isEmpty() {
-		var chunks IterableT[*JSChunk] = Preconditions_checkNotNull_T(this.getChunks())
+		var chunks IterableT[*JSChunk] = this.getChunks()
+		if chunks == nil {
+			panic(new_NullPointerException_0().self())
+		}
 		var unmatchedChunkNames *JTList[string] = jnewTList_(jtc_string)
 		var lt *Compiler_ChunkGraphAwareLicenseTracker = new_Compiler_ChunkGraphAwareLicenseTracker(this.up_AbstractCompiler())
 		it_6 := jeachOf_(chunks)
@@ -1142,7 +1193,9 @@ func (this *Compiler) getCurrentJsSource() string {
 		for it_16.next() {
 			var statement Node = it_16.v
 			if !NodeUtil_has(statement, Predicate_base[Node](func(n Node) bool {
-				Preconditions_checkNotNull_T(n)
+				if n == 0 {
+					panic(new_NullPointerException_0().self())
+				}
 				if !n.isQualifiedName() {
 					return false
 				}
@@ -1303,18 +1356,25 @@ func (this *Compiler) isTypeRegistryCleared_impl() bool {
 
 func (this *Compiler) getTypeRegistry_impl() *JSTypeRegistry {
 	if this.typeRegistry == nil {
-		Preconditions_checkState_boolean_Object(!this.hasTypeCheckingRun(), "Attempted to re-initialize JSTypeRegistry after it had been cleared")
+		if this.hasTypeCheckingRun() {
+			panic(new_IllegalStateException_String(objstr_("Attempted to re-initialize JSTypeRegistry after it had been cleared")).self())
+		}
 		this.typeRegistry = new_JSTypeRegistry_ErrorReporter_Set(this.oldErrorReporter, this.forwardDeclaredTypes)
 	}
 	return this.typeRegistry
 }
 
 func (this *Compiler) getColorRegistry_impl() *ColorRegistry {
-	return Preconditions_checkNotNull_Object_Object_T(this.colorRegistry, "Color registry has not been initialized yet")
+	if this.colorRegistry == nil {
+		panic(new_NullPointerException_String("Color registry has not been initialized yet").self())
+	}
+	return this.colorRegistry
 }
 
 func (this *Compiler) setColorRegistry_impl(colorRegistry *ColorRegistry) {
-	Preconditions_checkState((this.runtimeLibraryTypedAsts != nil))
+	if this.runtimeLibraryTypedAsts == nil {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.colorRegistry = colorRegistry
 }
 
@@ -1336,7 +1396,9 @@ func (this *Compiler) hasOptimizationColors_impl() bool {
 
 func (this *Compiler) getTypedScopeCreator_impl() ScopeCreator {
 	if this.typedScopeCreator == nil {
-		Preconditions_checkState_boolean_Object(!this.hasTypeCheckingRun(), "Attempted to re-initialize TypedScopeCreator after it had been cleared")
+		if this.hasTypeCheckingRun() {
+			panic(new_IllegalStateException_String(objstr_("Attempted to re-initialize TypedScopeCreator after it had been cleared")).self())
+		}
 		this.typedScopeCreator = new_TypedScopeCreator_AbstractCompiler(this.up_AbstractCompiler())
 	}
 	return TypedScopeCreator_as_ScopeCreator(this.typedScopeCreator)
@@ -1348,7 +1410,9 @@ func (this *Compiler) clearTypedScopeCreator_impl() {
 
 func (this *Compiler) ensureDefaultPassConfig() *DefaultPassConfig {
 	var passes *PassConfig = this.getPassConfig().getBasePassConfig()
-	Preconditions_checkState_boolean_Object(is_[*DefaultPassConfig](passes.self()), "PassConfigs must eventually delegate to the DefaultPassConfig")
+	if !is_[*DefaultPassConfig](passes.self()) {
+		panic(new_IllegalStateException_String(objstr_("PassConfigs must eventually delegate to the DefaultPassConfig")).self())
+	}
 	return cast_[*DefaultPassConfig](passes.self())
 }
 
@@ -1402,8 +1466,8 @@ func (this *Compiler) getTopScope_impl() *TypedScope {
 }
 
 func (this *Compiler) setTopScope_impl(x *TypedScope) {
-	if !((x == nil) || (x.getParent_rTypedScope() == nil)) {
-		Preconditions_checkState_boolean_Object(false, x)
+	if x != nil && x.getParent_rTypedScope() != nil {
+		panic(new_IllegalStateException_String(objstr_(x)).self())
 	}
 	this.topScope = x
 }
@@ -1421,7 +1485,9 @@ func (this *Compiler) getReverseAbstractInterpreter_impl() ReverseAbstractInterp
 
 func (this *Compiler) getTypeValidator_impl() *TypeValidator {
 	if this.typeValidator == nil {
-		Preconditions_checkState_boolean_Object(!this.hasTypeCheckingRun(), "Attempted to re-initialize TypeValidator after it had been cleared")
+		if this.hasTypeCheckingRun() {
+			panic(new_IllegalStateException_String(objstr_("Attempted to re-initialize TypeValidator after it had been cleared")).self())
+		}
 		this.typeValidator = new_TypeValidator(this.up_AbstractCompiler())
 	}
 	return this.typeValidator
@@ -1490,7 +1556,10 @@ func (this *Compiler) parseInputs() Node {
 		it_2 := jeachOf_(this.externs)
 		for it_2.next() {
 			var input *CompilerInput = it_2.v
-			var n Node = Preconditions_checkNotNull_T(input.getAstRoot(this.up_AbstractCompiler()))
+			var n Node = input.getAstRoot(this.up_AbstractCompiler())
+			if n == 0 {
+				panic(new_NullPointerException_0().self())
+			}
 			if this.hasErrors() {
 				ret_1 = 0
 				return 1
@@ -1551,7 +1620,10 @@ func (this *Compiler) parseInputs() Node {
 		it_12 := jeachOf_(this.chunkGraph.getAllInputs())
 		for it_12.next() {
 			var input *CompilerInput = it_12.v
-			var n Node = Preconditions_checkNotNull_T(input.getAstRoot(this.up_AbstractCompiler()))
+			var n Node = input.getAstRoot(this.up_AbstractCompiler())
+			if n == 0 {
+				panic(new_NullPointerException_0().self())
+			}
 			if devMode {
 				this.runValidityCheck()
 				if this.hasErrors() {
@@ -1582,7 +1654,7 @@ func (this *Compiler) parseInputs() Node {
 		}
 		if this.typedAstFilesystem != nil {
 			if ok_, a1_ := ((this.typedAstFilesystem.size() == 1) || this.typedAstFilesystem.isEmpty()), int32(this.typedAstFilesystem.size()); !ok_ {
-				Preconditions_checkState_boolean_Object(false, a1_)
+				panic(new_IllegalStateException_String(objstr_(a1_)).self())
 			}
 		}
 		ret_1 = this.externAndJsRoot
@@ -1702,7 +1774,11 @@ func (this *Compiler) findModulesFromInput(input *CompilerInput, wasImportedByMo
 		return
 	}
 	var findDeps *FindModuleDependencies = new_FindModuleDependencies(this.up_AbstractCompiler(), supportEs6Modules, supportCommonJSModules, this.inputPathByWebpackId)
-	findDeps.process(Preconditions_checkNotNull_T(input.getAstRoot(this.up_AbstractCompiler())))
+	nn_ := input.getAstRoot(this.up_AbstractCompiler())
+	if nn_ == 0 {
+		panic(new_NullPointerException_0().self())
+	}
+	findDeps.process(nn_)
 	if wasImportedByModule && (input.getJsModuleType() == CompilerInput_ModuleType_NONE) {
 		input.setJsModuleType(CompilerInput_ModuleType_IMPORTED_SCRIPT)
 	}
@@ -1818,7 +1894,10 @@ func (this *Compiler) processJsonInputs(inputsToProcess IterableT[*CompilerInput
 			continue
 		}
 		input.getSourceFile().setCodeDeprecated(("(" + sstr_(codeRes.get()) + ")"))
-		var root Node = Preconditions_checkNotNull_T(input.getAstRoot(this.up_AbstractCompiler()))
+		var root Node = input.getAstRoot(this.up_AbstractCompiler())
+		if root == 0 {
+			panic(new_NullPointerException_0().self())
+		}
 		input.setJsModuleType(CompilerInput_ModuleType_JSON)
 		rewriteJson.process_2(0, root)
 	}
@@ -1885,7 +1964,10 @@ func (this *Compiler) parseCodeHelper(src *SourceFile_jscomp) Node {
 	this.putCompilerInput(input)
 	var root Node = input.getAstRoot(this.up_AbstractCompiler())
 	this.scriptNodeByFilename.put_t(input.getSourceFile().getName(), root)
-	return Preconditions_checkNotNull_T(root)
+	if root == 0 {
+		panic(new_NullPointerException_0().self())
+	}
+	return root
 }
 
 func (this *Compiler) parseCodeHelperList(srcs *JTList[*SourceFile_jscomp]) Node {
@@ -1992,12 +2074,18 @@ func (this *Compiler) toSource_4(cb *Compiler_CodeBuilder, licenseTracker CodePr
 			if (cb.getLength() > 0) && !cb.endsWith("\n") {
 				cb.append("\n")
 			}
-			Preconditions_checkState(root.isScript())
+			if !root.isScript() {
+				panic(new_IllegalStateException_0().self())
+			}
 			var delimiter string = this.options_.getInputDelimiter()
 			var inputName string = root.getInputId().getIdName()
 			var sourceName string = root.getSourceFileName()
-			Preconditions_checkState(!String_isEmpty(sourceName))
-			Preconditions_checkState(!String_isEmpty(sourceName))
+			if String_isEmpty(sourceName) {
+				panic(new_IllegalStateException_0().self())
+			}
+			if String_isEmpty(sourceName) {
+				panic(new_IllegalStateException_0().self())
+			}
 			delimiter = JString_replace_s(JString_replace_s(JString_replace_s(delimiter, "%name%", inputName), "%num%", String_valueOf(inputSeqNum)), "%n%", "\n")
 			cb.append(delimiter).append("\n")
 		}
@@ -2102,7 +2190,9 @@ func (this *Compiler) toSourceArray(licenseTracker CodePrinter_LicenseTracker, c
 }
 
 func (this *Compiler) performTranspilationAndOptimizations(segmentOfCompilationToRun CompilerOptions_SegmentOfCompilationToRun) {
-	Preconditions_checkState(this.options_.shouldOptimize())
+	if !this.options_.shouldOptimize() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var allOptimizationPassesToRun *JTList[*PassFactory] = this.getPassConfig().getOptimizations().build()
 	if allOptimizationPassesToRun.isEmpty() {
 		return
@@ -2342,7 +2432,9 @@ func (this *Compiler) report_2(ignoredLevel CheckLevel, error_ *JSError) {
 }
 
 func (this *Compiler) getErrorLevel_impl(error_ *JSError) CheckLevel {
-	Preconditions_checkNotNull_T(this.options_)
+	if this.options_ == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	return this.warningsGuard.level(error_)
 }
 
@@ -2382,7 +2474,9 @@ func (this *Compiler) getSourceFileContentByName(sourceName string) string {
 	if file.isStubSourceFileForAlreadyProvidedInput() {
 		return nullstr_
 	}
-	Preconditions_checkNotNull_T(file)
+	if file == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	var codeRes *Outcome_base[string] = file.readCode()
 	if codeRes.isErr() {
 		return nullstr_
@@ -2682,7 +2776,10 @@ func (this *Compiler) getSynthesizedExternsInput_impl() *CompilerInput {
 		return this.syntheticExternsInput
 	}
 	var input *CompilerInput = new_CompilerInput_SourceFile_boolean(this.SYNTHETIC_EXTERNS_FILE, true)
-	var root Node = Preconditions_checkNotNull_T(input.getAstRoot(this.up_AbstractCompiler()))
+	var root Node = input.getAstRoot(this.up_AbstractCompiler())
+	if root == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	this.putCompilerInput(input)
 	this.syntheticExternsInput = input
 	this.externsRoot.addChildToFront(root)
@@ -2701,7 +2798,10 @@ func (this *Compiler) getSynthesizedTypeSummaryInput_impl() *CompilerInput {
 		return this.syntheticTypeSummaryInput
 	}
 	var input *CompilerInput = new_CompilerInput_SourceFile_boolean(this.syntheticTypeSummaryFile, true)
-	var root Node = Preconditions_checkNotNull_T(input.getAstRoot(this.up_AbstractCompiler()))
+	var root Node = input.getAstRoot(this.up_AbstractCompiler())
+	if root == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	this.putCompilerInput(input)
 	this.syntheticTypeSummaryInput = input
 	this.externsRoot.addChildToFront(root)
@@ -2718,12 +2818,18 @@ func (this *Compiler) getSyntheticCodeInputId_impl() *InputId {
 }
 
 func (this *Compiler) initializeSyntheticCodeInput_impl() {
-	Preconditions_checkState_boolean_Object(!this.inputsById.containsKey(obj_(Compiler_SYNTHETIC_CODE_INPUT_ID)), "Already initialized synthetic input")
+	if this.inputsById.containsKey(obj_(Compiler_SYNTHETIC_CODE_INPUT_ID)) {
+		panic(new_IllegalStateException_String(objstr_("Already initialized synthetic input")).self())
+	}
 	var ast *CompilerInput = new_CompilerInput_SourceFile(SourceFile_jscomp_fromCode_String_String(Compiler_SYNTHETIC_CODE_INPUT_ID.getIdName(), ""))
 	if this.inputsById.containsKey(obj_(ast.getInputId())) {
 		panic(new_IllegalStateException_String("Conflicting synthetic id name").self())
 	}
-	this.jsRoot.addChildToFront(Preconditions_checkNotNull_T(ast.getAstRoot(this.up_AbstractCompiler())))
+	nn_ := ast.getAstRoot(this.up_AbstractCompiler())
+	if nn_ == 0 {
+		panic(new_NullPointerException_0().self())
+	}
+	this.jsRoot.addChildToFront(nn_)
 	var firstChunk *JSChunk = Iterables_getFirstT_[*JSChunk](this.getChunks(), nil)
 	if firstChunk.getName() == JSChunk_STRONG_CHUNK_NAME {
 		firstChunk.addCompilerInput(ast)
@@ -2743,14 +2849,22 @@ func (this *Compiler) mergeSyntheticCodeInput_impl() {
 }
 
 func (this *Compiler) removeSyntheticCodeInput_1(mergeContentIntoFirstInput bool) {
-	Preconditions_checkState_boolean_Object(this.inputsById.containsKey(obj_(Compiler_SYNTHETIC_CODE_INPUT_ID)), "Never initialized the synthetic input")
+	if !this.inputsById.containsKey(obj_(Compiler_SYNTHETIC_CODE_INPUT_ID)) {
+		panic(new_IllegalStateException_String(objstr_("Never initialized the synthetic input")).self())
+	}
 	var input *CompilerInput = this.inputsById.get_t(obj_(Compiler_SYNTHETIC_CODE_INPUT_ID))
 	var astRoot Node = input.getAstRoot(this.up_AbstractCompiler())
-	Preconditions_checkState(astRoot.isFirstChildOf(this.jsRoot))
-	Preconditions_checkState(Compiler_SYNTHETIC_CODE_INPUT_ID.equals(obj_(input.getInputId())))
+	if !astRoot.isFirstChildOf(this.jsRoot) {
+		panic(new_IllegalStateException_0().self())
+	}
+	if !Compiler_SYNTHETIC_CODE_INPUT_ID.equals(obj_(input.getInputId())) {
+		panic(new_IllegalStateException_0().self())
+	}
 	if mergeContentIntoFirstInput && astRoot.hasChildren() {
 		var next Node = astRoot.getNext()
-		Preconditions_checkNotNull_Object_Object_T(next, "Must provide at least one source")
+		if next == 0 {
+			panic(new_NullPointerException_String("Must provide at least one source").self())
+		}
 		Compiler_checkNotModule(next, "Cannot remove synthetic code input until modules are rewritten: %s", []any{next.box_()})
 		next.addChildrenToFront(astRoot.removeChildren())
 		this.reportChangeToChangeScope(next)
@@ -2780,22 +2894,29 @@ func (this *Compiler) getAccessorSummary_impl() *AccessorSummary {
 }
 
 func (this *Compiler) setAccessorSummary_impl(summary *AccessorSummary) {
-	this.accessorSummary = Preconditions_checkNotNull_T(summary)
+	if summary == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.accessorSummary = summary
 }
 
 func (this *Compiler) loadResourceContents(resourceName string, path string) Node {
 	if this.getLifeCycleStage().hasColorAndSimplifiedJSDoc() {
-		Preconditions_checkNotNull_Object_Object_T(this.runtimeLibraryTypedAsts, "Must call initRuntimeLibraryTypedAsts before calling ensureLibraryInjected during optimizations")
+		if this.runtimeLibraryTypedAsts == nil {
+			panic(new_NullPointerException_String("Must call initRuntimeLibraryTypedAsts before calling ensureLibraryInjected during optimizations").self())
+		}
 		var typedAstSupplier Supplier[Node] = func() Supplier[Node] {
 			f_ := this.runtimeLibraryTypedAsts.get(path)
-			if v_, a1_, a2_ := f_.box_(), String_join_CharSequence_CharSequenceArr("", []any{"Missing precompiled .typedast for '%s'. If this file is newly added, ", "you may need to regenerate runtime_libs.typedast.textproto", ""}), path; v_ == nil {
-				Preconditions_checkNotNull_Object_String_Object(nil, a1_, a2_)
+			if v_, a1_, a2_ := f_, String_join_CharSequence_CharSequenceArr("", []any{"Missing precompiled .typedast for '%s'. If this file is newly added, ", "you may need to regenerate runtime_libs.typedast.textproto", ""}), path; v_ == nil {
+				panic(new_NullPointerException_String(Strings_lenientFormat(a1_, []any{a2_})).self())
 			}
 			return f_
 		}()
 		return typedAstSupplier.get()
 	}
-	Preconditions_checkState_boolean_Object(!this.hasTypeCheckingRun(), "runtime library injected after type checking but before optimization colors")
+	if this.hasTypeCheckingRun() {
+		panic(new_IllegalStateException_String(objstr_("runtime library injected after type checking but before optimization colors")).self())
+	}
 	var originalCode string = ResourceLoader_loadTextResource((sstr_(ResourceLoader_JSCOMP) + "js/" + sstr_(resourceName) + ".js"))
 	var source *SourceFile_jscomp = SourceFile_jscomp_fromCode_String_String(path, originalCode)
 	this.addFilesToSourceMap(jimmutableListOf_[*SourceFile_jscomp](jtc_p_SourceFile_jscomp, source).asIterable())
@@ -2968,7 +3089,7 @@ func (this *Compiler) getCompilerStateProtoBuilder() *JSCompilerStateProto_Build
 			var dep *JSChunk = it_5.v
 			var depIdx any = chunkNameMap.get(dep.getName())
 			if ok_, a1_, a2_ := (depIdx != nil), dep.getName(), chunk.getName(); !ok_ {
-				Preconditions_checkState_boolean_String_Object_Object(false, "Missing dependency %s for chunk %s", a1_, a2_)
+				panic(new_IllegalStateException_String(Strings_lenientFormat("Missing dependency %s for chunk %s", []any{a1_, a2_})).self())
 			}
 			chunkBuilder.addDependencies(unbox_[int32](depIdx))
 		}
@@ -3149,7 +3270,9 @@ func (this *Compiler) deserializeCompilerState(state []int8) {
 		in.popLimit(stateLimit)
 	}
 	var typedAsts []int8 = Arrays_copyOfRange(state, in.getTotalBytesRead(), int32(len(state)))
-	Preconditions_checkNotNull_Object_Object_T(this.chunkGraph, "Did you forget to call .init or .initChunks before restoreState?")
+	if this.chunkGraph == nil {
+		panic(new_NullPointerException_String("Did you forget to call .init or .initChunks before restoreState?").self())
+	}
 	var externFilesBuilder *TMapBuilder[string, *SourceFile_jscomp] = newTMapBuilder_(jtc_string, jtc_p_SourceFile_jscomp)
 	var codeFilesBuilder *TMapBuilder[string, *SourceFile_jscomp] = newTMapBuilder_(jtc_string, jtc_p_SourceFile_jscomp)
 	var allInputFiles *TSetBuilder[*SourceFile_jscomp] = newTSetBuilder_(jtc_p_SourceFile_jscomp)
@@ -3203,7 +3326,10 @@ func (this *Compiler) deserializeCompilerState(state []int8) {
 		}
 		var externFile *SourceFile_jscomp = externFiles.get(externName)
 		if externFile == nil {
-			externFile = Preconditions_checkNotNull_Object_String_Object_T(codeFiles.get(externName), "Missing %s", externName)
+			externFile = codeFiles.get(externName)
+			if externFile == nil {
+				panic(new_NullPointerException_String(Strings_lenientFormat("Missing %s", []any{externName})).self())
+			}
 		}
 		var input *CompilerInput = new_CompilerInput_SourceFile_boolean(externFile, true)
 		var script Node = input.getAstRoot(this.up_AbstractCompiler())
@@ -3220,7 +3346,7 @@ func (this *Compiler) deserializeCompilerState(state []int8) {
 			var src *SourceFile_jscomp = codeFiles.get(inputId)
 			if src == nil {
 				if !AbstractCompiler_isFillFileName(inputId) {
-					Preconditions_checkState_boolean_String_Object(false, "Missing %s", inputId)
+					panic(new_IllegalStateException_String(Strings_lenientFormat("Missing %s", []any{inputId})).self())
 				}
 				continue
 			}
@@ -3328,12 +3454,14 @@ func (this *Compiler) resetAndIntitializeSourceMap() {
 
 func Compiler_checkNotModule(script Node, msg string, args []any) Node {
 	if !script.isScript() {
-		Preconditions_checkArgument_boolean_Object_H(false, script)
+		panic(new_IllegalArgumentException_String(objstr_(script.box_())).self())
 	}
 	if !script.hasOneChild() {
 		return script
 	}
-	Preconditions_checkState_boolean_String_ObjectArr(!script.getFirstChild().isModuleBody(), msg, args)
+	if script.getFirstChild().isModuleBody() {
+		panic(new_IllegalStateException_String(Strings_lenientFormat(msg, args)).self())
+	}
 	return script
 }
 

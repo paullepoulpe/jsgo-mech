@@ -163,7 +163,10 @@ func (this *PolymerPass) appendPolymerElementExterns(def *PolymerClassDefinition
 }
 
 func PolymerPass_exportTsickleProps(classNode Node, classQualifiedName string) {
-	var classStmt Node = Preconditions_checkNotNull_T(NodeUtil_getEnclosingStatement(classNode))
+	var classStmt Node = NodeUtil_getEnclosingStatement(classNode)
+	if classStmt == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	{
 		var sibling Node = classStmt.getNext()
 		for ; sibling != 0; sibling = sibling.getNext() {
@@ -178,7 +181,10 @@ func PolymerPass_exportTsickleProps(classNode Node, classQualifiedName string) {
 					if prop == 0 {
 						continue
 					}
-					var jsdoc *JSDocInfo = Preconditions_checkNotNull_Object_String_Object_T(prop.getJSDocInfo(), "No JSDoc found for %s", prop.box_())
+					var jsdoc *JSDocInfo = prop.getJSDocInfo()
+					if jsdoc == nil {
+						panic(new_NullPointerException_String(Strings_lenientFormat("No JSDoc found for %s", []any{prop.box_()})).self())
+					}
 					if jsdoc.getVisibility() == JSDocInfo_Visibility_PRIVATE {
 						continue
 					}
@@ -201,8 +207,8 @@ func PolymerPass_maybeGetTsicklePropTypesIfBlock(node Node) Node {
 		return 0
 	}
 	var block Node = condition.getNext()
-	if !((block != 0) && block.isBlock()) {
-		Preconditions_checkState_boolean_String_Object_H(false, "Expected block but got %s", block)
+	if block == 0 || !block.isBlock() {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected block but got %s", []any{block.box_()})).self())
 	}
 	return block
 }

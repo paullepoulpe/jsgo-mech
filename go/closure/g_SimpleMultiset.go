@@ -64,8 +64,12 @@ func (this *SimpleMultiset[E]) add(element E) bool {
 }
 
 func (this *SimpleMultiset[E]) add_2(element E, occurrences int32) int32 {
-	Preconditions_checkState_boolean_Object(!this.frozen, "immutable")
-	Preconditions_checkArgument((occurrences >= 0))
+	if this.frozen {
+		panic(new_IllegalStateException_String(objstr_("immutable")).self())
+	}
+	if occurrences < 0 {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var oldCount int32 = this.count(element)
 	if occurrences > 0 {
 		this.counts.put_t(element, int32((oldCount + occurrences)))
@@ -83,8 +87,12 @@ func (this *SimpleMultiset[E]) addAll(elements IterableT[E]) {
 }
 
 func (this *SimpleMultiset[E]) setCount(element E, expectedOldCount int32, newCount int32) bool {
-	Preconditions_checkState_boolean_Object(!this.frozen, "immutable")
-	Preconditions_checkArgument(((expectedOldCount >= 0) && (newCount >= 0)))
+	if this.frozen {
+		panic(new_IllegalStateException_String(objstr_("immutable")).self())
+	}
+	if expectedOldCount < 0 || newCount < 0 {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	if this.count(element) != expectedOldCount {
 		return false
 	}

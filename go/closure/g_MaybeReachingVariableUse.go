@@ -121,7 +121,7 @@ func (this *MaybeReachingVariableUse) computeMayUse(n Node, cfgNode Node, output
 	case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST:
 		var varName Node = n.getFirstChild()
 		if !n.hasChildren() {
-			Preconditions_checkState_boolean_String_Object_H(false, "AST should be normalized (%s)", n)
+			panic(new_IllegalStateException_String(Strings_lenientFormat("AST should be normalized (%s)", []any{n.box_()})).self())
 		}
 		if varName.isDestructuringLhs() {
 			this.computeMayUse(varName.getFirstChild(), cfgNode, output, conditional)
@@ -148,7 +148,9 @@ func (this *MaybeReachingVariableUse) computeMayUse(n Node, cfgNode Node, output
 		}
 	default:
 		if NodeUtil_isAssignmentOp(n) && n.getFirstChild().isName() {
-			Preconditions_checkState(!NodeUtil_isLogicalAssignmentOp(n))
+			if NodeUtil_isLogicalAssignmentOp(n) {
+				panic(new_IllegalStateException_0().self())
+			}
 			var name Node = n.getFirstChild()
 			if !conditional {
 				this.removeFromUseIfLocal(name.getString(), output)
@@ -193,7 +195,9 @@ func (this *MaybeReachingVariableUse) removeFromUseIfLocal(name string, use *May
 
 func (this *MaybeReachingVariableUse) getUses(name string, defNode Node) IterableT[Node] {
 	var n GraphNode[Node, ControlFlowGraph_Branch] = cast_[GraphNode[Node, ControlFlowGraph_Branch]](this.getCfg().getNode_Object_rDiGraphNode_rLinkedDiGraphNode(defNode).self())
-	Preconditions_checkNotNull_T(n)
+	if n == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	var state *DataFlowAnalysis_LinearFlowState = cast_[*DataFlowAnalysis_LinearFlowState](Annotatable_getAnnotation(Annotatable(n)))
 	return cast_[*MaybeReachingVariableUse_ReachingUses](state.getOut()).get(this.allVarsInFn.get(name))
 }

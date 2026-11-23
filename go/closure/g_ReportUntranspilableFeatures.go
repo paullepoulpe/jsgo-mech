@@ -18,8 +18,12 @@ func (this *ReportUntranspilableFeatures) up_AbstractPeepholeTranspilation() *Ab
 
 func (this *ReportUntranspilableFeatures) init_ReportUntranspilableFeatures(compiler *AbstractCompiler, browserFeatureSetYear CompilerOptions_BrowserFeaturesetYear, outputFeatures *FeatureSet) {
 	this.AbstractPeepholeTranspilation.init_AbstractPeepholeTranspilation()
-	Preconditions_checkNotNull_T(compiler)
-	Preconditions_checkNotNull_T(outputFeatures)
+	if compiler == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	if outputFeatures == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	this.compiler_ = compiler
 	this.browserFeatureSetYear = browserFeatureSetYear
 	this.untranspilableFeaturesToRemove = ReportUntranspilableFeatures_ALL_UNTRANSPILABLE_FEATURES.without(outputFeatures)
@@ -130,7 +134,9 @@ func (this *ReportUntranspilableFeatures) reportUntranspilable(feature FeatureSe
 }
 
 func (this *ReportUntranspilableFeatures) checkForRegExpSFlag(regexpNode Node) {
-	Preconditions_checkArgument(regexpNode.isRegExp())
+	if !regexpNode.isRegExp() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var flags string = func() string {
 		if regexpNode.hasTwoChildren() {
 			return regexpNode.getLastChild().getString()
@@ -143,7 +149,9 @@ func (this *ReportUntranspilableFeatures) checkForRegExpSFlag(regexpNode Node) {
 }
 
 func (this *ReportUntranspilableFeatures) checkForLookbehind(regexpNode Node, tree *RegExpTree) {
-	Preconditions_checkArgument((regexpNode != 0))
+	if regexpNode == 0 {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	if ReportUntranspilableFeatures_anySubtreeMeetsPredicate(tree, Predicate[*RegExpTree](func(t *RegExpTree) bool {
 		return is_[*RegExpTree_LookbehindAssertion](t.self())
 	})) {
@@ -152,7 +160,9 @@ func (this *ReportUntranspilableFeatures) checkForLookbehind(regexpNode Node, tr
 }
 
 func (this *ReportUntranspilableFeatures) checkForNamedGroups(regexpNode Node, tree *RegExpTree) {
-	Preconditions_checkArgument((regexpNode != 0))
+	if regexpNode == 0 {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	if ReportUntranspilableFeatures_anySubtreeMeetsPredicate(tree, Predicate[*RegExpTree](func(t *RegExpTree) bool {
 		return is_[*RegExpTree_NamedCaptureGroup](t.self())
 	})) {
@@ -161,7 +171,9 @@ func (this *ReportUntranspilableFeatures) checkForNamedGroups(regexpNode Node, t
 }
 
 func (this *ReportUntranspilableFeatures) checkForUnicodePropertyEscape(regexpNode Node, tree *RegExpTree) {
-	Preconditions_checkArgument((regexpNode != 0))
+	if regexpNode == 0 {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	if ReportUntranspilableFeatures_anySubtreeMeetsPredicate(tree, Predicate[*RegExpTree](func(t *RegExpTree) bool {
 		return is_[*RegExpTree_UnicodePropertyEscape](t.self())
 	})) {
@@ -170,7 +182,9 @@ func (this *ReportUntranspilableFeatures) checkForUnicodePropertyEscape(regexpNo
 }
 
 func (this *ReportUntranspilableFeatures) checkForRegExpDFlag(regexpNode Node) {
-	Preconditions_checkArgument(regexpNode.isRegExp())
+	if !regexpNode.isRegExp() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var flags string = func() string {
 		if regexpNode.hasTwoChildren() {
 			return regexpNode.getLastChild().getString()
@@ -183,9 +197,13 @@ func (this *ReportUntranspilableFeatures) checkForRegExpDFlag(regexpNode Node) {
 }
 
 func (this *ReportUntranspilableFeatures) checkForTopLevelAwait(awaitNode Node) {
-	Preconditions_checkArgument((awaitNode.isAwait() || awaitNode.isForAwaitOf()))
+	if !awaitNode.isAwait() && !awaitNode.isForAwaitOf() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	if NodeUtil_getEnclosingFunction(awaitNode) == 0 {
-		Preconditions_checkArgument_boolean_Object(NodeUtil_getEnclosingScript(awaitNode).getBooleanProp(Node_ES6_MODULE), "Top-level await is only allowed in ES module sources")
+		if !NodeUtil_getEnclosingScript(awaitNode).getBooleanProp(Node_ES6_MODULE) {
+			panic(new_IllegalArgumentException_String(objstr_("Top-level await is only allowed in ES module sources")).self())
+		}
 		this.reportUntranspilable(FeatureSet_Feature_TOP_LEVEL_AWAIT, awaitNode)
 	}
 }

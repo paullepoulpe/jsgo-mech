@@ -15,14 +15,21 @@ type OptionalChainRewriter struct {
 
 func (this *OptionalChainRewriter) init_OptionalChainRewriter(builder *OptionalChainRewriter_Builder, wholeChain Node) {
 	if !NodeUtil_isEndOfFullOptChain(wholeChain) {
-		Preconditions_checkArgument_boolean_Object_H(false, wholeChain)
+		panic(new_IllegalArgumentException_String(objstr_(wholeChain.box_())).self())
 	}
 	this.compiler_ = builder.compiler_
 	this.astFactory_ = builder.astFactory_
-	this.tmpVarNameCreator = Preconditions_checkNotNull_T(builder.tmpVarNameCreator)
+	if builder.tmpVarNameCreator == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.tmpVarNameCreator = builder.tmpVarNameCreator
 	this.scope_ = builder.scope_
 	this.wholeChain = wholeChain
-	this.chainParent = Preconditions_checkNotNull_Object_Object_T(wholeChain.getParent(), wholeChain.box_())
+	nn_ := wholeChain.getParent()
+	if nn_ == 0 {
+		panic(new_NullPointerException_String(objstr_(wholeChain.box_())).self())
+	}
+	this.chainParent = nn_
 	var enclosingStatement Node = NodeUtil_getEnclosingStatement(wholeChain)
 	if (enclosingStatement.getPrevious() != 0) && enclosingStatement.getPrevious().isLabelName() {
 		this.insertionPoint_ = enclosingStatement.getParent()
@@ -44,7 +51,7 @@ func OptionalChainRewriter_builder(compiler *AbstractCompiler) *OptionalChainRew
 
 func (this *OptionalChainRewriter) rewrite() {
 	if !NodeUtil_isOptChainNode(this.wholeChain) {
-		Preconditions_checkState_boolean_String_Object_H(false, "already rewritten: %s", this.wholeChain)
+		panic(new_IllegalStateException_String(Strings_lenientFormat("already rewritten: %s", []any{this.wholeChain.box_()})).self())
 	}
 	var startNodeStack *TDeque[Node] = newTDeque_(jtc_Node)
 	var subchainEnd Node = this.wholeChain
@@ -53,7 +60,9 @@ func (this *OptionalChainRewriter) rewrite() {
 		startNodeStack.push(subchainStart)
 		subchainEnd = subchainStart.getFirstChild()
 	}
-	Preconditions_checkState(!startNodeStack.isEmpty())
+	if startNodeStack.isEmpty() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var optChainReplacement Node = this.rewriteInitialSegment(startNodeStack.pop(), this.wholeChain)
 	for !startNodeStack.isEmpty() {
 		this.rewriteInitialSegment(startNodeStack.pop(), this.wholeChain)
@@ -71,7 +80,7 @@ func (this *OptionalChainRewriter) rewrite() {
 		for !this.deletesToDelete.isEmpty() {
 			var delete_ Node = this.deletesToDelete.pop()
 			if !delete_.getFirstChild().isHook() {
-				Preconditions_checkState_boolean_Object_H(false, delete_)
+				panic(new_IllegalStateException_String(objstr_(delete_.box_())).self())
 			}
 			var hook Node = delete_.getFirstChild()
 			hook.detach()
@@ -91,7 +100,7 @@ func (this *OptionalChainRewriter) rewriteInitialSegment(fullChainStart Node, fu
 		this.deletesToDelete.add(fullChainEnd.getParent())
 	}
 	if NodeUtil_isOptChainNode(receiverNode) {
-		Preconditions_checkArgument_boolean_Object_H(false, receiverNode)
+		panic(new_IllegalArgumentException_String(objstr_(receiverNode.box_())).self())
 	}
 	NodeUtil_convertToNonOptionalChainSegment(initialChainEnd)
 	var placeholder Node = IR_empty()
@@ -165,7 +174,10 @@ type OptionalChainRewriter_Builder struct {
 }
 
 func (this *OptionalChainRewriter_Builder) init_OptionalChainRewriter_Builder(compiler *AbstractCompiler) {
-	this.compiler_ = Preconditions_checkNotNull_T(compiler)
+	if compiler == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.compiler_ = compiler
 	this.astFactory_ = compiler.createAstFactory()
 }
 
@@ -176,12 +188,18 @@ func new_OptionalChainRewriter_Builder(compiler *AbstractCompiler) *OptionalChai
 }
 
 func (this *OptionalChainRewriter_Builder) setTmpVarNameCreator(tmpVarNameCreator OptionalChainRewriter_TmpVarNameCreator) *OptionalChainRewriter_Builder {
-	this.tmpVarNameCreator = Preconditions_checkNotNull_T(tmpVarNameCreator)
+	if tmpVarNameCreator == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.tmpVarNameCreator = tmpVarNameCreator
 	return this
 }
 
 func (this *OptionalChainRewriter_Builder) setScope(scope *Scope) *OptionalChainRewriter_Builder {
-	this.scope_ = Preconditions_checkNotNull_T(scope)
+	if scope == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.scope_ = scope
 	return this
 }
 
