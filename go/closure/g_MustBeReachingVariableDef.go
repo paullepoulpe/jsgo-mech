@@ -341,7 +341,7 @@ func (this *MustBeReachingVariableDef_Definition) toString() string {
 }
 
 func (this *MustBeReachingVariableDef_Definition) hashCode() int32 {
-	return hashRH_(this.node_)
+	return hashId_(this.node_)
 }
 
 type MustBeReachingVariableDef_MustDef struct {
@@ -394,11 +394,11 @@ func (this *MustBeReachingVariableDef_MustDef) equals(other any) bool {
 		}
 		mustDef = p
 		return true
-	}() && Object_equals(lgBox_(mustDef.reachingDef.asMapT()), this.reachingDef.asMap()))
+	}() && equalsDyn_(lgBox_(mustDef.reachingDef.asMapT()), this.reachingDef.asMap()))
 }
 
 func (this *MustBeReachingVariableDef_MustDef) hashCode() int32 {
-	return Object_hashCode(lgBox_(this.reachingDef.asMapT()))
+	return hashDyn_(lgBox_(this.reachingDef.asMapT()))
 }
 
 type MustBeReachingVariableDef_MustDefJoin struct {

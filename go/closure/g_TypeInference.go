@@ -922,7 +922,7 @@ func (this *TypeInference) traverseName(n Node, scope FlowScope) FlowScope {
 				}
 				return nil
 			}()
-			var nonLocalInferredSlot bool = (equalsR_(var_, obj_(maybeOuterVar)) && !maybeOuterVar.isMarkedAssignedExactlyOnce())
+			var nonLocalInferredSlot bool = (equalsDyn_(var_, obj_(maybeOuterVar)) && !maybeOuterVar.isMarkedAssignedExactlyOnce())
 			if !unflowable && !nonLocalInferredSlot {
 				type_ = var_.getType()
 				if type_ == nil {

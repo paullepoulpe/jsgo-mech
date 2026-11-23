@@ -610,7 +610,7 @@ func valueOf(e ast.Expr) value {
 		switch {
 		case newFns[n]:
 			return value{kind: vNew}
-		case n == "tlistImm_":
+		case n == "tlistImm_", n == "tlistOfT_" && rw.HasFunc("sliceOfT_"): // reflip44a
 			return value{kind: vImm}
 		}
 		if fl, ok := rw.Unparen(x.Fun).(*ast.FuncLit); ok {
@@ -715,6 +715,13 @@ func newValue(n *node, call *ast.CallExpr) {
 		edit(n, call, func() string { return "make([]" + et + ", 0, " + rw.Render(call.Args[1]) + ")" })
 	case "tlistFrom_":
 		edit(n, call, func() string { return "sliceFrom_(" + rw.Render(call.Args[0]) + ", " + rw.Render(call.Args[1]) + ")" })
+	case "tlistOfT_": // reflip44a
+		edit(n, call, func() string {
+			if cls(n).ptr {
+				return "slicePtrOfT_(" + rw.Render(call.Args[0]) + ", " + rw.Render(call.Args[1]) + ")"
+			}
+			return "sliceOfT_(" + rw.Render(call.Args[0]) + ", " + rw.Render(call.Args[1]) + ")"
+		})
 	case "tlistImm_":
 		edit(n, call, func() string { return "sliceImm_(" + rw.Render(call.Args[0]) + ", " + rw.Render(call.Args[1]) + ")" })
 	}
@@ -1040,7 +1047,7 @@ func use(n *node, recv ast.Expr, m string, call *ast.CallExpr) {
 				poison(n, "for-each cursor not followed by its loop")
 			}
 		}
-	case m == "asList" && len(args) == 0:
+	case (m == "asList" || m == "asListT" || m == "asCollT" || m == "asIterable") && len(args) == 0: // reflip41a
 		view(n, recv, call)
 	default:
 		what := "method " + m
@@ -2119,7 +2126,7 @@ func mapUse(n *node, recv ast.Expr, m string, call *ast.CallExpr) {
 			}
 		}
 		poison(n, "seen as an erased Map")
-	case m == "asSet" && len(args) == 0 && kc != "":
+	case (m == "asSet" || m == "asSetT" || m == "asCollT") && len(args) == 0 && kc != "": // reflip41c
 		// s.asSet().addAll(c): adding to a set does not depend on the order of c.
 		if p, ok := rw.Up(call).(*ast.SelectorExpr); ok && p.Sel.Name == "addAll" {
 			if c, ok := rw.Up(p).(*ast.CallExpr); ok && c.Fun == p && len(c.Args) == 1 {

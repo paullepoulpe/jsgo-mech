@@ -161,6 +161,11 @@ func cursor(st ast.Stmt) (*ast.Ident, *source) {
 		switch name {
 		case "foreach_":
 			return id, &source{kind: "erased", x: c.Args[0]}
+		case "jeachOf_": // reflip37: the translator's typed for-each cursor over an IterableT[T]
+			if el := typeArgs(typeOf(as.Rhs[0])); len(el) == 1 {
+				return id, &source{kind: "typed", x: c.Args[0], elem: el[0]}
+			}
+			return nil, nil
 		case "eachOf_", "eachRevOf_":
 			el := typeArgs(typeOf(c.Fun))
 			k := "slice"
@@ -218,6 +223,12 @@ func iterator(st ast.Stmt) (*ast.Ident, ast.Expr) {
 		}
 	}
 	if id == nil {
+		return nil, nil
+	}
+	if named(typeOf(id)) == "IteratorT" { // reflip37: an iterator of a typed library interface
+		if recv, m := method(val); recv != nil && m == "iterator_t" {
+			return id, recv
+		}
 		return nil, nil
 	}
 	if named(typeOf(id)) != "Iterator" && !isIteratorAlias(rw.Info.Defs[id]) {
@@ -484,6 +495,8 @@ func cursorLoop(f *fn, decl ast.Stmt, id *ast.Ident, src *source, loop *ast.ForS
 			seq = "sliceAll_(" + rw.Render(src.x) + ")"
 		case "sliceRev":
 			seq = "sliceAllRev_(" + rw.Render(src.x) + ")"
+		case "typed": // reflip37
+			seq = "elemsT_(" + rw.Render(src.x) + ")"
 		case "erased":
 			c := rw.Render(stripAny(src.x))
 			seq = "elems_(" + c + ")"
@@ -566,12 +579,14 @@ func iteratorLoop(f *fn, decl ast.Stmt, id *ast.Ident, c ast.Expr, loop *ast.For
 	xt := rw.Info.Defs[x].Type()
 	call, ok := rw.Unparen(val).(*ast.CallExpr)
 	var nextCall ast.Expr
+	reflip37typed := false
 	var fText string
 	var r types.Type
 	isCast := false
 	if ok {
-		if recv, m := method(call); recv != nil && m == "next" && objOf(recv) == it {
+		if recv, m := method(call); recv != nil && (m == "next" || m == "next_t") && objOf(recv) == it {
 			nextCall, r = call, typeOf(call)
+			reflip37typed = m == "next_t"
 		} else if len(call.Args) == 1 {
 			if recv, m := method(call.Args[0]); recv != nil && m == "next" && objOf(recv) == it {
 				nextCall = call.Args[0]
@@ -618,6 +633,10 @@ func iteratorLoop(f *fn, decl ast.Stmt, id *ast.Ident, c ast.Expr, loop *ast.For
 				return
 			}
 		}
+	}
+	if seq == "" && reflip37typed {
+		seq = "elemsT_(" + rw.Render(c) + ")"
+		done["iterator over a typed Iterable"]++
 	}
 	if seq == "" {
 		if !implementsIterable(typeOf(c)) {

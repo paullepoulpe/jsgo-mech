@@ -156,7 +156,7 @@ func (this *TypedAstSerializer) getSourceFilePointer(n Node) int32 {
 		}
 		return 0
 	}
-	if equalsR_(sourceFile, obj_(this.subtreeSourceFiles.peekLast())) {
+	if equalsId_(sourceFile, this.subtreeSourceFiles.peekLast()) {
 		return 0
 	}
 	this.subtreeSourceFiles.add(sourceFile)

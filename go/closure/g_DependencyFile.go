@@ -60,7 +60,7 @@ func (this *DependencyFile) loadGraph() {
 		for it_3.next() {
 			var provide string = it_3.v
 			var existing DependencyInfo_ = this.dependencies.get(provide)
-			if (existing != nil) && !equalsRR_(existing, depInfo) {
+			if (existing != nil) && !equalsDyn_(existing, obj_(depInfo)) {
 				panic(obj_(new_ServiceException(("Duplicate provide of " + sstr_(provide) + ". Was provided by " + sstr_(existing.getPathRelativeToClosureBase()) + " and " + sstr_(depInfo.getPathRelativeToClosureBase())))))
 			}
 			this.dependencies.put(provide, depInfo)

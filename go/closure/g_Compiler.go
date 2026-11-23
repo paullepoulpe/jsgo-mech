@@ -195,7 +195,7 @@ func (this *Compiler) createMessageFormatter() MessageFormatter {
 
 func (this *Compiler) initExperimentalOutputFeatureSetOptions(options *CompilerOptions) {
 	var featureSet *FeatureSet = options.getOutputFeatureSet()
-	if (equals_(featureSet, FeatureSet_ES5)) || (equals_(featureSet, FeatureSet_ES3)) {
+	if (objequalsBy_(featureSet, obj_(FeatureSet_ES5), (*FeatureSet).equals)) || (objequalsBy_(featureSet, obj_(FeatureSet_ES3), (*FeatureSet).equals)) {
 		return
 	}
 	if options.getExperimentalOutputFeatureSet().isPresent() {
