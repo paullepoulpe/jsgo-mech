@@ -1,0 +1,36 @@
+diff --git a/go/closure/rt_coll.go b/go/closure/rt_coll.go
+index 63c61137..e3e24b24 100644
+--- a/go/closure/rt_coll.go
++++ b/go/closure/rt_coll.go
+@@ -381,10 +381,16 @@ func (this *ArrayList) containsAll(c Collection) bool {
+ 	return true
+ }
+ 
++// frontShift_ is the length up to which removing a list's first element shifts the rest
++// down, as java.util.ArrayList does. Above it the list steps over the slot (no copy), but it
++// loses that slot of capacity, so a short list used as a queue (the parser's lookahead,
++// worklists) would otherwise reallocate on almost every append.
++const frontShift_ = 32
++
+ func (this *ArrayList) remove(i int32) any {
+ 	old := this.get(i)
+-	if i == 0 {
+-		// Front removal is what queues do all the time: step over the slot instead of shifting.
++	if i == 0 && len(this.items) > frontShift_ {
++		// Front removal from a long list: step over the slot instead of shifting.
+ 		this.items[0] = nil
+ 		this.items = this.items[1:]
+ 		return old
+diff --git a/go/closure/rt_tlist.go b/go/closure/rt_tlist.go
+index 192a91b3..f986155d 100644
+--- a/go/closure/rt_tlist.go
++++ b/go/closure/rt_tlist.go
+@@ -129,7 +129,7 @@ func (l *TList[T]) removeAt(i int32) T {
+ 	}
+ 	old := l.get(i)
+ 	var z T
+-	if i == 0 {
++	if i == 0 && len(l.items) > frontShift_ {
+ 		l.items[0] = z
+ 		l.items = l.items[1:]
+ 		return old

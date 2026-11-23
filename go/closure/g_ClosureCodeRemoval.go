@@ -4,17 +4,17 @@ package closure
 
 type ClosureCodeRemoval struct {
 	compiler_                     *AbstractCompiler
-	abstractMethodAssignmentNodes *JTList[*ClosureCodeRemoval_RemovableAssignment]
-	abstractMemberFunctionNodes   *JTList[Node]
-	assertionCalls                *JTList[Node]
+	abstractMethodAssignmentNodes *TList[*ClosureCodeRemoval_RemovableAssignment]
+	abstractMemberFunctionNodes   *TList[Node]
+	assertionCalls                *TList[Node]
 	removeAbstractMethods         bool
 	removeAssertionCalls          bool
 }
 
 func (this *ClosureCodeRemoval) finit_ClosureCodeRemoval() {
-	this.abstractMethodAssignmentNodes = jnewTList_(tc_p_ClosureCodeRemoval_RemovableAssignment)
-	this.abstractMemberFunctionNodes = jnewTList_(jtc_Node)
-	this.assertionCalls = jnewTList_(jtc_Node)
+	this.abstractMethodAssignmentNodes = newTList_(tc_p_ClosureCodeRemoval_RemovableAssignment)
+	this.abstractMemberFunctionNodes = newTList_(tc_Node)
+	this.assertionCalls = newTList_(tc_Node)
 }
 
 func (this *ClosureCodeRemoval) init_ClosureCodeRemoval(compiler *AbstractCompiler, removeAbstractMethods bool, removeAssertionCalls bool) {
@@ -31,7 +31,7 @@ func new_ClosureCodeRemoval(compiler *AbstractCompiler, removeAbstractMethods bo
 }
 
 func (this *ClosureCodeRemoval) process_2(externs Node, root Node) {
-	var passes *JTList[NodeTraversal_Callback] = jnewTList_(jtc_NodeTraversal_Callback)
+	var passes *TList[NodeTraversal_Callback] = newTList_(tc_NodeTraversal_Callback)
 	if this.removeAbstractMethods {
 		passes.add(NodeTraversal_Callback(new_ClosureCodeRemoval_FindAbstractMethods(this)))
 	}
@@ -78,14 +78,14 @@ const ClosureCodeRemoval_ABSTRACT_METHOD_NAME string = "goog.abstractMethod"
 
 type ClosureCodeRemoval_RemovableAssignment struct {
 	outer_          *ClosureCodeRemoval
-	assignAncestors *JTList[Node]
+	assignAncestors *TList[Node]
 	node_           Node
 	parent          Node
 	lastAncestor    Node
 }
 
 func (this *ClosureCodeRemoval_RemovableAssignment) finit_ClosureCodeRemoval_RemovableAssignment() {
-	this.assignAncestors = jnewTList_(jtc_Node)
+	this.assignAncestors = newTList_(tc_Node)
 }
 
 func (this *ClosureCodeRemoval_RemovableAssignment) init_ClosureCodeRemoval_RemovableAssignment(nameNode Node, assignNode Node) {

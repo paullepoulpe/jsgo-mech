@@ -7,26 +7,26 @@ type RefactoringDriver struct {
 	rootNode_ Node
 }
 
-func (this *RefactoringDriver) init_RefactoringDriver(inputs *JTList[*SourceFile_jscomp], externs *JTList[*SourceFile_jscomp], compilerOptions *CompilerOptions) {
+func (this *RefactoringDriver) init_RefactoringDriver(inputs *TList[*SourceFile_jscomp], externs *TList[*SourceFile_jscomp], compilerOptions *CompilerOptions) {
 	this.compiler_ = RefactoringDriver_createCompiler(inputs, externs, compilerOptions)
 	this.rootNode_ = this.compiler_.getRoot()
 }
 
-func new_RefactoringDriver(inputs *JTList[*SourceFile_jscomp], externs *JTList[*SourceFile_jscomp], compilerOptions *CompilerOptions) *RefactoringDriver {
+func new_RefactoringDriver(inputs *TList[*SourceFile_jscomp], externs *TList[*SourceFile_jscomp], compilerOptions *CompilerOptions) *RefactoringDriver {
 	this := &RefactoringDriver{}
 	this.init_RefactoringDriver(inputs, externs, compilerOptions)
 	return this
 }
 
-func (this *RefactoringDriver) drive_2(scanner *Scanner_refactoring, includeFilePattern *Pattern) *JTList[*SuggestedFix] {
+func (this *RefactoringDriver) drive_2(scanner *Scanner_refactoring, includeFilePattern *Pattern) *TList[*SuggestedFix] {
 	var callback *JsFlumeCallback = new_JsFlumeCallback(scanner, includeFilePattern)
 	NodeTraversal_traverse(this.compiler_.up_AbstractCompiler(), this.rootNode_, JsFlumeCallback_as_NodeTraversal_Callback(callback))
-	var fixes *JTList[*SuggestedFix] = callback.getFixes()
+	var fixes *TList[*SuggestedFix] = callback.getFixes()
 	fixes.asListT().addAll(Collection(scanner.processAllMatches(callback.getMatches().asCollT()).asList()))
 	return fixes
 }
 
-func (this *RefactoringDriver) drive(scanner *Scanner_refactoring) *JTList[*SuggestedFix] {
+func (this *RefactoringDriver) drive(scanner *Scanner_refactoring) *TList[*SuggestedFix] {
 	return this.drive_2(scanner, nil)
 }
 
@@ -34,7 +34,7 @@ func (this *RefactoringDriver) getCompiler() *Compiler {
 	return this.compiler_
 }
 
-func RefactoringDriver_createCompiler(inputs *JTList[*SourceFile_jscomp], externs *JTList[*SourceFile_jscomp], compilerOptions *CompilerOptions) *Compiler {
+func RefactoringDriver_createCompiler(inputs *TList[*SourceFile_jscomp], externs *TList[*SourceFile_jscomp], compilerOptions *CompilerOptions) *Compiler {
 	var compiler *Compiler = Compiler_createFromErrorManager(ErrorManager(new_BlackHoleErrorManager()))
 	compiler.disableThreads()
 	compiler.compile(externs, inputs, compilerOptions)
@@ -61,14 +61,14 @@ func RefactoringDriver_getCompilerOptions() *CompilerOptions {
 }
 
 type RefactoringDriver_Builder struct {
-	inputs          *TListBuilder[*SourceFile_jscomp]
-	externs         *TListBuilder[*SourceFile_jscomp]
+	inputs          *ImmutableList_Builder[*SourceFile_jscomp]
+	externs         *ImmutableList_Builder[*SourceFile_jscomp]
 	compilerOptions *CompilerOptions
 }
 
 func (this *RefactoringDriver_Builder) finit_RefactoringDriver_Builder() {
-	this.inputs = newTListBuilder_(jtc_p_SourceFile_jscomp)
-	this.externs = newTListBuilder_(jtc_p_SourceFile_jscomp)
+	this.inputs = immutableListBuilder_(tc_p_SourceFile_jscomp)
+	this.externs = immutableListBuilder_(tc_p_SourceFile_jscomp)
 	this.compilerOptions = RefactoringDriver_getCompilerOptions()
 }
 
@@ -88,7 +88,7 @@ func (this *RefactoringDriver_Builder) addExternsFromFileString(filename string)
 }
 
 func (this *RefactoringDriver_Builder) addExternsFromFile(externs IterableT[string]) *RefactoringDriver_Builder {
-	this.externs.addAll(iterableAs_(jtc_p_SourceFile_jscomp, Iterable(Lists_transform(ImmutableList_as_List(ImmutableList_copyOf_Iterable(Iterable_un_(externs))), func() Function_base[any, any] {
+	this.externs.addAll(iterableAs_(tc_p_SourceFile_jscomp, Iterable(Lists_transform(ImmutableList_as_List(ImmutableList_copyOf_Iterable(Iterable_un_(externs))), func() Function_base[any, any] {
 		f_ := RefactoringDriver_Builder_TO_SOURCE_FILE_FN
 		if f_ == nil {
 			return nil
@@ -114,7 +114,7 @@ func (this *RefactoringDriver_Builder) addInputsFromFileString(filename string) 
 }
 
 func (this *RefactoringDriver_Builder) addInputsFromFile(inputs IterableT[string]) *RefactoringDriver_Builder {
-	this.inputs.addAll(iterableAs_(jtc_p_SourceFile_jscomp, Iterable(Lists_transform(ImmutableList_as_List(ImmutableList_copyOf_Iterable(Iterable_un_(inputs))), func() Function_base[any, any] {
+	this.inputs.addAll(iterableAs_(tc_p_SourceFile_jscomp, Iterable(Lists_transform(ImmutableList_as_List(ImmutableList_copyOf_Iterable(Iterable_un_(inputs))), func() Function_base[any, any] {
 		f_ := RefactoringDriver_Builder_TO_SOURCE_FILE_FN
 		if f_ == nil {
 			return nil

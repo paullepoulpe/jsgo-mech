@@ -3,11 +3,11 @@
 package closure
 
 type FeatureSet struct {
-	features_ *JTSet[FeatureSet_Feature]
+	features_ *TSet[FeatureSet_Feature]
 }
 
 func (this *FeatureSet) init_FeatureSet(features SetT[FeatureSet_Feature]) {
-	this.features_ = jimmutableSetCopyOf_(jtc_p_FeatureSet_Feature, Collection(Set_un_(features)))
+	this.features_ = immutableSetCopyOf_(tc_p_FeatureSet_Feature, Collection(Set_un_(features)))
 }
 
 func new_FeatureSet(features SetT[FeatureSet_Feature]) *FeatureSet {
@@ -67,7 +67,7 @@ func (this *FeatureSet) versionForDebugging() string {
 }
 
 func (this *FeatureSet) without_2(featureToRemove FeatureSet_Feature, moreFeaturesToRemove []FeatureSet_Feature) *FeatureSet {
-	return new_FeatureSet(FeatureSet_difference(this.features_, tenumSetOfArr_(jtc_p_FeatureSet_Feature, featureToRemove.enum_(), arrmap_(moreFeaturesToRemove, func(v_ FeatureSet_Feature) *Enum { return v_.enum_() })).asSetT()))
+	return new_FeatureSet(FeatureSet_difference(this.features_, tenumSetOfArr_(tc_p_FeatureSet_Feature, featureToRemove.enum_(), arrmap_(moreFeaturesToRemove, func(v_ FeatureSet_Feature) *Enum { return v_.enum_() })).asSetT()))
 }
 
 func (this *FeatureSet) without(other *FeatureSet) *FeatureSet {
@@ -86,7 +86,7 @@ func (this *FeatureSet) containsAtLeastOneOf(other *FeatureSet) bool {
 	it_1 := other.features_.each()
 	for it_1.next() {
 		var otherFeature FeatureSet_Feature = it_1.v
-		if this.features_.contains(otherFeature) {
+		if this.features_.Has(otherFeature) {
 			return true
 		}
 	}
@@ -102,45 +102,45 @@ func (this *FeatureSet) contains(feature FeatureSet_Feature) bool {
 }
 
 func FeatureSet_emptyEnumSet() SetT[FeatureSet_Feature] {
-	return tenumSetNoneOf_(jtc_p_FeatureSet_Feature, classOf_("com.google.javascript.jscomp.parsing.parser.FeatureSet.Feature")).asSetT()
+	return tenumSetNoneOf_(tc_p_FeatureSet_Feature, classOf_("com.google.javascript.jscomp.parsing.parser.FeatureSet.Feature")).asSetT()
 }
 
-func FeatureSet_enumSetOf(set *JTSet[FeatureSet_Feature]) SetT[FeatureSet_Feature] {
+func FeatureSet_enumSetOf(set *TSet[FeatureSet_Feature]) SetT[FeatureSet_Feature] {
 	return func() SetT[FeatureSet_Feature] {
-		if set.isEmpty() {
+		if set.IsEmpty() {
 			return FeatureSet_emptyEnumSet()
 		}
-		return tenumSetCopyOf_(jtc_p_FeatureSet_Feature, Collection(set.asSet())).asSetT()
+		return tenumSetCopyOf_(tc_p_FeatureSet_Feature, Collection(set.asSet())).asSetT()
 	}()
 }
 
-func FeatureSet_add(features *JTSet[FeatureSet_Feature], feature FeatureSet_Feature) SetT[FeatureSet_Feature] {
+func FeatureSet_add(features *TSet[FeatureSet_Feature], feature FeatureSet_Feature) SetT[FeatureSet_Feature] {
 	var result SetT[FeatureSet_Feature] = FeatureSet_enumSetOf(features)
 	result.add_t(feature)
 	return result
 }
 
-func FeatureSet_union(features *JTSet[FeatureSet_Feature], newFeatures SetT[FeatureSet_Feature]) SetT[FeatureSet_Feature] {
+func FeatureSet_union(features *TSet[FeatureSet_Feature], newFeatures SetT[FeatureSet_Feature]) SetT[FeatureSet_Feature] {
 	var result SetT[FeatureSet_Feature] = FeatureSet_enumSetOf(features)
 	result.addAll(Collection(Set_un_(newFeatures)))
 	return result
 }
 
-func FeatureSet_difference(features *JTSet[FeatureSet_Feature], removedFeatures SetT[FeatureSet_Feature]) SetT[FeatureSet_Feature] {
+func FeatureSet_difference(features *TSet[FeatureSet_Feature], removedFeatures SetT[FeatureSet_Feature]) SetT[FeatureSet_Feature] {
 	var result SetT[FeatureSet_Feature] = FeatureSet_enumSetOf(features)
 	result.removeAll(Collection(Set_un_(removedFeatures)))
 	return result
 }
 
 func (this *FeatureSet) with(feature FeatureSet_Feature) *FeatureSet {
-	if this.features_.contains(feature) {
+	if this.features_.Has(feature) {
 		return this
 	}
 	return new_FeatureSet(FeatureSet_add(this.features_, feature))
 }
 
 func (this *FeatureSet) withFeatureVarargs(newFeatures []FeatureSet_Feature) *FeatureSet {
-	return new_FeatureSet(FeatureSet_union(this.features_, setAs_(jtc_p_FeatureSet_Feature, ImmutableSet_as_Set(ImmutableSet_copyOf_ObjectArr(arrmap_(newFeatures, func(v_ FeatureSet_Feature) any { return obj_(v_) }))))))
+	return new_FeatureSet(FeatureSet_union(this.features_, setAs_(tc_p_FeatureSet_Feature, ImmutableSet_as_Set(ImmutableSet_copyOf_ObjectArr(arrmap_(newFeatures, func(v_ FeatureSet_Feature) any { return obj_(v_) }))))))
 }
 
 func (this *FeatureSet) withSet(newFeatures SetT[FeatureSet_Feature]) *FeatureSet {
@@ -152,10 +152,10 @@ func (this *FeatureSet) withFeatureSet(newFeatures *FeatureSet) *FeatureSet {
 }
 
 func (this *FeatureSet) has(feature FeatureSet_Feature) bool {
-	return this.features_.contains(feature)
+	return this.features_.Has(feature)
 }
 
-func (this *FeatureSet) getFeatures() *JTSet[FeatureSet_Feature] {
+func (this *FeatureSet) getFeatures() *TSet[FeatureSet_Feature] {
 	return this.features_
 }
 
@@ -370,7 +370,7 @@ func (this FeatureSet_LangVersion) self() any {
 }
 
 func (this FeatureSet_LangVersion) features() SetT[FeatureSet_Feature] {
-	var set SetT[FeatureSet_Feature] = tenumSetNoneOf_(jtc_p_FeatureSet_Feature, classOf_("com.google.javascript.jscomp.parsing.parser.FeatureSet.Feature")).asSetT()
+	var set SetT[FeatureSet_Feature] = tenumSetNoneOf_(tc_p_FeatureSet_Feature, classOf_("com.google.javascript.jscomp.parsing.parser.FeatureSet.Feature")).asSetT()
 	for feature := range elemsAs_[FeatureSet_Feature](obj_(EnumSet_allOf(classOf_("com.google.javascript.jscomp.parsing.parser.FeatureSet.Feature")))) {
 		if FeatureSet_Feature_version__[feature-1] == this {
 			set.add_t(feature)

@@ -43,7 +43,7 @@ func ProductionInstrumentationReporter_readFile(filePath string) *Outcome_base[s
 }
 
 func (this *ProductionInstrumentationReporter) getAllExecutionResults(folder string) *Outcome_base[ListT[MapT[string, any]]] {
-	var result *TListBuilder[MapT[string, any]] = newTListBuilder_(tc_MapT_string__any_)
+	var result *ImmutableList_Builder[MapT[string, any]] = immutableListBuilder_(tc_MapT_string__any_)
 	it_1 := foreach_(Io_listFiles(folder))
 	for it_1.next() {
 		var fileEntry string = str_(it_1.v)
@@ -66,7 +66,7 @@ func ProductionInstrumentationReporter_parseJsonStringToLongMap(json string) *Ou
 		return Outcome_base_err[MapT[string, any]](parsed.error())
 	}
 	var document *SimpleJsonValue = parsed.get()
-	var map_ *JTMap[string, any] = jnewTMap_(jtc_string, tc_Long)
+	var map_ *TMap[string, any] = newTMap_(tc_string, tc_Long)
 	if document.kind() == SimpleJsonValue_Kind_OBJECT {
 		it_1 := document.members().eachEntry()
 		for it_1.next() {
@@ -75,7 +75,7 @@ func ProductionInstrumentationReporter_parseJsonStringToLongMap(json string) *Ou
 			if value.isErr() {
 				return Outcome_base_err[MapT[string, any]](value.error())
 			}
-			map_.put(member.getKey(), value.get())
+			map_.Put(member.getKey(), value.get())
 		}
 		return Outcome_base_ok_Object[MapT[string, any]](map_.asMapT())
 	} else if document.kind() != SimpleJsonValue_Kind_ARRAY {
@@ -95,7 +95,7 @@ func ProductionInstrumentationReporter_parseJsonStringToLongMap(json string) *Ou
 		if value.isErr() {
 			return Outcome_base_err[MapT[string, any]](value.error())
 		}
-		var replaced any = map_.put(key.get(), value.get())
+		var replaced any = map_.Put(key.get(), value.get())
 		if replaced != nil {
 			return Outcome_base_err[MapT[string, any]](new_SimpleJsonException(("duplicate key: " + sstr_(key.get()))).up_Throwable())
 		}

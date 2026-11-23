@@ -5,8 +5,8 @@ package closure
 import "strings"
 
 type GatherModuleMetadata struct {
-	modulesByPath          *JTMap[string, *ModuleMetadataMap_ModuleMetadata]
-	modulesByGoogNamespace *JTMap[string, *ModuleMetadataMap_ModuleMetadata]
+	modulesByPath          *TMap[string, *ModuleMetadataMap_ModuleMetadata]
+	modulesByGoogNamespace *TMap[string, *ModuleMetadataMap_ModuleMetadata]
 	currentModule          *GatherModuleMetadata_ModuleMetadataBuilder
 	parentModule           *GatherModuleMetadata_ModuleMetadataBuilder
 	compiler_              *AbstractCompiler
@@ -16,8 +16,8 @@ type GatherModuleMetadata struct {
 }
 
 func (this *GatherModuleMetadata) finit_GatherModuleMetadata() {
-	this.modulesByPath = jnewTMap_(jtc_string, jtc_p_ModuleMetadataMap_ModuleMetadata)
-	this.modulesByGoogNamespace = jnewTMap_(jtc_string, jtc_p_ModuleMetadataMap_ModuleMetadata)
+	this.modulesByPath = newTMap_(tc_string, tc_p_ModuleMetadataMap_ModuleMetadata)
+	this.modulesByGoogNamespace = newTMap_(tc_string, tc_p_ModuleMetadataMap_ModuleMetadata)
 }
 
 func (this *GatherModuleMetadata) init_GatherModuleMetadata(compiler *AbstractCompiler, processCommonJsModules bool, moduleResolutionMode ModuleLoader_ResolutionMode) {
@@ -199,13 +199,13 @@ func (this *GatherModuleMetadata_ModuleMetadataBuilder) build() *ModuleMetadataM
 
 type GatherModuleMetadata_Finder struct {
 	outer_            *GatherModuleMetadata
-	toggleModuleNames *JTSet[string]
-	toggleModules     *JTSet[*Var]
+	toggleModuleNames *TSet[string]
+	toggleModules     *TSet[*Var]
 }
 
 func (this *GatherModuleMetadata_Finder) finit_GatherModuleMetadata_Finder() {
-	this.toggleModuleNames = jnewTSet_(jtc_string)
-	this.toggleModules = jnewTSet_(tce_p_Var)
+	this.toggleModuleNames = newTSet_(tc_string)
+	this.toggleModules = newTSet_(tch_p_Var)
 }
 
 func (this *GatherModuleMetadata_Finder) init_GatherModuleMetadata_Finder() {
@@ -272,10 +272,10 @@ func (this *GatherModuleMetadata_Finder) leaveModule() {
 	}
 	var module *ModuleMetadataMap_ModuleMetadata = this.outer_.currentModule.build()
 	if module.path() != nil {
-		this.outer_.modulesByPath.put(module.path().toString(), module)
+		this.outer_.modulesByPath.Put(module.path().toString(), module)
 	}
 	for namespace := range elemsBy_(obj_(module.googNamespaces()), str_) {
-		this.outer_.modulesByGoogNamespace.put(namespace, module)
+		this.outer_.modulesByGoogNamespace.Put(namespace, module)
 	}
 	if this.outer_.parentModule != nil {
 		this.outer_.parentModule.metadataBuilder.nestedModulesBuilder().add(module)
@@ -314,9 +314,9 @@ func (this *GatherModuleMetadata_Finder) isFromGoogImport(goog *Var) bool {
 
 func (this *GatherModuleMetadata_Finder) visitName(t *NodeTraversal, n Node) {
 	var name string = n.getString()
-	if this.toggleModuleNames.contains(name) {
+	if this.toggleModuleNames.Has(name) {
 		var nameVar *Var = t.getScope().getVar_String_rVar(name)
-		if this.toggleModules.contains(nameVar) {
+		if this.toggleModules.Has(nameVar) {
 			var parent Node = n.getParent()
 			if parent.isGetProp() {
 				this.addToggle(t, n, parent.getString())
@@ -416,8 +416,8 @@ func (this *GatherModuleMetadata_Finder) visitGoogCall(t *NodeTraversal, n Node)
 				} else if callParent.isName() {
 					var name string = callParent.getString()
 					var nameVar *Var = t.getScope().getVar_String_rVar(name)
-					this.toggleModules.add(nameVar)
-					this.toggleModuleNames.add(name)
+					this.toggleModules.Add(nameVar)
+					this.toggleModuleNames.Add(name)
 				} else if this.outer_.currentModule.metadataBuilder.moduleType() != ModuleMetadataMap_ModuleType_GOOG_PROVIDE {
 					t.report(n, GatherModuleMetadata_INVALID_TOGGLE_USAGE, []string{"import must be assigned"})
 				}
@@ -478,7 +478,7 @@ func (this *GatherModuleMetadata_Finder) addNamespace(module *GatherModuleMetada
 		existingType = module.metadataBuilder.moduleType()
 		existingFileSource = t.getSourceName()
 	} else {
-		var existingModule *ModuleMetadataMap_ModuleMetadata = this.outer_.modulesByGoogNamespace.get(namespace)
+		var existingModule *ModuleMetadataMap_ModuleMetadata = this.outer_.modulesByGoogNamespace.Get(namespace)
 		if existingModule != nil {
 			existingType = existingModule.moduleType()
 			existingFileSource = Optional_of[string](existingModule.rootNode().getSourceFileName()).filter(Predicate[string](func(s string) bool {

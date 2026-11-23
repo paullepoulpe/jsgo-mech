@@ -18,7 +18,7 @@ type Es6NormalizeClasses struct {
 }
 
 func (this *Es6NormalizeClasses) finit_Es6NormalizeClasses() {
-	this.classStack = newTDeque_(jtc_p_Es6NormalizeClasses_ClassRecord)
+	this.classStack = newTDeque_(tc_p_Es6NormalizeClasses_ClassRecord)
 }
 
 func (this *Es6NormalizeClasses) init_Es6NormalizeClasses(compiler *AbstractCompiler) {
@@ -1331,7 +1331,7 @@ func Es6NormalizeClasses_clinit() {
 	}
 	Es6NormalizeClasses_clinit_done = true
 	Es6NormalizeClasses_ILLEGAL_PRIVATE_MEMBER_ASSIGNMENT = DiagnosticType_error("JSC_ILLEGAL_PRIVATE_MEMBER_ASSIGNMENT", "Invalid assignment to private method ''#{0}''. Private methods cannot be reassigned.")
-	Es6NormalizeClasses_GENERIC_NAME_REPLACEMENTS = mapAs_(jtc_string, jtc_string, ImmutableMap_as_Map(immutableMapBuilder_(tc_string, tc_string).put("CLASS_DECL", Es6NormalizeClasses_CLASS_DECL_VAR).put("CLASS_EXTENDS", Es6NormalizeClasses_CLASS_EXTENDS_VAR).put("COMP_FIELD", Es6NormalizeClasses_COMP_FIELD_VAR).put("STATIC_INIT", Es6NormalizeClasses_STATIC_INIT_METHOD_NAME).put("STATIC_PRIVATE_MAP", Es6NormalizeClasses_STATIC_PRIVATE_MAP_VAR).put("PRIVATE_MAP", Es6NormalizeClasses_PRIVATE_MAP_VAR).put("PRIVATE_PROTO", Es6NormalizeClasses_PRIVATE_PROTO_VAR).put("PRIVATE", Es6NormalizeClasses_PRIVATE_VAR).put("TMP", Es6NormalizeClasses_TMP_VAR).buildOrThrowErased()))
+	Es6NormalizeClasses_GENERIC_NAME_REPLACEMENTS = mapAs_(tc_string, tc_string, ImmutableMap_as_Map(immutableMapBuilder_(tc_string, tc_string).put("CLASS_DECL", Es6NormalizeClasses_CLASS_DECL_VAR).put("CLASS_EXTENDS", Es6NormalizeClasses_CLASS_EXTENDS_VAR).put("COMP_FIELD", Es6NormalizeClasses_COMP_FIELD_VAR).put("STATIC_INIT", Es6NormalizeClasses_STATIC_INIT_METHOD_NAME).put("STATIC_PRIVATE_MAP", Es6NormalizeClasses_STATIC_PRIVATE_MAP_VAR).put("PRIVATE_MAP", Es6NormalizeClasses_PRIVATE_MAP_VAR).put("PRIVATE_PROTO", Es6NormalizeClasses_PRIVATE_PROTO_VAR).put("PRIVATE", Es6NormalizeClasses_PRIVATE_VAR).put("TMP", Es6NormalizeClasses_TMP_VAR).buildOrThrowErased()))
 
 }
 
@@ -1379,14 +1379,14 @@ func (this *Es6NormalizeClasses_ResolvedPrivateMember) toString() string {
 }
 
 type Es6NormalizeClasses_ClassRecord struct {
-	privateMembers                       *JTList[*Es6NormalizeClasses_ClassRecord_PrivateMember]
-	privateMembersByName                 *JTMap[string, *Es6NormalizeClasses_ClassRecord_PrivateMember]
+	privateMembers                       *TList[*Es6NormalizeClasses_ClassRecord_PrivateMember]
+	privateMembersByName                 *TMap[string, *Es6NormalizeClasses_ClassRecord_PrivateMember]
 	normalizedNames                      *Es6NormalizeClasses_NormalizedNames
 	instanceMembers                      *TDeque[Node]
 	staticMembers                        *TDeque[Node]
 	computedPropsWithSideEffects         *TDeque[Node]
-	constructorVars                      *JTSet[*Var]
-	superCalls                           *JTList[Node]
+	constructorVars                      *TSet[*Var]
+	superCalls                           *TList[Node]
 	privateMapVarName                    Optional[string]
 	staticPrivateMapVarName              Optional[string]
 	privateVarName                       Optional[string]
@@ -1402,8 +1402,8 @@ type Es6NormalizeClasses_ClassRecord struct {
 }
 
 func (this *Es6NormalizeClasses_ClassRecord) finit_Es6NormalizeClasses_ClassRecord() {
-	this.privateMembers = jnewTList_(tc_p_Es6NormalizeClasses_ClassRecord_PrivateMember)
-	this.privateMembersByName = jnewTMap_(jtc_string, tc_p_Es6NormalizeClasses_ClassRecord_PrivateMember)
+	this.privateMembers = newTList_(tc_p_Es6NormalizeClasses_ClassRecord_PrivateMember)
+	this.privateMembersByName = newTMap_(tc_string, tc_p_Es6NormalizeClasses_ClassRecord_PrivateMember)
 	this.privateMapVarName = Optional_empty[string]()
 	this.staticPrivateMapVarName = Optional_empty[string]()
 	this.hasInstancePrivateMembers = false
@@ -1414,11 +1414,11 @@ func (this *Es6NormalizeClasses_ClassRecord) finit_Es6NormalizeClasses_ClassReco
 	this.privateVarName = Optional_empty[string]()
 	this.staticPrivateVarName = Optional_empty[string]()
 	this.privateProtoVarName = Optional_empty[string]()
-	this.instanceMembers = newTDeque_(jtc_Node)
-	this.staticMembers = newTDeque_(jtc_Node)
-	this.computedPropsWithSideEffects = newTDeque_(jtc_Node)
-	this.constructorVars = jtsetEmptyImm_(tce_p_Var)
-	this.superCalls = jnewTList_(jtc_Node)
+	this.instanceMembers = newTDeque_(tc_Node)
+	this.staticMembers = newTDeque_(tc_Node)
+	this.computedPropsWithSideEffects = newTDeque_(tc_Node)
+	this.constructorVars = tsetEmptyImm_(tch_p_Var)
+	this.superCalls = newTList_(tc_Node)
 }
 
 func (this *Es6NormalizeClasses_ClassRecord) init_Es6NormalizeClasses_ClassRecord(normalizedNames *Es6NormalizeClasses_NormalizedNames, bindingIdentifier Optional[Node], classNode Node) {
@@ -1454,8 +1454,8 @@ func (this *Es6NormalizeClasses_ClassRecord) recordPrivateMember(n Node) {
 		panic(new_IllegalStateException_String(("Unexpected node for private member: " + tostrH_(n))))
 	}
 	var pm *Es6NormalizeClasses_ClassRecord_PrivateMember
-	if this.privateMembersByName.containsKey(name) {
-		pm = this.privateMembersByName.get(name)
+	if this.privateMembersByName.Has(name) {
+		pm = this.privateMembersByName.Get(name)
 		pm.declarationNodes.add(n)
 		if n.isGetterDef() {
 			pm.getterNode = n
@@ -1465,7 +1465,7 @@ func (this *Es6NormalizeClasses_ClassRecord) recordPrivateMember(n Node) {
 	} else {
 		pm = new_Es6NormalizeClasses_ClassRecord_PrivateMember(name, kind, isStatic, n)
 		this.privateMembers.add(pm)
-		this.privateMembersByName.put(name, pm)
+		this.privateMembersByName.Put(name, pm)
 	}
 	if ((kind == Es6NormalizeClasses_ClassRecord_PrivateMemberKind_METHOD) || (kind == Es6NormalizeClasses_ClassRecord_PrivateMemberKind_ACCESSOR)) && !isStatic {
 		this.hasInstancePrivateMethodsOrAccessors = true
@@ -1478,11 +1478,11 @@ func (this *Es6NormalizeClasses_ClassRecord) recordPrivateMember(n Node) {
 }
 
 func (this *Es6NormalizeClasses_ClassRecord) hasPrivateMember(name string) bool {
-	return this.privateMembersByName.containsKey(name)
+	return this.privateMembersByName.Has(name)
 }
 
 func (this *Es6NormalizeClasses_ClassRecord) getPrivateMember(name string) *Es6NormalizeClasses_ClassRecord_PrivateMember {
-	return this.privateMembersByName.get(name)
+	return this.privateMembersByName.Get(name)
 }
 
 func (this *Es6NormalizeClasses_ClassRecord) getPrivateMapVarName(compiler *AbstractCompiler, t *NodeTraversal) Optional[string] {
@@ -1551,11 +1551,11 @@ func (this *Es6NormalizeClasses_ClassRecord) recordConstructorScope(s *Scope) {
 	if !s.isFunctionBlockScope() {
 		panic(new_IllegalArgumentException_String(objstr_(s)))
 	}
-	if ok_, a1_ := this.constructorVars.isEmpty(), this.constructorVars.asSetT(); !ok_ {
+	if ok_, a1_ := this.constructorVars.IsEmpty(), this.constructorVars.asSetT(); !ok_ {
 		panic(new_IllegalStateException_String(objstr_(a1_)))
 	}
 	var argsScope *Scope = s.getParent_rScope()
-	this.constructorVars = newTSetBuilder_(tce_p_Var).addAll(s.getAllSymbols_rIterableOf_Var()).addAll(argsScope.getAllSymbols_rIterableOf_Var()).build()
+	this.constructorVars = immutableSetBuilder_(tch_p_Var).addAll(s.getAllSymbols_rIterableOf_Var()).addAll(argsScope.getAllSymbols_rIterableOf_Var()).build()
 }
 
 func (this *Es6NormalizeClasses_ClassRecord) createNewNameReferenceNode() Node {
@@ -1648,7 +1648,7 @@ func Es6NormalizeClasses_ClassRecord_PrivateMemberKind_clinit() {
 type Es6NormalizeClasses_ClassRecord_PrivateMember struct {
 	name_            string
 	kind_            Es6NormalizeClasses_ClassRecord_PrivateMemberKind
-	declarationNodes *JTList[Node]
+	declarationNodes *TList[Node]
 	methodNode       Node
 	getterNode       Node
 	setterNode       Node
@@ -1660,7 +1660,7 @@ func (this *Es6NormalizeClasses_ClassRecord_PrivateMember) zero_Es6NormalizeClas
 }
 
 func (this *Es6NormalizeClasses_ClassRecord_PrivateMember) finit_Es6NormalizeClasses_ClassRecord_PrivateMember() {
-	this.declarationNodes = jnewTList_(jtc_Node)
+	this.declarationNodes = newTList_(tc_Node)
 }
 
 func (this *Es6NormalizeClasses_ClassRecord_PrivateMember) init_Es6NormalizeClasses_ClassRecord_PrivateMember(name string, kind Es6NormalizeClasses_ClassRecord_PrivateMemberKind, isStatic bool, initialNode Node) {

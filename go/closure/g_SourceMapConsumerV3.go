@@ -7,8 +7,8 @@ type SourceMapConsumerV3 struct {
 	sourcesContent       []string
 	names_               []string
 	mappings             *SourceMapConsumerV3_Mappings
-	reverseSourceMapping *JTMap[string, MapT[any, CollectionT[*Mapping_OriginalMapping]]]
-	extensions           *JTMap[string, any]
+	reverseSourceMapping *TMap[string, MapT[any, CollectionT[*Mapping_OriginalMapping]]]
+	extensions           *TMap[string, any]
 	file                 Optional[string]
 	sourceRoot           Optional[string]
 	lineCount            int32
@@ -18,7 +18,7 @@ func (this *SourceMapConsumerV3) finit_SourceMapConsumerV3() {
 	this.file = Optional_empty[string]()
 	this.mappings = nil
 	this.sourceRoot = Optional_empty[string]()
-	this.extensions = jnewTMap_(jtc_string, tc_Object)
+	this.extensions = newTMap_(tc_string, tc_Object)
 }
 
 func (this *SourceMapConsumerV3) init_SourceMapConsumerV3() {
@@ -124,7 +124,7 @@ func (this *SourceMapConsumerV3) getMappingForLine(lineNumber int32, column int3
 }
 
 func (this *SourceMapConsumerV3) getOriginalSources() CollectionT[string] {
-	return collectionAs_(jtc_string, Collection(Arrays_asList(arrmap_(this.sources, func(v_ string) any { return strobj_(v_) }))))
+	return collectionAs_(tc_string, Collection(Arrays_asList(arrmap_(this.sources, func(v_ string) any { return strobj_(v_) }))))
 }
 
 func (this *SourceMapConsumerV3) getOriginalSourcesContent() CollectionT[string] {
@@ -132,12 +132,12 @@ func (this *SourceMapConsumerV3) getOriginalSourcesContent() CollectionT[string]
 		if this.sourcesContent == nil {
 			return nil
 		}
-		return collectionAs_(jtc_string, Collection(Arrays_asList(arrmap_(this.sourcesContent, func(v_ string) any { return strobj_(v_) }))))
+		return collectionAs_(tc_string, Collection(Arrays_asList(arrmap_(this.sourcesContent, func(v_ string) any { return strobj_(v_) }))))
 	}()
 }
 
 func (this *SourceMapConsumerV3) getOriginalNames() ListT[string] {
-	return listAs_(jtc_string, Arrays_asList(arrmap_(this.names_, func(v_ string) any { return strobj_(v_) })))
+	return listAs_(tc_string, Arrays_asList(arrmap_(this.names_, func(v_ string) any { return strobj_(v_) })))
 }
 
 func (this *SourceMapConsumerV3) getFile() Optional[string] {
@@ -152,7 +152,7 @@ func (this *SourceMapConsumerV3) getReverseMapping(originalFile string, line int
 	if this.reverseSourceMapping == nil {
 		this.createReverseMapping()
 	}
-	var sourceLineToCollectionMap MapT[any, CollectionT[*Mapping_OriginalMapping]] = this.reverseSourceMapping.get(originalFile)
+	var sourceLineToCollectionMap MapT[any, CollectionT[*Mapping_OriginalMapping]] = this.reverseSourceMapping.Get(originalFile)
 	if sourceLineToCollectionMap == nil {
 		return collectionAs_(tc_p_Mapping_OriginalMapping, Collection(Collections_emptyList()))
 	} else {
@@ -169,7 +169,7 @@ func (this *SourceMapConsumerV3) getSourceRoot() Optional[string] {
 	return this.sourceRoot
 }
 
-func (this *SourceMapConsumerV3) getExtensions() *JTMap[string, any] {
+func (this *SourceMapConsumerV3) getExtensions() *TMap[string, any] {
 	return this.extensions
 }
 
@@ -220,7 +220,7 @@ func (this *SourceMapConsumerV3) getOriginalMappingForEntry(index int32, precisi
 }
 
 func (this *SourceMapConsumerV3) createReverseMapping() {
-	this.reverseSourceMapping = jnewTMap_(jtc_string, tc_MapT_any__CollectionT_p_Mapping_OriginalMapping__)
+	this.reverseSourceMapping = newTMap_(tc_string, tc_MapT_any__CollectionT_p_Mapping_OriginalMapping__)
 	for targetLine := int32(0); targetLine < this.mappings.getParsedLineCount(); targetLine++ {
 		var start int32 = this.mappings.getLineStart(targetLine)
 		var end int32 = this.mappings.getLineStart((targetLine + 1))
@@ -229,11 +229,11 @@ func (this *SourceMapConsumerV3) createReverseMapping() {
 			var sourceLine int32 = this.mappings.getSourceLine(i)
 			if (sourceFileId != SourceMapConsumerV3_UNMAPPED) && (sourceLine != SourceMapConsumerV3_UNMAPPED) {
 				var originalFile string = this.sources[sourceFileId]
-				var lineToCollectionMap MapT[any, CollectionT[*Mapping_OriginalMapping]] = this.reverseSourceMapping.computeIfAbsent(originalFile, Function[string, MapT[any, CollectionT[*Mapping_OriginalMapping]]](func(k string) MapT[any, CollectionT[*Mapping_OriginalMapping]] {
-					return jnewTMap_(tc_Integer, tc_CollectionT_p_Mapping_OriginalMapping_).asMapT()
+				var lineToCollectionMap MapT[any, CollectionT[*Mapping_OriginalMapping]] = this.reverseSourceMapping.ComputeIfAbsent(originalFile, Function[string, MapT[any, CollectionT[*Mapping_OriginalMapping]]](func(k string) MapT[any, CollectionT[*Mapping_OriginalMapping]] {
+					return newTMap_(tc_Integer, tc_CollectionT_p_Mapping_OriginalMapping_).asMapT()
 				}))
 				if !lineToCollectionMap.containsKey(int32(sourceLine)) {
-					lineToCollectionMap.put_t(int32(sourceLine), jnewTListN_(tc_p_Mapping_OriginalMapping, 1).asCollT())
+					lineToCollectionMap.put_t(int32(sourceLine), newTListN_(tc_p_Mapping_OriginalMapping, 1).asCollT())
 				}
 				var mappingsLine CollectionT[*Mapping_OriginalMapping] = lineToCollectionMap.get_t(int32(sourceLine))
 				var builder *Mapping_OriginalMapping_Builder = Mapping_OriginalMapping_newBuilder().setLineNumber(targetLine).setColumnPosition(this.mappings.getGeneratedColumn(i))

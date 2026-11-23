@@ -61,8 +61,8 @@ func ModuleRenaming_getGlobalNameForJsDoc(moduleMap *ModuleMap, binding *Binding
 	for (binding.isModuleNamespace() && binding.metadata().isEs6Module()) && (prop < propertyChain.size()) {
 		var propertyName string = propertyChain.get_t(prop)
 		var m *Module = moduleMap.getModule(binding.metadata().path())
-		if m.namespace().containsKey(propertyName) {
-			binding = m.namespace().get(propertyName)
+		if m.namespace().Has(propertyName) {
+			binding = m.namespace().Get(propertyName)
 		} else {
 			break
 		}
@@ -102,7 +102,7 @@ func (this *ModuleRenaming_GlobalizedModuleName) toQname(astFactory *AstFactory)
 	if this.aliasName().isSimple() {
 		return rootName
 	}
-	return astFactory.createGetPropsWithoutColors(rootName, iterableAs_(jtc_string, Iterables_skip(Iterable_un_(this.aliasName().components()), 1)))
+	return astFactory.createGetPropsWithoutColors(rootName, iterableAs_(tc_string, Iterables_skip(Iterable_un_(this.aliasName().components()), 1)))
 }
 
 func (this *ModuleRenaming_GlobalizedModuleName) getprop(property string) *ModuleRenaming_GlobalizedModuleName {

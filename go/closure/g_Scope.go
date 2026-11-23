@@ -5,7 +5,7 @@ package closure
 type Scope struct {
 	AbstractScope
 	parent       *Scope
-	vars         *JTMap[string, *Var]
+	vars         *TMap[string, *Var]
 	implicitVars MapT[AbstractScope_ImplicitVar, *Var]
 	depth        int32
 }
@@ -18,8 +18,8 @@ func (this *Scope) up_AbstractScope() *AbstractScope {
 }
 
 func (this *Scope) finit_Scope() {
-	this.vars = jtmapEmptyImm_(jtc_string, jtc_p_Var)
-	this.implicitVars = jtmapEmptyImm_(tc_p_AbstractScope_ImplicitVar, jtc_p_Var).asMapT()
+	this.vars = tmapEmptyImm_(tc_string, tc_p_Var)
+	this.implicitVars = tmapEmptyImm_(tc_p_AbstractScope_ImplicitVar, tc_p_Var).asMapT()
 }
 
 func (this *Scope) init_Scope_Scope_Node(parent *Scope, rootNode Node) {
@@ -135,35 +135,35 @@ func (this *Scope) undeclare(var_ *Var) {
 	if var_.getScope_rAbstractScope_rScope() != this {
 		panic(new_IllegalStateException_0())
 	}
-	if !this.vars.get(var_.getName()).equals_ScopedName(var_.up_ScopedName()) {
+	if !this.vars.Get(var_.getName()).equals_ScopedName(var_.up_ScopedName()) {
 		panic(new_IllegalStateException_0())
 	}
 	this.undeclareInteral(var_)
 }
 
 func (this *Scope) undeclareInteral(var_ *Var) {
-	this.vars.remove(var_.getName())
+	this.vars.Delete(var_.getName())
 }
 
 func (this *Scope) declareInternal(name string, var_ *Var) {
 	if ok_, a1_ := (this.hasOwnSlot(name) || this.canDeclare(name)), var_.getNode(); !ok_ {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("Illegal shadow: %s", []any{a1_.box_()})))
 	}
-	var emptySentinel *JTMap[string, *Var] = jtmapEmptyImm_(jtc_string, jtc_p_Var)
+	var emptySentinel *TMap[string, *Var] = tmapEmptyImm_(tc_string, tc_p_Var)
 	if this.vars == emptySentinel {
-		this.vars = newTMapN_(jtc_string, jtc_p_Var, 1)
+		this.vars = newTMapN_(tc_string, tc_p_Var, 1)
 	}
-	this.vars.put(name, var_)
+	this.vars.Put(name, var_)
 }
 
 func (this *Scope) clearVarsInternal_impl() {
-	if !this.vars.isEmpty() {
-		this.vars.clear()
+	if !this.vars.IsEmpty() {
+		this.vars.Clear()
 	}
 }
 
 func (this *Scope) hasOwnSlot_impl(name string) bool {
-	return (this.vars.containsKey(name) || this.hasOwnImplicitSlot(AbstractScope_ImplicitVar_of(name)))
+	return (this.vars.Has(name) || this.hasOwnImplicitSlot(AbstractScope_ImplicitVar_of(name)))
 }
 
 func (this *Scope) hasSlot_impl(name string) bool {
@@ -182,15 +182,15 @@ func (this *Scope) getOwnImplicitSlot(name AbstractScope_ImplicitVar) *Var {
 	if !this.hasOwnImplicitSlot(name) {
 		return nil
 	}
-	var emptySentinel *JTMap[AbstractScope_ImplicitVar, *Var] = jtmapEmptyImm_(tc_p_AbstractScope_ImplicitVar, jtc_p_Var)
+	var emptySentinel *TMap[AbstractScope_ImplicitVar, *Var] = tmapEmptyImm_(tc_p_AbstractScope_ImplicitVar, tc_p_Var)
 	if lgBox_(this.implicitVars) == emptySentinel.asMap() {
-		this.implicitVars = mapAs_(tc_p_AbstractScope_ImplicitVar, jtc_p_Var, Map(new_EnumMap(classOf_("com.google.javascript.jscomp.AbstractScope.ImplicitVar"))))
+		this.implicitVars = mapAs_(tc_p_AbstractScope_ImplicitVar, tc_p_Var, Map(new_EnumMap(classOf_("com.google.javascript.jscomp.AbstractScope.ImplicitVar"))))
 	}
 	return Map_computeIfAbsentT_[AbstractScope_ImplicitVar, *Var](this.implicitVars, name, Function[AbstractScope_ImplicitVar, *Var](func(p0 AbstractScope_ImplicitVar) *Var { return this.makeImplicitVar_ImplicitVar_rVar(p0) }))
 }
 
 func (this *Scope) getOwnSlot_String_rAbstractVar_rVar(name string) *Var {
-	var var_ *Var = this.vars.get(name)
+	var var_ *Var = this.vars.Get(name)
 	if var_ != nil {
 		return var_
 	}
@@ -241,11 +241,11 @@ func (this *Scope) getVarIterable_rIterableOf_Var() IterableT[*Var] {
 }
 
 func (this *Scope) getAllAccessibleVariables_rIterableOf_Var() IterableT[*Var] {
-	var accessibleVars *JTMap[string, *Var] = jnewTMap_(jtc_string, jtc_p_Var)
+	var accessibleVars *TMap[string, *Var] = newTMap_(tc_string, tc_p_Var)
 	var s *Scope = this
 	for s != nil {
 		for v := range elemsT_(s.getVarIterable_rIterableOf_Var()) {
-			accessibleVars.putIfAbsent(v.getName(), v)
+			accessibleVars.PutIfAbsent(v.getName(), v)
 		}
 		s = s.getParent_rScope()
 	}
@@ -257,7 +257,7 @@ func (this *Scope) getAllSymbols_rIterableOf_Var() IterableT[*Var] {
 }
 
 func (this *Scope) getVarCount_impl() int32 {
-	return this.vars.size()
+	return this.vars.Len()
 }
 
 func (this *Scope) getClosestHoistScope_rScope() *Scope {
@@ -366,15 +366,15 @@ func (this *Scope) getArgumentsVar_impl() *AbstractVar {
 }
 
 func (this *Scope) getVarIterable_impl() IterableT[*AbstractVar] {
-	return iterableAs_(jtc_p_AbstractVar, Iterable_un_(this.getVarIterable_rIterableOf_Var()))
+	return iterableAs_(tc_p_AbstractVar, Iterable_un_(this.getVarIterable_rIterableOf_Var()))
 }
 
 func (this *Scope) getAllAccessibleVariables_impl() IterableT[*AbstractVar] {
-	return iterableAs_(jtc_p_AbstractVar, Iterable_un_(this.getAllAccessibleVariables_rIterableOf_Var()))
+	return iterableAs_(tc_p_AbstractVar, Iterable_un_(this.getAllAccessibleVariables_rIterableOf_Var()))
 }
 
 func (this *Scope) getAllSymbols_impl() IterableT[*AbstractVar] {
-	return iterableAs_(jtc_p_AbstractVar, Iterable_un_(this.getAllSymbols_rIterableOf_Var()))
+	return iterableAs_(tc_p_AbstractVar, Iterable_un_(this.getAllSymbols_rIterableOf_Var()))
 }
 
 func (this *Scope) getClosestHoistScope_impl() *AbstractScope {

@@ -10,7 +10,7 @@ type JSDocInfo struct {
 
 func (this *JSDocInfo) init_JSDocInfo(bits int64, props TreeMapOf[*JSDocInfo_Property, any]) {
 	var keys int64 = 0
-	var values *JTList[any] = jnewTList_(tc_Object)
+	var values *TList[any] = newTList_(tc_Object)
 	for entry := range elemsBy_(props.entrySet(), icast_Map_Entry) {
 		var prop *JSDocInfo_Property = to_JSDocInfo_Property(entry.getKey())
 		var value any = entry.getValue()
@@ -73,7 +73,7 @@ func (this *JSDocInfo) clone_rJSDocInfo() *JSDocInfo {
 	return this.clone_1(false)
 }
 
-func (this *JSDocInfo) cloneAndReplaceTypeNames(names *JTSet[string]) *JSDocInfo {
+func (this *JSDocInfo) cloneAndReplaceTypeNames(names *TSet[string]) *JSDocInfo {
 	return this.toBuilder_1(func(type_ *JSTypeExpression) *JSTypeExpression {
 		return type_.replaceNamesWithUnknownType(names)
 	}).build()
@@ -316,7 +316,7 @@ func (this *JSDocInfo) getVisibility() JSDocInfo_Visibility {
 }
 
 func (this *JSDocInfo) getParameterType(parameter Optional[string]) *JSTypeExpression {
-	var params MapT[string, *JSTypeExpression] = mapAs_(jtc_string, jtc_p_JSTypeExpression, icast_Map(JSDocInfo_PARAMETERS.get(this)))
+	var params MapT[string, *JSTypeExpression] = mapAs_(tc_string, tc_p_JSTypeExpression, icast_Map(JSDocInfo_PARAMETERS.get(this)))
 	return func() *JSTypeExpression {
 		if params != nil {
 			return func() *JSTypeExpression {
@@ -331,7 +331,7 @@ func (this *JSDocInfo) getParameterType(parameter Optional[string]) *JSTypeExpre
 }
 
 func (this *JSDocInfo) hasParameter(parameter string) bool {
-	var params MapT[string, *JSTypeExpression] = mapAs_(jtc_string, jtc_p_JSTypeExpression, icast_Map(JSDocInfo_PARAMETERS.get(this)))
+	var params MapT[string, *JSTypeExpression] = mapAs_(tc_string, tc_p_JSTypeExpression, icast_Map(JSDocInfo_PARAMETERS.get(this)))
 	return ((params != nil) && Map_containsKey_s(Map_un_(params), parameter))
 }
 
@@ -339,18 +339,18 @@ func (this *JSDocInfo) hasParameterType(parameter Optional[string]) bool {
 	return (this.getParameterType(parameter) != nil)
 }
 
-func (this *JSDocInfo) getParameterNames() *JTSet[string] {
-	var params MapT[string, *JSTypeExpression] = mapAs_(jtc_string, jtc_p_JSTypeExpression, icast_Map(JSDocInfo_PARAMETERS.get(this)))
-	return func() *JTSet[string] {
+func (this *JSDocInfo) getParameterNames() *TSet[string] {
+	var params MapT[string, *JSTypeExpression] = mapAs_(tc_string, tc_p_JSTypeExpression, icast_Map(JSDocInfo_PARAMETERS.get(this)))
+	return func() *TSet[string] {
 		if params != nil {
-			return jimmutableSetCopyOf_(jtc_string, Collection(Set_un_(params.keySet_t())))
+			return immutableSetCopyOf_(tc_string, Collection(Set_un_(params.keySet_t())))
 		}
-		return jtsetEmptyImm_(jtc_string)
+		return tsetEmptyImm_(tc_string)
 	}()
 }
 
 func (this *JSDocInfo) getParameterNameAt(index int32) Optional[string] {
-	var params MapT[string, *JSTypeExpression] = mapAs_(jtc_string, jtc_p_JSTypeExpression, icast_Map(JSDocInfo_PARAMETERS.get(this)))
+	var params MapT[string, *JSTypeExpression] = mapAs_(tc_string, tc_p_JSTypeExpression, icast_Map(JSDocInfo_PARAMETERS.get(this)))
 	if (params == nil) || (index >= params.size()) {
 		return Optional_empty[string]()
 	}
@@ -358,7 +358,7 @@ func (this *JSDocInfo) getParameterNameAt(index int32) Optional[string] {
 }
 
 func (this *JSDocInfo) getParameterCount() int32 {
-	var params MapT[string, *JSTypeExpression] = mapAs_(jtc_string, jtc_p_JSTypeExpression, icast_Map(JSDocInfo_PARAMETERS.get(this)))
+	var params MapT[string, *JSTypeExpression] = mapAs_(tc_string, tc_p_JSTypeExpression, icast_Map(JSDocInfo_PARAMETERS.get(this)))
 	return func() int32 {
 		if params != nil {
 			return params.size()
@@ -368,12 +368,12 @@ func (this *JSDocInfo) getParameterCount() int32 {
 }
 
 func (this *JSDocInfo) getThrowsAnnotations() ListT[string] {
-	var annotations ListT[string] = listAs_(jtc_string, icast_List(JSDocInfo_THROWS_ANNOTATIONS.get(this)))
+	var annotations ListT[string] = listAs_(tc_string, icast_List(JSDocInfo_THROWS_ANNOTATIONS.get(this)))
 	return func() ListT[string] {
 		if annotations != nil {
 			return annotations
 		}
-		return jtlistEmptyImm_(jtc_string).asListT()
+		return tlistEmptyImm_(tc_string).asListT()
 	}()
 }
 
@@ -433,13 +433,13 @@ func (this *JSDocInfo) getDescription() Optional[string] {
 	return Optional_ofNullable[string](str_(JSDocInfo_DESCRIPTION.get(this)))
 }
 
-func (this *JSDocInfo) getTsTypes() *JTList[string] {
-	var types ListT[string] = listAs_(jtc_string, icast_List(JSDocInfo_TS_TYPES.get(this)))
-	return func() *JTList[string] {
+func (this *JSDocInfo) getTsTypes() *TList[string] {
+	var types ListT[string] = listAs_(tc_string, icast_List(JSDocInfo_TS_TYPES.get(this)))
+	return func() *TList[string] {
 		if types != nil {
-			return jimmutableListCopyOf_(jtc_string, Collection(List_un_(types)))
+			return immutableListCopyOf_(tc_string, Collection(List_un_(types)))
 		}
-		return jtlistEmptyImm_(jtc_string)
+		return tlistEmptyImm_(tc_string)
 	}()
 }
 
@@ -582,18 +582,18 @@ func (this *JSDocInfo) getDeprecationReason() Optional[string] {
 	return Optional_ofNullable[string](str_(JSDocInfo_DEPRECATION_REASON.get(this)))
 }
 
-func (this *JSDocInfo) getSuppressions() *JTSet[string] {
+func (this *JSDocInfo) getSuppressions() *TSet[string] {
 	var suppressions ImmutableMapOf[SetT[string], string] = cast_[*ErasedImmutableMap](JSDocInfo_SUPPRESSIONS.get(this))
 	if suppressions == nil {
-		return jtsetEmptyImm_(jtc_string)
+		return tsetEmptyImm_(tc_string)
 	}
 	var nameSets ImmutableSetOf[SetT[string]] = cast_[*ErasedImmutableSet](suppressions.keySet())
-	var names *JTSet[string] = jnewTSet_(jtc_string)
+	var names *TSet[string] = newTSet_(tc_string)
 	for _, el_1 := range immElems_(nameSets) {
-		var nameSet SetT[string] = setAs_(jtc_string, icast_Set(el_1))
+		var nameSet SetT[string] = setAs_(tc_string, icast_Set(el_1))
 		names.asSetT().addAll(Collection(Set_un_(nameSet)))
 	}
-	return immutableSetCopyOfT_(jtc_string, names)
+	return immutableSetCopyOfT_(tc_string, names)
 }
 
 func (this *JSDocInfo) getSuppressionsAndTheirDescription() ImmutableMapOf[SetT[string], string] {
@@ -606,23 +606,23 @@ func (this *JSDocInfo) getSuppressionsAndTheirDescription() ImmutableMapOf[SetT[
 	}()
 }
 
-func (this *JSDocInfo) getModifies() *JTSet[string] {
-	var modifies *JTSet[string] = tsetImm_(jtc_string, cast_[*ErasedImmutableSet](JSDocInfo_MODIFIES.get(this)))
-	return func() *JTSet[string] {
+func (this *JSDocInfo) getModifies() *TSet[string] {
+	var modifies *TSet[string] = tsetImm_(tc_string, cast_[*ErasedImmutableSet](JSDocInfo_MODIFIES.get(this)))
+	return func() *TSet[string] {
 		if modifies != nil {
 			return modifies
 		}
-		return jtsetEmptyImm_(jtc_string)
+		return tsetEmptyImm_(tc_string)
 	}()
 }
 
 func (this *JSDocInfo) hasDescriptionForParameter(name string) bool {
-	var params MapT[string, string] = mapAs_(jtc_string, jtc_string, icast_Map(JSDocInfo_PARAMETER_DESCRIPTIONS.get(this)))
+	var params MapT[string, string] = mapAs_(tc_string, tc_string, icast_Map(JSDocInfo_PARAMETER_DESCRIPTIONS.get(this)))
 	return ((params != nil) && Map_containsKey_s(Map_un_(params), name))
 }
 
 func (this *JSDocInfo) getDescriptionForParameter(name string) Optional[string] {
-	var params MapT[string, string] = mapAs_(jtc_string, jtc_string, icast_Map(JSDocInfo_PARAMETER_DESCRIPTIONS.get(this)))
+	var params MapT[string, string] = mapAs_(tc_string, tc_string, icast_Map(JSDocInfo_PARAMETER_DESCRIPTIONS.get(this)))
 	return func() Optional[string] {
 		if params != nil {
 			return Optional_ofNullable[string](Map_get_sT_[string](params, name))
@@ -632,11 +632,11 @@ func (this *JSDocInfo) getDescriptionForParameter(name string) Optional[string] 
 }
 
 func (this *JSDocInfo) getAuthors() ListT[string] {
-	return listAs_(jtc_string, icast_List(JSDocInfo_AUTHORS.get(this)))
+	return listAs_(tc_string, icast_List(JSDocInfo_AUTHORS.get(this)))
 }
 
 func (this *JSDocInfo) getReferences() ListT[string] {
-	return listAs_(jtc_string, icast_List(JSDocInfo_SEES.get(this)))
+	return listAs_(tc_string, icast_List(JSDocInfo_SEES.get(this)))
 }
 
 func (this *JSDocInfo) getReturnDescription() Optional[string] {
@@ -677,42 +677,42 @@ func (this *JSDocInfo) getMarkers() CollectionT[*JSDocInfo_Marker] {
 		if markers != nil {
 			return markers
 		}
-		return jtlistEmptyImm_(tc_p_JSDocInfo_Marker).asCollT()
+		return tlistEmptyImm_(tc_p_JSDocInfo_Marker).asCollT()
 	}()
 }
 
-func (this *JSDocInfo) getTemplateTypeNames() *JTList[string] {
-	var map_ MapT[string, *JSTypeExpression] = mapAs_(jtc_string, jtc_p_JSTypeExpression, icast_Map(JSDocInfo_TEMPLATE_TYPE_NAMES.get(this)))
-	return func() *JTList[string] {
+func (this *JSDocInfo) getTemplateTypeNames() *TList[string] {
+	var map_ MapT[string, *JSTypeExpression] = mapAs_(tc_string, tc_p_JSTypeExpression, icast_Map(JSDocInfo_TEMPLATE_TYPE_NAMES.get(this)))
+	return func() *TList[string] {
 		if map_ != nil {
-			return jimmutableListCopyOf_(jtc_string, Collection(Set_un_(map_.keySet_t())))
+			return immutableListCopyOf_(tc_string, Collection(Set_un_(map_.keySet_t())))
 		}
-		return jtlistEmptyImm_(jtc_string)
+		return tlistEmptyImm_(tc_string)
 	}()
 }
 
-func (this *JSDocInfo) getTemplateTypes() *JTMap[string, *JSTypeExpression] {
-	var map_ MapT[string, *JSTypeExpression] = mapAs_(jtc_string, jtc_p_JSTypeExpression, icast_Map(JSDocInfo_TEMPLATE_TYPE_NAMES.get(this)))
-	return func() *JTMap[string, *JSTypeExpression] {
+func (this *JSDocInfo) getTemplateTypes() *TMap[string, *JSTypeExpression] {
+	var map_ MapT[string, *JSTypeExpression] = mapAs_(tc_string, tc_p_JSTypeExpression, icast_Map(JSDocInfo_TEMPLATE_TYPE_NAMES.get(this)))
+	return func() *TMap[string, *JSTypeExpression] {
 		if map_ != nil {
-			return jimmutableMapCopyOf_(jtc_string, jtc_p_JSTypeExpression, Map_un_(map_))
+			return immutableMapCopyOf_(tc_string, tc_p_JSTypeExpression, Map_un_(map_))
 		}
-		return jtmapEmptyImm_(jtc_string, jtc_p_JSTypeExpression)
+		return tmapEmptyImm_(tc_string, tc_p_JSTypeExpression)
 	}()
 }
 
-func (this *JSDocInfo) getTypeTransformations() *JTMap[string, Node] {
-	var map_ MapT[string, Node] = mapAs_(jtc_string, jtc_Node, icast_Map(JSDocInfo_TYPE_TRANSFORMATIONS.get(this)))
-	return func() *JTMap[string, Node] {
+func (this *JSDocInfo) getTypeTransformations() *TMap[string, Node] {
+	var map_ MapT[string, Node] = mapAs_(tc_string, tc_Node, icast_Map(JSDocInfo_TYPE_TRANSFORMATIONS.get(this)))
+	return func() *TMap[string, Node] {
 		if map_ != nil {
-			return jimmutableMapCopyOf_(jtc_string, jtc_Node, Map_un_(map_))
+			return immutableMapCopyOf_(tc_string, tc_Node, Map_un_(map_))
 		}
-		return jtmapEmptyImm_(jtc_string, jtc_Node)
+		return tmapEmptyImm_(tc_string, tc_Node)
 	}()
 }
 
 func (this *JSDocInfo) getTypeExpressions() CollectionT[*JSTypeExpression] {
-	var builder *TListBuilder[*JSTypeExpression] = newTListBuilder_(jtc_p_JSTypeExpression)
+	var builder *ImmutableList_Builder[*JSTypeExpression] = immutableListBuilder_(tc_p_JSTypeExpression)
 	var bits int64 = this.propertyKeysBitset
 	var index int32 = 0
 	for bits > 0 {
@@ -731,7 +731,7 @@ func (this *JSDocInfo) getTypeExpressions() CollectionT[*JSTypeExpression] {
 }
 
 func (this *JSDocInfo) getTypeNodes() CollectionT[Node] {
-	var nodes *JTList[Node] = jnewTList_(jtc_Node)
+	var nodes *TList[Node] = newTList_(tc_Node)
 	for type_ := range elemsT_(this.getTypeExpressions()) {
 		nodes.add(type_.getRoot())
 	}
@@ -739,7 +739,7 @@ func (this *JSDocInfo) getTypeNodes() CollectionT[Node] {
 }
 
 func (this *JSDocInfo) hasModifies() bool {
-	return (setAs_(jtc_string, icast_Set(JSDocInfo_MODIFIES.get(this))) != nil)
+	return (setAs_(tc_string, icast_Set(JSDocInfo_MODIFIES.get(this))) != nil)
 }
 
 func (this *JSDocInfo) getOriginalCommentString() Optional[string] {
@@ -757,12 +757,12 @@ func (this *JSDocInfo) getOriginalCommentPosition() int32 {
 }
 
 func (this *JSDocInfo) modifiesThis() bool {
-	return this.getModifies().contains("this")
+	return this.getModifies().Has("this")
 }
 
 func (this *JSDocInfo) hasSideEffectsArgumentsAnnotation() bool {
-	var modifies *JTSet[string] = this.getModifies()
-	return ((modifies.size() > 1) || ((modifies.size() == 1) && !modifies.contains("this")))
+	var modifies *TSet[string] = this.getModifies()
+	return ((modifies.Len() > 1) || ((modifies.Len() == 1) && !modifies.Has("this")))
 }
 
 func (this *JSDocInfo) getLogTypeInCompiler() bool {
@@ -792,7 +792,7 @@ func (this *JSDocInfo) getPropertyValueByIndex(index int32) any {
 	return this.propertyValues
 }
 
-func JSDocInfo_packPropertyValues(values *JTList[any]) any {
+func JSDocInfo_packPropertyValues(values *TList[any]) any {
 	return func() any {
 		if values.isEmpty() {
 			return nil
@@ -806,8 +806,8 @@ func JSDocInfo_packPropertyValues(values *JTList[any]) any {
 	}()
 }
 
-func JSDocInfo_internSet(strings *JTSet[string]) *JTSet[string] {
-	var interned *TSetBuilder[string] = newTSetBuilderN_(jtc_string, strings.size())
+func JSDocInfo_internSet(strings *TSet[string]) *TSet[string] {
+	var interned *ImmutableSet_Builder[string] = immutableSetBuilderN_(tc_string, strings.Len())
 	it_1 := strings.each()
 	for it_1.next() {
 		var s string = it_1.v
@@ -987,7 +987,7 @@ func (this *JSDocInfo_Property) equalValues_impl(left any, right any) bool {
 }
 
 func (this *JSDocInfo_Property) getTypeExpressions_Object_impl(unusedValue any) IterableT[*JSTypeExpression] {
-	return jtlistEmptyImm_(jtc_p_JSTypeExpression).asIterable()
+	return tlistEmptyImm_(tc_p_JSTypeExpression).asIterable()
 }
 
 func (this *JSDocInfo_Property) compareTo(that_ any) int32 {
@@ -1114,8 +1114,8 @@ func (this *JSDocInfo_TypeProperty) equalValues_impl(left_ any, right_ any) bool
 	return left.isEquivalentTo(right)
 }
 
-func (this *JSDocInfo_TypeProperty) getTypeExpressions_Object_rImmutableList(type_ *JSTypeExpression) *JTList[*JSTypeExpression] {
-	return jimmutableListOf_[*JSTypeExpression](jtc_p_JSTypeExpression, type_)
+func (this *JSDocInfo_TypeProperty) getTypeExpressions_Object_rImmutableList(type_ *JSTypeExpression) *TList[*JSTypeExpression] {
+	return immutableListOf_[*JSTypeExpression](tc_p_JSTypeExpression, type_)
 }
 
 func (this *JSDocInfo_TypeProperty) getTypeExpressions_Object_impl(p0 any) IterableT[*JSTypeExpression] {
@@ -1150,19 +1150,19 @@ func new_JSDocInfo_TypeListProperty(name string) *JSDocInfo_TypeListProperty {
 }
 
 func (this *JSDocInfo_TypeListProperty) getUnmodifiable(info *JSDocInfo) ListT[*JSTypeExpression] {
-	var value ListT[*JSTypeExpression] = listAs_(jtc_p_JSTypeExpression, icast_List(this.get(info)))
+	var value ListT[*JSTypeExpression] = listAs_(tc_p_JSTypeExpression, icast_List(this.get(info)))
 	return func() ListT[*JSTypeExpression] {
 		if value != nil {
 			return value
 		}
-		return jtlistEmptyImm_(jtc_p_JSTypeExpression).asListT()
+		return tlistEmptyImm_(tc_p_JSTypeExpression).asListT()
 	}()
 }
 
 func (this *JSDocInfo_TypeListProperty) clone_impl(arg_ any, transform func(*JSTypeExpression) *JSTypeExpression) any {
-	var arg ListT[*JSTypeExpression] = listAs_(jtc_p_JSTypeExpression, icast_List(arg_))
+	var arg ListT[*JSTypeExpression] = listAs_(tc_p_JSTypeExpression, icast_List(arg_))
 	_ = arg
-	var out ListT[*JSTypeExpression] = jtlistFrom_(jtc_p_JSTypeExpression, Collection(List_un_(arg))).asListT()
+	var out ListT[*JSTypeExpression] = tlistFrom_(tc_p_JSTypeExpression, Collection(List_un_(arg))).asListT()
 	if transform != nil {
 		for i := int32(0); i < out.size(); i++ {
 			var elem *JSTypeExpression = out.get_t(i)
@@ -1175,9 +1175,9 @@ func (this *JSDocInfo_TypeListProperty) clone_impl(arg_ any, transform func(*JST
 }
 
 func (this *JSDocInfo_TypeListProperty) equalValues_impl(left_ any, right_ any) bool {
-	var left ListT[*JSTypeExpression] = listAs_(jtc_p_JSTypeExpression, icast_List(left_))
+	var left ListT[*JSTypeExpression] = listAs_(tc_p_JSTypeExpression, icast_List(left_))
 	_ = left
-	var right ListT[*JSTypeExpression] = listAs_(jtc_p_JSTypeExpression, icast_List(right_))
+	var right ListT[*JSTypeExpression] = listAs_(tc_p_JSTypeExpression, icast_List(right_))
 	_ = right
 	if left.size() != right.size() {
 		return false
@@ -1195,7 +1195,7 @@ func (this *JSDocInfo_TypeListProperty) equalValues_impl(left_ any, right_ any) 
 }
 
 func (this *JSDocInfo_TypeListProperty) getTypeExpressions_Object_impl(types_ any) IterableT[*JSTypeExpression] {
-	var types ListT[*JSTypeExpression] = listAs_(jtc_p_JSTypeExpression, icast_List(types_))
+	var types ListT[*JSTypeExpression] = listAs_(tc_p_JSTypeExpression, icast_List(types_))
 	_ = types
 	return types
 }
@@ -1228,9 +1228,9 @@ func new_JSDocInfo_TypeMapProperty(name string) *JSDocInfo_TypeMapProperty {
 }
 
 func (this *JSDocInfo_TypeMapProperty) clone_impl(arg_ any, transform func(*JSTypeExpression) *JSTypeExpression) any {
-	var arg MapT[string, *JSTypeExpression] = mapAs_(jtc_string, jtc_p_JSTypeExpression, icast_Map(arg_))
+	var arg MapT[string, *JSTypeExpression] = mapAs_(tc_string, tc_p_JSTypeExpression, icast_Map(arg_))
 	_ = arg
-	var out MapT[string, *JSTypeExpression] = jtmapFrom_(jtc_string, jtc_p_JSTypeExpression, Map_un_(arg)).asMapT()
+	var out MapT[string, *JSTypeExpression] = tmapFrom_(tc_string, tc_p_JSTypeExpression, Map_un_(arg), false).asMapT()
 	if transform != nil {
 		for entry := range elemsT_(out.entrySet_t()) {
 			var elem *JSTypeExpression = entry.getValue_t()
@@ -1243,9 +1243,9 @@ func (this *JSDocInfo_TypeMapProperty) clone_impl(arg_ any, transform func(*JSTy
 }
 
 func (this *JSDocInfo_TypeMapProperty) equalValues_impl(left_ any, right_ any) bool {
-	var left MapT[string, *JSTypeExpression] = mapAs_(jtc_string, jtc_p_JSTypeExpression, icast_Map(left_))
+	var left MapT[string, *JSTypeExpression] = mapAs_(tc_string, tc_p_JSTypeExpression, icast_Map(left_))
 	_ = left
-	var right MapT[string, *JSTypeExpression] = mapAs_(jtc_string, jtc_p_JSTypeExpression, icast_Map(right_))
+	var right MapT[string, *JSTypeExpression] = mapAs_(tc_string, tc_p_JSTypeExpression, icast_Map(right_))
 	_ = right
 	var leftKeys SetT[string] = left.keySet_t()
 	var rightKeys SetT[string] = right.keySet_t()
@@ -1269,7 +1269,7 @@ func (this *JSDocInfo_TypeMapProperty) areEquivalent(expr1 *JSTypeExpression, ex
 }
 
 func (this *JSDocInfo_TypeMapProperty) getTypeExpressions_Object_impl(map__ any) IterableT[*JSTypeExpression] {
-	var map_ MapT[string, *JSTypeExpression] = mapAs_(jtc_string, jtc_p_JSTypeExpression, icast_Map(map__))
+	var map_ MapT[string, *JSTypeExpression] = mapAs_(tc_string, tc_p_JSTypeExpression, icast_Map(map__))
 	_ = map_
 	return map_.values_t()
 }
@@ -1302,15 +1302,15 @@ func new_JSDocInfo_NodeMapProperty(name string) *JSDocInfo_NodeMapProperty {
 }
 
 func (this *JSDocInfo_NodeMapProperty) clone_impl(arg_ any, transform func(*JSTypeExpression) *JSTypeExpression) any {
-	var arg MapT[string, Node] = mapAs_(jtc_string, jtc_Node, icast_Map(arg_))
+	var arg MapT[string, Node] = mapAs_(tc_string, tc_Node, icast_Map(arg_))
 	_ = arg
-	return lgBox_(jtmapFrom_(jtc_string, jtc_Node, Map_un_(arg)).asMapT())
+	return lgBox_(tmapFrom_(tc_string, tc_Node, Map_un_(arg), false).asMapT())
 }
 
 func (this *JSDocInfo_NodeMapProperty) equalValues_impl(left_ any, right_ any) bool {
-	var left MapT[string, Node] = mapAs_(jtc_string, jtc_Node, icast_Map(left_))
+	var left MapT[string, Node] = mapAs_(tc_string, tc_Node, icast_Map(left_))
 	_ = left
-	var right MapT[string, Node] = mapAs_(jtc_string, jtc_Node, icast_Map(right_))
+	var right MapT[string, Node] = mapAs_(tc_string, tc_Node, icast_Map(right_))
 	_ = right
 	if left.size() != right.size() {
 		return false
@@ -2106,7 +2106,7 @@ type JSDocInfo_Builder struct {
 	props         TreeMapOf[*JSDocInfo_Property, any]
 	bits          int64
 	currentMarker *JSDocInfo_Marker
-	licenseTexts  *JTSet[string]
+	licenseTexts  *TSet[string]
 	populated     bool
 }
 
@@ -2149,7 +2149,7 @@ func JSDocInfo_Builder_copyFromWithNewType(info *JSDocInfo, typeExpression *JSTy
 	return info.toBuilder().setType(typeExpression)
 }
 
-func JSDocInfo_Builder_maybeCopyFromAndReplaceNames(info *JSDocInfo, moduleLocalNamesToReplace *JTSet[string]) *JSDocInfo_Builder {
+func JSDocInfo_Builder_maybeCopyFromAndReplaceNames(info *JSDocInfo, moduleLocalNamesToReplace *TSet[string]) *JSDocInfo_Builder {
 	return func() *JSDocInfo_Builder {
 		if info != nil {
 			return JSDocInfo_Builder_copyFromAndReplaceNames(info, moduleLocalNamesToReplace)
@@ -2158,7 +2158,7 @@ func JSDocInfo_Builder_maybeCopyFromAndReplaceNames(info *JSDocInfo, moduleLocal
 	}()
 }
 
-func JSDocInfo_Builder_copyFromAndReplaceNames(info *JSDocInfo, oldNames *JTSet[string]) *JSDocInfo_Builder {
+func JSDocInfo_Builder_copyFromAndReplaceNames(info *JSDocInfo, oldNames *TSet[string]) *JSDocInfo_Builder {
 	return info.cloneAndReplaceTypeNames(oldNames).toBuilder()
 }
 
@@ -2242,7 +2242,7 @@ func (this *JSDocInfo_Builder) addMarker() *JSDocInfo_Marker {
 	if this.shouldParseDocumentation() {
 		var markers ListT[*JSDocInfo_Marker] = listAs_(tc_p_JSDocInfo_Marker, icast_List(this.getProp(JSDocInfo_MARKERS)))
 		if markers == nil {
-			markers = jnewTList_(tc_p_JSDocInfo_Marker).asListT()
+			markers = newTList_(tc_p_JSDocInfo_Marker).asListT()
 			this.setProp(JSDocInfo_MARKERS, lgBox_(markers))
 		}
 		var marker *JSDocInfo_Marker = new_JSDocInfo_Marker()
@@ -2330,7 +2330,7 @@ func (this *JSDocInfo_Builder) recordTemplateTypeName_2(name string, bound *JSTy
 	if bound == nil {
 		bound = JSTypeExpression_IMPLICIT_TEMPLATE_BOUND
 	}
-	var transformations MapT[string, Node] = mapAs_(jtc_string, jtc_Node, icast_Map(this.getProp(JSDocInfo_TYPE_TRANSFORMATIONS.up_JSDocInfo_Property())))
+	var transformations MapT[string, Node] = mapAs_(tc_string, tc_Node, icast_Map(this.getProp(JSDocInfo_TYPE_TRANSFORMATIONS.up_JSDocInfo_Property())))
 	if ((transformations != nil) && Map_containsKey_s(Map_un_(transformations), name)) || this.props.containsKey(obj_(JSDocInfo_TYPEDEF_TYPE)) {
 		return false
 	}
@@ -2338,7 +2338,7 @@ func (this *JSDocInfo_Builder) recordTemplateTypeName_2(name string, bound *JSTy
 }
 
 func (this *JSDocInfo_Builder) recordTypeTransformation(name string, expr Node) bool {
-	var names MapT[string, *JSTypeExpression] = mapAs_(jtc_string, jtc_p_JSTypeExpression, icast_Map(this.getProp(JSDocInfo_TEMPLATE_TYPE_NAMES.up_JSDocInfo_Property())))
+	var names MapT[string, *JSTypeExpression] = mapAs_(tc_string, tc_p_JSTypeExpression, icast_Map(this.getProp(JSDocInfo_TEMPLATE_TYPE_NAMES.up_JSDocInfo_Property())))
 	if (names != nil) && Map_containsKey_s(Map_un_(names), name) {
 		return false
 	}
@@ -2351,7 +2351,7 @@ func (this *JSDocInfo_Builder) recordThrowsAnnotation(annotation string) bool {
 		return false
 	}
 	if !this.hasAnySingletonTypeTags() {
-		var throwsAnnotations ListT[string] = listAs_(jtc_string, icast_List(this.getPropWithDefault(JSDocInfo_THROWS_ANNOTATIONS, Supplier[any](func() any { return lgBox_(jnewTList_(jtc_string).asListT()) }))))
+		var throwsAnnotations ListT[string] = listAs_(tc_string, icast_List(this.getPropWithDefault(JSDocInfo_THROWS_ANNOTATIONS, Supplier[any](func() any { return lgBox_(newTList_(tc_string).asListT()) }))))
 		if this.shouldParseDocumentation() {
 			throwsAnnotations.add_t(annotation)
 		} else if throwsAnnotations.isEmpty() {
@@ -2364,7 +2364,7 @@ func (this *JSDocInfo_Builder) recordThrowsAnnotation(annotation string) bool {
 func (this *JSDocInfo_Builder) recordAuthor(author string) bool {
 	this.populated = true
 	if this.shouldParseDocumentation() {
-		listAs_(jtc_string, icast_List(this.getPropWithDefault(JSDocInfo_AUTHORS, Supplier[any](func() any { return lgBox_(jnewTList_(jtc_string).asListT()) })))).add_t(author)
+		listAs_(tc_string, icast_List(this.getPropWithDefault(JSDocInfo_AUTHORS, Supplier[any](func() any { return lgBox_(newTList_(tc_string).asListT()) })))).add_t(author)
 	}
 	return true
 }
@@ -2372,7 +2372,7 @@ func (this *JSDocInfo_Builder) recordAuthor(author string) bool {
 func (this *JSDocInfo_Builder) recordReference(reference string) bool {
 	this.populated = true
 	if this.shouldParseDocumentation() {
-		listAs_(jtc_string, icast_List(this.getPropWithDefault(JSDocInfo_SEES, Supplier[any](func() any { return lgBox_(jnewTList_(jtc_string).asListT()) })))).add_t(reference)
+		listAs_(tc_string, icast_List(this.getPropWithDefault(JSDocInfo_SEES, Supplier[any](func() any { return lgBox_(newTList_(tc_string).asListT()) })))).add_t(reference)
 	}
 	return true
 }
@@ -2405,7 +2405,7 @@ func (this *JSDocInfo_Builder) isDeprecationReasonRecorded() bool {
 	return Optional_ofNullable[string](str_(this.getProp(JSDocInfo_DEPRECATION_REASON))).isPresent()
 }
 
-func (this *JSDocInfo_Builder) recordSuppressions_2(suppressions *JTSet[string], description string) {
+func (this *JSDocInfo_Builder) recordSuppressions_2(suppressions *TSet[string], description string) {
 	this.populated = true
 	var mapBuilder ImmutableMap_BuilderOf[SetT[string], string] = ImmutableMap_builder()
 	var current ImmutableMapOf[SetT[string], string] = cast_[*ErasedImmutableMap](this.getProp(JSDocInfo_SUPPRESSIONS))
@@ -2420,15 +2420,15 @@ func (this *JSDocInfo_Builder) recordSuppressions_2(suppressions *JTSet[string],
 	this.setProp(JSDocInfo_SUPPRESSIONS, obj_(suppressionsMap))
 }
 
-func (this *JSDocInfo_Builder) recordSuppressions(suppressions *JTSet[string]) {
-	this.recordSuppressions_2(immutableSetCopyOfT_(jtc_string, suppressions), "")
+func (this *JSDocInfo_Builder) recordSuppressions(suppressions *TSet[string]) {
+	this.recordSuppressions_2(immutableSetCopyOfT_(tc_string, suppressions), "")
 }
 
 func (this *JSDocInfo_Builder) recordSuppression(suppression string) {
-	this.recordSuppressions_2(jimmutableSetOf_[string](jtc_string, suppression), "")
+	this.recordSuppressions_2(immutableSetOf_[string](tc_string, suppression), "")
 }
 
-func (this *JSDocInfo_Builder) recordModifies(modifies *JTSet[string]) bool {
+func (this *JSDocInfo_Builder) recordModifies(modifies *TSet[string]) bool {
 	return (!this.hasAnySingletonSideEffectTags() && this.populateProp(JSDocInfo_MODIFIES, JSDocInfo_internSet(modifies).asSet()))
 }
 
@@ -2441,7 +2441,7 @@ func (this *JSDocInfo_Builder) recordInlineType() {
 }
 
 func (this *JSDocInfo_Builder) recordTypedef(type_ *JSTypeExpression) bool {
-	return ((((type_ != nil) && !this.hasAnyTypeRelatedTags()) && (mapAs_(jtc_string, jtc_p_JSTypeExpression, icast_Map(this.getProp(JSDocInfo_TEMPLATE_TYPE_NAMES.up_JSDocInfo_Property()))) == nil)) && this.populateProp(JSDocInfo_TYPEDEF_TYPE.up_JSDocInfo_Property(), obj_(type_)))
+	return ((((type_ != nil) && !this.hasAnyTypeRelatedTags()) && (mapAs_(tc_string, tc_p_JSTypeExpression, icast_Map(this.getProp(JSDocInfo_TEMPLATE_TYPE_NAMES.up_JSDocInfo_Property()))) == nil)) && this.populateProp(JSDocInfo_TYPEDEF_TYPE.up_JSDocInfo_Property(), obj_(type_)))
 }
 
 func (this *JSDocInfo_Builder) recordReturnType(type_ *JSTypeExpression) bool {
@@ -2506,7 +2506,7 @@ func (this *JSDocInfo_Builder) recordDescription(description string) bool {
 
 func (this *JSDocInfo_Builder) recordTsType(tsType string) {
 	this.populated = true
-	listAs_(jtc_string, icast_List(this.getPropWithDefault(JSDocInfo_TS_TYPES, Supplier[any](func() any { return lgBox_(jnewTList_(jtc_string).asListT()) })))).add_t(tsType)
+	listAs_(tc_string, icast_List(this.getPropWithDefault(JSDocInfo_TS_TYPES, Supplier[any](func() any { return lgBox_(newTList_(tc_string).asListT()) })))).add_t(tsType)
 }
 
 func (this *JSDocInfo_Builder) recordMeaning(meaning string) bool {
@@ -2552,9 +2552,9 @@ func (this *JSDocInfo_Builder) recordLicense(license string) bool {
 
 func (this *JSDocInfo_Builder) addLicense(license string) bool {
 	if this.licenseTexts == nil {
-		this.licenseTexts = jnewTSet_(jtc_string)
+		this.licenseTexts = newTSet_(tc_string)
 	}
-	if !this.licenseTexts.add(license) {
+	if !this.licenseTexts.Add(license) {
 		return false
 	}
 	var txt Optional[string] = Optional_ofNullable[string](str_(this.getProp(JSDocInfo_LICENSE)))
@@ -2702,7 +2702,7 @@ func (this *JSDocInfo_Builder) isInterfaceRecorded() bool {
 }
 
 func (this *JSDocInfo_Builder) hasParameter(name Optional[string]) bool {
-	var params MapT[string, *JSTypeExpression] = mapAs_(jtc_string, jtc_p_JSTypeExpression, icast_Map(this.getProp(JSDocInfo_PARAMETERS.up_JSDocInfo_Property())))
+	var params MapT[string, *JSTypeExpression] = mapAs_(tc_string, tc_p_JSTypeExpression, icast_Map(this.getProp(JSDocInfo_PARAMETERS.up_JSDocInfo_Property())))
 	return (((params != nil) && name.isPresent()) && Map_containsKey_s(Map_un_(params), name.get()))
 }
 
@@ -2726,7 +2726,7 @@ func JSDocInfo_Builder_containsEquivalent(list ListT[*JSTypeExpression], elem *J
 }
 
 func (this *JSDocInfo_Builder) addUnique(prop *JSDocInfo_Property, elem *JSTypeExpression) bool {
-	var list ListT[*JSTypeExpression] = listAs_(jtc_p_JSTypeExpression, icast_List(this.getPropWithDefault(prop, Supplier[any](func() any { return lgBox_(jnewTList_(jtc_p_JSTypeExpression).asListT()) }))))
+	var list ListT[*JSTypeExpression] = listAs_(tc_p_JSTypeExpression, icast_List(this.getPropWithDefault(prop, Supplier[any](func() any { return lgBox_(newTList_(tc_p_JSTypeExpression).asListT()) }))))
 	if JSDocInfo_Builder_containsEquivalent(list, elem) {
 		return false
 	} else {
@@ -2854,7 +2854,7 @@ func (this *JSDocInfo_Builder) hasAnyTypeRelatedTags() bool {
 }
 
 func (this *JSDocInfo_Builder) hasAnyParameters() bool {
-	var params MapT[string, *JSTypeExpression] = mapAs_(jtc_string, jtc_p_JSTypeExpression, icast_Map(this.getProp(JSDocInfo_PARAMETERS.up_JSDocInfo_Property())))
+	var params MapT[string, *JSTypeExpression] = mapAs_(tc_string, tc_p_JSTypeExpression, icast_Map(this.getProp(JSDocInfo_PARAMETERS.up_JSDocInfo_Property())))
 	return ((params != nil) && !params.isEmpty())
 }
 

@@ -1012,12 +1012,12 @@ func NodeUtil_canBeSideEffected_Node(n Node) bool {
 	return NodeUtil_canBeSideEffected_Node_Set_Scope(n, NodeUtil_KNOWN_CONSTANTS, nil)
 }
 
-func NodeUtil_canBeSideEffected_Node_Set_Scope(n Node, knownConstants *JTSet[string], scope *Scope) bool {
+func NodeUtil_canBeSideEffected_Node_Set_Scope(n Node, knownConstants *TSet[string], scope *Scope) bool {
 	switch n.ns_().token {
 	case tokOrd1_YIELD, tokOrd1_CALL, tokOrd1_OPTCHAIN_CALL, tokOrd1_NEW, tokOrd1_TAGGED_TEMPLATELIT, tokOrd1_AWAIT, tokOrd1_DYNAMIC_IMPORT:
 		return true
 	case tokOrd1_NAME:
-		return (!NodeUtil_isConstantVar(n, scope) && !knownConstants.contains(n.getString()))
+		return (!NodeUtil_isConstantVar(n, scope) && !knownConstants.Has(n.getString()))
 	case tokOrd1_GETPROP:
 		return !n.getFirstChild().matchesName("Symbol")
 	case tokOrd1_GETELEM, tokOrd1_OPTCHAIN_GETPROP, tokOrd1_OPTCHAIN_GETELEM:
@@ -1576,7 +1576,7 @@ func NodeUtil_convertToNonOptionalChainSegmentDownTo(endOfOptChainSegment Node, 
 	if !NodeUtil_isEndOfOptChainSegment(endOfOptChainSegment) {
 		panic(new_IllegalArgumentException_String(tostr_(endOfOptChainSegment)))
 	}
-	var segmentNodes *TDeque[Node] = newTDeque_(jtc_Node)
+	var segmentNodes *TDeque[Node] = newTDeque_(tc_Node)
 	var segmentNode Node = endOfOptChainSegment
 	for (segmentNode != 0) && !equalsId_(segmentNode, stopNode) {
 		if NodeUtil_isOptChainNode(segmentNode) {
@@ -1788,7 +1788,7 @@ func NodeUtil_createsScope(n Node) bool {
 }
 
 func NodeUtil_isValidCfgRoot(n Node) bool {
-	return (NodeUtil_DEFINITE_CFG_ROOTS.contains(n.getToken()) || NodeUtil_isClassStaticBlock(n))
+	return (NodeUtil_DEFINITE_CFG_ROOTS.Has(n.getToken()) || NodeUtil_isClassStaticBlock(n))
 }
 
 func NodeUtil_isStatement(n Node) bool {
@@ -1796,7 +1796,7 @@ func NodeUtil_isStatement(n Node) bool {
 }
 
 func NodeUtil_isStatementParent(parent Node) bool {
-	return NodeUtil_IS_STATEMENT_PARENT.contains(parent.getToken())
+	return NodeUtil_IS_STATEMENT_PARENT.Has(parent.getToken())
 }
 
 func NodeUtil_isDeclarationParent(parent Node) bool {
@@ -2872,7 +2872,7 @@ func NodeUtil_isValidQualifiedName(mode *FeatureSet, name string) bool {
 	if strings.HasSuffix(name, ".") || strings.HasPrefix(name, ".") {
 		return false
 	}
-	var parts *JTList[string] = splitToListST_(jtc_string, Splitter_on('.'), name)
+	var parts *TList[string] = splitToListST_(tc_string, Splitter_on('.'), name)
 	it_1 := parts.each()
 	for it_1.next() {
 		var part string = it_1.v
@@ -2992,7 +2992,7 @@ func NodeUtil_getObjectDefinedPropertiesKeys(definePropertiesCall Node) Iterable
 	if !NodeUtil_isObjectDefinePropertiesDefinition(definePropertiesCall) {
 		panic(new_IllegalArgumentException_0())
 	}
-	var properties *JTList[Node] = jnewTList_(jtc_Node)
+	var properties *TList[Node] = newTList_(tc_Node)
 	var objectLiteral Node = definePropertiesCall.getLastChild()
 	{
 		var key Node = objectLiteral.getFirstChild()
@@ -3270,7 +3270,7 @@ func NodeUtil_visitPostOrder_Node_Visitor_Predicate(node Node, visitor func(Node
 }
 
 func NodeUtil_preOrderIterable_Node_Predicate(root Node, travserseNodePredicate Predicate_base[Node]) IterableT[Node] {
-	return iterableAs_(jtc_Node, &Iterable_fn{func() Iterator {
+	return iterableAs_(tc_Node, &Iterable_fn{func() Iterator {
 		return Iterator(new_NodeUtil_PreOrderIterator(root, travserseNodePredicate))
 	}})
 }
@@ -4133,10 +4133,10 @@ func NodeUtil_isCallToNode(n Node, targetMethod Node) bool {
 	return n.getFirstChild().matchesQualifiedNameNode(targetMethod)
 }
 
-func NodeUtil_collectExternVariableNames(compiler *AbstractCompiler, externs Node) *JTSet[string] {
+func NodeUtil_collectExternVariableNames(compiler *AbstractCompiler, externs Node) *TSet[string] {
 	var externsRefs *ReferenceCollector = new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator(compiler, ReferenceCollector_DO_NOTHING_BEHAVIOR, ScopeCreator(new_SyntacticScopeCreator_AbstractCompiler(compiler)))
 	externsRefs.process(externs)
-	var externsNames *TSetBuilder[string] = newTSetBuilder_(jtc_string)
+	var externsNames *ImmutableSet_Builder[string] = immutableSetBuilder_(tc_string)
 	for v := range elemsT_(externsRefs.getAllSymbols()) {
 		if !v.isParam() {
 			externsNames.add(v.getName())
@@ -4185,30 +4185,30 @@ func NodeUtil_markFunctionsDeletedChangeTracker(node Node, changeTracker *Change
 	}
 }
 
-func NodeUtil_getParentChangeScopeNodes(scopeNodes ListT[Node]) *JTList[Node] {
-	var parentScopeNodes *JTSet[Node] = jtsetFrom_(jtc_Node, Collection(List_un_(scopeNodes)))
+func NodeUtil_getParentChangeScopeNodes(scopeNodes ListT[Node]) *TList[Node] {
+	var parentScopeNodes *TSet[Node] = tsetFrom_(tc_Node, Collection(List_un_(scopeNodes)), false)
 	for scopeNode := range elemsT_(scopeNodes) {
-		parentScopeNodes.add(ChangeTracker_getEnclosingChangeScopeRoot(scopeNode))
+		parentScopeNodes.Add(ChangeTracker_getEnclosingChangeScopeRoot(scopeNode))
 	}
-	return jtlistFrom_(jtc_Node, Collection(parentScopeNodes.asSet()))
+	return tlistFrom_(tc_Node, Collection(parentScopeNodes.asSet()))
 }
 
-func NodeUtil_removeNestedChangeScopeNodes(scopeNodes *JTList[Node]) *JTList[Node] {
-	var uniqueScopeNodes *JTSet[Node] = jtsetFrom_(jtc_Node, Collection(scopeNodes.asList()))
+func NodeUtil_removeNestedChangeScopeNodes(scopeNodes *TList[Node]) *TList[Node] {
+	var uniqueScopeNodes *TSet[Node] = tsetFrom_(tc_Node, Collection(scopeNodes.asList()), false)
 	it_1 := scopeNodes.each()
 	for it_1.next() {
 		var scopeNode Node = it_1.v
 		{
 			var ancestor Node = scopeNode.getParent()
 			for ; ancestor != 0; ancestor = ancestor.getParent() {
-				if ChangeTracker_isChangeScopeRoot(ancestor) && uniqueScopeNodes.contains(ancestor) {
-					uniqueScopeNodes.remove(scopeNode)
+				if ChangeTracker_isChangeScopeRoot(ancestor) && uniqueScopeNodes.Has(ancestor) {
+					uniqueScopeNodes.Delete(scopeNode)
 					break
 				}
 			}
 		}
 	}
-	return jtlistFrom_(jtc_Node, Collection(uniqueScopeNodes.asSet()))
+	return tlistFrom_(tc_Node, Collection(uniqueScopeNodes.asSet()))
 }
 
 func NodeUtil_getInvocationArgsAsIterable(invocation Node) IterableT[Node] {
@@ -4224,9 +4224,9 @@ func NodeUtil_getInvocationArgsAsIterable(invocation Node) IterableT[Node] {
 		panic(new_IllegalStateException_String(tostr_(invocation)))
 	}
 	if invocation.hasOneChild() {
-		return jtlistEmptyImm_(jtc_Node).asIterable()
+		return tlistEmptyImm_(tc_Node).asIterable()
 	}
-	var list *TListBuilder[Node] = newTListBuilder_(jtc_Node)
+	var list *ImmutableList_Builder[Node] = immutableListBuilder_(tc_Node)
 	{
 		var arg Node = invocation.getSecondChild()
 		for ; arg != 0; arg = arg.getNext() {
@@ -4250,14 +4250,14 @@ func NodeUtil_getInvocationArgsCount(invocation Node) int32 {
 	}
 }
 
-func NodeUtil_getAllVarNamesDeclaredInModule(moduleNode Node, compiler *AbstractCompiler, scopeCreator ScopeCreator, globalScope *Scope) *JTSet[string] {
+func NodeUtil_getAllVarNamesDeclaredInModule(moduleNode Node, compiler *AbstractCompiler, scopeCreator ScopeCreator, globalScope *Scope) *TSet[string] {
 	if !moduleNode.isModuleBody() {
 		panic(new_IllegalStateException_String(objstr_("getAllVarsDeclaredInModule expects a module body node")))
 	}
 	if !globalScope.isGlobal() {
 		panic(new_IllegalStateException_String(objstr_(globalScope)))
 	}
-	var nameVars *JTSet[string] = jnewTSet_(jtc_string)
+	var nameVars *TSet[string] = newTSet_(tc_string)
 	var finder NodeTraversal_ScopedCallback = NodeTraversal_ScopedCallback(new_NodeUtil_1(nameVars))
 	NodeTraversal_builder().setCompiler(compiler).setCallback(NodeTraversal_Callback(finder)).setScopeCreator(scopeCreator).traverseWithScope(moduleNode, globalScope.up_AbstractScope())
 	return nameVars
@@ -4267,8 +4267,8 @@ func NodeUtil_getAllVarsDeclaredInFunction(compiler *AbstractCompiler, scopeCrea
 	if !scope.isFunctionScope() {
 		panic(new_IllegalStateException_String(objstr_(scope)))
 	}
-	var nameVarMap *JTMap[string, *Var] = jnewTMap_(jtc_string, jtc_p_Var)
-	var orderedVars *JTList[*Var] = jnewTList_(jtc_p_Var)
+	var nameVarMap *TMap[string, *Var] = newTMap_(tc_string, tc_p_Var)
+	var orderedVars *TList[*Var] = newTList_(tc_p_Var)
 	var finder NodeTraversal_ScopedCallback = NodeTraversal_ScopedCallback(new_NodeUtil_2(nameVarMap, orderedVars, scope))
 	NodeTraversal_builder().setCompiler(compiler).setCallback(NodeTraversal_Callback(finder)).setScopeCreator(scopeCreator).traverseAtScope(scope.up_AbstractScope())
 	return new_NodeUtil_AllVarsDeclaredInFunction(nameVarMap, orderedVars)
@@ -4486,9 +4486,9 @@ var NodeUtil_GOOG_FORWARD_DECLARE *QualifiedName
 var NodeUtil_GOOG_REQUIRE_DYNAMIC *QualifiedName
 var NodeUtil_GOOG_WEAK_USAGE *QualifiedName
 var NodeUtil_GOOG_WEAK_USAGE_MANGLED *QualifiedName
-var NodeUtil_KNOWN_CONSTANTS *JTSet[string]
-var NodeUtil_DEFINITE_CFG_ROOTS *JTSet[Token_rhino]
-var NodeUtil_IS_STATEMENT_PARENT *JTSet[Token_rhino]
+var NodeUtil_KNOWN_CONSTANTS *TSet[string]
+var NodeUtil_DEFINITE_CFG_ROOTS *TSet[Token_rhino]
+var NodeUtil_IS_STATEMENT_PARENT *TSet[Token_rhino]
 var NodeUtil_GLOBAL_OBJECT *QualifiedName
 var NodeUtil_GLOBAL_OBJECT_MANGLED *QualifiedName
 var NodeUtil_MATCH_NOT_FUNCTION Predicate_base[Node]
@@ -4515,7 +4515,7 @@ func NodeUtil_clinit() {
 	NodeUtil_GOOG_REQUIRE_DYNAMIC = QualifiedName_of("goog.requireDynamic")
 	NodeUtil_GOOG_WEAK_USAGE = QualifiedName_of("goog.weakUsage")
 	NodeUtil_GOOG_WEAK_USAGE_MANGLED = QualifiedName_of("goog$weakUsage")
-	NodeUtil_KNOWN_CONSTANTS = jimmutableSetOf_[string](jtc_string, "undefined", "Infinity", "NaN")
+	NodeUtil_KNOWN_CONSTANTS = immutableSetOf_[string](tc_string, "undefined", "Infinity", "NaN")
 	NodeUtil_DEFINITE_CFG_ROOTS = tsetImm_(tc_p_Token_rhino, Sets_immutableEnumSet(Token_rhino_FUNCTION.enum_(), []*Enum{Token_rhino_SCRIPT.enum_(), Token_rhino_MODULE_BODY.enum_(), Token_rhino_ROOT.enum_()}))
 	NodeUtil_IS_STATEMENT_PARENT = tsetImm_(tc_p_Token_rhino, Sets_immutableEnumSet(Token_rhino_SCRIPT.enum_(), []*Enum{Token_rhino_MODULE_BODY.enum_(), Token_rhino_BLOCK.enum_(), Token_rhino_LABEL.enum_(), Token_rhino_NAMESPACE_ELEMENTS.enum_(), Token_rhino_INTERFACE_MEMBERS.enum_()}))
 	NodeUtil_GLOBAL_OBJECT = QualifiedName_of("$jscomp.global.Object")
@@ -4611,11 +4611,11 @@ func NodeUtil_ValueType_clinit() {
 }
 
 type NodeUtil_VarCollector struct {
-	vars *JTMap[string, Node]
+	vars *TMap[string, Node]
 }
 
 func (this *NodeUtil_VarCollector) finit_NodeUtil_VarCollector() {
-	this.vars = jnewTMap_(jtc_string, jtc_Node)
+	this.vars = newTMap_(tc_string, tc_Node)
 }
 
 func (this *NodeUtil_VarCollector) init_NodeUtil_VarCollector() {
@@ -4631,7 +4631,7 @@ func new_NodeUtil_VarCollector() *NodeUtil_VarCollector {
 func (this *NodeUtil_VarCollector) visit(n Node) {
 	if n.isVar() {
 		NodeUtil_visitLhsNodesInNode(n, Consumer[Node](func(name Node) {
-			this.vars.putIfAbsent(name.getString(), name)
+			this.vars.PutIfAbsent(name.getString(), name)
 		}))
 	}
 }
@@ -4799,7 +4799,7 @@ func new_NodeUtil_TemplateArgsIterable(templateLit Node) *NodeUtil_TemplateArgsI
 }
 
 func (this *NodeUtil_TemplateArgsIterable) iterator_t() IteratorT[Node] {
-	return iteratorAs_(jtc_Node, Iterator(new_NodeUtil_TemplateArgsIterable_1(this)))
+	return iteratorAs_(tc_Node, Iterator(new_NodeUtil_TemplateArgsIterable_1(this)))
 }
 
 func (this *NodeUtil_TemplateArgsIterable) iterator() Iterator {
@@ -4807,29 +4807,29 @@ func (this *NodeUtil_TemplateArgsIterable) iterator() Iterator {
 }
 
 type NodeUtil_AllVarsDeclaredInFunction struct {
-	allVarsInFn *JTMap[string, *Var]
-	orderedVars *JTList[*Var]
+	allVarsInFn *TMap[string, *Var]
+	orderedVars *TList[*Var]
 }
 
-func (this *NodeUtil_AllVarsDeclaredInFunction) init_NodeUtil_AllVarsDeclaredInFunction(allVarsInFn *JTMap[string, *Var], orderedVars *JTList[*Var]) {
-	if allVarsInFn.isEmpty() != orderedVars.isEmpty() {
+func (this *NodeUtil_AllVarsDeclaredInFunction) init_NodeUtil_AllVarsDeclaredInFunction(allVarsInFn *TMap[string, *Var], orderedVars *TList[*Var]) {
+	if allVarsInFn.IsEmpty() != orderedVars.isEmpty() {
 		panic(new_IllegalStateException_0())
 	}
 	this.allVarsInFn = allVarsInFn
 	this.orderedVars = orderedVars
 }
 
-func new_NodeUtil_AllVarsDeclaredInFunction(allVarsInFn *JTMap[string, *Var], orderedVars *JTList[*Var]) *NodeUtil_AllVarsDeclaredInFunction {
+func new_NodeUtil_AllVarsDeclaredInFunction(allVarsInFn *TMap[string, *Var], orderedVars *TList[*Var]) *NodeUtil_AllVarsDeclaredInFunction {
 	this := &NodeUtil_AllVarsDeclaredInFunction{}
 	this.init_NodeUtil_AllVarsDeclaredInFunction(allVarsInFn, orderedVars)
 	return this
 }
 
-func (this *NodeUtil_AllVarsDeclaredInFunction) getAllVariables() *JTMap[string, *Var] {
+func (this *NodeUtil_AllVarsDeclaredInFunction) getAllVariables() *TMap[string, *Var] {
 	return this.allVarsInFn
 }
 
-func (this *NodeUtil_AllVarsDeclaredInFunction) getAllVariablesInOrder() *JTList[*Var] {
+func (this *NodeUtil_AllVarsDeclaredInFunction) getAllVariablesInOrder() *TList[*Var] {
 	return this.orderedVars
 }
 
@@ -4897,14 +4897,14 @@ func (this *NodeUtil_GoogRequire) toString() string {
 }
 
 type NodeUtil_1 struct {
-	cap_nameVars *JTSet[string]
+	cap_nameVars *TSet[string]
 }
 
 func (this *NodeUtil_1) init_NodeUtil_1() {
 
 }
 
-func new_NodeUtil_1(cap_nameVars *JTSet[string]) *NodeUtil_1 {
+func new_NodeUtil_1(cap_nameVars *TSet[string]) *NodeUtil_1 {
 	this := &NodeUtil_1{}
 	this.cap_nameVars = cap_nameVars
 	this.init_NodeUtil_1()
@@ -4915,7 +4915,7 @@ func (this *NodeUtil_1) enterScope(t *NodeTraversal) {
 	var currentScope *Scope = t.getScope()
 	if currentScope.isModuleScope() {
 		for v := range elemsT_(currentScope.getVarIterable_rIterableOf_Var()) {
-			this.cap_nameVars.add(v.getName())
+			this.cap_nameVars.Add(v.getName())
 		}
 	}
 }
@@ -4933,8 +4933,8 @@ func (this *NodeUtil_1) visit(t *NodeTraversal, n Node, parent Node) {
 }
 
 type NodeUtil_2 struct {
-	cap_nameVarMap  *JTMap[string, *Var]
-	cap_orderedVars *JTList[*Var]
+	cap_nameVarMap  *TMap[string, *Var]
+	cap_orderedVars *TList[*Var]
 	cap_scope       *Scope
 }
 
@@ -4942,7 +4942,7 @@ func (this *NodeUtil_2) init_NodeUtil_2() {
 
 }
 
-func new_NodeUtil_2(cap_nameVarMap *JTMap[string, *Var], cap_orderedVars *JTList[*Var], cap_scope *Scope) *NodeUtil_2 {
+func new_NodeUtil_2(cap_nameVarMap *TMap[string, *Var], cap_orderedVars *TList[*Var], cap_scope *Scope) *NodeUtil_2 {
 	this := &NodeUtil_2{}
 	this.cap_nameVarMap = cap_nameVarMap
 	this.cap_orderedVars = cap_orderedVars
@@ -4954,7 +4954,7 @@ func new_NodeUtil_2(cap_nameVarMap *JTMap[string, *Var], cap_orderedVars *JTList
 func (this *NodeUtil_2) enterScope(t *NodeTraversal) {
 	var currentScope *Scope = t.getScope()
 	for v := range elemsT_(currentScope.getVarIterable_rIterableOf_Var()) {
-		this.cap_nameVarMap.put(v.getName(), v)
+		this.cap_nameVarMap.Put(v.getName(), v)
 		this.cap_orderedVars.add(v)
 	}
 }

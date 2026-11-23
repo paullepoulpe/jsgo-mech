@@ -280,7 +280,7 @@ func (this *ProxyObjectType) getOwnerFunction_impl() *FunctionType {
 func (this *ProxyObjectType) getCtorImplementedInterfaces_impl() IterableT[*ObjectType] {
 	return func() IterableT[*ObjectType] {
 		if this.referencedObjType == nil {
-			return jtlistEmptyImm_(jtc_p_ObjectType).asIterable()
+			return tlistEmptyImm_(tc_p_ObjectType).asIterable()
 		}
 		return this.referencedObjType.getCtorImplementedInterfaces()
 	}()
@@ -289,7 +289,7 @@ func (this *ProxyObjectType) getCtorImplementedInterfaces_impl() IterableT[*Obje
 func (this *ProxyObjectType) getCtorExtendedInterfaces_impl() IterableT[*ObjectType] {
 	return func() IterableT[*ObjectType] {
 		if this.referencedObjType == nil {
-			return iterableAs_(jtc_p_ObjectType, Iterable(Collections_emptyList()))
+			return iterableAs_(tc_p_ObjectType, Iterable(Collections_emptyList()))
 		}
 		return this.referencedObjType.getCtorExtendedInterfaces()
 	}()
@@ -345,8 +345,8 @@ func (this *ProxyObjectType) getConstructor_impl() *FunctionType {
 	}()
 }
 
-func (this *ProxyObjectType) getTemplateTypes_impl() *JTList[*JSType] {
-	return func() *JTList[*JSType] {
+func (this *ProxyObjectType) getTemplateTypes_impl() *TList[*JSType] {
+	return func() *TList[*JSType] {
 		if this.referencedObjType == nil {
 			return nil
 		}
@@ -802,7 +802,7 @@ func (this *ProxyObjectType) getConstructor() *FunctionType {
 }
 
 // getTemplateTypes: an object that is exactly a ProxyObjectType calls its getTemplateTypes_impl directly (post-flip); others dispatch.
-func (this *ProxyObjectType) getTemplateTypes() *JTList[*JSType] {
+func (this *ProxyObjectType) getTemplateTypes() *TList[*JSType] {
 	if p, _ := this.self_.(*ProxyObjectType); p == this {
 		return this.getTemplateTypes_impl()
 	}

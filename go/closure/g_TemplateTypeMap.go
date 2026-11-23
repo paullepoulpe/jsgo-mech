@@ -3,14 +3,14 @@
 package closure
 
 type TemplateTypeMap struct {
-	templateKeys           *JTList[*TemplateType]
-	templateValues         *JTList[*JSType]
+	templateKeys           *TList[*TemplateType]
+	templateValues         *TList[*JSType]
 	resolvedTemplateValues []*JSType
 	subMapStarts           *BitSet
 	registry               *JSTypeRegistry
 }
 
-func (this *TemplateTypeMap) init_TemplateTypeMap(registry *JSTypeRegistry, templateKeys *JTList[*TemplateType], templateValues *JTList[*JSType], subMapStarts *BitSet) {
+func (this *TemplateTypeMap) init_TemplateTypeMap(registry *JSTypeRegistry, templateKeys *TList[*TemplateType], templateValues *TList[*JSType], subMapStarts *BitSet) {
 	if templateKeys == nil {
 		panic(new_NullPointerException_0())
 	}
@@ -45,7 +45,7 @@ func (this *TemplateTypeMap) init_TemplateTypeMap(registry *JSTypeRegistry, temp
 	this.resolvedTemplateValues = resolvedValues
 }
 
-func new_TemplateTypeMap(registry *JSTypeRegistry, templateKeys *JTList[*TemplateType], templateValues *JTList[*JSType], subMapStarts *BitSet) *TemplateTypeMap {
+func new_TemplateTypeMap(registry *JSTypeRegistry, templateKeys *TList[*TemplateType], templateValues *TList[*JSType], subMapStarts *BitSet) *TemplateTypeMap {
 	this := &TemplateTypeMap{}
 	this.init_TemplateTypeMap(registry, templateKeys, templateValues, subMapStarts)
 	return this
@@ -55,7 +55,7 @@ func TemplateTypeMap_createEmpty(registry *JSTypeRegistry) *TemplateTypeMap {
 	if registry.getEmptyTemplateTypeMap() != nil {
 		panic(new_IllegalArgumentException_0())
 	}
-	return new_TemplateTypeMap(registry, jtlistEmptyImm_(jtc_p_TemplateType), jtlistEmptyImm_(jtc_p_JSType), new_BitSet())
+	return new_TemplateTypeMap(registry, tlistEmptyImm_(tc_p_TemplateType), tlistEmptyImm_(tc_p_JSType), new_BitSet())
 }
 
 func (this *TemplateTypeMap) nextSubMapStart(index int32) int32 {
@@ -65,7 +65,7 @@ func (this *TemplateTypeMap) nextSubMapStart(index int32) int32 {
 	return index
 }
 
-func (this *TemplateTypeMap) copyFilledWithValues(values *JTList[*JSType]) *TemplateTypeMap {
+func (this *TemplateTypeMap) copyFilledWithValues(values *TList[*JSType]) *TemplateTypeMap {
 	var requiredUnknownCount int32 = (this.numUnfilledTemplateKeys() - values.size())
 	if requiredUnknownCount < 0 {
 		panic(new_IllegalArgumentException_String(objstr_(int32(requiredUnknownCount))))
@@ -73,18 +73,18 @@ func (this *TemplateTypeMap) copyFilledWithValues(values *JTList[*JSType]) *Temp
 	if this.numUnfilledTemplateKeys() == 0 {
 		return this
 	}
-	var extendedValues *JTList[*JSType] = jnewTList_(jtc_p_JSType)
+	var extendedValues *TList[*JSType] = newTList_(tc_p_JSType)
 	extendedValues.asListT().addAll(Collection(this.templateValues.asListT()))
 	extendedValues.asListT().addAll(Collection(values.asListT()))
 	this.padToSameLength(this.templateKeys, extendedValues)
-	return new_TemplateTypeMap(this.registry, this.templateKeys, immutableListCopyOfT_(jtc_p_JSType, extendedValues), this.subMapStarts)
+	return new_TemplateTypeMap(this.registry, this.templateKeys, immutableListCopyOfT_(tc_p_JSType, extendedValues), this.subMapStarts)
 }
 
 func (this *TemplateTypeMap) copyWithExtension(extension *TemplateTypeMap) *TemplateTypeMap {
 	return this.copyWithExtension_3(extension.templateKeys, extension.templateValues, extension.subMapStarts)
 }
 
-func (this *TemplateTypeMap) copyWithExtension_2(keys *JTList[*TemplateType], values *JTList[*JSType]) *TemplateTypeMap {
+func (this *TemplateTypeMap) copyWithExtension_2(keys *TList[*TemplateType], values *TList[*JSType]) *TemplateTypeMap {
 	if keys.isEmpty() {
 		return this.copyWithExtension_3(keys, values, new_BitSet())
 	}
@@ -93,7 +93,7 @@ func (this *TemplateTypeMap) copyWithExtension_2(keys *JTList[*TemplateType], va
 	return this.copyWithExtension_3(keys, values, subMapStarts)
 }
 
-func (this *TemplateTypeMap) copyWithExtension_3(keys *JTList[*TemplateType], values *JTList[*JSType], newsubMapStarts *BitSet) *TemplateTypeMap {
+func (this *TemplateTypeMap) copyWithExtension_3(keys *TList[*TemplateType], values *TList[*JSType], newsubMapStarts *BitSet) *TemplateTypeMap {
 	var extendedUnfilledCount int32 = (keys.size() - values.size())
 	if extendedUnfilledCount < 0 {
 		panic(new_IllegalArgumentException_String(objstr_(int32(extendedUnfilledCount))))
@@ -101,8 +101,8 @@ func (this *TemplateTypeMap) copyWithExtension_3(keys *JTList[*TemplateType], va
 	if (this.numUnfilledTemplateKeys() == 0) && keys.isEmpty() {
 		return this
 	}
-	var extendedKeys *JTList[*TemplateType] = newTListBuilder_(jtc_p_TemplateType).addAll(this.templateKeys.asIterable()).addAll(keys.asIterable()).build()
-	var extendedValues *JTList[*JSType] = jnewTList_(jtc_p_JSType)
+	var extendedKeys *TList[*TemplateType] = immutableListBuilder_(tc_p_TemplateType).addAll(this.templateKeys.asIterable()).addAll(keys.asIterable()).build()
+	var extendedValues *TList[*JSType] = newTList_(tc_p_JSType)
 	extendedValues.asListT().addAll(Collection(this.templateValues.asListT()))
 	this.padToSameLength(this.templateKeys, extendedValues)
 	extendedValues.asListT().addAll(Collection(values.asListT()))
@@ -111,13 +111,13 @@ func (this *TemplateTypeMap) copyWithExtension_3(keys *JTList[*TemplateType], va
 	for i := int32(0); i < keys.size(); i++ {
 		extendedsubMapStarts.set_int_boolean((i + this.templateKeys.size()), newsubMapStarts.get(i))
 	}
-	return new_TemplateTypeMap(this.registry, extendedKeys, immutableListCopyOfT_(jtc_p_JSType, extendedValues), extendedsubMapStarts)
+	return new_TemplateTypeMap(this.registry, extendedKeys, immutableListCopyOfT_(tc_p_JSType, extendedValues), extendedsubMapStarts)
 }
 
-func (this *TemplateTypeMap) copyWithoutKeys(removals *JTSet[*TemplateType]) *TemplateTypeMap {
-	var keys *TListBuilder[*TemplateType] = newTListBuilder_(jtc_p_TemplateType)
+func (this *TemplateTypeMap) copyWithoutKeys(removals *TSet[*TemplateType]) *TemplateTypeMap {
+	var keys *ImmutableList_Builder[*TemplateType] = immutableListBuilder_(tc_p_TemplateType)
 	var newsubMapStarts *BitSet = new_BitSet()
-	keys.addAll(iterableAs_(jtc_p_TemplateType, Iterable(this.templateKeys.asImm().subList(0, this.templateValues.size()))))
+	keys.addAll(iterableAs_(tc_p_TemplateType, Iterable(this.templateKeys.asImm().subList(0, this.templateValues.size()))))
 	for i := int32(0); i < this.templateValues.size(); i++ {
 		newsubMapStarts.set_int_boolean(i, this.subMapStarts.get(i))
 	}
@@ -126,7 +126,7 @@ func (this *TemplateTypeMap) copyWithoutKeys(removals *JTSet[*TemplateType]) *Te
 	for i := int32(this.templateValues.size()); i < this.templateKeys.size(); i++ {
 		var key *TemplateType = this.templateKeys.get(i)
 		inNewSubmap = (inNewSubmap || this.subMapStarts.get(i))
-		if !removals.contains(key) {
+		if !removals.Has(key) {
 			keys.add(key)
 			newsubMapStarts.set_int_boolean((this.templateValues.size() + newKeysSize), inNewSubmap)
 			newKeysSize++
@@ -147,11 +147,11 @@ func (this *TemplateTypeMap) isEmpty() bool {
 	return this.templateKeys.isEmpty()
 }
 
-func (this *TemplateTypeMap) getTemplateKeys() *JTList[*TemplateType] {
+func (this *TemplateTypeMap) getTemplateKeys() *TList[*TemplateType] {
 	return this.templateKeys
 }
 
-func (this *TemplateTypeMap) getTemplateValues() *JTList[*JSType] {
+func (this *TemplateTypeMap) getTemplateValues() *TList[*JSType] {
 	return this.templateValues
 }
 
@@ -270,7 +270,7 @@ func (this *TemplateTypeMap) toString() string {
 	return s
 }
 
-func (this *TemplateTypeMap) padToSameLength(keys *JTList[*TemplateType], builder *JTList[*JSType]) {
+func (this *TemplateTypeMap) padToSameLength(keys *TList[*TemplateType], builder *TList[*JSType]) {
 	if builder.size() > keys.size() {
 		panic(new_IllegalArgumentException_0())
 	}
@@ -288,8 +288,8 @@ func (this *TemplateTypeMap) defaultValueType(type_ *TemplateType) *JSType {
 	}()
 }
 
-func (this *TemplateTypeMap) getIndicesOfSubmapsForTesting() *JTList[any] {
-	var indices *TListBuilder[any] = newTListBuilder_(tc_Integer)
+func (this *TemplateTypeMap) getIndicesOfSubmapsForTesting() *TList[any] {
+	var indices *ImmutableList_Builder[any] = immutableListBuilder_(tc_Integer)
 	for i := int32(0); i < this.subMapStarts.length(); i++ {
 		if this.subMapStarts.get(i) {
 			indices.add(int32(i))

@@ -171,7 +171,7 @@ func (this *ClosureCheckModule) checkImproperReferenceToImport(t *NodeTraversal,
 	if qname.isEmpty() {
 		return true
 	}
-	var importLhs Node = this.currentModuleInfo.importsByLongRequiredName.get(qname.get())
+	var importLhs Node = this.currentModuleInfo.importsByLongRequiredName.Get(qname.get())
 	if importLhs == 0 {
 		return true
 	}
@@ -223,14 +223,14 @@ func (this *ClosureCheckModule) checkModuleExport(t *NodeTraversal, n Node, pare
 	if !ClosureCheckModule_isExportLhs(lhs) {
 		panic(new_IllegalStateException_0())
 	}
-	var previousDefinition Node = this.currentModuleInfo.exportNodesByName.get(lhs.getQualifiedName())
+	var previousDefinition Node = this.currentModuleInfo.exportNodesByName.Get(lhs.getQualifiedName())
 	if previousDefinition != 0 {
 		var previousLine int32 = previousDefinition.getLineno()
 		t.report(n, ClosureCheckModule_EXPORT_REPEATED_ERROR, []string{strconv.Itoa(int(previousLine))})
 	}
-	var defaultExportNode Node = this.currentModuleInfo.exportNodesByName.get("exports")
+	var defaultExportNode Node = this.currentModuleInfo.exportNodesByName.Get("exports")
 	if (defaultExportNode == 0) || lhs.matchesName("exports") {
-		this.currentModuleInfo.exportNodesByName.put(lhs.getQualifiedName(), lhs)
+		this.currentModuleInfo.exportNodesByName.Put(lhs.getQualifiedName(), lhs)
 		if !t.inModuleScope() {
 			t.report(n, ClosureCheckModule_EXPORT_NOT_AT_MODULE_SCOPE, []string{})
 		} else if !parent.isExprResult() {
@@ -263,7 +263,7 @@ func (this *ClosureCheckModule) checkRequireCall(t *NodeTraversal, callNode Node
 	switch parent.ns_().token {
 	case tokOrd1_EXPR_RESULT:
 		var key Optional[string] = ClosureCheckModule_extractFirstArgumentName(callNode)
-		this.currentModuleInfo.importsByLongRequiredName.putIfAbsent(key.orElse(nullstr_), parent)
+		this.currentModuleInfo.importsByLongRequiredName.PutIfAbsent(key.orElse(nullstr_), parent)
 	case tokOrd1_NAME, tokOrd1_DESTRUCTURING_LHS:
 		this.checkShortGoogRequireCall(t, callNode, parent.getParent())
 	case tokOrd1_AWAIT:
@@ -295,10 +295,10 @@ func (this *ClosureCheckModule) checkShortGoogRequireCall(t *NodeTraversal, call
 	} else if lhs.isName() {
 		ClosureCheckModule_checkShortName(t, lhs, callNode.getLastChild().getString())
 	}
-	this.currentModuleInfo.importsByLongRequiredName.put(ClosureCheckModule_extractFirstArgumentName(callNode).orElse(nullstr_), lhs)
+	this.currentModuleInfo.importsByLongRequiredName.Put(ClosureCheckModule_extractFirstArgumentName(callNode).orElse(nullstr_), lhs)
 	NodeUtil_visitLhsNodesInNode(declaration, Consumer[Node](func(nameNode Node) {
 		var name string = nameNode.getString()
-		if !this.currentModuleInfo.shortImportNames.add(name) {
+		if !this.currentModuleInfo.shortImportNames.Add(name) {
 			t.report(nameNode, ClosureCheckModule_DUPLICATE_NAME_SHORT_REQUIRE, []string{name})
 		}
 	}))
@@ -447,9 +447,9 @@ func ClosureCheckModule_clinit() {
 
 type ClosureCheckModule_ModuleInfo struct {
 	name_                     string
-	importsByLongRequiredName *JTMap[string, Node]
-	shortImportNames          *JTSet[string]
-	exportNodesByName         *JTMap[string, Node]
+	importsByLongRequiredName *TMap[string, Node]
+	shortImportNames          *TSet[string]
+	exportNodesByName         *TMap[string, Node]
 }
 
 func (this *ClosureCheckModule_ModuleInfo) zero_ClosureCheckModule_ModuleInfo() {
@@ -457,9 +457,9 @@ func (this *ClosureCheckModule_ModuleInfo) zero_ClosureCheckModule_ModuleInfo() 
 }
 
 func (this *ClosureCheckModule_ModuleInfo) finit_ClosureCheckModule_ModuleInfo() {
-	this.importsByLongRequiredName = jnewTMap_(jtc_string, jtc_Node)
-	this.shortImportNames = jnewTSet_(jtc_string)
-	this.exportNodesByName = jnewTMap_(jtc_string, jtc_Node)
+	this.importsByLongRequiredName = newTMap_(tc_string, tc_Node)
+	this.shortImportNames = newTSet_(tc_string)
+	this.exportNodesByName = newTMap_(tc_string, tc_Node)
 }
 
 func (this *ClosureCheckModule_ModuleInfo) init_ClosureCheckModule_ModuleInfo(moduleName string) {

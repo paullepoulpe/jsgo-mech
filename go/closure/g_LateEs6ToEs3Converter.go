@@ -105,7 +105,7 @@ func (this *LateEs6ToEs3Converter) visitObjectWithComputedProperty(t *NodeTraver
 	if !obj.isObjectLit() {
 		panic(new_IllegalArgumentException_0())
 	}
-	var props ListT[Node] = jnewTList_(jtc_Node).asListT()
+	var props ListT[Node] = newTList_(tc_Node).asListT()
 	var currElement Node = obj.getFirstChild()
 	var objectType AstFactory_Type = AstFactory_type_Node(obj)
 	for currElement != 0 {
@@ -122,7 +122,7 @@ func (this *LateEs6ToEs3Converter) visitObjectWithComputedProperty(t *NodeTraver
 		}
 	}
 	var objName string = (sstr_(LateEs6ToEs3Converter_FRESH_COMP_PROP_VAR) + sstr_(this.compiler_.getUniqueIdSupplier().getUniqueId(t.getInput())))
-	props = listAs_(jtc_Node, Lists_reverse(List_un_(props)))
+	props = listAs_(tc_Node, Lists_reverse(List_un_(props)))
 	var result Node = this.astFactory_.createName(objName, objectType)
 	for propdef := range elemsT_(props) {
 		if propdef.isComputedProp() {

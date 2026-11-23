@@ -3,11 +3,11 @@
 package closure
 
 type ReferenceCollection struct {
-	references *JTList[*Reference]
+	references *TList[*Reference]
 }
 
 func (this *ReferenceCollection) finit_ReferenceCollection() {
-	this.references = jnewTList_(jtc_p_Reference)
+	this.references = newTList_(tc_p_Reference)
 }
 
 func (this *ReferenceCollection) init_ReferenceCollection() {

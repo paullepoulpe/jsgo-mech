@@ -6,7 +6,7 @@ type DepsFileRegexParser struct {
 	JsFileLineParser
 	depMatcher     *Matcher_re2j
 	depArgsMatch   *Matcher_re2j
-	depInfos       *JTList[DependencyInfo_]
+	depInfos       *TList[DependencyInfo_]
 	pathTranslator Function_base[string, string]
 }
 
@@ -54,8 +54,8 @@ func (this *DepsFileRegexParser) parseFile(filePath string) *Outcome_base[ListT[
 	return Outcome_base_ok_Object[ListT[DependencyInfo_]](this.parseFile_2(filePath, fileContents.get()).asListT())
 }
 
-func (this *DepsFileRegexParser) parseFile_2(filePath string, fileContents string) *JTList[DependencyInfo_] {
-	this.depInfos = jnewTList_(tc_DependencyInfo_)
+func (this *DepsFileRegexParser) parseFile_2(filePath string, fileContents string) *TList[DependencyInfo_] {
+	this.depInfos = newTList_(tc_DependencyInfo_)
 	if DepsFileRegexParser_logger.isLoggable(Level_FINE) {
 		DepsFileRegexParser_logger.fine(("Parsing Dep: " + sstr_(filePath)))
 	}
@@ -107,8 +107,8 @@ func (this *DepsFileRegexParser) parseLine_impl(line string) *Outcome_base[any] 
 	return Outcome_base_ok_Object[any](bool(((!this.shortcutMode || hasDependencies) || CharMatcher_whitespace().matchesAllOf_s(line))))
 }
 
-func DepsFileRegexParser_requiresParsedFromDeps(symbols ListT[string]) *JTList[*DependencyInfo_Require] {
-	var result *TListBuilder[*DependencyInfo_Require] = newTListBuilder_(jtc_p_DependencyInfo_Require)
+func DepsFileRegexParser_requiresParsedFromDeps(symbols ListT[string]) *TList[*DependencyInfo_Require] {
+	var result *ImmutableList_Builder[*DependencyInfo_Require] = immutableListBuilder_(tc_p_DependencyInfo_Require)
 	for symbol := range elemsT_(symbols) {
 		result.add(DependencyInfo_Require_parsedFromDeps(symbol))
 	}
@@ -117,9 +117,9 @@ func DepsFileRegexParser_requiresParsedFromDeps(symbols ListT[string]) *JTList[*
 
 func (this *DepsFileRegexParser) parseLoadFlags(loadFlags Optional[string]) *Outcome_base[MapT[string, string]] {
 	if loadFlags.isEmpty() || (loadFlags.get() == "false") {
-		return Outcome_base_ok_Object[MapT[string, string]](jtmapEmptyImm_(jtc_string, jtc_string).asMapT())
+		return Outcome_base_ok_Object[MapT[string, string]](tmapEmptyImm_(tc_string, tc_string).asMapT())
 	} else if loadFlags.get() == "true" {
-		return Outcome_base_ok_Object[MapT[string, string]](immutableMapOf1_[string, string](jtc_string, jtc_string, "module", "goog").asMapT())
+		return Outcome_base_ok_Object[MapT[string, string]](immutableMapOf1_[string, string](tc_string, tc_string, "module", "goog").asMapT())
 	} else {
 		return this.parseJsStringMap(loadFlags.get())
 	}

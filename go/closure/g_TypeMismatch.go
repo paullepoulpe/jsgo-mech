@@ -95,11 +95,11 @@ func TypeMismatch_clinit() {
 }
 
 type TypeMismatch_Accumulator struct {
-	mismatches *JTList[*TypeMismatch]
+	mismatches *TList[*TypeMismatch]
 }
 
 func (this *TypeMismatch_Accumulator) finit_TypeMismatch_Accumulator() {
-	this.mismatches = jnewTList_(jtc_p_TypeMismatch)
+	this.mismatches = newTList_(tc_p_TypeMismatch)
 }
 
 func (this *TypeMismatch_Accumulator) init_TypeMismatch_Accumulator() {
@@ -143,7 +143,7 @@ func (this *TypeMismatch_Accumulator) registerMismatch(location Node, found *JST
 }
 
 func (this *TypeMismatch_Accumulator) getMismatches() CollectionT[*TypeMismatch] {
-	return immutableListCopyOfT_(jtc_p_TypeMismatch, this.mismatches).asCollT()
+	return immutableListCopyOfT_(tc_p_TypeMismatch, this.mismatches).asCollT()
 }
 
 func (this *TypeMismatch_Accumulator) registerIfMismatch(location Node, found *JSType, required *JSType) {
