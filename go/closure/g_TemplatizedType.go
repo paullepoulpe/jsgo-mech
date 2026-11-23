@@ -40,7 +40,7 @@ func (this *TemplatizedType) init_TemplatizedType(registry *JSTypeRegistry, obje
 		var resolvedType *JSType = this.getTemplateTypeMap().getResolvedTemplateType(newlyFilledTemplateKey)
 		builder.add(resolvedType)
 		if maybeIsSpecializedOnlyWithUnknown {
-			maybeIsSpecializedOnlyWithUnknown = this.getNativeType(JSTypeNative_UNKNOWN_TYPE).equals(resolvedType.self())
+			maybeIsSpecializedOnlyWithUnknown = this.getNativeType(JSTypeNative_UNKNOWN_TYPE).equals_JSType(resolvedType)
 		}
 	}
 	this.templateTypes = builder.build().asListT()
@@ -118,7 +118,7 @@ func (this *TemplatizedType) getPropertyTypeKey_impl(propertyName Property_Key) 
 }
 
 func (this *TemplatizedType) wrapsSameRawType(that *JSType) bool {
-	return (that.isTemplatizedType() && this.getReferencedTypeInternal().equals(that.toMaybeTemplatizedType().getReferencedTypeInternal().self()))
+	return (that.isTemplatizedType() && this.getReferencedTypeInternal().equals_JSType(that.toMaybeTemplatizedType().getReferencedTypeInternal()))
 }
 
 func (this *TemplatizedType) getGreatestSubtypeHelper(rawThat *JSType) *JSType {
@@ -140,7 +140,7 @@ func (this *TemplatizedType) getGreatestSubtypeHelper(rawThat *JSType) *JSType {
 	if that == nil {
 		panic(new_NullPointerException_0().self())
 	}
-	if this.equals(obj_(that)) {
+	if this.equals_JSType(that.up_JSType()) {
 		return this.up_JSType()
 	}
 	return this.getReferencedObjTypeInternal().up_JSType()

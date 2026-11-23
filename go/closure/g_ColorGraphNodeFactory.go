@@ -63,7 +63,7 @@ func (this *ColorGraphNodeFactory) simplifyColor(type_ *Color) *Color {
 		}()
 	} else if type_.getBoxId() != nil {
 		return this.registry.get(type_.getBoxId())
-	} else if type_.equals(obj_(StandardColors_NULL_OR_VOID)) {
+	} else if type_.equals_Color(StandardColors_NULL_OR_VOID) {
 		return StandardColors_UNKNOWN
 	} else {
 		return type_
