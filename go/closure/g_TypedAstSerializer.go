@@ -65,7 +65,7 @@ func (this *TypedAstSerializer) serializeRoots(externsRoot Node, jsRoot Node) *T
 			builder.addCodeAst(this.serializeScriptNode(script))
 		}
 	}
-	var sourceFiles *SourceFilePool = cast_[*SourceFilePool](SourceFilePool_newBuilder().addAllSourceFile(Iterable(this.sourceFileProtos().asList())).build())
+	var sourceFiles *SourceFilePool = SourceFilePool_newBuilder().addAllSourceFile(Iterable(this.sourceFileProtos().asList())).buildT_()
 	if this.compiler_.getExternProperties() != nil {
 		var externsSummary *ExternsSummary_Builder = ExternsSummary_newBuilder()
 		for prop := range this.compiler_.getExternProperties().All() {
@@ -73,7 +73,7 @@ func (this *TypedAstSerializer) serializeRoots(externsRoot Node, jsRoot Node) *T
 		}
 		builder.setExternsSummary(externsSummary)
 	}
-	return cast_[*TypedAst](builder.addAllRuntimeLibraryToInject(Iterable(this.serializationMode.runtimeLibraries().asList())).setTypePool(this.typeSerializer.generateTypePool()).setStringPool(this.stringPool.build().toProto()).setSourceFilePool(sourceFiles).build())
+	return builder.addAllRuntimeLibraryToInject(Iterable(this.serializationMode.runtimeLibraries().asList())).setTypePool(this.typeSerializer.generateTypePool()).setStringPool(this.stringPool.build().toProto()).setSourceFilePool(sourceFiles).buildT_()
 }
 
 func (this *TypedAstSerializer) sourceFileProtos() *TList[*SourceFileProto] {
@@ -100,7 +100,7 @@ func (this *TypedAstSerializer) serializeScriptNode(script Node) *LazyAst {
 	if encodedSourceMap.isPresent() {
 		lazyAstBuilder.setSourceMappingUrl(encodedSourceMap.get())
 	}
-	return cast_[*LazyAst](lazyAstBuilder.build())
+	return lazyAstBuilder.buildT_()
 }
 
 func (this *TypedAstSerializer) createWithPositionInfo(n Node) *AstNode_Builder {
@@ -141,7 +141,7 @@ func (this *TypedAstSerializer) visit(n Node) *AstNode {
 		slicePop_(tc_p_SourceFile_jscomp, this.subtreeSourceFiles)
 	}
 	this.setOriginalName(builder, n)
-	return cast_[*AstNode](builder.build())
+	return builder.buildT_()
 }
 
 func (this *TypedAstSerializer) getSourceFilePointer(n Node) int32 {
@@ -171,12 +171,12 @@ func (this *TypedAstSerializer) valueTranslator(builder *AstNode_Builder, n Node
 		builder.setStringValuePointer(this.stringPool.put(n.getString()))
 		return
 	case tokOrd1_TEMPLATELIT_STRING:
-		builder.setTemplateStringValue(cast_[*TemplateStringValue](TemplateStringValue_newBuilder().setRawStringPointer(this.stringPool.put(n.getRawString())).setCookedStringPointer(func() int32 {
+		builder.setTemplateStringValue(TemplateStringValue_newBuilder().setRawStringPointer(this.stringPool.put(n.getRawString())).setCookedStringPointer(func() int32 {
 			if n.getCookedString().isEmpty() {
 				return -1
 			}
 			return this.stringPool.put(n.getCookedString().get())
-		}()).build()))
+		}()).buildT_())
 		return
 	case tokOrd1_NUMBER:
 		builder.setDoubleValue(n.getDouble())
