@@ -29,9 +29,9 @@ func tmapStep_[K comparable, V any](m *TMap[K, V], i int, out func(m *TMap[K, V]
 	return out(m, int32(i)), i + 1
 }
 
-func (v *tkeysView_[K, V]) step_(i int) (any, int)    { return tmapStep_(v.m, i, keyOut_[K, V]) }
-func (v *tvalsView_[K, V]) step_(i int) (any, int)    { return tmapStep_(v.m, i, valOut_[K, V]) }
-func (v *tentriesView_[K, V]) step_(i int) (any, int) { return tmapStep_(v.m, i, entryOut_[K, V]) }
+func (v *tkeysView_[K, V]) step_(i int) (any, int)    { return tmapStep_(v.tm(), i, keyOut_[K, V]) }
+func (v *tvalsView_[K, V]) step_(i int) (any, int)    { return tmapStep_(v.tm(), i, valOut_[K, V]) }
+func (v *tentriesView_[K, V]) step_(i int) (any, int) { return tmapStep_(v.tm(), i, entryOut_[K, V]) }
 func (v *tsetView_[K]) step_(i int) (any, int) {
-	return tmapStep_(v.m, i, keyOut_[K, struct{}])
+	return tmapStep_(v.tm(), i, keyOut_[K, struct{}])
 }
