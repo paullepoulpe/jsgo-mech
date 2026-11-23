@@ -63,3 +63,51 @@ func iup_StaticTypedSlot[P interface {
 	}
 	return p
 }
+
+// iup_Annotatable converts a p whose type implements Annotatable to it, nil to nil.
+func iup_Annotatable[P interface {
+	comparable
+	Annotatable
+}](p P) Annotatable {
+	var z P
+	if p == z {
+		return nil
+	}
+	return p
+}
+
+// iup_CompilerInputProvider converts a p whose type implements CompilerInputProvider to it, nil to nil.
+func iup_CompilerInputProvider[P interface {
+	comparable
+	CompilerInputProvider
+}](p P) CompilerInputProvider {
+	var z P
+	if p == z {
+		return nil
+	}
+	return p
+}
+
+// iup_ErrorManager converts a p whose type implements ErrorManager to it, nil to nil.
+func iup_ErrorManager[P interface {
+	comparable
+	ErrorManager
+}](p P) ErrorManager {
+	var z P
+	if p == z {
+		return nil
+	}
+	return p
+}
+
+// iup_GraphvizGraph converts a p whose type implements GraphvizGraph to it, nil to nil.
+func iup_GraphvizGraph[P interface {
+	comparable
+	GraphvizGraph
+}](p P) GraphvizGraph {
+	var z P
+	if p == z {
+		return nil
+	}
+	return p
+}

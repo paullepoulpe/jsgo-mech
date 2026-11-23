@@ -518,7 +518,7 @@ func (this *GlobalNamespace_BuildGlobalNamespace) setupModuleMetadata(moduleRoot
 		return
 	}
 	this.curModuleRoot = moduleRoot
-	nn_ := ModuleImportResolver_getModuleFromScopeRoot(moduleMap, icast_CompilerInputProvider(this.outer_.compiler_.self()), moduleRoot).metadata()
+	nn_ := ModuleImportResolver_getModuleFromScopeRoot(moduleMap, iup_CompilerInputProvider(this.outer_.compiler_), moduleRoot).metadata()
 	if nn_ == nil {
 		panic(new_NullPointerException_0())
 	}

@@ -24,7 +24,7 @@ func (this *PrintStreamErrorReportGenerator) generateReport(manager *SortingErro
 	for e := range elemsT_(manager.getSortedDiagnostics()) {
 		this.println(e.level_, e.error_)
 	}
-	this.printSummary(icast_ErrorManager(manager.self()))
+	this.printSummary(iup_ErrorManager(manager))
 }
 
 func (this *PrintStreamErrorReportGenerator) println(level CheckLevel, error_ *JSError) {
