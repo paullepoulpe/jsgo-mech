@@ -301,7 +301,12 @@ func (this *ModuleLoader_PathEscaper) as_ModuleLoader_PathEscaper() *ModuleLoade
 }
 
 func to_ModuleLoader_PathEscaper(v any) *ModuleLoader_PathEscaper {
-	if v == nil {
+	switch p := v.(type) {
+	case *ModuleLoader_PathEscaper_1:
+		return p.as_ModuleLoader_PathEscaper()
+	case *ModuleLoader_PathEscaper_2:
+		return p.as_ModuleLoader_PathEscaper()
+	case nil:
 		return nil
 	}
 	return v.(interface {
@@ -378,7 +383,12 @@ func (this *ModuleLoader_PathResolver) as_ModuleLoader_PathResolver() *ModuleLoa
 }
 
 func to_ModuleLoader_PathResolver(v any) *ModuleLoader_PathResolver {
-	if v == nil {
+	switch p := v.(type) {
+	case *ModuleLoader_PathResolver_1:
+		return p.as_ModuleLoader_PathResolver()
+	case *ModuleLoader_PathResolver_2:
+		return p.as_ModuleLoader_PathResolver()
+	case nil:
 		return nil
 	}
 	return v.(interface {

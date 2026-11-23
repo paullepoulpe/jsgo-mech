@@ -20,7 +20,14 @@ type PassConfig_I interface {
 func (this *PassConfig) as_PassConfig() *PassConfig { return this }
 
 func to_PassConfig(v any) *PassConfig {
-	if v == nil {
+	switch p := v.(type) {
+	case *DefaultPassConfig:
+		return p.as_PassConfig()
+	case *LintPassConfig:
+		return p.as_PassConfig()
+	case *TranspileAndOptimizeClosureUnaware_RuntimeLibInjectionPassConfig:
+		return p.as_PassConfig()
+	case nil:
 		return nil
 	}
 	return v.(interface{ as_PassConfig() *PassConfig }).as_PassConfig()
@@ -117,7 +124,12 @@ func (this *PassConfig_PassConfigDelegate) as_PassConfig_PassConfigDelegate() *P
 }
 
 func to_PassConfig_PassConfigDelegate(v any) *PassConfig_PassConfigDelegate {
-	if v == nil {
+	switch p := v.(type) {
+	case *LintPassConfig:
+		return p.as_PassConfig_PassConfigDelegate()
+	case *TranspileAndOptimizeClosureUnaware_RuntimeLibInjectionPassConfig:
+		return p.as_PassConfig_PassConfigDelegate()
+	case nil:
 		return nil
 	}
 	return v.(interface {
