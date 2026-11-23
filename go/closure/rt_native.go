@@ -594,3 +594,80 @@ func sliceFirst_[T any](c *tconv_[T], s []T) T {
 	}
 	return s[0]
 }
+
+// Lists shared while they change (tools/postflip/native, pointers to slices): one slice
+// header per list, held by every place that held the typed list.
+
+// sliceRef_ is a new list holding slice s.
+func sliceRef_[T any](s []T) *[]T { return &s }
+
+// slicePtrImm_ is an ImmutableList (or nil) as a pointer to its slice; nil for null.
+func slicePtrImm_[T any](c *tconv_[T], from Collection) *[]T {
+	s := sliceImm_(c, from)
+	if s == nil {
+		return nil
+	}
+	return &s
+}
+
+// sliceAppend_ is List.add(v) and addAll of a list of p's whose pointer comes from an
+// expression that must be evaluated once.
+func sliceAppend_[T any](p *[]T, v ...T) { *p = append(*p, v...) }
+
+// sliceViewP_ is sliceView_ of the list p points to: nil for a nil pointer, as a typed list's
+// asList() was.
+func sliceViewP_[T any](c *tconv_[T], p *[]T) List {
+	if p == nil {
+		return nil
+	}
+	return sliceView_(c, *p)
+}
+
+// sliceCursor_ starts an int cursor over the list p points to (List.iterator(), the cursor
+// of tools/postflip/iters): 0, or NullPointerException for a null list, as cursor() threw.
+func sliceCursor_[T any](p *[]T) int {
+	if p == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return 0
+}
+
+// sliceIterRemove_ is the cursor's remove: the element next returned goes, and the cursor
+// steps back over it (as the typed list's iterator).
+func sliceIterRemove_[T any](p *[]T, i *int) {
+	*i--
+	sliceRemoveAt_(p, int32(*i))
+}
+
+// slicePtrIterT_ is an Iterator kept or passed on over the list p points to: it reads the slice
+// anew at every step, and remove changes the list, as the typed list's iterator did.
+type slicePtrIterT_[T any] struct {
+	p *[]T
+	c *tconv_[T]
+	i int
+}
+
+// slicePtrIter_ is l.asList().iterator() of a list that is a pointer to a slice.
+func slicePtrIter_[T any](c *tconv_[T], p *[]T) Iterator {
+	if p == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return &slicePtrIterT_[T]{p: p, c: c}
+}
+
+func (it *slicePtrIterT_[T]) hasNext() bool { return it.i < len(*it.p) }
+
+func (it *slicePtrIterT_[T]) next() any { return it.c.box(sliceNext_(*it.p, &it.i)) }
+
+func (it *slicePtrIterT_[T]) remove() { sliceIterRemove_(it.p, &it.i) }
+
+// mapGetOrObj_ is Map.getOrDefault(k, def) with an erased key, on a Go map: the value of a
+// key present (null included), else def.
+func mapGetOrObj_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], m map[K]V, k any, def any) any {
+	if kk, ok := kc.try(k); ok {
+		if v, ok := m[kk]; ok {
+			return vc.box(v)
+		}
+	}
+	return def
+}
