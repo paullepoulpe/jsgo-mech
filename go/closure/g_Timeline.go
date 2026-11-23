@@ -103,7 +103,8 @@ func new_Timeline_Event[T comparable](value T) *Timeline_Event[T] {
 }
 
 type Timeline_Time struct {
-	name_ string
+	name_     string
+	hashMemo_ int32 // hashCode, once computed, when it is not 0 (post-flip step hashmemo)
 }
 
 func (this *Timeline_Time) zero_Timeline_Time() {
@@ -129,5 +130,15 @@ func (this *Timeline_Time) equals(anObject any) bool {
 }
 
 func (this *Timeline_Time) hashCode() int32 {
+	if h := this.hashMemo_; h != 0 {
+		return h
+	}
+	h := this.hashCodeOnce_()
+	this.hashMemo_ = h
+	return h
+}
+
+// hashCodeOnce_ computes hashCode: a function of data that is final in the object (post-flip step hashmemo).
+func (this *Timeline_Time) hashCodeOnce_() int32 {
 	return utf16Hash_(this.name_)
 }
