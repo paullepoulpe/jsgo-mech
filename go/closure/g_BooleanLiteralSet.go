@@ -30,10 +30,6 @@ func (this BooleanLiteralSet) ordinal() int32 {
 
 func (this BooleanLiteralSet) toString() string { return this.enum_().name_ }
 
-func (this BooleanLiteralSet) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this BooleanLiteralSet) self() any {
 	if this == 0 {
 		return nil

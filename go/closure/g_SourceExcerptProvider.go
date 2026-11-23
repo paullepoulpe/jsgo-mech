@@ -36,10 +36,6 @@ func (this SourceExcerptProvider_SourceExcerpt) ordinal() int32 {
 
 func (this SourceExcerptProvider_SourceExcerpt) toString() string { return this.enum_().name_ }
 
-func (this SourceExcerptProvider_SourceExcerpt) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this SourceExcerptProvider_SourceExcerpt) self() any {
 	if this == 0 {
 		return nil

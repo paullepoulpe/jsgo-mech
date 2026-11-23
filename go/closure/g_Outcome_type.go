@@ -28,8 +28,6 @@ func (this Outcome_type) ordinal() int32 {
 
 func (this Outcome_type) toString() string { return this.enum_().name_ }
 
-func (this Outcome_type) compareTo(o any) int32 { return this.enum_().compareTo(o) }
-
 func (this Outcome_type) self() any {
 	if this == 0 {
 		return nil

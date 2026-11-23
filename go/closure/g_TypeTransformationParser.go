@@ -676,10 +676,6 @@ func (this TypeTransformationParser_OperationKind) toString() string {
 	return this.enum_().name_
 }
 
-func (this TypeTransformationParser_OperationKind) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this TypeTransformationParser_OperationKind) self() any {
 	if this == 0 {
 		return nil
@@ -778,10 +774,6 @@ func (this TypeTransformationParser_Keywords) ordinal() int32 {
 
 func (this TypeTransformationParser_Keywords) toString() string {
 	return this.enum_().name_
-}
-
-func (this TypeTransformationParser_Keywords) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
 }
 
 func (this TypeTransformationParser_Keywords) self() any {

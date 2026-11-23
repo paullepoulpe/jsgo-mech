@@ -99,10 +99,6 @@ func (this UseSiteRenamer_RenameUsesResult) toString() string {
 	return this.enum_().name_
 }
 
-func (this UseSiteRenamer_RenameUsesResult) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this UseSiteRenamer_RenameUsesResult) self() any {
 	if this == 0 {
 		return nil

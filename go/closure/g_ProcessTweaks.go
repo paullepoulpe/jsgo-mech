@@ -136,10 +136,6 @@ func (this ProcessTweaks_TweakFunction) toString() string {
 	return this.enum_().name_
 }
 
-func (this ProcessTweaks_TweakFunction) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this ProcessTweaks_TweakFunction) self() any {
 	if this == 0 {
 		return nil

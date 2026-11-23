@@ -29,8 +29,6 @@ func (this CheckLevel) ordinal() int32 {
 
 func (this CheckLevel) toString() string { return this.enum_().name_ }
 
-func (this CheckLevel) compareTo(o any) int32 { return this.enum_().compareTo(o) }
-
 func (this CheckLevel) self() any {
 	if this == 0 {
 		return nil

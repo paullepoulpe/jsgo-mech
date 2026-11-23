@@ -36,10 +36,6 @@ func (this TypeMatchingStrategy) ordinal() int32 {
 
 func (this TypeMatchingStrategy) toString() string { return this.enum_().name_ }
 
-func (this TypeMatchingStrategy) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this TypeMatchingStrategy) self() any {
 	if this == 0 {
 		return nil
@@ -151,10 +147,6 @@ func (this TypeMatchingStrategy_MatchResult) ordinal() int32 {
 
 func (this TypeMatchingStrategy_MatchResult) toString() string {
 	return this.enum_().name_
-}
-
-func (this TypeMatchingStrategy_MatchResult) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
 }
 
 func (this TypeMatchingStrategy_MatchResult) self() any {
