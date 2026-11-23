@@ -81,7 +81,7 @@ func (this *ConformanceAllowlister_1) shouldReportConformanceViolation_impl(requ
 }
 
 // shouldReportConformanceViolation: an object that is exactly a ConformanceAllowlister_1 calls its shouldReportConformanceViolation_impl directly (post-flip); others dispatch.
-func (this *ConformanceAllowlister_1) shouldReportConformanceViolation(p0 *Requirement, p1 *Optional_base, p2 *JSError, p3 ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior, p4 bool) bool {
+func (this *ConformanceAllowlister_1) shouldReportConformanceViolation(p0 *Requirement, p1 Optional_base, p2 *JSError, p3 ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior, p4 bool) bool {
 	if p, _ := this.self_.(*ConformanceAllowlister_1); p == this {
 		return this.shouldReportConformanceViolation_impl(p0, p1, p2, p3, p4)
 	}
