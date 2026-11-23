@@ -105,18 +105,18 @@ func (this *AngularPass) addNode(n Node) {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, AngularPass_INJECTED_FUNCTION_ON_NON_QNAME, []string{}))
 			return
 		}
-		name = Optional_of[string](n.getFirstChild().getQualifiedName()).filter(Predicate[string](func(s string) bool {
+		name = Optional_of[string](n.getFirstChild().getQualifiedName()).filterFn_(func(s string) bool {
 			return s != ""
-		}))
+		})
 		fn = n
 		for fn.isAssign() {
 			fn = fn.getLastChild()
 		}
 		injectAfter = n.getParent()
 	case tokOrd1_FUNCTION:
-		name = Optional_of[string](NodeUtil_getName(n)).filter(Predicate[string](func(s string) bool {
+		name = Optional_of[string](NodeUtil_getName(n)).filterFn_(func(s string) bool {
 			return s != ""
-		}))
+		})
 		fn = n
 		injectAfter = n
 		if n.getParent().isAssign() && n.getParent().getJSDocInfo().isNgInject() {
@@ -138,9 +138,9 @@ func (this *AngularPass) addNode(n Node) {
 			}()
 			name = Optional_of[string]((sstr_(NodeUtil_getName(classNode)) + sstr_(midPart) + sstr_(n.getString())))
 			if NodeUtil_isEs6ConstructorMemberFunctionDef(n) {
-				name = Optional_of[string](NodeUtil_getName(classNode)).filter(Predicate[string](func(s string) bool {
+				name = Optional_of[string](NodeUtil_getName(classNode)).filterFn_(func(s string) bool {
 					return s != ""
-				}))
+				})
 			}
 			fn = n.getFirstChild()
 			injectAfter = NodeUtil_getEnclosingStatement(classNode)

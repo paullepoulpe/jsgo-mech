@@ -123,9 +123,9 @@ func (this *ClosureCheckModule) visit_4_impl(t *NodeTraversal, n Node, currentMo
 		} else {
 			if !parent.isGetProp() && n.isQualifiedName() {
 				var node Node = n
-				for this.checkImproperReferenceToImport(t, node, Optional_of[string](node.getQualifiedName()).filter(Predicate[string](func(s string) bool {
+				for this.checkImproperReferenceToImport(t, node, Optional_of[string](node.getQualifiedName()).filterFn_(func(s string) bool {
 					return s != ""
-				})), func() Optional[string] {
+				}), func() Optional[string] {
 					if node.getParent().isGetProp() {
 						return Optional_of[string](node.getParent().getString())
 					}
