@@ -38,24 +38,8 @@ func ConformanceRules_buildPattern(reqPatterns ListT[string]) *Outcome_base[*Pat
 	it_1 := jeachOf_(reqPatterns)
 	for it_1.next() {
 		var reqPattern string = it_1.v
-		var ret_3 *Outcome_base[*Pattern]
-		code_3 := func() (code_ int) {
-			defer func() {
-				if r_ := recover(); r_ != nil {
-					ex_ := catch_(r_)
-					if e, ok := ex_.(*PatternSyntaxException); ok {
-						ret_3 = Outcome_base_err[*Pattern](new_CheckConformance_InvalidRequirementSpec_String_Throwable("invalid regex pattern", e.up_Throwable()).up_Throwable())
-						code_ = 1
-						return
-					}
-					panic(r_)
-				}
-			}()
-			Pattern_compile(reqPattern)
-			return 0
-		}()
-		if code_3 == 1 {
-			return ret_3
+		if _, e := Pattern_compileErr_(reqPattern); e != nil {
+			return Outcome_base_err[*Pattern](new_CheckConformance_InvalidRequirementSpec_String_Throwable("invalid regex pattern", e.up_Throwable()).up_Throwable())
 		}
 	}
 	var pattern *Pattern = nil
