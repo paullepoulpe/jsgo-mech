@@ -16,7 +16,7 @@ func (this *JSDocInfo) init_JSDocInfo(bits int64, props TreeMapOf[*JSDocInfo_Pro
 		var value any = entry.getValue()
 		if !prop.isDefault(value) {
 			keys |= prop.mask
-			if is_[[]any](value) || value == nil {
+			if _, ok := value.([]any); ok || value == nil {
 				panic(new_IllegalStateException_0())
 			}
 			values = append(values, value)
@@ -967,7 +967,9 @@ func (this *JSDocInfo_Property) clone_impl(arg any, unusedTransform func(*JSType
 }
 
 func (this *JSDocInfo_Property) isDefault(value any) bool {
-	return ((((value == nil) || (value == obj_(JSDocInfo_Visibility_INHERITED))) || (is_[Collection](value) && value.(Collection).isEmpty())) || (is_[Map](value) && value.(Map).isEmpty()))
+	_, ok := value.(Collection)
+	_, ok2 := value.(Map)
+	return ((((value == nil) || (value == obj_(JSDocInfo_Visibility_INHERITED))) || (ok && value.(Collection).isEmpty())) || (ok2 && value.(Map).isEmpty()))
 }
 
 func (this *JSDocInfo_Property) equalValues_impl(left any, right any) bool {
