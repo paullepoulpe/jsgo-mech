@@ -153,7 +153,7 @@ func CheckRequiresSorted_canonicalizeImports(importsByNamespace *SimpleListMulti
 				}
 			}
 		}
-		Collections_sort(sliceView_(tc_p_CheckRequiresSorted_DestructuringBinding, sortedDestructures))
+		sortSliceF_(sortedDestructures, (*CheckRequiresSorted_DestructuringBinding).compareToT_)
 		var destructures *TList[*CheckRequiresSorted_DestructuringBinding] = immutableListCopyOf_(tc_p_CheckRequiresSorted_DestructuringBinding, Collection(new_LinkedHashSet_Collection(Collection(sliceView_(tc_p_CheckRequiresSorted_DestructuringBinding, sortedDestructures)))))
 		if !destructures.isEmpty() {
 			canonicalImports.add(CheckRequiresSorted_ImportStatement_of(destructuringNodes, strongestPrimitive, namespace, Optional_empty[string](), destructures))
@@ -172,7 +172,7 @@ func CheckRequiresSorted_canonicalizeImports(importsByNamespace *SimpleListMulti
 			canonicalImports.add(CheckRequiresSorted_ImportStatement_of(standaloneNodes, strongestPrimitive, namespace, Optional_empty[string](), nil))
 		}
 	}
-	Collections_sort(canonicalImports.asList())
+	sortTListF_(canonicalImports, (*CheckRequiresSorted_ImportStatement).compareToT_)
 	return canonicalImports
 }
 

@@ -80,29 +80,14 @@ func DotFormatter_toDot_GraphvizGraph(graph GraphvizGraph) string {
 		var gNode GraphvizGraph_GraphvizNode = sliceAt_(nodes, i)
 		nodeNames[i] = (sstr_(gNode.getId()) + " [label=\"" + sstr_(gNode.getLabel()) + "\" color=\"" + sstr_(gNode.getColor()) + "\"]")
 	}
-	func() {
-		arr_2 := nodeNames
-		tmp_3 := arrmap_(arr_2, strobj_)
-		Arrays_sort(tmp_3)
-		for i_ := range tmp_3 {
-			arr_2[i_] = str_(tmp_3[i_])
-		}
-	}()
+	sortArrF_(nodeNames, compareStrNat_)
 	for _, nodeName := range nodeNames {
 		builder.append(DotFormatter_INDENT)
 		builder.append(nodeName)
 		builder.append(";\n")
 	}
 	var edges *TList[GraphvizGraph_GraphvizEdge] = graph.getGraphvizEdges()
-	List_sort(List_un_(edges.asListT()), func() Comparator[any] {
-		f_ := Comparator_comparing[GraphvizGraph_GraphvizEdge, string](Function[GraphvizGraph_GraphvizEdge, string]((GraphvizGraph_GraphvizEdge).getNode1Id)).thenComparing(Function[GraphvizGraph_GraphvizEdge, any](func(p0 GraphvizGraph_GraphvizEdge) any { return strobj_(p0.getNode2Id()) }))
-		if f_ == nil {
-			return nil
-		}
-		return func(p0 any, p1 any) int32 {
-			return f_(icast_GraphvizGraph_GraphvizEdge(p0), icast_GraphvizGraph_GraphvizEdge(p1))
-		}
-	}())
+	sortTListF_(edges, Comparator_comparing[GraphvizGraph_GraphvizEdge, string](Function[GraphvizGraph_GraphvizEdge, string]((GraphvizGraph_GraphvizEdge).getNode1Id)).thenComparing(Function[GraphvizGraph_GraphvizEdge, any](func(p0 GraphvizGraph_GraphvizEdge) any { return strobj_(p0.getNode2Id()) })))
 	for edge := range edges.All() {
 		builder.append(DotFormatter_INDENT)
 		builder.append(edge.getNode1Id())
@@ -153,14 +138,7 @@ func (this *DotFormatter) traverseNodes(parent Node) {
 			}
 			edgeList[i] = (sstr_(DotFormatter_formatNodeName(int32(keyParent))) + sstr_(DotFormatter_ARROW) + sstr_(toNode.orElse("null")) + " [label=\"" + tostr_(edge.getValue()) + "\", fontcolor=\"red\", weight=0.01, color=\"red\"];\n")
 		}
-		func() {
-			arr_3 := edgeList
-			tmp_4 := arrmap_(arr_3, strobj_)
-			Arrays_sort(tmp_4)
-			for i_ := range tmp_4 {
-				arr_3[i_] = str_(tmp_4[i_])
-			}
-		}()
+		sortArrF_(edgeList, compareStrNat_)
 		for _, element := range edgeList {
 			Appendable_append_s(this.builder, DotFormatter_INDENT)
 			Appendable_append_s(this.builder, element)

@@ -29,25 +29,17 @@ func (this *BrowserWithTransformedPrefixesModuleResolver) init_BrowserWithTransf
 		var entry *TEntry[string, string] = it_1.entry()
 		sortedReplacements.add(BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement_of(entry.getKey(), entry.getValue()))
 	}
-	List_sort(List_un_(sortedReplacements.asListT()), func() Comparator[any] {
-		f_ := Comparator_comparingInt[*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement](ToIntFunction[*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement](func(r *BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement) int32 {
-			return String_length(r.prefix())
-		})).reversed().thenComparing(Function[*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement, any](func(p0 *BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement) any {
-			return strobj_(p0.prefix())
-		}))
-		if f_ == nil {
-			return nil
-		}
-		return func(p0 any, p1 any) int32 {
-			return f_(cast_[*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement](p0), cast_[*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement](p1))
-		}
-	}())
+	sortTListF_(sortedReplacements, Comparator_comparingInt[*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement](ToIntFunction[*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement](func(r *BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement) int32 {
+		return String_length(r.prefix())
+	})).reversed().thenComparing(Function[*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement, any](func(p0 *BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement) any {
+		return strobj_(p0.prefix())
+	})))
 	this.prefixReplacements = immutableSetCopyOf_(tch_p_BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement, Collection(sortedReplacements.asList()))
 	var sortedPrefixes *TList[string] = newTList_(tc_string)
 	for replacement := range this.prefixReplacements.All() {
 		sortedPrefixes.add(replacement.prefix())
 	}
-	Collections_sort(sortedPrefixes.asList())
+	sortTListF_(sortedPrefixes, compareStrNat_)
 	this.expectedPrefixes = JString_join_s(", ", Iterable(sortedPrefixes.asList()))
 }
 
