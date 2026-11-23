@@ -3,13 +3,13 @@
 package closure
 
 type ReverseAbstractInterpreter interface {
-	getPreciserScopeKnowingConditionOutcome(Node, FlowScope, *Outcome_rhino) FlowScope
+	getPreciserScopeKnowingConditionOutcome(Node, FlowScope, Outcome_rhino) FlowScope
 }
 
 type ReverseAbstractInterpreter_fn struct {
-	f func(Node, FlowScope, *Outcome_rhino) FlowScope
+	f func(Node, FlowScope, Outcome_rhino) FlowScope
 }
 
-func (this *ReverseAbstractInterpreter_fn) getPreciserScopeKnowingConditionOutcome(p0 Node, p1 FlowScope, p2 *Outcome_rhino) FlowScope {
+func (this *ReverseAbstractInterpreter_fn) getPreciserScopeKnowingConditionOutcome(p0 Node, p1 FlowScope, p2 Outcome_rhino) FlowScope {
 	return this.f(p0, p1, p2)
 }

@@ -197,7 +197,18 @@ func rewrite(conv []*enumInfo) stats {
 		}
 	}
 
-	// uses
+	st = rewriteUses(&st)
+	tokenBytes(&st)
+	enumCasts()
+	return st
+}
+
+// rewriteUses rewrites the uses of the enums in byNamed in generated code.
+func rewriteUses(stp *stats) stats {
+	var st stats
+	if stp != nil {
+		st = *stp
+	}
 	for _, f := range rw.Files {
 		if !isGen(f.Pos()) {
 			continue
@@ -282,8 +293,6 @@ func rewrite(conv []*enumInfo) stats {
 			return true
 		})
 	}
-	tokenBytes(&st)
-	enumCasts()
 	return st
 }
 

@@ -7,7 +7,7 @@ type ModuleResolver struct {
 	modulePaths     *JTSet[string]
 	moduleRootPaths *JTList[string]
 	errorHandler    ErrorHandler
-	pathEscaper     *ModuleLoader_PathEscaper
+	pathEscaper     ModuleLoader_PathEscaper
 }
 
 // ModuleResolver_I holds the methods the dispatchers of ModuleResolver's hierarchy call on the most derived
@@ -40,7 +40,7 @@ func (this *ModuleResolver) self() any {
 	return this.self_
 }
 
-func (this *ModuleResolver) init_ModuleResolver(modulePaths *JTSet[string], moduleRootPaths *JTList[string], errorHandler ErrorHandler, pathEscaper *ModuleLoader_PathEscaper) {
+func (this *ModuleResolver) init_ModuleResolver(modulePaths *JTSet[string], moduleRootPaths *JTList[string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) {
 	this.modulePaths = modulePaths
 	this.moduleRootPaths = moduleRootPaths
 	this.errorHandler = errorHandler
