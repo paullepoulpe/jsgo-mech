@@ -279,17 +279,7 @@ type CmdLineParser_Parameters interface {
 	getParameterOrNull(int32) Optional[string]
 }
 
-type CmdLineParser_Handler interface {
-	parseArguments(CmdLineParser_Parameters) *Outcome_base[any]
-}
-
-type CmdLineParser_Handler_fn struct {
-	f func(CmdLineParser_Parameters) *Outcome_base[any]
-}
-
-func (this *CmdLineParser_Handler_fn) parseArguments(p0 CmdLineParser_Parameters) *Outcome_base[any] {
-	return this.f(p0)
-}
+type CmdLineParser_Handler = *funcObj_[func(CmdLineParser_Parameters) *Outcome_base[any]]
 
 type CmdLineParser_Option struct {
 	owner_        *CmdLineParser
