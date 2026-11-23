@@ -23,4 +23,3 @@ func new_ThisExpressionTree(location *SourceRange) *ThisExpressionTree {
 	this.init_ThisExpressionTree(location)
 	return this
 }
-

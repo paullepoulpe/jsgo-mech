@@ -37,8 +37,8 @@ func (this *CheckPrimitiveAsObject) visit_impl(t *NodeTraversal, n Node, parent 
 
 func (this *CheckPrimitiveAsObject) checkForPrimitiveObjectDeclaration(t *NodeTraversal, n Node) {
 	var jsDocInfo *JSDocInfo = n.getJSDocInfo()
-	if (jsDocInfo != nil) {
-		it_1 := eachOf_(jsDocInfo.getTypeNodes())
+	if jsDocInfo != nil {
+		it_1 := jeachOf_(jsDocInfo.getTypeNodes())
 		for it_1.next() {
 			var typeRoot Node = it_1.v
 			this.checkTypeNodeForPrimitiveObjectDeclaration(t, typeRoot)
@@ -71,7 +71,7 @@ func (this *CheckPrimitiveAsObject) checkForPrimitiveObjectConstructor(t *NodeTr
 
 var CheckPrimitiveAsObject_NEW_PRIMITIVE_OBJECT *DiagnosticType
 var CheckPrimitiveAsObject_PRIMITIVE_OBJECT_DECLARATION *DiagnosticType
-var CheckPrimitiveAsObject_PRIMITIVE_OBJECT_CONSTRUCTORS *TSet[string]
+var CheckPrimitiveAsObject_PRIMITIVE_OBJECT_CONSTRUCTORS *JTSet[string]
 
 var CheckPrimitiveAsObject_clinit_done bool
 
@@ -82,7 +82,6 @@ func CheckPrimitiveAsObject_clinit() {
 	CheckPrimitiveAsObject_clinit_done = true
 	CheckPrimitiveAsObject_NEW_PRIMITIVE_OBJECT = DiagnosticType_warning("JSC_PRIMITIVE_OBJECT", "Explicit creation of a {0} object.")
 	CheckPrimitiveAsObject_PRIMITIVE_OBJECT_DECLARATION = DiagnosticType_warning("JSC_PRIMITIVE_OBJECT_DECLARATION", "Declaration of {0} object instead of primitive type.")
-	CheckPrimitiveAsObject_PRIMITIVE_OBJECT_CONSTRUCTORS = immutableSetOf_[string](tc_string, "Boolean", "Number", "String")
+	CheckPrimitiveAsObject_PRIMITIVE_OBJECT_CONSTRUCTORS = jimmutableSetOf_[string](jtc_string, "Boolean", "Number", "String")
 
 }
-

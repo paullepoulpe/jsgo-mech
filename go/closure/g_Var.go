@@ -28,7 +28,7 @@ func (this *Var) zero_Var() {
 func (this *Var) init_Var(name string, nameNode Node, scope *Scope, index int32, input *CompilerInput, implicitGoogNamespaceDefinition Node) {
 	this.AbstractVar.init_AbstractVar(name, nameNode, index, input, implicitGoogNamespaceDefinition)
 	this.scope_ = scope
-	if (nameNode != 0) {
+	if nameNode != 0 {
 		switch nameNode.getToken() {
 		case Token_rhino_MODULE_BODY, Token_rhino_NAME, Token_rhino_IMPORT_STAR:
 		default:
@@ -58,7 +58,12 @@ func (this *Var) getScopeRoot_impl() Node {
 }
 
 func (this *Var) getSourceFile_impl() StaticSourceFile {
-	return func() Node { if (this.getNode() != 0) { return this.getNode() }; return this.scope_.getRootNode() }().getStaticSourceFile()
+	return func() Node {
+		if this.getNode() != 0 {
+			return this.getNode()
+		}
+		return this.scope_.getRootNode()
+	}().getStaticSourceFile()
 }
 
 func (this *Var) getSymbol_rAbstractVar_rVar() *Var {
@@ -66,7 +71,12 @@ func (this *Var) getSymbol_rAbstractVar_rVar() *Var {
 }
 
 func (this *Var) getDeclaration_rAbstractVar_rVar() *Var {
-	return func() *Var { if (this.getNode() == 0) { return nil }; return this }()
+	return func() *Var {
+		if this.getNode() == 0 {
+			return nil
+		}
+		return this
+	}()
 }
 
 func (this *Var) getScope_rAbstractScope_rScope() *Scope {
@@ -107,7 +117,7 @@ func (this *Var) declarationType_impl() *Token_rhino {
 	}
 	{
 		var current Node = this.getNode()
-		for ; (current != 0); current = current.getParent() {
+		for ; current != 0; current = current.getParent() {
 			if AbstractVar_DECLARATION_TYPES.contains(current.getToken()) {
 				return current.getToken()
 			}
@@ -131,4 +141,3 @@ func (this *Var) getScope_rAbstractScope_impl() *AbstractScope {
 
 const Var_ARGUMENTS string = "arguments"
 const Var_EXPORTS string = "exports"
-

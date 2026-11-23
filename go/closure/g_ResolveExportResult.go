@@ -4,7 +4,7 @@ package closure
 
 type ResolveExportResult struct {
 	binding *Binding
-	state *ResolveExportResult_State
+	state   *ResolveExportResult_State
 }
 
 func (this *ResolveExportResult) init_ResolveExportResult(binding *Binding, state *ResolveExportResult_State) {
@@ -20,7 +20,7 @@ func new_ResolveExportResult(binding *Binding, state *ResolveExportResult_State)
 
 func (this *ResolveExportResult) copy(sourceNode Node, createdBy *Binding_CreatedBy) *ResolveExportResult {
 	Preconditions_checkNotNull_T(sourceNode)
-	if (this.binding == nil) {
+	if this.binding == nil {
 		return this
 	}
 	return new_ResolveExportResult(this.binding.copy(sourceNode, createdBy), this.state)
@@ -124,4 +124,3 @@ func ResolveExportResult_State_clinit() {
 	registerEnum_("com.google.javascript.jscomp.modules.ResolveExportResult.State", enumValues_(ResolveExportResult_State_values_))
 
 }
-

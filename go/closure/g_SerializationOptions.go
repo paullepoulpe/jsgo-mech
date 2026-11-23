@@ -3,26 +3,26 @@
 package closure
 
 type SerializationOptions struct {
-	runtimeLibraries_ *TList[string]
+	runtimeLibraries_ *JTList[string]
 	includeDebugInfo_ bool
-	runValidation_ bool
+	runValidation_    bool
 }
 
-func (this *SerializationOptions) init_SerializationOptions(includeDebugInfo bool, runValidation bool, runtimeLibraries *TList[string]) {
+func (this *SerializationOptions) init_SerializationOptions(includeDebugInfo bool, runValidation bool, runtimeLibraries *JTList[string]) {
 	Objects_requireNonNull_T(runtimeLibraries, "runtimeLibraries")
 	this.includeDebugInfo_ = includeDebugInfo
 	this.runValidation_ = runValidation
 	this.runtimeLibraries_ = runtimeLibraries
 }
 
-func new_SerializationOptions(includeDebugInfo bool, runValidation bool, runtimeLibraries *TList[string]) *SerializationOptions {
+func new_SerializationOptions(includeDebugInfo bool, runValidation bool, runtimeLibraries *JTList[string]) *SerializationOptions {
 	this := &SerializationOptions{}
 	this.init_SerializationOptions(includeDebugInfo, runValidation, runtimeLibraries)
 	return this
 }
 
 func SerializationOptions_builder() *SerializationOptions_Builder {
-	return new_SerializationOptions_Builder().setRunValidation(false).setIncludeDebugInfo(false).setRuntimeLibraries(tlistEmptyImm_(tc_string))
+	return new_SerializationOptions_Builder().setRunValidation(false).setIncludeDebugInfo(false).setRuntimeLibraries(jtlistEmptyImm_(jtc_string))
 }
 
 func (this *SerializationOptions) includeDebugInfo() bool {
@@ -33,7 +33,7 @@ func (this *SerializationOptions) runValidation() bool {
 	return this.runValidation_
 }
 
-func (this *SerializationOptions) runtimeLibraries() *TList[string] {
+func (this *SerializationOptions) runtimeLibraries() *JTList[string] {
 	return this.runtimeLibraries_
 }
 
@@ -58,10 +58,10 @@ func (this *SerializationOptions) toString() string {
 }
 
 type SerializationOptions_Builder struct {
-	runtimeLibraries_ *TList[string]
+	runtimeLibraries_ *JTList[string]
 	includeDebugInfo_ bool
-	runValidation_ bool
-	set0 int8
+	runValidation_    bool
+	set0              int8
 }
 
 func (this *SerializationOptions_Builder) init_SerializationOptions_Builder() {
@@ -86,8 +86,8 @@ func (this *SerializationOptions_Builder) setRunValidation(runValidation bool) *
 	return this
 }
 
-func (this *SerializationOptions_Builder) setRuntimeLibraries(runtimeLibraries *TList[string]) *SerializationOptions_Builder {
-	if (runtimeLibraries == nil) {
+func (this *SerializationOptions_Builder) setRuntimeLibraries(runtimeLibraries *JTList[string]) *SerializationOptions_Builder {
+	if runtimeLibraries == nil {
 		panic(new_NullPointerException_String("Null runtimeLibraries").self())
 	}
 	this.runtimeLibraries_ = runtimeLibraries
@@ -95,19 +95,18 @@ func (this *SerializationOptions_Builder) setRuntimeLibraries(runtimeLibraries *
 }
 
 func (this *SerializationOptions_Builder) build() *SerializationOptions {
-	if ((int32(this.set0) != 3) || (this.runtimeLibraries_ == nil)) {
+	if (int32(this.set0) != 3) || (this.runtimeLibraries_ == nil) {
 		var missing *StringBuilder = new_StringBuilder()
-		if ((int32(this.set0) & 1) == 0) {
+		if (int32(this.set0) & 1) == 0 {
 			missing.append(" includeDebugInfo")
 		}
-		if ((int32(this.set0) & 2) == 0) {
+		if (int32(this.set0) & 2) == 0 {
 			missing.append(" runValidation")
 		}
-		if (this.runtimeLibraries_ == nil) {
+		if this.runtimeLibraries_ == nil {
 			missing.append(" runtimeLibraries")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + tostr_(missing))).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + jtostr_(missing))).self())
 	}
 	return new_SerializationOptions(this.includeDebugInfo_, this.runValidation_, this.runtimeLibraries_)
 }
-

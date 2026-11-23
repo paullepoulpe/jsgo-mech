@@ -23,4 +23,3 @@ func new_SimpleJsonException(message string) *SimpleJsonException {
 	this.init_SimpleJsonException(message)
 	return this
 }
-

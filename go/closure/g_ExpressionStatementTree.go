@@ -25,4 +25,3 @@ func new_ExpressionStatementTree(location *SourceRange, expression *ParseTree) *
 	this.init_ExpressionStatementTree(location, expression)
 	return this
 }
-

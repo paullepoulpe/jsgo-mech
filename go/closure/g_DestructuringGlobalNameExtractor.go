@@ -15,30 +15,35 @@ func new_DestructuringGlobalNameExtractor() *DestructuringGlobalNameExtractor {
 	return this
 }
 
-func DestructuringGlobalNameExtractor_reassignDestructringLvalue(stringKey Node, newName Node, newNodes *TSet[GlobalNamespace_AstChange], ref *GlobalNamespace_Ref, compiler *AbstractCompiler) {
+func DestructuringGlobalNameExtractor_reassignDestructringLvalue(stringKey Node, newName Node, newNodes *JTSet[GlobalNamespace_AstChange], ref *GlobalNamespace_Ref, compiler *AbstractCompiler) {
 	var pattern Node = stringKey.getParent()
 	var assignmentType Node = pattern.getParent()
 	Preconditions_checkState_boolean_Object_H((assignmentType.isAssign() || assignmentType.isDestructuringLhs()), assignmentType)
 	var originalRvalue Node = pattern.getNext()
 	Preconditions_checkState(originalRvalue.isQualifiedName())
-	var lvalueToReassign Node = func() Node { if stringKey.getOnlyChild().isDefaultValue() { return stringKey.getOnlyChild().getFirstChild() }; return stringKey.getOnlyChild() }()
-	if (newNodes != nil) {
+	var lvalueToReassign Node = func() Node {
+		if stringKey.getOnlyChild().isDefaultValue() {
+			return stringKey.getOnlyChild().getFirstChild()
+		}
+		return stringKey.getOnlyChild()
+	}()
+	if newNodes != nil {
 		newNodes.add(GlobalNamespace_AstChange(new_GlobalNamespace_RefBasedAstChange(ref, newName)))
 	}
 	var rvalue Node = DestructuringGlobalNameExtractor_makeNewRvalueForDestructuringKey(stringKey, newName, newNodes, ref)
-	if ((stringKey.getPrevious() == 0) && (stringKey.getNext() != 0)) {
+	if (stringKey.getPrevious() == 0) && (stringKey.getNext() != 0) {
 		DestructuringGlobalNameExtractor_replaceDestructuringAssignment(pattern, lvalueToReassign.detach(), rvalue)
 	} else {
 		DestructuringGlobalNameExtractor_addAfter(pattern, lvalueToReassign.detach(), rvalue)
 	}
-	if (stringKey.getNext() != 0) {
+	if stringKey.getNext() != 0 {
 		var newPattern Node = DestructuringGlobalNameExtractor_createNewObjectPatternFromSuccessiveKeys(stringKey).srcref(pattern)
 		var newRvalue Node
-		if (stringKey.getPrevious() == 0) {
+		if stringKey.getPrevious() == 0 {
 			newRvalue = originalRvalue.detach()
 		} else {
 			newRvalue = originalRvalue.cloneTree()
-			if (newNodes != nil) {
+			if newNodes != nil {
 				newNodes.add(GlobalNamespace_AstChange(new_GlobalNamespace_RefBasedAstChange(ref, newRvalue)))
 			}
 		}
@@ -62,7 +67,12 @@ func DestructuringGlobalNameExtractor_addAfter(originalLvalue Node, newLvalue No
 	} else {
 		newLvalue.addChildToBack(newRvalue)
 	}
-	var declaration Node = func() Node { if parent.isDestructuringLhs() { return originalLvalue.getGrandparent() }; return parent }()
+	var declaration Node = func() Node {
+		if parent.isDestructuringLhs() {
+			return originalLvalue.getGrandparent()
+		}
+		return parent
+	}()
 	Preconditions_checkState_boolean_Object_H(NodeUtil_isNameDeclaration(declaration), declaration)
 	if NodeUtil_isStatementParent(declaration.getParent()) {
 		var newDeclaration Node = new_Node_Token(declaration.getToken()).srcref(declaration)
@@ -90,11 +100,11 @@ func DestructuringGlobalNameExtractor_replaceDestructuringAssignment(pattern Nod
 	}
 }
 
-func DestructuringGlobalNameExtractor_makeNewRvalueForDestructuringKey(stringKey Node, rvalue Node, newNodes *TSet[GlobalNamespace_AstChange], ref *GlobalNamespace_Ref) Node {
+func DestructuringGlobalNameExtractor_makeNewRvalueForDestructuringKey(stringKey Node, rvalue Node, newNodes *JTSet[GlobalNamespace_AstChange], ref *GlobalNamespace_Ref) Node {
 	if stringKey.getOnlyChild().isDefaultValue() {
 		var defaultValue Node = stringKey.getFirstChild().getSecondChild().detach()
 		var rvalueForSheq Node = rvalue.cloneTree()
-		if (newNodes != nil) {
+		if newNodes != nil {
 			newNodes.add(GlobalNamespace_AstChange(new_GlobalNamespace_RefBasedAstChange(ref, rvalueForSheq)))
 		}
 		rvalue = IR_hook(IR_sheq(NodeUtil_newUndefinedNode(rvalue), rvalueForSheq), defaultValue, rvalue).srcrefTree(defaultValue)
@@ -106,7 +116,7 @@ func DestructuringGlobalNameExtractor_createNewObjectPatternFromSuccessiveKeys(s
 	var newPattern Node = stringKey.getParent().cloneNode()
 	{
 		var next Node = stringKey.getNext()
-		for (next != 0) {
+		for next != 0 {
 			var newKey Node = next
 			next = newKey.getNext()
 			newPattern.addChildToBack(newKey.detach())
@@ -114,4 +124,3 @@ func DestructuringGlobalNameExtractor_createNewObjectPatternFromSuccessiveKeys(s
 	}
 	return newPattern
 }
-

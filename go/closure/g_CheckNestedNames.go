@@ -29,13 +29,13 @@ func (this *CheckNestedNames) shouldTraverse(nodeTraversal *NodeTraversal, n Nod
 
 func (this *CheckNestedNames) visit(t *NodeTraversal, n Node, parent Node) {
 	Preconditions_checkArgument(t.inGlobalOrModuleScope())
-	if (!n.isGetProp() || !n.isQualifiedName()) {
+	if !n.isGetProp() || !n.isQualifiedName() {
 		return
 	}
 	var targetGetProp Node = CheckNestedNames_getTargetGetProp(n)
-	if (((parent.isAssign() || parent.isExprResult()) && n.isFirstChildOf(parent)) && !CheckNestedNames_isDotPrototype(targetGetProp)) {
+	if ((parent.isAssign() || parent.isExprResult()) && n.isFirstChildOf(parent)) && !CheckNestedNames_isDotPrototype(targetGetProp) {
 		var owner Node = targetGetProp.getFirstChild()
-		if (!owner.isName() || (owner.getString() == "exports")) {
+		if !owner.isName() || (owner.getString() == "exports") {
 			return
 		}
 		var ownerName string = owner.getString()
@@ -61,11 +61,11 @@ func CheckNestedNames_isDotPrototype(getProp Node) bool {
 
 func (this *CheckNestedNames) getNestedDeclarationKind(lhs Node, parent Node) *CheckNestedNames_DeclarationKind {
 	Preconditions_checkArgument_boolean_Object_H(lhs.isFirstChildOf(parent), lhs)
-	if (lhs.getTypedefTypeProp() != nil) {
+	if lhs.getTypedefTypeProp() != nil {
 		return CheckNestedNames_DeclarationKind_TYPEDEF
 	}
 	var type_ *JSType = lhs.getJSType()
-	if (type_ != nil) {
+	if type_ != nil {
 		if type_.isEnumType() {
 			return CheckNestedNames_DeclarationKind_ENUM
 		} else if type_.isInterface() {
@@ -78,7 +78,7 @@ func (this *CheckNestedNames) getNestedDeclarationKind(lhs Node, parent Node) *C
 }
 
 var CheckNestedNames_NESTED_NAME_IN_GOOG_MODULE *DiagnosticType
-var CheckNestedNames_NESTED_KIND_TO_REPORT *TMap[*CheckNestedNames_DeclarationKind, string]
+var CheckNestedNames_NESTED_KIND_TO_REPORT *JTMap[*CheckNestedNames_DeclarationKind, string]
 
 var CheckNestedNames_clinit_done bool
 
@@ -88,7 +88,7 @@ func CheckNestedNames_clinit() {
 	}
 	CheckNestedNames_clinit_done = true
 	CheckNestedNames_NESTED_NAME_IN_GOOG_MODULE = DiagnosticType_disabled("JSC_NESTED_NAME_IN_GOOG_MODULE", "A nested {0} is created on the name `{1}`. Fix this linter finding by converting the module-level static property assignment on `{1}` into a module-level flat name (i.e. change `{1}.prop = ...` into `{1}_prop = ...`. You can (if required) export this flat name using named exports (`exports.{1}_prop = {1}_prop`).")
-	CheckNestedNames_NESTED_KIND_TO_REPORT = immutableMapOf4_[*CheckNestedNames_DeclarationKind, string](tc_p_CheckNestedNames_DeclarationKind, tc_string, CheckNestedNames_DeclarationKind_CLASS, "class", CheckNestedNames_DeclarationKind_ENUM, "enum", CheckNestedNames_DeclarationKind_INTERFACE, "interface", CheckNestedNames_DeclarationKind_TYPEDEF, "typedef")
+	CheckNestedNames_NESTED_KIND_TO_REPORT = immutableMapOf4_[*CheckNestedNames_DeclarationKind, string](tc_p_CheckNestedNames_DeclarationKind, jtc_string, CheckNestedNames_DeclarationKind_CLASS, "class", CheckNestedNames_DeclarationKind_ENUM, "enum", CheckNestedNames_DeclarationKind_INTERFACE, "interface", CheckNestedNames_DeclarationKind_TYPEDEF, "typedef")
 
 }
 
@@ -148,4 +148,3 @@ func CheckNestedNames_DeclarationKind_clinit() {
 	registerEnum_("com.google.javascript.jscomp.lint.CheckNestedNames.DeclarationKind", enumValues_(CheckNestedNames_DeclarationKind_values_))
 
 }
-

@@ -3,9 +3,9 @@
 package closure
 
 type LateEs6ToEs3Converter struct {
-	compiler_ *AbstractCompiler
-	astFactory_ *AstFactory
-	templateLiteralConverter *Es6TemplateLiterals
+	compiler_                 *AbstractCompiler
+	astFactory_               *AstFactory
+	templateLiteralConverter  *Es6TemplateLiterals
 	templateLitInsertionPoint Node
 }
 
@@ -51,7 +51,7 @@ func (this *LateEs6ToEs3Converter) visit(t *NodeTraversal, n Node, parent Node) 
 	case Token_rhino_ASSIGN:
 		var lhs Node = n.getFirstChild()
 		var rhs Node = n.getSecondChild()
-		if ((lhs.isGetProp() && rhs.isFunction()) && lhs.getFirstChild().isName()) {
+		if (lhs.isGetProp() && rhs.isFunction()) && lhs.getFirstChild().isName() {
 			var qName *QualifiedName = QualifiedName_of("$jscomp.createTemplateTagFirstArgWithRaw")
 			if qName.matches(lhs) {
 				Preconditions_checkNotNull_Object_Object_T(n.getParent(), n.box_())
@@ -88,7 +88,7 @@ func (this *LateEs6ToEs3Converter) visitMemberFunctionDefInObjectLit(n Node) {
 func (this *LateEs6ToEs3Converter) visitObject(t *NodeTraversal, obj Node) {
 	{
 		var child Node = obj.getFirstChild()
-		for ; (child != 0); child = child.getNext() {
+		for ; child != 0; child = child.getNext() {
 			if child.isComputedProp() {
 				this.visitObjectWithComputedProperty(t, obj)
 				return
@@ -99,14 +99,14 @@ func (this *LateEs6ToEs3Converter) visitObject(t *NodeTraversal, obj Node) {
 
 func (this *LateEs6ToEs3Converter) visitObjectWithComputedProperty(t *NodeTraversal, obj Node) {
 	Preconditions_checkArgument(obj.isObjectLit())
-	var props ListT[Node] = newTList_(tc_Node).asListT()
+	var props ListT[Node] = jnewTList_(jtc_Node).asListT()
 	var currElement Node = obj.getFirstChild()
 	var objectType AstFactory_Type = AstFactory_type_Node(obj)
-	for (currElement != 0) {
-		if (currElement.getBooleanProp(Node_COMPUTED_PROP_GETTER) || currElement.getBooleanProp(Node_COMPUTED_PROP_SETTER)) {
+	for currElement != 0 {
+		if currElement.getBooleanProp(Node_COMPUTED_PROP_GETTER) || currElement.getBooleanProp(Node_COMPUTED_PROP_SETTER) {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(currElement, ReportUntranspilableFeatures_UNTRANSPILABLE_FEATURE_PRESENT, []string{"computed getter/setter in an object literal", "ES2015", ""}))
 			return
-		} else if (currElement.isGetterDef() || currElement.isSetterDef()) {
+		} else if currElement.isGetterDef() || currElement.isSetterDef() {
 			currElement = currElement.getNext()
 		} else {
 			var nextNode Node = currElement.getNext()
@@ -116,9 +116,9 @@ func (this *LateEs6ToEs3Converter) visitObjectWithComputedProperty(t *NodeTraver
 		}
 	}
 	var objName string = (sstr_(LateEs6ToEs3Converter_FRESH_COMP_PROP_VAR) + sstr_(this.compiler_.getUniqueIdSupplier().getUniqueId(t.getInput())))
-	props = listAs_(tc_Node, Lists_reverse(List_un_(props)))
+	props = listAs_(jtc_Node, Lists_reverse(List_un_(props)))
 	var result Node = this.astFactory_.createName(objName, objectType)
-	it_2 := eachOf_(props)
+	it_2 := jeachOf_(props)
 	for it_2.next() {
 		var propdef Node = it_2.v
 		if propdef.isComputedProp() {
@@ -132,7 +132,12 @@ func (this *LateEs6ToEs3Converter) visitObjectWithComputedProperty(t *NodeTraver
 			propdef.setColor(StandardColors_STRING)
 			propdef.putBooleanProp(Node_QUOTED_PROP, false)
 			var objNameNode Node = this.astFactory_.createName(objName, objectType)
-			var access Node = func() Node { if isQuotedAccess { return this.astFactory_.createGetElem(objNameNode, propdef) }; return this.astFactory_.createGetProp(objNameNode, propdef.getString(), AstFactory_type_Node(propdef)) }()
+			var access Node = func() Node {
+				if isQuotedAccess {
+					return this.astFactory_.createGetElem(objNameNode, propdef)
+				}
+				return this.astFactory_.createGetProp(objNameNode, propdef.getString(), AstFactory_type_Node(propdef))
+			}()
 			result = this.astFactory_.createComma(this.astFactory_.createAssign(access, val), result)
 		}
 	}
@@ -163,6 +168,7 @@ func (this *LateEs6ToEs3Converter) visitObjectWithComputedProperty(t *NodeTraver
 }
 
 var LateEs6ToEs3Converter_transpiledFeatures *FeatureSet
+
 const LateEs6ToEs3Converter_FRESH_COMP_PROP_VAR string = "$jscomp$compprop"
 
 var LateEs6ToEs3Converter_clinit_done bool
@@ -175,4 +181,3 @@ func LateEs6ToEs3Converter_clinit() {
 	LateEs6ToEs3Converter_transpiledFeatures = FeatureSet_BARE_MINIMUM.withFeatureVarargs([]*FeatureSet_Feature{FeatureSet_Feature_COMPUTED_PROPERTIES, FeatureSet_Feature_MEMBER_DECLARATIONS, FeatureSet_Feature_TEMPLATE_LITERALS})
 
 }
-

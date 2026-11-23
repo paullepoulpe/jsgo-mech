@@ -28,8 +28,8 @@ func new_Es6RenameTypeReferences(renameTable *SimpleTable[Node, string, string])
 
 func (this *Es6RenameTypeReferences) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	var info *JSDocInfo = n.getJSDocInfo()
-	if (info != nil) {
-		it_1 := eachOf_(info.getTypeNodes())
+	if info != nil {
+		it_1 := jeachOf_(info.getTypeNodes())
 		for it_1.next() {
 			var root Node = it_1.v
 			this.renameTypeNodeRecursive(t, root)
@@ -43,7 +43,7 @@ func (this *Es6RenameTypeReferences) renameTypeNodeRecursive(t *NodeTraversal, n
 	}
 	{
 		var child Node = n.getFirstChild()
-		for ; (child != 0); child = child.getNext() {
+		for ; child != 0; child = child.getNext() {
 			this.renameTypeNodeRecursive(t, child)
 		}
 	}
@@ -55,7 +55,7 @@ func (this *Es6RenameTypeReferences) renameTypeReference(t *NodeTraversal, n Nod
 	var rootName string
 	var rest Optional[string]
 	var endPos int32 = String_indexOf(fullName, 46)
-	if (endPos == -1) {
+	if endPos == -1 {
 		rootName = fullName
 		rest = Optional_empty[string]()
 	} else {
@@ -67,12 +67,17 @@ func (this *Es6RenameTypeReferences) renameTypeReference(t *NodeTraversal, n Nod
 
 func (this *Es6RenameTypeReferences) renameReference(t *NodeTraversal, n Node, oldName string, rest Optional[string]) {
 	var current *Scope = t.getScope()
-	for (current != nil) {
+	for current != nil {
 		var currentRootNode Node = current.getRootNode()
 		var newName Optional[string] = Optional_ofNullable[string](this.renameTable.get(currentRootNode, oldName))
 		if newName.isPresent() {
 			Preconditions_checkState_boolean_String_Object_H(((currentRootNode.isModuleBody() || currentRootNode.isScript()) || NodeUtil_isFunctionBlock(currentRootNode)), "Not a MODULE_BODY or SCRIPT or goog.loadModule root: %s", currentRootNode)
-			var newFullName string = func() string { if rest.isEmpty() { return newName.get() }; return (sstr_(newName.get()) + sstr_(rest.get())) }()
+			var newFullName string = func() string {
+				if rest.isEmpty() {
+					return newName.get()
+				}
+				return (sstr_(newName.get()) + sstr_(rest.get()))
+			}()
 			n.setString(newFullName)
 			return
 		} else if current.hasOwnSlot(oldName) {
@@ -82,4 +87,3 @@ func (this *Es6RenameTypeReferences) renameReference(t *NodeTraversal, n Node, o
 		}
 	}
 }
-

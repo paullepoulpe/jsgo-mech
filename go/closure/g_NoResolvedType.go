@@ -4,7 +4,7 @@ package closure
 
 type NoResolvedType struct {
 	ObjectType
-	templateTypes *TList[*JSType]
+	templateTypes *JTList[*JSType]
 	referenceName Optional[string]
 }
 
@@ -22,14 +22,14 @@ func (this *NoResolvedType) up_JSType() *JSType {
 	return &this.JSType
 }
 
-func (this *NoResolvedType) init_NoResolvedType(registry *JSTypeRegistry, referenceName string, templateTypes *TList[*JSType]) {
+func (this *NoResolvedType) init_NoResolvedType(registry *JSTypeRegistry, referenceName string, templateTypes *JTList[*JSType]) {
 	this.ObjectType.init_ObjectType_JSTypeRegistry(registry)
 	this.referenceName = Optional_of[string](referenceName)
 	this.templateTypes = templateTypes
 	this.eagerlyResolveToSelf()
 }
 
-func new_NoResolvedType(registry *JSTypeRegistry, referenceName string, templateTypes *TList[*JSType]) *NoResolvedType {
+func new_NoResolvedType(registry *JSTypeRegistry, referenceName string, templateTypes *JTList[*JSType]) *NoResolvedType {
 	this := &NoResolvedType{}
 	this.self_ = this
 	this.init_NoResolvedType(registry, referenceName, templateTypes)
@@ -44,7 +44,7 @@ func (this *NoResolvedType) getReferenceName_impl() Optional[string] {
 	return this.referenceName
 }
 
-func (this *NoResolvedType) getTemplateTypes_impl() *TList[*JSType] {
+func (this *NoResolvedType) getTemplateTypes_impl() *JTList[*JSType] {
 	return this.templateTypes
 }
 
@@ -81,6 +81,10 @@ func (this *NoResolvedType) defineProperty_impl(propertyName Property_Key, type_
 }
 
 func (this *NoResolvedType) appendTo_impl(sb *TypeStringBuilder) {
-	sb.append(func() string { if sb.isForAnnotations() { return "?" }; return ("NoResolvedType<" + sstr_(this.referenceName.orElse("null")) + ">") }())
+	sb.append(func() string {
+		if sb.isForAnnotations() {
+			return "?"
+		}
+		return ("NoResolvedType<" + sstr_(this.referenceName.orElse("null")) + ">")
+	}())
 }
-

@@ -4,7 +4,7 @@ package closure
 
 type WebpackModuleResolver struct {
 	NodeModuleResolver
-	modulesById *TMap[string, string]
+	modulesById *JTMap[string, string]
 }
 
 func (this *WebpackModuleResolver) up_NodeModuleResolver() *NodeModuleResolver {
@@ -21,12 +21,12 @@ func (this *WebpackModuleResolver) up_ModuleResolver() *ModuleResolver {
 	return &this.ModuleResolver
 }
 
-func (this *WebpackModuleResolver) init_WebpackModuleResolver(modulePaths *TSet[string], moduleRootPaths *TList[string], modulesById *TMap[string, string], errorHandler ErrorHandler, pathEscaper *ModuleLoader_PathEscaper) {
+func (this *WebpackModuleResolver) init_WebpackModuleResolver(modulePaths *JTSet[string], moduleRootPaths *JTList[string], modulesById *JTMap[string, string], errorHandler ErrorHandler, pathEscaper *ModuleLoader_PathEscaper) {
 	this.NodeModuleResolver.init_NodeModuleResolver(modulePaths, moduleRootPaths, nil, errorHandler, pathEscaper)
-	this.modulesById = immutableMapCopyOfT_(tc_string, tc_string, modulesById)
+	this.modulesById = immutableMapCopyOfT_(jtc_string, jtc_string, modulesById)
 }
 
-func new_WebpackModuleResolver(modulePaths *TSet[string], moduleRootPaths *TList[string], modulesById *TMap[string, string], errorHandler ErrorHandler, pathEscaper *ModuleLoader_PathEscaper) *WebpackModuleResolver {
+func new_WebpackModuleResolver(modulePaths *JTSet[string], moduleRootPaths *JTList[string], modulesById *JTMap[string, string], errorHandler ErrorHandler, pathEscaper *ModuleLoader_PathEscaper) *WebpackModuleResolver {
 	this := &WebpackModuleResolver{}
 	this.self_ = this
 	this.init_WebpackModuleResolver(modulePaths, moduleRootPaths, modulesById, errorHandler, pathEscaper)
@@ -50,21 +50,21 @@ func (this *WebpackModuleResolver) resolveJsModuleSilently_impl(scriptAddress st
 }
 
 type WebpackModuleResolver_Factory struct {
-	lookupMap *TMap[string, string]
+	lookupMap *JTMap[string, string]
 }
 
-func (this *WebpackModuleResolver_Factory) init_WebpackModuleResolver_Factory(lookupMap *TMap[string, string]) {
+func (this *WebpackModuleResolver_Factory) init_WebpackModuleResolver_Factory(lookupMap *JTMap[string, string]) {
 	this.lookupMap = lookupMap
 }
 
-func new_WebpackModuleResolver_Factory(lookupMap *TMap[string, string]) *WebpackModuleResolver_Factory {
+func new_WebpackModuleResolver_Factory(lookupMap *JTMap[string, string]) *WebpackModuleResolver_Factory {
 	this := &WebpackModuleResolver_Factory{}
 	this.init_WebpackModuleResolver_Factory(lookupMap)
 	return this
 }
 
 func (this *WebpackModuleResolver_Factory) create(modulePaths SetT[string], moduleRootPaths ListT[string], errorHandler ErrorHandler, pathEscaper *ModuleLoader_PathEscaper) *ModuleResolver {
-	var normalizedPathsById *TMap[string, string] = newTMap_(tc_string, tc_string)
+	var normalizedPathsById *JTMap[string, string] = jnewTMap_(jtc_string, jtc_string)
 	it_1 := this.lookupMap.eachEntry()
 	for it_1.next() {
 		var moduleEntry *TEntry[string, string] = it_1.entry()
@@ -74,6 +74,5 @@ func (this *WebpackModuleResolver_Factory) create(modulePaths SetT[string], modu
 		}
 		normalizedPathsById.put(moduleEntry.getKey(), canonicalizedPath)
 	}
-	return new_WebpackModuleResolver(tsetOfT_(tc_string, modulePaths), tlistOfT_(tc_string, moduleRootPaths), normalizedPathsById, errorHandler, pathEscaper).up_ModuleResolver()
+	return new_WebpackModuleResolver(tsetOfT_(jtc_string, modulePaths), tlistOfT_(jtc_string, moduleRootPaths), normalizedPathsById, errorHandler, pathEscaper).up_ModuleResolver()
 }
-

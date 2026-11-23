@@ -23,4 +23,3 @@ func new_ImportMetaExpressionTree(location *SourceRange) *ImportMetaExpressionTr
 	this.init_ImportMetaExpressionTree(location)
 	return this
 }
-

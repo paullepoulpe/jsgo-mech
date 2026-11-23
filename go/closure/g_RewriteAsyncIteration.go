@@ -4,15 +4,15 @@ package closure
 
 type RewriteAsyncIteration struct {
 	asyncGeneratorWrapper RuntimeJsLibManager_JsLibField
-	actionRecordName RuntimeJsLibManager_JsLibField
-	actionEnumAwait RuntimeJsLibManager_JsLibField
-	actionEnumYield RuntimeJsLibManager_JsLibField
-	actionEnumYieldStar RuntimeJsLibManager_JsLibField
-	compiler_ *AbstractCompiler
-	contextStack *TDeque[*RewriteAsyncIteration_LexicalContext]
-	astFactory_ *AstFactory
-	namespace_ StaticScope
-	nextForAwaitId int32
+	actionRecordName      RuntimeJsLibManager_JsLibField
+	actionEnumAwait       RuntimeJsLibManager_JsLibField
+	actionEnumYield       RuntimeJsLibManager_JsLibField
+	actionEnumYieldStar   RuntimeJsLibManager_JsLibField
+	compiler_             *AbstractCompiler
+	contextStack          *TDeque[*RewriteAsyncIteration_LexicalContext]
+	astFactory_           *AstFactory
+	namespace_            StaticScope
+	nextForAwaitId        int32
 }
 
 func (this *RewriteAsyncIteration) finit_RewriteAsyncIteration() {
@@ -24,7 +24,7 @@ func (this *RewriteAsyncIteration) init_RewriteAsyncIteration(compiler *Abstract
 	this.compiler_ = Preconditions_checkNotNull_T(compiler)
 	this.astFactory_ = Preconditions_checkNotNull_T(astFactory)
 	this.namespace_ = Preconditions_checkNotNull_T(namespace)
-	this.contextStack = newTDeque_(tc_p_RewriteAsyncIteration_LexicalContext)
+	this.contextStack = newTDeque_(jtc_p_RewriteAsyncIteration_LexicalContext)
 	var runtimeLibManager *RuntimeJsLibManager = compiler.getRuntimeJsLibManager()
 	this.asyncGeneratorWrapper = runtimeLibManager.getJsLibField("$jscomp.AsyncGeneratorWrapper")
 	this.actionRecordName = runtimeLibManager.getJsLibField("$jscomp.AsyncGeneratorWrapper$ActionRecord")
@@ -102,7 +102,7 @@ func (this *RewriteAsyncIteration) visit(t *NodeTraversal, n Node, parent Node) 
 			this.replaceThis(ctx, n)
 		}
 	case Token_rhino_NAME:
-		if (ctx.mustReplaceThisSuperArgs() && n.matchesName("arguments")) {
+		if ctx.mustReplaceThisSuperArgs() && n.matchesName("arguments") {
 			this.replaceArguments(ctx, n)
 		}
 	case Token_rhino_SUPER:
@@ -155,7 +155,7 @@ func (this *RewriteAsyncIteration) convertYieldOfAsyncGenerator(ctx *RewriteAsyn
 		newActionRecord.addChildToBack(this.astFactory_.createQName(this.namespace_, this.actionEnumYieldStar))
 		newActionRecord.addChildToBack(expression)
 	} else {
-		if (expression == 0) {
+		if expression == 0 {
 			expression = NodeUtil_newUndefinedNode(0)
 		}
 		newActionRecord.addChildToBack(this.astFactory_.createQName(this.namespace_, this.actionEnumYield))
@@ -173,7 +173,7 @@ func (this *RewriteAsyncIteration) convertReturnOfAsyncGenerator(ctx *RewriteAsy
 	Preconditions_checkState(ctx.function.isAsyncGeneratorFunction())
 	var expression Node = returnNode.removeFirstChild()
 	var newActionRecord Node = this.astFactory_.createNewNode(this.astFactory_.createQName(this.namespace_, this.actionRecordName), []Node{})
-	if (expression == 0) {
+	if expression == 0 {
 		expression = NodeUtil_newUndefinedNode(0)
 	}
 	newActionRecord.addChildToBack(this.astFactory_.createQName(this.namespace_, this.actionEnumYield))
@@ -292,7 +292,12 @@ func (this *RewriteAsyncIteration) createOuterFinally(ctx *RewriteAsyncIteration
 }
 
 func (this *RewriteAsyncIteration) ensureBlock(possiblyBlock Node) Node {
-	return func() Node { if possiblyBlock.isBlock() { return possiblyBlock }; return this.astFactory_.createBlock([]Node{possiblyBlock}).srcref(possiblyBlock) }()
+	return func() Node {
+		if possiblyBlock.isBlock() {
+			return possiblyBlock
+		}
+		return this.astFactory_.createBlock([]Node{possiblyBlock}).srcref(possiblyBlock)
+	}()
 }
 
 func (this *RewriteAsyncIteration) constructAwaitNextResult(ctx *RewriteAsyncIteration_LexicalContext, iteratorTempName string, iteratorType AstFactory_Type, iterableResultType AstFactory_Type) Node {
@@ -340,11 +345,11 @@ func (this *RewriteAsyncIteration) replaceSuper(ctx *RewriteAsyncIteration_Lexic
 	var propertyReplacementNameText string = (sstr_(RewriteAsyncIteration_SUPER_PROP_GETTER_PREFIX) + sstr_(propertyName))
 	var getPropReplacement Node = this.astFactory_.createCall(this.astFactory_.createName(propertyReplacementNameText, AstFactory_typeColor(StandardColors_TOP_OBJECT)), AstFactory_type_Node(parent), []Node{})
 	var grandparent Node = parent.getParent()
-	if (grandparent.isCall() && (grandparent.getFirstChild() == parent)) {
+	if grandparent.isCall() && (grandparent.getFirstChild() == parent) {
 		getPropReplacement = this.astFactory_.createGetPropWithUnknownType(getPropReplacement, "call")
 		ctx.thisSuperArgsContext.thisNodeToAdd = this.astFactory_.createThisForEs6ClassMember(ctx.contextRoot.getParent())
 		this.astFactory_.createName((sstr_(RewriteAsyncIteration_THIS_VAR_NAME) + sstr_(ctx.thisSuperArgsContext.uniqueId)), AstFactory_type_Node(ctx.thisSuperArgsContext.thisNodeToAdd)).srcref(parent).insertAfter(parent)
-	} else if (grandparent.isTaggedTemplateLit() && (grandparent.getFirstChild() == parent)) {
+	} else if grandparent.isTaggedTemplateLit() && (grandparent.getFirstChild() == parent) {
 		ctx.thisSuperArgsContext.thisNodeToAdd = this.astFactory_.createThisForEs6ClassMember(ctx.contextRoot.getParent())
 		var thisAlias Node = this.astFactory_.createName((sstr_(RewriteAsyncIteration_THIS_VAR_NAME) + sstr_(ctx.thisSuperArgsContext.uniqueId)), AstFactory_type_Node(ctx.thisSuperArgsContext.thisNodeToAdd)).srcref(parent)
 		getPropReplacement = this.astFactory_.createCallWithUnknownType(this.astFactory_.createGetPropWithUnknownType(getPropReplacement, "bind"), []Node{thisAlias})
@@ -365,7 +370,7 @@ func (this *RewriteAsyncIteration) prependTempVarDeclarations(ctx *RewriteAsyncI
 	var block Node = function.getLastChild()
 	Preconditions_checkNotNull_Object_Object_T(block, function.box_())
 	var prefixBlock Node = this.astFactory_.createBlock([]Node{})
-	if (thisSuperArgsCtx.thisNodeToAdd != 0) {
+	if thisSuperArgsCtx.thisNodeToAdd != 0 {
 		prefixBlock.addChildToBack(this.astFactory_.createSingleConstNameDeclaration((sstr_(RewriteAsyncIteration_THIS_VAR_NAME) + sstr_(thisSuperArgsCtx.uniqueId)), thisSuperArgsCtx.thisNodeToAdd).srcrefTree(block))
 	}
 	if thisSuperArgsCtx.usedArguments {
@@ -378,7 +383,7 @@ func (this *RewriteAsyncIteration) prependTempVarDeclarations(ctx *RewriteAsyncI
 	}
 	prefixBlock.srcrefTreeIfMissing(block)
 	block.addChildrenToFront(prefixBlock.removeChildren())
-	if (((thisSuperArgsCtx.thisNodeToAdd != 0) || thisSuperArgsCtx.usedArguments) || !thisSuperArgsCtx.usedSuperProperties.isEmpty()) {
+	if ((thisSuperArgsCtx.thisNodeToAdd != 0) || thisSuperArgsCtx.usedArguments) || !thisSuperArgsCtx.usedSuperProperties.isEmpty() {
 		this.compiler_.reportChangeToChangeScope(function)
 		NodeUtil_addFeatureToScript(t.getCurrentScript(), FeatureSet_Feature_CONST_DECLARATIONS, this.compiler_)
 	}
@@ -397,6 +402,7 @@ func (this *RewriteAsyncIteration) createSuperMethodReferenceGetter(replacedMeth
 
 var RewriteAsyncIteration_transpiledFeatures *FeatureSet
 var RewriteAsyncIteration_CANNOT_CONVERT_ASYNCGEN *DiagnosticType
+
 const RewriteAsyncIteration_FOR_AWAIT_ITERATOR_TEMP_NAME string = "$jscomp$forAwait$tempIterator"
 const RewriteAsyncIteration_FOR_AWAIT_RESULT_TEMP_NAME string = "$jscomp$forAwait$tempResult"
 const RewriteAsyncIteration_FOR_AWAIT_ERROR_RESULT_TEMP_NAME string = "$jscomp$forAwait$errResult"
@@ -420,8 +426,8 @@ func RewriteAsyncIteration_clinit() {
 
 type RewriteAsyncIteration_LexicalContext struct {
 	thisSuperArgsContext *RewriteAsyncIteration_ThisSuperArgsContext
-	contextRoot Node
-	function Node
+	contextRoot          Node
+	function             Node
 }
 
 func (this *RewriteAsyncIteration_LexicalContext) init_RewriteAsyncIteration_LexicalContext_Node(contextRoot Node) {
@@ -481,11 +487,11 @@ func (this *RewriteAsyncIteration_LexicalContext) mustReplaceThisSuperArgs() boo
 }
 
 type RewriteAsyncIteration_ThisSuperArgsContext struct {
-	ctx *RewriteAsyncIteration_LexicalContext
-	usedSuperProperties *TSet[Node]
-	uniqueId string
-	thisNodeToAdd Node
-	usedArguments bool
+	ctx                 *RewriteAsyncIteration_LexicalContext
+	usedSuperProperties *JTSet[Node]
+	uniqueId            string
+	thisNodeToAdd       Node
+	usedArguments       bool
 }
 
 func (this *RewriteAsyncIteration_ThisSuperArgsContext) zero_RewriteAsyncIteration_ThisSuperArgsContext() {
@@ -493,7 +499,7 @@ func (this *RewriteAsyncIteration_ThisSuperArgsContext) zero_RewriteAsyncIterati
 }
 
 func (this *RewriteAsyncIteration_ThisSuperArgsContext) finit_RewriteAsyncIteration_ThisSuperArgsContext() {
-	this.usedSuperProperties = newTSet_(tc_Node)
+	this.usedSuperProperties = jnewTSet_(jtc_Node)
 	this.thisNodeToAdd = 0
 	this.usedArguments = false
 }
@@ -510,4 +516,3 @@ func new_RewriteAsyncIteration_ThisSuperArgsContext(ctx *RewriteAsyncIteration_L
 	this.init_RewriteAsyncIteration_ThisSuperArgsContext(ctx, uniqueId)
 	return this
 }
-

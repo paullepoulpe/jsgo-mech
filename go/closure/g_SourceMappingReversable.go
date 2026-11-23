@@ -7,4 +7,3 @@ type SourceMappingReversable interface {
 	getOriginalSources() CollectionT[string]
 	getReverseMapping(string, int32, int32) CollectionT[*Mapping_OriginalMapping]
 }
-

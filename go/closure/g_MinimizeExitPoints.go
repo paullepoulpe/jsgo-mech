@@ -34,11 +34,11 @@ func (this *MinimizeExitPoints) optimizeSubtree_impl(n Node) Node {
 	case Token_rhino_DO:
 		this.tryMinimizeExits(NodeUtil_getLoopCodeBlock(n), Token_rhino_CONTINUE, Optional_empty[string]())
 		var cond Node = NodeUtil_getConditionExpression(n)
-		if (this.getSideEffectFreeBooleanValue(cond) == Tri_FALSE) {
+		if this.getSideEffectFreeBooleanValue(cond) == Tri_FALSE {
 			this.tryMinimizeExits(n.getFirstChild(), Token_rhino_BREAK, Optional_empty[string]())
 		}
 	case Token_rhino_BLOCK:
-		if (n.hasParent() && n.getParent().isFunction()) {
+		if n.hasParent() && n.getParent().isFunction() {
 			this.tryMinimizeExits(n, Token_rhino_RETURN, Optional_empty[string]())
 		}
 	case Token_rhino_SWITCH:
@@ -58,7 +58,7 @@ func (this *MinimizeExitPoints) tryMinimizeExits(n Node, exitType *Token_rhino, 
 		var ifBlock Node = n.getSecondChild()
 		this.tryMinimizeExits(ifBlock, exitType, labelName)
 		var elseBlock Node = ifBlock.getNext()
-		if (elseBlock != 0) {
+		if elseBlock != 0 {
 			this.tryMinimizeExits(elseBlock, exitType, labelName)
 		}
 		return
@@ -78,16 +78,16 @@ func (this *MinimizeExitPoints) tryMinimizeExits(n Node, exitType *Token_rhino, 
 		var labelBlock Node = n.getLastChild()
 		this.tryMinimizeExits(labelBlock, exitType, labelName)
 	}
-	if (n.isSwitch() && ((exitType != Token_rhino_BREAK) || labelName.isPresent())) {
+	if n.isSwitch() && ((exitType != Token_rhino_BREAK) || labelName.isPresent()) {
 		this.tryMinimizeSwitchExits(n, exitType, labelName)
 		return
 	}
-	if (!n.isBlock() || !n.hasChildren()) {
+	if !n.isBlock() || !n.hasChildren() {
 		return
 	}
 	{
 		var c Node = n.getFirstChild()
-		for ; (c != 0); c = c.getNext() {
+		for ; c != 0; c = c.getNext() {
 			if c.isIf() {
 				var ifTree Node = c
 				var trueBlock Node = ifTree.getSecondChild()
@@ -95,20 +95,20 @@ func (this *MinimizeExitPoints) tryMinimizeExits(n Node, exitType *Token_rhino, 
 				this.tryMinimizeIfBlockExits(trueBlock, falseBlock, ifTree, exitType, labelName)
 				trueBlock = ifTree.getSecondChild()
 				falseBlock = trueBlock.getNext()
-				if (falseBlock != 0) {
+				if falseBlock != 0 {
 					this.tryMinimizeIfBlockExits(falseBlock, trueBlock, ifTree, exitType, labelName)
 				}
 			}
-			if (c == n.getLastChild()) {
+			if c == n.getLastChild() {
 				break
 			}
 		}
 	}
 	{
 		var c Node = n.getLastChild()
-		for ; (c != 0); c = n.getLastChild() {
+		for ; c != 0; c = n.getLastChild() {
 			this.tryMinimizeExits(c, exitType, labelName)
-			if (c == n.getLastChild()) {
+			if c == n.getLastChild() {
 				break
 			}
 		}
@@ -120,8 +120,8 @@ func (this *MinimizeExitPoints) tryMinimizeSwitchExits(n Node, exitType *Token_r
 	var switchBody Node = n.getSecondChild()
 	{
 		var c Node = switchBody.getFirstChild()
-		for ; (c != 0); c = c.getNext() {
-			if (c != switchBody.getLastChild()) {
+		for ; c != 0; c = c.getNext() {
+			if c != switchBody.getLastChild() {
 				this.tryMinimizeSwitchCaseExits(c, exitType, labelName)
 			} else {
 				this.tryMinimizeExits(c.getLastChild(), exitType, labelName)
@@ -135,15 +135,15 @@ func (this *MinimizeExitPoints) tryMinimizeSwitchCaseExits(n Node, exitType *Tok
 	Preconditions_checkState((n != n.getParent().getLastChild()))
 	var block Node = n.getLastChild()
 	var maybeBreak Node = block.getLastChild()
-	if (((maybeBreak == 0) || !maybeBreak.isBreak()) || maybeBreak.hasChildren()) {
+	if ((maybeBreak == 0) || !maybeBreak.isBreak()) || maybeBreak.hasChildren() {
 		return
 	}
 	var childBeforeBreak Node = maybeBreak.getPrevious()
-	for (childBeforeBreak != 0) {
+	for childBeforeBreak != 0 {
 		var c Node = childBeforeBreak
 		this.tryMinimizeExits(c, exitType, labelName)
 		childBeforeBreak = maybeBreak.getPrevious()
-		if (c == childBeforeBreak) {
+		if c == childBeforeBreak {
 			break
 		}
 	}
@@ -168,9 +168,9 @@ func (this *MinimizeExitPoints) tryMinimizeIfBlockExits(srcBlock Node, destBlock
 	if !MinimizeExitPoints_tryConvertAllBlockScopedFollowing(ifNode) {
 		return
 	}
-	if (ifNode.getNext() != 0) {
+	if ifNode.getNext() != 0 {
 		var newDestBlock Node = IR_block_0().srcref(ifNode)
-		if (destBlock == 0) {
+		if destBlock == 0 {
 			ifNode.addChildToBack(newDestBlock)
 		} else if destBlock.isEmpty() {
 			destBlock.replaceWith(newDestBlock)
@@ -186,8 +186,8 @@ func (this *MinimizeExitPoints) tryMinimizeIfBlockExits(srcBlock Node, destBlock
 }
 
 func MinimizeExitPoints_matchingExitNode(n Node, type_ *Token_rhino, labelName Optional[string]) bool {
-	if (n.getToken() == type_) {
-		if (type_ == Token_rhino_RETURN) {
+	if n.getToken() == type_ {
+		if type_ == Token_rhino_RETURN {
 			return !n.hasChildren()
 		} else {
 			if labelName.isEmpty() {
@@ -203,7 +203,7 @@ func MinimizeExitPoints_matchingExitNode(n Node, type_ *Token_rhino, labelName O
 func MinimizeExitPoints_moveAllFollowing(start Node, destParent Node) {
 	{
 		var n Node = start.getNext()
-		for ; (n != 0); n = start.getNext() {
+		for ; n != 0; n = start.getNext() {
 			var isFunctionDeclaration bool = NodeUtil_isFunctionDeclaration(n)
 			n.detach()
 			if isFunctionDeclaration {
@@ -221,8 +221,8 @@ func MinimizeExitPoints_tryConvertAllBlockScopedFollowing(start Node) bool {
 	}
 	{
 		var n Node = start.getNext()
-		for ; (n != 0); n = n.getNext() {
-			if (n.isLet() || n.isConst()) {
+		for ; n != 0; n = n.getNext() {
+			if n.isLet() || n.isConst() {
 				n.setToken(Token_rhino_VAR)
 			}
 		}
@@ -233,12 +233,11 @@ func MinimizeExitPoints_tryConvertAllBlockScopedFollowing(start Node) bool {
 func MinimizeExitPoints_hasBlockScopedVarsFollowing(start Node) bool {
 	{
 		var n Node = start.getNext()
-		for ; (n != 0); n = n.getNext() {
-			if (n.isLet() || n.isConst()) {
+		for ; n != 0; n = n.getNext() {
+			if n.isLet() || n.isConst() {
 				return true
 			}
 		}
 	}
 	return false
 }
-

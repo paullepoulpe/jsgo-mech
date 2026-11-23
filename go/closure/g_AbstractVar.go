@@ -4,11 +4,11 @@ package closure
 
 type AbstractVar struct {
 	ScopedName
-	name_ string
+	name_                         string
 	implicitGoogNamespaceStrength *StaticSourceFile_SourceKind
-	input *CompilerInput
-	nameNode_ Node
-	index_ int32
+	input                         *CompilerInput
+	nameNode_                     Node
+	index_                        int32
 }
 
 func (this *AbstractVar) as_AbstractVar() *AbstractVar { return this }
@@ -47,7 +47,7 @@ func (this *AbstractVar) init_AbstractVar(name string, nameNode Node, index int3
 	this.ScopedName.init_ScopedName()
 	Preconditions_checkArgument_boolean_Object((index >= -1), int32(index))
 	this.name_ = name
-	if (implicitGoogNamespaceDefinition != 0) {
+	if implicitGoogNamespaceDefinition != 0 {
 		this.nameNode_ = 0
 		this.implicitGoogNamespaceStrength = AbstractVar_strengthOf(implicitGoogNamespaceDefinition)
 	} else {
@@ -71,7 +71,12 @@ func (this *AbstractVar) getInput() *CompilerInput {
 }
 
 func (this *AbstractVar) getParentNode() Node {
-	return func() Node { if (this.getNode() == 0) { return 0 }; return this.getNode().getParent() }()
+	return func() Node {
+		if this.getNode() == 0 {
+			return 0
+		}
+		return this.getNode().getParent()
+	}()
 }
 
 func (this *AbstractVar) isBleedingFunction() bool {
@@ -89,7 +94,7 @@ func (this *AbstractVar) isExtern() bool {
 
 func (this *AbstractVar) isDeclaredOrInferredConst() bool {
 	var declarationNode Node = this.getNode()
-	if (declarationNode == 0) {
+	if declarationNode == 0 {
 		return false
 	}
 	return ((declarationNode.isDeclaredConstantVar() || declarationNode.isInferredConstantVar()) || declarationNode.getBooleanProp(Node_IS_CONSTANT_NAME))
@@ -101,7 +106,12 @@ func (this *AbstractVar) isDefine() bool {
 }
 
 func (this *AbstractVar) getInitialValue() Node {
-	return func() Node { if (this.getNode() == 0) { return 0 }; return NodeUtil_getRValueOfLValue(this.getNode()) }()
+	return func() Node {
+		if this.getNode() == 0 {
+			return 0
+		}
+		return NodeUtil_getRValueOfLValue(this.getNode())
+	}()
 }
 
 func (this *AbstractVar) getNameNode() Node {
@@ -109,7 +119,12 @@ func (this *AbstractVar) getNameNode() Node {
 }
 
 func (this *AbstractVar) getJSDocInfo() *JSDocInfo {
-	return func() *JSDocInfo { if (this.getNode() == 0) { return nil }; return NodeUtil_getBestJSDocInfo(this.getNode()) }()
+	return func() *JSDocInfo {
+		if this.getNode() == 0 {
+			return nil
+		}
+		return NodeUtil_getBestJSDocInfo(this.getNode())
+	}()
 }
 
 func (this *AbstractVar) isVar() bool {
@@ -161,16 +176,16 @@ func (this *AbstractVar) getImplicitGoogNamespaceStrength() *StaticSourceFile_So
 
 func AbstractVar_strengthOf(n Node) *StaticSourceFile_SourceKind {
 	var source StaticSourceFile = n.getStaticSourceFile()
-	if (source == nil) {
+	if source == nil {
 		return StaticSourceFile_SourceKind_EXTERN
 	}
 	return source.getKind()
 }
 
 func AbstractVar_strongerOf(left *StaticSourceFile_SourceKind, right *StaticSourceFile_SourceKind) *StaticSourceFile_SourceKind {
-	if (eqR_(left, StaticSourceFile_SourceKind_STRONG) || eqR_(right, StaticSourceFile_SourceKind_STRONG)) {
+	if eqR_(left, StaticSourceFile_SourceKind_STRONG) || eqR_(right, StaticSourceFile_SourceKind_STRONG) {
 		return StaticSourceFile_SourceKind_STRONG
-	} else if (eqR_(left, StaticSourceFile_SourceKind_EXTERN) || eqR_(right, StaticSourceFile_SourceKind_EXTERN)) {
+	} else if eqR_(left, StaticSourceFile_SourceKind_EXTERN) || eqR_(right, StaticSourceFile_SourceKind_EXTERN) {
 		return StaticSourceFile_SourceKind_EXTERN
 	}
 	return StaticSourceFile_SourceKind_WEAK
@@ -240,7 +255,7 @@ func (this *AbstractVar) getScope_impl() StaticScope {
 	return icast_StaticScope(this.getScope_rAbstractScope().self())
 }
 
-var AbstractVar_DECLARATION_TYPES *TSet[*Token_rhino]
+var AbstractVar_DECLARATION_TYPES *JTSet[*Token_rhino]
 
 var AbstractVar_clinit_done bool
 
@@ -252,4 +267,3 @@ func AbstractVar_clinit() {
 	AbstractVar_DECLARATION_TYPES = tsetImm_(tc_p_Token_rhino, Sets_immutableEnumSet(Token_rhino_VAR.up_Enum(), []*Enum{Token_rhino_LET.up_Enum(), Token_rhino_CONST.up_Enum(), Token_rhino_FUNCTION.up_Enum(), Token_rhino_CLASS.up_Enum(), Token_rhino_CATCH.up_Enum(), Token_rhino_IMPORT.up_Enum(), Token_rhino_PARAM_LIST.up_Enum()}))
 
 }
-

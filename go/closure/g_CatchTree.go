@@ -27,4 +27,3 @@ func new_CatchTree(location *SourceRange, exception *ParseTree, catchBody *Parse
 	this.init_CatchTree(location, exception, catchBody)
 	return this
 }
-

@@ -26,7 +26,7 @@ func Base64_fromBase64(c uint16) int32 {
 
 func Base64_base64EncodeInt(value int32) string {
 	var c []uint16 = make([]uint16, 6)
-	for i := int32(0); (i < 5); i++ {
+	for i := int32(0); i < 5; i++ {
 		c[i] = Base64_toBase64(((value >> (uint32((26 - (i * 6))) & 31)) & 63))
 	}
 	c[5] = Base64_toBase64(((value << 4) & 63))
@@ -34,6 +34,7 @@ func Base64_base64EncodeInt(value int32) string {
 }
 
 const Base64_BASE64_MAP string = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+
 var Base64_BASE64_DECODE_MAP []int32
 
 var Base64_clinit_done bool
@@ -46,10 +47,9 @@ func Base64_clinit() {
 	Base64_BASE64_DECODE_MAP = make([]int32, 256)
 	{
 		Arrays_fill(Base64_BASE64_DECODE_MAP, -1)
-		for i := int32(0); (i < String_length(Base64_BASE64_MAP)); i++ {
+		for i := int32(0); i < String_length(Base64_BASE64_MAP); i++ {
 			Base64_BASE64_DECODE_MAP[String_charAt(Base64_BASE64_MAP, i)] = i
 		}
 	}
 
 }
-

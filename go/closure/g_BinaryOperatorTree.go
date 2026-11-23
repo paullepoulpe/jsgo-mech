@@ -4,9 +4,9 @@ package closure
 
 type BinaryOperatorTree struct {
 	ParseTree
-	left *ParseTree
+	left     *ParseTree
 	operator *Token_parser
-	right *ParseTree
+	right    *ParseTree
 }
 
 func (this *BinaryOperatorTree) up_ParseTree() *ParseTree {
@@ -29,4 +29,3 @@ func new_BinaryOperatorTree(location *SourceRange, left *ParseTree, operator *To
 	this.init_BinaryOperatorTree(location, left, operator, right)
 	return this
 }
-

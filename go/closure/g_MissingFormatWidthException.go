@@ -23,4 +23,3 @@ func new_MissingFormatWidthException(msg string) *MissingFormatWidthException {
 	this.init_MissingFormatWidthException(msg)
 	return this
 }
-

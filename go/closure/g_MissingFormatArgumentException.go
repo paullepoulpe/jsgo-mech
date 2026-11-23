@@ -23,4 +23,3 @@ func new_MissingFormatArgumentException(message string) *MissingFormatArgumentEx
 	this.init_MissingFormatArgumentException(message)
 	return this
 }
-

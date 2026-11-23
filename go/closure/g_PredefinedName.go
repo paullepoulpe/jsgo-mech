@@ -20,4 +20,3 @@ const PredefinedName_FROM string = "from"
 const PredefinedName_GET string = "get"
 const PredefinedName_OF string = "of"
 const PredefinedName_SET string = "set"
-

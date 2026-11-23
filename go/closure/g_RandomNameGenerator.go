@@ -3,14 +3,14 @@
 package closure
 
 type RandomNameGenerator struct {
-	firstChars *TSet[any]
-	nonFirstChars *TSet[any]
-	random *Random
-	reservedNames *TSet[string]
-	prefix_ string
-	shuffledFirst string
-	shuffledNonFirst *TList[string]
-	nameCount int32
+	firstChars       *JTSet[any]
+	nonFirstChars    *JTSet[any]
+	random           *Random
+	reservedNames    *JTSet[string]
+	prefix_          string
+	shuffledFirst    string
+	shuffledNonFirst *JTList[string]
+	nameCount        int32
 }
 
 func (this *RandomNameGenerator) zero_RandomNameGenerator() {
@@ -20,7 +20,7 @@ func (this *RandomNameGenerator) zero_RandomNameGenerator() {
 
 func (this *RandomNameGenerator) init_RandomNameGenerator_Random(random *Random) {
 	this.random = random
-	this.reset(tsetEmptyImm_(tc_string), "", tsetEmptyImm_(tc_Character))
+	this.reset(jtsetEmptyImm_(jtc_string), "", jtsetEmptyImm_(tc_Character))
 }
 
 func new_RandomNameGenerator_Random(random *Random) *RandomNameGenerator {
@@ -30,36 +30,36 @@ func new_RandomNameGenerator_Random(random *Random) *RandomNameGenerator {
 	return this
 }
 
-func (this *RandomNameGenerator) init_RandomNameGenerator_Set_String_Set_Random(reservedNames *TSet[string], prefix string, reservedCharacters *TSet[any], random *Random) {
+func (this *RandomNameGenerator) init_RandomNameGenerator_Set_String_Set_Random(reservedNames *JTSet[string], prefix string, reservedCharacters *JTSet[any], random *Random) {
 	this.random = random
 	this.reset_4(reservedNames.asSetT(), prefix, reservedCharacters, reservedCharacters)
 }
 
-func new_RandomNameGenerator_Set_String_Set_Random(reservedNames *TSet[string], prefix string, reservedCharacters *TSet[any], random *Random) *RandomNameGenerator {
+func new_RandomNameGenerator_Set_String_Set_Random(reservedNames *JTSet[string], prefix string, reservedCharacters *JTSet[any], random *Random) *RandomNameGenerator {
 	this := &RandomNameGenerator{}
 	this.zero_RandomNameGenerator()
 	this.init_RandomNameGenerator_Set_String_Set_Random(reservedNames, prefix, reservedCharacters, random)
 	return this
 }
 
-func (this *RandomNameGenerator) init_RandomNameGenerator_Set_String_Set_Set_Random(reservedNames *TSet[string], prefix string, reservedFirstCharacters *TSet[any], reservedNonFirstCharacters *TSet[any], random *Random) {
+func (this *RandomNameGenerator) init_RandomNameGenerator_Set_String_Set_Set_Random(reservedNames *JTSet[string], prefix string, reservedFirstCharacters *JTSet[any], reservedNonFirstCharacters *JTSet[any], random *Random) {
 	this.random = random
 	this.reset_4(reservedNames.asSetT(), prefix, reservedFirstCharacters, reservedNonFirstCharacters)
 }
 
-func new_RandomNameGenerator_Set_String_Set_Set_Random(reservedNames *TSet[string], prefix string, reservedFirstCharacters *TSet[any], reservedNonFirstCharacters *TSet[any], random *Random) *RandomNameGenerator {
+func new_RandomNameGenerator_Set_String_Set_Set_Random(reservedNames *JTSet[string], prefix string, reservedFirstCharacters *JTSet[any], reservedNonFirstCharacters *JTSet[any], random *Random) *RandomNameGenerator {
 	this := &RandomNameGenerator{}
 	this.zero_RandomNameGenerator()
 	this.init_RandomNameGenerator_Set_String_Set_Set_Random(reservedNames, prefix, reservedFirstCharacters, reservedNonFirstCharacters, random)
 	return this
 }
 
-func (this *RandomNameGenerator) reset(reservedNames *TSet[string], prefix string, reservedCharacters *TSet[any]) {
+func (this *RandomNameGenerator) reset(reservedNames *JTSet[string], prefix string, reservedCharacters *JTSet[any]) {
 	this.reset_4(reservedNames.asSetT(), prefix, reservedCharacters, reservedCharacters)
 }
 
-func (this *RandomNameGenerator) reset_4(reservedNames SetT[string], prefix string, reservedFirstCharacters *TSet[any], reservedNonFirstCharacters *TSet[any]) {
-	this.reservedNames = immutableSetCopyOf_(tc_string, Collection(Set_un_(reservedNames)))
+func (this *RandomNameGenerator) reset_4(reservedNames SetT[string], prefix string, reservedFirstCharacters *JTSet[any], reservedNonFirstCharacters *JTSet[any]) {
+	this.reservedNames = jimmutableSetCopyOf_(jtc_string, Collection(Set_un_(reservedNames)))
 	this.prefix_ = prefix
 	this.nameCount = 0
 	this.firstChars = tsetImm_(tc_Character, Sets_difference(RandomNameGenerator_FIRST_CHAR.asSet(), reservedFirstCharacters.asSet()).immutableCopy())
@@ -68,20 +68,25 @@ func (this *RandomNameGenerator) reset_4(reservedNames SetT[string], prefix stri
 	this.shuffleAlphabets()
 }
 
-func (this *RandomNameGenerator) clone(reservedNames *TSet[string], prefix string, reservedCharacters *TSet[any]) NameGenerator {
+func (this *RandomNameGenerator) clone(reservedNames *JTSet[string], prefix string, reservedCharacters *JTSet[any]) NameGenerator {
 	return NameGenerator(new_RandomNameGenerator_Set_String_Set_Random(reservedNames, prefix, reservedCharacters, this.random))
 }
 
-func RandomNameGenerator_asSet(chars []uint16) *TSet[any] {
-	return func() *TSet[any] { if (chars == nil) { return tsetEmptyImm_(tc_Character) }; return immutableSetCopyOf_(tc_Character, Collection(Chars_asList(chars))) }()
+func RandomNameGenerator_asSet(chars []uint16) *JTSet[any] {
+	return func() *JTSet[any] {
+		if chars == nil {
+			return jtsetEmptyImm_(tc_Character)
+		}
+		return jimmutableSetCopyOf_(tc_Character, Collection(Chars_asList(chars)))
+	}()
 }
 
 func (this *RandomNameGenerator) checkPrefix(prefix string) {
-	if (String_length(prefix) > 0) {
+	if String_length(prefix) > 0 {
 		if !this.firstChars.contains(uint16(String_charAt(prefix, 0))) {
 			panic(new_IllegalArgumentException_String(("prefix must start with one of: " + sstr_(Joiner_on(", ").join(Iterable(this.firstChars.asSet()))))).self())
 		}
-		for pos := int32(1); (pos < String_length(prefix)); pos++ {
+		for pos := int32(1); pos < String_length(prefix); pos++ {
 			if !this.nonFirstChars.contains(uint16(String_charAt(prefix, pos))) {
 				panic(new_IllegalArgumentException_String(("prefix has invalid characters, must be one of: " + sstr_(Joiner_on(", ").join(Iterable(this.nonFirstChars.asSet()))))).self())
 			}
@@ -89,16 +94,16 @@ func (this *RandomNameGenerator) checkPrefix(prefix string) {
 	}
 }
 
-func RandomNameGenerator_shuffleAndCopyAlphabet(input *TSet[any], random *Random) string {
-	var shuffled *TList[any] = tlistFrom_(tc_Character, Collection(input.asSet()))
+func RandomNameGenerator_shuffleAndCopyAlphabet(input *JTSet[any], random *Random) string {
+	var shuffled *JTList[any] = jtlistFrom_(tc_Character, Collection(input.asSet()))
 	Collections_shuffle(shuffled.asList(), random)
 	return new_String(Chars_toArray(Collection(shuffled.asList())))
 }
 
 func (this *RandomNameGenerator) shuffleAlphabets() {
 	this.shuffledFirst = RandomNameGenerator_shuffleAndCopyAlphabet(this.firstChars, this.random)
-	var builder *TListBuilder[string] = newTListBuilder_(tc_string)
-	for i := int32(0); (i < RandomNameGenerator_NUM_SHUFFLES); i++ {
+	var builder *TListBuilder[string] = newTListBuilder_(jtc_string)
+	for i := int32(0); i < RandomNameGenerator_NUM_SHUFFLES; i++ {
 		builder.add(RandomNameGenerator_shuffleAndCopyAlphabet(this.nonFirstChars, this.random))
 	}
 	this.shuffledNonFirst = builder.build()
@@ -109,7 +114,12 @@ func (this *RandomNameGenerator) getNameLength(position int32, nameIdx int32) in
 	nameIdx++
 	for do_2 := true; do_2; do_2 = (nameIdx > 0) {
 		nameIdx--
-		var alphabetSize int32 = func() int32 { if (position == 0) { return this.firstChars.size() }; return this.nonFirstChars.size() }()
+		var alphabetSize int32 = func() int32 {
+			if position == 0 {
+				return this.firstChars.size()
+			}
+			return this.nonFirstChars.size()
+		}()
 		nameIdx /= alphabetSize
 		position++
 		length++
@@ -124,7 +134,7 @@ func (this *RandomNameGenerator) generateSuffix(position int32, nameIdx int32) s
 	for do_2 := true; do_2; do_2 = (nameIdx > 0) {
 		nameIdx--
 		var alphabet string
-		if (position == 0) {
+		if position == 0 {
 			alphabet = this.shuffledFirst
 		} else {
 			var hasher Hasher = Hashing_murmur3_128().newHasher()
@@ -146,7 +156,7 @@ func (this *RandomNameGenerator) generateNextName() string {
 	for {
 		var name string = (sstr_(this.prefix_) + sstr_(this.generateSuffix(String_length(this.prefix_), this.nameCount)))
 		this.nameCount++
-		if ((TokenStream_isKeyword(name) || this.reservedNames.contains(name)) || DefaultNameGenerator_isBadName(name)) {
+		if (TokenStream_isKeyword(name) || this.reservedNames.contains(name)) || DefaultNameGenerator_isBadName(name) {
 			continue
 		}
 		return name
@@ -154,8 +164,9 @@ func (this *RandomNameGenerator) generateNextName() string {
 	panic("unreachable")
 }
 
-var RandomNameGenerator_FIRST_CHAR *TSet[any]
-var RandomNameGenerator_NONFIRST_CHAR *TSet[any]
+var RandomNameGenerator_FIRST_CHAR *JTSet[any]
+var RandomNameGenerator_NONFIRST_CHAR *JTSet[any]
+
 const RandomNameGenerator_NUM_SHUFFLES int32 = 16
 
 var RandomNameGenerator_clinit_done bool
@@ -169,4 +180,3 @@ func RandomNameGenerator_clinit() {
 	RandomNameGenerator_NONFIRST_CHAR = RandomNameGenerator_asSet(DefaultNameGenerator_NONFIRST_CHAR)
 
 }
-

@@ -31,7 +31,7 @@ func (this *CheckEmptyStatements) process_2(externs Node, root Node) {
 }
 
 func (this *CheckEmptyStatements) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	if (n.isEmpty() && NodeUtil_isStatement(n)) {
+	if n.isEmpty() && NodeUtil_isStatement(n) {
 		t.report(n, CheckEmptyStatements_USELESS_EMPTY_STATEMENT, []string{})
 	}
 }
@@ -48,4 +48,3 @@ func CheckEmptyStatements_clinit() {
 	CheckEmptyStatements_USELESS_EMPTY_STATEMENT = DiagnosticType_disabled("JSC_USELESS_EMPTY_STATEMENT", "Useless empty statement. Remove semicolon.")
 
 }
-

@@ -4,7 +4,7 @@ package closure
 
 type AllowlistWarningsGuard struct {
 	WarningsGuard
-	allowlist *TSet[string]
+	allowlist *JTSet[string]
 }
 
 func (this *AllowlistWarningsGuard) up_WarningsGuard() *WarningsGuard {
@@ -15,7 +15,7 @@ func (this *AllowlistWarningsGuard) up_WarningsGuard() *WarningsGuard {
 }
 
 func (this *AllowlistWarningsGuard) init_AllowlistWarningsGuard_0() {
-	this.init_AllowlistWarningsGuard_Set(tsetEmptyImm_(tc_string))
+	this.init_AllowlistWarningsGuard_Set(jtsetEmptyImm_(jtc_string))
 }
 
 func new_AllowlistWarningsGuard_0() *AllowlistWarningsGuard {
@@ -25,38 +25,38 @@ func new_AllowlistWarningsGuard_0() *AllowlistWarningsGuard {
 	return this
 }
 
-func (this *AllowlistWarningsGuard) init_AllowlistWarningsGuard_Set(allowlist *TSet[string]) {
+func (this *AllowlistWarningsGuard) init_AllowlistWarningsGuard_Set(allowlist *JTSet[string]) {
 	this.WarningsGuard.init_WarningsGuard()
 	Preconditions_checkNotNull_T(allowlist)
 	this.allowlist = AllowlistWarningsGuard_normalizeAllowlist(allowlist)
 }
 
-func new_AllowlistWarningsGuard_Set(allowlist *TSet[string]) *AllowlistWarningsGuard {
+func new_AllowlistWarningsGuard_Set(allowlist *JTSet[string]) *AllowlistWarningsGuard {
 	this := &AllowlistWarningsGuard{}
 	this.self_ = this
 	this.init_AllowlistWarningsGuard_Set(allowlist)
 	return this
 }
 
-func AllowlistWarningsGuard_normalizeAllowlist(allowlist *TSet[string]) *TSet[string] {
-	var result *TSet[string] = newTSet_(tc_string)
+func AllowlistWarningsGuard_normalizeAllowlist(allowlist *JTSet[string]) *JTSet[string] {
+	var result *JTSet[string] = jnewTSet_(jtc_string)
 	it_1 := allowlist.each()
 	for it_1.next() {
 		var line string = it_1.v
 		var trimmed string = String_trim(line)
-		if (String_isEmpty(trimmed) || (String_charAt(trimmed, 0) == '#')) {
+		if String_isEmpty(trimmed) || (String_charAt(trimmed, 0) == '#') {
 			continue
 		}
 		result.add(AllowlistWarningsGuard_LINE_NUMBER.matcher_s(trimmed).replaceFirst(":"))
 	}
-	return immutableSetCopyOfT_(tc_string, result)
+	return immutableSetCopyOfT_(jtc_string, result)
 }
 
 func (this *AllowlistWarningsGuard) level_impl(error_ *JSError) *CheckLevel {
 	if eqR_(error_.defaultLevel(), CheckLevel_ERROR) {
 		return nil
 	}
-	if (!this.allowlist.isEmpty() && this.containWarning(this.formatWarning(error_))) {
+	if !this.allowlist.isEmpty() && this.containWarning(this.formatWarning(error_)) {
 		return CheckLevel_WARNING
 	}
 	return nil
@@ -74,7 +74,7 @@ func AllowlistWarningsGuard_fromFile(file string) *AllowlistWarningsGuard {
 	return new_AllowlistWarningsGuard_Set(AllowlistWarningsGuard_loadAllowlistedJsWarningsFile(file))
 }
 
-func AllowlistWarningsGuard_loadAllowlistedJsWarningsFile(file string) *TSet[string] {
+func AllowlistWarningsGuard_loadAllowlistedJsWarningsFile(file string) *JTSet[string] {
 	var text *Outcome_base[string] = TextFiles_read(file, Charsets_UTF_8)
 	if text.isErr() {
 		panic(new_RuntimeException_Throwable(text.error()).self())
@@ -82,8 +82,8 @@ func AllowlistWarningsGuard_loadAllowlistedJsWarningsFile(file string) *TSet[str
 	return AllowlistWarningsGuard_loadAllowlistedJsWarningsText(text.get())
 }
 
-func AllowlistWarningsGuard_loadAllowlistedJsWarningsText(text string) *TSet[string] {
-	var result *TSet[string] = newTSet_(tc_string)
+func AllowlistWarningsGuard_loadAllowlistedJsWarningsText(text string) *JTSet[string] {
+	var result *JTSet[string] = jnewTSet_(jtc_string)
 	result.asSetT().addAll(Collection(TextFiles_splitLines(text).asList()))
 	return result
 }
@@ -98,10 +98,10 @@ func (this *AllowlistWarningsGuard) formatWarning_2(error_ *JSError, withMetaDat
 	if withMetaData {
 		sb.append_int(error_.getLineNumber())
 	}
-	var lines *TList[string] = splitToListST_(tc_string, AllowlistWarningsGuard_LINE_SPLITTER, error_.description())
+	var lines *JTList[string] = splitToListST_(jtc_string, AllowlistWarningsGuard_LINE_SPLITTER, error_.description())
 	sb.append("  ").append(lines.get(0))
 	if withMetaData {
-		for i := int32(1); (i < lines.size()); i++ {
+		for i := int32(1); i < lines.size(); i++ {
 			sb.append("\n# ").append(lines.get(i))
 		}
 		sb.append("\n")
@@ -118,7 +118,7 @@ func (this *AllowlistWarningsGuard) normalizeSourceName(sourceName Optional[stri
 
 func AllowlistWarningsGuard_getFirstLine(warning string) string {
 	var lineLength int32 = String_indexOf(warning, 10)
-	if (lineLength > 0) {
+	if lineLength > 0 {
 		warning = String_substring(warning, 0, lineLength)
 	}
 	return warning
@@ -142,15 +142,15 @@ func AllowlistWarningsGuard_clinit() {
 }
 
 type AllowlistWarningsGuard_AllowlistBuilder struct {
-	outer_ *AllowlistWarningsGuard
-	warnings_ *TSet[*JSError]
-	productName Optional[string]
+	outer_          *AllowlistWarningsGuard
+	warnings_       *JTSet[*JSError]
+	productName     Optional[string]
 	generatorTarget Optional[string]
-	headerNote Optional[string]
+	headerNote      Optional[string]
 }
 
 func (this *AllowlistWarningsGuard_AllowlistBuilder) finit_AllowlistWarningsGuard_AllowlistBuilder() {
-	this.warnings_ = newTSet_(tce_p_JSError)
+	this.warnings_ = jnewTSet_(tce_p_JSError)
 	this.productName = Optional_empty[string]()
 	this.generatorTarget = Optional_empty[string]()
 	this.headerNote = Optional_empty[string]()
@@ -200,10 +200,10 @@ func (this *AllowlistWarningsGuard_AllowlistBuilder) writeAllowlist(out string) 
 
 func (this *AllowlistWarningsGuard_AllowlistBuilder) appendAllowlist(out *Output) {
 	out.append_CharSequence_rOutput("# This is a list of legacy warnings that have yet to be fixed.\n")
-	if ((this.productName.isPresent() && !String_isEmpty(this.productName.get())) && !this.warnings_.isEmpty()) {
+	if (this.productName.isPresent() && !String_isEmpty(this.productName.get())) && !this.warnings_.isEmpty() {
 		out.append_CharSequence_rOutput(strobj_(("# Please find some time and fix at least one of them and it will be the happiest day for " + sstr_(this.productName.get()) + ".\n")))
 	}
-	if (this.generatorTarget.isPresent() && !String_isEmpty(this.generatorTarget.get())) {
+	if this.generatorTarget.isPresent() && !String_isEmpty(this.generatorTarget.get()) {
 		out.append_CharSequence_rOutput(strobj_(("# When you fix any of these warnings, run " + sstr_(this.generatorTarget.get()) + " task.\n")))
 	}
 	if this.headerNote.isPresent() {
@@ -215,14 +215,14 @@ func (this *AllowlistWarningsGuard_AllowlistBuilder) appendAllowlist(out *Output
 		var warning *JSError = it_1.v
 		warningsByType.put(warning.type_(), this.outer_.formatWarning_2(warning, true))
 	}
-	it_3 := eachOf_(warningsByType.keySet())
+	it_3 := jeachOf_(warningsByType.keySet())
 	for it_3.next() {
 		var type_ *DiagnosticType = it_3.v
 		if DiagnosticGroups_DEPRECATED.matchesDiagnosticType(type_) {
 			continue
 		}
-		out.append_CharSequence_rOutput("\n# Warning ").append_CharSequence_rOutput(strobj_(type_.key_)).append_CharSequence_rOutput(": ").println(iterableAs_(tc_string, AllowlistWarningsGuard_LINE_SPLITTER.split_s(type_.formatField)).iterator_t().next_t())
-		it_5 := eachOf_(warningsByType.get(type_))
+		out.append_CharSequence_rOutput("\n# Warning ").append_CharSequence_rOutput(strobj_(type_.key_)).append_CharSequence_rOutput(": ").println(iterableAs_(jtc_string, AllowlistWarningsGuard_LINE_SPLITTER.split_s(type_.formatField)).iterator_t().next_t())
+		it_5 := jeachOf_(warningsByType.get(type_))
 		for it_5.next() {
 			var warning string = it_5.v
 			out.println(warning)
@@ -230,4 +230,3 @@ func (this *AllowlistWarningsGuard_AllowlistBuilder) appendAllowlist(out *Output
 	}
 	out.flush()
 }
-

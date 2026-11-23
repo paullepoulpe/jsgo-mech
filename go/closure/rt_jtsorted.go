@@ -24,7 +24,7 @@ var sortedMapMark_ = &timmMap_{}
 
 // tsortCmp_ compares two keys of a sorted collection: with its comparator, or by natural
 // ordering (a null key throws NullPointerException there, through compareNatural_).
-func tsortCmp_[K any](x *teq_, c *tconv_[K], a, b K) int32 {
+func tsortCmp_[K any](x *teq_, c *jtconv_[K], a, b K) int32 {
 	if x.cmpT != nil {
 		return x.cmpT.(func(K, K) int32)(a, b)
 	}
@@ -41,7 +41,7 @@ func tsortCmp_[K any](x *teq_, c *tconv_[K], a, b K) int32 {
 
 // tsortSearch_ returns the first position whose key is not less than k, and whether the key
 // there equals k (TreeSet.search in rt_coll2.go; the position may be dead).
-func tsortSearch_[K any](x *teq_, c *tconv_[K], keys []K, k K) (int, bool) {
+func tsortSearch_[K any](x *teq_, c *jtconv_[K], keys []K, k K) (int, bool) {
 	i := sort.Search(len(keys), func(i int) bool { return tsortCmp_(x, c, keys[i], k) >= 0 })
 	return i, i < len(keys) && tsortCmp_(x, c, keys[i], k) == 0
 }
@@ -49,17 +49,17 @@ func tsortSearch_[K any](x *teq_, c *tconv_[K], keys []K, k K) (int, bool) {
 // ---- sets
 
 // newTSortedSet_ is new TreeSet<>().
-func newTSortedSet_[K comparable](c *tconv_[K]) *TSet[K] { return newTSortedSetC_(c, nil) }
+func newTSortedSet_[K comparable](c *jtconv_[K]) *JTSet[K] { return newTSortedSetC_(c, nil) }
 
 // newTSortedSetC_ is new TreeSet<>(comparator).
-func newTSortedSetC_[K comparable](c *tconv_[K], cmp Comparator_e) *TSet[K] {
-	s := &TSet[K]{c: c, eq: &teq_{sorted: true, cmp: cmp}, twin: sortedMark_}
+func newTSortedSetC_[K comparable](c *jtconv_[K], cmp Comparator_e) *JTSet[K] {
+	s := &JTSet[K]{c: c, eq: &teq_{sorted: true, cmp: cmp}, twin: sortedMark_}
 	s.view.s = s
 	return s
 }
 
 // tsortedSetFrom_ is new TreeSet<>(collection): its elements in their natural ordering.
-func tsortedSetFrom_[K comparable](c *tconv_[K], from Collection) *TSet[K] {
+func tsortedSetFrom_[K comparable](c *jtconv_[K], from Collection) *JTSet[K] {
 	s := newTSortedSetC_(c, nil)
 	for _, x := range toSlice_(from) {
 		s.addSorted(c.unbox(x))
@@ -68,7 +68,7 @@ func tsortedSetFrom_[K comparable](c *tconv_[K], from Collection) *TSet[K] {
 }
 
 // tsortedSetCopy_ is new TreeSet<>(collection) of a typed set of the same element type.
-func tsortedSetCopy_[K comparable](c *tconv_[K], from *TSet[K]) *TSet[K] {
+func tsortedSetCopy_[K comparable](c *jtconv_[K], from *JTSet[K]) *JTSet[K] {
 	s := newTSortedSetC_(c, nil)
 	for i, k := range from.keys {
 		if !from.dead(i) {
@@ -79,7 +79,7 @@ func tsortedSetCopy_[K comparable](c *tconv_[K], from *TSet[K]) *TSet[K] {
 }
 
 // addSorted is add of a sorted set.
-func (s *TSet[K]) addSorted(k K) bool {
+func (s *JTSet[K]) addSorted(k K) bool {
 	if n := len(s.keys) - int(s.live); n > hsmall_ && n > int(s.live) {
 		s.compact()
 	}
@@ -109,7 +109,7 @@ func (s *TSet[K]) addSorted(k K) bool {
 
 // asSorted is a sorted set as erased code sees it (a place of type SortedSet or
 // NavigableSet): nil for null; a set that is not sorted is not one (ClassCastException).
-func (s *TSet[K]) asSorted() NavigableSet {
+func (s *JTSet[K]) asSorted() NavigableSet {
 	if s == nil {
 		return nil
 	}
@@ -124,7 +124,7 @@ func (s *TSet[K]) asSorted() NavigableSet {
 }
 
 // sortedView is the one erased view of a sorted set that can change.
-func (s *TSet[K]) sortedView() *tsortedSetView_[K] {
+func (s *JTSet[K]) sortedView() *tsortedSetView_[K] {
 	v, _ := s.eq.view.(*tsortedSetView_[K])
 	if v == nil {
 		v = &tsortedSetView_[K]{}
@@ -134,10 +134,10 @@ func (s *TSet[K]) sortedView() *tsortedSetView_[K] {
 	return v
 }
 
-// tsortedSetView_ is a sorted TSet seen as an erased TreeSet: the view of a set, with the
+// tsortedSetView_ is a sorted JTSet seen as an erased TreeSet: the view of a set, with the
 // methods of a sorted set that erased code calls.
 type tsortedSetView_[K comparable] struct {
-	tsetView_[K]
+	jtsetView_[K]
 }
 
 func (v *tsortedSetView_[K]) self() any       { return v }
@@ -192,19 +192,19 @@ func (v *tsortedSetView_[K]) tailSet(from any, inclusive bool) NavigableSet {
 // ---- maps
 
 // newTSortedMap_ is new TreeMap<>().
-func newTSortedMap_[K comparable, V any](kc *tconv_[K], vc *tconv_[V]) *TMap[K, V] {
+func newTSortedMap_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V]) *JTMap[K, V] {
 	return newTSortedMapC_(kc, vc, nil)
 }
 
 // newTSortedMapC_ is new TreeMap<>(comparator).
-func newTSortedMapC_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], cmp Comparator_e) *TMap[K, V] {
-	m := &TMap[K, V]{kc: kc, vc: vc, eq: &teq_{sorted: true, cmp: cmp}, imm: sortedMapMark_}
+func newTSortedMapC_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V], cmp Comparator_e) *JTMap[K, V] {
+	m := &JTMap[K, V]{kc: kc, vc: vc, eq: &teq_{sorted: true, cmp: cmp}, imm: sortedMapMark_}
 	m.view.m = m
 	return m
 }
 
 // tsortedMapFrom_ is new TreeMap<>(map): its mappings in the natural ordering of the keys.
-func tsortedMapFrom_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], from Map) *TMap[K, V] {
+func tsortedMapFrom_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V], from Map) *JTMap[K, V] {
 	m := newTSortedMapC_(kc, vc, nil)
 	if from == nil {
 		panic(new_NullPointerException_0().self())
@@ -214,14 +214,14 @@ func tsortedMapFrom_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], from Map
 }
 
 // tsortedMapCopy_ is new TreeMap<>(map) of a typed map of the same types.
-func tsortedMapCopy_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], from *TMap[K, V]) *TMap[K, V] {
+func tsortedMapCopy_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V], from *JTMap[K, V]) *JTMap[K, V] {
 	m := newTSortedMapC_(kc, vc, nil)
 	m.putAllT(from)
 	return m
 }
 
 // insertSorted adds a mapping at position i, the place of its key in the order (locate).
-func (m *TMap[K, V]) insertSorted(k K, v V, i int) {
+func (m *JTMap[K, V]) insertSorted(k K, v V, i int) {
 	if n := len(m.keys) - int(m.live); n > hsmall_ && n > int(m.live) {
 		m.compact()
 		i, _ = tsortSearch_(m.eq, m.kc, m.keys, k)
@@ -249,7 +249,7 @@ func (m *TMap[K, V]) insertSorted(k K, v V, i int) {
 
 // asSorted is a sorted map as erased code sees it (a place of type SortedMap or
 // NavigableMap): nil for null; a map that is not sorted is not one (ClassCastException).
-func (m *TMap[K, V]) asSorted() NavigableMap {
+func (m *JTMap[K, V]) asSorted() NavigableMap {
 	if m == nil {
 		return nil
 	}
@@ -264,7 +264,7 @@ func (m *TMap[K, V]) asSorted() NavigableMap {
 }
 
 // sortedView is the one erased view of a sorted map that can change.
-func (m *TMap[K, V]) sortedView() *tsortedMapView_[K, V] {
+func (m *JTMap[K, V]) sortedView() *tsortedMapView_[K, V] {
 	v, _ := m.eq.view.(*tsortedMapView_[K, V])
 	if v == nil {
 		v = &tsortedMapView_[K, V]{}
@@ -274,9 +274,9 @@ func (m *TMap[K, V]) sortedView() *tsortedMapView_[K, V] {
 	return v
 }
 
-// tsortedMapView_ is a sorted TMap seen as an erased TreeMap.
+// tsortedMapView_ is a sorted JTMap seen as an erased TreeMap.
 type tsortedMapView_[K comparable, V any] struct {
-	tmapView_[K, V]
+	jtmapView_[K, V]
 }
 
 func (v *tsortedMapView_[K, V]) self() any       { return v }

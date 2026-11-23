@@ -7,7 +7,7 @@ type OutputCharsetEncoder struct {
 }
 
 func (this *OutputCharsetEncoder) init_OutputCharsetEncoder(outputCharset Optional[string]) {
-	if (outputCharset.isEmpty() || (Charsets_name(outputCharset.get()) == Charsets_US_ASCII)) {
+	if outputCharset.isEmpty() || (Charsets_name(outputCharset.get()) == Charsets_US_ASCII) {
 		this.charset = Optional_empty[string]()
 	} else {
 		this.charset = Optional_of[string](Charsets_name(outputCharset.get()))
@@ -23,4 +23,3 @@ func new_OutputCharsetEncoder(outputCharset Optional[string]) *OutputCharsetEnco
 func (this *OutputCharsetEncoder) canEncode(c uint16) bool {
 	return (this.charset.isPresent() && Charsets_canEncode(c, this.charset.get()))
 }
-

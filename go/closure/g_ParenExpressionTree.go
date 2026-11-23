@@ -25,4 +25,3 @@ func new_ParenExpressionTree(location *SourceRange, expression *ParseTree) *Pare
 	this.init_ParenExpressionTree(location, expression)
 	return this
 }
-

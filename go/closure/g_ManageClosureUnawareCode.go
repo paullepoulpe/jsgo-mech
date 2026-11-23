@@ -38,10 +38,10 @@ func new_ManageClosureUnawareCode_UnwrapConcealedClosureUnawareCode() *ManageClo
 }
 
 func (this *ManageClosureUnawareCode_UnwrapConcealedClosureUnawareCode) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
-	if ((parent == 0) || !parent.isScript()) {
+	if (parent == 0) || !parent.isScript() {
 		return true
 	}
-	if (parent.isScript() && !parent.isClosureUnawareCode()) {
+	if parent.isScript() && !parent.isClosureUnawareCode() {
 		return false
 	}
 	return true
@@ -53,7 +53,7 @@ func (this *ManageClosureUnawareCode_UnwrapConcealedClosureUnawareCode) visit(t 
 
 func (this *ManageClosureUnawareCode_UnwrapConcealedClosureUnawareCode) tryUnwrapClosureUnawareShadowedCode(n Node) {
 	var shadowAstRoot Node = n.getClosureUnawareShadow()
-	if (shadowAstRoot == 0) {
+	if shadowAstRoot == 0 {
 		return
 	}
 	var shadowScript Node = shadowAstRoot.getOnlyChild()
@@ -68,4 +68,3 @@ func (this *ManageClosureUnawareCode_UnwrapConcealedClosureUnawareCode) tryUnwra
 	originalCodeFunction.detach()
 	n.replaceWith(originalCodeFunction)
 }
-

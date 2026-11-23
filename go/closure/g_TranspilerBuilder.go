@@ -37,6 +37,7 @@ func (this *TranspilerBuilder) build() Transpiler_transpile {
 }
 
 var TranspilerBuilder_TO_ES5 *TranspilerBuilder
+
 const TranspilerBuilder_DEFAULT_CACHE_SPEC string = "maximumSize=10000"
 
 var TranspilerBuilder_clinit_done bool
@@ -49,4 +50,3 @@ func TranspilerBuilder_clinit() {
 	TranspilerBuilder_TO_ES5 = new_TranspilerBuilder(Transpiler_transpile(new_BaseTranspiler(new_BaseTranspiler_CompilerSupplier_0(), "es6_runtime")))
 
 }
-

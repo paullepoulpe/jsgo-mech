@@ -25,4 +25,3 @@ func new_TemplateLiteralPortionTree(location *SourceRange, value *Token_parser) 
 	this.init_TemplateLiteralPortionTree(location, value)
 	return this
 }
-

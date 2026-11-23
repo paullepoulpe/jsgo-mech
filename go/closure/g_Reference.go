@@ -4,9 +4,9 @@ package closure
 
 type Reference struct {
 	basicBlock *BasicBlock
-	scope_ *Scope
-	inputId *InputId
-	nameNode_ Node
+	scope_     *Scope
+	inputId    *InputId
+	nameNode_  Node
 }
 
 func (this *Reference) init_Reference_Node_NodeTraversal_BasicBlock(nameNode Node, t *NodeTraversal, basicBlock *BasicBlock) {
@@ -66,22 +66,22 @@ func (this *Reference) isDeclaration() bool {
 
 func Reference_isDeclarationHelper(node Node) bool {
 	var parent Node = node.getParent()
-	if (parent.isClass() && !node.isFirstChildOf(parent)) {
+	if parent.isClass() && !node.isFirstChildOf(parent) {
 		return false
 	}
-	if (parent.getParent() == 0) {
+	if parent.getParent() == 0 {
 		return false
 	}
-	if (NodeUtil_isNameDeclaration(parent.getParent()) && (node == parent.getSecondChild())) {
+	if NodeUtil_isNameDeclaration(parent.getParent()) && (node == parent.getSecondChild()) {
 		return false
 	}
-	if (((((parent.isDestructuringLhs() || parent.isDestructuringPattern()) || parent.isRest()) || (parent.isStringKey() && parent.getParent().isObjectPattern())) || ((parent.isComputedProp() && parent.getParent().isObjectPattern()) && (node == parent.getLastChild()))) || (parent.isDefaultValue() && (node == parent.getFirstChild()))) {
+	if ((((parent.isDestructuringLhs() || parent.isDestructuringPattern()) || parent.isRest()) || (parent.isStringKey() && parent.getParent().isObjectPattern())) || ((parent.isComputedProp() && parent.getParent().isObjectPattern()) && (node == parent.getLastChild()))) || (parent.isDefaultValue() && (node == parent.getFirstChild())) {
 		return Reference_isDeclarationHelper(parent)
 	}
 	if parent.isImport() {
 		return true
 	}
-	if (parent.isImportSpec() && (node == parent.getLastChild())) {
+	if parent.isImportSpec() && (node == parent.getLastChild()) {
 		return true
 	}
 	if parent.isArrowFunction() {
@@ -175,7 +175,7 @@ func (this *Reference) getSymbol() StaticSlot {
 	return icast_StaticSlot(obj_(this.getSymbol_rVar()))
 }
 
-var Reference_DECLARATION_PARENTS *TSet[*Token_rhino]
+var Reference_DECLARATION_PARENTS *JTSet[*Token_rhino]
 
 var Reference_clinit_done bool
 
@@ -187,4 +187,3 @@ func Reference_clinit() {
 	Reference_DECLARATION_PARENTS = tsetImm_(tc_p_Token_rhino, Sets_immutableEnumSet(Token_rhino_VAR.up_Enum(), []*Enum{Token_rhino_LET.up_Enum(), Token_rhino_CONST.up_Enum(), Token_rhino_PARAM_LIST.up_Enum(), Token_rhino_FUNCTION.up_Enum(), Token_rhino_CLASS.up_Enum(), Token_rhino_CATCH.up_Enum()}))
 
 }
-

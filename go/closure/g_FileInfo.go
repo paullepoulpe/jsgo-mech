@@ -3,15 +3,15 @@
 package closure
 
 type FileInfo struct {
-	providedNamespaces *TSet[string]
-	requiredLocalNames *TSet[string]
-	declarations *SimpleListMultimap[string, *PotentialDeclaration]
+	providedNamespaces    *JTSet[string]
+	requiredLocalNames    *JTSet[string]
+	declarations          *SimpleListMultimap[string, *PotentialDeclaration]
 	isFromTypeScriptField bool
 }
 
 func (this *FileInfo) finit_FileInfo() {
-	this.providedNamespaces = newTSet_(tc_string)
-	this.requiredLocalNames = newTSet_(tc_string)
+	this.providedNamespaces = jnewTSet_(jtc_string)
+	this.requiredLocalNames = jnewTSet_(jtc_string)
 	this.declarations = SimpleListMultimap_create[string, *PotentialDeclaration]()
 }
 
@@ -71,10 +71,10 @@ func (this *FileInfo) isNameDeclared(fullyQualifiedName string) bool {
 }
 
 func FileInfo_containsPrefix(fullyQualifiedName string, prefixNamespaces IterableT[string]) bool {
-	it_1 := eachOf_(prefixNamespaces)
+	it_1 := jeachOf_(prefixNamespaces)
 	for it_1.next() {
 		var prefix string = it_1.v
-		if ((fullyQualifiedName == prefix) || String_startsWith(fullyQualifiedName, (sstr_(prefix) + "."))) {
+		if (fullyQualifiedName == prefix) || String_startsWith(fullyQualifiedName, (sstr_(prefix)+".")) {
 			return true
 		}
 	}
@@ -90,7 +90,7 @@ func (this *FileInfo) isPrefixRequired(fullyQualifiedName string) bool {
 }
 
 func (this *FileInfo) isStrictPrefixDeclared(fullyQualifiedName string) bool {
-	it_1 := eachOf_(this.declarations.keySet())
+	it_1 := jeachOf_(this.declarations.keySet())
 	for it_1.next() {
 		var prefix string = it_1.v
 		if String_startsWith(fullyQualifiedName, (sstr_(prefix) + ".")) {
@@ -103,4 +103,3 @@ func (this *FileInfo) isStrictPrefixDeclared(fullyQualifiedName string) bool {
 func (this *FileInfo) markProvided(providedName string) {
 	this.providedNamespaces.add(providedName)
 }
-

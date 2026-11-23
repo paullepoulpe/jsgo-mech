@@ -20,7 +20,7 @@ type NodeIterators_FunctionlessLocalScope struct {
 }
 
 func (this *NodeIterators_FunctionlessLocalScope) finit_NodeIterators_FunctionlessLocalScope() {
-	this.ancestors = newTDeque_(tc_Node)
+	this.ancestors = newTDeque_(jtc_Node)
 }
 
 func (this *NodeIterators_FunctionlessLocalScope) init_NodeIterators_FunctionlessLocalScope(ancestors []Node) {
@@ -46,7 +46,7 @@ func (this *NodeIterators_FunctionlessLocalScope) hasNext() bool {
 
 func (this *NodeIterators_FunctionlessLocalScope) next_t() Node {
 	var current Node = Node_of_(SequencedCollection_removeLast(SequencedCollection(Deque_un_(this.ancestors.asDequeT()))))
-	if (current.getNext() == 0) {
+	if current.getNext() == 0 {
 		current = this.ancestors.peekLast()
 		if current.isFunction() {
 			return this.next_t()
@@ -81,20 +81,25 @@ func (this *NodeIterators_FunctionlessLocalScope) current() Node {
 }
 
 func (this *NodeIterators_FunctionlessLocalScope) currentParent() Node {
-	return func() Node { if (this.ancestors.size() >= 2) { return this.current().getParent() }; return 0 }()
+	return func() Node {
+		if this.ancestors.size() >= 2 {
+			return this.current().getParent()
+		}
+		return 0
+	}()
 }
 
-func (this *NodeIterators_FunctionlessLocalScope) currentAncestors() *TList[Node] {
-	var list *TList[Node] = tlistFrom_(tc_Node, Collection(this.ancestors.asDeque()))
+func (this *NodeIterators_FunctionlessLocalScope) currentAncestors() *JTList[Node] {
+	var list *JTList[Node] = jtlistFrom_(jtc_Node, Collection(this.ancestors.asDeque()))
 	Collections_reverse(list.asList())
 	return list
 }
 
 type NodeIterators_LocalVarMotion struct {
-	compiler_ *AbstractCompiler
-	iterator_ *NodeIterators_FunctionlessLocalScope
-	varName_ string
-	lookAhead Node
+	compiler_           *AbstractCompiler
+	iterator_           *NodeIterators_FunctionlessLocalScope
+	varName_            string
+	lookAhead           Node
 	valueHasSideEffects bool
 }
 
@@ -151,11 +156,11 @@ func (this *NodeIterators_LocalVarMotion) remove() {
 
 func (this *NodeIterators_LocalVarMotion) advanceLookAhead(atStart bool) {
 	if !atStart {
-		if (this.lookAhead == 0) {
+		if this.lookAhead == 0 {
 			return
 		}
 		var curNode Node = this.iterator_.current()
-		if (curNode.isName() && (this.varName_ == curNode.getString())) {
+		if curNode.isName() && (this.varName_ == curNode.getString()) {
 			this.lookAhead = 0
 			return
 		}
@@ -169,11 +174,11 @@ func (this *NodeIterators_LocalVarMotion) advanceLookAhead(atStart bool) {
 	var type_ *Token_rhino = nextNode.getToken()
 	if this.valueHasSideEffects {
 		var readsState bool = false
-		if ((nextNode.isName() && !(this.varName_ == nextNode.getString())) || (((nextNode.isGetProp() || nextNode.isGetElem()) || nextNode.isOptChainGetProp()) || nextNode.isOptChainGetElem())) {
-			if ((nextParent == 0) || !NodeUtil_isNameDeclOrSimpleAssignLhs(nextNode, nextParent)) {
+		if (nextNode.isName() && !(this.varName_ == nextNode.getString())) || (((nextNode.isGetProp() || nextNode.isGetElem()) || nextNode.isOptChainGetProp()) || nextNode.isOptChainGetElem()) {
+			if (nextParent == 0) || !NodeUtil_isNameDeclOrSimpleAssignLhs(nextNode, nextParent) {
 				readsState = true
 			}
-		} else if ((nextNode.isCall() || nextNode.isNew()) || nextNode.isOptChainCall()) {
+		} else if (nextNode.isCall() || nextNode.isNew()) || nextNode.isOptChainCall() {
 			readsState = true
 		}
 		if readsState {
@@ -181,10 +186,9 @@ func (this *NodeIterators_LocalVarMotion) advanceLookAhead(atStart bool) {
 			return
 		}
 	}
-	if ((this.compiler_.getAstAnalyzer().nodeTypeMayHaveSideEffects(nextNode) && (type_ != Token_rhino_NAME)) || ((type_ == Token_rhino_NAME) && nextParent.isCatch())) {
+	if (this.compiler_.getAstAnalyzer().nodeTypeMayHaveSideEffects(nextNode) && (type_ != Token_rhino_NAME)) || ((type_ == Token_rhino_NAME) && nextParent.isCatch()) {
 		this.lookAhead = 0
 		return
 	}
 	this.lookAhead = nextNode
 }
-

@@ -172,7 +172,7 @@ func (this *Matcher_re2j) reset(input any) *Matcher_re2j { return this.reset_s(c
 
 // reset_s is reset for a String (rt_conv.go, "String for CharSequence").
 func (this *Matcher_re2j) reset_s(input string) *Matcher_re2j {
-	this.s = csStr_(input)
+	this.s = jcsStr_(input)
 	this.ascii = allASCII_(this.s)
 	this.rs, this.re = 0, len(this.s)
 	this.reset_()

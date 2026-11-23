@@ -25,4 +25,3 @@ func new_TemplateSubstitutionTree(location *SourceRange, expression *ParseTree) 
 	this.init_TemplateSubstitutionTree(location, expression)
 	return this
 }
-

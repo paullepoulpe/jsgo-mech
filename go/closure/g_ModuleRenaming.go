@@ -29,7 +29,7 @@ func ModuleRenaming_getGlobalName_ModuleMetadata_Optional(moduleMetadata *Module
 
 func ModuleRenaming_getGlobalNameExport(export *Export) *QualifiedName {
 	if export.moduleMetadata().isEs6Module() {
-		if (export.localName().get() == Export_DEFAULT_EXPORT_NAME) {
+		if export.localName().get() == Export_DEFAULT_EXPORT_NAME {
 			return ModuleRenaming_getGlobalNameOfAnonymousDefaultExport(export.moduleMetadata())
 		}
 		return ModuleRenaming_getGlobalNameOfEsModuleLocalVariable(export.moduleMetadata(), export.localName())
@@ -45,7 +45,7 @@ func ModuleRenaming_getGlobalName_Binding(binding *Binding) *QualifiedName {
 }
 
 func ModuleRenaming_getNameRootType(qname string, globalTypedScope *TypedScope) *JSType {
-	if (globalTypedScope == nil) {
+	if globalTypedScope == nil {
 		return nil
 	}
 	var root string = NodeUtil_getRootOfQualifiedNameString(qname)
@@ -54,7 +54,7 @@ func ModuleRenaming_getNameRootType(qname string, globalTypedScope *TypedScope) 
 
 func ModuleRenaming_getGlobalNameForJsDoc(moduleMap *ModuleMap, binding *Binding, propertyChain ListT[string]) Optional[string] {
 	var prop int32 = 0
-	for ((binding.isModuleNamespace() && binding.metadata().isEs6Module()) && (prop < propertyChain.size())) {
+	for (binding.isModuleNamespace() && binding.metadata().isEs6Module()) && (prop < propertyChain.size()) {
 		var propertyName string = propertyChain.get_t(prop)
 		var m *Module = moduleMap.getModule(binding.metadata().path())
 		if m.namespace().containsKey(propertyName) {
@@ -65,7 +65,7 @@ func ModuleRenaming_getGlobalNameForJsDoc(moduleMap *ModuleMap, binding *Binding
 		prop++
 	}
 	var globalName *QualifiedName = ModuleRenaming_getGlobalName_Binding(binding)
-	for (prop < propertyChain.size()) {
+	for prop < propertyChain.size() {
 		globalName = globalName.getprop(propertyChain.get_t(prop))
 		prop++
 	}
@@ -75,7 +75,7 @@ func ModuleRenaming_getGlobalNameForJsDoc(moduleMap *ModuleMap, binding *Binding
 const ModuleRenaming_DEFAULT_EXPORT_VAR_PREFIX string = "$jscompDefaultExport"
 
 type ModuleRenaming_GlobalizedModuleName struct {
-	aliasName_ *QualifiedName
+	aliasName_    *QualifiedName
 	rootNameType_ *JSType
 }
 
@@ -96,11 +96,11 @@ func (this *ModuleRenaming_GlobalizedModuleName) toQname(astFactory *AstFactory)
 	if this.aliasName().isSimple() {
 		return rootName
 	}
-	return astFactory.createGetPropsWithoutColors(rootName, iterableAs_(tc_string, Iterables_skip(Iterable_un_(this.aliasName().components()), 1)))
+	return astFactory.createGetPropsWithoutColors(rootName, iterableAs_(jtc_string, Iterables_skip(Iterable_un_(this.aliasName().components()), 1)))
 }
 
 func (this *ModuleRenaming_GlobalizedModuleName) getprop(property string) *ModuleRenaming_GlobalizedModuleName {
-	Preconditions_checkArgument((!String_isEmpty(property) && !String_contains_s(property, ".")))
+	Preconditions_checkArgument((!String_isEmpty(property) && !JString_contains_s(property, ".")))
 	return ModuleRenaming_GlobalizedModuleName_create_QualifiedName_JSType(this.aliasName().getprop(property), this.rootNameType())
 }
 
@@ -120,7 +120,7 @@ func ModuleRenaming_GlobalizedModuleName_create_ModuleMetadata_Optional_TypedSco
 		return new_ModuleRenaming_GlobalizedModuleName(QualifiedName_of(moduleMetadata.path().toModuleName()), ModuleRenaming_getNameRootType(moduleMetadata.path().toModuleName(), globalTypedScope))
 	case ModuleMetadataMap_ModuleType_SCRIPT:
 	}
-	panic(new_IllegalStateException_String(("Unexpected module type: " + tostr_(moduleMetadata.moduleType()))).self())
+	panic(new_IllegalStateException_String(("Unexpected module type: " + jtostr_(moduleMetadata.moduleType()))).self())
 }
 
 func (this *ModuleRenaming_GlobalizedModuleName) aliasName() *QualifiedName {
@@ -149,4 +149,3 @@ func (this *ModuleRenaming_GlobalizedModuleName) hashCode() int32 {
 func (this *ModuleRenaming_GlobalizedModuleName) toString() string {
 	return "GlobalizedModuleName[" + "aliasName=" + objstr_(this.aliasName_.self()) + ", rootNameType=" + objstr_(this.rootNameType_.self()) + "]"
 }
-

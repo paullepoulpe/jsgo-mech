@@ -4,8 +4,8 @@ package closure
 
 type SuppressDocWarningsGuard struct {
 	WarningsGuard
-	suppressors *TMap[string, *DiagnosticGroup]
-	compiler_ *AbstractCompiler
+	suppressors *JTMap[string, *DiagnosticGroup]
+	compiler_   *AbstractCompiler
 }
 
 func (this *SuppressDocWarningsGuard) up_WarningsGuard() *WarningsGuard {
@@ -15,42 +15,42 @@ func (this *SuppressDocWarningsGuard) up_WarningsGuard() *WarningsGuard {
 	return &this.WarningsGuard
 }
 
-func (this *SuppressDocWarningsGuard) init_SuppressDocWarningsGuard(compiler *AbstractCompiler, suppressors *TMap[string, *DiagnosticGroup]) {
+func (this *SuppressDocWarningsGuard) init_SuppressDocWarningsGuard(compiler *AbstractCompiler, suppressors *JTMap[string, *DiagnosticGroup]) {
 	this.WarningsGuard.init_WarningsGuard()
 	this.compiler_ = compiler
 	this.suppressors = SuppressDocWarningsGuard_createSuppressors(suppressors)
 }
 
-func new_SuppressDocWarningsGuard(compiler *AbstractCompiler, suppressors *TMap[string, *DiagnosticGroup]) *SuppressDocWarningsGuard {
+func new_SuppressDocWarningsGuard(compiler *AbstractCompiler, suppressors *JTMap[string, *DiagnosticGroup]) *SuppressDocWarningsGuard {
 	this := &SuppressDocWarningsGuard{}
 	this.self_ = this
 	this.init_SuppressDocWarningsGuard(compiler, suppressors)
 	return this
 }
 
-func SuppressDocWarningsGuard_createSuppressors(suppressors *TMap[string, *DiagnosticGroup]) *TMap[string, *DiagnosticGroup] {
-	var builder *TMap[string, *DiagnosticGroup] = tmapCopy_(tc_string, tc_p_DiagnosticGroup, suppressors)
+func SuppressDocWarningsGuard_createSuppressors(suppressors *JTMap[string, *DiagnosticGroup]) *JTMap[string, *DiagnosticGroup] {
+	var builder *JTMap[string, *DiagnosticGroup] = tmapCopy_(jtc_string, jtc_p_DiagnosticGroup, suppressors)
 	builder.put("missingProperties", DiagnosticGroup_createFromGroups_DiagnosticGroupArr([]*DiagnosticGroup{DiagnosticGroups_MISSING_PROPERTIES, DiagnosticGroups_STRICT_MISSING_PROPERTIES}))
 	builder.put("checkTypes", DiagnosticGroup_createFromGroups_DiagnosticGroupArr([]*DiagnosticGroup{DiagnosticGroups_CHECK_TYPES, DiagnosticGroups_STRICT_CHECK_TYPES}))
-	return immutableMapCopyOfT_(tc_string, tc_p_DiagnosticGroup, builder)
+	return immutableMapCopyOfT_(jtc_string, jtc_p_DiagnosticGroup, builder)
 }
 
 func (this *SuppressDocWarningsGuard) level_impl(error_ *JSError) *CheckLevel {
 	var node Node = error_.node()
-	if (node == 0) {
+	if node == 0 {
 		node = this.getScriptNodeBySourceName(error_)
 	}
-	if (node == 0) {
+	if node == 0 {
 		return nil
 	}
 	var level *CheckLevel = this.getCheckLevelFromAncestors(error_, node)
-	if (level != nil) {
+	if level != nil {
 		return level
 	}
 	var scriptNode Node = this.getScriptNodeBySourceName(error_)
-	if (scriptNode != 0) {
+	if scriptNode != 0 {
 		var info *JSDocInfo = scriptNode.getJSDocInfo()
-		if (info != nil) {
+		if info != nil {
 			return this.getCheckLevelFromInfo(error_, info)
 		}
 	}
@@ -60,18 +60,18 @@ func (this *SuppressDocWarningsGuard) level_impl(error_ *JSError) *CheckLevel {
 func (this *SuppressDocWarningsGuard) getCheckLevelFromAncestors(error_ *JSError, node Node) *CheckLevel {
 	{
 		var current Node = node
-		for ; (current != 0); current = current.getParent() {
+		for ; current != 0; current = current.getParent() {
 			var info *JSDocInfo = nil
-			if (current.isFunction() || current.isClass()) {
+			if current.isFunction() || current.isClass() {
 				info = NodeUtil_getBestJSDocInfo(current)
 			} else if current.isScript() {
 				info = current.getJSDocInfo()
-			} else if (((((NodeUtil_isNameDeclaration(current) || NodeUtil_mayBeObjectLitKey(current)) || current.isComputedProp()) || current.isMemberFieldDef()) || current.isComputedFieldDef()) || (current.hasParent() && current.getParent().isExprResult())) {
+			} else if ((((NodeUtil_isNameDeclaration(current) || NodeUtil_mayBeObjectLitKey(current)) || current.isComputedProp()) || current.isMemberFieldDef()) || current.isComputedFieldDef()) || (current.hasParent() && current.getParent().isExprResult()) {
 				info = NodeUtil_getBestJSDocInfo(current)
 			}
-			if (info != nil) {
+			if info != nil {
 				var level *CheckLevel = this.getCheckLevelFromInfo(error_, info)
-				if (level != nil) {
+				if level != nil {
 					return level
 				}
 			}
@@ -85,7 +85,7 @@ func (this *SuppressDocWarningsGuard) getCheckLevelFromInfo(error_ *JSError, inf
 	for it_1.next() {
 		var suppressor string = it_1.v
 		var group *DiagnosticGroup = this.suppressors.get(suppressor)
-		if (group == nil) {
+		if group == nil {
 			continue
 		}
 		if group.matches(error_) {
@@ -100,7 +100,7 @@ func (this *SuppressDocWarningsGuard) getScriptNodeBySourceName(error_ *JSError)
 		return 0
 	}
 	var scriptNode Node = this.compiler_.getScriptNode(error_.sourceName().get())
-	if (scriptNode == 0) {
+	if scriptNode == 0 {
 		return 0
 	}
 	Preconditions_checkState(scriptNode.isScript())
@@ -112,4 +112,3 @@ func (this *SuppressDocWarningsGuard) getPriority_impl() int32 {
 }
 
 const SuppressDocWarningsGuard_serialVersionUID int64 = 1
-

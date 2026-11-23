@@ -3,16 +3,16 @@
 package closure
 
 type DiagnosticToSuppressionMapper struct {
-	validSuppressions *TSet[string]
-	diagnosticGroups *TMap[string, *DiagnosticGroup]
+	validSuppressions *JTSet[string]
+	diagnosticGroups  *JTMap[string, *DiagnosticGroup]
 }
 
-func (this *DiagnosticToSuppressionMapper) init_DiagnosticToSuppressionMapper(validSuppressions *TSet[string], diagnosticGroups *TMap[string, *DiagnosticGroup]) {
+func (this *DiagnosticToSuppressionMapper) init_DiagnosticToSuppressionMapper(validSuppressions *JTSet[string], diagnosticGroups *JTMap[string, *DiagnosticGroup]) {
 	this.validSuppressions = validSuppressions
 	this.diagnosticGroups = diagnosticGroups
 }
 
-func new_DiagnosticToSuppressionMapper(validSuppressions *TSet[string], diagnosticGroups *TMap[string, *DiagnosticGroup]) *DiagnosticToSuppressionMapper {
+func new_DiagnosticToSuppressionMapper(validSuppressions *JTSet[string], diagnosticGroups *JTMap[string, *DiagnosticGroup]) *DiagnosticToSuppressionMapper {
 	this := &DiagnosticToSuppressionMapper{}
 	this.init_DiagnosticToSuppressionMapper(validSuppressions, diagnosticGroups)
 	return this
@@ -28,10 +28,10 @@ func (this *DiagnosticToSuppressionMapper) printSuppressions(output *DiagnosticT
 }
 
 func (this *DiagnosticToSuppressionMapper) createSuppressionMap() MapT[string, string] {
-	var validSuppressions *TSet[string] = tsetCopy_(tc_string, this.validSuppressions)
+	var validSuppressions *JTSet[string] = tsetCopy_(jtc_string, this.validSuppressions)
 	validSuppressions.remove("accessControls")
 	validSuppressions.remove("missingSourcesWarnings")
-	var diagnosticToSuppression *TMap[*DiagnosticType, string] = newTMap_(tce_p_DiagnosticType, tc_string)
+	var diagnosticToSuppression *JTMap[*DiagnosticType, string] = jnewTMap_(tce_p_DiagnosticType, jtc_string)
 	it_1 := this.diagnosticGroups.eachEntry()
 	for it_1.next() {
 		var entry *TEntry[string, *DiagnosticGroup] = it_1.entry()
@@ -52,13 +52,18 @@ func (this *DiagnosticToSuppressionMapper) createSuppressionMap() MapT[string, s
 		var entrySet *TEntry[*DiagnosticType, string] = it_5.entry()
 		result.put(strobj_(entrySet.getKey().key_), strobj_(entrySet.getValue()))
 	}
-	return mapAs_(tc_string, tc_string, ImmutableMap_as_Map(result.buildOrThrow()))
+	return mapAs_(jtc_string, jtc_string, ImmutableMap_as_Map(result.buildOrThrow()))
 }
 
 func (this *DiagnosticToSuppressionMapper) preferMoreTargetedGroup(next string, current string) string {
 	var nextGroup *DiagnosticGroup = this.diagnosticGroups.get(next)
 	var currentGroup *DiagnosticGroup = this.diagnosticGroups.get(current)
-	return func() string { if (nextGroup.getTypes().size() < currentGroup.getTypes().size()) { return next }; return current }()
+	return func() string {
+		if nextGroup.getTypes().size() < currentGroup.getTypes().size() {
+			return next
+		}
+		return current
+	}()
 }
 
 func DiagnosticToSuppressionMapper_printAsJson(diagnosticToSuppression MapT[string, string]) {
@@ -66,7 +71,7 @@ func DiagnosticToSuppressionMapper_printAsJson(diagnosticToSuppression MapT[stri
 	writer.setHtmlSafe(true)
 	writer.setSerializeNulls(false)
 	writer.beginObject()
-	it_1 := eachOf_(diagnosticToSuppression.entrySet_t())
+	it_1 := jeachOf_(diagnosticToSuppression.entrySet_t())
 	for it_1.next() {
 		var entry Map_EntryT[string, string] = it_1.v
 		writer.name(entry.getKey_t()).stringValue(Optional_ofNullable[string](entry.getValue_t()))
@@ -78,7 +83,7 @@ func DiagnosticToSuppressionMapper_printAsJson(diagnosticToSuppression MapT[stri
 func DiagnosticToSuppressionMapper_printAsMarkdown(diagnosticToSuppression MapT[string, string]) {
 	Output_stdout().println("| Error | Suppression tag |")
 	Output_stdout().println("|---|---|")
-	it_1 := eachOf_(diagnosticToSuppression.entrySet_t())
+	it_1 := jeachOf_(diagnosticToSuppression.entrySet_t())
 	for it_1.next() {
 		var e Map_EntryT[string, string] = it_1.v
 		Output_stdout().println(String_format("|%s|%s|", []any{e.getKey(), e.getValue()}))
@@ -137,4 +142,3 @@ func DiagnosticToSuppressionMapper_OutputFormat_clinit() {
 	registerEnum_("com.google.javascript.jscomp.DiagnosticToSuppressionMapper.OutputFormat", enumValues_(DiagnosticToSuppressionMapper_OutputFormat_values_))
 
 }
-

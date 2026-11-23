@@ -4,7 +4,7 @@ package closure
 
 type ImportSpecifierTree struct {
 	ParseTree
-	importedName *IdentifierToken
+	importedName    *IdentifierToken
 	destinationName *IdentifierToken
 }
 
@@ -27,4 +27,3 @@ func new_ImportSpecifierTree(location *SourceRange, importedName *IdentifierToke
 	this.init_ImportSpecifierTree(location, importedName, destinationName)
 	return this
 }
-

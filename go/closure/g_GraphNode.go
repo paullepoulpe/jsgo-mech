@@ -6,4 +6,3 @@ type GraphNode[N comparable, E comparable] interface {
 	Annotatable
 	getValue() N
 }
-

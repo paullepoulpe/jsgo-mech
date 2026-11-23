@@ -3,7 +3,7 @@
 package closure
 
 type ProcessTweaks struct {
-	compiler_ *AbstractCompiler
+	compiler_   *AbstractCompiler
 	stripTweaks bool
 }
 
@@ -25,7 +25,7 @@ func (this *ProcessTweaks) process_2(externs Node, root Node) {
 	}
 }
 
-func (this *ProcessTweaks) stripAllCalls(tweakInfos *TMap[string, *ProcessTweaks_TweakInfo]) {
+func (this *ProcessTweaks) stripAllCalls(tweakInfos *JTMap[string, *ProcessTweaks_TweakInfo]) {
 	it_1 := tweakInfos.eachValue()
 	for it_1.next() {
 		var tweakInfo *ProcessTweaks_TweakInfo = it_1.v
@@ -57,7 +57,7 @@ func (this *ProcessTweaks) stripAllCalls(tweakInfos *TMap[string, *ProcessTweaks
 func (this *ProcessTweaks) collectTweaks(root Node) *ProcessTweaks_CollectTweaksResult {
 	var pass *ProcessTweaks_CollectTweaks = new_ProcessTweaks_CollectTweaks(this)
 	NodeTraversal_traverse(this.compiler_, root, ProcessTweaks_CollectTweaks_as_NodeTraversal_Callback(pass))
-	var tweakInfos *TMap[string, *ProcessTweaks_TweakInfo] = pass.allTweaks
+	var tweakInfos *JTMap[string, *ProcessTweaks_TweakInfo] = pass.allTweaks
 	it_1 := tweakInfos.eachValue()
 	for it_1.next() {
 		var tweakInfo *ProcessTweaks_TweakInfo = it_1.v
@@ -73,7 +73,7 @@ var ProcessTweaks_INVALID_TWEAK_DEFAULT_VALUE_WARNING *DiagnosticType
 var ProcessTweaks_NON_GLOBAL_TWEAK_INIT_ERROR *DiagnosticType
 var ProcessTweaks_TWEAK_WRONG_GETTER_TYPE_WARNING *DiagnosticType
 var ProcessTweaks_INVALID_TWEAK_ID_ERROR *DiagnosticType
-var ProcessTweaks_TWEAK_FUNCTIONS_MAP *TMap[string, *ProcessTweaks_TweakFunction]
+var ProcessTweaks_TWEAK_FUNCTIONS_MAP *JTMap[string, *ProcessTweaks_TweakFunction]
 
 var ProcessTweaks_clinit_done bool
 
@@ -90,7 +90,7 @@ func ProcessTweaks_clinit() {
 	ProcessTweaks_TWEAK_WRONG_GETTER_TYPE_WARNING = DiagnosticType_warning("JSC_TWEAK_WRONG_GETTER_TYPE_WARNING", "tweak getter function {0} used for tweak registered using {1}")
 	ProcessTweaks_INVALID_TWEAK_ID_ERROR = DiagnosticType_error("JSC_INVALID_TWEAK_ID_ERROR", "tweak ID contains illegal characters. Only letters, numbers, _ and . are allowed")
 	{
-		ProcessTweaks_TWEAK_FUNCTIONS_MAP = newTMap_(tc_string, tc_p_ProcessTweaks_TweakFunction)
+		ProcessTweaks_TWEAK_FUNCTIONS_MAP = jnewTMap_(jtc_string, tc_p_ProcessTweaks_TweakFunction)
 		it_1 := foreach_(obj_(EnumSet_allOf(classOf_("com.google.javascript.jscomp.ProcessTweaks.TweakFunction"))))
 		for it_1.next() {
 			var func_ *ProcessTweaks_TweakFunction = cast_[*ProcessTweaks_TweakFunction](it_1.v)
@@ -102,9 +102,9 @@ func ProcessTweaks_clinit() {
 
 type ProcessTweaks_TweakFunction struct {
 	Enum
-	nameField string
-	validNodeTypeA *Token_rhino
-	validNodeTypeB *Token_rhino
+	nameField        string
+	validNodeTypeA   *Token_rhino
+	validNodeTypeB   *Token_rhino
 	registerFunction *ProcessTweaks_TweakFunction
 	expectedTypeName Optional[string]
 }
@@ -250,14 +250,14 @@ func ProcessTweaks_TweakFunction_clinit() {
 }
 
 type ProcessTweaks_CollectTweaksResult struct {
-	tweakInfos *TMap[string, *ProcessTweaks_TweakInfo]
+	tweakInfos *JTMap[string, *ProcessTweaks_TweakInfo]
 }
 
-func (this *ProcessTweaks_CollectTweaksResult) init_ProcessTweaks_CollectTweaksResult(tweakInfos *TMap[string, *ProcessTweaks_TweakInfo]) {
+func (this *ProcessTweaks_CollectTweaksResult) init_ProcessTweaks_CollectTweaksResult(tweakInfos *JTMap[string, *ProcessTweaks_TweakInfo]) {
 	this.tweakInfos = tweakInfos
 }
 
-func new_ProcessTweaks_CollectTweaksResult(tweakInfos *TMap[string, *ProcessTweaks_TweakInfo]) *ProcessTweaks_CollectTweaksResult {
+func new_ProcessTweaks_CollectTweaksResult(tweakInfos *JTMap[string, *ProcessTweaks_TweakInfo]) *ProcessTweaks_CollectTweaksResult {
 	this := &ProcessTweaks_CollectTweaksResult{}
 	this.init_ProcessTweaks_CollectTweaksResult(tweakInfos)
 	return this
@@ -265,8 +265,8 @@ func new_ProcessTweaks_CollectTweaksResult(tweakInfos *TMap[string, *ProcessTwea
 
 type ProcessTweaks_CollectTweaks struct {
 	NodeTraversal_AbstractPostOrderCallback
-	outer_ *ProcessTweaks
-	allTweaks *TMap[string, *ProcessTweaks_TweakInfo]
+	outer_    *ProcessTweaks
+	allTweaks *JTMap[string, *ProcessTweaks_TweakInfo]
 }
 
 func (this *ProcessTweaks_CollectTweaks) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -277,7 +277,7 @@ func (this *ProcessTweaks_CollectTweaks) up_NodeTraversal_AbstractPostOrderCallb
 }
 
 func (this *ProcessTweaks_CollectTweaks) finit_ProcessTweaks_CollectTweaks() {
-	this.allTweaks = newTMap_(tc_string, tc_p_ProcessTweaks_TweakInfo)
+	this.allTweaks = jnewTMap_(jtc_string, jtc_p_ProcessTweaks_TweakInfo)
 }
 
 func (this *ProcessTweaks_CollectTweaks) init_ProcessTweaks_CollectTweaks() {
@@ -299,7 +299,7 @@ func (this *ProcessTweaks_CollectTweaks) visit_impl(t *NodeTraversal, n Node, pa
 	}
 	var callName string = n.getFirstChild().getQualifiedName()
 	var tweakFunc *ProcessTweaks_TweakFunction = ProcessTweaks_TWEAK_FUNCTIONS_MAP.get(callName)
-	if (tweakFunc == nil) {
+	if tweakFunc == nil {
 		return
 	}
 	var tweakIdNode Node = n.getSecondChild()
@@ -358,10 +358,10 @@ func new_ProcessTweaks_TweakFunctionCall_TweakFunction_Node_Node(tweakFunc *Proc
 }
 
 type ProcessTweaks_TweakInfo struct {
-	outer_ *ProcessTweaks
-	tweakId string
-	functionCalls *TList[*ProcessTweaks_TweakFunctionCall]
-	registerCall *ProcessTweaks_TweakFunctionCall
+	outer_           *ProcessTweaks
+	tweakId          string
+	functionCalls    *JTList[*ProcessTweaks_TweakFunctionCall]
+	registerCall     *ProcessTweaks_TweakFunctionCall
 	defaultValueNode Node
 }
 
@@ -371,7 +371,7 @@ func (this *ProcessTweaks_TweakInfo) zero_ProcessTweaks_TweakInfo() {
 
 func (this *ProcessTweaks_TweakInfo) init_ProcessTweaks_TweakInfo(tweakId string) {
 	this.tweakId = tweakId
-	this.functionCalls = newTList_(tc_p_ProcessTweaks_TweakFunctionCall)
+	this.functionCalls = jnewTList_(tc_p_ProcessTweaks_TweakFunctionCall)
 }
 
 func new_ProcessTweaks_TweakInfo(outer_ *ProcessTweaks, tweakId string) *ProcessTweaks_TweakInfo {
@@ -395,7 +395,7 @@ func (this *ProcessTweaks_TweakInfo) emitAllTypeWarnings() {
 		var valueNode Node = call.valueNode
 		var tweakFunc *ProcessTweaks_TweakFunction = call.tweakFunc
 		var registerFunc *ProcessTweaks_TweakFunction = this.registerCall.tweakFunc
-		if (valueNode != 0) {
+		if valueNode != 0 {
 			if !registerFunc.isValidNodeType(valueNode.getToken()) {
 				this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(valueNode, ProcessTweaks_INVALID_TWEAK_DEFAULT_VALUE_WARNING, []string{this.tweakId, registerFunc.getName(), registerFunc.getExpectedTypeName().orElse("null")}))
 			}
@@ -422,12 +422,11 @@ func (this *ProcessTweaks_TweakInfo) isRegistered() bool {
 
 func (this *ProcessTweaks_TweakInfo) getDefaultValueNode() Node {
 	Preconditions_checkState(this.isRegistered())
-	if (this.defaultValueNode != 0) {
+	if this.defaultValueNode != 0 {
 		return this.defaultValueNode
 	}
-	if (this.registerCall.valueNode != 0) {
+	if this.registerCall.valueNode != 0 {
 		return this.registerCall.valueNode
 	}
 	return this.registerCall.tweakFunc.createDefaultValueNode()
 }
-

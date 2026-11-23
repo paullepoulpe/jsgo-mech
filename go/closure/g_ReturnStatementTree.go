@@ -25,4 +25,3 @@ func new_ReturnStatementTree(location *SourceRange, expression *ParseTree) *Retu
 	this.init_ReturnStatementTree(location, expression)
 	return this
 }
-

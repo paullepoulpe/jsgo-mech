@@ -54,4 +54,3 @@ func PropertyRenamingPolicy_clinit() {
 	registerEnum_("com.google.javascript.jscomp.PropertyRenamingPolicy", enumValues_(PropertyRenamingPolicy_values_))
 
 }
-

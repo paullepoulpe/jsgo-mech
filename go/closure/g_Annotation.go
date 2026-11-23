@@ -4,4 +4,3 @@ package closure
 
 type Annotation_graph interface {
 }
-

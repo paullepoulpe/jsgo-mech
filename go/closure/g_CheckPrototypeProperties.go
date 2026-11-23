@@ -24,9 +24,9 @@ func (this *CheckPrototypeProperties) visit(unused *NodeTraversal, n Node, paren
 	if NodeUtil_isPrototypePropertyDeclaration(n) {
 		var assign Node = n.getFirstChild()
 		var rhs Node = assign.getLastChild()
-		if (rhs.isArrayLit() || rhs.isObjectLit()) {
+		if rhs.isArrayLit() || rhs.isObjectLit() {
 			var jsDoc *JSDocInfo = NodeUtil_getBestJSDocInfo(rhs)
-			if ((jsDoc != nil) && jsDoc.hasEnumParameterType()) {
+			if (jsDoc != nil) && jsDoc.hasEnumParameterType() {
 				return
 			}
 			var propName string = assign.getFirstChild().getLastChild().getString()
@@ -51,4 +51,3 @@ func CheckPrototypeProperties_clinit() {
 	CheckPrototypeProperties_ILLEGAL_PROTOTYPE_MEMBER = DiagnosticType_disabled("JSC_ILLEGAL_PROTOTYPE_MEMBER", "Prototype property {0} should be a primitive, not an Array or Object.")
 
 }
-

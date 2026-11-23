@@ -3,11 +3,11 @@
 package closure
 
 type FindModuleDependencies struct {
-	compiler_ *AbstractCompiler
-	moduleType_ *CompilerInput_ModuleType
-	dynamicImportScope *Scope
-	inputPathByWebpackId *TMap[string, string]
-	supportsEs6Modules bool
+	compiler_               *AbstractCompiler
+	moduleType_             *CompilerInput_ModuleType
+	dynamicImportScope      *Scope
+	inputPathByWebpackId    *JTMap[string, string]
+	supportsEs6Modules      bool
 	supportsCommonJsModules bool
 }
 
@@ -16,7 +16,7 @@ func (this *FindModuleDependencies) finit_FindModuleDependencies() {
 	this.dynamicImportScope = nil
 }
 
-func (this *FindModuleDependencies) init_FindModuleDependencies(compiler *AbstractCompiler, supportsEs6Modules bool, supportsCommonJsModules bool, inputPathByWebpackId *TMap[string, string]) {
+func (this *FindModuleDependencies) init_FindModuleDependencies(compiler *AbstractCompiler, supportsEs6Modules bool, supportsCommonJsModules bool, inputPathByWebpackId *JTMap[string, string]) {
 	this.finit_FindModuleDependencies()
 	this.compiler_ = compiler
 	this.supportsEs6Modules = supportsEs6Modules
@@ -24,7 +24,7 @@ func (this *FindModuleDependencies) init_FindModuleDependencies(compiler *Abstra
 	this.inputPathByWebpackId = inputPathByWebpackId
 }
 
-func new_FindModuleDependencies(compiler *AbstractCompiler, supportsEs6Modules bool, supportsCommonJsModules bool, inputPathByWebpackId *TMap[string, string]) *FindModuleDependencies {
+func new_FindModuleDependencies(compiler *AbstractCompiler, supportsEs6Modules bool, supportsCommonJsModules bool, inputPathByWebpackId *JTMap[string, string]) *FindModuleDependencies {
 	this := &FindModuleDependencies{}
 	this.init_FindModuleDependencies(compiler, supportsEs6Modules, supportsCommonJsModules, inputPathByWebpackId)
 	return this
@@ -40,9 +40,9 @@ func (this *FindModuleDependencies) process(root Node) {
 		input.addOrderedRequire(DependencyInfo_Require_BASE)
 	}
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(this))
-	if (this.moduleType_ == CompilerInput_ModuleType_ES6) {
+	if this.moduleType_ == CompilerInput_ModuleType_ES6 {
 		this.convertToEs6Module(root, true)
-	} else if (((this.moduleType_ == CompilerInput_ModuleType_NONE) && (this.inputPathByWebpackId != nil)) && this.inputPathByWebpackId.asImm().containsValue(strobj_(input.getPath().toString()))) {
+	} else if ((this.moduleType_ == CompilerInput_ModuleType_NONE) && (this.inputPathByWebpackId != nil)) && this.inputPathByWebpackId.asImm().containsValue(strobj_(input.getPath().toString())) {
 		this.moduleType_ = CompilerInput_ModuleType_IMPORTED_SCRIPT
 	}
 	input.addProvide(input.getPath().toModuleName())
@@ -51,8 +51,8 @@ func (this *FindModuleDependencies) process(root Node) {
 }
 
 func (this *FindModuleDependencies) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
-	if ((this.supportsCommonJsModules && n.isFunction()) && ProcessCommonJSModules_isCommonJsDynamicImportCallback(n, this.compiler_.getOptions().getModuleResolutionMode())) {
-		if (this.dynamicImportScope == nil) {
+	if (this.supportsCommonJsModules && n.isFunction()) && ProcessCommonJSModules_isCommonJsDynamicImportCallback(n, this.compiler_.getOptions().getModuleResolutionMode()) {
+		if this.dynamicImportScope == nil {
 			this.dynamicImportScope = t.getScope()
 		}
 	}
@@ -64,7 +64,7 @@ func (this *FindModuleDependencies) visit(t *NodeTraversal, n Node, parent Node)
 	if NodeUtil_isShallowStatementTree(parent) {
 		if n.isExprResult() {
 			var maybeGetProp Node = n.getFirstFirstChild()
-			if ((maybeGetProp != 0) && (FindModuleDependencies_GOOG_PROVIDE.matches(maybeGetProp) || FindModuleDependencies_GOOG_MODULE.matches(maybeGetProp))) {
+			if (maybeGetProp != 0) && (FindModuleDependencies_GOOG_PROVIDE.matches(maybeGetProp) || FindModuleDependencies_GOOG_MODULE.matches(maybeGetProp)) {
 				this.moduleType_ = CompilerInput_ModuleType_GOOG
 				return
 			}
@@ -73,31 +73,31 @@ func (this *FindModuleDependencies) visit(t *NodeTraversal, n Node, parent Node)
 	if NodeUtil_isGoogRequireDynamicCall(n) {
 		t.getInput().addRequireDynamicImports(n.getLastChild().getString())
 	}
-	if (this.supportsEs6Modules && n.isExport()) {
+	if this.supportsEs6Modules && n.isExport() {
 		this.moduleType_ = CompilerInput_ModuleType_ES6
 		if n.getBooleanProp(Node_EXPORT_DEFAULT) {
 		} else if n.hasTwoChildren() {
 			this.addEs6ModuleImportToGraph(t, n)
 		}
-	} else if (this.supportsEs6Modules && n.isImport()) {
+	} else if this.supportsEs6Modules && n.isImport() {
 		this.moduleType_ = CompilerInput_ModuleType_ES6
 		this.addEs6ModuleImportToGraph(t, n)
-	} else if ((this.supportsEs6Modules && (n.getToken() == Token_rhino_DYNAMIC_IMPORT)) && n.getFirstChild().isString()) {
+	} else if (this.supportsEs6Modules && (n.getToken() == Token_rhino_DYNAMIC_IMPORT)) && n.getFirstChild().isString() {
 		var path string = n.getFirstChild().getString()
 		var modulePath *ModuleLoader_ModulePath = t.getInput().getPath().resolveJsModuleSilently(path)
-		if (modulePath != nil) {
+		if modulePath != nil {
 			t.getInput().addDynamicRequire(modulePath.toModuleName())
 		}
 	} else if this.supportsCommonJsModules {
-		if ((this.moduleType_ != CompilerInput_ModuleType_GOOG) && ProcessCommonJSModules_isCommonJsExport(t, n, resolutionMode)) {
+		if (this.moduleType_ != CompilerInput_ModuleType_GOOG) && ProcessCommonJSModules_isCommonJsExport(t, n, resolutionMode) {
 			this.moduleType_ = CompilerInput_ModuleType_COMMONJS
 		} else if ProcessCommonJSModules_isCommonJsImport(n, resolutionMode) {
 			var path string = ProcessCommonJSModules_getCommonJsImportPath(n, resolutionMode)
 			var modulePath *ModuleLoader_ModulePath = t.getInput().getPath().resolveJsModule(path, Optional_of[string](n.getSourceFileName()).filter(Predicate[string](func(s string) bool {
 				return !String_isEmpty(s)
 			})), n.getLineno(), n.getCharno())
-			if (modulePath != nil) {
-				if ((this.dynamicImportScope != nil) || ProcessCommonJSModules_isCommonJsDynamicImportCallback(NodeUtil_getEnclosingFunction(n), resolutionMode)) {
+			if modulePath != nil {
+				if (this.dynamicImportScope != nil) || ProcessCommonJSModules_isCommonJsDynamicImportCallback(NodeUtil_getEnclosingFunction(n), resolutionMode) {
 					t.getInput().addDynamicRequire(modulePath.toModuleName())
 				} else {
 					t.getInput().addOrderedRequire(DependencyInfo_Require_commonJs(modulePath.toModuleName(), path))
@@ -105,7 +105,7 @@ func (this *FindModuleDependencies) visit(t *NodeTraversal, n Node, parent Node)
 			}
 		}
 	}
-	if (((((parent != 0) && (parent.isExprResult() || !t.inGlobalHoistScope())) && NodeUtil_isGoogRequireCall(n)) && (n.getSecondChild() != 0)) && n.getSecondChild().isStringLit()) {
+	if ((((parent != 0) && (parent.isExprResult() || !t.inGlobalHoistScope())) && NodeUtil_isGoogRequireCall(n)) && (n.getSecondChild() != 0)) && n.getSecondChild().isStringLit() {
 		var namespace string = n.getSecondChild().getString()
 		if String_startsWith(namespace, "goog.") {
 			t.getInput().addOrderedRequire(DependencyInfo_Require_BASE)
@@ -119,7 +119,7 @@ func (this *FindModuleDependencies) enterScope(t *NodeTraversal) {
 }
 
 func (this *FindModuleDependencies) exitScope(t *NodeTraversal) {
-	if (t.getScope() == this.dynamicImportScope) {
+	if t.getScope() == this.dynamicImportScope {
 		this.dynamicImportScope = nil
 	}
 }
@@ -141,7 +141,7 @@ func (this *FindModuleDependencies) getEs6ModuleNameFromImportNode(t *NodeTraver
 		var modulePath *ModuleLoader_ModulePath = t.getInput().getPath().resolveJsModule(importName, Optional_of[string](n.getSourceFileName()).filter(Predicate[string](func(s string) bool {
 			return !String_isEmpty(s)
 		})), n.getLineno(), n.getCharno())
-		if (modulePath == nil) {
+		if modulePath == nil {
 			modulePath = t.getInput().getPath().resolveModuleAsPath(importName)
 		}
 		return modulePath.toModuleName()
@@ -215,7 +215,7 @@ func (this *FindModuleDependencies_FindGoogProvideOrGoogModule) shouldTraverse_i
 	if NodeUtil_isShallowStatementTree(parent) {
 		if n.isExprResult() {
 			var maybeGetProp Node = n.getFirstFirstChild()
-			if ((maybeGetProp != 0) && (FindModuleDependencies_GOOG_PROVIDE.matches(maybeGetProp) || FindModuleDependencies_GOOG_MODULE.matches(maybeGetProp))) {
+			if (maybeGetProp != 0) && (FindModuleDependencies_GOOG_PROVIDE.matches(maybeGetProp) || FindModuleDependencies_GOOG_MODULE.matches(maybeGetProp)) {
 				this.found_ = true
 				return false
 			}
@@ -224,4 +224,3 @@ func (this *FindModuleDependencies_FindGoogProvideOrGoogModule) shouldTraverse_i
 	}
 	return false
 }
-

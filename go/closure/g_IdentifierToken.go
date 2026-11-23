@@ -4,7 +4,7 @@ package closure
 
 type IdentifierToken struct {
 	Token_parser
-	value_ string
+	value_            string
 	privateIdentifier bool
 }
 
@@ -57,4 +57,3 @@ func (this *IdentifierToken) getMaybePrivateValue() string {
 func (this *IdentifierToken) isPrivateIdentifier() bool {
 	return this.privateIdentifier
 }
-

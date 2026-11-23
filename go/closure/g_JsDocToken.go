@@ -92,4 +92,3 @@ func JsDocToken_clinit() {
 	registerEnum_("com.google.javascript.jscomp.parsing.JsDocToken", enumValues_(JsDocToken_values_))
 
 }
-

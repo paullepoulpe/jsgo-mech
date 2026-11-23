@@ -3,7 +3,7 @@
 package closure
 
 type JsonErrorReportGenerator struct {
-	stream *Output
+	stream                *Output
 	sourceExcerptProvider SourceExcerptProvider
 }
 
@@ -22,17 +22,22 @@ func (this *JsonErrorReportGenerator) generateReport(manager *SortingErrorManage
 	var jsonWriter *SimpleJsonWriter = new_SimpleJsonWriter()
 	{
 		jsonWriter.beginArray()
-		it_1 := eachOf_(manager.getSortedDiagnostics())
+		it_1 := jeachOf_(manager.getSortedDiagnostics())
 		for it_1.next() {
 			var message *SortingErrorManager_ErrorWithLevel = it_1.v
 			var sourceName Optional[string] = message.error_.sourceName()
 			var lineNumber int32 = message.error_.getLineNumber()
 			var charno int32 = message.error_.charno()
 			jsonWriter.beginObject()
-			jsonWriter.name("level").stringValue(func() Optional[string] { if (message.level_ == CheckLevel_ERROR) { return Optional_of[string]("error") }; return Optional_of[string]("warning") }())
+			jsonWriter.name("level").stringValue(func() Optional[string] {
+				if message.level_ == CheckLevel_ERROR {
+					return Optional_of[string]("error")
+				}
+				return Optional_of[string]("warning")
+			}())
 			jsonWriter.name("description").stringValue(Optional_of[string](message.error_.description()))
 			jsonWriter.name("key").stringValue(Optional_of[string](message.error_.type_().key_))
-			if (message.error_.requirement() != nil) {
+			if message.error_.requirement() != nil {
 				jsonWriter.name("requirement").beginObject()
 				jsonWriter.name("ruleId").stringValue(Optional_ofNullable[string](message.error_.requirement().getRuleId()))
 				jsonWriter.name("configFiles").beginArray()
@@ -49,15 +54,15 @@ func (this *JsonErrorReportGenerator) generateReport(manager *SortingErrorManage
 			jsonWriter.name("column").longValue(int64(charno))
 			var node Node = message.error_.node()
 			var regionLength int32 = message.error_.length()
-			if ((node != 0) && (regionLength > 0)) {
+			if (node != 0) && (regionLength > 0) {
 				jsonWriter.name("length").longValue(int64(message.error_.length()))
 			}
 			var sourceExcerpt Optional[string] = SourceExcerptProvider_SourceExcerpt_LINE.get(this.sourceExcerptProvider, sourceName, lineNumber, LightweightMessageFormatter_LineNumberingFormatter_as_SourceExcerptProvider_ExcerptFormatter(JsonErrorReportGenerator_excerptFormatter))
 			if sourceExcerpt.isPresent() {
 				var b *StringBuilder = new_StringBuilder_String(sourceExcerpt.get())
 				b.append("\n")
-				if ((0 <= charno) && (charno <= String_length(sourceExcerpt.get()))) {
-					for i := int32(0); (i < charno); i++ {
+				if (0 <= charno) && (charno <= String_length(sourceExcerpt.get())) {
+					for i := int32(0); i < charno; i++ {
 						var c uint16 = String_charAt(sourceExcerpt.get(), i)
 						if TokenUtil_isWhitespace(int32(c)) {
 							b.append_char(c)
@@ -65,11 +70,11 @@ func (this *JsonErrorReportGenerator) generateReport(manager *SortingErrorManage
 							b.append_char(' ')
 						}
 					}
-					if (node == 0) {
+					if node == 0 {
 						b.append("^")
 					} else {
-						var length int32 = Math_max(1, Math_min(regionLength, (String_length(sourceExcerpt.get()) - charno)))
-						for i := int32(0); (i < length); i++ {
+						var length int32 = Math_max(1, Math_min(regionLength, (String_length(sourceExcerpt.get())-charno)))
+						for i := int32(0); i < length; i++ {
 							b.append("^")
 						}
 					}
@@ -77,7 +82,7 @@ func (this *JsonErrorReportGenerator) generateReport(manager *SortingErrorManage
 				jsonWriter.name("context").stringValue(Optional_of[string](tostrR_(b)))
 			}
 			var mapping *Mapping_OriginalMapping = this.sourceExcerptProvider.getSourceMapping_Optional_int_int(sourceName, message.error_.getLineNumber(), message.error_.charno())
-			if (mapping != nil) {
+			if mapping != nil {
 				jsonWriter.name("originalLocation").beginObject()
 				jsonWriter.name("source").stringValue(Optional_ofNullable[string](mapping.getOriginalFile()))
 				jsonWriter.name("line").longValue(int64(mapping.getLineNumber()))
@@ -87,7 +92,7 @@ func (this *JsonErrorReportGenerator) generateReport(manager *SortingErrorManage
 			jsonWriter.endObject()
 		}
 		var summaryBuilder *StringBuilder = new_StringBuilder()
-		if (manager.getTypedPercent() > 0.0) {
+		if manager.getTypedPercent() > 0.0 {
 			summaryBuilder.append(String_format("%d error(s), %d warning(s), %.1f%% typed", []any{int32(manager.getErrorCount()), int32(manager.getWarningCount()), float64(manager.getTypedPercent())}))
 		} else {
 			summaryBuilder.append(String_format("%d error(s), %d warning(s)", []any{int32(manager.getErrorCount()), int32(manager.getWarningCount())}))
@@ -114,4 +119,3 @@ func JsonErrorReportGenerator_clinit() {
 	JsonErrorReportGenerator_excerptFormatter = new_LightweightMessageFormatter_LineNumberingFormatter()
 
 }
-

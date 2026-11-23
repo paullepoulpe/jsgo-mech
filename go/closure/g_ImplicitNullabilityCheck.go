@@ -30,12 +30,12 @@ func (this *ImplicitNullabilityCheck) process_2(externs Node, root Node) {
 	NodeTraversal_traverseRoots(this.compiler_, NodeTraversal_Callback(this), externs, root)
 }
 
-func ImplicitNullabilityCheck_findImplicitNullabilityResults(info *JSDocInfo, t *NodeTraversal) *TList[*ImplicitNullabilityCheck_Result] {
-	if (info == nil) {
-		return tlistEmptyImm_(tc_p_ImplicitNullabilityCheck_Result)
+func ImplicitNullabilityCheck_findImplicitNullabilityResults(info *JSDocInfo, t *NodeTraversal) *JTList[*ImplicitNullabilityCheck_Result] {
+	if info == nil {
+		return jtlistEmptyImm_(jtc_p_ImplicitNullabilityCheck_Result)
 	}
-	var builder *TListBuilder[*ImplicitNullabilityCheck_Result] = newTListBuilder_(tc_p_ImplicitNullabilityCheck_Result)
-	it_1 := eachOf_(info.getTypeNodes())
+	var builder *TListBuilder[*ImplicitNullabilityCheck_Result] = newTListBuilder_(jtc_p_ImplicitNullabilityCheck_Result)
+	it_1 := jeachOf_(info.getTypeNodes())
 	for it_1.next() {
 		var typeRoot Node = it_1.v
 		NodeUtil_visitPreOrder_Node_Visitor_Predicate(typeRoot, NodeUtil_Visitor(new_ImplicitNullabilityCheck_1(t, builder)), Predicates_alwaysTrue[Node]())
@@ -49,14 +49,19 @@ func (this *ImplicitNullabilityCheck) visit_impl(t *NodeTraversal, n Node, p Nod
 	for it_1.next() {
 		var r *ImplicitNullabilityCheck_Result = it_1.v
 		var stringNode Node = r.getNode()
-		var dt *DiagnosticType = func() *DiagnosticType { if r.getNullability().isNullable() { return ImplicitNullabilityCheck_IMPLICITLY_NULLABLE_JSDOC }; return ImplicitNullabilityCheck_IMPLICITLY_NONNULL_JSDOC }()
+		var dt *DiagnosticType = func() *DiagnosticType {
+			if r.getNullability().isNullable() {
+				return ImplicitNullabilityCheck_IMPLICITLY_NULLABLE_JSDOC
+			}
+			return ImplicitNullabilityCheck_IMPLICITLY_NONNULL_JSDOC
+		}()
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(stringNode, dt, []string{stringNode.getString()}))
 	}
 }
 
 var ImplicitNullabilityCheck_IMPLICITLY_NULLABLE_JSDOC *DiagnosticType
 var ImplicitNullabilityCheck_IMPLICITLY_NONNULL_JSDOC *DiagnosticType
-var ImplicitNullabilityCheck_NULLABILITY_OMITTED_TYPES *TSet[string]
+var ImplicitNullabilityCheck_NULLABILITY_OMITTED_TYPES *JTSet[string]
 
 var ImplicitNullabilityCheck_clinit_done bool
 
@@ -67,7 +72,7 @@ func ImplicitNullabilityCheck_clinit() {
 	ImplicitNullabilityCheck_clinit_done = true
 	ImplicitNullabilityCheck_IMPLICITLY_NULLABLE_JSDOC = DiagnosticType_disabled("JSC_IMPLICITLY_NULLABLE_JSDOC", "Name {0} in JSDoc is implicitly nullable, and is discouraged by the style guide.\nPlease add a '!' to make it non-nullable, or a '?' to make it explicitly nullable.")
 	ImplicitNullabilityCheck_IMPLICITLY_NONNULL_JSDOC = DiagnosticType_disabled("JSC_IMPLICITLY_NONNULL_JSDOC", "Name {0} in JSDoc is implicitly non-null, and is discouraged by the style guide.\nPlease add a '!' to make it explicit.")
-	ImplicitNullabilityCheck_NULLABILITY_OMITTED_TYPES = immutableSetOf_[string](tc_string, "*", "?", "bigint", "boolean", "null", "number", "string", "symbol", "undefined", "void")
+	ImplicitNullabilityCheck_NULLABILITY_OMITTED_TYPES = jimmutableSetOf_[string](jtc_string, "*", "?", "bigint", "boolean", "null", "number", "string", "symbol", "undefined", "void")
 
 }
 
@@ -130,7 +135,7 @@ func ImplicitNullabilityCheck_Nullability_clinit() {
 
 type ImplicitNullabilityCheck_Result struct {
 	nullability *ImplicitNullabilityCheck_Nullability
-	node_ Node
+	node_       Node
 }
 
 func (this *ImplicitNullabilityCheck_Result) init_ImplicitNullabilityCheck_Result(node Node, nullability *ImplicitNullabilityCheck_Nullability) {
@@ -158,7 +163,7 @@ func (this *ImplicitNullabilityCheck_Result) getNode() Node {
 }
 
 type ImplicitNullabilityCheck_1 struct {
-	cap_t *NodeTraversal
+	cap_t       *NodeTraversal
 	cap_builder *TListBuilder[*ImplicitNullabilityCheck_Result]
 }
 
@@ -179,19 +184,19 @@ func (this *ImplicitNullabilityCheck_1) visit(node Node) {
 		return
 	}
 	var parent Node = node.getParent()
-	if (parent != 0) {
+	if parent != 0 {
 		switch parent.getToken() {
 		case Token_rhino_BANG, Token_rhino_QMARK, Token_rhino_THIS, Token_rhino_NEW, Token_rhino_TYPEOF:
 			return
 		case Token_rhino_PIPE:
 			var gp Node = parent.getParent()
-			if ((gp != 0) && (gp.getToken() == Token_rhino_QMARK)) {
+			if (gp != 0) && (gp.getToken() == Token_rhino_QMARK) {
 				return
 			}
 			{
 				var child Node = parent.getFirstChild()
-				for ; (child != 0); child = child.getNext() {
-					if ((child.isStringLit() && (child.getString() == "null")) || (child.getToken() == Token_rhino_QMARK)) {
+				for ; child != 0; child = child.getNext() {
+					if (child.isStringLit() && (child.getString() == "null")) || (child.getToken() == Token_rhino_QMARK) {
 						return
 					}
 				}
@@ -205,11 +210,15 @@ func (this *ImplicitNullabilityCheck_1) visit(node Node) {
 	}
 	var registry *JSTypeRegistry = this.cap_t.getCompiler().getTypeRegistry()
 	var type_ *JSType = registry.getType(Scope_as_StaticScope(this.cap_t.getScope()), typeName)
-	if (type_ == nil) {
+	if type_ == nil {
 		return
 	}
 	var isNonNullableName bool = (registry.isNonNullableName(Scope_as_StaticScope(this.cap_t.getScope()), typeName) && !type_.isNullable())
-	var nullability *ImplicitNullabilityCheck_Nullability = func() *ImplicitNullabilityCheck_Nullability { if isNonNullableName { return ImplicitNullabilityCheck_Nullability_NONNULL }; return ImplicitNullabilityCheck_Nullability_NULLABLE }()
+	var nullability *ImplicitNullabilityCheck_Nullability = func() *ImplicitNullabilityCheck_Nullability {
+		if isNonNullableName {
+			return ImplicitNullabilityCheck_Nullability_NONNULL
+		}
+		return ImplicitNullabilityCheck_Nullability_NULLABLE
+	}()
 	this.cap_builder.add(ImplicitNullabilityCheck_Result_create(node, nullability))
 }
-

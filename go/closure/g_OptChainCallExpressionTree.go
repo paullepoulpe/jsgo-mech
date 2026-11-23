@@ -4,10 +4,10 @@ package closure
 
 type OptChainCallExpressionTree struct {
 	ParseTree
-	operand *ParseTree
-	arguments *ArgumentListTree
+	operand                *ParseTree
+	arguments              *ArgumentListTree
 	isStartOfOptionalChain bool
-	hasTrailingComma_ bool
+	hasTrailingComma_      bool
 }
 
 func (this *OptChainCallExpressionTree) up_ParseTree() *ParseTree {
@@ -31,4 +31,3 @@ func new_OptChainCallExpressionTree(location *SourceRange, operand *ParseTree, a
 	this.init_OptChainCallExpressionTree(location, operand, arguments, isStartOfOptionalChain, hasTrailingComma)
 	return this
 }
-

@@ -3,10 +3,10 @@
 package closure
 
 type JSChunk struct {
-	name_ string
-	inputs *TMap[string, *CompilerInput]
-	deps *TList[*JSChunk]
-	depth int32
+	name_  string
+	inputs *JTMap[string, *CompilerInput]
+	deps   *JTList[*JSChunk]
+	depth  int32
 	index_ int32
 }
 
@@ -15,8 +15,8 @@ func (this *JSChunk) zero_JSChunk() {
 }
 
 func (this *JSChunk) finit_JSChunk() {
-	this.inputs = newTMap_(tc_string, tc_p_CompilerInput)
-	this.deps = newTList_(tc_p_JSChunk)
+	this.inputs = jnewTMap_(jtc_string, jtc_p_CompilerInput)
+	this.deps = jnewTList_(jtc_p_JSChunk)
 }
 
 func (this *JSChunk) init_JSChunk(name string) {
@@ -38,7 +38,7 @@ func (this *JSChunk) getName() string {
 }
 
 func (this *JSChunk) getProvides() ListT[string] {
-	return immutableListOf_[string](tc_string, this.name_).asListT()
+	return jimmutableListOf_[string](jtc_string, this.name_).asListT()
 }
 
 func (this *JSChunk) getHasExternsAnnotation() bool {
@@ -50,7 +50,7 @@ func (this *JSChunk) getHasNoCompileAnnotation() bool {
 }
 
 func (this *JSChunk) getRequires() ListT[*DependencyInfo_Require] {
-	var builder *TListBuilder[*DependencyInfo_Require] = newTListBuilder_(tc_p_DependencyInfo_Require)
+	var builder *TListBuilder[*DependencyInfo_Require] = newTListBuilder_(jtc_p_DependencyInfo_Require)
 	it_1 := this.deps.each()
 	for it_1.next() {
 		var chunk *JSChunk = it_1.v
@@ -60,7 +60,7 @@ func (this *JSChunk) getRequires() ListT[*DependencyInfo_Require] {
 }
 
 func (this *JSChunk) getTypeRequires() ListT[string] {
-	return tlistEmptyImm_(tc_string).asListT()
+	return jtlistEmptyImm_(jtc_string).asListT()
 }
 
 func (this *JSChunk) getPathRelativeToClosureBase() string {
@@ -110,12 +110,12 @@ func (this *JSChunk) removeAll() {
 	this.inputs.clear()
 }
 
-func (this *JSChunk) getDependencies() *TList[*JSChunk] {
-	return immutableListCopyOfT_(tc_p_JSChunk, this.deps)
+func (this *JSChunk) getDependencies() *JTList[*JSChunk] {
+	return immutableListCopyOfT_(jtc_p_JSChunk, this.deps)
 }
 
-func (this *JSChunk) getSortedDependencyNames() *TList[string] {
-	var names *TList[string] = newTList_(tc_string)
+func (this *JSChunk) getSortedDependencyNames() *JTList[string] {
+	var names *JTList[string] = jnewTList_(jtc_string)
 	it_1 := this.getDependencies().each()
 	for it_1.next() {
 		var chunk *JSChunk = it_1.v
@@ -126,12 +126,12 @@ func (this *JSChunk) getSortedDependencyNames() *TList[string] {
 }
 
 func (this *JSChunk) getAllDependencies() SetT[*JSChunk] {
-	var allDeps *TSet[*JSChunk] = newTSet_(tc_p_JSChunk)
+	var allDeps *JTSet[*JSChunk] = jnewTSet_(jtc_p_JSChunk)
 	allDeps.asSetT().addAll(Collection(this.deps.asListT()))
-	var stack *TDeque[*JSChunk] = tdequeFrom_(tc_p_JSChunk, Collection(this.deps.asList()))
+	var stack *TDeque[*JSChunk] = tdequeFrom_(jtc_p_JSChunk, Collection(this.deps.asList()))
 	for !stack.isEmpty() {
 		var chunk *JSChunk = stack.pop()
-		var chunkDeps *TList[*JSChunk] = chunk.deps
+		var chunkDeps *JTList[*JSChunk] = chunk.deps
 		it_2 := chunkDeps.each()
 		for it_2.next() {
 			var dep *JSChunk = it_2.v
@@ -158,7 +158,7 @@ func (this *JSChunk) getFirst() *CompilerInput {
 }
 
 func (this *JSChunk) getInputs() ListT[*CompilerInput] {
-	return immutableListCopyOf_(tc_p_CompilerInput, Collection_un_(this.inputs.valuesT())).asListT()
+	return jimmutableListCopyOf_(jtc_p_CompilerInput, Collection_un_(this.inputs.valuesT())).asListT()
 }
 
 func (this *JSChunk) getInputsIterable() IterableT[*CompilerInput] {
@@ -194,7 +194,7 @@ func (this *JSChunk) sortInputsByDeps(compiler *AbstractCompiler) {
 	}
 	var sortedList ListT[*CompilerInput] = new_SortedDependencies[*CompilerInput](this.getInputs()).getSortedList()
 	this.inputs.clear()
-	it_3 := eachOf_(sortedList)
+	it_3 := jeachOf_(sortedList)
 	for it_3.next() {
 		var input *CompilerInput = it_3.v
 		this.inputs.put(input.getName(), input)
@@ -221,7 +221,7 @@ func (this *JSChunk) getIndex() int32 {
 
 func (this *JSChunk) readObject(in *ObjectInputStream) {
 	in.defaultReadObject()
-	this.inputs = newTMap_(tc_string, tc_p_CompilerInput)
+	this.inputs = jnewTMap_(jtc_string, jtc_p_CompilerInput)
 }
 
 func (this *JSChunk) getRequiredSymbols() ListT[string] {
@@ -231,4 +231,3 @@ func (this *JSChunk) getRequiredSymbols() ListT[string] {
 const JSChunk_STRONG_CHUNK_NAME string = "$strong$"
 const JSChunk_WEAK_CHUNK_NAME string = "$weak$"
 const JSChunk_serialVersionUID int64 = 1
-

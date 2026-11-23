@@ -43,4 +43,3 @@ func (this *ConformancePassConfig) getChecks_impl() *PassListBuilder {
 func (this *ConformancePassConfig) getOptimizations_impl() *PassListBuilder {
 	return new_PassListBuilder(this.options_)
 }
-

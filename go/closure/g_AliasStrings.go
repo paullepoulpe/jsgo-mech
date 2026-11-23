@@ -3,20 +3,20 @@
 package closure
 
 type AliasStrings struct {
-	compiler_ *AbstractCompiler
-	chunkGraph *JSChunkGraph
-	stringInfoMap *TMap[string, *AliasStrings_StringInfo]
-	usedHashedAliases *TSet[string]
-	aliasStringsMode *CompilerOptions_AliasStringsMode
-	chunkVarParentMap *TMap[*JSChunk, Node]
+	compiler_                 *AbstractCompiler
+	chunkGraph                *JSChunkGraph
+	stringInfoMap             *JTMap[string, *AliasStrings_StringInfo]
+	usedHashedAliases         *JTSet[string]
+	aliasStringsMode          *CompilerOptions_AliasStringsMode
+	chunkVarParentMap         *JTMap[*JSChunk, Node]
 	unitTestHashReductionMask int32
-	outputStringUsageField bool
+	outputStringUsageField    bool
 }
 
 func (this *AliasStrings) finit_AliasStrings() {
-	this.stringInfoMap = newTSortedMap_(tc_string, tc_p_AliasStrings_StringInfo)
-	this.usedHashedAliases = newTSet_(tc_string)
-	this.chunkVarParentMap = newTMap_(tc_p_JSChunk, tc_Node)
+	this.stringInfoMap = newTSortedMap_(jtc_string, jtc_p_AliasStrings_StringInfo)
+	this.usedHashedAliases = jnewTSet_(jtc_string)
+	this.chunkVarParentMap = jnewTMap_(jtc_p_JSChunk, jtc_Node)
 	this.unitTestHashReductionMask = -1
 }
 
@@ -60,20 +60,20 @@ func (this *AliasStrings) shouldTraverse(nodeTraversal *NodeTraversal, n Node, p
 }
 
 func (this *AliasStrings) visit(t *NodeTraversal, n Node, parent Node) {
-	if (n.isStringLit() && !parent.isRegExp()) {
+	if n.isStringLit() && !parent.isRegExp() {
 		var str string = n.getString()
-		if ("undefined" == str) {
+		if "undefined" == str {
 			return
 		}
-		if ((this.aliasStringsMode == CompilerOptions_AliasStringsMode_LARGE) && (String_length(str) <= AliasStrings_ALIAS_LARGE_STRINGS_LENGTH)) {
+		if (this.aliasStringsMode == CompilerOptions_AliasStringsMode_LARGE) && (String_length(str) <= AliasStrings_ALIAS_LARGE_STRINGS_LENGTH) {
 			return
 		}
 		var occurrence Node = n
 		var info *AliasStrings_StringInfo = this.getOrCreateStringInfo(str)
 		info.occurrences.add(occurrence)
 		var chunk *JSChunk = t.getChunk()
-		if (info.occurrences.size() != 1) {
-			if (((chunk != nil) && (info.chunkToContainDecl != nil)) && (chunk != info.chunkToContainDecl)) {
+		if info.occurrences.size() != 1 {
+			if ((chunk != nil) && (info.chunkToContainDecl != nil)) && (chunk != info.chunkToContainDecl) {
 				chunk = this.chunkGraph.getDeepestCommonDependencyInclusive_2(chunk, info.chunkToContainDecl)
 			} else {
 				return
@@ -88,7 +88,7 @@ func (this *AliasStrings) visit(t *NodeTraversal, n Node, parent Node) {
 
 func (this *AliasStrings) getOrCreateStringInfo(string_ string) *AliasStrings_StringInfo {
 	var info *AliasStrings_StringInfo = this.stringInfoMap.get(string_)
-	if (info == nil) {
+	if info == nil {
 		info = new_AliasStrings_StringInfo(this, this.stringInfoMap.size())
 		this.stringInfoMap.put(string_, info)
 	}
@@ -123,7 +123,7 @@ func (this *AliasStrings) addAliasDeclarationNodes() {
 		var var_ Node = IR_var_Node_Node(IR_name(alias.get()), IR_string(entry.getKey()))
 		var firstUse Node = info.occurrences.get(0)
 		var_.srcrefTree(firstUse)
-		if (info.siblingToInsertVarDeclBefore == 0) {
+		if info.siblingToInsertVarDeclBefore == 0 {
 			info.parentForNewVarDecl.addChildToFront(var_)
 		} else {
 			var_.insertBefore(info.siblingToInsertVarDeclBefore)
@@ -133,7 +133,7 @@ func (this *AliasStrings) addAliasDeclarationNodes() {
 }
 
 func (this *AliasStrings) shouldReplaceWithAlias(str string, info *AliasStrings_StringInfo) bool {
-	if (this.aliasStringsMode == CompilerOptions_AliasStringsMode_ALL_AGGRESSIVE) {
+	if this.aliasStringsMode == CompilerOptions_AliasStringsMode_ALL_AGGRESSIVE {
 		return true
 	}
 	var sizeOfLiteral int32 = (2 + String_length(str))
@@ -158,7 +158,7 @@ func (this *AliasStrings) outputStringUsage() {
 		var stringInfoEntry *TEntry[string, *AliasStrings_StringInfo] = it_1.entry()
 		var info *AliasStrings_StringInfo = stringInfoEntry.getValue()
 		var count int32 = info.occurrences.size()
-		if (count > 1) {
+		if count > 1 {
 			sb.append_int(count)
 			sb.append(": ")
 			sb.append(stringInfoEntry.getKey())
@@ -169,6 +169,7 @@ func (this *AliasStrings) outputStringUsage() {
 }
 
 var AliasStrings_logger *Logger
+
 const AliasStrings_STRING_ALIAS_PREFIX string = "$$S_"
 const AliasStrings_ALIAS_LARGE_STRINGS_LENGTH int32 = 100
 
@@ -184,18 +185,18 @@ func AliasStrings_clinit() {
 }
 
 type AliasStrings_StringInfo struct {
-	outer_ *AliasStrings
-	occurrences *TList[Node]
-	chunkToContainDecl *JSChunk
-	aliasName_ Optional[string]
-	id int32
-	parentForNewVarDecl Node
+	outer_                       *AliasStrings
+	occurrences                  *JTList[Node]
+	chunkToContainDecl           *JSChunk
+	aliasName_                   Optional[string]
+	id                           int32
+	parentForNewVarDecl          Node
 	siblingToInsertVarDeclBefore Node
-	isAliased bool
+	isAliased                    bool
 }
 
 func (this *AliasStrings_StringInfo) finit_AliasStrings_StringInfo() {
-	this.occurrences = newTList_(tc_Node)
+	this.occurrences = jnewTList_(jtc_Node)
 	this.aliasName_ = Optional_empty[string]()
 }
 
@@ -226,15 +227,15 @@ func (this *AliasStrings_StringInfo) encodeStringAsIdentifier(prefix string, s s
 	var sb *StringBuilder = new_StringBuilder()
 	sb.append(prefix)
 	var protectHex bool = false
-	for i := int32(0); (i < limit); i++ {
+	for i := int32(0); i < limit; i++ {
 		var ch uint16 = String_charAt(s, i)
 		if protectHex {
-			if (((int32(ch) >= 48) && (int32(ch) <= 57)) || ((int32(ch) >= 97) && (int32(ch) <= 102))) {
+			if ((int32(ch) >= 48) && (int32(ch) <= 57)) || ((int32(ch) >= 97) && (int32(ch) <= 102)) {
 				sb.append_char('_')
 			}
 			protectHex = false
 		}
-		if ((((int32(ch) >= 48) && (int32(ch) <= 57)) || ((int32(ch) >= 65) && (int32(ch) <= 90))) || ((int32(ch) >= 97) && (int32(ch) <= 122))) {
+		if (((int32(ch) >= 48) && (int32(ch) <= 57)) || ((int32(ch) >= 65) && (int32(ch) <= 90))) || ((int32(ch) >= 97) && (int32(ch) <= 122)) {
 			sb.append_char(ch)
 		} else {
 			sb.append_char('$')
@@ -242,7 +243,7 @@ func (this *AliasStrings_StringInfo) encodeStringAsIdentifier(prefix string, s s
 			protectHex = true
 		}
 	}
-	if (length == limit) {
+	if length == limit {
 		return tostrR_(sb)
 	}
 	var hash int32 = (String_hashCode(s) & this.outer_.unitTestHashReductionMask)
@@ -254,4 +255,3 @@ func (this *AliasStrings_StringInfo) encodeStringAsIdentifier(prefix string, s s
 	}
 	return encoded
 }
-

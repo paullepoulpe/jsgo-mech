@@ -3,9 +3,9 @@
 package closure
 
 type SimpleMultiset[E comparable] struct {
-	counts MapT[E, any]
+	counts     MapT[E, any]
 	totalCount int32
-	frozen bool
+	frozen     bool
 }
 
 func (this *SimpleMultiset[E]) isa_SimpleMultiset_() {}
@@ -32,7 +32,7 @@ func new_SimpleMultiset[E comparable](counts MapT[E, any]) *SimpleMultiset[E] {
 }
 
 func SimpleMultiset_create[E comparable]() *SimpleMultiset[E] {
-	return new_SimpleMultiset[E](newTMap_(tceT_[E](), tc_Integer).asMapT())
+	return new_SimpleMultiset[E](jnewTMap_(tceT_[E](), tc_Integer).asMapT())
 }
 
 func SimpleMultiset_createSorted[E comparable]() *SimpleMultiset[E] {
@@ -67,7 +67,7 @@ func (this *SimpleMultiset[E]) add_2(element E, occurrences int32) int32 {
 	Preconditions_checkState_boolean_Object(!this.frozen, "immutable")
 	Preconditions_checkArgument((occurrences >= 0))
 	var oldCount int32 = this.count(element)
-	if (occurrences > 0) {
+	if occurrences > 0 {
 		this.counts.put_t(element, int32((oldCount + occurrences)))
 		this.totalCount += occurrences
 	}
@@ -75,7 +75,7 @@ func (this *SimpleMultiset[E]) add_2(element E, occurrences int32) int32 {
 }
 
 func (this *SimpleMultiset[E]) addAll(elements IterableT[E]) {
-	it_1 := eachOf_(elements)
+	it_1 := jeachOf_(elements)
 	for it_1.next() {
 		var element E = it_1.v
 		this.add_2(element, 1)
@@ -85,10 +85,10 @@ func (this *SimpleMultiset[E]) addAll(elements IterableT[E]) {
 func (this *SimpleMultiset[E]) setCount(element E, expectedOldCount int32, newCount int32) bool {
 	Preconditions_checkState_boolean_Object(!this.frozen, "immutable")
 	Preconditions_checkArgument(((expectedOldCount >= 0) && (newCount >= 0)))
-	if (this.count(element) != expectedOldCount) {
+	if this.count(element) != expectedOldCount {
 		return false
 	}
-	if (newCount == 0) {
+	if newCount == 0 {
 		this.counts.remove_t(boxT_(element))
 	} else {
 		this.counts.put_t(element, int32(newCount))
@@ -99,16 +99,16 @@ func (this *SimpleMultiset[E]) setCount(element E, expectedOldCount int32, newCo
 
 func (this *SimpleMultiset[E]) remove(element E) bool {
 	var oldCount int32 = this.count(element)
-	return ((oldCount > 0) && this.setCount(element, oldCount, (oldCount - 1)))
+	return ((oldCount > 0) && this.setCount(element, oldCount, (oldCount-1)))
 }
 
 func (this *SimpleMultiset[E]) removeAll(elements IterableT[E]) bool {
 	var changed bool = false
-	it_1 := eachOf_(elements)
+	it_1 := jeachOf_(elements)
 	for it_1.next() {
 		var element E = it_1.v
 		var oldCount int32 = this.count(element)
-		if (oldCount > 0) {
+		if oldCount > 0 {
 			this.setCount(element, oldCount, 0)
 			changed = true
 		}
@@ -118,7 +118,12 @@ func (this *SimpleMultiset[E]) removeAll(elements IterableT[E]) bool {
 
 func (this *SimpleMultiset[E]) count(element E) int32 {
 	var count any = this.counts.get(boxT_(element))
-	return func() int32 { if (count == nil) { return 0 }; return unbox_[int32](count) }()
+	return func() int32 {
+		if count == nil {
+			return 0
+		}
+		return unbox_[int32](count)
+	}()
 }
 
 func (this *SimpleMultiset[E]) contains(element E) bool {
@@ -147,10 +152,10 @@ func (this *SimpleMultiset[E]) isEmpty() bool {
 
 func (this *SimpleMultiset[E]) asList() ListT[E] {
 	var list *TListBuilder[E] = newTListBuilder_(tcT_[E]())
-	it_1 := eachOf_(this.counts.entrySet_t())
+	it_1 := jeachOf_(this.counts.entrySet_t())
 	for it_1.next() {
 		var e Map_EntryT[E, any] = it_1.v
-		for i := int32(0); (i < unbox_[int32](e.getValue_t())); i++ {
+		for i := int32(0); i < unbox_[int32](e.getValue_t()); i++ {
 			list.add(e.getKey_t())
 		}
 	}
@@ -174,13 +179,17 @@ func (this *SimpleMultiset[E]) hashCode() int32 {
 }
 
 func (this *SimpleMultiset[E]) toString() string {
-	var parts *TList[string] = newTList_(tc_string)
-	it_1 := eachOf_(this.counts.entrySet_t())
+	var parts *JTList[string] = jnewTList_(jtc_string)
+	it_1 := jeachOf_(this.counts.entrySet_t())
 	for it_1.next() {
 		var e Map_EntryT[E, any] = it_1.v
 		var element string = String_valueOf_Object(e.getKey())
-		parts.add(func() string { if (unbox_[int32](e.getValue_t()) == 1) { return element }; return (sstr_(element) + " x " + objstr_(e.getValue())) }())
+		parts.add(func() string {
+			if unbox_[int32](e.getValue_t()) == 1 {
+				return element
+			}
+			return (sstr_(element) + " x " + objstr_(e.getValue()))
+		}())
 	}
 	return Object_toString(lgBox_(parts.asListT()))
 }
-

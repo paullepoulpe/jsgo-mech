@@ -4,12 +4,12 @@ package closure
 
 type InlineProperties struct {
 	compiler_ *AbstractCompiler
-	registry *ColorRegistry
-	props *TMap[string, *InlineProperties_PropertyInfo]
+	registry  *ColorRegistry
+	props     *JTMap[string, *InlineProperties_PropertyInfo]
 }
 
 func (this *InlineProperties) finit_InlineProperties() {
-	this.props = newTMap_(tc_string, tc_p_InlineProperties_PropertyInfo)
+	this.props = jnewTMap_(jtc_string, tc_p_InlineProperties_PropertyInfo)
 }
 
 func (this *InlineProperties) init_InlineProperties(compiler *AbstractCompiler) {
@@ -35,7 +35,7 @@ func (this *InlineProperties) invalidateExternProperties() {
 
 func (this *InlineProperties) getColor(n Node) *Color {
 	var color *Color = n.getColor()
-	if (color == nil) {
+	if color == nil {
 		return StandardColors_UNKNOWN
 	} else {
 		return color
@@ -49,7 +49,12 @@ func (this *InlineProperties) process_2(externs Node, root Node) {
 }
 
 func InlineProperties_removeNullAndUndefinedIfUnion(original *Color) *Color {
-	return func() *Color { if original.isUnion() { return original.subtractNullOrVoid() }; return original }()
+	return func() *Color {
+		if original.isUnion() {
+			return original.subtractNullOrVoid()
+		}
+		return original
+	}()
 }
 
 var InlineProperties_INVALIDATED *InlineProperties_PropertyInfo
@@ -119,7 +124,7 @@ func (this *InlineProperties_GatherCandidates) visit_impl(t *NodeTraversal, n No
 		} else {
 			invalidatingPropRef = false
 		}
-	} else if ((((n.isStringKey() && !n.getParent().isObjectPattern()) || n.isGetterDef()) || n.isSetterDef()) || n.isMemberFunctionDef()) {
+	} else if (((n.isStringKey() && !n.getParent().isObjectPattern()) || n.isGetterDef()) || n.isSetterDef()) || n.isMemberFunctionDef() {
 		propName = n.getString()
 		invalidatingPropRef = true
 	} else if n.isMemberFieldDef() {
@@ -129,7 +134,7 @@ func (this *InlineProperties_GatherCandidates) visit_impl(t *NodeTraversal, n No
 		} else {
 			invalidatingPropRef = true
 		}
-	} else if (((n.isCall() && this.outer_.compiler_.getCodingConvention().isPropertyRenameFunction(n.getFirstChild())) && n.hasMoreThanOneChild()) && n.getSecondChild().isStringLit()) {
+	} else if ((n.isCall() && this.outer_.compiler_.getCodingConvention().isPropertyRenameFunction(n.getFirstChild())) && n.hasMoreThanOneChild()) && n.getSecondChild().isStringLit() {
 		propName = n.getSecondChild().getString()
 		invalidatingPropRef = true
 	} else {
@@ -149,8 +154,13 @@ func (this *InlineProperties_GatherCandidates) maybeRecordCandidateClassFieldDef
 	if n.isStaticMember() {
 		c = this.outer_.getColor(classNode)
 	} else {
-		var possibleInstances *TSet[*Color] = this.outer_.getColor(classNode).getInstanceColors()
-		c = func() *Color { if possibleInstances.isEmpty() { return StandardColors_UNKNOWN }; return Color_createUnion(possibleInstances) }()
+		var possibleInstances *JTSet[*Color] = this.outer_.getColor(classNode).getInstanceColors()
+		c = func() *Color {
+			if possibleInstances.isEmpty() {
+				return StandardColors_UNKNOWN
+			}
+			return Color_createUnion(possibleInstances)
+		}()
 	}
 	return this.maybeStoreCandidateValue(c, propName, value)
 }
@@ -165,12 +175,12 @@ func (this *InlineProperties_GatherCandidates) maybeRecordCandidateGetpropDefini
 			return this.maybeStoreCandidateValue(this.outer_.getColor(src), propName, value)
 		}
 		return false
-	} else if ((t.inGlobalHoistScope() && src.isGetProp()) && (src.getString() == "prototype")) {
+	} else if (t.inGlobalHoistScope() && src.isGetProp()) && (src.getString() == "prototype") {
 		var instanceType *Color = this.outer_.getColor(src)
 		return this.maybeStoreCandidateValue(instanceType, propName, value)
 	} else if t.inGlobalHoistScope() {
 		var targetType *Color = this.outer_.getColor(src)
-		if ((targetType != nil) && targetType.isConstructor()) {
+		if (targetType != nil) && targetType.isConstructor() {
 			return this.maybeStoreCandidateValue(targetType, propName, value)
 		}
 	}
@@ -183,7 +193,7 @@ func (this *InlineProperties_GatherCandidates) invalidateProperty(propName strin
 
 func (this *InlineProperties_GatherCandidates) maybeStoreCandidateValue(color *Color, propName string, value Node) bool {
 	Preconditions_checkNotNull_T(value)
-	if (((!this.outer_.props.containsKey(propName) && !color.isInvalidating()) && NodeUtil_isImmutableValue(value)) && NodeUtil_isExecutedExactlyOnce(value)) {
+	if ((!this.outer_.props.containsKey(propName) && !color.isInvalidating()) && NodeUtil_isImmutableValue(value)) && NodeUtil_isExecutedExactlyOnce(value) {
 		this.outer_.props.put(propName, new_InlineProperties_PropertyInfo(color, value))
 		return true
 	}
@@ -192,7 +202,7 @@ func (this *InlineProperties_GatherCandidates) maybeStoreCandidateValue(color *C
 
 func (this *InlineProperties_GatherCandidates) inConstructor(t *NodeTraversal) bool {
 	var root Node = t.getEnclosingFunction()
-	if (root == 0) {
+	if root == 0 {
 		return false
 	}
 	return NodeUtil_isConstructor(root)
@@ -200,8 +210,8 @@ func (this *InlineProperties_GatherCandidates) inConstructor(t *NodeTraversal) b
 
 type InlineProperties_ReplaceCandidates struct {
 	NodeTraversal_AbstractPostOrderCallback
-	outer_ *InlineProperties
-	hasInSupertypesListSeenSet *TSet[*Color]
+	outer_                     *InlineProperties
+	hasInSupertypesListSeenSet *JTSet[*Color]
 }
 
 func (this *InlineProperties_ReplaceCandidates) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -212,7 +222,7 @@ func (this *InlineProperties_ReplaceCandidates) up_NodeTraversal_AbstractPostOrd
 }
 
 func (this *InlineProperties_ReplaceCandidates) finit_InlineProperties_ReplaceCandidates() {
-	this.hasInSupertypesListSeenSet = newTSet_(tce_p_Color)
+	this.hasInSupertypesListSeenSet = jnewTSet_(tce_p_Color)
 }
 
 func (this *InlineProperties_ReplaceCandidates) init_InlineProperties_ReplaceCandidates() {
@@ -229,11 +239,11 @@ func new_InlineProperties_ReplaceCandidates(outer_ *InlineProperties) *InlinePro
 }
 
 func (this *InlineProperties_ReplaceCandidates) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	if (n.isGetProp() && !NodeUtil_isLValue(n)) {
+	if n.isGetProp() && !NodeUtil_isLValue(n) {
 		var target Node = n.getFirstChild()
 		var propName string = n.getString()
 		var info *InlineProperties_PropertyInfo = this.outer_.props.get(propName)
-		if (((info != nil) && (info != InlineProperties_INVALIDATED)) && this.isMatchingType(target, info.color_)) {
+		if ((info != nil) && (info != InlineProperties_INVALIDATED)) && this.isMatchingType(target, info.color_) {
 			var replacement Node = info.value_.cloneTree()
 			if this.outer_.compiler_.getAstAnalyzer().mayHaveSideEffects(n.getFirstChild()) {
 				replacement = IR_comma(n.removeFirstChild(), replacement).srcref(n)
@@ -250,7 +260,7 @@ func (this *InlineProperties_ReplaceCandidates) isMatchingType(n Node, src *Colo
 	if dest.isInvalidating() {
 		return false
 	}
-	if (dest.isUnion() || src.isUnion()) {
+	if dest.isUnion() || src.isUnion() {
 		return false
 	}
 	return this.hasInSupertypesList(dest, src)
@@ -266,7 +276,7 @@ func (this *InlineProperties_ReplaceCandidates) hasInSupertypesList(subCtor *Col
 			ret_1 = false
 			return 1
 		}
-		if ((subCtor == nil) || (superCtor == nil)) {
+		if (subCtor == nil) || (superCtor == nil) {
 			ret_1 = false
 			return 1
 		}
@@ -274,10 +284,10 @@ func (this *InlineProperties_ReplaceCandidates) hasInSupertypesList(subCtor *Col
 			ret_1 = true
 			return 1
 		}
-		it_2 := eachOf_(this.outer_.registry.getDisambiguationSupertypes(subCtor))
+		it_2 := jeachOf_(this.outer_.registry.getDisambiguationSupertypes(subCtor))
 		for it_2.next() {
 			var immediateSupertype *Color = it_2.v
-			if (!immediateSupertype.isUnion() && this.hasInSupertypesList(immediateSupertype, superCtor)) {
+			if !immediateSupertype.isUnion() && this.hasInSupertypesList(immediateSupertype, superCtor) {
 				ret_1 = true
 				return 1
 			}
@@ -291,4 +301,3 @@ func (this *InlineProperties_ReplaceCandidates) hasInSupertypesList(subCtor *Col
 	}
 	panic("unreachable")
 }
-

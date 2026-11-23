@@ -7,4 +7,3 @@ type SourceFile_deps interface {
 	getContent() string
 	wasModified() bool
 }
-

@@ -41,4 +41,3 @@ func TranspilationUtil_clinit() {
 	TranspilationUtil_CANNOT_CONVERT_YET = DiagnosticType_error("JSC_CANNOT_CONVERT_YET", "Transpilation of ''{0}'' is not yet implemented.")
 
 }
-
