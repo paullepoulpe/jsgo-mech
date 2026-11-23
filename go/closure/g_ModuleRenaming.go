@@ -84,7 +84,9 @@ type ModuleRenaming_GlobalizedModuleName struct {
 }
 
 func (this *ModuleRenaming_GlobalizedModuleName) init_ModuleRenaming_GlobalizedModuleName(aliasName *QualifiedName, rootNameType *JSType) {
-	Objects_requireNonNull_T(aliasName, "aliasName")
+	if aliasName == nil {
+		panic(new_NullPointerException_String("aliasName").self())
+	}
 	this.aliasName_ = aliasName
 	this.rootNameType_ = rootNameType
 }
@@ -144,13 +146,13 @@ func (this *ModuleRenaming_GlobalizedModuleName) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.aliasName_ == o.aliasName_ && Objects_equals(this.rootNameType_.self(), o.rootNameType_.self())
+	return true && this.aliasName_ == o.aliasName_ && objequalsBy_(this.rootNameType_, o.rootNameType_.self(), (*JSType).equals)
 }
 
 func (this *ModuleRenaming_GlobalizedModuleName) hashCode() int32 {
 	var h int32
 	h = h*31 + objhashId_(this.aliasName_.self())
-	h = h*31 + Objects_hashCode(this.rootNameType_.self())
+	h = h*31 + objhashBy_(this.rootNameType_, (*JSType).hashCode)
 	return h
 }
 

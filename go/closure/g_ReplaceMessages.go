@@ -385,16 +385,16 @@ func (this *ReplaceMessages_MsgProtectionData) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && equals_(this.message_, o.message_) && this.messageNode_ == o.messageNode_ && this.templateTextNode_ == o.templateTextNode_ && this.placeholderValuesNode_ == o.placeholderValuesNode_ && equals_(this.messageOptions_, o.messageOptions_)
+	return true && objequalsBy_(this.message_, obj_(o.message_), (*JsMessage).equals) && this.messageNode_ == o.messageNode_ && this.templateTextNode_ == o.templateTextNode_ && this.placeholderValuesNode_ == o.placeholderValuesNode_ && objequalsBy_(this.messageOptions_, obj_(o.messageOptions_), (*ReplaceMessages_MsgOptions).equals)
 }
 
 func (this *ReplaceMessages_MsgProtectionData) hashCode() int32 {
 	var h int32
-	h = h*31 + hash_(this.message_)
-	h = h*31 + hashH_(this.messageNode_)
-	h = h*31 + hashH_(this.templateTextNode_)
-	h = h*31 + hashH_(this.placeholderValuesNode_)
-	h = h*31 + hash_(this.messageOptions_)
+	h = h*31 + objhashBy_(this.message_, (*JsMessage).hashCode)
+	h = h*31 + objhashId_(this.messageNode_)
+	h = h*31 + objhashId_(this.templateTextNode_)
+	h = h*31 + objhashId_(this.placeholderValuesNode_)
+	h = h*31 + objhashBy_(this.messageOptions_, (*ReplaceMessages_MsgOptions).hashCode)
 	return h
 }
 
@@ -706,15 +706,15 @@ func (this *ReplaceMessages_FullReplacementMsgData) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && equals_(this.message_, o.message_) && this.messageNode_ == o.messageNode_ && equals_(this.messageOptions_, o.messageOptions_) && Objects_equals(this.placeholderValueMap_.asMap(), o.placeholderValueMap_.asMap())
+	return true && objequalsBy_(this.message_, obj_(o.message_), (*JsMessage).equals) && this.messageNode_ == o.messageNode_ && objequalsBy_(this.messageOptions_, obj_(o.messageOptions_), (*ReplaceMessages_MsgOptions).equals) && Objects_equals(this.placeholderValueMap_.asMap(), o.placeholderValueMap_.asMap())
 }
 
 func (this *ReplaceMessages_FullReplacementMsgData) hashCode() int32 {
 	var h int32
-	h = h*31 + hash_(this.message_)
-	h = h*31 + hashH_(this.messageNode_)
-	h = h*31 + hash_(this.messageOptions_)
-	h = h*31 + Objects_hashCode(this.placeholderValueMap_.asMap())
+	h = h*31 + objhashBy_(this.message_, (*JsMessage).hashCode)
+	h = h*31 + objhashId_(this.messageNode_)
+	h = h*31 + objhashBy_(this.messageOptions_, (*ReplaceMessages_MsgOptions).hashCode)
+	h = h*31 + objhashDyn_(this.placeholderValueMap_.asMap())
 	return h
 }
 

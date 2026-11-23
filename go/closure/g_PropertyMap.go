@@ -244,9 +244,9 @@ func (this *PropertyMap) values() IterableT[*Property] {
 func (this *PropertyMap) hashCode() int32 {
 	return func() int32 {
 		if this.knownSymbols == nil {
-			return Objects_hashCode(lgBox_(this.properties.keySetT()))
+			return objhashDyn_(lgBox_(this.properties.keySetT()))
 		}
-		return Objects_hash([]any{lgBox_(this.properties.keySetT()), lgBox_(this.knownSymbols.keySetT())})
+		return hashOf_(objhashDyn_(lgBox_(this.properties.keySetT())), objhashDyn_(lgBox_(this.knownSymbols.keySetT())))
 	}()
 }
 
@@ -300,13 +300,13 @@ func (this *PropertyMap_AllKeys) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && equals_(this.stringKeys_, o.stringKeys_) && Objects_equals(this.knownSymbolKeys_.asSet(), o.knownSymbolKeys_.asSet())
+	return true && objequalsBy_(this.stringKeys_, obj_(o.stringKeys_), (ImmutableSortedSetOf[string]).equals) && Objects_equals(this.knownSymbolKeys_.asSet(), o.knownSymbolKeys_.asSet())
 }
 
 func (this *PropertyMap_AllKeys) hashCode() int32 {
 	var h int32
-	h = h*31 + hash_(this.stringKeys_)
-	h = h*31 + Objects_hashCode(this.knownSymbolKeys_.asSet())
+	h = h*31 + objhashBy_(this.stringKeys_, (ImmutableSortedSetOf[string]).hashCode)
+	h = h*31 + objhashDyn_(this.knownSymbolKeys_.asSet())
 	return h
 }
 

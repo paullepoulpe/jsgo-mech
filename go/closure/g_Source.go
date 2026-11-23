@@ -22,9 +22,15 @@ func (this *Source) zero_Source() {
 }
 
 func (this *Source) init_Source(path string, sourceMap string, sourceUrl string, sourceMappingUrl string, runtimes *JTSet[string], loadFlags *JTMap[string, string], estimatedSize int32, codeSupplier *Source_Lazy, originalCodeSupplier *Source_Lazy) {
-	Objects_requireNonNull_T(runtimes, "runtimes")
-	Objects_requireNonNull_T(loadFlags, "loadFlags")
-	Objects_requireNonNull_T(codeSupplier, "codeSupplier")
+	if runtimes == nil {
+		panic(new_NullPointerException_String("runtimes").self())
+	}
+	if loadFlags == nil {
+		panic(new_NullPointerException_String("loadFlags").self())
+	}
+	if codeSupplier == nil {
+		panic(new_NullPointerException_String("codeSupplier").self())
+	}
 	this.path_ = path
 	this.sourceMap_ = sourceMap
 	this.sourceUrl_ = sourceUrl
@@ -104,7 +110,7 @@ func (this *Source) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.path_ == o.path_ && this.sourceMap_ == o.sourceMap_ && this.sourceUrl_ == o.sourceUrl_ && this.sourceMappingUrl_ == o.sourceMappingUrl_ && Objects_equals(this.runtimes_.asSet(), o.runtimes_.asSet()) && Objects_equals(this.loadFlags_.asMap(), o.loadFlags_.asMap()) && this.estimatedSize_ == o.estimatedSize_ && Objects_equals(this.codeSupplier_.self(), o.codeSupplier_.self()) && Objects_equals(this.originalCodeSupplier_.self(), o.originalCodeSupplier_.self())
+	return true && this.path_ == o.path_ && this.sourceMap_ == o.sourceMap_ && this.sourceUrl_ == o.sourceUrl_ && this.sourceMappingUrl_ == o.sourceMappingUrl_ && Objects_equals(this.runtimes_.asSet(), o.runtimes_.asSet()) && Objects_equals(this.loadFlags_.asMap(), o.loadFlags_.asMap()) && this.estimatedSize_ == o.estimatedSize_ && objequalsBy_(this.codeSupplier_, o.codeSupplier_.self(), (*Source_Lazy).equals) && objequalsBy_(this.originalCodeSupplier_, o.originalCodeSupplier_.self(), (*Source_Lazy).equals)
 }
 
 func (this *Source) hashCode() int32 {
@@ -113,11 +119,11 @@ func (this *Source) hashCode() int32 {
 	h = h*31 + strhash_(this.sourceMap_)
 	h = h*31 + strhash_(this.sourceUrl_)
 	h = h*31 + strhash_(this.sourceMappingUrl_)
-	h = h*31 + Objects_hashCode(this.runtimes_.asSet())
-	h = h*31 + Objects_hashCode(this.loadFlags_.asMap())
+	h = h*31 + objhashDyn_(this.runtimes_.asSet())
+	h = h*31 + objhashDyn_(this.loadFlags_.asMap())
 	h = h*31 + this.estimatedSize_
-	h = h*31 + Objects_hashCode(this.codeSupplier_.self())
-	h = h*31 + Objects_hashCode(this.originalCodeSupplier_.self())
+	h = h*31 + objhashBy_(this.codeSupplier_, (*Source_Lazy).hashCode)
+	h = h*31 + objhashBy_(this.originalCodeSupplier_, (*Source_Lazy).hashCode)
 	return h
 }
 

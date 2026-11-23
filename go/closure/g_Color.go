@@ -17,16 +17,31 @@ type Color struct {
 }
 
 func (this *Color) init_Color(id *ColorId, prototypes *JTSet[*Color], instanceColors *JTSet[*Color], invalidating bool, propertiesKeepOriginalName bool, constructor bool, ownProperties *JTSet[string], boxId *ColorId, closureAssert bool, unionElements *JTSet[*Color]) {
-	this.id = Objects_requireNonNull_T(id, "id")
-	this.prototypes = Objects_requireNonNull_T(prototypes, "prototypes")
-	this.instanceColors = Objects_requireNonNull_T(instanceColors, "instanceColors")
+	if id == nil {
+		panic(new_NullPointerException_String("id").self())
+	}
+	this.id = id
+	if prototypes == nil {
+		panic(new_NullPointerException_String("prototypes").self())
+	}
+	this.prototypes = prototypes
+	if instanceColors == nil {
+		panic(new_NullPointerException_String("instanceColors").self())
+	}
+	this.instanceColors = instanceColors
 	this.invalidating = invalidating
 	this.propertiesKeepOriginalName = propertiesKeepOriginalName
 	this.constructor_ = constructor
-	this.ownProperties = Objects_requireNonNull_T(ownProperties, "ownProperties")
+	if ownProperties == nil {
+		panic(new_NullPointerException_String("ownProperties").self())
+	}
+	this.ownProperties = ownProperties
 	this.boxId = boxId
 	this.closureAssert = closureAssert
-	this.unionElements = Objects_requireNonNull_T(unionElements, "unionElements")
+	if unionElements == nil {
+		panic(new_NullPointerException_String("unionElements").self())
+	}
+	this.unionElements = unionElements
 }
 
 func new_Color(id *ColorId, prototypes *JTSet[*Color], instanceColors *JTSet[*Color], invalidating bool, propertiesKeepOriginalName bool, constructor bool, ownProperties *JTSet[string], boxId *ColorId, closureAssert bool, unionElements *JTSet[*Color]) *Color {
@@ -44,12 +59,12 @@ func (this *Color) equals(o any) bool {
 		return true
 	}
 	if that, ok := o.(*Color); ok {
-		return (((((((((this.id.equals(obj_(that.getId())) && equalsR_(this.prototypes.asImm(), that.getPrototypes().asSet())) && equalsR_(this.instanceColors.asImm(), that.getInstanceColors().asSet())) && (this.invalidating == that.isInvalidating())) && (this.propertiesKeepOriginalName == that.getPropertiesKeepOriginalName())) && (this.constructor_ == that.isConstructor())) && equalsR_(this.ownProperties.asImm(), that.getOwnProperties().asSet())) && func() bool {
+		return (((((((((this.id.equals(obj_(that.getId())) && equalsBy_(this.prototypes.asImm(), that.getPrototypes().asSet(), (*ImmutableCollection).equals)) && equalsBy_(this.instanceColors.asImm(), that.getInstanceColors().asSet(), (*ImmutableCollection).equals)) && (this.invalidating == that.isInvalidating())) && (this.propertiesKeepOriginalName == that.getPropertiesKeepOriginalName())) && (this.constructor_ == that.isConstructor())) && equalsBy_(this.ownProperties.asImm(), that.getOwnProperties().asSet(), (*ImmutableCollection).equals)) && func() bool {
 			if this.boxId == nil {
 				return (that.getBoxId() == nil)
 			}
 			return this.boxId.equals(obj_(that.getBoxId()))
-		}()) && (this.closureAssert == that.isClosureAssert())) && equalsR_(this.unionElements.asImm(), that.getUnionElements().asSet()))
+		}()) && (this.closureAssert == that.isClosureAssert())) && equalsBy_(this.unionElements.asImm(), that.getUnionElements().asSet(), (*ImmutableCollection).equals))
 	}
 	return false
 }
@@ -59,9 +74,9 @@ func (this *Color) hashCode() int32 {
 	h *= 1000003
 	h ^= this.id.hashCode()
 	h *= 1000003
-	h ^= hashR_(this.prototypes.asImm())
+	h ^= hashBy_(this.prototypes.asImm(), (*ImmutableCollection).hashCode)
 	h *= 1000003
-	h ^= hashR_(this.instanceColors.asImm())
+	h ^= hashBy_(this.instanceColors.asImm(), (*ImmutableCollection).hashCode)
 	h *= 1000003
 	h ^= func() int32 {
 		if this.invalidating {
@@ -84,7 +99,7 @@ func (this *Color) hashCode() int32 {
 		return 1237
 	}()
 	h *= 1000003
-	h ^= hashR_(this.ownProperties.asImm())
+	h ^= hashBy_(this.ownProperties.asImm(), (*ImmutableCollection).hashCode)
 	h *= 1000003
 	h ^= func() int32 {
 		if this.boxId == nil {
@@ -100,7 +115,7 @@ func (this *Color) hashCode() int32 {
 		return 1237
 	}()
 	h *= 1000003
-	h ^= hashR_(this.unionElements.asImm())
+	h ^= hashBy_(this.unionElements.asImm(), (*ImmutableCollection).hashCode)
 	return h
 }
 

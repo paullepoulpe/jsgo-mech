@@ -127,8 +127,8 @@ func (this *InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite) equals(
 
 func (this *InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite) hashCode() int32 {
 	var h int32
-	h = h*31 + hashH_(this.callNode_)
-	h = h*31 + hashH_(this.closureUnawareFunction_)
+	h = h*31 + objhashId_(this.callNode_)
+	h = h*31 + objhashId_(this.closureUnawareFunction_)
 	return h
 }
 

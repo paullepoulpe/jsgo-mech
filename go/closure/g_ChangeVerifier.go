@@ -250,7 +250,7 @@ func (this *ChangeVerifier_EqualsResult) equals(p0 any) bool {
 func (this *ChangeVerifier_EqualsResult) hashCode() int32 {
 	var h int32
 	h = h*31 + boolhash_(this.equals_)
-	h = h*31 + hashH_(this.errorNode_)
+	h = h*31 + objhashId_(this.errorNode_)
 	h = h*31 + fnHash_(this.errorMessage_)
 	return h
 }
