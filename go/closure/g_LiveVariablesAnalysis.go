@@ -93,10 +93,10 @@ func (this *LiveVariablesAnalysis) flowThrough_impl(node Node, input *LiveVariab
 	var gen *BitSet = new_BitSet_int(input.liveSet.size())
 	var kill *BitSet = new_BitSet_int(input.liveSet.size())
 	var conditional bool = false
-	var edgeList ListT[*LinkedDirectedGraph_LinkedDiGraphEdge[Node, *ControlFlowGraph_Branch]] = this.getCfg().getOutEdges_Object_rListOf_LinkedDiGraphEdge(node)
+	var edgeList ListT[*LinkedDirectedGraph_LinkedDiGraphEdge[Node, ControlFlowGraph_Branch]] = this.getCfg().getOutEdges_Object_rListOf_LinkedDiGraphEdge(node)
 	it_1 := jeachOf_(edgeList)
 	for it_1.next() {
-		var edge DiGraph_DiGraphEdge[Node, *ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphEdge[Node, *ControlFlowGraph_Branch]](it_1.v.self())
+		var edge DiGraph_DiGraphEdge[Node, ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphEdge[Node, ControlFlowGraph_Branch]](it_1.v.self())
 		if equalsR_(ControlFlowGraph_Branch_ON_EX, obj_(edge.getValue())) {
 			conditional = true
 		}

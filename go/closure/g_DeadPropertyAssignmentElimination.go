@@ -84,7 +84,7 @@ func (this *DeadPropertyAssignmentElimination_FunctionVisitor) enterChangedScope
 					compiler.reportChangeToEnclosingScope(rhs)
 				} else {
 					Preconditions_checkState(NodeUtil_isAssignmentOp(assignNode))
-					var opType *Token_rhino = NodeUtil_getOpFromAssignmentOp(assignNode)
+					var opType Token_rhino = NodeUtil_getOpFromAssignmentOp(assignNode)
 					assignNode.setToken(opType)
 					compiler.reportChangeToEnclosingScope(assignNode)
 				}

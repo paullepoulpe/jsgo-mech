@@ -48,7 +48,7 @@ func (this *Es6RewriteScriptsToModules) process_2(externs Node, root Node) {
 
 func (this *Es6RewriteScriptsToModules) shouldTraverse_impl(nodeTraversal *NodeTraversal, n Node, parent Node) bool {
 	if n.isScript() {
-		var moduleType *CompilerInput_ModuleType = this.compiler_.getInput(n.getInputId()).getJsModuleType()
+		var moduleType CompilerInput_ModuleType = this.compiler_.getInput(n.getInputId()).getJsModuleType()
 		if moduleType == CompilerInput_ModuleType_IMPORTED_SCRIPT {
 			this.forceToEs6Module(n)
 		}

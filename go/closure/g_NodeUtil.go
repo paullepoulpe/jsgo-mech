@@ -15,8 +15,8 @@ func new_NodeUtil() *NodeUtil {
 	return this
 }
 
-func NodeUtil_getBooleanValue(n Node) *Tri {
-	return func() *Tri {
+func NodeUtil_getBooleanValue(n Node) Tri {
+	return func() Tri {
 		switch n.getToken() {
 		case Token_rhino_NULL, Token_rhino_FALSE, Token_rhino_VOID:
 			return Tri_FALSE
@@ -42,7 +42,7 @@ func NodeUtil_getBooleanValue(n Node) *Tri {
 		case Token_rhino_NOT:
 			return NodeUtil_getBooleanValue(n.getLastChild()).not()
 		case Token_rhino_NAME:
-			return func() *Tri {
+			return func() Tri {
 				switch n.getString() {
 				case "undefined", "NaN":
 					return Tri_FALSE
@@ -68,24 +68,24 @@ func NodeUtil_getBooleanValue(n Node) *Tri {
 		case Token_rhino_ASSIGN, Token_rhino_COMMA:
 			return NodeUtil_getBooleanValue(n.getLastChild())
 		case Token_rhino_AND, Token_rhino_ASSIGN_AND:
-			var lhs *Tri = NodeUtil_getBooleanValue(n.getFirstChild())
-			var rhs *Tri = NodeUtil_getBooleanValue(n.getLastChild())
+			var lhs Tri = NodeUtil_getBooleanValue(n.getFirstChild())
+			var rhs Tri = NodeUtil_getBooleanValue(n.getLastChild())
 			return lhs.and(rhs)
 		case Token_rhino_OR, Token_rhino_ASSIGN_OR:
-			var lhs *Tri = NodeUtil_getBooleanValue(n.getFirstChild())
-			var rhs *Tri = NodeUtil_getBooleanValue(n.getLastChild())
+			var lhs Tri = NodeUtil_getBooleanValue(n.getFirstChild())
+			var rhs Tri = NodeUtil_getBooleanValue(n.getLastChild())
 			return lhs.or(rhs)
 		case Token_rhino_HOOK:
-			var trueValue *Tri = NodeUtil_getBooleanValue(n.getSecondChild())
-			var falseValue *Tri = NodeUtil_getBooleanValue(n.getLastChild())
+			var trueValue Tri = NodeUtil_getBooleanValue(n.getSecondChild())
+			var falseValue Tri = NodeUtil_getBooleanValue(n.getLastChild())
 			if eqR_(trueValue, falseValue) {
 				return trueValue
 			} else {
 				return Tri_UNKNOWN
 			}
 		case Token_rhino_COALESCE, Token_rhino_ASSIGN_COALESCE:
-			var lhs *Tri = NodeUtil_getBooleanValue(n.getFirstChild())
-			var rhs *Tri = NodeUtil_getBooleanValue(n.getLastChild())
+			var lhs Tri = NodeUtil_getBooleanValue(n.getFirstChild())
+			var rhs Tri = NodeUtil_getBooleanValue(n.getLastChild())
 			if eqR_(lhs, Tri_TRUE) || eqR_(lhs, rhs) {
 				return lhs
 			} else {
@@ -145,7 +145,7 @@ func NodeUtil_getStringValue(n Node) Optional[string] {
 		case tokOrd1_VOID:
 			return Optional_of[string]("undefined")
 		case tokOrd1_NOT:
-			var child *Tri = NodeUtil_getBooleanValue(n.getFirstChild())
+			var child Tri = NodeUtil_getBooleanValue(n.getFirstChild())
 			if child != Tri_UNKNOWN {
 				return func() Optional[string] {
 					if child.toBoolean(true) {
@@ -696,8 +696,8 @@ func NodeUtil_isRelationalOperation(n Node) bool {
 	}()
 }
 
-func NodeUtil_getInverseOperator(type_ *Token_rhino) *Token_rhino {
-	return func() *Token_rhino {
+func NodeUtil_getInverseOperator(type_ Token_rhino) Token_rhino {
+	return func() Token_rhino {
 		switch type_ {
 		case Token_rhino_GT:
 			return Token_rhino_LT
@@ -842,7 +842,7 @@ func NodeUtil_isBinaryOperator(n Node) bool {
 	return NodeUtil_isBinaryOperatorType(n.getToken())
 }
 
-func NodeUtil_isBinaryOperatorType(type_ *Token_rhino) bool {
+func NodeUtil_isBinaryOperatorType(type_ Token_rhino) bool {
 	return func() bool {
 		switch type_ {
 		case Token_rhino_OR, Token_rhino_AND, Token_rhino_COALESCE, Token_rhino_BITOR, Token_rhino_BITXOR, Token_rhino_BITAND, Token_rhino_EQ, Token_rhino_NE, Token_rhino_SHEQ, Token_rhino_SHNE, Token_rhino_LT, Token_rhino_GT, Token_rhino_LE, Token_rhino_GE, Token_rhino_INSTANCEOF, Token_rhino_IN, Token_rhino_LSH, Token_rhino_RSH, Token_rhino_URSH, Token_rhino_ADD, Token_rhino_SUB, Token_rhino_MUL, Token_rhino_DIV, Token_rhino_MOD, Token_rhino_EXPONENT:
@@ -858,7 +858,7 @@ func NodeUtil_isUnaryOperator(n Node) bool {
 	return NodeUtil_isUnaryOperatorType(n.getToken())
 }
 
-func NodeUtil_isUnaryOperatorType(type_ *Token_rhino) bool {
+func NodeUtil_isUnaryOperatorType(type_ Token_rhino) bool {
 	return func() bool {
 		switch type_ {
 		case Token_rhino_DELPROP, Token_rhino_VOID, Token_rhino_TYPEOF, Token_rhino_POS, Token_rhino_NEG, Token_rhino_BITNOT, Token_rhino_NOT:
@@ -874,7 +874,7 @@ func NodeUtil_isUpdateOperator(n Node) bool {
 	return NodeUtil_isUpdateOperatorType(n.getToken())
 }
 
-func NodeUtil_isUpdateOperatorType(type_ *Token_rhino) bool {
+func NodeUtil_isUpdateOperatorType(type_ Token_rhino) bool {
 	return func() bool {
 		switch type_ {
 		case Token_rhino_INC, Token_rhino_DEC:
@@ -890,7 +890,7 @@ func NodeUtil_isSimpleOperator(n Node) bool {
 	return NodeUtil_isSimpleOperatorType(n.getToken())
 }
 
-func NodeUtil_isSimpleOperatorType(type_ *Token_rhino) bool {
+func NodeUtil_isSimpleOperatorType(type_ Token_rhino) bool {
 	return func() bool {
 		switch type_ {
 		case Token_rhino_ADD, Token_rhino_BITAND, Token_rhino_BITNOT, Token_rhino_BITOR, Token_rhino_BITXOR, Token_rhino_COMMA, Token_rhino_DIV, Token_rhino_EQ, Token_rhino_EXPONENT, Token_rhino_GE, Token_rhino_GT, Token_rhino_IN, Token_rhino_INSTANCEOF, Token_rhino_LE, Token_rhino_LSH, Token_rhino_LT, Token_rhino_MOD, Token_rhino_MUL, Token_rhino_NE, Token_rhino_NOT, Token_rhino_RSH, Token_rhino_SHEQ, Token_rhino_SHNE, Token_rhino_SUB, Token_rhino_TYPEOF, Token_rhino_VOID, Token_rhino_POS, Token_rhino_NEG, Token_rhino_URSH:
@@ -1048,7 +1048,7 @@ func NodeUtil_canBeSideEffected_Node_Set_Scope(n Node, knownConstants *JTSet[str
 	return false
 }
 
-func NodeUtil_precedence(type_ *Token_rhino) int32 {
+func NodeUtil_precedence(type_ Token_rhino) int32 {
 	return func() int32 {
 		switch type_ {
 		case Token_rhino_COMMA:
@@ -1123,7 +1123,7 @@ func NodeUtil_isNullOrUndefined(n Node) bool {
 	return (n.isNull() || NodeUtil_isUndefined(n))
 }
 
-func NodeUtil_getKnownValueType(n Node) *NodeUtil_ValueType {
+func NodeUtil_getKnownValueType(n Node) NodeUtil_ValueType {
 	switch n.ns_().token {
 	case tokOrd1_CAST:
 		return NodeUtil_getKnownValueType(n.getFirstChild())
@@ -1134,11 +1134,11 @@ func NodeUtil_getKnownValueType(n Node) *NodeUtil_ValueType {
 	case tokOrd1_HOOK:
 		return NodeUtil_and(NodeUtil_getKnownValueType(n.getSecondChild()), NodeUtil_getKnownValueType(n.getLastChild()))
 	case tokOrd1_ADD:
-		var last *NodeUtil_ValueType = NodeUtil_getKnownValueType(n.getLastChild())
+		var last NodeUtil_ValueType = NodeUtil_getKnownValueType(n.getLastChild())
 		if last == NodeUtil_ValueType_STRING {
 			return NodeUtil_ValueType_STRING
 		}
-		var first *NodeUtil_ValueType = NodeUtil_getKnownValueType(n.getFirstChild())
+		var first NodeUtil_ValueType = NodeUtil_getKnownValueType(n.getFirstChild())
 		if first == NodeUtil_ValueType_STRING {
 			return NodeUtil_ValueType_STRING
 		}
@@ -1154,7 +1154,7 @@ func NodeUtil_getKnownValueType(n Node) *NodeUtil_ValueType {
 		}
 		return NodeUtil_ValueType_UNDETERMINED
 	case tokOrd1_ASSIGN_ADD:
-		var last *NodeUtil_ValueType = NodeUtil_getKnownValueType(n.getLastChild())
+		var last NodeUtil_ValueType = NodeUtil_getKnownValueType(n.getLastChild())
 		if last == NodeUtil_ValueType_STRING {
 			return NodeUtil_ValueType_STRING
 		}
@@ -1180,8 +1180,8 @@ func NodeUtil_getKnownValueType(n Node) *NodeUtil_ValueType {
 	case tokOrd1_BIGINT:
 		return NodeUtil_ValueType_BIGINT
 	case tokOrd1_BITOR, tokOrd1_BITXOR, tokOrd1_BITAND, tokOrd1_LSH, tokOrd1_RSH, tokOrd1_SUB, tokOrd1_MUL, tokOrd1_MOD, tokOrd1_DIV, tokOrd1_EXPONENT:
-		var first *NodeUtil_ValueType = NodeUtil_getKnownValueType(n.getFirstChild())
-		var last *NodeUtil_ValueType = NodeUtil_getKnownValueType(n.getLastChild())
+		var first NodeUtil_ValueType = NodeUtil_getKnownValueType(n.getFirstChild())
+		var last NodeUtil_ValueType = NodeUtil_getKnownValueType(n.getLastChild())
 		if (first == NodeUtil_ValueType_BIGINT) || (last == NodeUtil_ValueType_BIGINT) {
 			return NodeUtil_ValueType_BIGINT
 		} else {
@@ -1214,8 +1214,8 @@ func NodeUtil_getKnownValueType(n Node) *NodeUtil_ValueType {
 	panic("unreachable")
 }
 
-func NodeUtil_and(a *NodeUtil_ValueType, b *NodeUtil_ValueType) *NodeUtil_ValueType {
-	return func() *NodeUtil_ValueType {
+func NodeUtil_and(a NodeUtil_ValueType, b NodeUtil_ValueType) NodeUtil_ValueType {
+	return func() NodeUtil_ValueType {
 		if a == b {
 			return a
 		}
@@ -1269,7 +1269,7 @@ func NodeUtil_mayBeString_Node_boolean(n Node, useType bool) bool {
 	return NodeUtil_mayBeStringValueType(NodeUtil_getKnownValueType(n))
 }
 
-func NodeUtil_mayBeStringValueType(type_ *NodeUtil_ValueType) bool {
+func NodeUtil_mayBeStringValueType(type_ NodeUtil_ValueType) bool {
 	return func() bool {
 		switch type_ {
 		case NodeUtil_ValueType_BOOLEAN, NodeUtil_ValueType_NULL, NodeUtil_ValueType_NUMBER, NodeUtil_ValueType_BIGINT, NodeUtil_ValueType_VOID:
@@ -1285,7 +1285,7 @@ func NodeUtil_mayBeObject(n Node) bool {
 	return NodeUtil_mayBeObjectValueType(NodeUtil_getKnownValueType(n))
 }
 
-func NodeUtil_mayBeObjectValueType(type_ *NodeUtil_ValueType) bool {
+func NodeUtil_mayBeObjectValueType(type_ NodeUtil_ValueType) bool {
 	return func() bool {
 		switch type_ {
 		case NodeUtil_ValueType_BOOLEAN, NodeUtil_ValueType_NULL, NodeUtil_ValueType_NUMBER, NodeUtil_ValueType_BIGINT, NodeUtil_ValueType_STRING, NodeUtil_ValueType_VOID:
@@ -1297,7 +1297,7 @@ func NodeUtil_mayBeObjectValueType(type_ *NodeUtil_ValueType) bool {
 	}()
 }
 
-func NodeUtil_isAssociative(type_ *Token_rhino) bool {
+func NodeUtil_isAssociative(type_ Token_rhino) bool {
 	return func() bool {
 		switch type_ {
 		case Token_rhino_AND, Token_rhino_OR, Token_rhino_COALESCE, Token_rhino_BITOR, Token_rhino_BITXOR, Token_rhino_BITAND:
@@ -1309,7 +1309,7 @@ func NodeUtil_isAssociative(type_ *Token_rhino) bool {
 	}()
 }
 
-func NodeUtil_isCommutative(type_ *Token_rhino) bool {
+func NodeUtil_isCommutative(type_ Token_rhino) bool {
 	return func() bool {
 		switch type_ {
 		case Token_rhino_MUL, Token_rhino_BITOR, Token_rhino_BITXOR, Token_rhino_BITAND:
@@ -1349,8 +1349,8 @@ func NodeUtil_isCompoundAssignmentOp(n Node) bool {
 	return (NodeUtil_isAssignmentOp(n) && !n.isAssign())
 }
 
-func NodeUtil_getOpFromAssignmentOp(n Node) *Token_rhino {
-	return func() *Token_rhino {
+func NodeUtil_getOpFromAssignmentOp(n Node) Token_rhino {
+	return func() Token_rhino {
 		switch n.ns_().token {
 		case tokOrd1_ASSIGN_BITOR:
 			return Token_rhino_BITOR
@@ -1389,7 +1389,7 @@ func NodeUtil_getOpFromAssignmentOp(n Node) *Token_rhino {
 	}()
 }
 
-func NodeUtil_getEnclosingType(n Node, type_ *Token_rhino) Node {
+func NodeUtil_getEnclosingType(n Node, type_ Token_rhino) Node {
 	return NodeUtil_getEnclosingNode(n, Predicate_base[Node](func(n1 Node) bool {
 		return (n1.getToken() == type_)
 	}))
@@ -1603,8 +1603,8 @@ func NodeUtil_convertToNonOptionalChainSegmentDownTo(endOfOptChainSegment Node, 
 	}
 }
 
-func NodeUtil_getNonOptChainToken(optChainToken *Token_rhino) *Token_rhino {
-	return func() *Token_rhino {
+func NodeUtil_getNonOptChainToken(optChainToken Token_rhino) Token_rhino {
+	return func() Token_rhino {
 		switch optChainToken {
 		case Token_rhino_OPTCHAIN_CALL:
 			return Token_rhino_CALL
@@ -2516,7 +2516,7 @@ func NodeUtil_isGetOrSetKey(node Node) bool {
 	}()
 }
 
-func NodeUtil_opToStr(operator *Token_rhino) Optional[string] {
+func NodeUtil_opToStr(operator Token_rhino) Optional[string] {
 	return func() Optional[string] {
 		switch operator {
 		case Token_rhino_COALESCE:
@@ -2616,7 +2616,7 @@ func NodeUtil_opToStr(operator *Token_rhino) Optional[string] {
 	}()
 }
 
-func NodeUtil_opToStrNoFail(operator *Token_rhino) string {
+func NodeUtil_opToStrNoFail(operator Token_rhino) string {
 	var res Optional[string] = NodeUtil_opToStr(operator)
 	if res.isEmpty() {
 		panic(new_Error_String(("Unknown op " + jtostr_(operator))).self())
@@ -2688,7 +2688,7 @@ crawl_ancestors_:
 	return addingRoot
 }
 
-func NodeUtil_newDeclaration(lhs Node, rhs Node, declarationType *Token_rhino) Node {
+func NodeUtil_newDeclaration(lhs Node, rhs Node, declarationType Token_rhino) Node {
 	if rhs == 0 {
 		return IR_declaration_Node_Token(lhs, declarationType)
 	}
@@ -2742,7 +2742,7 @@ func NodeUtil_newQNameCodingConvention_CodingConvention_String_Node_String(conve
 	return node
 }
 
-func NodeUtil_getDeclarationFromName(nameNode Node, value Node, type_ *Token_rhino, info *JSDocInfo) Node {
+func NodeUtil_getDeclarationFromName(nameNode Node, value Node, type_ Token_rhino, info *JSDocInfo) Node {
 	var result Node
 	if nameNode.isName() {
 		result = func() Node {
@@ -2782,11 +2782,11 @@ func NodeUtil_newQNameDeclarationCodingConvention(convention CodingConvention, n
 	return NodeUtil_newQNameDeclaration_CodingConvention_String_Node_JSDocInfo_Token(convention, name, value, info, Token_rhino_VAR)
 }
 
-func NodeUtil_newQNameDeclarationAbstractCompiler(compiler *AbstractCompiler, name string, value Node, info *JSDocInfo, type_ *Token_rhino) Node {
+func NodeUtil_newQNameDeclarationAbstractCompiler(compiler *AbstractCompiler, name string, value Node, info *JSDocInfo, type_ Token_rhino) Node {
 	return NodeUtil_newQNameDeclaration_CodingConvention_String_Node_JSDocInfo_Token(compiler.getCodingConvention(), name, value, info, type_)
 }
 
-func NodeUtil_newQNameDeclaration_CodingConvention_String_Node_JSDocInfo_Token(convention CodingConvention, name string, value Node, info *JSDocInfo, type_ *Token_rhino) Node {
+func NodeUtil_newQNameDeclaration_CodingConvention_String_Node_JSDocInfo_Token(convention CodingConvention, name string, value Node, info *JSDocInfo, type_ Token_rhino) Node {
 	if !(((type_ == Token_rhino_VAR) || (type_ == Token_rhino_LET)) || (type_ == Token_rhino_CONST)) {
 		Preconditions_checkState_boolean_Object(false, type_)
 	}
@@ -2859,7 +2859,7 @@ func NodeUtil_isValidSimpleName(name string) bool {
 	return ((TokenStream_isJSIdentifier(name) && !TokenStream_isKeyword(name)) && NodeUtil_isLatin(name))
 }
 
-func NodeUtil_isValidQualifiedNameLanguageMode(mode *CompilerOptions_LanguageMode, name string) bool {
+func NodeUtil_isValidQualifiedNameLanguageMode(mode CompilerOptions_LanguageMode, name string) bool {
 	return NodeUtil_isValidQualifiedName(mode.toFeatureSet(), name)
 }
 
@@ -3139,7 +3139,7 @@ func NodeUtil_isShallowStatementTree(n Node) bool {
 	return ((((n == 0) || NodeUtil_isControlStructure(n)) || NodeUtil_isStatementBlock(n)) || n.isSwitchBody())
 }
 
-func NodeUtil_getNodeTypeReferenceCount(node Node, type_ *Token_rhino, traverseChildrenPred Predicate_base[Node]) int32 {
+func NodeUtil_getNodeTypeReferenceCount(node Node, type_ Token_rhino, traverseChildrenPred Predicate_base[Node]) int32 {
 	return NodeUtil_getCount(node, func() Predicate_base[Node] {
 		v_ := new_NodeUtil_MatchNodeType(type_)
 		if v_ == nil {
@@ -4267,7 +4267,7 @@ func NodeUtil_getFeatureSetOfScript(scriptNode Node) *FeatureSet {
 	return cast_[*FeatureSet](scriptNode.getFeatureSet())
 }
 
-func NodeUtil_addFeatureToScript(scriptNode Node, feature *FeatureSet_Feature, compiler *AbstractCompiler) {
+func NodeUtil_addFeatureToScript(scriptNode Node, feature FeatureSet_Feature, compiler *AbstractCompiler) {
 	if !scriptNode.isScript() {
 		Preconditions_checkState_boolean_Object_H(false, scriptNode)
 	}
@@ -4288,10 +4288,10 @@ func NodeUtil_addFeatureToScript(scriptNode Node, feature *FeatureSet_Feature, c
 	}
 }
 
-func NodeUtil_removeFeatureFromScript(scriptNode Node, feature *FeatureSet_Feature) {
+func NodeUtil_removeFeatureFromScript(scriptNode Node, feature FeatureSet_Feature) {
 	var currentFeatures *FeatureSet = NodeUtil_getFeatureSetOfScript(scriptNode)
 	if currentFeatures != nil {
-		currentFeatures = currentFeatures.without_2(feature, []*FeatureSet_Feature{})
+		currentFeatures = currentFeatures.without_2(feature, []FeatureSet_Feature{})
 	}
 	scriptNode.setFeatureSet(obj_(currentFeatures))
 }
@@ -4304,7 +4304,7 @@ func NodeUtil_removeFeaturesFromScript(scriptNode Node, featureSet *FeatureSet) 
 	}
 }
 
-func NodeUtil_removeFeatureFromAllScripts(root Node, feature *FeatureSet_Feature, compiler *AbstractCompiler) {
+func NodeUtil_removeFeatureFromAllScripts(root Node, feature FeatureSet_Feature, compiler *AbstractCompiler) {
 	if !root.isRoot() {
 		Preconditions_checkArgument_boolean_Object_H(false, root)
 	}
@@ -4332,7 +4332,7 @@ func NodeUtil_removeFeaturesFromAllScripts(root Node, featureSet *FeatureSet, co
 	compiler.markFeatureSetNotAllowed(featureSet)
 }
 
-func NodeUtil_addFeatureToAllScripts(root Node, feature *FeatureSet_Feature, compiler *AbstractCompiler) {
+func NodeUtil_addFeatureToAllScripts(root Node, feature FeatureSet_Feature, compiler *AbstractCompiler) {
 	if !root.isRoot() {
 		Preconditions_checkArgument_boolean_Object_H(false, root)
 	}
@@ -4351,7 +4351,7 @@ func NodeUtil_addFeaturesToScript(scriptNode Node, features *FeatureSet, compile
 	}
 	it_1 := features.getFeatures().each()
 	for it_1.next() {
-		var feature *FeatureSet_Feature = it_1.v
+		var feature FeatureSet_Feature = it_1.v
 		NodeUtil_addFeatureToScript(scriptNode, feature, compiler)
 	}
 }
@@ -4454,8 +4454,8 @@ var NodeUtil_GOOG_REQUIRE_DYNAMIC *QualifiedName
 var NodeUtil_GOOG_WEAK_USAGE *QualifiedName
 var NodeUtil_GOOG_WEAK_USAGE_MANGLED *QualifiedName
 var NodeUtil_KNOWN_CONSTANTS *JTSet[string]
-var NodeUtil_DEFINITE_CFG_ROOTS *JTSet[*Token_rhino]
-var NodeUtil_IS_STATEMENT_PARENT *JTSet[*Token_rhino]
+var NodeUtil_DEFINITE_CFG_ROOTS *JTSet[Token_rhino]
+var NodeUtil_IS_STATEMENT_PARENT *JTSet[Token_rhino]
 var NodeUtil_GLOBAL_OBJECT *QualifiedName
 var NodeUtil_GLOBAL_OBJECT_MANGLED *QualifiedName
 var NodeUtil_MATCH_NOT_FUNCTION Predicate_base[Node]
@@ -4483,8 +4483,8 @@ func NodeUtil_clinit() {
 	NodeUtil_GOOG_WEAK_USAGE = QualifiedName_of("goog.weakUsage")
 	NodeUtil_GOOG_WEAK_USAGE_MANGLED = QualifiedName_of("goog$weakUsage")
 	NodeUtil_KNOWN_CONSTANTS = jimmutableSetOf_[string](jtc_string, "undefined", "Infinity", "NaN")
-	NodeUtil_DEFINITE_CFG_ROOTS = tsetImm_(tc_p_Token_rhino, Sets_immutableEnumSet(Token_rhino_FUNCTION.up_Enum(), []*Enum{Token_rhino_SCRIPT.up_Enum(), Token_rhino_MODULE_BODY.up_Enum(), Token_rhino_ROOT.up_Enum()}))
-	NodeUtil_IS_STATEMENT_PARENT = tsetImm_(tc_p_Token_rhino, Sets_immutableEnumSet(Token_rhino_SCRIPT.up_Enum(), []*Enum{Token_rhino_MODULE_BODY.up_Enum(), Token_rhino_BLOCK.up_Enum(), Token_rhino_LABEL.up_Enum(), Token_rhino_NAMESPACE_ELEMENTS.up_Enum(), Token_rhino_INTERFACE_MEMBERS.up_Enum()}))
+	NodeUtil_DEFINITE_CFG_ROOTS = tsetImm_(tc_p_Token_rhino, Sets_immutableEnumSet(Token_rhino_FUNCTION.enum_(), []*Enum{Token_rhino_SCRIPT.enum_(), Token_rhino_MODULE_BODY.enum_(), Token_rhino_ROOT.enum_()}))
+	NodeUtil_IS_STATEMENT_PARENT = tsetImm_(tc_p_Token_rhino, Sets_immutableEnumSet(Token_rhino_SCRIPT.enum_(), []*Enum{Token_rhino_MODULE_BODY.enum_(), Token_rhino_BLOCK.enum_(), Token_rhino_LABEL.enum_(), Token_rhino_NAMESPACE_ELEMENTS.enum_(), Token_rhino_INTERFACE_MEMBERS.enum_()}))
 	NodeUtil_GLOBAL_OBJECT = QualifiedName_of("$jscomp.global.Object")
 	NodeUtil_GLOBAL_OBJECT_MANGLED = QualifiedName_of("$jscomp$global.Object")
 	NodeUtil_MATCH_NOT_FUNCTION = Predicate_base[Node](func(n Node) bool {
@@ -4498,50 +4498,67 @@ func NodeUtil_clinit() {
 
 }
 
-type NodeUtil_ValueType struct {
-	Enum
+type NodeUtil_ValueType uint8
+
+// NodeUtil_ValueType_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var NodeUtil_ValueType_enum_ = [8]Enum{
+	{self_: NodeUtil_ValueType_UNDETERMINED, name_: "UNDETERMINED", ordinal_: 0},
+	{self_: NodeUtil_ValueType_NULL, name_: "NULL", ordinal_: 1},
+	{self_: NodeUtil_ValueType_VOID, name_: "VOID", ordinal_: 2},
+	{self_: NodeUtil_ValueType_NUMBER, name_: "NUMBER", ordinal_: 3},
+	{self_: NodeUtil_ValueType_BIGINT, name_: "BIGINT", ordinal_: 4},
+	{self_: NodeUtil_ValueType_STRING, name_: "STRING", ordinal_: 5},
+	{self_: NodeUtil_ValueType_BOOLEAN, name_: "BOOLEAN", ordinal_: 6},
+	{self_: NodeUtil_ValueType_OBJECT, name_: "OBJECT", ordinal_: 7},
 }
 
-func (this *NodeUtil_ValueType) up_Enum() *Enum {
-	if this == nil {
+func (this NodeUtil_ValueType) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &NodeUtil_ValueType_enum_[this-1]
 }
 
-func (this *NodeUtil_ValueType) init_NodeUtil_ValueType(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this NodeUtil_ValueType) name() string { return NodeUtil_ValueType_enum_[this-1].name_ }
+
+func (this NodeUtil_ValueType) ordinal() int32 { return NodeUtil_ValueType_enum_[this-1].ordinal_ }
+
+func (this NodeUtil_ValueType) toString() string { return NodeUtil_ValueType_enum_[this-1].name_ }
+
+func (this NodeUtil_ValueType) compareTo(o any) int32 {
+	return NodeUtil_ValueType_enum_[this-1].compareTo(o)
 }
 
-func new_NodeUtil_ValueType(name_ string, ordinal_ int32) *NodeUtil_ValueType {
-	this := &NodeUtil_ValueType{}
-	this.self_ = this
-	this.init_NodeUtil_ValueType(name_, ordinal_)
+func (this NodeUtil_ValueType) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func NodeUtil_ValueType_values() []*NodeUtil_ValueType {
-	return append([]*NodeUtil_ValueType(nil), NodeUtil_ValueType_values_...)
+func NodeUtil_ValueType_values() []NodeUtil_ValueType {
+	return append([]NodeUtil_ValueType(nil), NodeUtil_ValueType_values_...)
 }
 
-func NodeUtil_ValueType_valueOf(name string) *NodeUtil_ValueType {
+func NodeUtil_ValueType_valueOf(name string) NodeUtil_ValueType {
 	for _, v := range NodeUtil_ValueType_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("ValueType", name))
 }
 
-var NodeUtil_ValueType_UNDETERMINED *NodeUtil_ValueType
-var NodeUtil_ValueType_NULL *NodeUtil_ValueType
-var NodeUtil_ValueType_VOID *NodeUtil_ValueType
-var NodeUtil_ValueType_NUMBER *NodeUtil_ValueType
-var NodeUtil_ValueType_BIGINT *NodeUtil_ValueType
-var NodeUtil_ValueType_STRING *NodeUtil_ValueType
-var NodeUtil_ValueType_BOOLEAN *NodeUtil_ValueType
-var NodeUtil_ValueType_OBJECT *NodeUtil_ValueType
-var NodeUtil_ValueType_values_ []*NodeUtil_ValueType
+const NodeUtil_ValueType_UNDETERMINED NodeUtil_ValueType = 1
+const NodeUtil_ValueType_NULL NodeUtil_ValueType = 2
+const NodeUtil_ValueType_VOID NodeUtil_ValueType = 3
+const NodeUtil_ValueType_NUMBER NodeUtil_ValueType = 4
+const NodeUtil_ValueType_BIGINT NodeUtil_ValueType = 5
+const NodeUtil_ValueType_STRING NodeUtil_ValueType = 6
+const NodeUtil_ValueType_BOOLEAN NodeUtil_ValueType = 7
+const NodeUtil_ValueType_OBJECT NodeUtil_ValueType = 8
+
+var NodeUtil_ValueType_values_ []NodeUtil_ValueType
 
 var NodeUtil_ValueType_clinit_done bool
 
@@ -4550,15 +4567,7 @@ func NodeUtil_ValueType_clinit() {
 		return
 	}
 	NodeUtil_ValueType_clinit_done = true
-	NodeUtil_ValueType_UNDETERMINED = new_NodeUtil_ValueType("UNDETERMINED", 0)
-	NodeUtil_ValueType_NULL = new_NodeUtil_ValueType("NULL", 1)
-	NodeUtil_ValueType_VOID = new_NodeUtil_ValueType("VOID", 2)
-	NodeUtil_ValueType_NUMBER = new_NodeUtil_ValueType("NUMBER", 3)
-	NodeUtil_ValueType_BIGINT = new_NodeUtil_ValueType("BIGINT", 4)
-	NodeUtil_ValueType_STRING = new_NodeUtil_ValueType("STRING", 5)
-	NodeUtil_ValueType_BOOLEAN = new_NodeUtil_ValueType("BOOLEAN", 6)
-	NodeUtil_ValueType_OBJECT = new_NodeUtil_ValueType("OBJECT", 7)
-	NodeUtil_ValueType_values_ = []*NodeUtil_ValueType{NodeUtil_ValueType_UNDETERMINED, NodeUtil_ValueType_NULL, NodeUtil_ValueType_VOID, NodeUtil_ValueType_NUMBER, NodeUtil_ValueType_BIGINT, NodeUtil_ValueType_STRING, NodeUtil_ValueType_BOOLEAN, NodeUtil_ValueType_OBJECT}
+	NodeUtil_ValueType_values_ = []NodeUtil_ValueType{NodeUtil_ValueType_UNDETERMINED, NodeUtil_ValueType_NULL, NodeUtil_ValueType_VOID, NodeUtil_ValueType_NUMBER, NodeUtil_ValueType_BIGINT, NodeUtil_ValueType_STRING, NodeUtil_ValueType_BOOLEAN, NodeUtil_ValueType_OBJECT}
 	registerEnum_("com.google.javascript.jscomp.NodeUtil.ValueType", enumValues_(NodeUtil_ValueType_values_))
 
 }
@@ -4613,14 +4622,14 @@ func (this *NodeUtil_MatchNameNode) apply(n Node) bool {
 }
 
 type NodeUtil_MatchNodeType struct {
-	type__ *Token_rhino
+	type__ Token_rhino
 }
 
-func (this *NodeUtil_MatchNodeType) init_NodeUtil_MatchNodeType(type_ *Token_rhino) {
+func (this *NodeUtil_MatchNodeType) init_NodeUtil_MatchNodeType(type_ Token_rhino) {
 	this.type__ = type_
 }
 
-func new_NodeUtil_MatchNodeType(type_ *Token_rhino) *NodeUtil_MatchNodeType {
+func new_NodeUtil_MatchNodeType(type_ Token_rhino) *NodeUtil_MatchNodeType {
 	this := &NodeUtil_MatchNodeType{}
 	this.init_NodeUtil_MatchNodeType(type_)
 	return this

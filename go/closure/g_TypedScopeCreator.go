@@ -21,7 +21,7 @@ type TypedScopeCreator struct {
 	unresolvedNodes              *JTList[Node]
 	undeclaredNamesForClosure    *JTSet[Node]
 	providedNamesFromCall        *SimpleSetMultimap[Node, *ProcessClosureProvidesAndRequires_ProvidedName]
-	stage                        *TypedScopeCreator_Stage
+	stage                        TypedScopeCreator_Stage
 	processClosurePrimitives     bool
 }
 
@@ -264,13 +264,13 @@ func (this *TypedScopeCreator) addWellKnownSymbols(scope *TypedScope) {
 	}
 }
 
-func (this *TypedScopeCreator) declareNativeFunctionType(scope *TypedScope, tId *JSTypeNative) {
+func (this *TypedScopeCreator) declareNativeFunctionType(scope *TypedScope, tId JSTypeNative) {
 	var t *FunctionType = this.typeRegistry.getNativeFunctionType(tId)
 	TypedScopeCreator_declareNativeType(scope, t.getInstanceType().getReferenceName().get(), t.up_JSType())
 	TypedScopeCreator_declareNativeType(scope, t.getPrototype().getReferenceName().get(), t.getPrototype().up_JSType())
 }
 
-func (this *TypedScopeCreator) declareNativeValueType(scope *TypedScope, name string, tId *JSTypeNative) {
+func (this *TypedScopeCreator) declareNativeValueType(scope *TypedScope, name string, tId JSTypeNative) {
 	TypedScopeCreator_declareNativeType(scope, name, this.typeRegistry.getNativeType(tId))
 }
 
@@ -325,7 +325,7 @@ func (this *TypedScopeCreator) clearCommonState() {
 	this.providedNamesFromCall = SimpleSetMultimap_createInsertionOrdered[Node, *ProcessClosureProvidesAndRequires_ProvidedName]()
 }
 
-func (this *TypedScopeCreator) getNativeType(nativeType *JSTypeNative) *JSType {
+func (this *TypedScopeCreator) getNativeType(nativeType JSTypeNative) *JSType {
 	return this.typeRegistry.getNativeType(nativeType)
 }
 
@@ -405,44 +405,59 @@ func TypedScopeCreator_clinit() {
 
 }
 
-type TypedScopeCreator_Stage struct {
-	Enum
+type TypedScopeCreator_Stage uint8
+
+// TypedScopeCreator_Stage_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var TypedScopeCreator_Stage_enum_ = [2]Enum{
+	{self_: TypedScopeCreator_Stage_BUILDING, name_: "BUILDING", ordinal_: 0},
+	{self_: TypedScopeCreator_Stage_FROZEN, name_: "FROZEN", ordinal_: 1},
 }
 
-func (this *TypedScopeCreator_Stage) up_Enum() *Enum {
-	if this == nil {
+func (this TypedScopeCreator_Stage) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &TypedScopeCreator_Stage_enum_[this-1]
 }
 
-func (this *TypedScopeCreator_Stage) init_TypedScopeCreator_Stage(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this TypedScopeCreator_Stage) name() string { return TypedScopeCreator_Stage_enum_[this-1].name_ }
+
+func (this TypedScopeCreator_Stage) ordinal() int32 {
+	return TypedScopeCreator_Stage_enum_[this-1].ordinal_
 }
 
-func new_TypedScopeCreator_Stage(name_ string, ordinal_ int32) *TypedScopeCreator_Stage {
-	this := &TypedScopeCreator_Stage{}
-	this.self_ = this
-	this.init_TypedScopeCreator_Stage(name_, ordinal_)
+func (this TypedScopeCreator_Stage) toString() string {
+	return TypedScopeCreator_Stage_enum_[this-1].name_
+}
+
+func (this TypedScopeCreator_Stage) compareTo(o any) int32 {
+	return TypedScopeCreator_Stage_enum_[this-1].compareTo(o)
+}
+
+func (this TypedScopeCreator_Stage) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func TypedScopeCreator_Stage_values() []*TypedScopeCreator_Stage {
-	return append([]*TypedScopeCreator_Stage(nil), TypedScopeCreator_Stage_values_...)
+func TypedScopeCreator_Stage_values() []TypedScopeCreator_Stage {
+	return append([]TypedScopeCreator_Stage(nil), TypedScopeCreator_Stage_values_...)
 }
 
-func TypedScopeCreator_Stage_valueOf(name string) *TypedScopeCreator_Stage {
+func TypedScopeCreator_Stage_valueOf(name string) TypedScopeCreator_Stage {
 	for _, v := range TypedScopeCreator_Stage_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Stage", name))
 }
 
-var TypedScopeCreator_Stage_BUILDING *TypedScopeCreator_Stage
-var TypedScopeCreator_Stage_FROZEN *TypedScopeCreator_Stage
-var TypedScopeCreator_Stage_values_ []*TypedScopeCreator_Stage
+const TypedScopeCreator_Stage_BUILDING TypedScopeCreator_Stage = 1
+const TypedScopeCreator_Stage_FROZEN TypedScopeCreator_Stage = 2
+
+var TypedScopeCreator_Stage_values_ []TypedScopeCreator_Stage
 
 var TypedScopeCreator_Stage_clinit_done bool
 
@@ -451,9 +466,7 @@ func TypedScopeCreator_Stage_clinit() {
 		return
 	}
 	TypedScopeCreator_Stage_clinit_done = true
-	TypedScopeCreator_Stage_BUILDING = new_TypedScopeCreator_Stage("BUILDING", 0)
-	TypedScopeCreator_Stage_FROZEN = new_TypedScopeCreator_Stage("FROZEN", 1)
-	TypedScopeCreator_Stage_values_ = []*TypedScopeCreator_Stage{TypedScopeCreator_Stage_BUILDING, TypedScopeCreator_Stage_FROZEN}
+	TypedScopeCreator_Stage_values_ = []TypedScopeCreator_Stage{TypedScopeCreator_Stage_BUILDING, TypedScopeCreator_Stage_FROZEN}
 	registerEnum_("com.google.javascript.jscomp.TypedScopeCreator.Stage", enumValues_(TypedScopeCreator_Stage_values_))
 
 }
@@ -673,7 +686,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) initializeModuleScope(module
 	if this.getModule() == nil {
 		return
 	}
-	var moduleType *ModuleMetadataMap_ModuleType = this.getModule().metadata().moduleType()
+	var moduleType ModuleMetadataMap_ModuleType = this.getModule().metadata().moduleType()
 	switch moduleType {
 	case ModuleMetadataMap_ModuleType_LEGACY_GOOG_MODULE, ModuleMetadataMap_ModuleType_GOOG_MODULE:
 		this.declareExportsInGoogModuleScope(this.getModule(), moduleBody)
@@ -933,7 +946,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) findOwnerTypeKeys(node Node)
 	return jtlistEmptyImm_(jtc_p_TemplateType)
 }
 
-func (this *TypedScopeCreator_AbstractScopeBuilder) assertDefinitionNode(n Node, type_ *Token_rhino) {
+func (this *TypedScopeCreator_AbstractScopeBuilder) assertDefinitionNode(n Node, type_ Token_rhino) {
 	Preconditions_checkState(this.sourceName_.isPresent())
 	if !(n.getToken() == type_) {
 		Preconditions_checkState_boolean_Object_H(false, n)

@@ -313,7 +313,7 @@ func new_FlowSensitiveInlineVariables_GatherCandidates(outer_ *FlowSensitiveInli
 }
 
 func (this *FlowSensitiveInlineVariables_GatherCandidates) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	var graphNode DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch]](this.outer_.cfg.getNode_Object_rDiGraphNode_rLinkedDiGraphNode(n).self())
+	var graphNode DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]](this.outer_.cfg.getNode_Object_rDiGraphNode_rLinkedDiGraphNode(n).self())
 	if graphNode == nil {
 		return
 	}
@@ -411,13 +411,13 @@ func (this *FlowSensitiveInlineVariables_Candidate) canInline(scope *Scope) bool
 		return false
 	}
 	if NodeUtil_isStatementBlock(this.getDefCfgNode().getParent()) && (this.getDefCfgNode().getNext() != this.useCfgNode) {
-		var pathCheck *CheckPathsBetweenNodes[Node, *ControlFlowGraph_Branch] = new_CheckPathsBetweenNodes_DiGraph_DiGraphNode_DiGraphNode_Predicate_Predicate_boolean[Node, *ControlFlowGraph_Branch](this.outer_.cfg.up_DiGraph(), cast_[DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch]](this.outer_.cfg.getNode_Object_rDiGraphNode_rLinkedDiGraphNode(this.getDefCfgNode()).self()), cast_[DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch]](this.outer_.cfg.getNode_Object_rDiGraphNode_rLinkedDiGraphNode(this.useCfgNode).self()), func() Predicate_base[Node] {
+		var pathCheck *CheckPathsBetweenNodes[Node, ControlFlowGraph_Branch] = new_CheckPathsBetweenNodes_DiGraph_DiGraphNode_DiGraphNode_Predicate_Predicate_boolean[Node, ControlFlowGraph_Branch](this.outer_.cfg.up_DiGraph(), cast_[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]](this.outer_.cfg.getNode_Object_rDiGraphNode_rLinkedDiGraphNode(this.getDefCfgNode()).self()), cast_[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]](this.outer_.cfg.getNode_Object_rDiGraphNode_rLinkedDiGraphNode(this.useCfgNode).self()), func() Predicate_base[Node] {
 			v_ := this.outer_.sideEffectPredicate
 			if v_ == nil {
 				return nil
 			}
 			return v_.apply
-		}(), Predicates_alwaysTrue[DiGraph_DiGraphEdge[Node, *ControlFlowGraph_Branch]](), false)
+		}(), Predicates_alwaysTrue[DiGraph_DiGraphEdge[Node, ControlFlowGraph_Branch]](), false)
 		if pathCheck.somePathsSatisfyPredicate() {
 			return false
 		}

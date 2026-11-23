@@ -2,124 +2,213 @@
 
 package closure
 
-type ParseTreeType struct {
-	Enum
+type ParseTreeType uint8
+
+// ParseTreeType_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var ParseTreeType_enum_ = [82]Enum{
+	{self_: ParseTreeType_PROGRAM, name_: "PROGRAM", ordinal_: 0},
+	{self_: ParseTreeType_FUNCTION_DECLARATION, name_: "FUNCTION_DECLARATION", ordinal_: 1},
+	{self_: ParseTreeType_BLOCK, name_: "BLOCK", ordinal_: 2},
+	{self_: ParseTreeType_VARIABLE_STATEMENT, name_: "VARIABLE_STATEMENT", ordinal_: 3},
+	{self_: ParseTreeType_VARIABLE_DECLARATION, name_: "VARIABLE_DECLARATION", ordinal_: 4},
+	{self_: ParseTreeType_EMPTY_STATEMENT, name_: "EMPTY_STATEMENT", ordinal_: 5},
+	{self_: ParseTreeType_EXPRESSION_STATEMENT, name_: "EXPRESSION_STATEMENT", ordinal_: 6},
+	{self_: ParseTreeType_IF_STATEMENT, name_: "IF_STATEMENT", ordinal_: 7},
+	{self_: ParseTreeType_DO_WHILE_STATEMENT, name_: "DO_WHILE_STATEMENT", ordinal_: 8},
+	{self_: ParseTreeType_WHILE_STATEMENT, name_: "WHILE_STATEMENT", ordinal_: 9},
+	{self_: ParseTreeType_FOR_IN_STATEMENT, name_: "FOR_IN_STATEMENT", ordinal_: 10},
+	{self_: ParseTreeType_FOR_STATEMENT, name_: "FOR_STATEMENT", ordinal_: 11},
+	{self_: ParseTreeType_VARIABLE_DECLARATION_LIST, name_: "VARIABLE_DECLARATION_LIST", ordinal_: 12},
+	{self_: ParseTreeType_CONTINUE_STATEMENT, name_: "CONTINUE_STATEMENT", ordinal_: 13},
+	{self_: ParseTreeType_BREAK_STATEMENT, name_: "BREAK_STATEMENT", ordinal_: 14},
+	{self_: ParseTreeType_RETURN_STATEMENT, name_: "RETURN_STATEMENT", ordinal_: 15},
+	{self_: ParseTreeType_WITH_STATEMENT, name_: "WITH_STATEMENT", ordinal_: 16},
+	{self_: ParseTreeType_CASE_CLAUSE, name_: "CASE_CLAUSE", ordinal_: 17},
+	{self_: ParseTreeType_DEFAULT_CLAUSE, name_: "DEFAULT_CLAUSE", ordinal_: 18},
+	{self_: ParseTreeType_SWITCH_STATEMENT, name_: "SWITCH_STATEMENT", ordinal_: 19},
+	{self_: ParseTreeType_LABELLED_STATEMENT, name_: "LABELLED_STATEMENT", ordinal_: 20},
+	{self_: ParseTreeType_THROW_STATEMENT, name_: "THROW_STATEMENT", ordinal_: 21},
+	{self_: ParseTreeType_CATCH, name_: "CATCH", ordinal_: 22},
+	{self_: ParseTreeType_TRY_STATEMENT, name_: "TRY_STATEMENT", ordinal_: 23},
+	{self_: ParseTreeType_DEBUGGER_STATEMENT, name_: "DEBUGGER_STATEMENT", ordinal_: 24},
+	{self_: ParseTreeType_THIS_EXPRESSION, name_: "THIS_EXPRESSION", ordinal_: 25},
+	{self_: ParseTreeType_IDENTIFIER_EXPRESSION, name_: "IDENTIFIER_EXPRESSION", ordinal_: 26},
+	{self_: ParseTreeType_LITERAL_EXPRESSION, name_: "LITERAL_EXPRESSION", ordinal_: 27},
+	{self_: ParseTreeType_ARRAY_LITERAL_EXPRESSION, name_: "ARRAY_LITERAL_EXPRESSION", ordinal_: 28},
+	{self_: ParseTreeType_OBJECT_LITERAL_EXPRESSION, name_: "OBJECT_LITERAL_EXPRESSION", ordinal_: 29},
+	{self_: ParseTreeType_GET_ACCESSOR, name_: "GET_ACCESSOR", ordinal_: 30},
+	{self_: ParseTreeType_SET_ACCESSOR, name_: "SET_ACCESSOR", ordinal_: 31},
+	{self_: ParseTreeType_PROPERTY_NAME_ASSIGNMENT, name_: "PROPERTY_NAME_ASSIGNMENT", ordinal_: 32},
+	{self_: ParseTreeType_COMPUTED_PROPERTY_DEFINITION, name_: "COMPUTED_PROPERTY_DEFINITION", ordinal_: 33},
+	{self_: ParseTreeType_COMPUTED_PROPERTY_GETTER, name_: "COMPUTED_PROPERTY_GETTER", ordinal_: 34},
+	{self_: ParseTreeType_COMPUTED_PROPERTY_METHOD, name_: "COMPUTED_PROPERTY_METHOD", ordinal_: 35},
+	{self_: ParseTreeType_COMPUTED_PROPERTY_SETTER, name_: "COMPUTED_PROPERTY_SETTER", ordinal_: 36},
+	{self_: ParseTreeType_MISSING_PRIMARY_EXPRESSION, name_: "MISSING_PRIMARY_EXPRESSION", ordinal_: 37},
+	{self_: ParseTreeType_COMMA_EXPRESSION, name_: "COMMA_EXPRESSION", ordinal_: 38},
+	{self_: ParseTreeType_BINARY_OPERATOR, name_: "BINARY_OPERATOR", ordinal_: 39},
+	{self_: ParseTreeType_CONDITIONAL_EXPRESSION, name_: "CONDITIONAL_EXPRESSION", ordinal_: 40},
+	{self_: ParseTreeType_UNARY_EXPRESSION, name_: "UNARY_EXPRESSION", ordinal_: 41},
+	{self_: ParseTreeType_UPDATE_EXPRESSION, name_: "UPDATE_EXPRESSION", ordinal_: 42},
+	{self_: ParseTreeType_MEMBER_EXPRESSION, name_: "MEMBER_EXPRESSION", ordinal_: 43},
+	{self_: ParseTreeType_OPT_CHAIN_MEMBER_EXPRESSION, name_: "OPT_CHAIN_MEMBER_EXPRESSION", ordinal_: 44},
+	{self_: ParseTreeType_NEW_EXPRESSION, name_: "NEW_EXPRESSION", ordinal_: 45},
+	{self_: ParseTreeType_ARGUMENT_LIST, name_: "ARGUMENT_LIST", ordinal_: 46},
+	{self_: ParseTreeType_CALL_EXPRESSION, name_: "CALL_EXPRESSION", ordinal_: 47},
+	{self_: ParseTreeType_OPT_CHAIN_CALL_EXPRESSION, name_: "OPT_CHAIN_CALL_EXPRESSION", ordinal_: 48},
+	{self_: ParseTreeType_CLASS_DECLARATION, name_: "CLASS_DECLARATION", ordinal_: 49},
+	{self_: ParseTreeType_MEMBER_LOOKUP_EXPRESSION, name_: "MEMBER_LOOKUP_EXPRESSION", ordinal_: 50},
+	{self_: ParseTreeType_OPT_CHAIN_MEMBER_LOOKUP_EXPRESSION, name_: "OPT_CHAIN_MEMBER_LOOKUP_EXPRESSION", ordinal_: 51},
+	{self_: ParseTreeType_PAREN_EXPRESSION, name_: "PAREN_EXPRESSION", ordinal_: 52},
+	{self_: ParseTreeType_FINALLY, name_: "FINALLY", ordinal_: 53},
+	{self_: ParseTreeType_SUPER_EXPRESSION, name_: "SUPER_EXPRESSION", ordinal_: 54},
+	{self_: ParseTreeType_ARRAY_PATTERN, name_: "ARRAY_PATTERN", ordinal_: 55},
+	{self_: ParseTreeType_OBJECT_PATTERN, name_: "OBJECT_PATTERN", ordinal_: 56},
+	{self_: ParseTreeType_FORMAL_PARAMETER_LIST, name_: "FORMAL_PARAMETER_LIST", ordinal_: 57},
+	{self_: ParseTreeType_ITER_SPREAD, name_: "ITER_SPREAD", ordinal_: 58},
+	{self_: ParseTreeType_OBJECT_SPREAD, name_: "OBJECT_SPREAD", ordinal_: 59},
+	{self_: ParseTreeType_NULL, name_: "NULL", ordinal_: 60},
+	{self_: ParseTreeType_ITER_REST, name_: "ITER_REST", ordinal_: 61},
+	{self_: ParseTreeType_OBJECT_REST, name_: "OBJECT_REST", ordinal_: 62},
+	{self_: ParseTreeType_MODULE_IMPORT, name_: "MODULE_IMPORT", ordinal_: 63},
+	{self_: ParseTreeType_EXPORT_DECLARATION, name_: "EXPORT_DECLARATION", ordinal_: 64},
+	{self_: ParseTreeType_EXPORT_SPECIFIER, name_: "EXPORT_SPECIFIER", ordinal_: 65},
+	{self_: ParseTreeType_IMPORT_DECLARATION, name_: "IMPORT_DECLARATION", ordinal_: 66},
+	{self_: ParseTreeType_IMPORT_SPECIFIER, name_: "IMPORT_SPECIFIER", ordinal_: 67},
+	{self_: ParseTreeType_FOR_OF_STATEMENT, name_: "FOR_OF_STATEMENT", ordinal_: 68},
+	{self_: ParseTreeType_FOR_AWAIT_OF_STATEMENT, name_: "FOR_AWAIT_OF_STATEMENT", ordinal_: 69},
+	{self_: ParseTreeType_YIELD_EXPRESSION, name_: "YIELD_EXPRESSION", ordinal_: 70},
+	{self_: ParseTreeType_DEFAULT_PARAMETER, name_: "DEFAULT_PARAMETER", ordinal_: 71},
+	{self_: ParseTreeType_TEMPLATE_LITERAL_EXPRESSION, name_: "TEMPLATE_LITERAL_EXPRESSION", ordinal_: 72},
+	{self_: ParseTreeType_TEMPLATE_LITERAL_PORTION, name_: "TEMPLATE_LITERAL_PORTION", ordinal_: 73},
+	{self_: ParseTreeType_TEMPLATE_SUBSTITUTION, name_: "TEMPLATE_SUBSTITUTION", ordinal_: 74},
+	{self_: ParseTreeType_OPTIONAL_PARAMETER, name_: "OPTIONAL_PARAMETER", ordinal_: 75},
+	{self_: ParseTreeType_NEW_TARGET_EXPRESSION, name_: "NEW_TARGET_EXPRESSION", ordinal_: 76},
+	{self_: ParseTreeType_AWAIT_EXPRESSION, name_: "AWAIT_EXPRESSION", ordinal_: 77},
+	{self_: ParseTreeType_DYNAMIC_IMPORT_EXPRESSION, name_: "DYNAMIC_IMPORT_EXPRESSION", ordinal_: 78},
+	{self_: ParseTreeType_IMPORT_META_EXPRESSION, name_: "IMPORT_META_EXPRESSION", ordinal_: 79},
+	{self_: ParseTreeType_COMPUTED_PROPERTY_FIELD, name_: "COMPUTED_PROPERTY_FIELD", ordinal_: 80},
+	{self_: ParseTreeType_FIELD_DECLARATION, name_: "FIELD_DECLARATION", ordinal_: 81},
 }
 
-func (this *ParseTreeType) up_Enum() *Enum {
-	if this == nil {
+func (this ParseTreeType) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &ParseTreeType_enum_[this-1]
 }
 
-func (this *ParseTreeType) init_ParseTreeType(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
-}
+func (this ParseTreeType) name() string { return ParseTreeType_enum_[this-1].name_ }
 
-func new_ParseTreeType(name_ string, ordinal_ int32) *ParseTreeType {
-	this := &ParseTreeType{}
-	this.self_ = this
-	this.init_ParseTreeType(name_, ordinal_)
+func (this ParseTreeType) ordinal() int32 { return ParseTreeType_enum_[this-1].ordinal_ }
+
+func (this ParseTreeType) toString() string { return ParseTreeType_enum_[this-1].name_ }
+
+func (this ParseTreeType) compareTo(o any) int32 { return ParseTreeType_enum_[this-1].compareTo(o) }
+
+func (this ParseTreeType) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func ParseTreeType_values() []*ParseTreeType {
-	return append([]*ParseTreeType(nil), ParseTreeType_values_...)
+func ParseTreeType_values() []ParseTreeType {
+	return append([]ParseTreeType(nil), ParseTreeType_values_...)
 }
 
-func ParseTreeType_valueOf(name string) *ParseTreeType {
+func ParseTreeType_valueOf(name string) ParseTreeType {
 	for _, v := range ParseTreeType_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("ParseTreeType", name))
 }
 
-var ParseTreeType_PROGRAM *ParseTreeType
-var ParseTreeType_FUNCTION_DECLARATION *ParseTreeType
-var ParseTreeType_BLOCK *ParseTreeType
-var ParseTreeType_VARIABLE_STATEMENT *ParseTreeType
-var ParseTreeType_VARIABLE_DECLARATION *ParseTreeType
-var ParseTreeType_EMPTY_STATEMENT *ParseTreeType
-var ParseTreeType_EXPRESSION_STATEMENT *ParseTreeType
-var ParseTreeType_IF_STATEMENT *ParseTreeType
-var ParseTreeType_DO_WHILE_STATEMENT *ParseTreeType
-var ParseTreeType_WHILE_STATEMENT *ParseTreeType
-var ParseTreeType_FOR_IN_STATEMENT *ParseTreeType
-var ParseTreeType_FOR_STATEMENT *ParseTreeType
-var ParseTreeType_VARIABLE_DECLARATION_LIST *ParseTreeType
-var ParseTreeType_CONTINUE_STATEMENT *ParseTreeType
-var ParseTreeType_BREAK_STATEMENT *ParseTreeType
-var ParseTreeType_RETURN_STATEMENT *ParseTreeType
-var ParseTreeType_WITH_STATEMENT *ParseTreeType
-var ParseTreeType_CASE_CLAUSE *ParseTreeType
-var ParseTreeType_DEFAULT_CLAUSE *ParseTreeType
-var ParseTreeType_SWITCH_STATEMENT *ParseTreeType
-var ParseTreeType_LABELLED_STATEMENT *ParseTreeType
-var ParseTreeType_THROW_STATEMENT *ParseTreeType
-var ParseTreeType_CATCH *ParseTreeType
-var ParseTreeType_TRY_STATEMENT *ParseTreeType
-var ParseTreeType_DEBUGGER_STATEMENT *ParseTreeType
-var ParseTreeType_THIS_EXPRESSION *ParseTreeType
-var ParseTreeType_IDENTIFIER_EXPRESSION *ParseTreeType
-var ParseTreeType_LITERAL_EXPRESSION *ParseTreeType
-var ParseTreeType_ARRAY_LITERAL_EXPRESSION *ParseTreeType
-var ParseTreeType_OBJECT_LITERAL_EXPRESSION *ParseTreeType
-var ParseTreeType_GET_ACCESSOR *ParseTreeType
-var ParseTreeType_SET_ACCESSOR *ParseTreeType
-var ParseTreeType_PROPERTY_NAME_ASSIGNMENT *ParseTreeType
-var ParseTreeType_COMPUTED_PROPERTY_DEFINITION *ParseTreeType
-var ParseTreeType_COMPUTED_PROPERTY_GETTER *ParseTreeType
-var ParseTreeType_COMPUTED_PROPERTY_METHOD *ParseTreeType
-var ParseTreeType_COMPUTED_PROPERTY_SETTER *ParseTreeType
-var ParseTreeType_MISSING_PRIMARY_EXPRESSION *ParseTreeType
-var ParseTreeType_COMMA_EXPRESSION *ParseTreeType
-var ParseTreeType_BINARY_OPERATOR *ParseTreeType
-var ParseTreeType_CONDITIONAL_EXPRESSION *ParseTreeType
-var ParseTreeType_UNARY_EXPRESSION *ParseTreeType
-var ParseTreeType_UPDATE_EXPRESSION *ParseTreeType
-var ParseTreeType_MEMBER_EXPRESSION *ParseTreeType
-var ParseTreeType_OPT_CHAIN_MEMBER_EXPRESSION *ParseTreeType
-var ParseTreeType_NEW_EXPRESSION *ParseTreeType
-var ParseTreeType_ARGUMENT_LIST *ParseTreeType
-var ParseTreeType_CALL_EXPRESSION *ParseTreeType
-var ParseTreeType_OPT_CHAIN_CALL_EXPRESSION *ParseTreeType
-var ParseTreeType_CLASS_DECLARATION *ParseTreeType
-var ParseTreeType_MEMBER_LOOKUP_EXPRESSION *ParseTreeType
-var ParseTreeType_OPT_CHAIN_MEMBER_LOOKUP_EXPRESSION *ParseTreeType
-var ParseTreeType_PAREN_EXPRESSION *ParseTreeType
-var ParseTreeType_FINALLY *ParseTreeType
-var ParseTreeType_SUPER_EXPRESSION *ParseTreeType
-var ParseTreeType_ARRAY_PATTERN *ParseTreeType
-var ParseTreeType_OBJECT_PATTERN *ParseTreeType
-var ParseTreeType_FORMAL_PARAMETER_LIST *ParseTreeType
-var ParseTreeType_ITER_SPREAD *ParseTreeType
-var ParseTreeType_OBJECT_SPREAD *ParseTreeType
-var ParseTreeType_NULL *ParseTreeType
-var ParseTreeType_ITER_REST *ParseTreeType
-var ParseTreeType_OBJECT_REST *ParseTreeType
-var ParseTreeType_MODULE_IMPORT *ParseTreeType
-var ParseTreeType_EXPORT_DECLARATION *ParseTreeType
-var ParseTreeType_EXPORT_SPECIFIER *ParseTreeType
-var ParseTreeType_IMPORT_DECLARATION *ParseTreeType
-var ParseTreeType_IMPORT_SPECIFIER *ParseTreeType
-var ParseTreeType_FOR_OF_STATEMENT *ParseTreeType
-var ParseTreeType_FOR_AWAIT_OF_STATEMENT *ParseTreeType
-var ParseTreeType_YIELD_EXPRESSION *ParseTreeType
-var ParseTreeType_DEFAULT_PARAMETER *ParseTreeType
-var ParseTreeType_TEMPLATE_LITERAL_EXPRESSION *ParseTreeType
-var ParseTreeType_TEMPLATE_LITERAL_PORTION *ParseTreeType
-var ParseTreeType_TEMPLATE_SUBSTITUTION *ParseTreeType
-var ParseTreeType_OPTIONAL_PARAMETER *ParseTreeType
-var ParseTreeType_NEW_TARGET_EXPRESSION *ParseTreeType
-var ParseTreeType_AWAIT_EXPRESSION *ParseTreeType
-var ParseTreeType_DYNAMIC_IMPORT_EXPRESSION *ParseTreeType
-var ParseTreeType_IMPORT_META_EXPRESSION *ParseTreeType
-var ParseTreeType_COMPUTED_PROPERTY_FIELD *ParseTreeType
-var ParseTreeType_FIELD_DECLARATION *ParseTreeType
-var ParseTreeType_values_ []*ParseTreeType
+const ParseTreeType_PROGRAM ParseTreeType = 1
+const ParseTreeType_FUNCTION_DECLARATION ParseTreeType = 2
+const ParseTreeType_BLOCK ParseTreeType = 3
+const ParseTreeType_VARIABLE_STATEMENT ParseTreeType = 4
+const ParseTreeType_VARIABLE_DECLARATION ParseTreeType = 5
+const ParseTreeType_EMPTY_STATEMENT ParseTreeType = 6
+const ParseTreeType_EXPRESSION_STATEMENT ParseTreeType = 7
+const ParseTreeType_IF_STATEMENT ParseTreeType = 8
+const ParseTreeType_DO_WHILE_STATEMENT ParseTreeType = 9
+const ParseTreeType_WHILE_STATEMENT ParseTreeType = 10
+const ParseTreeType_FOR_IN_STATEMENT ParseTreeType = 11
+const ParseTreeType_FOR_STATEMENT ParseTreeType = 12
+const ParseTreeType_VARIABLE_DECLARATION_LIST ParseTreeType = 13
+const ParseTreeType_CONTINUE_STATEMENT ParseTreeType = 14
+const ParseTreeType_BREAK_STATEMENT ParseTreeType = 15
+const ParseTreeType_RETURN_STATEMENT ParseTreeType = 16
+const ParseTreeType_WITH_STATEMENT ParseTreeType = 17
+const ParseTreeType_CASE_CLAUSE ParseTreeType = 18
+const ParseTreeType_DEFAULT_CLAUSE ParseTreeType = 19
+const ParseTreeType_SWITCH_STATEMENT ParseTreeType = 20
+const ParseTreeType_LABELLED_STATEMENT ParseTreeType = 21
+const ParseTreeType_THROW_STATEMENT ParseTreeType = 22
+const ParseTreeType_CATCH ParseTreeType = 23
+const ParseTreeType_TRY_STATEMENT ParseTreeType = 24
+const ParseTreeType_DEBUGGER_STATEMENT ParseTreeType = 25
+const ParseTreeType_THIS_EXPRESSION ParseTreeType = 26
+const ParseTreeType_IDENTIFIER_EXPRESSION ParseTreeType = 27
+const ParseTreeType_LITERAL_EXPRESSION ParseTreeType = 28
+const ParseTreeType_ARRAY_LITERAL_EXPRESSION ParseTreeType = 29
+const ParseTreeType_OBJECT_LITERAL_EXPRESSION ParseTreeType = 30
+const ParseTreeType_GET_ACCESSOR ParseTreeType = 31
+const ParseTreeType_SET_ACCESSOR ParseTreeType = 32
+const ParseTreeType_PROPERTY_NAME_ASSIGNMENT ParseTreeType = 33
+const ParseTreeType_COMPUTED_PROPERTY_DEFINITION ParseTreeType = 34
+const ParseTreeType_COMPUTED_PROPERTY_GETTER ParseTreeType = 35
+const ParseTreeType_COMPUTED_PROPERTY_METHOD ParseTreeType = 36
+const ParseTreeType_COMPUTED_PROPERTY_SETTER ParseTreeType = 37
+const ParseTreeType_MISSING_PRIMARY_EXPRESSION ParseTreeType = 38
+const ParseTreeType_COMMA_EXPRESSION ParseTreeType = 39
+const ParseTreeType_BINARY_OPERATOR ParseTreeType = 40
+const ParseTreeType_CONDITIONAL_EXPRESSION ParseTreeType = 41
+const ParseTreeType_UNARY_EXPRESSION ParseTreeType = 42
+const ParseTreeType_UPDATE_EXPRESSION ParseTreeType = 43
+const ParseTreeType_MEMBER_EXPRESSION ParseTreeType = 44
+const ParseTreeType_OPT_CHAIN_MEMBER_EXPRESSION ParseTreeType = 45
+const ParseTreeType_NEW_EXPRESSION ParseTreeType = 46
+const ParseTreeType_ARGUMENT_LIST ParseTreeType = 47
+const ParseTreeType_CALL_EXPRESSION ParseTreeType = 48
+const ParseTreeType_OPT_CHAIN_CALL_EXPRESSION ParseTreeType = 49
+const ParseTreeType_CLASS_DECLARATION ParseTreeType = 50
+const ParseTreeType_MEMBER_LOOKUP_EXPRESSION ParseTreeType = 51
+const ParseTreeType_OPT_CHAIN_MEMBER_LOOKUP_EXPRESSION ParseTreeType = 52
+const ParseTreeType_PAREN_EXPRESSION ParseTreeType = 53
+const ParseTreeType_FINALLY ParseTreeType = 54
+const ParseTreeType_SUPER_EXPRESSION ParseTreeType = 55
+const ParseTreeType_ARRAY_PATTERN ParseTreeType = 56
+const ParseTreeType_OBJECT_PATTERN ParseTreeType = 57
+const ParseTreeType_FORMAL_PARAMETER_LIST ParseTreeType = 58
+const ParseTreeType_ITER_SPREAD ParseTreeType = 59
+const ParseTreeType_OBJECT_SPREAD ParseTreeType = 60
+const ParseTreeType_NULL ParseTreeType = 61
+const ParseTreeType_ITER_REST ParseTreeType = 62
+const ParseTreeType_OBJECT_REST ParseTreeType = 63
+const ParseTreeType_MODULE_IMPORT ParseTreeType = 64
+const ParseTreeType_EXPORT_DECLARATION ParseTreeType = 65
+const ParseTreeType_EXPORT_SPECIFIER ParseTreeType = 66
+const ParseTreeType_IMPORT_DECLARATION ParseTreeType = 67
+const ParseTreeType_IMPORT_SPECIFIER ParseTreeType = 68
+const ParseTreeType_FOR_OF_STATEMENT ParseTreeType = 69
+const ParseTreeType_FOR_AWAIT_OF_STATEMENT ParseTreeType = 70
+const ParseTreeType_YIELD_EXPRESSION ParseTreeType = 71
+const ParseTreeType_DEFAULT_PARAMETER ParseTreeType = 72
+const ParseTreeType_TEMPLATE_LITERAL_EXPRESSION ParseTreeType = 73
+const ParseTreeType_TEMPLATE_LITERAL_PORTION ParseTreeType = 74
+const ParseTreeType_TEMPLATE_SUBSTITUTION ParseTreeType = 75
+const ParseTreeType_OPTIONAL_PARAMETER ParseTreeType = 76
+const ParseTreeType_NEW_TARGET_EXPRESSION ParseTreeType = 77
+const ParseTreeType_AWAIT_EXPRESSION ParseTreeType = 78
+const ParseTreeType_DYNAMIC_IMPORT_EXPRESSION ParseTreeType = 79
+const ParseTreeType_IMPORT_META_EXPRESSION ParseTreeType = 80
+const ParseTreeType_COMPUTED_PROPERTY_FIELD ParseTreeType = 81
+const ParseTreeType_FIELD_DECLARATION ParseTreeType = 82
+
+var ParseTreeType_values_ []ParseTreeType
 
 var ParseTreeType_clinit_done bool
 
@@ -128,89 +217,7 @@ func ParseTreeType_clinit() {
 		return
 	}
 	ParseTreeType_clinit_done = true
-	ParseTreeType_PROGRAM = new_ParseTreeType("PROGRAM", 0)
-	ParseTreeType_FUNCTION_DECLARATION = new_ParseTreeType("FUNCTION_DECLARATION", 1)
-	ParseTreeType_BLOCK = new_ParseTreeType("BLOCK", 2)
-	ParseTreeType_VARIABLE_STATEMENT = new_ParseTreeType("VARIABLE_STATEMENT", 3)
-	ParseTreeType_VARIABLE_DECLARATION = new_ParseTreeType("VARIABLE_DECLARATION", 4)
-	ParseTreeType_EMPTY_STATEMENT = new_ParseTreeType("EMPTY_STATEMENT", 5)
-	ParseTreeType_EXPRESSION_STATEMENT = new_ParseTreeType("EXPRESSION_STATEMENT", 6)
-	ParseTreeType_IF_STATEMENT = new_ParseTreeType("IF_STATEMENT", 7)
-	ParseTreeType_DO_WHILE_STATEMENT = new_ParseTreeType("DO_WHILE_STATEMENT", 8)
-	ParseTreeType_WHILE_STATEMENT = new_ParseTreeType("WHILE_STATEMENT", 9)
-	ParseTreeType_FOR_IN_STATEMENT = new_ParseTreeType("FOR_IN_STATEMENT", 10)
-	ParseTreeType_FOR_STATEMENT = new_ParseTreeType("FOR_STATEMENT", 11)
-	ParseTreeType_VARIABLE_DECLARATION_LIST = new_ParseTreeType("VARIABLE_DECLARATION_LIST", 12)
-	ParseTreeType_CONTINUE_STATEMENT = new_ParseTreeType("CONTINUE_STATEMENT", 13)
-	ParseTreeType_BREAK_STATEMENT = new_ParseTreeType("BREAK_STATEMENT", 14)
-	ParseTreeType_RETURN_STATEMENT = new_ParseTreeType("RETURN_STATEMENT", 15)
-	ParseTreeType_WITH_STATEMENT = new_ParseTreeType("WITH_STATEMENT", 16)
-	ParseTreeType_CASE_CLAUSE = new_ParseTreeType("CASE_CLAUSE", 17)
-	ParseTreeType_DEFAULT_CLAUSE = new_ParseTreeType("DEFAULT_CLAUSE", 18)
-	ParseTreeType_SWITCH_STATEMENT = new_ParseTreeType("SWITCH_STATEMENT", 19)
-	ParseTreeType_LABELLED_STATEMENT = new_ParseTreeType("LABELLED_STATEMENT", 20)
-	ParseTreeType_THROW_STATEMENT = new_ParseTreeType("THROW_STATEMENT", 21)
-	ParseTreeType_CATCH = new_ParseTreeType("CATCH", 22)
-	ParseTreeType_TRY_STATEMENT = new_ParseTreeType("TRY_STATEMENT", 23)
-	ParseTreeType_DEBUGGER_STATEMENT = new_ParseTreeType("DEBUGGER_STATEMENT", 24)
-	ParseTreeType_THIS_EXPRESSION = new_ParseTreeType("THIS_EXPRESSION", 25)
-	ParseTreeType_IDENTIFIER_EXPRESSION = new_ParseTreeType("IDENTIFIER_EXPRESSION", 26)
-	ParseTreeType_LITERAL_EXPRESSION = new_ParseTreeType("LITERAL_EXPRESSION", 27)
-	ParseTreeType_ARRAY_LITERAL_EXPRESSION = new_ParseTreeType("ARRAY_LITERAL_EXPRESSION", 28)
-	ParseTreeType_OBJECT_LITERAL_EXPRESSION = new_ParseTreeType("OBJECT_LITERAL_EXPRESSION", 29)
-	ParseTreeType_GET_ACCESSOR = new_ParseTreeType("GET_ACCESSOR", 30)
-	ParseTreeType_SET_ACCESSOR = new_ParseTreeType("SET_ACCESSOR", 31)
-	ParseTreeType_PROPERTY_NAME_ASSIGNMENT = new_ParseTreeType("PROPERTY_NAME_ASSIGNMENT", 32)
-	ParseTreeType_COMPUTED_PROPERTY_DEFINITION = new_ParseTreeType("COMPUTED_PROPERTY_DEFINITION", 33)
-	ParseTreeType_COMPUTED_PROPERTY_GETTER = new_ParseTreeType("COMPUTED_PROPERTY_GETTER", 34)
-	ParseTreeType_COMPUTED_PROPERTY_METHOD = new_ParseTreeType("COMPUTED_PROPERTY_METHOD", 35)
-	ParseTreeType_COMPUTED_PROPERTY_SETTER = new_ParseTreeType("COMPUTED_PROPERTY_SETTER", 36)
-	ParseTreeType_MISSING_PRIMARY_EXPRESSION = new_ParseTreeType("MISSING_PRIMARY_EXPRESSION", 37)
-	ParseTreeType_COMMA_EXPRESSION = new_ParseTreeType("COMMA_EXPRESSION", 38)
-	ParseTreeType_BINARY_OPERATOR = new_ParseTreeType("BINARY_OPERATOR", 39)
-	ParseTreeType_CONDITIONAL_EXPRESSION = new_ParseTreeType("CONDITIONAL_EXPRESSION", 40)
-	ParseTreeType_UNARY_EXPRESSION = new_ParseTreeType("UNARY_EXPRESSION", 41)
-	ParseTreeType_UPDATE_EXPRESSION = new_ParseTreeType("UPDATE_EXPRESSION", 42)
-	ParseTreeType_MEMBER_EXPRESSION = new_ParseTreeType("MEMBER_EXPRESSION", 43)
-	ParseTreeType_OPT_CHAIN_MEMBER_EXPRESSION = new_ParseTreeType("OPT_CHAIN_MEMBER_EXPRESSION", 44)
-	ParseTreeType_NEW_EXPRESSION = new_ParseTreeType("NEW_EXPRESSION", 45)
-	ParseTreeType_ARGUMENT_LIST = new_ParseTreeType("ARGUMENT_LIST", 46)
-	ParseTreeType_CALL_EXPRESSION = new_ParseTreeType("CALL_EXPRESSION", 47)
-	ParseTreeType_OPT_CHAIN_CALL_EXPRESSION = new_ParseTreeType("OPT_CHAIN_CALL_EXPRESSION", 48)
-	ParseTreeType_CLASS_DECLARATION = new_ParseTreeType("CLASS_DECLARATION", 49)
-	ParseTreeType_MEMBER_LOOKUP_EXPRESSION = new_ParseTreeType("MEMBER_LOOKUP_EXPRESSION", 50)
-	ParseTreeType_OPT_CHAIN_MEMBER_LOOKUP_EXPRESSION = new_ParseTreeType("OPT_CHAIN_MEMBER_LOOKUP_EXPRESSION", 51)
-	ParseTreeType_PAREN_EXPRESSION = new_ParseTreeType("PAREN_EXPRESSION", 52)
-	ParseTreeType_FINALLY = new_ParseTreeType("FINALLY", 53)
-	ParseTreeType_SUPER_EXPRESSION = new_ParseTreeType("SUPER_EXPRESSION", 54)
-	ParseTreeType_ARRAY_PATTERN = new_ParseTreeType("ARRAY_PATTERN", 55)
-	ParseTreeType_OBJECT_PATTERN = new_ParseTreeType("OBJECT_PATTERN", 56)
-	ParseTreeType_FORMAL_PARAMETER_LIST = new_ParseTreeType("FORMAL_PARAMETER_LIST", 57)
-	ParseTreeType_ITER_SPREAD = new_ParseTreeType("ITER_SPREAD", 58)
-	ParseTreeType_OBJECT_SPREAD = new_ParseTreeType("OBJECT_SPREAD", 59)
-	ParseTreeType_NULL = new_ParseTreeType("NULL", 60)
-	ParseTreeType_ITER_REST = new_ParseTreeType("ITER_REST", 61)
-	ParseTreeType_OBJECT_REST = new_ParseTreeType("OBJECT_REST", 62)
-	ParseTreeType_MODULE_IMPORT = new_ParseTreeType("MODULE_IMPORT", 63)
-	ParseTreeType_EXPORT_DECLARATION = new_ParseTreeType("EXPORT_DECLARATION", 64)
-	ParseTreeType_EXPORT_SPECIFIER = new_ParseTreeType("EXPORT_SPECIFIER", 65)
-	ParseTreeType_IMPORT_DECLARATION = new_ParseTreeType("IMPORT_DECLARATION", 66)
-	ParseTreeType_IMPORT_SPECIFIER = new_ParseTreeType("IMPORT_SPECIFIER", 67)
-	ParseTreeType_FOR_OF_STATEMENT = new_ParseTreeType("FOR_OF_STATEMENT", 68)
-	ParseTreeType_FOR_AWAIT_OF_STATEMENT = new_ParseTreeType("FOR_AWAIT_OF_STATEMENT", 69)
-	ParseTreeType_YIELD_EXPRESSION = new_ParseTreeType("YIELD_EXPRESSION", 70)
-	ParseTreeType_DEFAULT_PARAMETER = new_ParseTreeType("DEFAULT_PARAMETER", 71)
-	ParseTreeType_TEMPLATE_LITERAL_EXPRESSION = new_ParseTreeType("TEMPLATE_LITERAL_EXPRESSION", 72)
-	ParseTreeType_TEMPLATE_LITERAL_PORTION = new_ParseTreeType("TEMPLATE_LITERAL_PORTION", 73)
-	ParseTreeType_TEMPLATE_SUBSTITUTION = new_ParseTreeType("TEMPLATE_SUBSTITUTION", 74)
-	ParseTreeType_OPTIONAL_PARAMETER = new_ParseTreeType("OPTIONAL_PARAMETER", 75)
-	ParseTreeType_NEW_TARGET_EXPRESSION = new_ParseTreeType("NEW_TARGET_EXPRESSION", 76)
-	ParseTreeType_AWAIT_EXPRESSION = new_ParseTreeType("AWAIT_EXPRESSION", 77)
-	ParseTreeType_DYNAMIC_IMPORT_EXPRESSION = new_ParseTreeType("DYNAMIC_IMPORT_EXPRESSION", 78)
-	ParseTreeType_IMPORT_META_EXPRESSION = new_ParseTreeType("IMPORT_META_EXPRESSION", 79)
-	ParseTreeType_COMPUTED_PROPERTY_FIELD = new_ParseTreeType("COMPUTED_PROPERTY_FIELD", 80)
-	ParseTreeType_FIELD_DECLARATION = new_ParseTreeType("FIELD_DECLARATION", 81)
-	ParseTreeType_values_ = []*ParseTreeType{ParseTreeType_PROGRAM, ParseTreeType_FUNCTION_DECLARATION, ParseTreeType_BLOCK, ParseTreeType_VARIABLE_STATEMENT, ParseTreeType_VARIABLE_DECLARATION, ParseTreeType_EMPTY_STATEMENT, ParseTreeType_EXPRESSION_STATEMENT, ParseTreeType_IF_STATEMENT, ParseTreeType_DO_WHILE_STATEMENT, ParseTreeType_WHILE_STATEMENT, ParseTreeType_FOR_IN_STATEMENT, ParseTreeType_FOR_STATEMENT, ParseTreeType_VARIABLE_DECLARATION_LIST, ParseTreeType_CONTINUE_STATEMENT, ParseTreeType_BREAK_STATEMENT, ParseTreeType_RETURN_STATEMENT, ParseTreeType_WITH_STATEMENT, ParseTreeType_CASE_CLAUSE, ParseTreeType_DEFAULT_CLAUSE, ParseTreeType_SWITCH_STATEMENT, ParseTreeType_LABELLED_STATEMENT, ParseTreeType_THROW_STATEMENT, ParseTreeType_CATCH, ParseTreeType_TRY_STATEMENT, ParseTreeType_DEBUGGER_STATEMENT, ParseTreeType_THIS_EXPRESSION, ParseTreeType_IDENTIFIER_EXPRESSION, ParseTreeType_LITERAL_EXPRESSION, ParseTreeType_ARRAY_LITERAL_EXPRESSION, ParseTreeType_OBJECT_LITERAL_EXPRESSION, ParseTreeType_GET_ACCESSOR, ParseTreeType_SET_ACCESSOR, ParseTreeType_PROPERTY_NAME_ASSIGNMENT, ParseTreeType_COMPUTED_PROPERTY_DEFINITION, ParseTreeType_COMPUTED_PROPERTY_GETTER, ParseTreeType_COMPUTED_PROPERTY_METHOD, ParseTreeType_COMPUTED_PROPERTY_SETTER, ParseTreeType_MISSING_PRIMARY_EXPRESSION, ParseTreeType_COMMA_EXPRESSION, ParseTreeType_BINARY_OPERATOR, ParseTreeType_CONDITIONAL_EXPRESSION, ParseTreeType_UNARY_EXPRESSION, ParseTreeType_UPDATE_EXPRESSION, ParseTreeType_MEMBER_EXPRESSION, ParseTreeType_OPT_CHAIN_MEMBER_EXPRESSION, ParseTreeType_NEW_EXPRESSION, ParseTreeType_ARGUMENT_LIST, ParseTreeType_CALL_EXPRESSION, ParseTreeType_OPT_CHAIN_CALL_EXPRESSION, ParseTreeType_CLASS_DECLARATION, ParseTreeType_MEMBER_LOOKUP_EXPRESSION, ParseTreeType_OPT_CHAIN_MEMBER_LOOKUP_EXPRESSION, ParseTreeType_PAREN_EXPRESSION, ParseTreeType_FINALLY, ParseTreeType_SUPER_EXPRESSION, ParseTreeType_ARRAY_PATTERN, ParseTreeType_OBJECT_PATTERN, ParseTreeType_FORMAL_PARAMETER_LIST, ParseTreeType_ITER_SPREAD, ParseTreeType_OBJECT_SPREAD, ParseTreeType_NULL, ParseTreeType_ITER_REST, ParseTreeType_OBJECT_REST, ParseTreeType_MODULE_IMPORT, ParseTreeType_EXPORT_DECLARATION, ParseTreeType_EXPORT_SPECIFIER, ParseTreeType_IMPORT_DECLARATION, ParseTreeType_IMPORT_SPECIFIER, ParseTreeType_FOR_OF_STATEMENT, ParseTreeType_FOR_AWAIT_OF_STATEMENT, ParseTreeType_YIELD_EXPRESSION, ParseTreeType_DEFAULT_PARAMETER, ParseTreeType_TEMPLATE_LITERAL_EXPRESSION, ParseTreeType_TEMPLATE_LITERAL_PORTION, ParseTreeType_TEMPLATE_SUBSTITUTION, ParseTreeType_OPTIONAL_PARAMETER, ParseTreeType_NEW_TARGET_EXPRESSION, ParseTreeType_AWAIT_EXPRESSION, ParseTreeType_DYNAMIC_IMPORT_EXPRESSION, ParseTreeType_IMPORT_META_EXPRESSION, ParseTreeType_COMPUTED_PROPERTY_FIELD, ParseTreeType_FIELD_DECLARATION}
+	ParseTreeType_values_ = []ParseTreeType{ParseTreeType_PROGRAM, ParseTreeType_FUNCTION_DECLARATION, ParseTreeType_BLOCK, ParseTreeType_VARIABLE_STATEMENT, ParseTreeType_VARIABLE_DECLARATION, ParseTreeType_EMPTY_STATEMENT, ParseTreeType_EXPRESSION_STATEMENT, ParseTreeType_IF_STATEMENT, ParseTreeType_DO_WHILE_STATEMENT, ParseTreeType_WHILE_STATEMENT, ParseTreeType_FOR_IN_STATEMENT, ParseTreeType_FOR_STATEMENT, ParseTreeType_VARIABLE_DECLARATION_LIST, ParseTreeType_CONTINUE_STATEMENT, ParseTreeType_BREAK_STATEMENT, ParseTreeType_RETURN_STATEMENT, ParseTreeType_WITH_STATEMENT, ParseTreeType_CASE_CLAUSE, ParseTreeType_DEFAULT_CLAUSE, ParseTreeType_SWITCH_STATEMENT, ParseTreeType_LABELLED_STATEMENT, ParseTreeType_THROW_STATEMENT, ParseTreeType_CATCH, ParseTreeType_TRY_STATEMENT, ParseTreeType_DEBUGGER_STATEMENT, ParseTreeType_THIS_EXPRESSION, ParseTreeType_IDENTIFIER_EXPRESSION, ParseTreeType_LITERAL_EXPRESSION, ParseTreeType_ARRAY_LITERAL_EXPRESSION, ParseTreeType_OBJECT_LITERAL_EXPRESSION, ParseTreeType_GET_ACCESSOR, ParseTreeType_SET_ACCESSOR, ParseTreeType_PROPERTY_NAME_ASSIGNMENT, ParseTreeType_COMPUTED_PROPERTY_DEFINITION, ParseTreeType_COMPUTED_PROPERTY_GETTER, ParseTreeType_COMPUTED_PROPERTY_METHOD, ParseTreeType_COMPUTED_PROPERTY_SETTER, ParseTreeType_MISSING_PRIMARY_EXPRESSION, ParseTreeType_COMMA_EXPRESSION, ParseTreeType_BINARY_OPERATOR, ParseTreeType_CONDITIONAL_EXPRESSION, ParseTreeType_UNARY_EXPRESSION, ParseTreeType_UPDATE_EXPRESSION, ParseTreeType_MEMBER_EXPRESSION, ParseTreeType_OPT_CHAIN_MEMBER_EXPRESSION, ParseTreeType_NEW_EXPRESSION, ParseTreeType_ARGUMENT_LIST, ParseTreeType_CALL_EXPRESSION, ParseTreeType_OPT_CHAIN_CALL_EXPRESSION, ParseTreeType_CLASS_DECLARATION, ParseTreeType_MEMBER_LOOKUP_EXPRESSION, ParseTreeType_OPT_CHAIN_MEMBER_LOOKUP_EXPRESSION, ParseTreeType_PAREN_EXPRESSION, ParseTreeType_FINALLY, ParseTreeType_SUPER_EXPRESSION, ParseTreeType_ARRAY_PATTERN, ParseTreeType_OBJECT_PATTERN, ParseTreeType_FORMAL_PARAMETER_LIST, ParseTreeType_ITER_SPREAD, ParseTreeType_OBJECT_SPREAD, ParseTreeType_NULL, ParseTreeType_ITER_REST, ParseTreeType_OBJECT_REST, ParseTreeType_MODULE_IMPORT, ParseTreeType_EXPORT_DECLARATION, ParseTreeType_EXPORT_SPECIFIER, ParseTreeType_IMPORT_DECLARATION, ParseTreeType_IMPORT_SPECIFIER, ParseTreeType_FOR_OF_STATEMENT, ParseTreeType_FOR_AWAIT_OF_STATEMENT, ParseTreeType_YIELD_EXPRESSION, ParseTreeType_DEFAULT_PARAMETER, ParseTreeType_TEMPLATE_LITERAL_EXPRESSION, ParseTreeType_TEMPLATE_LITERAL_PORTION, ParseTreeType_TEMPLATE_SUBSTITUTION, ParseTreeType_OPTIONAL_PARAMETER, ParseTreeType_NEW_TARGET_EXPRESSION, ParseTreeType_AWAIT_EXPRESSION, ParseTreeType_DYNAMIC_IMPORT_EXPRESSION, ParseTreeType_IMPORT_META_EXPRESSION, ParseTreeType_COMPUTED_PROPERTY_FIELD, ParseTreeType_FIELD_DECLARATION}
 	registerEnum_("com.google.javascript.jscomp.parsing.parser.trees.ParseTreeType", enumValues_(ParseTreeType_values_))
 
 }

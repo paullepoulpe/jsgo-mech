@@ -36,55 +36,79 @@ func ModuleMetadataMap_emptyForTesting() *ModuleMetadataMap {
 	return new_ModuleMetadataMap(jtmapEmptyImm_(jtc_string, jtc_p_ModuleMetadataMap_ModuleMetadata), jtmapEmptyImm_(jtc_string, jtc_p_ModuleMetadataMap_ModuleMetadata))
 }
 
-type ModuleMetadataMap_ModuleType struct {
-	Enum
-	description_ string
+type ModuleMetadataMap_ModuleType uint8
+
+// ModuleMetadataMap_ModuleType_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var ModuleMetadataMap_ModuleType_enum_ = [6]Enum{
+	{self_: ModuleMetadataMap_ModuleType_ES6_MODULE, name_: "ES6_MODULE", ordinal_: 0},
+	{self_: ModuleMetadataMap_ModuleType_GOOG_MODULE, name_: "GOOG_MODULE", ordinal_: 1},
+	{self_: ModuleMetadataMap_ModuleType_LEGACY_GOOG_MODULE, name_: "LEGACY_GOOG_MODULE", ordinal_: 2},
+	{self_: ModuleMetadataMap_ModuleType_COMMON_JS, name_: "COMMON_JS", ordinal_: 3},
+	{self_: ModuleMetadataMap_ModuleType_GOOG_PROVIDE, name_: "GOOG_PROVIDE", ordinal_: 4},
+	{self_: ModuleMetadataMap_ModuleType_SCRIPT, name_: "SCRIPT", ordinal_: 5},
 }
 
-func (this *ModuleMetadataMap_ModuleType) up_Enum() *Enum {
-	if this == nil {
+var ModuleMetadataMap_ModuleType_description__ [6]string
+
+func (this ModuleMetadataMap_ModuleType) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &ModuleMetadataMap_ModuleType_enum_[this-1]
 }
 
-func (this *ModuleMetadataMap_ModuleType) zero_ModuleMetadataMap_ModuleType() {
-	this.description_ = nullstr_
+func (this ModuleMetadataMap_ModuleType) name() string {
+	return ModuleMetadataMap_ModuleType_enum_[this-1].name_
 }
 
-func (this *ModuleMetadataMap_ModuleType) init_ModuleMetadataMap_ModuleType(name_ string, ordinal_ int32, description string) {
-	this.Enum.init_Enum(name_, ordinal_)
-	this.description_ = description
+func (this ModuleMetadataMap_ModuleType) ordinal() int32 {
+	return ModuleMetadataMap_ModuleType_enum_[this-1].ordinal_
 }
 
-func new_ModuleMetadataMap_ModuleType(name_ string, ordinal_ int32, description string) *ModuleMetadataMap_ModuleType {
-	this := &ModuleMetadataMap_ModuleType{}
-	this.self_ = this
-	this.zero_ModuleMetadataMap_ModuleType()
-	this.init_ModuleMetadataMap_ModuleType(name_, ordinal_, description)
+func (this ModuleMetadataMap_ModuleType) toString() string {
+	return ModuleMetadataMap_ModuleType_enum_[this-1].name_
+}
+
+func (this ModuleMetadataMap_ModuleType) compareTo(o any) int32 {
+	return ModuleMetadataMap_ModuleType_enum_[this-1].compareTo(o)
+}
+
+func (this ModuleMetadataMap_ModuleType) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func ModuleMetadataMap_ModuleType_values() []*ModuleMetadataMap_ModuleType {
-	return append([]*ModuleMetadataMap_ModuleType(nil), ModuleMetadataMap_ModuleType_values_...)
+func (this ModuleMetadataMap_ModuleType) zero_ModuleMetadataMap_ModuleType() {
+	ModuleMetadataMap_ModuleType_description__[this-1] = nullstr_
 }
 
-func ModuleMetadataMap_ModuleType_valueOf(name string) *ModuleMetadataMap_ModuleType {
+func (this ModuleMetadataMap_ModuleType) init_ModuleMetadataMap_ModuleType(description string) {
+	ModuleMetadataMap_ModuleType_description__[this-1] = description
+}
+
+func ModuleMetadataMap_ModuleType_values() []ModuleMetadataMap_ModuleType {
+	return append([]ModuleMetadataMap_ModuleType(nil), ModuleMetadataMap_ModuleType_values_...)
+}
+
+func ModuleMetadataMap_ModuleType_valueOf(name string) ModuleMetadataMap_ModuleType {
 	for _, v := range ModuleMetadataMap_ModuleType_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("ModuleType", name))
 }
 
-var ModuleMetadataMap_ModuleType_ES6_MODULE *ModuleMetadataMap_ModuleType
-var ModuleMetadataMap_ModuleType_GOOG_MODULE *ModuleMetadataMap_ModuleType
-var ModuleMetadataMap_ModuleType_LEGACY_GOOG_MODULE *ModuleMetadataMap_ModuleType
-var ModuleMetadataMap_ModuleType_COMMON_JS *ModuleMetadataMap_ModuleType
-var ModuleMetadataMap_ModuleType_GOOG_PROVIDE *ModuleMetadataMap_ModuleType
-var ModuleMetadataMap_ModuleType_SCRIPT *ModuleMetadataMap_ModuleType
-var ModuleMetadataMap_ModuleType_values_ []*ModuleMetadataMap_ModuleType
+const ModuleMetadataMap_ModuleType_ES6_MODULE ModuleMetadataMap_ModuleType = 1
+const ModuleMetadataMap_ModuleType_GOOG_MODULE ModuleMetadataMap_ModuleType = 2
+const ModuleMetadataMap_ModuleType_LEGACY_GOOG_MODULE ModuleMetadataMap_ModuleType = 3
+const ModuleMetadataMap_ModuleType_COMMON_JS ModuleMetadataMap_ModuleType = 4
+const ModuleMetadataMap_ModuleType_GOOG_PROVIDE ModuleMetadataMap_ModuleType = 5
+const ModuleMetadataMap_ModuleType_SCRIPT ModuleMetadataMap_ModuleType = 6
+
+var ModuleMetadataMap_ModuleType_values_ []ModuleMetadataMap_ModuleType
 
 var ModuleMetadataMap_ModuleType_clinit_done bool
 
@@ -93,19 +117,25 @@ func ModuleMetadataMap_ModuleType_clinit() {
 		return
 	}
 	ModuleMetadataMap_ModuleType_clinit_done = true
-	ModuleMetadataMap_ModuleType_ES6_MODULE = new_ModuleMetadataMap_ModuleType("ES6_MODULE", 0, "an ES6 module")
-	ModuleMetadataMap_ModuleType_GOOG_MODULE = new_ModuleMetadataMap_ModuleType("GOOG_MODULE", 1, "a goog.module")
-	ModuleMetadataMap_ModuleType_LEGACY_GOOG_MODULE = new_ModuleMetadataMap_ModuleType("LEGACY_GOOG_MODULE", 2, "a goog.module")
-	ModuleMetadataMap_ModuleType_COMMON_JS = new_ModuleMetadataMap_ModuleType("COMMON_JS", 3, "a CommonJS module")
-	ModuleMetadataMap_ModuleType_GOOG_PROVIDE = new_ModuleMetadataMap_ModuleType("GOOG_PROVIDE", 4, "a script file that contains at least one goog.provide")
-	ModuleMetadataMap_ModuleType_SCRIPT = new_ModuleMetadataMap_ModuleType("SCRIPT", 5, "a script file that does not contain a goog.provide")
-	ModuleMetadataMap_ModuleType_values_ = []*ModuleMetadataMap_ModuleType{ModuleMetadataMap_ModuleType_ES6_MODULE, ModuleMetadataMap_ModuleType_GOOG_MODULE, ModuleMetadataMap_ModuleType_LEGACY_GOOG_MODULE, ModuleMetadataMap_ModuleType_COMMON_JS, ModuleMetadataMap_ModuleType_GOOG_PROVIDE, ModuleMetadataMap_ModuleType_SCRIPT}
+	ModuleMetadataMap_ModuleType_ES6_MODULE.zero_ModuleMetadataMap_ModuleType()
+	ModuleMetadataMap_ModuleType_ES6_MODULE.init_ModuleMetadataMap_ModuleType("an ES6 module")
+	ModuleMetadataMap_ModuleType_GOOG_MODULE.zero_ModuleMetadataMap_ModuleType()
+	ModuleMetadataMap_ModuleType_GOOG_MODULE.init_ModuleMetadataMap_ModuleType("a goog.module")
+	ModuleMetadataMap_ModuleType_LEGACY_GOOG_MODULE.zero_ModuleMetadataMap_ModuleType()
+	ModuleMetadataMap_ModuleType_LEGACY_GOOG_MODULE.init_ModuleMetadataMap_ModuleType("a goog.module")
+	ModuleMetadataMap_ModuleType_COMMON_JS.zero_ModuleMetadataMap_ModuleType()
+	ModuleMetadataMap_ModuleType_COMMON_JS.init_ModuleMetadataMap_ModuleType("a CommonJS module")
+	ModuleMetadataMap_ModuleType_GOOG_PROVIDE.zero_ModuleMetadataMap_ModuleType()
+	ModuleMetadataMap_ModuleType_GOOG_PROVIDE.init_ModuleMetadataMap_ModuleType("a script file that contains at least one goog.provide")
+	ModuleMetadataMap_ModuleType_SCRIPT.zero_ModuleMetadataMap_ModuleType()
+	ModuleMetadataMap_ModuleType_SCRIPT.init_ModuleMetadataMap_ModuleType("a script file that does not contain a goog.provide")
+	ModuleMetadataMap_ModuleType_values_ = []ModuleMetadataMap_ModuleType{ModuleMetadataMap_ModuleType_ES6_MODULE, ModuleMetadataMap_ModuleType_GOOG_MODULE, ModuleMetadataMap_ModuleType_LEGACY_GOOG_MODULE, ModuleMetadataMap_ModuleType_COMMON_JS, ModuleMetadataMap_ModuleType_GOOG_PROVIDE, ModuleMetadataMap_ModuleType_SCRIPT}
 	registerEnum_("com.google.javascript.jscomp.modules.ModuleMetadataMap.ModuleType", enumValues_(ModuleMetadataMap_ModuleType_values_))
 
 }
 
 type ModuleMetadataMap_ModuleMetadata struct {
-	moduleType_                        *ModuleMetadataMap_ModuleType
+	moduleType_                        ModuleMetadataMap_ModuleType
 	googNamespaces_                    *SimpleMultiset[string]
 	stronglyRequiredGoogNamespaces_    *SimpleMultiset[string]
 	dynamicallyRequiredGoogNamespaces_ *SimpleMultiset[string]
@@ -120,7 +150,7 @@ type ModuleMetadataMap_ModuleMetadata struct {
 	isTestOnly_                        bool
 }
 
-func (this *ModuleMetadataMap_ModuleMetadata) init_ModuleMetadataMap_ModuleMetadata(moduleType *ModuleMetadataMap_ModuleType, rootNode Node, usesClosure bool, isTestOnly bool, googNamespaces *SimpleMultiset[string], stronglyRequiredGoogNamespaces *SimpleMultiset[string], dynamicallyRequiredGoogNamespaces *SimpleMultiset[string], maybeRequiredGoogNamespaces *SimpleMultiset[string], weaklyRequiredGoogNamespaces *SimpleMultiset[string], es6ImportSpecifiers *SimpleMultiset[string], nestedModules *JTList[*ModuleMetadataMap_ModuleMetadata], readToggles *SimpleMultiset[string], path *ModuleLoader_ModulePath) {
+func (this *ModuleMetadataMap_ModuleMetadata) init_ModuleMetadataMap_ModuleMetadata(moduleType ModuleMetadataMap_ModuleType, rootNode Node, usesClosure bool, isTestOnly bool, googNamespaces *SimpleMultiset[string], stronglyRequiredGoogNamespaces *SimpleMultiset[string], dynamicallyRequiredGoogNamespaces *SimpleMultiset[string], maybeRequiredGoogNamespaces *SimpleMultiset[string], weaklyRequiredGoogNamespaces *SimpleMultiset[string], es6ImportSpecifiers *SimpleMultiset[string], nestedModules *JTList[*ModuleMetadataMap_ModuleMetadata], readToggles *SimpleMultiset[string], path *ModuleLoader_ModulePath) {
 	Objects_requireNonNull_T(moduleType, "moduleType")
 	Objects_requireNonNull_T(googNamespaces, "googNamespaces")
 	Objects_requireNonNull_T(stronglyRequiredGoogNamespaces, "stronglyRequiredGoogNamespaces")
@@ -145,7 +175,7 @@ func (this *ModuleMetadataMap_ModuleMetadata) init_ModuleMetadataMap_ModuleMetad
 	this.path_ = path
 }
 
-func new_ModuleMetadataMap_ModuleMetadata(moduleType *ModuleMetadataMap_ModuleType, rootNode Node, usesClosure bool, isTestOnly bool, googNamespaces *SimpleMultiset[string], stronglyRequiredGoogNamespaces *SimpleMultiset[string], dynamicallyRequiredGoogNamespaces *SimpleMultiset[string], maybeRequiredGoogNamespaces *SimpleMultiset[string], weaklyRequiredGoogNamespaces *SimpleMultiset[string], es6ImportSpecifiers *SimpleMultiset[string], nestedModules *JTList[*ModuleMetadataMap_ModuleMetadata], readToggles *SimpleMultiset[string], path *ModuleLoader_ModulePath) *ModuleMetadataMap_ModuleMetadata {
+func new_ModuleMetadataMap_ModuleMetadata(moduleType ModuleMetadataMap_ModuleType, rootNode Node, usesClosure bool, isTestOnly bool, googNamespaces *SimpleMultiset[string], stronglyRequiredGoogNamespaces *SimpleMultiset[string], dynamicallyRequiredGoogNamespaces *SimpleMultiset[string], maybeRequiredGoogNamespaces *SimpleMultiset[string], weaklyRequiredGoogNamespaces *SimpleMultiset[string], es6ImportSpecifiers *SimpleMultiset[string], nestedModules *JTList[*ModuleMetadataMap_ModuleMetadata], readToggles *SimpleMultiset[string], path *ModuleLoader_ModulePath) *ModuleMetadataMap_ModuleMetadata {
 	this := &ModuleMetadataMap_ModuleMetadata{}
 	this.init_ModuleMetadataMap_ModuleMetadata(moduleType, rootNode, usesClosure, isTestOnly, googNamespaces, stronglyRequiredGoogNamespaces, dynamicallyRequiredGoogNamespaces, maybeRequiredGoogNamespaces, weaklyRequiredGoogNamespaces, es6ImportSpecifiers, nestedModules, readToggles, path)
 	return this
@@ -211,7 +241,7 @@ func (this *ModuleMetadataMap_ModuleMetadata) hashCode() int32 {
 	return System_identityHashCode(this)
 }
 
-func (this *ModuleMetadataMap_ModuleMetadata) moduleType() *ModuleMetadataMap_ModuleType {
+func (this *ModuleMetadataMap_ModuleMetadata) moduleType() ModuleMetadataMap_ModuleType {
 	return this.moduleType_
 }
 
@@ -264,7 +294,7 @@ func (this *ModuleMetadataMap_ModuleMetadata) path() *ModuleLoader_ModulePath {
 }
 
 type ModuleMetadataMap_ModuleMetadata_Builder struct {
-	moduleTypeField                               *ModuleMetadataMap_ModuleType
+	moduleTypeField                               ModuleMetadataMap_ModuleType
 	googNamespacesBuilderField                    *SimpleMultiset[string]
 	googNamespaces_                               *SimpleMultiset[string]
 	stronglyRequiredGoogNamespacesBuilderField    *SimpleMultiset[string]
@@ -339,9 +369,9 @@ func (this *ModuleMetadataMap_ModuleMetadata_Builder) build() *ModuleMetadataMap
 	} else if this.readToggles_ == nil {
 		this.readToggles_ = SimpleMultiset_of[string]()
 	}
-	if (int32(this.set0) != 3) || (this.moduleTypeField == nil) {
+	if (int32(this.set0) != 3) || (this.moduleTypeField == 0) {
 		var missing *StringBuilder = new_StringBuilder()
-		if this.moduleTypeField == nil {
+		if this.moduleTypeField == 0 {
 			missing.append(" moduleType")
 		}
 		if (int32(this.set0) & 1) == 0 {
@@ -433,15 +463,15 @@ func (this *ModuleMetadataMap_ModuleMetadata_Builder) isTestOnly(value bool) *Mo
 	return this
 }
 
-func (this *ModuleMetadataMap_ModuleMetadata_Builder) moduleType() *ModuleMetadataMap_ModuleType {
-	if this.moduleTypeField == nil {
+func (this *ModuleMetadataMap_ModuleMetadata_Builder) moduleType() ModuleMetadataMap_ModuleType {
+	if this.moduleTypeField == 0 {
 		panic(new_IllegalStateException_String("Property \"moduleType\" has not been set").self())
 	}
 	return this.moduleTypeField
 }
 
-func (this *ModuleMetadataMap_ModuleMetadata_Builder) moduleType_1(value *ModuleMetadataMap_ModuleType) *ModuleMetadataMap_ModuleMetadata_Builder {
-	if value == nil {
+func (this *ModuleMetadataMap_ModuleMetadata_Builder) moduleType_1(value ModuleMetadataMap_ModuleType) *ModuleMetadataMap_ModuleMetadata_Builder {
+	if value == 0 {
 		panic(new_NullPointerException_String("Null moduleType").self())
 	}
 	this.moduleTypeField = value

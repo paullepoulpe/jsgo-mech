@@ -9,7 +9,7 @@ type ExpressionDecomposer struct {
 	safeNameIdSupplier_    Supplier[string]
 	knownConstantFunctions *JTSet[string]
 	scope_                 *Scope
-	enabledWorkarounds     EnumSetOf[*ExpressionDecomposer_Workaround]
+	enabledWorkarounds     EnumSetOf[ExpressionDecomposer_Workaround]
 	unknownType            *JSType
 	tempNamePrefix         string
 	resultNamePrefix       string
@@ -25,7 +25,7 @@ func (this *ExpressionDecomposer) finit_ExpressionDecomposer() {
 	this.resultNamePrefix = "JSCompiler_inline_result"
 }
 
-func (this *ExpressionDecomposer) init_ExpressionDecomposer(compiler *AbstractCompiler, safeNameIdSupplier Supplier[string], constFunctionNames *JTSet[string], scope *Scope, enabledWorkarounds EnumSetOf[*ExpressionDecomposer_Workaround]) {
+func (this *ExpressionDecomposer) init_ExpressionDecomposer(compiler *AbstractCompiler, safeNameIdSupplier Supplier[string], constFunctionNames *JTSet[string], scope *Scope, enabledWorkarounds EnumSetOf[ExpressionDecomposer_Workaround]) {
 	this.finit_ExpressionDecomposer()
 	Preconditions_checkNotNull_T(compiler)
 	func() Supplier[string] { f_ := safeNameIdSupplier; Preconditions_checkNotNull(f_.box_()); return f_ }()
@@ -45,7 +45,7 @@ func (this *ExpressionDecomposer) init_ExpressionDecomposer(compiler *AbstractCo
 	}()
 }
 
-func new_ExpressionDecomposer(compiler *AbstractCompiler, safeNameIdSupplier Supplier[string], constFunctionNames *JTSet[string], scope *Scope, enabledWorkarounds EnumSetOf[*ExpressionDecomposer_Workaround]) *ExpressionDecomposer {
+func new_ExpressionDecomposer(compiler *AbstractCompiler, safeNameIdSupplier Supplier[string], constFunctionNames *JTSet[string], scope *Scope, enabledWorkarounds EnumSetOf[ExpressionDecomposer_Workaround]) *ExpressionDecomposer {
 	this := &ExpressionDecomposer{}
 	this.zero_ExpressionDecomposer()
 	this.init_ExpressionDecomposer(compiler, safeNameIdSupplier, constFunctionNames, scope, enabledWorkarounds)
@@ -476,7 +476,7 @@ func ExpressionDecomposer_findExpressionRoot(subExpression Node) Node {
 	panic(new_IllegalStateException_String("Unexpected AST structure.").self())
 }
 
-func (this *ExpressionDecomposer) canExposeExpression(subExpression Node) *ExpressionDecomposer_DecompositionType {
+func (this *ExpressionDecomposer) canExposeExpression(subExpression Node) ExpressionDecomposer_DecompositionType {
 	var expressionRoot Node = ExpressionDecomposer_findExpressionRoot(subExpression)
 	if expressionRoot != 0 {
 		return this.isSubexpressionMovable(expressionRoot, subExpression)
@@ -484,7 +484,7 @@ func (this *ExpressionDecomposer) canExposeExpression(subExpression Node) *Expre
 	return ExpressionDecomposer_DecompositionType_UNDECOMPOSABLE
 }
 
-func (this *ExpressionDecomposer) isSubexpressionMovable(expressionRoot Node, subExpression Node) *ExpressionDecomposer_DecompositionType {
+func (this *ExpressionDecomposer) isSubexpressionMovable(expressionRoot Node, subExpression Node) ExpressionDecomposer_DecompositionType {
 	var requiresDecomposition bool = false
 	var seenSideEffects bool = this.astAnalyzer.mayHaveSideEffects(subExpression)
 	if NodeUtil_isOptChainNode(subExpression) && !NodeUtil_isEndOfFullOptChain(subExpression) {
@@ -501,7 +501,7 @@ func (this *ExpressionDecomposer) isSubexpressionMovable(expressionRoot Node, su
 			return ExpressionDecomposer_DecompositionType_UNDECOMPOSABLE
 		}
 		if parent == expressionRoot {
-			return func() *ExpressionDecomposer_DecompositionType {
+			return func() ExpressionDecomposer_DecompositionType {
 				if requiresDecomposition {
 					return ExpressionDecomposer_DecompositionType_DECOMPOSABLE
 				}
@@ -515,7 +515,7 @@ func (this *ExpressionDecomposer) isSubexpressionMovable(expressionRoot Node, su
 		} else {
 			if this.isSafeAssign(parent, seenSideEffects) {
 			} else {
-				var direction *ExpressionDecomposer_EvaluationDirection = ExpressionDecomposer_getEvaluationDirection(parent)
+				var direction ExpressionDecomposer_EvaluationDirection = ExpressionDecomposer_getEvaluationDirection(parent)
 				{
 					var n Node = this.getFirstEvaluatedChild(parent, direction)
 					for ; n != 0; n = this.getNextEvaluatedSibling(n, direction) {
@@ -539,7 +539,7 @@ func (this *ExpressionDecomposer) isSubexpressionMovable(expressionRoot Node, su
 	panic(new_IllegalStateException_String("Unexpected.").self())
 }
 
-func ExpressionDecomposer_getEvaluationDirection(node Node) *ExpressionDecomposer_EvaluationDirection {
+func ExpressionDecomposer_getEvaluationDirection(node Node) ExpressionDecomposer_EvaluationDirection {
 	switch node.ns_().token {
 	case tokOrd1_DESTRUCTURING_LHS, tokOrd1_ASSIGN, tokOrd1_DEFAULT_VALUE:
 		if node.getFirstChild().isDestructuringPattern() {
@@ -552,7 +552,7 @@ func ExpressionDecomposer_getEvaluationDirection(node Node) *ExpressionDecompose
 	panic("unreachable")
 }
 
-func (this *ExpressionDecomposer) getFirstEvaluatedChild(parent Node, direction *ExpressionDecomposer_EvaluationDirection) Node {
+func (this *ExpressionDecomposer) getFirstEvaluatedChild(parent Node, direction ExpressionDecomposer_EvaluationDirection) Node {
 	return func() Node {
 		if direction == ExpressionDecomposer_EvaluationDirection_FORWARD {
 			return parent.getFirstChild()
@@ -561,7 +561,7 @@ func (this *ExpressionDecomposer) getFirstEvaluatedChild(parent Node, direction 
 	}()
 }
 
-func (this *ExpressionDecomposer) getNextEvaluatedSibling(node Node, direction *ExpressionDecomposer_EvaluationDirection) Node {
+func (this *ExpressionDecomposer) getNextEvaluatedSibling(node Node, direction ExpressionDecomposer_EvaluationDirection) Node {
 	return func() Node {
 		if direction == ExpressionDecomposer_EvaluationDirection_FORWARD {
 			return node.getNext()
@@ -630,45 +630,63 @@ func ExpressionDecomposer_clinit() {
 
 }
 
-type ExpressionDecomposer_DecompositionType struct {
-	Enum
+type ExpressionDecomposer_DecompositionType uint8
+
+// ExpressionDecomposer_DecompositionType_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var ExpressionDecomposer_DecompositionType_enum_ = [3]Enum{
+	{self_: ExpressionDecomposer_DecompositionType_UNDECOMPOSABLE, name_: "UNDECOMPOSABLE", ordinal_: 0},
+	{self_: ExpressionDecomposer_DecompositionType_MOVABLE, name_: "MOVABLE", ordinal_: 1},
+	{self_: ExpressionDecomposer_DecompositionType_DECOMPOSABLE, name_: "DECOMPOSABLE", ordinal_: 2},
 }
 
-func (this *ExpressionDecomposer_DecompositionType) up_Enum() *Enum {
-	if this == nil {
+func (this ExpressionDecomposer_DecompositionType) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &ExpressionDecomposer_DecompositionType_enum_[this-1]
 }
 
-func (this *ExpressionDecomposer_DecompositionType) init_ExpressionDecomposer_DecompositionType(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this ExpressionDecomposer_DecompositionType) name() string {
+	return ExpressionDecomposer_DecompositionType_enum_[this-1].name_
 }
 
-func new_ExpressionDecomposer_DecompositionType(name_ string, ordinal_ int32) *ExpressionDecomposer_DecompositionType {
-	this := &ExpressionDecomposer_DecompositionType{}
-	this.self_ = this
-	this.init_ExpressionDecomposer_DecompositionType(name_, ordinal_)
+func (this ExpressionDecomposer_DecompositionType) ordinal() int32 {
+	return ExpressionDecomposer_DecompositionType_enum_[this-1].ordinal_
+}
+
+func (this ExpressionDecomposer_DecompositionType) toString() string {
+	return ExpressionDecomposer_DecompositionType_enum_[this-1].name_
+}
+
+func (this ExpressionDecomposer_DecompositionType) compareTo(o any) int32 {
+	return ExpressionDecomposer_DecompositionType_enum_[this-1].compareTo(o)
+}
+
+func (this ExpressionDecomposer_DecompositionType) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func ExpressionDecomposer_DecompositionType_values() []*ExpressionDecomposer_DecompositionType {
-	return append([]*ExpressionDecomposer_DecompositionType(nil), ExpressionDecomposer_DecompositionType_values_...)
+func ExpressionDecomposer_DecompositionType_values() []ExpressionDecomposer_DecompositionType {
+	return append([]ExpressionDecomposer_DecompositionType(nil), ExpressionDecomposer_DecompositionType_values_...)
 }
 
-func ExpressionDecomposer_DecompositionType_valueOf(name string) *ExpressionDecomposer_DecompositionType {
+func ExpressionDecomposer_DecompositionType_valueOf(name string) ExpressionDecomposer_DecompositionType {
 	for _, v := range ExpressionDecomposer_DecompositionType_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("DecompositionType", name))
 }
 
-var ExpressionDecomposer_DecompositionType_UNDECOMPOSABLE *ExpressionDecomposer_DecompositionType
-var ExpressionDecomposer_DecompositionType_MOVABLE *ExpressionDecomposer_DecompositionType
-var ExpressionDecomposer_DecompositionType_DECOMPOSABLE *ExpressionDecomposer_DecompositionType
-var ExpressionDecomposer_DecompositionType_values_ []*ExpressionDecomposer_DecompositionType
+const ExpressionDecomposer_DecompositionType_UNDECOMPOSABLE ExpressionDecomposer_DecompositionType = 1
+const ExpressionDecomposer_DecompositionType_MOVABLE ExpressionDecomposer_DecompositionType = 2
+const ExpressionDecomposer_DecompositionType_DECOMPOSABLE ExpressionDecomposer_DecompositionType = 3
+
+var ExpressionDecomposer_DecompositionType_values_ []ExpressionDecomposer_DecompositionType
 
 var ExpressionDecomposer_DecompositionType_clinit_done bool
 
@@ -677,51 +695,64 @@ func ExpressionDecomposer_DecompositionType_clinit() {
 		return
 	}
 	ExpressionDecomposer_DecompositionType_clinit_done = true
-	ExpressionDecomposer_DecompositionType_UNDECOMPOSABLE = new_ExpressionDecomposer_DecompositionType("UNDECOMPOSABLE", 0)
-	ExpressionDecomposer_DecompositionType_MOVABLE = new_ExpressionDecomposer_DecompositionType("MOVABLE", 1)
-	ExpressionDecomposer_DecompositionType_DECOMPOSABLE = new_ExpressionDecomposer_DecompositionType("DECOMPOSABLE", 2)
-	ExpressionDecomposer_DecompositionType_values_ = []*ExpressionDecomposer_DecompositionType{ExpressionDecomposer_DecompositionType_UNDECOMPOSABLE, ExpressionDecomposer_DecompositionType_MOVABLE, ExpressionDecomposer_DecompositionType_DECOMPOSABLE}
+	ExpressionDecomposer_DecompositionType_values_ = []ExpressionDecomposer_DecompositionType{ExpressionDecomposer_DecompositionType_UNDECOMPOSABLE, ExpressionDecomposer_DecompositionType_MOVABLE, ExpressionDecomposer_DecompositionType_DECOMPOSABLE}
 	registerEnum_("com.google.javascript.jscomp.ExpressionDecomposer.DecompositionType", enumValues_(ExpressionDecomposer_DecompositionType_values_))
 
 }
 
-type ExpressionDecomposer_Workaround struct {
-	Enum
+type ExpressionDecomposer_Workaround uint8
+
+// ExpressionDecomposer_Workaround_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var ExpressionDecomposer_Workaround_enum_ = [1]Enum{
+	{self_: ExpressionDecomposer_Workaround_BROKEN_IE11_LOCATION_ASSIGN, name_: "BROKEN_IE11_LOCATION_ASSIGN", ordinal_: 0},
 }
 
-func (this *ExpressionDecomposer_Workaround) up_Enum() *Enum {
-	if this == nil {
+func (this ExpressionDecomposer_Workaround) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &ExpressionDecomposer_Workaround_enum_[this-1]
 }
 
-func (this *ExpressionDecomposer_Workaround) init_ExpressionDecomposer_Workaround(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this ExpressionDecomposer_Workaround) name() string {
+	return ExpressionDecomposer_Workaround_enum_[this-1].name_
 }
 
-func new_ExpressionDecomposer_Workaround(name_ string, ordinal_ int32) *ExpressionDecomposer_Workaround {
-	this := &ExpressionDecomposer_Workaround{}
-	this.self_ = this
-	this.init_ExpressionDecomposer_Workaround(name_, ordinal_)
+func (this ExpressionDecomposer_Workaround) ordinal() int32 {
+	return ExpressionDecomposer_Workaround_enum_[this-1].ordinal_
+}
+
+func (this ExpressionDecomposer_Workaround) toString() string {
+	return ExpressionDecomposer_Workaround_enum_[this-1].name_
+}
+
+func (this ExpressionDecomposer_Workaround) compareTo(o any) int32 {
+	return ExpressionDecomposer_Workaround_enum_[this-1].compareTo(o)
+}
+
+func (this ExpressionDecomposer_Workaround) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func ExpressionDecomposer_Workaround_values() []*ExpressionDecomposer_Workaround {
-	return append([]*ExpressionDecomposer_Workaround(nil), ExpressionDecomposer_Workaround_values_...)
+func ExpressionDecomposer_Workaround_values() []ExpressionDecomposer_Workaround {
+	return append([]ExpressionDecomposer_Workaround(nil), ExpressionDecomposer_Workaround_values_...)
 }
 
-func ExpressionDecomposer_Workaround_valueOf(name string) *ExpressionDecomposer_Workaround {
+func ExpressionDecomposer_Workaround_valueOf(name string) ExpressionDecomposer_Workaround {
 	for _, v := range ExpressionDecomposer_Workaround_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Workaround", name))
 }
 
-var ExpressionDecomposer_Workaround_BROKEN_IE11_LOCATION_ASSIGN *ExpressionDecomposer_Workaround
-var ExpressionDecomposer_Workaround_values_ []*ExpressionDecomposer_Workaround
+const ExpressionDecomposer_Workaround_BROKEN_IE11_LOCATION_ASSIGN ExpressionDecomposer_Workaround = 1
+
+var ExpressionDecomposer_Workaround_values_ []ExpressionDecomposer_Workaround
 
 var ExpressionDecomposer_Workaround_clinit_done bool
 
@@ -730,8 +761,7 @@ func ExpressionDecomposer_Workaround_clinit() {
 		return
 	}
 	ExpressionDecomposer_Workaround_clinit_done = true
-	ExpressionDecomposer_Workaround_BROKEN_IE11_LOCATION_ASSIGN = new_ExpressionDecomposer_Workaround("BROKEN_IE11_LOCATION_ASSIGN", 0)
-	ExpressionDecomposer_Workaround_values_ = []*ExpressionDecomposer_Workaround{ExpressionDecomposer_Workaround_BROKEN_IE11_LOCATION_ASSIGN}
+	ExpressionDecomposer_Workaround_values_ = []ExpressionDecomposer_Workaround{ExpressionDecomposer_Workaround_BROKEN_IE11_LOCATION_ASSIGN}
 	registerEnum_("com.google.javascript.jscomp.ExpressionDecomposer.Workaround", enumValues_(ExpressionDecomposer_Workaround_values_))
 
 }
@@ -755,44 +785,61 @@ func (this *ExpressionDecomposer_DecompositionState) toString() string {
 	return tostrR_(MoreObjects_toStringHelper(this).add_String_boolean("sideEffects", this.sideEffects).add("extractBeforeStatement", this.extractBeforeStatement.box_()))
 }
 
-type ExpressionDecomposer_EvaluationDirection struct {
-	Enum
+type ExpressionDecomposer_EvaluationDirection uint8
+
+// ExpressionDecomposer_EvaluationDirection_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var ExpressionDecomposer_EvaluationDirection_enum_ = [2]Enum{
+	{self_: ExpressionDecomposer_EvaluationDirection_FORWARD, name_: "FORWARD", ordinal_: 0},
+	{self_: ExpressionDecomposer_EvaluationDirection_REVERSE, name_: "REVERSE", ordinal_: 1},
 }
 
-func (this *ExpressionDecomposer_EvaluationDirection) up_Enum() *Enum {
-	if this == nil {
+func (this ExpressionDecomposer_EvaluationDirection) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &ExpressionDecomposer_EvaluationDirection_enum_[this-1]
 }
 
-func (this *ExpressionDecomposer_EvaluationDirection) init_ExpressionDecomposer_EvaluationDirection(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this ExpressionDecomposer_EvaluationDirection) name() string {
+	return ExpressionDecomposer_EvaluationDirection_enum_[this-1].name_
 }
 
-func new_ExpressionDecomposer_EvaluationDirection(name_ string, ordinal_ int32) *ExpressionDecomposer_EvaluationDirection {
-	this := &ExpressionDecomposer_EvaluationDirection{}
-	this.self_ = this
-	this.init_ExpressionDecomposer_EvaluationDirection(name_, ordinal_)
+func (this ExpressionDecomposer_EvaluationDirection) ordinal() int32 {
+	return ExpressionDecomposer_EvaluationDirection_enum_[this-1].ordinal_
+}
+
+func (this ExpressionDecomposer_EvaluationDirection) toString() string {
+	return ExpressionDecomposer_EvaluationDirection_enum_[this-1].name_
+}
+
+func (this ExpressionDecomposer_EvaluationDirection) compareTo(o any) int32 {
+	return ExpressionDecomposer_EvaluationDirection_enum_[this-1].compareTo(o)
+}
+
+func (this ExpressionDecomposer_EvaluationDirection) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func ExpressionDecomposer_EvaluationDirection_values() []*ExpressionDecomposer_EvaluationDirection {
-	return append([]*ExpressionDecomposer_EvaluationDirection(nil), ExpressionDecomposer_EvaluationDirection_values_...)
+func ExpressionDecomposer_EvaluationDirection_values() []ExpressionDecomposer_EvaluationDirection {
+	return append([]ExpressionDecomposer_EvaluationDirection(nil), ExpressionDecomposer_EvaluationDirection_values_...)
 }
 
-func ExpressionDecomposer_EvaluationDirection_valueOf(name string) *ExpressionDecomposer_EvaluationDirection {
+func ExpressionDecomposer_EvaluationDirection_valueOf(name string) ExpressionDecomposer_EvaluationDirection {
 	for _, v := range ExpressionDecomposer_EvaluationDirection_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("EvaluationDirection", name))
 }
 
-var ExpressionDecomposer_EvaluationDirection_FORWARD *ExpressionDecomposer_EvaluationDirection
-var ExpressionDecomposer_EvaluationDirection_REVERSE *ExpressionDecomposer_EvaluationDirection
-var ExpressionDecomposer_EvaluationDirection_values_ []*ExpressionDecomposer_EvaluationDirection
+const ExpressionDecomposer_EvaluationDirection_FORWARD ExpressionDecomposer_EvaluationDirection = 1
+const ExpressionDecomposer_EvaluationDirection_REVERSE ExpressionDecomposer_EvaluationDirection = 2
+
+var ExpressionDecomposer_EvaluationDirection_values_ []ExpressionDecomposer_EvaluationDirection
 
 var ExpressionDecomposer_EvaluationDirection_clinit_done bool
 
@@ -801,9 +848,7 @@ func ExpressionDecomposer_EvaluationDirection_clinit() {
 		return
 	}
 	ExpressionDecomposer_EvaluationDirection_clinit_done = true
-	ExpressionDecomposer_EvaluationDirection_FORWARD = new_ExpressionDecomposer_EvaluationDirection("FORWARD", 0)
-	ExpressionDecomposer_EvaluationDirection_REVERSE = new_ExpressionDecomposer_EvaluationDirection("REVERSE", 1)
-	ExpressionDecomposer_EvaluationDirection_values_ = []*ExpressionDecomposer_EvaluationDirection{ExpressionDecomposer_EvaluationDirection_FORWARD, ExpressionDecomposer_EvaluationDirection_REVERSE}
+	ExpressionDecomposer_EvaluationDirection_values_ = []ExpressionDecomposer_EvaluationDirection{ExpressionDecomposer_EvaluationDirection_FORWARD, ExpressionDecomposer_EvaluationDirection_REVERSE}
 	registerEnum_("com.google.javascript.jscomp.ExpressionDecomposer.EvaluationDirection", enumValues_(ExpressionDecomposer_EvaluationDirection_values_))
 
 }

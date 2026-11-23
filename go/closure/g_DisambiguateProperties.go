@@ -90,7 +90,7 @@ func (this *DisambiguateProperties) process_2(externs Node, root Node) {
 	it_7 := propIndex.eachValue()
 	for it_7.next() {
 		var prop *PropertyClustering = it_7.v
-		var renameUsesResult *UseSiteRenamer_RenameUsesResult = renamer.renameUses(prop)
+		var renameUsesResult UseSiteRenamer_RenameUsesResult = renamer.renameUses(prop)
 		trackerSummaryGenerator.addRenameUsesResult(renameUsesResult)
 		if prop.isInvalidated() && this.propertiesThatMustDisambiguate.contains(prop.getName()) {
 			this.compiler_.report(this.createInvalidationError(prop))
@@ -283,7 +283,7 @@ func new_DisambiguateProperties_TrackerSummaryGenerator() *DisambiguatePropertie
 	return this
 }
 
-func (this *DisambiguateProperties_TrackerSummaryGenerator) addRenameUsesResult(renameUsesResult *UseSiteRenamer_RenameUsesResult) {
+func (this *DisambiguateProperties_TrackerSummaryGenerator) addRenameUsesResult(renameUsesResult UseSiteRenamer_RenameUsesResult) {
 	this.total++
 	switch renameUsesResult {
 	case UseSiteRenamer_RenameUsesResult_INVALIDATED:
@@ -393,7 +393,7 @@ func (this *DisambiguateProperties_PropertyReferenceJson) compareTo(x_ any) int3
 type DisambiguateProperties_TypeNodeJson struct {
 	colorId      string
 	edges        ImmutableSortedSetOf[*DisambiguateProperties_TypeEdgeJson]
-	props        ImmutableSortedMapOf[string, *ColorGraphNode_PropAssociation]
+	props        ImmutableSortedMapOf[string, ColorGraphNode_PropAssociation]
 	index_       int32
 	invalidating bool
 }
@@ -414,10 +414,10 @@ func (this *DisambiguateProperties_TypeNodeJson) init_DisambiguateProperties_Typ
 		edgesBuilder.add(new_DisambiguateProperties_TypeEdgeJson(e))
 	}
 	this.edges = edgesBuilder.build()
-	var propsBuilder ImmutableSortedMap_BuilderOf[string, *ColorGraphNode_PropAssociation] = ImmutableSortedMap_naturalOrder()
+	var propsBuilder ImmutableSortedMap_BuilderOf[string, ColorGraphNode_PropAssociation] = ImmutableSortedMap_naturalOrder()
 	it_3 := t.getAssociatedProps().eachEntry()
 	for it_3.next() {
-		var e *TEntry[*PropertyClustering, *ColorGraphNode_PropAssociation] = it_3.entry()
+		var e *TEntry[*PropertyClustering, ColorGraphNode_PropAssociation] = it_3.entry()
 		propsBuilder.put(strobj_(e.getKey().getName()), obj_(e.getValue()))
 	}
 	this.props = propsBuilder.buildOrThrow()

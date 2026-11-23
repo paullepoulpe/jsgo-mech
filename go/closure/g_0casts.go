@@ -1381,8 +1381,8 @@ func RemoveUnusedCode_as_CompilerPass(v *RemoveUnusedCode) CompilerPass {
 	return v
 }
 
-func RenamingToken_as_RenamingMap(v *RenamingToken) RenamingMap {
-	if v == nil {
+func RenamingToken_as_RenamingMap(v RenamingToken) RenamingMap {
+	if v == 0 {
 		return nil
 	}
 	return v
@@ -1996,9 +1996,9 @@ var tc_Map_EntryT_p_InstrumentationPoint__p_ProfilingReport_InstrumentationPoint
 	},
 }
 
-var tc_Map_EntryT_p_Token_rhino__any_ = &jtconv_[Map_EntryT[*Token_rhino, any]]{
-	box: func(v Map_EntryT[*Token_rhino, any]) any { return lgBox_(v) },
-	unbox: func(v any) Map_EntryT[*Token_rhino, any] {
+var tc_Map_EntryT_p_Token_rhino__any_ = &jtconv_[Map_EntryT[Token_rhino, any]]{
+	box: func(v Map_EntryT[Token_rhino, any]) any { return lgBox_(v) },
+	unbox: func(v any) Map_EntryT[Token_rhino, any] {
 		return map_EntryAs_(tc_p_Token_rhino, tc_Integer, icast_Map_Entry(v))
 	},
 }
@@ -2212,9 +2212,9 @@ var jtc_p_AbstractScope = &jtconv_[*AbstractScope]{
 	unbox: func(v any) *AbstractScope { return to_AbstractScope(v) },
 }
 
-var tc_p_AbstractScope_ImplicitVar = &jtconv_[*AbstractScope_ImplicitVar]{
-	box:   func(v *AbstractScope_ImplicitVar) any { return obj_(v) },
-	unbox: func(v any) *AbstractScope_ImplicitVar { return cast_[*AbstractScope_ImplicitVar](v) },
+var tc_p_AbstractScope_ImplicitVar = &jtconv_[AbstractScope_ImplicitVar]{
+	box:   func(v AbstractScope_ImplicitVar) any { return obj_(v) },
+	unbox: func(v any) AbstractScope_ImplicitVar { return cast_[AbstractScope_ImplicitVar](v) },
 }
 
 var jtc_p_AbstractVar = &jtconv_[*AbstractVar]{
@@ -2222,9 +2222,9 @@ var jtc_p_AbstractVar = &jtconv_[*AbstractVar]{
 	unbox: func(v any) *AbstractVar { return to_AbstractVar(v) },
 }
 
-var jtc_p_AccessorSummary_PropertyAccessKind = &jtconv_[*AccessorSummary_PropertyAccessKind]{
-	box:   func(v *AccessorSummary_PropertyAccessKind) any { return obj_(v) },
-	unbox: func(v any) *AccessorSummary_PropertyAccessKind { return cast_[*AccessorSummary_PropertyAccessKind](v) },
+var jtc_p_AccessorSummary_PropertyAccessKind = &jtconv_[AccessorSummary_PropertyAccessKind]{
+	box:   func(v AccessorSummary_PropertyAccessKind) any { return obj_(v) },
+	unbox: func(v any) AccessorSummary_PropertyAccessKind { return cast_[AccessorSummary_PropertyAccessKind](v) },
 }
 
 var jtc_p_AliasStrings_StringInfo = &jtconv_[*AliasStrings_StringInfo]{
@@ -2263,9 +2263,9 @@ var tc_p_AngularPass_NodeContext = &jtconv_[*AngularPass_NodeContext]{
 	unbox: func(v any) *AngularPass_NodeContext { return cast_[*AngularPass_NodeContext](v) },
 }
 
-var tc_p_Annotation_parsing = &jtconv_[*Annotation_parsing]{
-	box:   func(v *Annotation_parsing) any { return obj_(v) },
-	unbox: func(v any) *Annotation_parsing { return cast_[*Annotation_parsing](v) },
+var tc_p_Annotation_parsing = &jtconv_[Annotation_parsing]{
+	box:   func(v Annotation_parsing) any { return obj_(v) },
+	unbox: func(v any) Annotation_parsing { return cast_[Annotation_parsing](v) },
 }
 
 var jtc_p_BasicBlock = &jtconv_[*BasicBlock]{
@@ -2278,9 +2278,9 @@ var jtc_p_Binding = &jtconv_[*Binding]{
 	unbox: func(v any) *Binding { return cast_[*Binding](v) },
 }
 
-var tc_p_Binding_CreatedBy = &jtconv_[*Binding_CreatedBy]{
-	box:   func(v *Binding_CreatedBy) any { return obj_(v) },
-	unbox: func(v any) *Binding_CreatedBy { return cast_[*Binding_CreatedBy](v) },
+var tc_p_Binding_CreatedBy = &jtconv_[Binding_CreatedBy]{
+	box:   func(v Binding_CreatedBy) any { return obj_(v) },
+	unbox: func(v any) Binding_CreatedBy { return cast_[Binding_CreatedBy](v) },
 }
 
 var jtc_p_BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement = &jtconv_[*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement]{
@@ -2310,16 +2310,16 @@ var jtc_p_CheckConformance_Category = &jtconv_[*CheckConformance_Category]{
 	unbox: func(v any) *CheckConformance_Category { return cast_[*CheckConformance_Category](v) },
 }
 
-var tc_p_CheckEs6ModuleFileStructure_OrderedStatement = &jtconv_[*CheckEs6ModuleFileStructure_OrderedStatement]{
-	box: func(v *CheckEs6ModuleFileStructure_OrderedStatement) any { return obj_(v) },
-	unbox: func(v any) *CheckEs6ModuleFileStructure_OrderedStatement {
-		return cast_[*CheckEs6ModuleFileStructure_OrderedStatement](v)
+var tc_p_CheckEs6ModuleFileStructure_OrderedStatement = &jtconv_[CheckEs6ModuleFileStructure_OrderedStatement]{
+	box: func(v CheckEs6ModuleFileStructure_OrderedStatement) any { return obj_(v) },
+	unbox: func(v any) CheckEs6ModuleFileStructure_OrderedStatement {
+		return cast_[CheckEs6ModuleFileStructure_OrderedStatement](v)
 	},
 }
 
-var tc_p_CheckNestedNames_DeclarationKind = &jtconv_[*CheckNestedNames_DeclarationKind]{
-	box:   func(v *CheckNestedNames_DeclarationKind) any { return obj_(v) },
-	unbox: func(v any) *CheckNestedNames_DeclarationKind { return cast_[*CheckNestedNames_DeclarationKind](v) },
+var tc_p_CheckNestedNames_DeclarationKind = &jtconv_[CheckNestedNames_DeclarationKind]{
+	box:   func(v CheckNestedNames_DeclarationKind) any { return obj_(v) },
+	unbox: func(v any) CheckNestedNames_DeclarationKind { return cast_[CheckNestedNames_DeclarationKind](v) },
 }
 
 var jtc_p_CheckRequiresSorted_DestructuringBinding = &jtconv_[*CheckRequiresSorted_DestructuringBinding]{
@@ -2360,9 +2360,9 @@ var jtc_p_ClosureExportTypeClassifier_NameInfo = &jtconv_[*ClosureExportTypeClas
 	},
 }
 
-var tc_p_ClosurePrimitive = &jtconv_[*ClosurePrimitive]{
-	box:   func(v *ClosurePrimitive) any { return obj_(v) },
-	unbox: func(v any) *ClosurePrimitive { return cast_[*ClosurePrimitive](v) },
+var tc_p_ClosurePrimitive = &jtconv_[ClosurePrimitive]{
+	box:   func(v ClosurePrimitive) any { return obj_(v) },
+	unbox: func(v any) ClosurePrimitive { return cast_[ClosurePrimitive](v) },
 }
 
 var jtc_p_ClosureRequireProcessor_Require = &jtconv_[*ClosureRequireProcessor_Require]{
@@ -2418,9 +2418,9 @@ var jtc_p_ColorGraphNode = &jtconv_[*ColorGraphNode]{
 	unbox: func(v any) *ColorGraphNode { return cast_[*ColorGraphNode](v) },
 }
 
-var jtc_p_ColorGraphNode_PropAssociation = &jtconv_[*ColorGraphNode_PropAssociation]{
-	box:   func(v *ColorGraphNode_PropAssociation) any { return obj_(v) },
-	unbox: func(v any) *ColorGraphNode_PropAssociation { return cast_[*ColorGraphNode_PropAssociation](v) },
+var jtc_p_ColorGraphNode_PropAssociation = &jtconv_[ColorGraphNode_PropAssociation]{
+	box:   func(v ColorGraphNode_PropAssociation) any { return obj_(v) },
+	unbox: func(v any) ColorGraphNode_PropAssociation { return cast_[ColorGraphNode_PropAssociation](v) },
 }
 
 var jtc_p_ColorId = &jtconv_[*ColorId]{
@@ -2433,9 +2433,9 @@ var jtc_p_ColorPool_ShardView = &jtconv_[*ColorPool_ShardView]{
 	unbox: func(v any) *ColorPool_ShardView { return cast_[*ColorPool_ShardView](v) },
 }
 
-var tc_p_CommandLineRunner_FormattingOption = &jtconv_[*CommandLineRunner_FormattingOption]{
-	box:   func(v *CommandLineRunner_FormattingOption) any { return obj_(v) },
-	unbox: func(v any) *CommandLineRunner_FormattingOption { return cast_[*CommandLineRunner_FormattingOption](v) },
+var tc_p_CommandLineRunner_FormattingOption = &jtconv_[CommandLineRunner_FormattingOption]{
+	box:   func(v CommandLineRunner_FormattingOption) any { return obj_(v) },
+	unbox: func(v any) CommandLineRunner_FormattingOption { return cast_[CommandLineRunner_FormattingOption](v) },
 }
 
 var jtc_p_Comment = &jtconv_[*Comment]{
@@ -2448,15 +2448,15 @@ var jtc_p_CompilerInput = &jtconv_[*CompilerInput]{
 	unbox: func(v any) *CompilerInput { return cast_[*CompilerInput](v) },
 }
 
-var tc_p_CompilerInput_ModuleType = &jtconv_[*CompilerInput_ModuleType]{
-	box:   func(v *CompilerInput_ModuleType) any { return obj_(v) },
-	unbox: func(v any) *CompilerInput_ModuleType { return cast_[*CompilerInput_ModuleType](v) },
+var tc_p_CompilerInput_ModuleType = &jtconv_[CompilerInput_ModuleType]{
+	box:   func(v CompilerInput_ModuleType) any { return obj_(v) },
+	unbox: func(v any) CompilerInput_ModuleType { return cast_[CompilerInput_ModuleType](v) },
 }
 
-var tc_p_CompilerOptions_BrowserFeaturesetYear = &jtconv_[*CompilerOptions_BrowserFeaturesetYear]{
-	box: func(v *CompilerOptions_BrowserFeaturesetYear) any { return obj_(v) },
-	unbox: func(v any) *CompilerOptions_BrowserFeaturesetYear {
-		return cast_[*CompilerOptions_BrowserFeaturesetYear](v)
+var tc_p_CompilerOptions_BrowserFeaturesetYear = &jtconv_[CompilerOptions_BrowserFeaturesetYear]{
+	box: func(v CompilerOptions_BrowserFeaturesetYear) any { return obj_(v) },
+	unbox: func(v any) CompilerOptions_BrowserFeaturesetYear {
+		return cast_[CompilerOptions_BrowserFeaturesetYear](v)
 	},
 }
 
@@ -2711,9 +2711,9 @@ var jtc_p_ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration = &jtcon
 	},
 }
 
-var jtc_p_FeatureCollector_FeatureContext = &jtconv_[*FeatureCollector_FeatureContext]{
-	box:   func(v *FeatureCollector_FeatureContext) any { return obj_(v) },
-	unbox: func(v any) *FeatureCollector_FeatureContext { return cast_[*FeatureCollector_FeatureContext](v) },
+var jtc_p_FeatureCollector_FeatureContext = &jtconv_[FeatureCollector_FeatureContext]{
+	box:   func(v FeatureCollector_FeatureContext) any { return obj_(v) },
+	unbox: func(v any) FeatureCollector_FeatureContext { return cast_[FeatureCollector_FeatureContext](v) },
 }
 
 var tc_p_FeatureProto = &jtconv_[*FeatureProto]{
@@ -2721,9 +2721,9 @@ var tc_p_FeatureProto = &jtconv_[*FeatureProto]{
 	unbox: func(v any) *FeatureProto { return cast_[*FeatureProto](v) },
 }
 
-var jtc_p_FeatureSet_Feature = &jtconv_[*FeatureSet_Feature]{
-	box:   func(v *FeatureSet_Feature) any { return obj_(v) },
-	unbox: func(v any) *FeatureSet_Feature { return cast_[*FeatureSet_Feature](v) },
+var jtc_p_FeatureSet_Feature = &jtconv_[FeatureSet_Feature]{
+	box:   func(v FeatureSet_Feature) any { return obj_(v) },
+	unbox: func(v any) FeatureSet_Feature { return cast_[FeatureSet_Feature](v) },
 }
 
 var jtc_p_FileInstrumentationData = &jtconv_[*FileInstrumentationData]{
@@ -2926,9 +2926,9 @@ var tc_p_JSDocInfo_Marker = &jtconv_[*JSDocInfo_Marker]{
 	unbox: func(v any) *JSDocInfo_Marker { return cast_[*JSDocInfo_Marker](v) },
 }
 
-var tc_p_JSDocInfo_Visibility = &jtconv_[*JSDocInfo_Visibility]{
-	box:   func(v *JSDocInfo_Visibility) any { return obj_(v) },
-	unbox: func(v any) *JSDocInfo_Visibility { return cast_[*JSDocInfo_Visibility](v) },
+var tc_p_JSDocInfo_Visibility = &jtconv_[JSDocInfo_Visibility]{
+	box:   func(v JSDocInfo_Visibility) any { return obj_(v) },
+	unbox: func(v any) JSDocInfo_Visibility { return cast_[JSDocInfo_Visibility](v) },
 }
 
 var jtc_p_JSError = &jtconv_[*JSError]{
@@ -2946,9 +2946,9 @@ var jtc_p_JSTypeExpression = &jtconv_[*JSTypeExpression]{
 	unbox: func(v any) *JSTypeExpression { return cast_[*JSTypeExpression](v) },
 }
 
-var tc_p_JSTypeNative = &jtconv_[*JSTypeNative]{
-	box:   func(v *JSTypeNative) any { return obj_(v) },
-	unbox: func(v any) *JSTypeNative { return cast_[*JSTypeNative](v) },
+var tc_p_JSTypeNative = &jtconv_[JSTypeNative]{
+	box:   func(v JSTypeNative) any { return obj_(v) },
+	unbox: func(v any) JSTypeNative { return cast_[JSTypeNative](v) },
 }
 
 var jtc_p_JSTypeReconserializer_SeenTypeRecord = &jtconv_[*JSTypeReconserializer_SeenTypeRecord]{
@@ -2963,9 +2963,9 @@ var tc_p_JSTypeRegistry_ClosureNamespace = &jtconv_[*JSTypeRegistry_ClosureNames
 	unbox: func(v any) *JSTypeRegistry_ClosureNamespace { return cast_[*JSTypeRegistry_ClosureNamespace](v) },
 }
 
-var jtc_p_JSType_MatchStatus = &jtconv_[*JSType_MatchStatus]{
-	box:   func(v *JSType_MatchStatus) any { return obj_(v) },
-	unbox: func(v any) *JSType_MatchStatus { return cast_[*JSType_MatchStatus](v) },
+var jtc_p_JSType_MatchStatus = &jtconv_[JSType_MatchStatus]{
+	box:   func(v JSType_MatchStatus) any { return obj_(v) },
+	unbox: func(v any) JSType_MatchStatus { return cast_[JSType_MatchStatus](v) },
 }
 
 var jtc_p_JsDocInfoParser_ExtendedTypeInfo = &jtconv_[*JsDocInfoParser_ExtendedTypeInfo]{
@@ -2983,9 +2983,9 @@ var tc_p_JsMessageVisitor_MessageLocation = &jtconv_[*JsMessageVisitor_MessageLo
 	unbox: func(v any) *JsMessageVisitor_MessageLocation { return cast_[*JsMessageVisitor_MessageLocation](v) },
 }
 
-var jtc_p_JsMessage_GrammaticalGenderCase = &jtconv_[*JsMessage_GrammaticalGenderCase]{
-	box:   func(v *JsMessage_GrammaticalGenderCase) any { return obj_(v) },
-	unbox: func(v any) *JsMessage_GrammaticalGenderCase { return cast_[*JsMessage_GrammaticalGenderCase](v) },
+var jtc_p_JsMessage_GrammaticalGenderCase = &jtconv_[JsMessage_GrammaticalGenderCase]{
+	box:   func(v JsMessage_GrammaticalGenderCase) any { return obj_(v) },
+	unbox: func(v any) JsMessage_GrammaticalGenderCase { return cast_[JsMessage_GrammaticalGenderCase](v) },
 }
 
 var tc_p_JsdocTag = &jtconv_[*JsdocTag]{
@@ -2993,9 +2993,9 @@ var tc_p_JsdocTag = &jtconv_[*JsdocTag]{
 	unbox: func(v any) *JsdocTag { return cast_[*JsdocTag](v) },
 }
 
-var tc_p_Keywords = &jtconv_[*Keywords]{
-	box:   func(v *Keywords) any { return obj_(v) },
-	unbox: func(v any) *Keywords { return cast_[*Keywords](v) },
+var tc_p_Keywords = &jtconv_[Keywords]{
+	box:   func(v Keywords) any { return obj_(v) },
+	unbox: func(v any) Keywords { return cast_[Keywords](v) },
 }
 
 var tc_p_LinkedDirectedGraph_LinkedDiGraphEdge_N__E__single_ singles_
@@ -3016,10 +3016,10 @@ func tc_p_LinkedDirectedGraph_LinkedDiGraphEdge_N__E_[N comparable, E comparable
 	})
 }
 
-var tc_p_LinkedDirectedGraph_LinkedDiGraphEdge_Node__p_ControlFlowGraph_Branch_ = &jtconv_[*LinkedDirectedGraph_LinkedDiGraphEdge[Node, *ControlFlowGraph_Branch]]{
-	box: func(v *LinkedDirectedGraph_LinkedDiGraphEdge[Node, *ControlFlowGraph_Branch]) any { return v.self() },
-	unbox: func(v any) *LinkedDirectedGraph_LinkedDiGraphEdge[Node, *ControlFlowGraph_Branch] {
-		return to_LinkedDirectedGraph_LinkedDiGraphEdge[Node, *ControlFlowGraph_Branch](v)
+var tc_p_LinkedDirectedGraph_LinkedDiGraphEdge_Node__p_ControlFlowGraph_Branch_ = &jtconv_[*LinkedDirectedGraph_LinkedDiGraphEdge[Node, ControlFlowGraph_Branch]]{
+	box: func(v *LinkedDirectedGraph_LinkedDiGraphEdge[Node, ControlFlowGraph_Branch]) any { return v.self() },
+	unbox: func(v any) *LinkedDirectedGraph_LinkedDiGraphEdge[Node, ControlFlowGraph_Branch] {
+		return to_LinkedDirectedGraph_LinkedDiGraphEdge[Node, ControlFlowGraph_Branch](v)
 	},
 }
 
@@ -3041,10 +3041,10 @@ func tc_p_LinkedDirectedGraph_LinkedDiGraphNode_N__E_[N comparable, E comparable
 	})
 }
 
-var tc_p_LinkedDirectedGraph_LinkedDiGraphNode_Node__p_ControlFlowGraph_Branch_ = &jtconv_[*LinkedDirectedGraph_LinkedDiGraphNode[Node, *ControlFlowGraph_Branch]]{
-	box: func(v *LinkedDirectedGraph_LinkedDiGraphNode[Node, *ControlFlowGraph_Branch]) any { return v.self() },
-	unbox: func(v any) *LinkedDirectedGraph_LinkedDiGraphNode[Node, *ControlFlowGraph_Branch] {
-		return to_LinkedDirectedGraph_LinkedDiGraphNode[Node, *ControlFlowGraph_Branch](v)
+var tc_p_LinkedDirectedGraph_LinkedDiGraphNode_Node__p_ControlFlowGraph_Branch_ = &jtconv_[*LinkedDirectedGraph_LinkedDiGraphNode[Node, ControlFlowGraph_Branch]]{
+	box: func(v *LinkedDirectedGraph_LinkedDiGraphNode[Node, ControlFlowGraph_Branch]) any { return v.self() },
+	unbox: func(v any) *LinkedDirectedGraph_LinkedDiGraphNode[Node, ControlFlowGraph_Branch] {
+		return to_LinkedDirectedGraph_LinkedDiGraphNode[Node, ControlFlowGraph_Branch](v)
 	},
 }
 
@@ -3175,9 +3175,9 @@ var jtc_p_ParseTree = &jtconv_[*ParseTree]{
 	unbox: func(v any) *ParseTree { return to_ParseTree(v) },
 }
 
-var jtc_p_Parser_FunctionFlavor = &jtconv_[*Parser_FunctionFlavor]{
-	box:   func(v *Parser_FunctionFlavor) any { return obj_(v) },
-	unbox: func(v any) *Parser_FunctionFlavor { return cast_[*Parser_FunctionFlavor](v) },
+var jtc_p_Parser_FunctionFlavor = &jtconv_[Parser_FunctionFlavor]{
+	box:   func(v Parser_FunctionFlavor) any { return obj_(v) },
+	unbox: func(v any) Parser_FunctionFlavor { return cast_[Parser_FunctionFlavor](v) },
 }
 
 var jtc_p_PassFactory = &jtconv_[*PassFactory]{
@@ -3261,9 +3261,9 @@ var jtc_p_ProcessDefines_Define = &jtconv_[*ProcessDefines_Define]{
 	unbox: func(v any) *ProcessDefines_Define { return cast_[*ProcessDefines_Define](v) },
 }
 
-var tc_p_ProcessTweaks_TweakFunction = &jtconv_[*ProcessTweaks_TweakFunction]{
-	box:   func(v *ProcessTweaks_TweakFunction) any { return obj_(v) },
-	unbox: func(v any) *ProcessTweaks_TweakFunction { return cast_[*ProcessTweaks_TweakFunction](v) },
+var tc_p_ProcessTweaks_TweakFunction = &jtconv_[ProcessTweaks_TweakFunction]{
+	box:   func(v ProcessTweaks_TweakFunction) any { return obj_(v) },
+	unbox: func(v any) ProcessTweaks_TweakFunction { return cast_[ProcessTweaks_TweakFunction](v) },
 }
 
 var tc_p_ProcessTweaks_TweakFunctionCall = &jtconv_[*ProcessTweaks_TweakFunctionCall]{
@@ -3465,9 +3465,9 @@ var tc_p_SimpleJsonValue = &jtconv_[*SimpleJsonValue]{
 	unbox: func(v any) *SimpleJsonValue { return cast_[*SimpleJsonValue](v) },
 }
 
-var tc_p_SimpleMultiset_p_Token_rhino_ = &jtconv_[*SimpleMultiset[*Token_rhino]]{
-	box:   func(v *SimpleMultiset[*Token_rhino]) any { return obj_(v) },
-	unbox: func(v any) *SimpleMultiset[*Token_rhino] { return cast_[*SimpleMultiset[*Token_rhino]](v) },
+var tc_p_SimpleMultiset_p_Token_rhino_ = &jtconv_[*SimpleMultiset[Token_rhino]]{
+	box:   func(v *SimpleMultiset[Token_rhino]) any { return obj_(v) },
+	unbox: func(v any) *SimpleMultiset[Token_rhino] { return cast_[*SimpleMultiset[Token_rhino]](v) },
 }
 
 var jtc_p_SimpleSlot = &jtconv_[*SimpleSlot]{
@@ -3578,9 +3578,9 @@ var tc_p_Timeline_Event = &jtconv_[*Timeline_Event]{
 	unbox: func(v any) *Timeline_Event { return cast_[*Timeline_Event](v) },
 }
 
-var tc_p_TokenType = &jtconv_[*TokenType]{
-	box:   func(v *TokenType) any { return obj_(v) },
-	unbox: func(v any) *TokenType { return cast_[*TokenType](v) },
+var tc_p_TokenType = &jtconv_[TokenType]{
+	box:   func(v TokenType) any { return obj_(v) },
+	unbox: func(v any) TokenType { return cast_[TokenType](v) },
 }
 
 var jtc_p_Token_parser = &jtconv_[*Token_parser]{
@@ -3588,9 +3588,9 @@ var jtc_p_Token_parser = &jtconv_[*Token_parser]{
 	unbox: func(v any) *Token_parser { return to_Token_parser(v) },
 }
 
-var tc_p_Token_rhino = &jtconv_[*Token_rhino]{
-	box:   func(v *Token_rhino) any { return obj_(v) },
-	unbox: func(v any) *Token_rhino { return cast_[*Token_rhino](v) },
+var tc_p_Token_rhino = &jtconv_[Token_rhino]{
+	box:   func(v Token_rhino) any { return obj_(v) },
+	unbox: func(v any) Token_rhino { return cast_[Token_rhino](v) },
 }
 
 var jtc_p_Tracer = &jtconv_[*Tracer]{
@@ -3959,23 +3959,23 @@ func init() {
 	regGoEquals_(
 		(*AbstractCommandLineRunner)(nil),
 		(*AbstractCommandLineRunner_CommandLineConfig)(nil),
-		(*AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption)(nil),
+		(AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption)(0),
 		(*AbstractCommandLineRunner_JsChunkSpec)(nil),
-		(*AbstractCommandLineRunner_JsSourceType)(nil),
+		(AbstractCommandLineRunner_JsSourceType)(0),
 		(*AbstractCommandLineRunner_JsonFileSpec)(nil),
 		(*AbstractCommandLineRunner_SystemExitCodeReceiver)(nil),
 		(*AbstractCompiler)(nil),
-		(*AbstractCompiler_ConfigContext)(nil),
-		(*AbstractCompiler_LifeCycleStage)(nil),
+		(AbstractCompiler_ConfigContext)(0),
+		(AbstractCompiler_LifeCycleStage)(0),
 		(*AbstractMessageFormatter)(nil),
-		(*AbstractMessageFormatter_Color)(nil),
+		(AbstractMessageFormatter_Color)(0),
 		(*AbstractPeepholeOptimization)(nil),
 		(*AbstractPeepholeTranspilation)(nil),
 		(*AbstractScope)(nil),
-		(*AbstractScope_ImplicitVar)(nil),
+		(AbstractScope_ImplicitVar)(0),
 		(*AccessControlUtils)(nil),
 		(*AccessorSummary)(nil),
-		(*AccessorSummary_PropertyAccessKind)(nil),
+		(AccessorSummary_PropertyAccessKind)(0),
 		(*AliasStrings)(nil),
 		(*AliasStrings_StringInfo)(nil),
 		(*AllowlistWarningsGuard)(nil),
@@ -3996,10 +3996,10 @@ func init() {
 		(*AnalyzePrototypeProperties_ProcessExternProperties)(nil),
 		(*AnalyzePrototypeProperties_ProcessProperties)(nil),
 		(*AnalyzePrototypeProperties_PropagateReferences)(nil),
-		(*AnalyzePrototypeProperties_SymbolType)(nil),
+		(AnalyzePrototypeProperties_SymbolType)(0),
 		(*AngularPass)(nil),
 		(*AngularPass_NodeContext)(nil),
-		(*Annotation_parsing)(nil),
+		(Annotation_parsing)(0),
 		(*ApplySuggestedFixes)(nil),
 		(*ApplySuggestedFixes_ReplacementMap)(nil),
 		(*ArgumentListTree)(nil),
@@ -4009,12 +4009,12 @@ func init() {
 		(*AstAnalyzer_Options_Builder)(nil),
 		(*AstFactory)(nil),
 		(*AstFactory_JSTypeOrColor)(nil),
-		(*AstFactory_TypeMode)(nil),
+		(AstFactory_TypeMode)(0),
 		(*AstFactory_TypeOnNode)(nil),
 		(*AstManipulations)(nil),
 		(*AstValidator)(nil),
 		(*AstValidator_1)(nil),
-		(*AstValidator_TypeInfoValidation)(nil),
+		(AstValidator_TypeInfoValidation)(0),
 		(*AwaitExpressionTree)(nil),
 		(*Base64)(nil),
 		(*Base64VLQ)(nil),
@@ -4024,10 +4024,10 @@ func init() {
 		(*BasicBlock)(nil),
 		(*BasicErrorManager)(nil),
 		(*BinaryOperatorTree)(nil),
-		(*Binding_CreatedBy)(nil),
+		(Binding_CreatedBy)(0),
 		(*BlackHoleErrorManager)(nil),
 		(*BlockTree)(nil),
-		(*BooleanLiteralSet)(nil),
+		(BooleanLiteralSet)(0),
 		(*BranchCoverageInstrumentationCallback)(nil),
 		(*BreakStatementTree)(nil),
 		(*BrowserModuleResolver)(nil),
@@ -4055,9 +4055,9 @@ func init() {
 		(*ChangeVerifier_2)(nil),
 		(*Charsets)(nil),
 		(*CheckAccessControls)(nil),
-		(*CheckAccessControls_Constancy)(nil),
+		(CheckAccessControls_Constancy)(0),
 		(*CheckAccessControls_ConstantDeclaration)(nil),
-		(*CheckAccessControls_IdentifierBehaviour)(nil),
+		(CheckAccessControls_IdentifierBehaviour)(0),
 		(*CheckAccessControls_PropertyReference_Builder)(nil),
 		(*CheckArrayWithGoogObject)(nil),
 		(*CheckClosureImports)(nil),
@@ -4077,7 +4077,7 @@ func init() {
 		(*CheckEmptyStatements)(nil),
 		(*CheckEnums)(nil),
 		(*CheckEs6ModuleFileStructure)(nil),
-		(*CheckEs6ModuleFileStructure_OrderedStatement)(nil),
+		(CheckEs6ModuleFileStructure_OrderedStatement)(0),
 		(*CheckEs6Modules)(nil),
 		(*CheckExtraRequires)(nil),
 		(*CheckExtraRequiresPassConfig)(nil),
@@ -4089,13 +4089,13 @@ func init() {
 		(*CheckJSDocStyle_ExternsCallback)(nil),
 		(*CheckJSDocStyle_FindNonTrivialReturn)(nil),
 		(*CheckJSDoc_CheckJsdocTypes)(nil),
-		(*CheckLevel)(nil),
+		(CheckLevel)(0),
 		(*CheckMissingRequires)(nil),
-		(*CheckMissingRequires_Strength)(nil),
+		(CheckMissingRequires_Strength)(0),
 		(*CheckMissingReturn)(nil),
 		(*CheckMissingSemicolon)(nil),
 		(*CheckNestedNames)(nil),
-		(*CheckNestedNames_DeclarationKind)(nil),
+		(CheckNestedNames_DeclarationKind)(0),
 		(*CheckNoMutatedEs6Exports)(nil),
 		(*CheckNullabilityModifiers)(nil),
 		(*CheckPathsBetweenNodes_1)(nil),
@@ -4105,11 +4105,11 @@ func init() {
 		(*CheckPrimitiveAsObject)(nil),
 		(*CheckPrototypeProperties)(nil),
 		(*CheckProvidesSorted)(nil),
-		(*CheckProvidesSorted_Mode)(nil),
+		(CheckProvidesSorted_Mode)(0),
 		(*CheckRegExp)(nil),
 		(*CheckRequiresSorted)(nil),
-		(*CheckRequiresSorted_ImportPrimitive)(nil),
-		(*CheckRequiresSorted_Mode)(nil),
+		(CheckRequiresSorted_ImportPrimitive)(0),
+		(CheckRequiresSorted_Mode)(0),
 		(*CheckSideEffects)(nil),
 		(*CheckSideEffects_GetNoSideEffectExterns)(nil),
 		(*CheckSideEffects_StripProtection)(nil),
@@ -4151,14 +4151,14 @@ func init() {
 		(*ClosureCodeRemoval_RemovableAssignment)(nil),
 		(*ClosureCodingConvention)(nil),
 		(*ClosureExportTypeClassifier)(nil),
-		(*ClosureExportTypeClassifier_Kind)(nil),
+		(ClosureExportTypeClassifier_Kind)(0),
 		(*ClosureExportTypeClassifier_NameInfo)(nil),
-		(*ClosureExportTypeClassifier_TsExportType)(nil),
+		(ClosureExportTypeClassifier_TsExportType)(0),
 		(*ClosureModuleProcessor)(nil),
 		(*ClosureModuleProcessor_ModuleProcessingCallback)(nil),
 		(*ClosureOptimizePrimitives)(nil),
 		(*ClosureOptimizePrimitives_FindPrimitives)(nil),
-		(*ClosurePrimitive)(nil),
+		(ClosurePrimitive)(0),
 		(*ClosurePrimitiveErrors)(nil),
 		(*ClosureRequireProcessor)(nil),
 		(*ClosureReverseAbstractInterpreter)(nil),
@@ -4166,12 +4166,12 @@ func init() {
 		(*ClosureReverseAbstractInterpreter_2)(nil),
 		(*ClosureReverseAbstractInterpreter_TypeRestriction)(nil),
 		(*ClosureRewriteModule)(nil),
-		(*ClosureRewriteModule_AddAt)(nil),
+		(ClosureRewriteModule_AddAt)(0),
 		(*ClosureRewriteModule_AliasName)(nil),
 		(*ClosureRewriteModule_ExportDefinition)(nil),
 		(*ClosureRewriteModule_GlobalRewriteState)(nil),
 		(*ClosureRewriteModule_ReplaceJsDocRefs)(nil),
-		(*ClosureRewriteModule_ScopeType)(nil),
+		(ClosureRewriteModule_ScopeType)(0),
 		(*ClosureRewriteModule_ScriptDescription)(nil),
 		(*ClosureRewriteModule_ScriptPreprocessor)(nil),
 		(*ClosureRewriteModule_ScriptRecorder)(nil),
@@ -4188,23 +4188,23 @@ func init() {
 		(*CoalesceVariableNames_LiveRangeChecker)(nil),
 		(*CodeConsumer)(nil),
 		(*CodeGenerator)(nil),
-		(*CodeGenerator_Context)(nil),
+		(CodeGenerator_Context)(0),
 		(*CodePrinter)(nil),
 		(*CodePrinter_Builder)(nil),
 		(*CodePrinter_Builder_1)(nil),
 		(*CodePrinter_CompactCodePrinter)(nil),
-		(*CodePrinter_Format)(nil),
+		(CodePrinter_Format)(0),
 		(*CodePrinter_MappedCodePrinter)(nil),
 		(*CodePrinter_PrettyCodePrinter)(nil),
 		(*CodePrinter_SourceAndMappings)(nil),
 		(*CodingConvention_AssertionFunctionLookup)(nil),
-		(*CodingConvention_AssertionFunctionSpec_AssertionKind)(nil),
+		(CodingConvention_AssertionFunctionSpec_AssertionKind)(0),
 		(*CodingConvention_AssertionFunctionSpec_Builder)(nil),
 		(*CodingConvention_Bind)(nil),
 		(*CodingConvention_Cache)(nil),
 		(*CodingConvention_ObjectLiteralCast)(nil),
 		(*CodingConvention_SubclassRelationship)(nil),
-		(*CodingConvention_SubclassType)(nil),
+		(CodingConvention_SubclassType)(0),
 		(*CodingConventions)(nil),
 		(*CodingConventions_DefaultCodingConvention)(nil),
 		(*CodingConventions_Proxy)(nil),
@@ -4215,10 +4215,10 @@ func init() {
 		(*CollectFileOverviewVisibility)(nil),
 		(*ColorFindPropertyReferences)(nil),
 		(*ColorGraphBuilder)(nil),
-		(*ColorGraphBuilder_EdgeReason)(nil),
+		(ColorGraphBuilder_EdgeReason)(0),
 		(*ColorGraphNode)(nil),
 		(*ColorGraphNodeFactory)(nil),
-		(*ColorGraphNode_PropAssociation)(nil),
+		(ColorGraphNode_PropAssociation)(0),
 		(*ColorPool)(nil),
 		(*ColorPool_Builder)(nil),
 		(*ColorPool_ShardView)(nil),
@@ -4232,10 +4232,10 @@ func init() {
 		(*CommandLineRunner)(nil),
 		(*CommandLineRunner_FlagInputs)(nil),
 		(*CommandLineRunner_Flags)(nil),
-		(*CommandLineRunner_FormattingOption)(nil),
+		(CommandLineRunner_FormattingOption)(0),
 		(*Comment)(nil),
-		(*Comment_Type)(nil),
-		(*CompilationLevel)(nil),
+		(Comment_Type)(0),
+		(CompilationLevel)(0),
 		(*Compiler)(nil),
 		(*CompilerBasedTransformer)(nil),
 		(*CompilerBasedTransformer_CompileResult)(nil),
@@ -4245,32 +4245,32 @@ func init() {
 		(*CompilerInput)(nil),
 		(*CompilerInput_DepsFinder)(nil),
 		(*CompilerInput_JsAst)(nil),
-		(*CompilerInput_ModuleType)(nil),
+		(CompilerInput_ModuleType)(0),
 		(*CompilerOptions)(nil),
 		(*CompilerOptionsPreprocessor)(nil),
-		(*CompilerOptions_AliasStringsMode)(nil),
-		(*CompilerOptions_BrowserFeaturesetYear)(nil),
-		(*CompilerOptions_ChunkOutputType)(nil),
-		(*CompilerOptions_ConformanceReportingMode)(nil),
-		(*CompilerOptions_DevMode)(nil),
-		(*CompilerOptions_Environment)(nil),
-		(*CompilerOptions_Es6ModuleTranspilation)(nil),
-		(*CompilerOptions_Es6SubclassTranspilation)(nil),
-		(*CompilerOptions_ExperimentalOutputFeatureSet)(nil),
-		(*CompilerOptions_ExtractPrototypeMemberDeclarationsMode)(nil),
-		(*CompilerOptions_IncrementalCheckMode)(nil),
-		(*CompilerOptions_InstrumentOption)(nil),
-		(*CompilerOptions_IsolationMode)(nil),
-		(*CompilerOptions_J2clPassMode)(nil),
-		(*CompilerOptions_JsonStreamMode)(nil),
-		(*CompilerOptions_LanguageMode)(nil),
-		(*CompilerOptions_OptimizeLocalAccess)(nil),
-		(*CompilerOptions_OutputJs)(nil),
-		(*CompilerOptions_PropertyCollapseLevel)(nil),
-		(*CompilerOptions_Reach)(nil),
-		(*CompilerOptions_SegmentOfCompilationToRun)(nil),
-		(*CompilerOptions_TracerMode)(nil),
-		(*CompilerOptions_TweakProcessing)(nil),
+		(CompilerOptions_AliasStringsMode)(0),
+		(CompilerOptions_BrowserFeaturesetYear)(0),
+		(CompilerOptions_ChunkOutputType)(0),
+		(CompilerOptions_ConformanceReportingMode)(0),
+		(CompilerOptions_DevMode)(0),
+		(CompilerOptions_Environment)(0),
+		(CompilerOptions_Es6ModuleTranspilation)(0),
+		(CompilerOptions_Es6SubclassTranspilation)(0),
+		(CompilerOptions_ExperimentalOutputFeatureSet)(0),
+		(CompilerOptions_ExtractPrototypeMemberDeclarationsMode)(0),
+		(CompilerOptions_IncrementalCheckMode)(0),
+		(CompilerOptions_InstrumentOption)(0),
+		(CompilerOptions_IsolationMode)(0),
+		(CompilerOptions_J2clPassMode)(0),
+		(CompilerOptions_JsonStreamMode)(0),
+		(CompilerOptions_LanguageMode)(0),
+		(CompilerOptions_OptimizeLocalAccess)(0),
+		(CompilerOptions_OutputJs)(0),
+		(CompilerOptions_PropertyCollapseLevel)(0),
+		(CompilerOptions_Reach)(0),
+		(CompilerOptions_SegmentOfCompilationToRun)(0),
+		(CompilerOptions_TracerMode)(0),
+		(CompilerOptions_TweakProcessing)(0),
 		(*Compiler_2)(nil),
 		(*Compiler_ChunkGraphAwareLicenseTracker)(nil),
 		(*Compiler_CodeBuilder)(nil),
@@ -4291,10 +4291,10 @@ func init() {
 		(*ConcretizeStaticInheritanceForInlining_JavascriptClass)(nil),
 		(*ConditionalExpressionTree)(nil),
 		(*Config_Builder)(nil),
-		(*Config_JsDocParsing)(nil),
-		(*Config_LanguageMode)(nil),
-		(*Config_RunMode)(nil),
-		(*Config_StrictMode)(nil),
+		(Config_JsDocParsing)(0),
+		(Config_LanguageMode)(0),
+		(Config_RunMode)(0),
+		(Config_StrictMode)(0),
 		(*ConformanceAllowlister)(nil),
 		(*ConformanceAllowlister_1)(nil),
 		(*ConformancePassConfig)(nil),
@@ -4331,7 +4331,7 @@ func init() {
 		(*ConformanceRules_BannedProperty_RequirementPrecondition_4)(nil),
 		(*ConformanceRules_BannedProperty_RequirementPrecondition_5)(nil),
 		(*ConformanceRules_BannedStringRegex)(nil),
-		(*ConformanceRules_ConformanceLevel)(nil),
+		(ConformanceRules_ConformanceLevel)(0),
 		(*ConformanceRules_ConformanceResult)(nil),
 		(*ConformanceRules_ConformanceUtil)(nil),
 		(*ConformanceRules_CustomRuleProxy)(nil),
@@ -4348,28 +4348,28 @@ func init() {
 		(*ConformanceRules_StrictBanUnresolvedType)(nil),
 		(*ConstCheck)(nil),
 		(*ContainsUpperBoundSuperTypeVisitor)(nil),
-		(*ContainsUpperBoundSuperTypeVisitor_Result)(nil),
+		(ContainsUpperBoundSuperTypeVisitor_Result)(0),
 		(*ContinueStatementTree)(nil),
 		(*ControlFlowAnalysis)(nil),
 		(*ControlFlowAnalysis_AstControlFlowGraph)(nil),
 		(*ControlFlowAnalysis_Builder)(nil),
 		(*ControlFlowGraph_AbstractCfgNodeTraversalCallback)(nil),
-		(*ControlFlowGraph_Branch)(nil),
+		(ControlFlowGraph_Branch)(0),
 		(*ConvertChunksToESModules)(nil),
 		(*ConvertChunksToESModules_FindCrossChunkReferences)(nil),
-		(*ConvertChunksToESModules_ImportType)(nil),
+		(ConvertChunksToESModules_ImportType)(0),
 		(*ConvertToDottedProperties)(nil),
 		(*ConvertToTypedInterface)(nil),
 		(*ConvertToTypedInterface_PropagateConstJsdoc)(nil),
 		(*ConvertToTypedInterface_RemoveNonDeclarations)(nil),
 		(*ConvertToTypedInterface_SimplifyDeclarations)(nil),
-		(*ConvertToTypedInterface_SimplifyDeclarations_TypingLevel)(nil),
+		(ConvertToTypedInterface_SimplifyDeclarations_TypingLevel)(0),
 		(*ConvertTypesToColors)(nil),
 		(*ConvertTypesToColors_RemoveTypes)(nil),
 		(*ConvertTypesToColors_RemoveTypesAndApplyColors)(nil),
 		(*CoverageInstrumentationCallback)(nil),
 		(*CoverageInstrumentationPass)(nil),
-		(*CoverageInstrumentationPass_CoverageReach)(nil),
+		(CoverageInstrumentationPass_CoverageReach)(0),
 		(*CoverageInstrumenter)(nil),
 		(*CoverageInstrumenter_CompilerSupplier)(nil),
 		(*CoverageUtil)(nil),
@@ -4391,14 +4391,14 @@ func init() {
 		(*CrossChunkReferenceCollector_TopLevelStatementDraft)(nil),
 		(*CssRenamingMap_ByPart)(nil),
 		(*CssRenamingMap_ByWhole)(nil),
-		(*CssRenamingMap_Style)(nil),
-		(*CustomPassExecutionTime)(nil),
+		(CssRenamingMap_Style)(0),
+		(CustomPassExecutionTime)(0),
 		(*DToA)(nil),
 		(*DataFlowAnalysis_1)(nil),
 		(*DataFlowAnalysis_LinearFlowState)(nil),
 		(*DeadAssignmentsElimination)(nil),
 		(*DeadAssignmentsElimination_BailoutInformation)(nil),
-		(*DeadAssignmentsElimination_VariableLiveness)(nil),
+		(DeadAssignmentsElimination_VariableLiveness)(0),
 		(*DeadPropertyAssignmentElimination)(nil),
 		(*DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal)(nil),
 		(*DeadPropertyAssignmentElimination_FunctionVisitor)(nil),
@@ -4430,12 +4430,12 @@ func init() {
 		(*Denormalize)(nil),
 		(*DependencyFile)(nil),
 		(*DependencyInfo_Require_Builder)(nil),
-		(*DependencyInfo_Require_Type)(nil),
+		(DependencyInfo_Require_Type)(0),
 		(*DependencyInfo_Util)(nil),
-		(*DependencyOptions_DependencyMode)(nil),
+		(DependencyOptions_DependencyMode)(0),
 		(*DepsFileRegexParser)(nil),
 		(*DepsGenerator)(nil),
-		(*DepsGenerator_InclusionStrategy)(nil),
+		(DepsGenerator_InclusionStrategy)(0),
 		(*DestructuredTarget)(nil),
 		(*DestructuredTarget_Builder)(nil),
 		(*DestructuringGlobalNameExtractor)(nil),
@@ -4445,7 +4445,7 @@ func init() {
 		(*DiagnosticGroupWarningsGuard)(nil),
 		(*DiagnosticGroups)(nil),
 		(*DiagnosticToSuppressionMapper)(nil),
-		(*DiagnosticToSuppressionMapper_OutputFormat)(nil),
+		(DiagnosticToSuppressionMapper_OutputFormat)(0),
 		(*DisambiguateProperties)(nil),
 		(*DisambiguateProperties_1)(nil),
 		(*DisambiguateProperties_PropertyReferenceIndexJson)(nil),
@@ -4461,8 +4461,8 @@ func init() {
 		(*EmptyStatementTree)(nil),
 		(*EnumType_Builder)(nil),
 		(*EqualityChecker)(nil),
-		(*EqualityChecker_EqMethod)(nil),
-		(*EquivalenceMethod)(nil),
+		(EqualityChecker_EqMethod)(0),
+		(EquivalenceMethod)(0),
 		(*ErrorFormat)(nil),
 		(*ErrorFormat_1)(nil),
 		(*ErrorFormat_2)(nil),
@@ -4484,7 +4484,7 @@ func init() {
 		(*Es6NormalizeClasses)(nil),
 		(*Es6NormalizeClasses_ClassRecord)(nil),
 		(*Es6NormalizeClasses_ClassRecord_PrivateMember)(nil),
-		(*Es6NormalizeClasses_ClassRecord_PrivateMemberKind)(nil),
+		(Es6NormalizeClasses_ClassRecord_PrivateMemberKind)(0),
 		(*Es6NormalizeShorthandProperties)(nil),
 		(*Es6RelativizeImportPaths)(nil),
 		(*Es6RelativizeImportPaths_Rewriter)(nil),
@@ -4499,11 +4499,11 @@ func init() {
 		(*Es6RewriteClass_ClassDeclarationMetadata)(nil),
 		(*Es6RewriteClass_ClassDeclarationMetadata_Builder)(nil),
 		(*Es6RewriteClass_ClassProperty_Builder)(nil),
-		(*Es6RewriteClass_ClassProperty_PropertyKind)(nil),
+		(Es6RewriteClass_ClassProperty_PropertyKind)(0),
 		(*Es6RewriteClass_InsertionPoint)(nil),
 		(*Es6RewriteDestructuring)(nil),
 		(*Es6RewriteDestructuring_Builder)(nil),
-		(*Es6RewriteDestructuring_ObjectDestructuringRewriteMode)(nil),
+		(Es6RewriteDestructuring_ObjectDestructuringRewriteMode)(0),
 		(*Es6RewriteDestructuring_PatternNestingLevel)(nil),
 		(*Es6RewriteGenerators)(nil),
 		(*Es6RewriteGenerators_GeneratorFunctionsTranspiler)(nil),
@@ -4539,9 +4539,9 @@ func init() {
 		(*Export_Builder)(nil),
 		(*ExpressionDecomposer)(nil),
 		(*ExpressionDecomposer_DecompositionState)(nil),
-		(*ExpressionDecomposer_DecompositionType)(nil),
-		(*ExpressionDecomposer_EvaluationDirection)(nil),
-		(*ExpressionDecomposer_Workaround)(nil),
+		(ExpressionDecomposer_DecompositionType)(0),
+		(ExpressionDecomposer_EvaluationDirection)(0),
+		(ExpressionDecomposer_Workaround)(0),
 		(*ExpressionStatementTree)(nil),
 		(*ExternExportsPass)(nil),
 		(*ExternExportsPass_Export)(nil),
@@ -4552,12 +4552,12 @@ func init() {
 		(*ExtractPrototypeMemberDeclarations_ExtractionInstance)(nil),
 		(*ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo)(nil),
 		(*ExtractPrototypeMemberDeclarations_GatherExtractionInfo)(nil),
-		(*ExtractPrototypeMemberDeclarations_Pattern)(nil),
+		(ExtractPrototypeMemberDeclarations_Pattern)(0),
 		(*ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration)(nil),
 		(*FeatureCollector)(nil),
-		(*FeatureCollector_FeatureContext)(nil),
-		(*FeatureSet_Feature)(nil),
-		(*FeatureSet_LangVersion)(nil),
+		(FeatureCollector_FeatureContext)(0),
+		(FeatureSet_Feature)(0),
+		(FeatureSet_LangVersion)(0),
 		(*FieldDeclarationTree)(nil),
 		(*FileInfo)(nil),
 		(*FileInstrumentationData)(nil),
@@ -4565,12 +4565,12 @@ func init() {
 		(*FilePosition)(nil),
 		(*FinallyTree)(nil),
 		(*FindExportableNodes)(nil),
-		(*FindExportableNodes_Mode)(nil),
+		(FindExportableNodes_Mode)(0),
 		(*FindModuleDependencies)(nil),
 		(*FindModuleDependencies_FindGoogProvideOrGoogModule)(nil),
-		(*FixedPointGraphTraversal_TraversalDirection)(nil),
+		(FixedPointGraphTraversal_TraversalDirection)(0),
 		(*FixingErrorManager)(nil),
-		(*FixingErrorManager_FixTypes)(nil),
+		(FixingErrorManager_FixTypes)(0),
 		(*FlowSensitiveInlineVariables)(nil),
 		(*FlowSensitiveInlineVariables_Candidate)(nil),
 		(*FlowSensitiveInlineVariables_Candidate_1)(nil),
@@ -4589,7 +4589,7 @@ func init() {
 		(*FunctionArgumentInjector_ReferencedAfterSideEffect)(nil),
 		(*FunctionDeclarationTree)(nil),
 		(*FunctionDeclarationTree_Builder)(nil),
-		(*FunctionDeclarationTree_Kind)(nil),
+		(FunctionDeclarationTree_Kind)(0),
 		(*FunctionInjector)(nil),
 		(*FunctionInjector_1)(nil),
 		(*FunctionInjector_Builder)(nil),
@@ -4600,8 +4600,8 @@ func init() {
 		(*FunctionInjector_CallSiteType_4)(nil),
 		(*FunctionInjector_CallSiteType_5)(nil),
 		(*FunctionInjector_CallSiteType_6)(nil),
-		(*FunctionInjector_CanInlineResult)(nil),
-		(*FunctionInjector_InliningMode)(nil),
+		(FunctionInjector_CanInlineResult)(0),
+		(FunctionInjector_InliningMode)(0),
 		(*FunctionInjector_Reference)(nil),
 		(*FunctionParamBuilder)(nil),
 		(*FunctionRewriter)(nil),
@@ -4623,11 +4623,11 @@ func init() {
 		(*FunctionTypeBuilder_UnknownFunctionContents)(nil),
 		(*FunctionTypeBuilder_ValidatorBase)(nil),
 		(*FunctionType_Builder)(nil),
-		(*FunctionType_ConstructorAmbiguity)(nil),
-		(*FunctionType_Kind)(nil),
-		(*FunctionType_PropAccess)(nil),
+		(FunctionType_ConstructorAmbiguity)(0),
+		(FunctionType_Kind)(0),
+		(FunctionType_PropAccess)(0),
 		(*GatherExternProperties)(nil),
-		(*GatherExternProperties_Mode)(nil),
+		(GatherExternProperties_Mode)(0),
 		(*GatherGetterAndSetterProperties)(nil),
 		(*GatherGetterAndSetterProperties_GatherCallback)(nil),
 		(*GatherModuleMetadata)(nil),
@@ -4639,12 +4639,12 @@ func init() {
 		(*Glob)(nil),
 		(*GlobalNamespace)(nil),
 		(*GlobalNamespace_BuildGlobalNamespace)(nil),
-		(*GlobalNamespace_Inlinability)(nil),
+		(GlobalNamespace_Inlinability)(0),
 		(*GlobalNamespace_Name)(nil),
-		(*GlobalNamespace_NameProp)(nil),
+		(GlobalNamespace_NameProp)(0),
 		(*GlobalNamespace_Ref)(nil),
-		(*GlobalNamespace_Ref_Type)(nil),
-		(*GlobalNamespace_SourceKind)(nil),
+		(GlobalNamespace_Ref_Type)(0),
+		(GlobalNamespace_SourceKind)(0),
 		(*GoogBindToArrow)(nil),
 		(*GoogEsImports)(nil),
 		(*GoogleCodingConvention)(nil),
@@ -4658,7 +4658,7 @@ func init() {
 		(*IRFactory)(nil),
 		(*IRFactory_CommentTracker)(nil),
 		(*IRFactory_TransformDispatcher)(nil),
-		(*IRFactory_TransformDispatcher_IdentifierType)(nil),
+		(IRFactory_TransformDispatcher_IdentifierType)(0),
 		(*IRFactory_TransformDispatcher_ScopeTracker)(nil),
 		(*IRFactory_TransformDispatcher_ScopeTracker_1)(nil),
 		(*IdGenerator)(nil),
@@ -4671,7 +4671,7 @@ func init() {
 		(*IjsErrors)(nil),
 		(*ImplicitNullabilityCheck)(nil),
 		(*ImplicitNullabilityCheck_1)(nil),
-		(*ImplicitNullabilityCheck_Nullability)(nil),
+		(ImplicitNullabilityCheck_Nullability)(0),
 		(*ImplicitNullabilityCheck_Result)(nil),
 		(*ImportDeclarationTree)(nil),
 		(*ImportMetaExpressionTree)(nil),
@@ -4695,8 +4695,8 @@ func init() {
 		(*InlineCostEstimator_CompiledSizeEstimator)(nil),
 		(*InlineFunctions)(nil),
 		(*InlineFunctions_CallVisitor)(nil),
-		(*InlineFunctions_CannotRemoveReason)(nil),
-		(*InlineFunctions_DisallowInliningReason)(nil),
+		(InlineFunctions_CannotRemoveReason)(0),
+		(InlineFunctions_DisallowInliningReason)(0),
 		(*InlineFunctions_FindCandidateFunctions)(nil),
 		(*InlineFunctions_FindCandidatesReferences)(nil),
 		(*InlineFunctions_FunctionExpression)(nil),
@@ -4705,7 +4705,7 @@ func init() {
 		(*InlineFunctions_Inline)(nil),
 		(*InlineFunctions_NamedFunction)(nil),
 		(*InlineFunctions_Reference)(nil),
-		(*InlineFunctions_ShouldWarnWhenRequireInliningCannotInline)(nil),
+		(InlineFunctions_ShouldWarnWhenRequireInliningCannotInline)(0),
 		(*InlineObjectLiterals)(nil),
 		(*InlineObjectLiterals_InliningBehavior)(nil),
 		(*InlineObjectLiterals_InliningBehavior_1)(nil),
@@ -4730,7 +4730,7 @@ func init() {
 		(*InlineVariables_InliningBehavior_StandardVarExpert_InitialValueAnalysis)(nil),
 		(*InlineVariables_InliningBehavior_VarExpertInitData)(nil),
 		(*InlineVariables_InliningBehavior_VarIsAliasAnalysis)(nil),
-		(*InlineVariables_Mode)(nil),
+		(InlineVariables_Mode)(0),
 		(*InlineVariables_VarExpert)(nil),
 		(*InstanceObjectType_Builder)(nil),
 		(*InstrumentAsyncContext)(nil),
@@ -4739,7 +4739,7 @@ func init() {
 		(*InvalidatingTypes)(nil),
 		(*InvalidatingTypes_Builder)(nil),
 		(*Invalidation)(nil),
-		(*Invalidation_Reason)(nil),
+		(Invalidation_Reason)(0),
 		(*Invalidation_WithReceiverType)(nil),
 		(*InvocationTemplateTypeMatcher)(nil),
 		(*InvocationsCallback)(nil),
@@ -4756,7 +4756,7 @@ func init() {
 		(*J2clClinitPrunerPass_RedundantClinitPruner)(nil),
 		(*J2clConstantHoisterPass)(nil),
 		(*J2clEqualitySameRewriterPass)(nil),
-		(*J2clEqualitySameRewriterPass_NodeValue)(nil),
+		(J2clEqualitySameRewriterPass_NodeValue)(0),
 		(*J2clPass)(nil),
 		(*J2clPass_ClassStaticFunctionsInliner)(nil),
 		(*J2clPass_ClassStaticFunctionsInliner_FunctionDefsCollector)(nil),
@@ -4783,14 +4783,14 @@ func init() {
 		(*JSCompStrings)(nil),
 		(*JSDocInfo)(nil),
 		(*JSDocInfoPrinter)(nil),
-		(*JSDocInfo_Bit)(nil),
+		(JSDocInfo_Bit)(0),
 		(*JSDocInfo_Builder)(nil),
-		(*JSDocInfo_IdGenerator)(nil),
+		(JSDocInfo_IdGenerator)(0),
 		(*JSDocInfo_Marker)(nil),
 		(*JSDocInfo_MarkerListProperty)(nil),
 		(*JSDocInfo_NamePosition)(nil),
 		(*JSDocInfo_NodeMapProperty)(nil),
-		(*JSDocInfo_PerFileClosureUnawareMode)(nil),
+		(JSDocInfo_PerFileClosureUnawareMode)(0),
 		(*JSDocInfo_Property)(nil),
 		(*JSDocInfo_StringPosition)(nil),
 		(*JSDocInfo_TrimmedStringPosition)(nil),
@@ -4798,47 +4798,47 @@ func init() {
 		(*JSDocInfo_TypeMapProperty)(nil),
 		(*JSDocInfo_TypePosition)(nil),
 		(*JSDocInfo_TypeProperty)(nil),
-		(*JSDocInfo_Visibility)(nil),
+		(JSDocInfo_Visibility)(0),
 		(*JSDocSerializer)(nil),
 		(*JSError_Builder)(nil),
 		(*JSIdentifier)(nil),
-		(*JSTypeClass)(nil),
+		(JSTypeClass)(0),
 		(*JSTypeColorIdHasher)(nil),
 		(*JSTypeColorIdHasher_Marker)(nil),
 		(*JSTypeExpression)(nil),
 		(*JSTypeIterations)(nil),
-		(*JSTypeNative)(nil),
+		(JSTypeNative)(0),
 		(*JSTypeReconserializer)(nil),
 		(*JSTypeReconserializer_SeenTypeRecord)(nil),
-		(*JSTypeReconserializer_State)(nil),
+		(JSTypeReconserializer_State)(0),
 		(*JSTypeRegistry)(nil),
-		(*JSTypeRegistry_PropDefinitionKind)(nil),
+		(JSTypeRegistry_PropDefinitionKind)(0),
 		(*JSTypeRegistry_SyntheticTemplateScope)(nil),
 		(*JSTypeResolver)(nil),
 		(*JSTypeResolver_Closer)(nil),
-		(*JSTypeResolver_State)(nil),
-		(*JSType_HasPropertyKind)(nil),
-		(*JSType_MatchStatus)(nil),
-		(*JSType_Nullability)(nil),
-		(*JSType_SubtypingMode)(nil),
+		(JSTypeResolver_State)(0),
+		(JSType_HasPropertyKind)(0),
+		(JSType_MatchStatus)(0),
+		(JSType_Nullability)(0),
+		(JSType_SubtypingMode)(0),
 		(*JSType_TypePair)(nil),
 		(*JavaRegex)(nil),
 		(*JsDocInfoParser)(nil),
 		(*JsDocInfoParser_ExtendedTypeInfo)(nil),
 		(*JsDocInfoParser_ExtractionInfo)(nil),
-		(*JsDocInfoParser_JsDocSourceKind)(nil),
-		(*JsDocInfoParser_State)(nil),
-		(*JsDocInfoParser_WhitespaceOption)(nil),
-		(*JsDocToken)(nil),
+		(JsDocInfoParser_JsDocSourceKind)(0),
+		(JsDocInfoParser_State)(0),
+		(JsDocInfoParser_WhitespaceOption)(0),
+		(JsDocToken)(0),
 		(*JsDocTokenStream)(nil),
 		(*JsFileFullParser)(nil),
 		(*JsFileFullParser_1)(nil),
 		(*JsFileFullParser_DelegatingReporter)(nil),
 		(*JsFileFullParser_FileInfo)(nil),
-		(*JsFileFullParser_FileInfo_ModuleType)(nil),
+		(JsFileFullParser_FileInfo_ModuleType)(0),
 		(*JsFileLineParser)(nil),
 		(*JsFileRegexParser)(nil),
-		(*JsFileRegexParser_ModuleType)(nil),
+		(JsFileRegexParser_ModuleType)(0),
 		(*JsFlumeCallback)(nil),
 		(*JsIterables)(nil),
 		(*JsIterables_MaybeBoxedType)(nil),
@@ -4857,13 +4857,13 @@ func init() {
 		(*JsMessageVisitor_MessageLocation)(nil),
 		(*JsMessageVisitor_ObjectLiteralMapImpl)(nil),
 		(*JsMessage_Builder)(nil),
-		(*JsMessage_GrammaticalGenderCase)(nil),
+		(JsMessage_GrammaticalGenderCase)(0),
 		(*JsMessage_Hash)(nil),
 		(*JsSourceMatcher)(nil),
 		(*JsdocUtil)(nil),
 		(*JsonErrorReportGenerator)(nil),
 		(*JvmMetrics)(nil),
-		(*Keywords)(nil),
+		(Keywords)(0),
 		(*LabelledStatementTree)(nil),
 		(*LateEs6ToEs3Converter)(nil),
 		(*LazyParsedDependencyInfo)(nil),
@@ -4931,7 +4931,7 @@ func init() {
 		(*MinimizeExitPoints)(nil),
 		(*MinimizedCondition)(nil),
 		(*MinimizedCondition_MeasuredNode)(nil),
-		(*MinimizedCondition_MinimizationStyle)(nil),
+		(MinimizedCondition_MinimizationStyle)(0),
 		(*MissingPrimaryExpressionTree)(nil),
 		(*ModuleImportResolver)(nil),
 		(*ModuleLoader)(nil),
@@ -4943,26 +4943,26 @@ func init() {
 		(*ModuleLoader_PathResolver)(nil),
 		(*ModuleLoader_PathResolver_1)(nil),
 		(*ModuleLoader_PathResolver_2)(nil),
-		(*ModuleLoader_ResolutionMode)(nil),
+		(ModuleLoader_ResolutionMode)(0),
 		(*ModuleMap)(nil),
 		(*ModuleMapCreator)(nil),
 		(*ModuleMapCreator_ModuleRequestResolverImpl)(nil),
 		(*ModuleMetadataMap)(nil),
 		(*ModuleMetadataMap_ModuleMetadata_Builder)(nil),
-		(*ModuleMetadataMap_ModuleType)(nil),
+		(ModuleMetadataMap_ModuleType)(0),
 		(*ModuleNames)(nil),
 		(*ModuleRenaming)(nil),
 		(*ModuleResolver)(nil),
 		(*Module_Builder)(nil),
-		(*Msg)(nil),
+		(Msg)(0),
 		(*MustBeReachingVariableDef)(nil),
 		(*MustBeReachingVariableDef_1)(nil),
 		(*MustBeReachingVariableDef_MustDefJoin)(nil),
 		(*NamedType_Builder)(nil),
 		(*NamedType_PropertyContinuation)(nil),
-		(*NamedType_ResolutionKind)(nil),
+		(NamedType_ResolutionKind)(0),
 		(*NestedCompilerRunner)(nil),
-		(*NestedCompilerRunner_Mode)(nil),
+		(NestedCompilerRunner_Mode)(0),
 		(*NewExpressionTree)(nil),
 		(*NewTargetExpressionTree)(nil),
 		(*NoOpLogFile)(nil),
@@ -4994,23 +4994,23 @@ func init() {
 		(*NodeUtil_MatchNodeType)(nil),
 		(*NodeUtil_MatchShallowStatement)(nil),
 		(*NodeUtil_TemplateArgsIterable)(nil),
-		(*NodeUtil_ValueType)(nil),
+		(NodeUtil_ValueType)(0),
 		(*NodeUtil_VarCollector)(nil),
 		(*Node_AncestorIterable)(nil),
 		(*Node_AncestorIterable_1)(nil),
 		(*Node_ConstantVarFlags)(nil),
 		(*Node_IntPropListItem)(nil),
-		(*Node_JsDocComparison)(nil),
+		(Node_JsDocComparison)(0),
 		(*Node_ObjectPropListItem)(nil),
 		(*Node_Prop)(nil),
 		(*Node_PropListItem)(nil),
-		(*Node_RecursionMode)(nil),
+		(Node_RecursionMode)(0),
 		(*Node_SiblingNodeIterable)(nil),
 		(*Node_SiblingNodeIterator)(nil),
-		(*Node_SideEffectComparison)(nil),
+		(Node_SideEffectComparison)(0),
 		(*Node_SideEffectFlags)(nil),
 		(*Node_TemplateLiteralSubstring)(nil),
-		(*Node_TypeComparison)(nil),
+		(Node_TypeComparison)(0),
 		(*NominalTypeBuilder)(nil),
 		(*NonEsModuleProcessor)(nil),
 		(*NonJSDocComment)(nil),
@@ -5055,7 +5055,7 @@ func init() {
 		(*OutputCharsetEncoder)(nil),
 		(*ParenExpressionTree)(nil),
 		(*ParseTree)(nil),
-		(*ParseTreeType)(nil),
+		(ParseTreeType)(0),
 		(*Parser)(nil),
 		(*ParserConfiguration)(nil),
 		(*ParserRunner)(nil),
@@ -5063,10 +5063,10 @@ func init() {
 		(*ParserRunner_ParseResult)(nil),
 		(*Parser_CommentRecorder)(nil),
 		(*Parser_Config)(nil),
-		(*Parser_Config_Mode)(nil),
-		(*Parser_Expression)(nil),
-		(*Parser_FunctionFlavor)(nil),
-		(*Parser_PatternKind)(nil),
+		(Parser_Config_Mode)(0),
+		(Parser_Expression)(0),
+		(Parser_FunctionFlavor)(0),
+		(Parser_PatternKind)(0),
 		(*ParsingUtil)(nil),
 		(*PassConfig)(nil),
 		(*PassConfig_PassConfigDelegate)(nil),
@@ -5085,7 +5085,7 @@ func init() {
 		(*PeepholeReplaceKnownMethods_1)(nil),
 		(*PeepholeReplaceKnownMethods_ConcatFunctionCall)(nil),
 		(*PeepholeSubstituteAlternateSyntax)(nil),
-		(*PeepholeSubstituteAlternateSyntax_FoldArrayAction)(nil),
+		(PeepholeSubstituteAlternateSyntax_FoldArrayAction)(0),
 		(*PeepholeTranspilationsPass)(nil),
 		(*PeepholeTranspilationsPass_PeepCallback)(nil),
 		(*PerformanceTracker)(nil),
@@ -5096,19 +5096,19 @@ func init() {
 		(*PhaseOptimizer_NamedPass)(nil),
 		(*PhaseOptimizer_ProgressRange)(nil),
 		(*PhaseOptimizer_ScopedChangeHandler)(nil),
-		(*PhaseOptimizer_State)(nil),
+		(PhaseOptimizer_State)(0),
 		(*Platform)(nil),
 		(*PolyfillUsageFinder)(nil),
-		(*PolyfillUsageFinder_Guard)(nil),
+		(PolyfillUsageFinder_Guard)(0),
 		(*PolyfillUsageFinder_Polyfill)(nil),
-		(*PolyfillUsageFinder_Polyfill_Kind)(nil),
+		(PolyfillUsageFinder_Polyfill_Kind)(0),
 		(*PolyfillUsageFinder_Polyfills)(nil),
 		(*PolyfillUsageFinder_Traverser)(nil),
 		(*PolymerBehaviorExtractor)(nil),
 		(*PolymerBehaviorExtractor_BehaviorDefinition)(nil),
 		(*PolymerBehaviorExtractor_ResolveBehaviorNameResult)(nil),
 		(*PolymerClassDefinition)(nil),
-		(*PolymerClassDefinition_DefinitionType)(nil),
+		(PolymerClassDefinition_DefinitionType)(0),
 		(*PolymerClassRewriter)(nil),
 		(*PolymerPass)(nil),
 		(*PolymerPassErrors)(nil),
@@ -5155,16 +5155,16 @@ func init() {
 		(*ProcessDefines_Builder)(nil),
 		(*ProcessDefines_ClosureDefinesCollector)(nil),
 		(*ProcessDefines_Define)(nil),
-		(*ProcessDefines_Mode)(nil),
+		(ProcessDefines_Mode)(0),
 		(*ProcessTweaks)(nil),
 		(*ProcessTweaks_CollectTweaks)(nil),
 		(*ProcessTweaks_CollectTweaksResult)(nil),
-		(*ProcessTweaks_TweakFunction)(nil),
+		(ProcessTweaks_TweakFunction)(0),
 		(*ProcessTweaks_TweakFunctionCall)(nil),
 		(*ProcessTweaks_TweakInfo)(nil),
 		(*ProductionCoverageInstrumentationCallback)(nil),
 		(*ProductionCoverageInstrumentationCallback_ParameterMapping)(nil),
-		(*ProductionCoverageInstrumentationCallback_Type)(nil),
+		(ProductionCoverageInstrumentationCallback_Type)(0),
 		(*ProductionInstrumentationReporter)(nil),
 		(*ProfilingReport)(nil),
 		(*ProfilingReport_InstrumentationPointMetrics)(nil),
@@ -5174,8 +5174,8 @@ func init() {
 		(*PropertiesParser)(nil),
 		(*PropertyClustering)(nil),
 		(*PropertyNameAssignmentTree)(nil),
-		(*PropertyRenamingPolicy)(nil),
-		(*Property_KeyKind)(nil),
+		(PropertyRenamingPolicy)(0),
+		(Property_KeyKind)(0),
 		(*Property_OwnedProperty)(nil),
 		(*PrototypeObjectType_Builder)(nil),
 		(*PruningAnalysis)(nil),
@@ -5204,7 +5204,7 @@ func init() {
 		(*ReferenceCollector_CollectorCallback)(nil),
 		(*RegExpTree_1Parser)(nil),
 		(*RegExpTree_Concatenation_1Simplifier)(nil),
-		(*RegExpTree_ParentheticalType)(nil),
+		(RegExpTree_ParentheticalType)(0),
 		(*RemoveCastNodes)(nil),
 		(*RemoveCastNodes_RemoveCastsCallback)(nil),
 		(*RemovePropertyRenamingCalls)(nil),
@@ -5225,7 +5225,7 @@ func init() {
 		(*RemoveUnusedCode_IncOrDecOp)(nil),
 		(*RemoveUnusedCode_IndirectAssign)(nil),
 		(*RemoveUnusedCode_InstanceofName)(nil),
-		(*RemoveUnusedCode_Kind)(nil),
+		(RemoveUnusedCode_Kind)(0),
 		(*RemoveUnusedCode_NameDeclarationStatement)(nil),
 		(*RemoveUnusedCode_NamedClassExpression)(nil),
 		(*RemoveUnusedCode_ObjectDefinePropertiesDefinition)(nil),
@@ -5252,7 +5252,7 @@ func init() {
 		(*RenameVars)(nil),
 		(*RenameVars_Assignment)(nil),
 		(*RenameVars_ProcessVars)(nil),
-		(*RenamingToken)(nil),
+		(RenamingToken)(0),
 		(*ReplaceCssNames)(nil),
 		(*ReplaceCssNames_CountCssNamesBySymbol)(nil),
 		(*ReplaceCssNames_FindSetCssNameTraversal)(nil),
@@ -5265,7 +5265,7 @@ func init() {
 		(*ReplaceIdGenerators_MappedNameSupplier)(nil),
 		(*ReplaceIdGenerators_ObfuscatedNameSupplier)(nil),
 		(*ReplaceIdGenerators_PseudoNameSupplier)(nil),
-		(*ReplaceIdGenerators_RenameStrategy)(nil),
+		(ReplaceIdGenerators_RenameStrategy)(0),
 		(*ReplaceIdGenerators_ReplaceGenerators)(nil),
 		(*ReplaceIdGenerators_StableNameSupplier)(nil),
 		(*ReplaceIdGenerators_XidNameSupplier)(nil),
@@ -5299,7 +5299,7 @@ func init() {
 		(*RescopeGlobalSymbols_RemoveGlobalVarCallback)(nil),
 		(*RescopeGlobalSymbols_RewriteGlobalClassFunctionDeclarationsToVarAssignmentsCallback)(nil),
 		(*ResolveExportResult)(nil),
-		(*ResolveExportResult_State)(nil),
+		(ResolveExportResult_State)(0),
 		(*ResourceLoader)(nil),
 		(*Result)(nil),
 		(*ReturnStatementTree)(nil),
@@ -5323,7 +5323,7 @@ func init() {
 		(*RewriteGlobalDeclarationsForTryCatchWrapping)(nil),
 		(*RewriteGoogJsImports)(nil),
 		(*RewriteGoogJsImports_FindReexports)(nil),
-		(*RewriteGoogJsImports_Mode)(nil),
+		(RewriteGoogJsImports_Mode)(0),
 		(*RewriteGoogJsImports_ReferenceReplacer)(nil),
 		(*RewriteJsonToModule)(nil),
 		(*RewriteLogicalAssignmentOperatorsHelper)(nil),
@@ -5342,7 +5342,7 @@ func init() {
 		(*RuntimeJsLibManager)(nil),
 		(*RuntimeJsLibManager_FieldsTable)(nil),
 		(*RuntimeJsLibManager_InternalField)(nil),
-		(*RuntimeJsLibManager_RuntimeLibraryMode)(nil),
+		(RuntimeJsLibManager_RuntimeLibraryMode)(0),
 		(*Scanner_SkipTemplateCharactersResult)(nil),
 		(*Scanner_parser)(nil),
 		(*Scanner_refactoring)(nil),
@@ -5353,7 +5353,7 @@ func init() {
 		(*ScopedAliases_AliasedNode)(nil),
 		(*ScopedAliases_AliasedTypeNode)(nil),
 		(*ScopedAliases_Builder)(nil),
-		(*ScopedAliases_InvalidModuleGetHandling)(nil),
+		(ScopedAliases_InvalidModuleGetHandling)(0),
 		(*ScopedAliases_Traversal)(nil),
 		(*ScopedAliases_Traversal_1)(nil),
 		(*ScriptMetadata)(nil),
@@ -5373,10 +5373,10 @@ func init() {
 		(*SerializeTypesToPointers_TypeSearchCallback)(nil),
 		(*SetAccessorTree)(nil),
 		(*ShowByPathWarningsGuard)(nil),
-		(*ShowByPathWarningsGuard_ShowType)(nil),
+		(ShowByPathWarningsGuard_ShowType)(0),
 		(*SimpleDependencyInfo_Builder)(nil),
 		(*SimpleJsonValue)(nil),
-		(*SimpleJsonValue_Kind)(nil),
+		(SimpleJsonValue_Kind)(0),
 		(*SimpleJsonWriter)(nil),
 		(*SimpleRegion)(nil),
 		(*SimpleSourceFile)(nil),
@@ -5404,7 +5404,7 @@ func init() {
 		(*SourceMapConsumerV3_MappingBuilder)(nil),
 		(*SourceMapConsumerV3_Mappings)(nil),
 		(*SourceMapConsumerV3_StringCharIterator)(nil),
-		(*SourceMapFormat)(nil),
+		(SourceMapFormat)(0),
 		(*SourceMapGeneratorFactory)(nil),
 		(*SourceMapGeneratorV3)(nil),
 		(*SourceMapGeneratorV3_ConsumerEntryVisitor)(nil),
@@ -5418,7 +5418,7 @@ func init() {
 		(*SourceMapObjectParser)(nil),
 		(*SourceMapObject_Builder)(nil),
 		(*SourceMapResolver)(nil),
-		(*SourceMapSection_SectionType)(nil),
+		(SourceMapSection_SectionType)(0),
 		(*SourceMap_DetailLevel)(nil),
 		(*SourceMap_DetailLevel_1)(nil),
 		(*SourceMap_DetailLevel_2)(nil),
@@ -5432,7 +5432,7 @@ func init() {
 		(*Source_Builder)(nil),
 		(*StandardColors)(nil),
 		(*StatementFusion)(nil),
-		(*StaticSourceFile_SourceKind)(nil),
+		(StaticSourceFile_SourceKind)(0),
 		(*StrictModeCheck)(nil),
 		(*StrictModeCheck_NonExternChecks)(nil),
 		(*StrictWarningsGuard)(nil),
@@ -5444,11 +5444,11 @@ func init() {
 		(*StripCode_StripCodeConfigRecord)(nil),
 		(*SubstituteEs6Syntax)(nil),
 		(*SubtypeChecker)(nil),
-		(*SubtypeChecker_PropertyOptionality)(nil),
-		(*SubtypeChecker_Variance)(nil),
+		(SubtypeChecker_PropertyOptionality)(0),
+		(SubtypeChecker_Variance)(0),
 		(*SuggestedFix)(nil),
 		(*SuggestedFix_Builder)(nil),
-		(*SuggestedFix_ImportType)(nil),
+		(SuggestedFix_ImportType)(0),
 		(*SuperExpressionTree)(nil),
 		(*SuppressDocWarningsGuard)(nil),
 		(*SwitchStatementTree)(nil),
@@ -5473,7 +5473,7 @@ func init() {
 		(*TemplateLiteralExpressionTree)(nil),
 		(*TemplateLiteralPortionTree)(nil),
 		(*TemplateLiteralToken)(nil),
-		(*TemplateLiteralToken_ErrorLevel)(nil),
+		(TemplateLiteralToken_ErrorLevel)(0),
 		(*TemplateSubstitutionTree)(nil),
 		(*TemplateTypeMap)(nil),
 		(*TemplateTypeReplacer)(nil),
@@ -5485,10 +5485,10 @@ func init() {
 		(*ThrowStatementTree)(nil),
 		(*Timeline_Event)(nil),
 		(*TokenStream)(nil),
-		(*TokenType)(nil),
+		(TokenType)(0),
 		(*TokenUtil)(nil),
 		(*Token_parser)(nil),
-		(*Token_rhino)(nil),
+		(Token_rhino)(0),
 		(*Tracer)(nil),
 		(*Tracer_1)(nil),
 		(*Tracer_AtomicTracerStatMap)(nil),
@@ -5503,7 +5503,7 @@ func init() {
 		(*TranspilerBuilder)(nil),
 		(*Transpiler_1)(nil),
 		(*Transpiler_bundle)(nil),
-		(*Tri)(nil),
+		(Tri)(0),
 		(*TryStatementTree)(nil),
 		(*TypeCheck)(nil),
 		(*TypeCheck_DebugTypeLogger)(nil),
@@ -5514,24 +5514,24 @@ func init() {
 		(*TypeInferencePass_FirstScopeBuildingCallback)(nil),
 		(*TypeInferencePass_SecondScopeBuildingCallback)(nil),
 		(*TypeInference_1)(nil),
-		(*TypeInference_AssignmentType)(nil),
-		(*TypeInference_BigIntPresence)(nil),
+		(TypeInference_AssignmentType)(0),
+		(TypeInference_BigIntPresence)(0),
 		(*TypeInference_BooleanOutcomePair)(nil),
 		(*TypeInference_OptChainInfo)(nil),
-		(*TypeMatchingStrategy)(nil),
-		(*TypeMatchingStrategy_MatchResult)(nil),
+		(TypeMatchingStrategy)(0),
+		(TypeMatchingStrategy_MatchResult)(0),
 		(*TypeMismatch_Accumulator)(nil),
 		(*TypePointers)(nil),
 		(*TypeStringBuilder)(nil),
 		(*TypeTransformation)(nil),
 		(*TypeTransformationParser)(nil),
-		(*TypeTransformationParser_Keywords)(nil),
-		(*TypeTransformationParser_OperationKind)(nil),
+		(TypeTransformationParser_Keywords)(0),
+		(TypeTransformationParser_OperationKind)(0),
 		(*TypeTransformation_NameResolver)(nil),
 		(*TypeValidator)(nil),
 		(*TypeValidator_WellFormedTemplatizedTypeVerifier)(nil),
 		(*TypedAstDeserializer)(nil),
-		(*TypedAstDeserializer_Mode)(nil),
+		(TypedAstDeserializer_Mode)(0),
 		(*TypedAstDeserializer_SyntheticExternsDeserializer)(nil),
 		(*TypedAstSerializer)(nil),
 		(*TypedAstSerializer_1)(nil),
@@ -5549,16 +5549,16 @@ func init() {
 		(*TypedScopeCreator_IdentifyEnumsAndTypedefsAsNonNullable)(nil),
 		(*TypedScopeCreator_NormalScopeBuilder)(nil),
 		(*TypedScopeCreator_RValueInfo)(nil),
-		(*TypedScopeCreator_Stage)(nil),
+		(TypedScopeCreator_Stage)(0),
 		(*TypedScopeCreator_WeakModuleImport)(nil),
 		(*UnaryExpressionTree)(nil),
 		(*UnionType_Builder)(nil),
 		(*UniqueIdSupplier)(nil),
 		(*UpdateExpressionTree)(nil),
-		(*UpdateExpressionTree_OperatorPosition)(nil),
+		(UpdateExpressionTree_OperatorPosition)(0),
 		(*Uris)(nil),
 		(*UseSiteRenamer)(nil),
-		(*UseSiteRenamer_RenameUsesResult)(nil),
+		(UseSiteRenamer_RenameUsesResult)(0),
 		(*Util)(nil),
 		(*Util_1UnescapedRegion)(nil),
 		(*ValidityCheck)(nil),
@@ -5572,13 +5572,13 @@ func init() {
 		(*VariableReferenceCheck)(nil),
 		(*VariableReferenceCheck_ReferenceCheckingBehavior)(nil),
 		(*VariableReferenceCheck_ReferenceCheckingBehavior_1)(nil),
-		(*VariableRenamingPolicy)(nil),
+		(VariableRenamingPolicy)(0),
 		(*VariableStatementTree)(nil),
 		(*VerboseMessageFormatter)(nil),
 		(*VerifyingErrorManager)(nil),
-		(*WarningLevel)(nil),
+		(WarningLevel)(0),
 		(*WarningsGuard)(nil),
-		(*WarningsGuard_Priority)(nil),
+		(WarningsGuard_Priority)(0),
 		(*WebpackModuleResolver)(nil),
 		(*WebpackModuleResolver_Factory)(nil),
 		(*WhileStatementTree)(nil),

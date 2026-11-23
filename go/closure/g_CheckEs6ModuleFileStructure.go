@@ -5,7 +5,7 @@ package closure
 type CheckEs6ModuleFileStructure struct {
 	NodeTraversal_AbstractPreOrderCallback
 	compiler_         *AbstractCompiler
-	orderedStatements *JTSet[*CheckEs6ModuleFileStructure_OrderedStatement]
+	orderedStatements *JTSet[CheckEs6ModuleFileStructure_OrderedStatement]
 }
 
 func (this *CheckEs6ModuleFileStructure) up_NodeTraversal_AbstractPreOrderCallback() *NodeTraversal_AbstractPreOrderCallback {
@@ -59,9 +59,9 @@ func (this *CheckEs6ModuleFileStructure) shouldTraverse_impl(t *NodeTraversal, n
 	}()
 }
 
-func (this *CheckEs6ModuleFileStructure) checkOrder(t *NodeTraversal, n Node, statement *CheckEs6ModuleFileStructure_OrderedStatement) {
+func (this *CheckEs6ModuleFileStructure) checkOrder(t *NodeTraversal, n Node, statement CheckEs6ModuleFileStructure_OrderedStatement) {
 	this.orderedStatements.add(statement)
-	var outOfOrder SetT[*CheckEs6ModuleFileStructure_OrderedStatement] = setAs_(tc_p_CheckEs6ModuleFileStructure_OrderedStatement, Set(this.orderedStatements.asSorted().tailSet(obj_(statement), false)))
+	var outOfOrder SetT[CheckEs6ModuleFileStructure_OrderedStatement] = setAs_(tc_p_CheckEs6ModuleFileStructure_OrderedStatement, Set(this.orderedStatements.asSorted().tailSet(obj_(statement), false)))
 	if !outOfOrder.isEmpty() {
 		t.report(n, CheckEs6ModuleFileStructure_MUST_COME_BEFORE, []string{statement.toString(), Joiner_on(", ").join(Iterable(Set_un_(outOfOrder)))})
 	}
@@ -119,57 +119,75 @@ func CheckEs6ModuleFileStructure_clinit() {
 
 }
 
-type CheckEs6ModuleFileStructure_OrderedStatement struct {
-	Enum
-	description_ string
+type CheckEs6ModuleFileStructure_OrderedStatement uint8
+
+// CheckEs6ModuleFileStructure_OrderedStatement_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var CheckEs6ModuleFileStructure_OrderedStatement_enum_ = [4]Enum{
+	{self_: CheckEs6ModuleFileStructure_OrderedStatement_IMPORT, name_: "IMPORT", ordinal_: 0},
+	{self_: CheckEs6ModuleFileStructure_OrderedStatement_DECLARE_MODULE_ID, name_: "DECLARE_MODULE_ID", ordinal_: 1},
+	{self_: CheckEs6ModuleFileStructure_OrderedStatement_GOOG_REQUIRE, name_: "GOOG_REQUIRE", ordinal_: 2},
+	{self_: CheckEs6ModuleFileStructure_OrderedStatement_OTHER, name_: "OTHER", ordinal_: 3},
 }
 
-func (this *CheckEs6ModuleFileStructure_OrderedStatement) up_Enum() *Enum {
-	if this == nil {
+var CheckEs6ModuleFileStructure_OrderedStatement_description__ [4]string
+
+func (this CheckEs6ModuleFileStructure_OrderedStatement) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &CheckEs6ModuleFileStructure_OrderedStatement_enum_[this-1]
 }
 
-func (this *CheckEs6ModuleFileStructure_OrderedStatement) zero_CheckEs6ModuleFileStructure_OrderedStatement() {
-	this.description_ = nullstr_
+func (this CheckEs6ModuleFileStructure_OrderedStatement) name() string {
+	return CheckEs6ModuleFileStructure_OrderedStatement_enum_[this-1].name_
 }
 
-func (this *CheckEs6ModuleFileStructure_OrderedStatement) init_CheckEs6ModuleFileStructure_OrderedStatement(name_ string, ordinal_ int32, description string) {
-	this.Enum.init_Enum(name_, ordinal_)
-	this.description_ = description
+func (this CheckEs6ModuleFileStructure_OrderedStatement) ordinal() int32 {
+	return CheckEs6ModuleFileStructure_OrderedStatement_enum_[this-1].ordinal_
 }
 
-func new_CheckEs6ModuleFileStructure_OrderedStatement(name_ string, ordinal_ int32, description string) *CheckEs6ModuleFileStructure_OrderedStatement {
-	this := &CheckEs6ModuleFileStructure_OrderedStatement{}
-	this.self_ = this
-	this.zero_CheckEs6ModuleFileStructure_OrderedStatement()
-	this.init_CheckEs6ModuleFileStructure_OrderedStatement(name_, ordinal_, description)
+func (this CheckEs6ModuleFileStructure_OrderedStatement) compareTo(o any) int32 {
+	return CheckEs6ModuleFileStructure_OrderedStatement_enum_[this-1].compareTo(o)
+}
+
+func (this CheckEs6ModuleFileStructure_OrderedStatement) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func (this *CheckEs6ModuleFileStructure_OrderedStatement) toString() string {
-	return this.description_
+func (this CheckEs6ModuleFileStructure_OrderedStatement) zero_CheckEs6ModuleFileStructure_OrderedStatement() {
+	CheckEs6ModuleFileStructure_OrderedStatement_description__[this-1] = nullstr_
 }
 
-func CheckEs6ModuleFileStructure_OrderedStatement_values() []*CheckEs6ModuleFileStructure_OrderedStatement {
-	return append([]*CheckEs6ModuleFileStructure_OrderedStatement(nil), CheckEs6ModuleFileStructure_OrderedStatement_values_...)
+func (this CheckEs6ModuleFileStructure_OrderedStatement) init_CheckEs6ModuleFileStructure_OrderedStatement(description string) {
+	CheckEs6ModuleFileStructure_OrderedStatement_description__[this-1] = description
 }
 
-func CheckEs6ModuleFileStructure_OrderedStatement_valueOf(name string) *CheckEs6ModuleFileStructure_OrderedStatement {
+func (this CheckEs6ModuleFileStructure_OrderedStatement) toString() string {
+	return CheckEs6ModuleFileStructure_OrderedStatement_description__[this-1]
+}
+
+func CheckEs6ModuleFileStructure_OrderedStatement_values() []CheckEs6ModuleFileStructure_OrderedStatement {
+	return append([]CheckEs6ModuleFileStructure_OrderedStatement(nil), CheckEs6ModuleFileStructure_OrderedStatement_values_...)
+}
+
+func CheckEs6ModuleFileStructure_OrderedStatement_valueOf(name string) CheckEs6ModuleFileStructure_OrderedStatement {
 	for _, v := range CheckEs6ModuleFileStructure_OrderedStatement_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("OrderedStatement", name))
 }
 
-var CheckEs6ModuleFileStructure_OrderedStatement_IMPORT *CheckEs6ModuleFileStructure_OrderedStatement
-var CheckEs6ModuleFileStructure_OrderedStatement_DECLARE_MODULE_ID *CheckEs6ModuleFileStructure_OrderedStatement
-var CheckEs6ModuleFileStructure_OrderedStatement_GOOG_REQUIRE *CheckEs6ModuleFileStructure_OrderedStatement
-var CheckEs6ModuleFileStructure_OrderedStatement_OTHER *CheckEs6ModuleFileStructure_OrderedStatement
-var CheckEs6ModuleFileStructure_OrderedStatement_values_ []*CheckEs6ModuleFileStructure_OrderedStatement
+const CheckEs6ModuleFileStructure_OrderedStatement_IMPORT CheckEs6ModuleFileStructure_OrderedStatement = 1
+const CheckEs6ModuleFileStructure_OrderedStatement_DECLARE_MODULE_ID CheckEs6ModuleFileStructure_OrderedStatement = 2
+const CheckEs6ModuleFileStructure_OrderedStatement_GOOG_REQUIRE CheckEs6ModuleFileStructure_OrderedStatement = 3
+const CheckEs6ModuleFileStructure_OrderedStatement_OTHER CheckEs6ModuleFileStructure_OrderedStatement = 4
+
+var CheckEs6ModuleFileStructure_OrderedStatement_values_ []CheckEs6ModuleFileStructure_OrderedStatement
 
 var CheckEs6ModuleFileStructure_OrderedStatement_clinit_done bool
 
@@ -178,11 +196,15 @@ func CheckEs6ModuleFileStructure_OrderedStatement_clinit() {
 		return
 	}
 	CheckEs6ModuleFileStructure_OrderedStatement_clinit_done = true
-	CheckEs6ModuleFileStructure_OrderedStatement_IMPORT = new_CheckEs6ModuleFileStructure_OrderedStatement("IMPORT", 0, "import statements")
-	CheckEs6ModuleFileStructure_OrderedStatement_DECLARE_MODULE_ID = new_CheckEs6ModuleFileStructure_OrderedStatement("DECLARE_MODULE_ID", 1, "a call to goog.declareModuleId()")
-	CheckEs6ModuleFileStructure_OrderedStatement_GOOG_REQUIRE = new_CheckEs6ModuleFileStructure_OrderedStatement("GOOG_REQUIRE", 2, "calls to goog.require()")
-	CheckEs6ModuleFileStructure_OrderedStatement_OTHER = new_CheckEs6ModuleFileStructure_OrderedStatement("OTHER", 3, "other statements")
-	CheckEs6ModuleFileStructure_OrderedStatement_values_ = []*CheckEs6ModuleFileStructure_OrderedStatement{CheckEs6ModuleFileStructure_OrderedStatement_IMPORT, CheckEs6ModuleFileStructure_OrderedStatement_DECLARE_MODULE_ID, CheckEs6ModuleFileStructure_OrderedStatement_GOOG_REQUIRE, CheckEs6ModuleFileStructure_OrderedStatement_OTHER}
+	CheckEs6ModuleFileStructure_OrderedStatement_IMPORT.zero_CheckEs6ModuleFileStructure_OrderedStatement()
+	CheckEs6ModuleFileStructure_OrderedStatement_IMPORT.init_CheckEs6ModuleFileStructure_OrderedStatement("import statements")
+	CheckEs6ModuleFileStructure_OrderedStatement_DECLARE_MODULE_ID.zero_CheckEs6ModuleFileStructure_OrderedStatement()
+	CheckEs6ModuleFileStructure_OrderedStatement_DECLARE_MODULE_ID.init_CheckEs6ModuleFileStructure_OrderedStatement("a call to goog.declareModuleId()")
+	CheckEs6ModuleFileStructure_OrderedStatement_GOOG_REQUIRE.zero_CheckEs6ModuleFileStructure_OrderedStatement()
+	CheckEs6ModuleFileStructure_OrderedStatement_GOOG_REQUIRE.init_CheckEs6ModuleFileStructure_OrderedStatement("calls to goog.require()")
+	CheckEs6ModuleFileStructure_OrderedStatement_OTHER.zero_CheckEs6ModuleFileStructure_OrderedStatement()
+	CheckEs6ModuleFileStructure_OrderedStatement_OTHER.init_CheckEs6ModuleFileStructure_OrderedStatement("other statements")
+	CheckEs6ModuleFileStructure_OrderedStatement_values_ = []CheckEs6ModuleFileStructure_OrderedStatement{CheckEs6ModuleFileStructure_OrderedStatement_IMPORT, CheckEs6ModuleFileStructure_OrderedStatement_DECLARE_MODULE_ID, CheckEs6ModuleFileStructure_OrderedStatement_GOOG_REQUIRE, CheckEs6ModuleFileStructure_OrderedStatement_OTHER}
 	registerEnum_("com.google.javascript.jscomp.lint.CheckEs6ModuleFileStructure.OrderedStatement", enumValues_(CheckEs6ModuleFileStructure_OrderedStatement_values_))
 
 }

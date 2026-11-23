@@ -324,7 +324,7 @@ func (this *Scanner_parser) skipSingleLineComment() {
 	this.skipSingleLineComment_1(Comment_Type_LINE)
 }
 
-func (this *Scanner_parser) skipSingleLineComment_1(type_ *Comment_Type) {
+func (this *Scanner_parser) skipSingleLineComment_1(type_ Comment_Type) {
 	var startOffset int32 = this.index_
 	for !this.isAtEnd() && !Scanner_parser_isLineTerminator(this.peekChar()) {
 		this.nextChar()
@@ -334,7 +334,7 @@ func (this *Scanner_parser) skipSingleLineComment_1(type_ *Comment_Type) {
 	this.recordComment(type_, range_, value)
 }
 
-func (this *Scanner_parser) recordComment(type_ *Comment_Type, range_ *SourceRange, value string) {
+func (this *Scanner_parser) recordComment(type_ Comment_Type, range_ *SourceRange, value string) {
 	this.commentRecorder.recordComment(type_, range_, value)
 }
 
@@ -348,7 +348,7 @@ func (this *Scanner_parser) skipMultiLineComment() {
 	if !this.isAtEnd() {
 		this.nextChar()
 		this.nextChar()
-		var type_ *Comment_Type = Comment_Type_BLOCK
+		var type_ Comment_Type = Comment_Type_BLOCK
 		if (this.index_ - startOffset) > 4 {
 			if String_charAt(this.contents, (startOffset+2)) == '*' {
 				type_ = Comment_Type_JSDOC
@@ -618,7 +618,7 @@ func (this *Scanner_parser) scanPostZero(beginToken int32) *Token_parser {
 			if isBigInt {
 				this.nextChar()
 			}
-			return new_LiteralToken(func() *TokenType {
+			return new_LiteralToken(func() TokenType {
 				if isBigInt {
 					return TokenType_BIGINT
 				}
@@ -637,7 +637,7 @@ func (this *Scanner_parser) scanPostZero(beginToken int32) *Token_parser {
 			if isBigInt {
 				this.nextChar()
 			}
-			return new_LiteralToken(func() *TokenType {
+			return new_LiteralToken(func() TokenType {
 				if isBigInt {
 					return TokenType_BIGINT
 				}
@@ -653,7 +653,7 @@ func (this *Scanner_parser) scanPostZero(beginToken int32) *Token_parser {
 			if isBigInt {
 				this.nextChar()
 			}
-			return new_LiteralToken(func() *TokenType {
+			return new_LiteralToken(func() TokenType {
 				if isBigInt {
 					return TokenType_BIGINT
 				}
@@ -683,7 +683,7 @@ func (this *Scanner_parser) scanPostZero(beginToken int32) *Token_parser {
 	}()
 }
 
-func (this *Scanner_parser) createToken(type_ *TokenType, beginToken int32) *Token_parser {
+func (this *Scanner_parser) createToken(type_ TokenType, beginToken int32) *Token_parser {
 	return new_Token_parser(type_, this.getTokenRange(beginToken))
 }
 
@@ -736,9 +736,9 @@ func (this *Scanner_parser) scanIdentifierOrKeyword(beginToken int32, ch uint16)
 		this.reportError_3(this.getPosition_1(beginToken), "Character '%c' (U+%04X) is not a valid identifier start char", []any{uint16(start), int32(int32(start))})
 		return this.createToken(TokenType_ERROR, beginToken)
 	}
-	var k *Keywords = Keywords_getString(value.orElseThrow())
-	if (k != nil) && !containsUnicodeEscape {
-		return new_Token_parser(k.type__, this.getTokenRange(beginToken))
+	var k Keywords = Keywords_getString(value.orElseThrow())
+	if (k != 0) && !containsUnicodeEscape {
+		return new_Token_parser(Keywords_type___[k-1], this.getTokenRange(beginToken))
 	}
 	return new_IdentifierToken(this.getTokenRange(beginToken), value.get()).up_Token_parser()
 }
@@ -832,7 +832,7 @@ func (this *Scanner_parser) scanTemplateLiteral(beginIndex int32) *Token_parser 
 	return this.nextTemplateLiteralTokenShared(TokenType_NO_SUBSTITUTION_TEMPLATE, TokenType_TEMPLATE_HEAD).up_Token_parser()
 }
 
-func (this *Scanner_parser) nextTemplateLiteralTokenShared(endType *TokenType, middleType *TokenType) *TemplateLiteralToken {
+func (this *Scanner_parser) nextTemplateLiteralTokenShared(endType TokenType, middleType TokenType) *TemplateLiteralToken {
 	var beginIndex int32 = this.index_
 	var startingPosition *SourcePosition_util = this.getPosition_1(beginIndex)
 	var skipTemplateCharactersResult *Scanner_SkipTemplateCharactersResult = this.skipTemplateCharacters()
@@ -873,7 +873,7 @@ func (this *Scanner_parser) skipStringLiteralChar() bool {
 }
 
 func (this *Scanner_parser) skipTemplateCharacters() *Scanner_SkipTemplateCharactersResult {
-	var result *Scanner_SkipTemplateCharactersResult = this.createSkipTemplateCharactersResult(Optional_empty[string](), nil)
+	var result *Scanner_SkipTemplateCharactersResult = this.createSkipTemplateCharactersResult(Optional_empty[string](), 0)
 	for !this.isAtEnd() {
 		switch this.peekChar() {
 		case '`':
@@ -1214,35 +1214,35 @@ func (this *Scanner_parser) decTypeParameterLevel() {
 	this.typeParameterLevel--
 }
 
-func (this *Scanner_parser) createSkipTemplateCharactersResult(message Optional[string], errorLevel *TemplateLiteralToken_ErrorLevel) *Scanner_SkipTemplateCharactersResult {
+func (this *Scanner_parser) createSkipTemplateCharactersResult(message Optional[string], errorLevel TemplateLiteralToken_ErrorLevel) *Scanner_SkipTemplateCharactersResult {
 	return new_Scanner_SkipTemplateCharactersResult(message, errorLevel, this.getPosition())
 }
 
 type Scanner_CommentRecorder interface {
-	recordComment(*Comment_Type, *SourceRange, string)
+	recordComment(Comment_Type, *SourceRange, string)
 }
 
 type Scanner_CommentRecorder_fn struct {
-	f func(*Comment_Type, *SourceRange, string)
+	f func(Comment_Type, *SourceRange, string)
 }
 
-func (this *Scanner_CommentRecorder_fn) recordComment(p0 *Comment_Type, p1 *SourceRange, p2 string) {
+func (this *Scanner_CommentRecorder_fn) recordComment(p0 Comment_Type, p1 *SourceRange, p2 string) {
 	this.f(p0, p1, p2)
 }
 
 type Scanner_SkipTemplateCharactersResult struct {
 	position      *SourcePosition_util
-	errorLevel    *TemplateLiteralToken_ErrorLevel
+	errorLevel    TemplateLiteralToken_ErrorLevel
 	errorMessage_ Optional[string]
 }
 
-func (this *Scanner_SkipTemplateCharactersResult) init_Scanner_SkipTemplateCharactersResult(message Optional[string], errorLevel *TemplateLiteralToken_ErrorLevel, position *SourcePosition_util) {
+func (this *Scanner_SkipTemplateCharactersResult) init_Scanner_SkipTemplateCharactersResult(message Optional[string], errorLevel TemplateLiteralToken_ErrorLevel, position *SourcePosition_util) {
 	this.errorMessage_ = message
 	this.errorLevel = errorLevel
 	this.position = position
 }
 
-func new_Scanner_SkipTemplateCharactersResult(message Optional[string], errorLevel *TemplateLiteralToken_ErrorLevel, position *SourcePosition_util) *Scanner_SkipTemplateCharactersResult {
+func new_Scanner_SkipTemplateCharactersResult(message Optional[string], errorLevel TemplateLiteralToken_ErrorLevel, position *SourcePosition_util) *Scanner_SkipTemplateCharactersResult {
 	this := &Scanner_SkipTemplateCharactersResult{}
 	this.init_Scanner_SkipTemplateCharactersResult(message, errorLevel, position)
 	return this
@@ -1252,7 +1252,7 @@ func (this *Scanner_SkipTemplateCharactersResult) getErrorMessage() Optional[str
 	return this.errorMessage_
 }
 
-func (this *Scanner_SkipTemplateCharactersResult) getErrorLevel() *TemplateLiteralToken_ErrorLevel {
+func (this *Scanner_SkipTemplateCharactersResult) getErrorLevel() TemplateLiteralToken_ErrorLevel {
 	return this.errorLevel
 }
 

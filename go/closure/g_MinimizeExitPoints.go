@@ -48,7 +48,7 @@ func (this *MinimizeExitPoints) optimizeSubtree_impl(n Node) Node {
 	return n
 }
 
-func (this *MinimizeExitPoints) tryMinimizeExits(n Node, exitType *Token_rhino, labelName Optional[string]) {
+func (this *MinimizeExitPoints) tryMinimizeExits(n Node, exitType Token_rhino, labelName Optional[string]) {
 	if MinimizeExitPoints_matchingExitNode(n, exitType, labelName) {
 		this.reportChangeToEnclosingScope(n)
 		NodeUtil_removeChild(n.getParent(), n)
@@ -115,7 +115,7 @@ func (this *MinimizeExitPoints) tryMinimizeExits(n Node, exitType *Token_rhino, 
 	}
 }
 
-func (this *MinimizeExitPoints) tryMinimizeSwitchExits(n Node, exitType *Token_rhino, labelName Optional[string]) {
+func (this *MinimizeExitPoints) tryMinimizeSwitchExits(n Node, exitType Token_rhino, labelName Optional[string]) {
 	Preconditions_checkState(n.isSwitch())
 	var switchBody Node = n.getSecondChild()
 	{
@@ -130,7 +130,7 @@ func (this *MinimizeExitPoints) tryMinimizeSwitchExits(n Node, exitType *Token_r
 	}
 }
 
-func (this *MinimizeExitPoints) tryMinimizeSwitchCaseExits(n Node, exitType *Token_rhino, labelName Optional[string]) {
+func (this *MinimizeExitPoints) tryMinimizeSwitchCaseExits(n Node, exitType Token_rhino, labelName Optional[string]) {
 	Preconditions_checkState(NodeUtil_isSwitchCase(n))
 	Preconditions_checkState((n != n.getParent().getLastChild()))
 	var block Node = n.getLastChild()
@@ -149,7 +149,7 @@ func (this *MinimizeExitPoints) tryMinimizeSwitchCaseExits(n Node, exitType *Tok
 	}
 }
 
-func (this *MinimizeExitPoints) tryMinimizeIfBlockExits(srcBlock Node, destBlock Node, ifNode Node, exitType *Token_rhino, labelName Optional[string]) {
+func (this *MinimizeExitPoints) tryMinimizeIfBlockExits(srcBlock Node, destBlock Node, ifNode Node, exitType Token_rhino, labelName Optional[string]) {
 	var exitNodeParent Node = 0
 	var exitNode Node = 0
 	if srcBlock.isBlock() {
@@ -185,7 +185,7 @@ func (this *MinimizeExitPoints) tryMinimizeIfBlockExits(srcBlock Node, destBlock
 	}
 }
 
-func MinimizeExitPoints_matchingExitNode(n Node, type_ *Token_rhino, labelName Optional[string]) bool {
+func MinimizeExitPoints_matchingExitNode(n Node, type_ Token_rhino, labelName Optional[string]) bool {
 	if n.getToken() == type_ {
 		if type_ == Token_rhino_RETURN {
 			return !n.hasChildren()
