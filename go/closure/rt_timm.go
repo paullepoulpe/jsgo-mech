@@ -253,11 +253,11 @@ func immutableSetCopyOf_[K comparable](kc *tconv_[K], from Iterable) *ImmutableS
 		}
 		return tsetFrom_(kc, Collection(ic), true)
 	}
-	if v, ok := from.(*tsetView_[K]); ok && v.m.kc == kc {
+	if v, ok := from.(*tsetView_[K]); ok && v.kc == kc {
 		var xs []K
-		for i := v.m.first(); i < len(v.m.keys); i++ {
-			if !v.m.isDead(i) {
-				xs = append(xs, v.m.keys[i])
+		for i := v.tm().first(); i < len(v.tm().keys); i++ {
+			if !v.tm().isDead(i) {
+				xs = append(xs, v.tm().keys[i])
 			}
 		}
 		return immutableSetOf_(kc, xs...) // (its elements checked for null, as any other's)
@@ -415,13 +415,13 @@ func immutableMapCopyOf_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], from
 		}
 		return tmapFrom_(kc, vc, Map(im), true)
 	}
-	if v, ok := from.(*tmapView_[K, V]); ok && v.m.kc == kc && v.m.vc == vc {
+	if v, ok := from.(*tmapView_[K, V]); ok && v.kc == kc && v.vc == vc {
 		var keys []K
 		var vals []V
-		for i := v.m.first(); i < len(v.m.keys); i++ {
-			if !v.m.isDead(i) {
-				keys = append(keys, v.m.keys[i])
-				vals = append(vals, v.m.vals[i])
+		for i := v.tm().first(); i < len(v.tm().keys); i++ {
+			if !v.tm().isDead(i) {
+				keys = append(keys, v.tm().keys[i])
+				vals = append(vals, v.tm().vals[i])
 			}
 		}
 		return tmapMake_(kc, vc, keys, vals, false)
