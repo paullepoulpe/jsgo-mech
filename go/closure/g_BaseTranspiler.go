@@ -68,8 +68,8 @@ func BaseTranspiler_clinit() {
 
 type BaseTranspiler_CompilerSupplier struct {
 	moduleResolution   ModuleLoader_ResolutionMode
-	moduleRoots        *JTList[string]
-	prefixReplacements *JTMap[string, string]
+	moduleRoots        *TList[string]
+	prefixReplacements *TMap[string, string]
 	outputFeatureSet   *FeatureSet
 }
 
@@ -84,7 +84,7 @@ func new_BaseTranspiler_CompilerSupplier_0() *BaseTranspiler_CompilerSupplier {
 }
 
 func (this *BaseTranspiler_CompilerSupplier) init_BaseTranspiler_CompilerSupplier_FeatureSet(outputFeatureSet *FeatureSet) {
-	this.init_BaseTranspiler_CompilerSupplier_FeatureSet_ResolutionMode_ImmutableList_ImmutableMap(outputFeatureSet, new_CompilerOptions().getModuleResolutionMode(), jtlistEmptyImm_(jtc_string), jtmapEmptyImm_(jtc_string, jtc_string))
+	this.init_BaseTranspiler_CompilerSupplier_FeatureSet_ResolutionMode_ImmutableList_ImmutableMap(outputFeatureSet, new_CompilerOptions().getModuleResolutionMode(), tlistEmptyImm_(tc_string), tmapEmptyImm_(tc_string, tc_string))
 }
 
 func new_BaseTranspiler_CompilerSupplier_FeatureSet(outputFeatureSet *FeatureSet) *BaseTranspiler_CompilerSupplier {
@@ -93,14 +93,14 @@ func new_BaseTranspiler_CompilerSupplier_FeatureSet(outputFeatureSet *FeatureSet
 	return this
 }
 
-func (this *BaseTranspiler_CompilerSupplier) init_BaseTranspiler_CompilerSupplier_FeatureSet_ResolutionMode_ImmutableList_ImmutableMap(outputFeatureSet *FeatureSet, moduleResolution ModuleLoader_ResolutionMode, moduleRoots *JTList[string], prefixReplacements *JTMap[string, string]) {
+func (this *BaseTranspiler_CompilerSupplier) init_BaseTranspiler_CompilerSupplier_FeatureSet_ResolutionMode_ImmutableList_ImmutableMap(outputFeatureSet *FeatureSet, moduleResolution ModuleLoader_ResolutionMode, moduleRoots *TList[string], prefixReplacements *TMap[string, string]) {
 	this.outputFeatureSet = outputFeatureSet
 	this.moduleResolution = moduleResolution
 	this.moduleRoots = moduleRoots
 	this.prefixReplacements = prefixReplacements
 }
 
-func new_BaseTranspiler_CompilerSupplier_FeatureSet_ResolutionMode_ImmutableList_ImmutableMap(outputFeatureSet *FeatureSet, moduleResolution ModuleLoader_ResolutionMode, moduleRoots *JTList[string], prefixReplacements *JTMap[string, string]) *BaseTranspiler_CompilerSupplier {
+func new_BaseTranspiler_CompilerSupplier_FeatureSet_ResolutionMode_ImmutableList_ImmutableMap(outputFeatureSet *FeatureSet, moduleResolution ModuleLoader_ResolutionMode, moduleRoots *TList[string], prefixReplacements *TMap[string, string]) *BaseTranspiler_CompilerSupplier {
 	this := &BaseTranspiler_CompilerSupplier{}
 	this.init_BaseTranspiler_CompilerSupplier_FeatureSet_ResolutionMode_ImmutableList_ImmutableMap(outputFeatureSet, moduleResolution, moduleRoots, prefixReplacements)
 	return this
@@ -129,7 +129,7 @@ func (this *BaseTranspiler_CompilerSupplier) compile(path string, code string) *
 func (this *BaseTranspiler_CompilerSupplier) runtime(library string) string {
 	var compiler *Compiler = this.compiler()
 	var options *CompilerOptions = this.options()
-	options.setForceLibraryInjection(jimmutableListOf_[string](jtc_string, library).asIterable())
+	options.setForceLibraryInjection(immutableListOf_[string](tc_string, library).asIterable())
 	compiler.compileSourceFile(this.createTrivialExterns(), this.createEmptySource(), options)
 	return compiler.toSource()
 }
@@ -165,7 +165,7 @@ func (this *BaseTranspiler_CompilerSupplier) setOptions(options *CompilerOptions
 	options.setApplyInputSourceMaps(true)
 	options.setSourceMapOutputPath(Optional_of[string]("/dev/null"))
 	options.setSourceMapIncludeSourcesContent(true)
-	options.setSourceMapLocationMappings(jimmutableListOf_[SourceMap_LocationMapping](jtc_SourceMap_LocationMapping, lambda_BaseTranspiler_CompilerSupplier_setOptions_1_))
+	options.setSourceMapLocationMappings(immutableListOf_[SourceMap_LocationMapping](tc_SourceMap_LocationMapping, lambda_BaseTranspiler_CompilerSupplier_setOptions_1_))
 }
 
 // lambda_BaseTranspiler_CompilerSupplier_setOptions_1_ is a lambda of BaseTranspiler_CompilerSupplier_setOptions that captures nothing (post-flip step lambdas).

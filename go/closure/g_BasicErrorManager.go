@@ -23,7 +23,7 @@ func (this *BasicErrorManager) up_SortingErrorManager() *SortingErrorManager {
 }
 
 func (this *BasicErrorManager) init_BasicErrorManager() {
-	this.SortingErrorManager.init_SortingErrorManager(jtsetEmptyImm_(tce_SortingErrorManager_ErrorReportGenerator))
+	this.SortingErrorManager.init_SortingErrorManager(tsetEmptyImm_(tch_SortingErrorManager_ErrorReportGenerator))
 }
 
 func (this *BasicErrorManager) generateReport_impl() {

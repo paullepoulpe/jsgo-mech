@@ -89,7 +89,7 @@ func (this *CheckJSDocStyle) visitFunction(t *NodeTraversal, function Node) {
 	if (jsDoc == nil) && !this.hasAnyInlineJsDoc(function) {
 		this.checkMissingJsDoc(t, function)
 	} else {
-		if (((t.inGlobalScope() || this.hasAnyInlineJsDoc(function)) || !jsDoc.getParameterNames().isEmpty()) || jsDoc.hasReturnType()) || jsDoc.isOverride() {
+		if (((t.inGlobalScope() || this.hasAnyInlineJsDoc(function)) || !jsDoc.getParameterNames().IsEmpty()) || jsDoc.hasReturnType()) || jsDoc.isOverride() {
 			this.checkParams(t, function, jsDoc)
 		}
 		CheckJSDocStyle_checkNoTypeOnGettersAndSetters(t, function, jsDoc)
@@ -157,11 +157,11 @@ func (this *CheckJSDocStyle) checkParams(t *NodeTraversal, function Node, jsDoc 
 	if (jsDoc != nil) && (jsDoc.getType() != nil) {
 		return
 	}
-	var paramsFromJsDoc *JTList[string] = func() *JTList[string] {
+	var paramsFromJsDoc *TList[string] = func() *TList[string] {
 		if jsDoc == nil {
-			return jtlistEmptyImm_(jtc_string)
+			return tlistEmptyImm_(tc_string)
 		}
-		return jimmutableListCopyOf_(jtc_string, Collection(jsDoc.getParameterNames().asSet()))
+		return immutableListCopyOf_(tc_string, Collection(jsDoc.getParameterNames().asSet()))
 	}()
 	if paramsFromJsDoc.isEmpty() {
 		this.checkInlineParams(t, function, jsDoc)

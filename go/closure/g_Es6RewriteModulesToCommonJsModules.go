@@ -126,9 +126,9 @@ func (this *Es6RewriteModulesToCommonJsModules_ModuleRequest) toString() string 
 
 type Es6RewriteModulesToCommonJsModules_Rewriter struct {
 	NodeTraversal_AbstractPostOrderCallback
-	exportedNameToLocalQName *JTMap[string, *Es6RewriteModulesToCommonJsModules_LocalQName]
-	imports                  *JTSet[Node]
-	importRequests           *JTSet[*Es6RewriteModulesToCommonJsModules_ModuleRequest]
+	exportedNameToLocalQName *TMap[string, *Es6RewriteModulesToCommonJsModules_LocalQName]
+	imports                  *TSet[Node]
+	importRequests           *TSet[*Es6RewriteModulesToCommonJsModules_ModuleRequest]
 	compiler_                *AbstractCompiler
 	modulePath_              *ModuleLoader_ModulePath
 	requireInsertSpot        Node
@@ -147,9 +147,9 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) init_Es6RewriteModulesT
 	this.compiler_ = compiler
 	this.script_ = script
 	this.requireInsertSpot = 0
-	this.exportedNameToLocalQName = newTSortedMap_(jtc_string, jtc_p_Es6RewriteModulesToCommonJsModules_LocalQName)
-	this.importRequests = jnewTSet_(tce_p_Es6RewriteModulesToCommonJsModules_ModuleRequest)
-	this.imports = jnewTSet_(jtc_Node)
+	this.exportedNameToLocalQName = newTSortedMap_(tc_string, tc_p_Es6RewriteModulesToCommonJsModules_LocalQName)
+	this.importRequests = newTSet_(tch_p_Es6RewriteModulesToCommonJsModules_ModuleRequest)
+	this.imports = newTSet_(tc_Node)
 	this.modulePath_ = compiler.getInput(script.getInputId()).getPath()
 }
 
@@ -248,18 +248,18 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visitScript(t *NodeTrav
 }
 
 func (this *Es6RewriteModulesToCommonJsModules_Rewriter) addRequireCalls() {
-	if !this.importRequests.isEmpty() {
+	if !this.importRequests.IsEmpty() {
 		it_1 := this.imports.each()
 		for it_1.next() {
 			var importDecl Node = it_1.v
 			importDecl.detach()
 		}
-		var importedNames *JTSet[string] = jnewTSet_(jtc_string)
+		var importedNames *TSet[string] = newTSet_(tc_string)
 		it_3 := this.importRequests.each()
 		for it_3.next() {
 			var request *Es6RewriteModulesToCommonJsModules_ModuleRequest = it_3.v
 			var varName string = request.varName()
-			if importedNames.add(varName) {
+			if importedNames.Add(varName) {
 				var requireCall Node = IR_call(IR_name(Es6RewriteModulesToCommonJsModules_REQUIRE), []Node{IR_string(request.specifier())})
 				requireCall.putBooleanProp(Node_FREE_CALL, true)
 				var decl Node = IR_var_Node_Node(IR_name(varName), requireCall)
@@ -293,7 +293,7 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) registerAndLoadModule(t
 }
 
 func (this *Es6RewriteModulesToCommonJsModules_Rewriter) addExportDef() {
-	if !this.exportedNameToLocalQName.isEmpty() {
+	if !this.exportedNameToLocalQName.IsEmpty() {
 		var definePropertiesLit Node = IR_objectlit([]Node{})
 		it_1 := this.exportedNameToLocalQName.eachEntry()
 		for it_1.next() {
@@ -317,8 +317,8 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visitImport(path *Modul
 	if JString_contains_s(importDecl.getLastChild().getString(), "://") {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(importDecl, TranspilationUtil_CANNOT_CONVERT, []string{"Module requests with protocols."}))
 	}
-	this.importRequests.add(Es6RewriteModulesToCommonJsModules_ModuleRequest_create(Es6RewriteModulesToCommonJsModules_normalizePath(path.resolveModuleAsPath(importDecl.getLastChild().getString()).toString()), this.getVarNameOfImportNode(importDecl)))
-	this.imports.add(importDecl)
+	this.importRequests.Add(Es6RewriteModulesToCommonJsModules_ModuleRequest_create(Es6RewriteModulesToCommonJsModules_normalizePath(path.resolveModuleAsPath(importDecl.getLastChild().getString()).toString()), this.getVarNameOfImportNode(importDecl)))
+	this.imports.Add(importDecl)
 }
 
 func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visitExportDefault(t *NodeTraversal, export Node) {
@@ -338,7 +338,7 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visitExportDefault(t *N
 		export.replaceWith(var_.srcrefTreeIfMissing(export))
 		NodeUtil_addFeatureToScript(t.getCurrentScript(), FeatureSet_Feature_CONST_DECLARATIONS, this.compiler_)
 	}
-	this.exportedNameToLocalQName.put("default", new_Es6RewriteModulesToCommonJsModules_LocalQName(name.orElse(nullstr_), export))
+	this.exportedNameToLocalQName.Put("default", new_Es6RewriteModulesToCommonJsModules_LocalQName(name.orElse(nullstr_), export))
 	t.reportCodeChange()
 }
 
@@ -352,7 +352,7 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visitExportFrom(t *Node
 	{
 		var exportSpec Node = export.getFirstFirstChild()
 		for ; exportSpec != 0; exportSpec = exportSpec.getNext() {
-			this.exportedNameToLocalQName.put(exportSpec.getLastChild().getString(), new_Es6RewriteModulesToCommonJsModules_LocalQName((sstr_(moduleName)+"."+sstr_(exportSpec.getFirstChild().getString())), exportSpec))
+			this.exportedNameToLocalQName.Put(exportSpec.getLastChild().getString(), new_Es6RewriteModulesToCommonJsModules_LocalQName((sstr_(moduleName)+"."+sstr_(exportSpec.getFirstChild().getString())), exportSpec))
 		}
 	}
 	export.detach()
@@ -371,7 +371,7 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visitExportSpecs(t *Nod
 					panic(new_IllegalStateException_0())
 				}
 			}
-			this.exportedNameToLocalQName.put(exportSpec.getLastChild().getString(), new_Es6RewriteModulesToCommonJsModules_LocalQName(localName.orElse(nullstr_), exportSpec))
+			this.exportedNameToLocalQName.Put(exportSpec.getLastChild().getString(), new_Es6RewriteModulesToCommonJsModules_LocalQName(localName.orElse(nullstr_), exportSpec))
 		}
 	}
 	export.detach()
@@ -387,7 +387,7 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) addExportedName(lhs Nod
 		panic(new_IllegalStateException_0())
 	}
 	var name string = lhs.getString()
-	this.exportedNameToLocalQName.put(name, new_Es6RewriteModulesToCommonJsModules_LocalQName(name, lhs))
+	this.exportedNameToLocalQName.Put(name, new_Es6RewriteModulesToCommonJsModules_LocalQName(name, lhs))
 }
 
 func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visitExportDeclaration(t *NodeTraversal, export Node) {
@@ -399,7 +399,7 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visitExportDeclaration(
 			panic(new_IllegalStateException_0())
 		}
 		var name string = declaration.getFirstChild().getString()
-		this.exportedNameToLocalQName.put(name, new_Es6RewriteModulesToCommonJsModules_LocalQName(name, export))
+		this.exportedNameToLocalQName.Put(name, new_Es6RewriteModulesToCommonJsModules_LocalQName(name, export))
 	}
 	export.replaceWith(declaration.detach())
 	t.reportCodeChange()

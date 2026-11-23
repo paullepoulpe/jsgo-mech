@@ -40,7 +40,7 @@ func TypeDeclarationsIR_undefinedType() Node {
 }
 
 func TypeDeclarationsIR_namedType(typeName string) Node {
-	return TypeDeclarationsIR_namedTypeIterable(iterableAs_(jtc_string, Splitter_on('.').split_s(typeName)))
+	return TypeDeclarationsIR_namedTypeIterable(iterableAs_(tc_string, Splitter_on('.').split_s(typeName)))
 }
 
 func TypeDeclarationsIR_namedTypeIterable(segments IterableT[string]) Node {
@@ -52,7 +52,7 @@ func TypeDeclarationsIR_namedTypeIterable(segments IterableT[string]) Node {
 	return new_Node_Token_Node(Token_rhino_NAMED_TYPE, node)
 }
 
-func TypeDeclarationsIR_recordType(properties *JTMap[string, Node]) Node {
+func TypeDeclarationsIR_recordType(properties *TMap[string, Node]) Node {
 	var node Node = new_Node_Token(Token_rhino_RECORD_TYPE)
 	it_1 := properties.eachEntry()
 	for it_1.next() {
@@ -73,7 +73,7 @@ func TypeDeclarationsIR_maybeAddType(node Node, type_ Node) Node {
 	return node
 }
 
-func TypeDeclarationsIR_functionType(returnType Node, requiredParams *JTMap[string, Node], optionalParams *JTMap[string, Node], restName Optional[string], restType Node) Node {
+func TypeDeclarationsIR_functionType(returnType Node, requiredParams *TMap[string, Node], optionalParams *TMap[string, Node], restName Optional[string], restType Node) Node {
 	var node Node = new_Node_Token_Node(Token_rhino_FUNCTION_TYPE, returnType)
 	if requiredParams == nil {
 		panic(new_NullPointerException_0())
@@ -128,7 +128,7 @@ func TypeDeclarationsIR_unionType(options IterableT[Node]) Node {
 }
 
 func TypeDeclarationsIR_unionTypeNodeVarargs(options []Node) Node {
-	return TypeDeclarationsIR_unionType(iterableAs_(jtc_Node, Iterable(Arrays_asList(arrmap_(options, func(v_ Node) any { return v_.box_() })))))
+	return TypeDeclarationsIR_unionType(iterableAs_(tc_Node, Iterable(Arrays_asList(arrmap_(options, func(v_ Node) any { return v_.box_() })))))
 }
 
 func TypeDeclarationsIR_optionalParameter(parameterType Node) Node {

@@ -1,5 +1,7 @@
 package closure
 
+import "sync"
+
 // Typed immutable collections: Guava's ImmutableList<T>, ImmutableSet<E> and
 // ImmutableMap<K, V> as the generic ImmutableList[T], ImmutableSet[K] and ImmutableMap[K, V],
 // with the builders ImmutableList_Builder[T], ImmutableSet_Builder[K] and
@@ -119,6 +121,10 @@ func (l *TList[T]) asImm() *ErasedImmutableList {
 	if l == nil {
 		return nil
 	}
+	if l.unmod {
+		// a list that cannot be changed and is no ImmutableList
+		classCastImm_("java.util.ArrayList", "com.google.common.collect.ErasedImmutableList")
+	}
 	if l.view == nil {
 		l.view = &tlistView_[T]{l: l}
 	}
@@ -153,7 +159,7 @@ func immutableListBuilderN_[T any](c *tconv_[T], n int32) *ImmutableList_Builder
 
 func (b *ImmutableList_Builder[T]) add(x T) *ImmutableList_Builder[T] {
 	if immNull_(b.c, x) {
-		throwNPE_("at index " + istr_(int64(len(b.items))))
+		panic(new_NullPointerException_0().self()) // (Guava's checkNotNull: no message)
 	}
 	if cap(b.items) == 0 {
 		b.items = make([]T, 0, 4) // as Guava's builder starts
@@ -174,7 +180,7 @@ func (b *ImmutableList_Builder[T]) addAll(from Iterable) *ImmutableList_Builder[
 	}
 	for _, x := range readSlice_(from) {
 		if x == nil {
-			throwNPE_("at index " + istr_(int64(len(b.items))))
+			panic(new_NullPointerException_0().self())
 		}
 		if cap(b.items) == 0 {
 			b.items = make([]T, 0, 4)
@@ -217,9 +223,9 @@ func tsetEmptyImm_[K comparable](kc *tconv_[K]) *ImmutableSet[K] {
 // immutableSetOf_ is ImmutableSet.of(xs...): the distinct elements in first-seen order; a null
 // element throws NullPointerException.
 func immutableSetOf_[K comparable](kc *tconv_[K], xs ...K) *ImmutableSet[K] {
-	for i, x := range xs {
+	for _, x := range xs {
 		if immNull_(kc, x) {
-			throwNPE_("at index " + istr_(int64(i)))
+			panic(new_NullPointerException_0().self()) // (as immSet_: no message)
 		}
 	}
 	return tsetMake_(kc, xs)
@@ -258,12 +264,14 @@ func immutableSetCopyOf_[K comparable](kc *tconv_[K], from Iterable) *ImmutableS
 				xs = append(xs, v.m.keys[i])
 			}
 		}
-		return tsetMake_(kc, xs)
+		return immutableSetOf_(kc, xs...) // (its elements checked for null, as any other's)
 	}
 	src := copySlice_(from)
-	checkNoNulls_(src)
 	xs := make([]K, len(src))
 	for i, x := range src {
+		if x == nil {
+			panic(new_NullPointerException_0().self())
+		}
 		xs[i] = kc.unbox(x)
 	}
 	return tsetMake_(kc, xs)
@@ -305,7 +313,7 @@ func immutableSetBuilderN_[K comparable](c *tconv_[K], n int32) *ImmutableSet_Bu
 
 func (b *ImmutableSet_Builder[K]) add(x K) *ImmutableSet_Builder[K] {
 	if immNull_(b.c, x) {
-		throwNPE_("at index " + istr_(int64(len(b.items))))
+		panic(new_NullPointerException_0().self()) // (Guava's checkNotNull: no message)
 	}
 	if cap(b.items) == 0 {
 		b.items = make([]K, 0, 4)
@@ -318,7 +326,7 @@ func (b *ImmutableSet_Builder[K]) add(x K) *ImmutableSet_Builder[K] {
 func (b *ImmutableSet_Builder[K]) addAll(from Iterable) *ImmutableSet_Builder[K] {
 	for _, x := range readSlice_(from) {
 		if x == nil {
-			throwNPE_("at index " + istr_(int64(len(b.items))))
+			panic(new_NullPointerException_0().self())
 		}
 		if cap(b.items) == 0 {
 			b.items = make([]K, 0, 4)
@@ -338,12 +346,31 @@ func tmapEmptyImm_[K comparable, V any](kc *tconv_[K], vc *tconv_[V]) *Immutable
 	if m, ok := vc.emptyM.(*ImmutableMap[K, V]); ok && m.kc == kc {
 		return m
 	}
+	if vc.emptyM != nil {
+		// the value type has the empty map of other keys: this one is kept by both conversions
+		emptyMaps_.mu.Lock()
+		defer emptyMaps_.mu.Unlock()
+		if m, ok := emptyMaps_.m[[2]any{kc, vc}].(*ImmutableMap[K, V]); ok {
+			return m
+		}
+	}
 	m := newTMap_(kc, vc)
 	m.imm = true
 	m.ext().twin = emptyImmMap_
-	vc.emptyM = m
+	if vc.emptyM == nil {
+		vc.emptyM = m
+	} else {
+		emptyMaps_.m[[2]any{kc, vc}] = m
+	}
 	return m
 }
+
+// emptyMaps_ holds the empty immutable maps of a value type that has more than one (maps of
+// several key types to it), by key and value conversion: ImmutableMap.of() is one object.
+var emptyMaps_ = struct {
+	mu sync.Mutex
+	m  map[[2]any]any
+}{m: map[[2]any]any{}}
 
 // immutableMapOf_ is ImmutableMap.of(k1, v1, ...) of the keys and values, which it owns: a null key
 // or value throws NullPointerException, a duplicate key IllegalArgumentException.
@@ -352,8 +379,8 @@ func immutableMapOf_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], keys []K
 }
 
 // tmapMake_ is the immutable map of parallel keys and values, as immMap_ makes an ImmutableMap:
-// nulls are checked first, then duplicate keys throw, or with keepLast keep the last entry (at
-// that entry's position).
+// nulls are checked first, then duplicate keys throw (immDup_'s message), or with keepLast a key
+// put more than once keeps its first position and has its last value.
 func tmapMake_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], keys []K, vals []V, keepLast bool) *ImmutableMap[K, V] {
 	if len(keys) == 0 {
 		return tmapEmptyImm_(kc, vc)
@@ -369,27 +396,13 @@ func tmapMake_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], keys []K, vals
 	m := newTMap_(kc, vc)
 	m.keys = make([]K, 0, len(keys))
 	m.vals = make([]V, 0, len(keys))
-	if keepLast {
-		last := newTMap_(kc, tunit_)
-		drop := make([]bool, len(keys))
-		for i := len(keys) - 1; i >= 0; i-- {
-			if last.find(keys[i]) >= 0 {
-				drop[i] = true
-			} else {
-				last.Put(keys[i], struct{}{})
-			}
-		}
-		for i := range keys {
-			if !drop[i] {
-				m.Put(keys[i], vals[i])
-			}
-		}
-		m.imm = true
-		return m
-	}
 	for i, k := range keys {
 		if j := m.find(k); j >= 0 {
-			dupKey_(kc.box(k), vc.box(m.vals[j]), vc.box(vals[i]))
+			if !keepLast {
+				immDup_(boxAll_(kc, keys), boxAll_(vc, vals))
+			}
+			m.vals[j] = vals[i]
+			continue
 		}
 		m.Put(k, vals[i])
 	}
@@ -446,6 +459,10 @@ func (m *TMap[K, V]) asImm() *ErasedImmutableMap {
 			keys, vals := boxAll_(m.kc, m.keys), boxAll_(m.vc, m.vals)
 			t := &ErasedImmutableMap{kind: imMap_, keys: keys, vals: vals}
 			t.typed_ = immTyped_{m.vc, m}
+			if x.keySet != nil {
+				// its key set is the one that typed code has
+				t.keySet_ = x.keySet.asImm()
+			}
 			x.twin = t
 		}
 	}
@@ -707,4 +724,147 @@ func (b *ImmutableMap_Builder[K, V]) buildOrThrowErased() *ErasedImmutableMap { 
 
 func (b *ImmutableMap_Builder[K, V]) buildKeepingLastErased() *ErasedImmutableMap {
 	return immMap_(imMap_, boxAll_(b.kc, b.keys), boxAll_(b.vc, b.vals), nil, true)
+}
+
+// ---- what a typed declaration of the translator (j2go rule "typed collections") needs beside
+// the above: copyOf of a typed collection, an erased immutable set or map entering a typed
+// declaration, ImmutableMap.of with its arguments in Java's order, keySet() of an immutable map.
+
+func classCastImm_(from, to string) {
+	panic(new_ClassCastException_String("class " + from + " cannot be cast to class " + to).self())
+}
+
+// immutableListCopyOfT_ is ImmutableList.copyOf(l) of a typed list of the same element type:
+// an immutable list is itself; any other is copied (a null element throws
+// NullPointerException).
+func immutableListCopyOfT_[T any](c *tconv_[T], l *TList[T]) *ImmutableList[T] {
+	if l.imm && !l.unmod {
+		return l
+	}
+	return immutableListCopyOfArr_(c, l.items)
+}
+
+// liveKV is the keys and values of the map in order (the map's own slices if nothing was
+// removed).
+func (m *TMap[K, V]) liveKV() ([]K, []V) {
+	if m.x == nil || m.x.dead == nil {
+		return m.keys, m.vals
+	}
+	keys, vals := make([]K, 0, m.live), make([]V, 0, m.live)
+	for i := m.first(); i < len(m.keys); i++ {
+		if !m.x.dead[i] {
+			keys, vals = append(keys, m.keys[i]), append(vals, m.vals[i])
+		}
+	}
+	return keys, vals
+}
+
+// immutableSetCopyOfT_ is ImmutableSet.copyOf(s) of a typed set of the same element type: an
+// immutable set (not a sorted one) is itself.
+func immutableSetCopyOfT_[K comparable](kc *tconv_[K], s *TSet[K]) *ImmutableSet[K] {
+	if s.imm && !s.sorted() {
+		return s
+	}
+	keys, _ := s.liveKV()
+	return immutableSetOf_(kc, keys...)
+}
+
+// immutableMapCopyOfT_ is ImmutableMap.copyOf(m) of a typed map of the same types: an
+// immutable map (not a sorted one) is itself.
+func immutableMapCopyOfT_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], m *TMap[K, V]) *ImmutableMap[K, V] {
+	if m.imm && !m.sorted() {
+		return m
+	}
+	keys, vals := m.liveKV()
+	return tmapMake_(kc, vc, keys, vals, false)
+}
+
+// tsetImm_ is an ImmutableSet that erased code made, entering a typed declaration: the typed
+// set of its twin ic, made once (nil for null; tsetFrom_). An ImmutableSortedSet is a sorted
+// typed set with its comparator, the elements as they are ordered.
+func tsetImm_[K comparable](kc *tconv_[K], ic *ImmutableCollection) *ImmutableSet[K] {
+	if ic == nil {
+		return nil
+	}
+	if ic.kind == icList_ {
+		classCastImm_("com.google.common.collect.ErasedImmutableList", "com.google.common.collect.ErasedImmutableSet")
+	}
+	if ic == emptyImmSet_ {
+		return tsetEmptyImm_(kc)
+	}
+	if ic.kind != icSorted_ {
+		return tsetFrom_(kc, Collection(ic), true)
+	}
+	if ic.typed_.conv == any(kc) {
+		if s, ok := ic.typed_.v.(*TSet[K]); ok {
+			return s
+		}
+	}
+	s := newTSortedSetC_(kc, ic.cmp)
+	s.keys = unboxAll_(kc, ic.items)
+	s.vals = make([]struct{}, len(s.keys))
+	s.live = int32(len(s.keys))
+	s.imm = true
+	s.x.twin = ic
+	ic.typed_ = immTyped_{kc, s}
+	return s
+}
+
+// tmapImm_ is an ImmutableMap that erased code made, entering a typed declaration (see
+// tsetImm_; tmapFrom_). An ImmutableSortedMap is a sorted typed map with its comparator.
+func tmapImm_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], im *ErasedImmutableMap) *ImmutableMap[K, V] {
+	if im == nil {
+		return nil
+	}
+	if im == emptyImmMap_ {
+		return tmapEmptyImm_(kc, vc)
+	}
+	if im.kind != imSorted_ {
+		return tmapFrom_(kc, vc, Map(im), true)
+	}
+	if im.typed_.conv == any(vc) {
+		if m, ok := im.typed_.v.(*TMap[K, V]); ok && m.kc == kc {
+			return m
+		}
+	}
+	m := newTMap_(kc, vc)
+	m.setSorted_(im.cmp)
+	m.keys, m.vals = unboxAll_(kc, im.keys), unboxAll_(vc, im.vals)
+	m.live = int32(len(m.keys))
+	m.imm = true
+	m.x.twin = im
+	im.typed_ = immTyped_{vc, m}
+	return m
+}
+
+// immutableMapOf1_, immutableMapOf3_ and immutableMapOf4_ are ImmutableMap.of(k1, v1, ...): the
+// arguments in Java's order (immutableMapOf_ takes the keys, then the values).
+func immutableMapOf1_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], k1 K, v1 V) *ImmutableMap[K, V] {
+	return tmapMake_(kc, vc, []K{k1}, []V{v1}, false)
+}
+
+func immutableMapOf3_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], k1 K, v1 V, k2 K, v2 V, k3 K, v3 V) *ImmutableMap[K, V] {
+	return tmapMake_(kc, vc, []K{k1, k2, k3}, []V{v1, v2, v3}, false)
+}
+
+func immutableMapOf4_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], k1 K, v1 V, k2 K, v2 V, k3 K, v3 V, k4 K, v4 V) *ImmutableMap[K, V] {
+	return tmapMake_(kc, vc, []K{k1, k2, k3, k4}, []V{v1, v2, v3, v4}, false)
+}
+
+// keySetImm is keySet() of an immutable map (an ImmutableSet<K>) for a typed declaration: one
+// typed set, the same object as the key set that erased code gets from the map's twin.
+func (m *TMap[K, V]) keySetImm() *ImmutableSet[K] {
+	if !m.imm {
+		classCastImm_("java.util.LinkedHashMap", "com.google.common.collect.ErasedImmutableMap")
+	}
+	x := m.ext()
+	if x.keySet == nil {
+		if x.twin != nil {
+			// the key set of the twin, as a typed set
+			x.keySet = tsetImm_(m.kc, x.twin.(*ErasedImmutableMap).keySet().(*ImmutableCollection))
+		} else {
+			x.keySet = tsetMake_(m.kc, m.keys)
+		}
+	}
+	return x.keySet
 }

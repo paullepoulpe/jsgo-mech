@@ -4,9 +4,9 @@ package closure
 
 type SortingErrorManager struct {
 	self_                 SortingErrorManager_I
-	messages              *JTSet[*SortingErrorManager_ErrorWithLevel]
+	messages              *TSet[*SortingErrorManager_ErrorWithLevel]
 	typedPercent          float64
-	errorReportGenerators *JTSet[SortingErrorManager_ErrorReportGenerator]
+	errorReportGenerators *TSet[SortingErrorManager_ErrorReportGenerator]
 	originalErrorCount    int32
 	promotedErrorCount    int32
 	warningCount          int32
@@ -42,7 +42,7 @@ func (this *SortingErrorManager) self() any {
 }
 
 func (this *SortingErrorManager) finit_SortingErrorManager() {
-	this.messages = newTSortedSetC_(tce_p_SortingErrorManager_ErrorWithLevel, func() Comparator[any] {
+	this.messages = newTSortedSetC_(tch_p_SortingErrorManager_ErrorWithLevel, func() Comparator[any] {
 		f_ := func() Comparator[*SortingErrorManager_ErrorWithLevel] {
 			v_ := new_SortingErrorManager_LeveledJSErrorComparator()
 			if v_ == nil {
@@ -63,12 +63,12 @@ func (this *SortingErrorManager) finit_SortingErrorManager() {
 	this.typedPercent = 0.0
 }
 
-func (this *SortingErrorManager) init_SortingErrorManager(errorReportGenerators *JTSet[SortingErrorManager_ErrorReportGenerator]) {
+func (this *SortingErrorManager) init_SortingErrorManager(errorReportGenerators *TSet[SortingErrorManager_ErrorReportGenerator]) {
 	this.finit_SortingErrorManager()
-	this.errorReportGenerators = immutableSetCopyOfT_(tce_SortingErrorManager_ErrorReportGenerator, errorReportGenerators)
+	this.errorReportGenerators = immutableSetCopyOfT_(tch_SortingErrorManager_ErrorReportGenerator, errorReportGenerators)
 }
 
-func new_SortingErrorManager(errorReportGenerators *JTSet[SortingErrorManager_ErrorReportGenerator]) *SortingErrorManager {
+func new_SortingErrorManager(errorReportGenerators *TSet[SortingErrorManager_ErrorReportGenerator]) *SortingErrorManager {
 	this := &SortingErrorManager{}
 	this.self_ = this
 	this.init_SortingErrorManager(errorReportGenerators)
@@ -77,7 +77,7 @@ func new_SortingErrorManager(errorReportGenerators *JTSet[SortingErrorManager_Er
 
 func (this *SortingErrorManager) report_2_impl(level CheckLevel, error_ *JSError) {
 	var e *SortingErrorManager_ErrorWithLevel = new_SortingErrorManager_ErrorWithLevel(error_, level)
-	if this.messages.add(e) {
+	if this.messages.Add(e) {
 		if level == CheckLevel_ERROR {
 			if error_.type_().level_ == CheckLevel_ERROR {
 				this.originalErrorCount++
@@ -102,16 +102,16 @@ func (this *SortingErrorManager) getWarningCount() int32 {
 	return this.warningCount
 }
 
-func (this *SortingErrorManager) getErrors() *JTList[*JSError] {
+func (this *SortingErrorManager) getErrors() *TList[*JSError] {
 	return this.filterToListOf(CheckLevel_ERROR)
 }
 
-func (this *SortingErrorManager) getWarnings() *JTList[*JSError] {
+func (this *SortingErrorManager) getWarnings() *TList[*JSError] {
 	return this.filterToListOf(CheckLevel_WARNING)
 }
 
 func (this *SortingErrorManager) getSortedDiagnostics() IterableT[*SortingErrorManager_ErrorWithLevel] {
-	return jimmutableListCopyOf_(tc_p_SortingErrorManager_ErrorWithLevel, Collection(this.messages.asSet())).asIterable()
+	return immutableListCopyOf_(tc_p_SortingErrorManager_ErrorWithLevel, Collection(this.messages.asSet())).asIterable()
 }
 
 func (this *SortingErrorManager) setTypedPercent(typedPercent float64) {
@@ -122,8 +122,8 @@ func (this *SortingErrorManager) getTypedPercent() float64 {
 	return this.typedPercent
 }
 
-func (this *SortingErrorManager) filterToListOf(level CheckLevel) *JTList[*JSError] {
-	var result *TListBuilder[*JSError] = newTListBuilder_(jtc_p_JSError)
+func (this *SortingErrorManager) filterToListOf(level CheckLevel) *TList[*JSError] {
+	var result *ImmutableList_Builder[*JSError] = immutableListBuilder_(tc_p_JSError)
 	it_1 := this.messages.each()
 	for it_1.next() {
 		var e *SortingErrorManager_ErrorWithLevel = it_1.v

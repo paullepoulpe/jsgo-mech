@@ -181,7 +181,7 @@ func (this *PrototypeObjectType) appendTo_impl(sb *TypeStringBuilder) {
 		return
 	}
 	this.prettyPrint = false
-	var properties *JTSet[*PrototypeObjectType_PropertyForPrettyPrinting] = newTSortedSetC_(tce_p_PrototypeObjectType_PropertyForPrettyPrinting, func() Comparator[any] {
+	var properties *TSet[*PrototypeObjectType_PropertyForPrettyPrinting] = newTSortedSetC_(tch_p_PrototypeObjectType_PropertyForPrettyPrinting, func() Comparator[any] {
 		f_ := PrototypeObjectType_PROP_COMPARATOR
 		if f_ == nil {
 			return nil
@@ -193,20 +193,20 @@ func (this *PrototypeObjectType) appendTo_impl(sb *TypeStringBuilder) {
 	{
 		var current *ObjectType = this.up_ObjectType()
 		for ; current != nil; current = current.getImplicitPrototype() {
-			if current.isNativeObjectType() || (properties.size() > PrototypeObjectType_MAX_PRETTY_PRINTED_PROPERTIES) {
+			if current.isNativeObjectType() || (properties.Len() > PrototypeObjectType_MAX_PRETTY_PRINTED_PROPERTIES) {
 				break
 			}
 			for stringKey := range elemsT_(current.getOwnPropertyNames()) {
 				var key *Property_StringKey = new_Property_StringKey(stringKey)
-				properties.add(new_PrototypeObjectType_PropertyForPrettyPrinting(Property_StringKey_as_Property_Key(key), current.getPropertyTypeKey(Property_StringKey_as_Property_Key(key))))
+				properties.Add(new_PrototypeObjectType_PropertyForPrettyPrinting(Property_StringKey_as_Property_Key(key), current.getPropertyTypeKey(Property_StringKey_as_Property_Key(key))))
 			}
 			for symbolKey := range elemsT_(current.getOwnPropertyKnownSymbols()) {
 				var key *Property_SymbolKey = new_Property_SymbolKey(symbolKey)
-				properties.add(new_PrototypeObjectType_PropertyForPrettyPrinting(Property_SymbolKey_as_Property_Key(key), current.getPropertyTypeKey(Property_SymbolKey_as_Property_Key(key))))
+				properties.Add(new_PrototypeObjectType_PropertyForPrettyPrinting(Property_SymbolKey_as_Property_Key(key), current.getPropertyTypeKey(Property_SymbolKey_as_Property_Key(key))))
 			}
 		}
 	}
-	var multiline bool = (!sb.isForAnnotations() && (properties.size() > 1))
+	var multiline bool = (!sb.isForAnnotations() && (properties.Len() > 1))
 	sb.append("{").indent(func() {
 		if multiline {
 			sb.breakLineAndIndent()
@@ -221,7 +221,7 @@ func (this *PrototypeObjectType) appendTo_impl(sb *TypeStringBuilder) {
 				break
 			}
 			property.appendTo(sb)
-			if i < properties.size() {
+			if i < properties.Len() {
 				sb.append(",")
 				if multiline {
 					sb.breakLineAndIndent()
@@ -302,7 +302,7 @@ func (this *PrototypeObjectType) getCtorImplementedInterfaces_impl() IterableT[*
 		if this.isFunctionPrototypeType() {
 			return this.getOwnerFunction().getImplementedInterfaces().asIterable()
 		}
-		return jtlistEmptyImm_(jtc_p_ObjectType).asIterable()
+		return tlistEmptyImm_(tc_p_ObjectType).asIterable()
 	}()
 }
 
@@ -311,7 +311,7 @@ func (this *PrototypeObjectType) getCtorExtendedInterfaces_impl() IterableT[*Obj
 		if this.isFunctionPrototypeType() {
 			return this.getOwnerFunction().getExtendedInterfaces().asIterable()
 		}
-		return jtlistEmptyImm_(jtc_p_ObjectType).asIterable()
+		return tlistEmptyImm_(tc_p_ObjectType).asIterable()
 	}()
 }
 

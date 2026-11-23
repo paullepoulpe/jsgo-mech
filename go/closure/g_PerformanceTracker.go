@@ -13,9 +13,9 @@ type PerformanceTracker struct {
 	startTime                      int64
 	endTime                        int64
 	currentPass                    *TDeque[*PerformanceTracker_Stats]
-	passSummary                    *JTMap[string, *PerformanceTracker_Stats]
+	passSummary                    *TMap[string, *PerformanceTracker_Stats]
 	astManifest                    *SimpleMultiset[Token_rhino]
-	log_                           *JTList[*PerformanceTracker_Stats]
+	log_                           *TList[*PerformanceTracker_Stats]
 	pruningAnalysisSummary         string
 	disambiguatePropertiesSummary  string
 	ambiguatePropertiesSummary     string
@@ -79,8 +79,8 @@ func (this *PerformanceTracker) finit_PerformanceTracker() {
 	this.astDiff = 0
 	this.diff = 0
 	this.gzDiff = 0
-	this.currentPass = newTDeque_(jtc_p_PerformanceTracker_Stats)
-	this.log_ = jnewTList_(jtc_p_PerformanceTracker_Stats)
+	this.currentPass = newTDeque_(tc_p_PerformanceTracker_Stats)
+	this.log_ = newTList_(tc_p_PerformanceTracker_Stats)
 	this.pruningAnalysisSummary = "not executed"
 	this.disambiguatePropertiesSummary = "not executed"
 	this.ambiguatePropertiesSummary = "not executed"
@@ -292,7 +292,7 @@ func (this *PerformanceTracker) getLoopRuns() int32 {
 	return this.loopRuns
 }
 
-func (this *PerformanceTracker) getStats() *JTMap[string, *PerformanceTracker_Stats] {
+func (this *PerformanceTracker) getStats() *TMap[string, *PerformanceTracker_Stats] {
 	this.calcTotalStats()
 	return this.passSummary
 }
@@ -303,7 +303,7 @@ func (this *PerformanceTracker) calcTotalStats() {
 	}
 	this.endTime = System_currentTimeMillis()
 	this.populatePassSummary()
-	it_1 := this.passSummary.eachValue()
+	it_1 := this.passSummary.each()
 	for it_1.next() {
 		var stats *PerformanceTracker_Stats = it_1.v
 		this.passesRuntime = int32((int64(this.passesRuntime) + stats.runtime_))
@@ -330,12 +330,12 @@ func (this *PerformanceTracker) calcTotalStats() {
 }
 
 func (this *PerformanceTracker) populatePassSummary() {
-	var tmpPassSummary *JTMap[string, *PerformanceTracker_Stats] = jnewTMap_(jtc_string, jtc_p_PerformanceTracker_Stats)
+	var tmpPassSummary *TMap[string, *PerformanceTracker_Stats] = newTMap_(tc_string, tc_p_PerformanceTracker_Stats)
 	it_1 := this.log_.each()
 	for it_1.next() {
 		var logStat *PerformanceTracker_Stats = it_1.v
 		var passName string = logStat.pass
-		var entry *PerformanceTracker_Stats = tmpPassSummary.computeIfAbsent(passName, Function[string, *PerformanceTracker_Stats](func(k string) *PerformanceTracker_Stats {
+		var entry *PerformanceTracker_Stats = tmpPassSummary.ComputeIfAbsent(passName, Function[string, *PerformanceTracker_Stats](func(k string) *PerformanceTracker_Stats {
 			return new_PerformanceTracker_Stats(k, logStat.isOneTime)
 		}))
 		entry.runtime_ += logStat.runtime_
@@ -346,7 +346,7 @@ func (this *PerformanceTracker) populatePassSummary() {
 		entry.diff += logStat.diff
 		entry.gzDiff += logStat.gzDiff
 	}
-	this.passSummary = immutableMapCopyOfT_(jtc_string, jtc_p_PerformanceTracker_Stats, tmpPassSummary)
+	this.passSummary = immutableMapCopyOfT_(tc_string, tc_p_PerformanceTracker_Stats, tmpPassSummary)
 }
 
 func (this *PerformanceTracker) populateAstManifest() {
@@ -406,7 +406,7 @@ func (this *PerformanceTracker) outputTracerReport(output *Output) {
 		return this.transitiveSummarySources
 	}()))), ("Type summary sources (post-pruning):   " + istr_(int64(this.transitiveSummarySources))), "", ("Dependency pruning analysis: " + sstr_(this.pruningAnalysisSummary))}))
 	output.println(JSCompStrings_lines([]string{"", "Summary:", "pass,runtime,allocMem,runs,changingRuns,astReduction,reduction,gzReduction"}))
-	var sortedPassSummary *JTList[Map_EntryT[string, *PerformanceTracker_Stats]] = jtlistFrom_(tc_Map_EntryT_string__p_PerformanceTracker_Stats_, Collection(this.passSummary.asImm().entrySet()))
+	var sortedPassSummary *TList[Map_EntryT[string, *PerformanceTracker_Stats]] = tlistFrom_(tc_Map_EntryT_string__p_PerformanceTracker_Stats_, Collection(this.passSummary.asImm().entrySet()))
 	List_sort(List_un_(sortedPassSummary.asListT()), func() Comparator[any] {
 		f_ := Comparator_comparingLong[Map_EntryT[string, *PerformanceTracker_Stats]](ToLongFunction[Map_EntryT[string, *PerformanceTracker_Stats]](func(e Map_EntryT[string, *PerformanceTracker_Stats]) int64 {
 			return e.getValue_t().runtime_
@@ -415,7 +415,7 @@ func (this *PerformanceTracker) outputTracerReport(output *Output) {
 			return nil
 		}
 		return func(p0 any, p1 any) int32 {
-			return f_(map_EntryAs_(jtc_string, jtc_p_PerformanceTracker_Stats, icast_Map_Entry(p0)), map_EntryAs_(jtc_string, jtc_p_PerformanceTracker_Stats, icast_Map_Entry(p1)))
+			return f_(map_EntryAs_(tc_string, tc_p_PerformanceTracker_Stats, icast_Map_Entry(p0)), map_EntryAs_(tc_string, tc_p_PerformanceTracker_Stats, icast_Map_Entry(p1)))
 		}
 	}())
 	it_1 := sortedPassSummary.each()
@@ -433,7 +433,7 @@ func (this *PerformanceTracker) outputTracerReport(output *Output) {
 	}
 	if this.astManifest != nil {
 		output.println(JSCompStrings_lines([]string{"", "Input AST Manifest:", "token,count"}))
-		var manifestLines *JTList[string] = jnewTList_(jtc_string)
+		var manifestLines *TList[string] = newTList_(tc_string)
 		for e := range elemsT_(this.astManifest.entrySet()) {
 			manifestLines.add(String_format("%s,%d", []any{e.getKey(), e.getValue()}))
 		}

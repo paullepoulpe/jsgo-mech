@@ -35,7 +35,7 @@ func (this *QualifiedName) init_QualifiedName() {
 func QualifiedName_of(string_ string) *QualifiedName {
 	var lastIndex int32 = 0
 	var index int32
-	var builder *TListBuilder[string] = newTListBuilder_(jtc_string)
+	var builder *ImmutableList_Builder[string] = immutableListBuilder_(tc_string)
 	for do_2 := true; do_2; do_2 = (index >= 0) {
 		index = indexByteFrom_(string_, '.', lastIndex)
 		var term string = cutBytes_(string_, lastIndex, func() int32 {
@@ -47,7 +47,7 @@ func QualifiedName_of(string_ string) *QualifiedName {
 		builder.add(RhinoStringPool_addOrGet(term))
 		lastIndex = (index + 1)
 	}
-	var terms *JTList[string] = builder.build()
+	var terms *TList[string] = builder.build()
 	return new_QualifiedName_StringListQname(terms, terms.size()).up_QualifiedName()
 }
 
@@ -60,12 +60,12 @@ func (this *QualifiedName) getRoot() string {
 }
 
 func (this *QualifiedName) components_impl() IterableT[string] {
-	var components *TListBuilder[string] = newTListBuilder_(jtc_string)
+	var components *ImmutableList_Builder[string] = immutableListBuilder_(tc_string)
 	this.buildComponents(components)
 	return components.build().asIterable()
 }
 
-func (this *QualifiedName) buildComponents(builder *TListBuilder[string]) {
+func (this *QualifiedName) buildComponents(builder *ImmutableList_Builder[string]) {
 	var owner *QualifiedName = this.getOwner()
 	if owner != nil {
 		owner.buildComponents(builder)
@@ -136,7 +136,7 @@ func QualifiedName_clinit() {
 
 type QualifiedName_StringListQname struct {
 	QualifiedName
-	terms *JTList[string]
+	terms *TList[string]
 	size_ int32
 }
 
@@ -147,13 +147,13 @@ func (this *QualifiedName_StringListQname) up_QualifiedName() *QualifiedName {
 	return &this.QualifiedName
 }
 
-func (this *QualifiedName_StringListQname) init_QualifiedName_StringListQname(terms *JTList[string], size int32) {
+func (this *QualifiedName_StringListQname) init_QualifiedName_StringListQname(terms *TList[string], size int32) {
 	this.QualifiedName.init_QualifiedName()
 	this.terms = terms
 	this.size_ = size
 }
 
-func new_QualifiedName_StringListQname(terms *JTList[string], size int32) *QualifiedName_StringListQname {
+func new_QualifiedName_StringListQname(terms *TList[string], size int32) *QualifiedName_StringListQname {
 	this := &QualifiedName_StringListQname{}
 	this.self_ = this
 	this.init_QualifiedName_StringListQname(terms, size)
@@ -187,7 +187,7 @@ func (this *QualifiedName_StringListQname) appendTo_impl(sb *strBuilder_, separa
 }
 
 func (this *QualifiedName_StringListQname) components_impl() IterableT[string] {
-	return iterableAs_(jtc_string, Iterable(this.terms.asImm().subList(0, this.size_)))
+	return iterableAs_(tc_string, Iterable(this.terms.asImm().subList(0, this.size_)))
 }
 
 func (this *QualifiedName_StringListQname) getComponentCount_impl() int32 {

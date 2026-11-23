@@ -11,7 +11,7 @@ type Es6RewriteArrowFunction struct {
 func (this *Es6RewriteArrowFunction) init_Es6RewriteArrowFunction(compiler *AbstractCompiler) {
 	this.compiler_ = compiler
 	this.astFactory_ = compiler.createAstFactory()
-	this.contextStack = newTDeque_(jtc_p_ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext)
+	this.contextStack = newTDeque_(tc_p_ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext)
 }
 
 func new_Es6RewriteArrowFunction(compiler *AbstractCompiler) *Es6RewriteArrowFunction {

@@ -29,7 +29,7 @@ func ModuleImportResolver_isGoogModuleDependencyCall(value Node) bool {
 		return false
 	}
 	var owner Node = callee.getFirstChild()
-	return (((owner.isName() && (owner.getString() == ModuleImportResolver_GOOG)) && ModuleImportResolver_GOOG_DEPENDENCY_CALLS.contains(callee.getString())) || ModuleImportResolver_GOOG_MODULE_GET.matches(callee))
+	return (((owner.isName() && (owner.getString() == ModuleImportResolver_GOOG)) && ModuleImportResolver_GOOG_DEPENDENCY_CALLS.Has(callee.getString())) || ModuleImportResolver_GOOG_MODULE_GET.matches(callee))
 }
 
 func (this *ModuleImportResolver) getClosureNamespaceTypeFromCall(googRequire Node) *ScopedName {
@@ -86,14 +86,14 @@ func (this *ModuleImportResolver) getGoogModuleScopeRoot(module *Module) Node {
 	return 0
 }
 
-func (this *ModuleImportResolver) declareEsModuleImports(module *Module, scope *TypedScope, moduleInput *CompilerInput) *JTMap[Node, *ScopedName] {
+func (this *ModuleImportResolver) declareEsModuleImports(module *Module, scope *TypedScope, moduleInput *CompilerInput) *TMap[Node, *ScopedName] {
 	if !module.metadata().isEs6Module() {
 		panic(new_IllegalArgumentException_String(objstr_(module)))
 	}
 	if !scope.isModuleScope() {
 		panic(new_IllegalArgumentException_String(objstr_(scope)))
 	}
-	var missingNames *TMapBuilder[Node, *ScopedName] = newTMapBuilder_(jtc_Node, jtc_p_ScopedName)
+	var missingNames *ImmutableMap_Builder[Node, *ScopedName] = immutableMapBuilder_(tc_Node, tc_p_ScopedName)
 	it_1 := module.boundNames().eachEntry()
 	for it_1.next() {
 		var boundName *TEntry[string, *Binding] = it_1.entry()
@@ -250,7 +250,7 @@ func ModuleImportResolver_isGoogModuleBody(moduleBody Node) bool {
 
 const ModuleImportResolver_GOOG string = "goog"
 
-var ModuleImportResolver_GOOG_DEPENDENCY_CALLS *JTSet[string]
+var ModuleImportResolver_GOOG_DEPENDENCY_CALLS *TSet[string]
 var ModuleImportResolver_GOOG_MODULE_GET *QualifiedName
 
 var ModuleImportResolver_clinit_done bool
@@ -260,7 +260,7 @@ func ModuleImportResolver_clinit() {
 		return
 	}
 	ModuleImportResolver_clinit_done = true
-	ModuleImportResolver_GOOG_DEPENDENCY_CALLS = jimmutableSetOf_[string](jtc_string, "require", "requireType", "forwardDeclare", "requireDynamic")
+	ModuleImportResolver_GOOG_DEPENDENCY_CALLS = immutableSetOf_[string](tc_string, "require", "requireType", "forwardDeclare", "requireDynamic")
 	ModuleImportResolver_GOOG_MODULE_GET = QualifiedName_of("goog.module.get")
 
 }

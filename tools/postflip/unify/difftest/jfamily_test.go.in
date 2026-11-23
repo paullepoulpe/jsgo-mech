@@ -1,0 +1,238 @@
+package closure
+
+// The translator's typed collections as the tables of functions of rt_tunify_test.go, and the
+// comparison of the two families (tools/postflip/unify/difftest/run.sh puts this file into a
+// package that has both; the names with the prefix "old" are the translator family's where the
+// tree after the step declares the name too).
+
+import (
+	"fmt"
+	"os"
+	"strings"
+	"testing"
+)
+
+var (
+	ujS_ = &jtconv_[string]{box: strobj_, unbox: str_, null: nullstr_}
+	ujA_ = &jtconv_[any]{box: func(v any) any { return v }, unbox: func(v any) any { return v }, byEquals: true}
+)
+
+// splitToListT_ is the function of rt_base_text.go after the step (the package has that file
+// as it was before the step, with the translator family's function as oldsplitToListT_).
+func splitToListT_(c *tconv_[string], sp *Splitter, seq any) *TList[string] {
+	return &TList[string]{c: c, items: sp.splitStrs_(csString_(seq)), imm: true, unmod: true}
+}
+
+func ujListFns_() ulistFns_[*JTList[string]] {
+	c := ujS_
+	type L = *JTList[string]
+	mkb := func(b *TListBuilder[string]) ulistBuilder_[L] {
+		return ulistBuilder_[L]{add: func(x string) { b.add(x) }, addAll: func(from Iterable) { b.addAll(from) }, build: b.build}
+	}
+	return ulistFns_[L]{
+		empty:     func() L { return jtlistEmptyImm_(c) },
+		of:        func(xs ...string) L { return jimmutableListOf_(c, xs...) },
+		imm:       func(ic *ImmutableCollection) L { return jtlistImm_(c, ic) },
+		copyOf:    func(from Iterable) L { return jimmutableListCopyOf_(c, from) },
+		copyOfArr: func(a []string) L { return jimmutableListCopyOfArr_(c, a) },
+		copyOfT:   func(l L) L { return oldimmutableListCopyOfT_(c, l) },
+		newList:   func() L { return jnewTList_(c) },
+		from:      func(x Collection) L { return jtlistFrom_(c, x) },
+		copyList:  func(l L) L { return oldtlistCopy_(c, l) },
+		split:     func(sp *Splitter, seq string) L { return oldsplitToListT_(c, sp, strobj_(seq)) },
+		builder:   func() ulistBuilder_[L] { return mkb(newTListBuilder_(c)) },
+		builderN:  func(n int32) ulistBuilder_[L] { return mkb(newTListBuilderN_(c, n)) },
+		m:         func(l L) ulistM_ { return l },
+	}
+}
+
+func ujDequeFns_() udequeFns_[*oldTDeque[string]] {
+	c := ujS_
+	type D = *oldTDeque[string]
+	return udequeFns_[D]{
+		newDeque:  func() D { return oldnewTDeque_(c) },
+		newDequeN: func(n int32) D { return oldnewTDequeN_(c, n) },
+		from:      func(x Collection) D { return oldtdequeFrom_(c, x) },
+		copyDeque: func(d D) D { return oldtdequeCopy_(c, d) },
+		m:         func(d D) udequeM_ { return d },
+		items: func(d D) []string {
+			var out []string
+			for it := d.each(); it.next(); {
+				out = append(out, it.v)
+			}
+			return out
+		},
+	}
+}
+
+func ujSetFns_[K comparable](c *jtconv_[K]) usetFns_[K, *JTSet[K]] {
+	type S = *JTSet[K]
+	return usetFns_[K, S]{
+		empty:   func() S { return jtsetEmptyImm_(c) },
+		of:      func(xs ...K) S { return jimmutableSetOf_(c, xs...) },
+		imm:     func(ic *ImmutableCollection) S { return oldtsetImm_(c, ic) },
+		copyOf:  func(from Iterable) S { return jimmutableSetCopyOf_(c, from) },
+		copyOfT: func(s S) S { return oldimmutableSetCopyOfT_(c, s) },
+		newSet:  func() S { return jnewTSet_(c) },
+		newSetN: func(n int32) S { return oldnewTSetN_(c, n) },
+		from:    func(x Collection) S { return jtsetFrom_(c, x) },
+		copySet: func(s S) S { return oldtsetCopy_(c, s) },
+		sorted:  func() S { return oldnewTSortedSet_(c) },
+		sortedC: func(cmp Comparator) S { return oldnewTSortedSetC_(c, cmp) },
+		builder: func() usetBuilder_[S] {
+			b := newTSetBuilder_(c)
+			return usetBuilder_[S]{add: func(x any) { b.add(c.unbox(x)) }, addAll: func(from Iterable) { b.addAll(from) }, build: b.build}
+		},
+		add:     func(s S, k K) bool { return s.add(k) },
+		has:     func(s S, k K) bool { return s.contains(k) },
+		del:     func(s S, k K) bool { return s.remove(k) },
+		size:    func(s S) int32 { return s.size() },
+		isEmpty: func(s S) bool { return s.isEmpty() },
+		clear:   func(s S) { s.clear() },
+		addAll:  func(s, o S) bool { return s.addAllT(o) },
+		keys: func(s S) []K {
+			var out []K
+			for it := s.each(); it.next(); {
+				out = append(out, it.v)
+			}
+			return out
+		},
+		asSet:    func(s S) Set { return s.asSet() },
+		asImm:    func(s S) *ImmutableCollection { return s.asImm() },
+		asSorted: func(s S) NavigableSet { return s.asSorted() },
+		iterator: func(s S) Iterator { return s.iterator() },
+		box:      c.box,
+		listView: func(xs ...K) List {
+			l := jnewTList_(c)
+			for _, x := range xs {
+				l.add(x)
+			}
+			return l.asList()
+		},
+		nullK: c.null,
+	}
+}
+
+func ujMapFns_[K comparable](kc *jtconv_[K]) umapFns_[K, *JTMap[K, string], *JTSet[K]] {
+	vc := ujS_
+	type M = *JTMap[K, string]
+	return umapFns_[K, M, *JTSet[K]]{
+		empty: func() M { return jtmapEmptyImm_(kc, vc) },
+		of1:   func(k1 K, v1 string) M { return oldimmutableMapOf1_(kc, vc, k1, v1) },
+		of3: func(k1 K, v1 string, k2 K, v2 string, k3 K, v3 string) M {
+			return oldimmutableMapOf3_(kc, vc, k1, v1, k2, v2, k3, v3)
+		},
+		of4: func(k1 K, v1 string, k2 K, v2 string, k3 K, v3 string, k4 K, v4 string) M {
+			return oldimmutableMapOf4_(kc, vc, k1, v1, k2, v2, k3, v3, k4, v4)
+		},
+		imm:     func(im *ErasedImmutableMap) M { return oldtmapImm_(kc, vc, im) },
+		copyOf:  func(from Map) M { return jimmutableMapCopyOf_(kc, vc, from) },
+		copyOfT: func(m M) M { return oldimmutableMapCopyOfT_(kc, vc, m) },
+		newMap:  func() M { return jnewTMap_(kc, vc) },
+		newMapN: func(n int32) M { return oldnewTMapN_(kc, vc, n) },
+		from:    func(m Map) M { return jtmapFrom_(kc, vc, m) },
+		copyMap: func(m M) M { return oldtmapCopy_(kc, vc, m) },
+		sorted:  func() M { return oldnewTSortedMap_(kc, vc) },
+		builder: func() umapBuilder_[M] {
+			b := newTMapBuilder_(kc, vc)
+			return umapBuilder_[M]{put: func(k any, v string) { b.put(kc.unbox(k), v) }, putAll: func(from Map) { b.putAll(from) },
+				build: b.buildOrThrow, buildKeepingLast: b.buildKeepingLast}
+		},
+		put:      func(m M, k K, v string) string { return m.put(k, v) },
+		get:      func(m M, k K) string { return m.get(k) },
+		getOr:    func(m M, k K, def string) string { return m.getOrDefault(k, def) },
+		has:      func(m M, k K) bool { return m.containsKey(k) },
+		del:      func(m M, k K) string { return m.remove(k) },
+		putIfAbs: func(m M, k K, v string) string { return m.putIfAbsent(k, v) },
+		compute:  func(m M, k K, f Function) string { return m.computeIfAbsent(k, f) },
+		putAll:   func(m, o M) { m.putAllT(o) },
+		size:     func(m M) int32 { return m.size() },
+		isEmpty:  func(m M) bool { return m.isEmpty() },
+		clear:    func(m M) { m.clear() },
+		keys: func(m M) []K {
+			var out []K
+			for it := m.eachKey(); it.next(); {
+				out = append(out, it.v)
+			}
+			return out
+		},
+		vals: func(m M) []string {
+			var out []string
+			for it := m.eachValue(); it.next(); {
+				out = append(out, it.v)
+			}
+			return out
+		},
+		entries: func(m M, each func(getKey func() K, getValue func() string, setValue func(string) string, asEntry func() Map_Entry)) {
+			for it := m.eachEntry(); it.next(); {
+				e := it.entry()
+				each(e.getKey, e.getValue, e.setValue, e.asEntry)
+			}
+		},
+		asMap:     func(m M) Map { return m.asMap() },
+		asImm:     func(m M) *ErasedImmutableMap { return m.asImm() },
+		keySetImm: func(m M) *JTSet[K] { return m.keySetImm() },
+		setAsImm:  func(s *JTSet[K]) *ImmutableCollection { return s.asImm() },
+		box:       kc.box,
+		nullK:     kc.null,
+	}
+}
+
+// ujTparam_ is uTparam_ with the translator family's conversions (byEquals for hash and eq).
+func ujTparam_() []string {
+	t := &utr_{}
+	oldregGoEquals_((*utparamClass_)(nil))
+	t.try("tcT_: one object per instantiation", func() any {
+		return oldtcT_[string]() == oldtcT_[string]() && tceT_[string]() == tceT_[string]() && any(oldtcT_[string]()) != any(tceT_[string]()) && oldtcT_[string]().null == nullstr_
+	})
+	t.try("by equals: string, registered class, class with equals, interface", func() any {
+		return fmt.Sprint(tceT_[string]().byEquals, tceT_[*utparamClass_]().byEquals, tceT_[*ukey_]().byEquals, tceT_[any]().byEquals, oldtcT_[any]().byEquals)
+	})
+	t.try("a set of a type parameter by equals", func() any {
+		s := jnewTSet_(tceT_[*ukey_]())
+		return fmt.Sprint(s.add(&ukey_{1, 0}), s.add(&ukey_{1, 1}), s.add(&ukey_{2, 0}), s.contains(&ukey_{2, 5}), s.add(nil), s.add(nil), s.size()) + ufmt_(s.asSet())
+	})
+	t.try("a set of a type parameter by identity", func() any {
+		s := jnewTSet_(tceT_[*utparamClass_]())
+		a, b := &utparamClass_{1}, &utparamClass_{1}
+		return fmt.Sprint(s.add(a), s.add(b), s.add(a), s.contains(b), s.size())
+	})
+	return t.log
+}
+
+func TestUnifyDiff(t *testing.T) {
+	jt := uTraces_(ujListFns_(), ujDequeFns_(), ujSetFns_(ujS_), ujMapFns_(ujS_), ujSetFns_(ujA_), ujMapFns_(ujA_), ujTparam_)
+	nt := uOneFamily_()
+	diffs := 0
+	for i := 0; i < len(jt) || i < len(nt); i++ {
+		var j, n string
+		if i < len(jt) {
+			j = jt[i]
+		}
+		if i < len(nt) {
+			n = nt[i]
+		}
+		if j != n {
+			diffs++
+			t.Errorf("line %d:\n  the translator's: %s\n   the one family: %s", i, j, n)
+		}
+	}
+	thrown := 0
+	for _, l := range jt {
+		if strings.Contains(l, " -> throws ") {
+			thrown++
+		}
+	}
+	t.Logf("observations compared: %d (of them exceptions: %d); differences: %d", len(jt), thrown, diffs)
+	if out := os.Getenv("UNIFY_GOLDEN"); out != "" && diffs == 0 {
+		var b strings.Builder
+		b.WriteString("package closure\n\n// The trace of the scenarios of rt_tunify_test.go on the translator's typed collections\n// (JTList, JTMap, JTSet, jtconv_: the tree before step \"one typed collection family\"), written\n// by tools/postflip/unify/difftest/run.sh -golden. Not edited by hand.\n\nvar unifyGolden_ = []string{\n")
+		for _, l := range jt {
+			fmt.Fprintf(&b, "\t%q,\n", l)
+		}
+		b.WriteString("}\n")
+		if err := os.WriteFile(out, []byte(b.String()), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+}

@@ -29,14 +29,14 @@ func (this *Linter) lint_2(path string, compiler *Compiler) {
 	compiler.setPassConfig(new_LintPassConfig(this.options_).up_PassConfig())
 	compiler.disableThreads()
 	var externs *SourceFile_jscomp = SourceFile_jscomp_fromCode_String_String("<Linter externs>", "")
-	compiler.compile(jimmutableListOf_[*SourceFile_jscomp](jtc_p_SourceFile_jscomp, externs), jimmutableListOf_[*SourceFile_jscomp](jtc_p_SourceFile_jscomp, file), this.options_)
+	compiler.compile(immutableListOf_[*SourceFile_jscomp](tc_p_SourceFile_jscomp, externs), immutableListOf_[*SourceFile_jscomp](tc_p_SourceFile_jscomp, file), this.options_)
 }
 
 func (this *Linter) fixRepeatedly(filename string) *Outcome_base[any] {
-	return this.fixRepeatedly_2(filename, jtsetEmptyImm_(tce_p_DiagnosticType))
+	return this.fixRepeatedly_2(filename, tsetEmptyImm_(tch_p_DiagnosticType))
 }
 
-func (this *Linter) fixRepeatedly_2(filename string, unfixableErrors *JTSet[*DiagnosticType]) *Outcome_base[any] {
+func (this *Linter) fixRepeatedly_2(filename string, unfixableErrors *TSet[*DiagnosticType]) *Outcome_base[any] {
 	for i := int32(0); i < Linter_MAX_FIXES; i++ {
 		var fixed *Outcome_base[any] = this.fix(filename, unfixableErrors)
 		if fixed.isErr() {
@@ -49,7 +49,7 @@ func (this *Linter) fixRepeatedly_2(filename string, unfixableErrors *JTSet[*Dia
 	return Outcome_base_ok_0()
 }
 
-func (this *Linter) fix(filename string, unfixableErrors *JTSet[*DiagnosticType]) *Outcome_base[any] {
+func (this *Linter) fix(filename string, unfixableErrors *TSet[*DiagnosticType]) *Outcome_base[any] {
 	var compiler *Compiler = new_Compiler_Output(Output_stdout())
 	var errorManager *FixingErrorManager = new_FixingErrorManager_ImmutableSet(unfixableErrors)
 	compiler.setErrorManager(FixingErrorManager_as_ErrorManager(errorManager))
@@ -107,7 +107,7 @@ func (this *Linter_Builder) withModuleResolutionMode(moduleResolutionMode Module
 	return this
 }
 
-func (this *Linter_Builder) withBrowserResolverPrefixReplacements(replacements *JTMap[string, string]) *Linter_Builder {
+func (this *Linter_Builder) withBrowserResolverPrefixReplacements(replacements *TMap[string, string]) *Linter_Builder {
 	this.options_.setBrowserResolverPrefixReplacements(replacements)
 	return this
 }

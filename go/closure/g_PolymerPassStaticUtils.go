@@ -86,7 +86,7 @@ func PolymerPassStaticUtils_protectObserverAndPropertyFunctionKeys(behaviorObjLi
 	if !behaviorObjLit.isObjectLit() {
 		panic(new_IllegalStateException_0())
 	}
-	var methodsToProtect *JTSet[string] = jnewTSet_(jtc_string)
+	var methodsToProtect *TSet[string] = newTSet_(tc_string)
 	methodsToProtect.asSetT().addAll(Collection(PolymerPassStaticUtils_addObserverMethodsToProtect(behaviorObjLit).asSet()))
 	methodsToProtect.asSetT().addAll(Collection(PolymerPassStaticUtils_addPropertyMethodsToProtect(behaviorObjLit).asSet()))
 	{
@@ -96,7 +96,7 @@ func PolymerPassStaticUtils_protectObserverAndPropertyFunctionKeys(behaviorObjLi
 				continue
 			}
 			var keyName Optional[string] = NodeUtil_getObjectOrClassLitKeyName(keyNode)
-			if !(keyName.isPresent() && methodsToProtect.contains(keyName.get())) {
+			if !(keyName.isPresent() && methodsToProtect.Has(keyName.get())) {
 				continue
 			}
 			PolymerPassStaticUtils_addExportAndNoCollapseToKey(keyNode)
@@ -104,8 +104,8 @@ func PolymerPassStaticUtils_protectObserverAndPropertyFunctionKeys(behaviorObjLi
 	}
 }
 
-func PolymerPassStaticUtils_addObserverMethodsToProtect(behaviorObjLit Node) *JTSet[string] {
-	var methodsToProtect *JTSet[string] = jnewTSet_(jtc_string)
+func PolymerPassStaticUtils_addObserverMethodsToProtect(behaviorObjLit Node) *TSet[string] {
+	var methodsToProtect *TSet[string] = newTSet_(tc_string)
 	var observers Node = NodeUtil_getFirstPropMatchingKey(behaviorObjLit, "observers")
 	if (observers != 0) && observers.isArrayLit() {
 		{
@@ -116,7 +116,7 @@ func PolymerPassStaticUtils_addObserverMethodsToProtect(behaviorObjLit Node) *JT
 				}
 				var name Optional[string] = PolymerPassStaticUtils_extractMethodName(child.getString())
 				if name.isPresent() {
-					methodsToProtect.add(name.get())
+					methodsToProtect.Add(name.get())
 				}
 			}
 		}
@@ -124,8 +124,8 @@ func PolymerPassStaticUtils_addObserverMethodsToProtect(behaviorObjLit Node) *JT
 	return methodsToProtect
 }
 
-func PolymerPassStaticUtils_addPropertyMethodsToProtect(behaviorObjLit Node) *JTSet[string] {
-	var methodsToProtect *JTSet[string] = jnewTSet_(jtc_string)
+func PolymerPassStaticUtils_addPropertyMethodsToProtect(behaviorObjLit Node) *TSet[string] {
+	var methodsToProtect *TSet[string] = newTSet_(tc_string)
 	var properties Node = NodeUtil_getFirstPropMatchingKey(behaviorObjLit, "properties")
 	if (properties != 0) && properties.isObjectLit() {
 		{
@@ -136,13 +136,13 @@ func PolymerPassStaticUtils_addPropertyMethodsToProtect(behaviorObjLit Node) *JT
 				}
 				var observer Node = NodeUtil_getFirstPropMatchingKey(prop.getLastChild(), "observer")
 				if (observer != 0) && observer.isStringLit() {
-					methodsToProtect.add(observer.getString())
+					methodsToProtect.Add(observer.getString())
 				}
 				var computed Node = NodeUtil_getFirstPropMatchingKey(prop.getLastChild(), "computed")
 				if (computed != 0) && computed.isStringLit() {
 					var name Optional[string] = PolymerPassStaticUtils_extractMethodName(computed.getString())
 					if name.isPresent() {
-						methodsToProtect.add(name.get())
+						methodsToProtect.Add(name.get())
 					}
 				}
 			}
@@ -168,24 +168,24 @@ func PolymerPassStaticUtils_addExportAndNoCollapseToKey(keyNode Node) {
 	keyNode.setJSDocInfo(newDocs.build())
 }
 
-func PolymerPassStaticUtils_extractProperties(descriptor Node, defType PolymerClassDefinition_DefinitionType, compiler *AbstractCompiler, constructor Node) *JTList[*PolymerPass_MemberDefinition] {
+func PolymerPassStaticUtils_extractProperties(descriptor Node, defType PolymerClassDefinition_DefinitionType, compiler *AbstractCompiler, constructor Node) *TList[*PolymerPass_MemberDefinition] {
 	var properties Node = descriptor
 	if defType == PolymerClassDefinition_DefinitionType_ObjectLiteral {
 		properties = NodeUtil_getFirstPropMatchingKey(descriptor, "properties")
 	}
 	if properties == 0 {
-		return jtlistEmptyImm_(jtc_p_PolymerPass_MemberDefinition)
+		return tlistEmptyImm_(tc_p_PolymerPass_MemberDefinition)
 	}
-	var constructorPropertyJsDoc *JTMap[string, *JSDocInfo] = jnewTMap_(jtc_string, jtc_p_JSDocInfo)
+	var constructorPropertyJsDoc *TMap[string, *JSDocInfo] = newTMap_(tc_string, tc_p_JSDocInfo)
 	if constructor != 0 {
 		PolymerPassStaticUtils_collectConstructorPropertyJsDoc(constructor, constructorPropertyJsDoc)
 	}
 	var enclosingModule Node = NodeUtil_getEnclosingModuleIfPresent(descriptor)
-	var members *TListBuilder[*PolymerPass_MemberDefinition] = newTListBuilder_(jtc_p_PolymerPass_MemberDefinition)
+	var members *ImmutableList_Builder[*PolymerPass_MemberDefinition] = immutableListBuilder_(tc_p_PolymerPass_MemberDefinition)
 	{
 		var keyNode Node = properties.getFirstChild()
 		for ; keyNode != 0; keyNode = keyNode.getNext() {
-			var constructorJsDoc *JSDocInfo = constructorPropertyJsDoc.get(keyNode.getString())
+			var constructorJsDoc *JSDocInfo = constructorPropertyJsDoc.Get(keyNode.getString())
 			var propertiesConfigJsDoc *JSDocInfo = NodeUtil_getBestJSDocInfo(keyNode)
 			var bestJsDoc *JSDocInfo
 			if constructorJsDoc != nil {
@@ -202,7 +202,7 @@ func PolymerPassStaticUtils_extractProperties(descriptor Node, defType PolymerCl
 	return members.build()
 }
 
-func PolymerPassStaticUtils_collectConstructorPropertyJsDoc(node Node, map_ *JTMap[string, *JSDocInfo]) {
+func PolymerPassStaticUtils_collectConstructorPropertyJsDoc(node Node, map_ *TMap[string, *JSDocInfo]) {
 	if node == 0 {
 		panic(new_NullPointerException_0())
 	}
@@ -210,7 +210,7 @@ func PolymerPassStaticUtils_collectConstructorPropertyJsDoc(node Node, map_ *JTM
 		var child Node = node.getFirstChild()
 		for ; child != 0; child = child.getNext() {
 			if child.isGetProp() && child.getFirstChild().isThis() {
-				map_.put(child.getString(), NodeUtil_getBestJSDocInfo(child))
+				map_.Put(child.getString(), NodeUtil_getBestJSDocInfo(child))
 			} else {
 				PolymerPassStaticUtils_collectConstructorPropertyJsDoc(child, map_)
 			}

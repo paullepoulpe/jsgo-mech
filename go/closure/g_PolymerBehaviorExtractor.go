@@ -10,12 +10,12 @@ type PolymerBehaviorExtractor struct {
 	moduleMetadataMap     *ModuleMetadataMap
 	moduleMap             *ModuleMap
 	resolveMemoized       *SimpleTable[string, *ModuleMetadataMap_ModuleMetadata, *PolymerBehaviorExtractor_ResolveBehaviorNameResult]
-	globalResolveMemoized *JTMap[string, *PolymerBehaviorExtractor_ResolveBehaviorNameResult]
+	globalResolveMemoized *TMap[string, *PolymerBehaviorExtractor_ResolveBehaviorNameResult]
 }
 
 func (this *PolymerBehaviorExtractor) finit_PolymerBehaviorExtractor() {
 	this.resolveMemoized = SimpleTable_create[string, *ModuleMetadataMap_ModuleMetadata, *PolymerBehaviorExtractor_ResolveBehaviorNameResult]()
-	this.globalResolveMemoized = jnewTMap_(jtc_string, tc_p_PolymerBehaviorExtractor_ResolveBehaviorNameResult)
+	this.globalResolveMemoized = newTMap_(tc_string, tc_p_PolymerBehaviorExtractor_ResolveBehaviorNameResult)
 }
 
 func (this *PolymerBehaviorExtractor) init_PolymerBehaviorExtractor(compiler *AbstractCompiler, globalNames *GlobalNamespace, moduleMetadataMap *ModuleMetadataMap, moduleMap *ModuleMap) {
@@ -32,15 +32,15 @@ func new_PolymerBehaviorExtractor(compiler *AbstractCompiler, globalNames *Globa
 	return this
 }
 
-func (this *PolymerBehaviorExtractor) extractBehaviors(behaviorArray Node, moduleMetadata *ModuleMetadataMap_ModuleMetadata) *JTList[*PolymerBehaviorExtractor_BehaviorDefinition] {
+func (this *PolymerBehaviorExtractor) extractBehaviors(behaviorArray Node, moduleMetadata *ModuleMetadataMap_ModuleMetadata) *TList[*PolymerBehaviorExtractor_BehaviorDefinition] {
 	if behaviorArray == 0 {
-		return jtlistEmptyImm_(jtc_p_PolymerBehaviorExtractor_BehaviorDefinition)
+		return tlistEmptyImm_(tc_p_PolymerBehaviorExtractor_BehaviorDefinition)
 	}
 	if !behaviorArray.isArrayLit() {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(behaviorArray, PolymerPassErrors_POLYMER_INVALID_BEHAVIOR_ARRAY, []string{}))
-		return jtlistEmptyImm_(jtc_p_PolymerBehaviorExtractor_BehaviorDefinition)
+		return tlistEmptyImm_(tc_p_PolymerBehaviorExtractor_BehaviorDefinition)
 	}
-	var behaviors *TListBuilder[*PolymerBehaviorExtractor_BehaviorDefinition] = newTListBuilder_(jtc_p_PolymerBehaviorExtractor_BehaviorDefinition)
+	var behaviors *ImmutableList_Builder[*PolymerBehaviorExtractor_BehaviorDefinition] = immutableListBuilder_(tc_p_PolymerBehaviorExtractor_BehaviorDefinition)
 	{
 		var behaviorName Node = behaviorArray.getFirstChild()
 		for ; behaviorName != 0; behaviorName = behaviorName.getNext() {
@@ -92,7 +92,7 @@ func (this *PolymerBehaviorExtractor) resolveBehaviorName(name Optional[string],
 		if moduleMetadata != nil {
 			return this.resolveMemoized.get(name.get(), moduleMetadata)
 		}
-		return this.globalResolveMemoized.get(name.get())
+		return this.globalResolveMemoized.Get(name.get())
 	}()
 	if memoized == nil {
 		memoized = this.resolveBehaviorNameInternal(name.get(), moduleMetadata)
@@ -102,7 +102,7 @@ func (this *PolymerBehaviorExtractor) resolveBehaviorName(name Optional[string],
 		if moduleMetadata != nil {
 			this.resolveMemoized.put(name.get(), moduleMetadata, memoized)
 		} else {
-			this.globalResolveMemoized.put(name.get(), memoized)
+			this.globalResolveMemoized.Put(name.get(), memoized)
 		}
 	}
 	return memoized
@@ -176,7 +176,7 @@ func (this *PolymerBehaviorExtractor) resolveReferenceToLegacyGoogModule(name st
 	var dot int32 = nameU16.length()
 	for dot >= 0 {
 		var subNamespace string = nameU16.substring(0, dot)
-		var metadata *ModuleMetadataMap_ModuleMetadata = this.moduleMetadataMap.getModulesByGoogNamespace().get(subNamespace)
+		var metadata *ModuleMetadataMap_ModuleMetadata = this.moduleMetadataMap.getModulesByGoogNamespace().Get(subNamespace)
 		if (metadata == nil) || !metadata.isLegacyGoogModule() {
 			dot = nameU16.lastIndexOf_int_int(46, (dot - 1))
 			continue
@@ -206,7 +206,7 @@ func PolymerBehaviorExtractor_isGoogModuleGetCall(callNode Node) bool {
 }
 
 func (this *PolymerBehaviorExtractor) resolveGoogModuleGet(moduleNamespace string) *PolymerBehaviorExtractor_ResolveBehaviorNameResult {
-	var closureModule *ModuleMetadataMap_ModuleMetadata = this.moduleMetadataMap.getModulesByGoogNamespace().get(moduleNamespace)
+	var closureModule *ModuleMetadataMap_ModuleMetadata = this.moduleMetadataMap.getModulesByGoogNamespace().Get(moduleNamespace)
 	if closureModule == nil {
 		return PolymerBehaviorExtractor_FAILED_RESOLVE_RESULT
 	} else if closureModule.isGoogProvide() {
@@ -238,7 +238,7 @@ func (this *PolymerBehaviorExtractor) getNameIfModuleImport(name string, metadat
 		}
 		return name[:dot]
 	}()
-	var b *Binding = module.boundNames().get(root)
+	var b *Binding = module.boundNames().Get(root)
 	if (b == nil) || !b.isSomeImport() {
 		return nil
 	}
@@ -287,7 +287,7 @@ func (this *PolymerBehaviorExtractor) resolveModuleNamespaceBinding(b *Binding, 
 		return rest[:dot]
 	}()
 	var originalModule *Module = this.moduleMap.getModule(b.metadata().path())
-	var exportBinding *Binding = originalModule.namespace().get(exportedName)
+	var exportBinding *Binding = originalModule.namespace().Get(exportedName)
 	if (exportBinding == nil) || !exportBinding.isCreatedByEsExport() {
 		return PolymerBehaviorExtractor_FAILED_RESOLVE_RESULT
 	}
@@ -299,17 +299,17 @@ func (this *PolymerBehaviorExtractor) resolveModuleNamespaceBinding(b *Binding, 
 	}()))), b.metadata())
 }
 
-func PolymerBehaviorExtractor_getBehaviorFunctionsToCopy(behaviorObjLit Node) *JTList[*PolymerPass_MemberDefinition] {
+func PolymerBehaviorExtractor_getBehaviorFunctionsToCopy(behaviorObjLit Node) *TList[*PolymerPass_MemberDefinition] {
 	if !behaviorObjLit.isObjectLit() {
 		panic(new_IllegalStateException_0())
 	}
-	var functionsToCopy *TListBuilder[*PolymerPass_MemberDefinition] = newTListBuilder_(jtc_p_PolymerPass_MemberDefinition)
+	var functionsToCopy *ImmutableList_Builder[*PolymerPass_MemberDefinition] = immutableListBuilder_(tc_p_PolymerPass_MemberDefinition)
 	var enclosingModule Node = NodeUtil_getEnclosingModuleIfPresent(behaviorObjLit)
 	{
 		var keyNode Node = behaviorObjLit.getFirstChild()
 		for ; keyNode != 0; keyNode = keyNode.getNext() {
 			var isFunctionDefinition bool = ((keyNode.isStringKey() && keyNode.getFirstChild().isFunction()) || keyNode.isMemberFunctionDef())
-			if isFunctionDefinition && !PolymerBehaviorExtractor_BEHAVIOR_NAMES_NOT_TO_COPY.contains(keyNode.getString()) {
+			if isFunctionDefinition && !PolymerBehaviorExtractor_BEHAVIOR_NAMES_NOT_TO_COPY.Has(keyNode.getString()) {
 				functionsToCopy.add(new_PolymerPass_MemberDefinition(NodeUtil_getBestJSDocInfo(keyNode), keyNode, keyNode.getFirstChild(), enclosingModule))
 			}
 		}
@@ -339,17 +339,17 @@ func PolymerBehaviorExtractor_getQualifiedNameThroughCast(node Node) Optional[st
 	return Optional_empty[string]()
 }
 
-func PolymerBehaviorExtractor_getNonPropertyMembersToCopy(behaviorObjLit Node) *JTList[*PolymerPass_MemberDefinition] {
+func PolymerBehaviorExtractor_getNonPropertyMembersToCopy(behaviorObjLit Node) *TList[*PolymerPass_MemberDefinition] {
 	if !behaviorObjLit.isObjectLit() {
 		panic(new_IllegalStateException_0())
 	}
-	var membersToCopy *TListBuilder[*PolymerPass_MemberDefinition] = newTListBuilder_(jtc_p_PolymerPass_MemberDefinition)
+	var membersToCopy *ImmutableList_Builder[*PolymerPass_MemberDefinition] = immutableListBuilder_(tc_p_PolymerPass_MemberDefinition)
 	var enclosingModule Node = NodeUtil_getEnclosingModuleIfPresent(behaviorObjLit)
 	{
 		var keyNode Node = behaviorObjLit.getFirstChild()
 		for ; keyNode != 0; keyNode = keyNode.getNext() {
 			var isNonFunctionMember bool = (keyNode.isGetterDef() || (keyNode.isStringKey() && !keyNode.getFirstChild().isFunction()))
-			if isNonFunctionMember && !PolymerBehaviorExtractor_BEHAVIOR_NAMES_NOT_TO_COPY.contains(keyNode.getString()) {
+			if isNonFunctionMember && !PolymerBehaviorExtractor_BEHAVIOR_NAMES_NOT_TO_COPY.Has(keyNode.getString()) {
 				membersToCopy.add(new_PolymerPass_MemberDefinition(NodeUtil_getBestJSDocInfo(keyNode), keyNode, keyNode.getFirstChild(), enclosingModule))
 			}
 		}
@@ -357,7 +357,7 @@ func PolymerBehaviorExtractor_getNonPropertyMembersToCopy(behaviorObjLit Node) *
 	return membersToCopy.build()
 }
 
-var PolymerBehaviorExtractor_BEHAVIOR_NAMES_NOT_TO_COPY *JTSet[string]
+var PolymerBehaviorExtractor_BEHAVIOR_NAMES_NOT_TO_COPY *TSet[string]
 
 const PolymerBehaviorExtractor_GOOG_MODULE_EXPORTS string = "exports"
 
@@ -371,7 +371,7 @@ func PolymerBehaviorExtractor_clinit() {
 		return
 	}
 	PolymerBehaviorExtractor_clinit_done = true
-	PolymerBehaviorExtractor_BEHAVIOR_NAMES_NOT_TO_COPY = jimmutableSetOf_[string](jtc_string, "created", "attached", "detached", "attributeChanged", "configure", "ready", "properties", "listeners", "observers", "hostAttributes")
+	PolymerBehaviorExtractor_BEHAVIOR_NAMES_NOT_TO_COPY = immutableSetOf_[string](tc_string, "created", "attached", "detached", "attributeChanged", "configure", "ready", "properties", "listeners", "observers", "hostAttributes")
 	PolymerBehaviorExtractor_FAILED_RESOLVE_RESULT = new_PolymerBehaviorExtractor_ResolveBehaviorNameResult(0, false, nil)
 	PolymerBehaviorExtractor_GOOG_MODULE_GET = QualifiedName_of("goog.module.get")
 
@@ -396,16 +396,16 @@ func new_PolymerBehaviorExtractor_ResolveBehaviorNameResult(node Node, isGlobalD
 }
 
 type PolymerBehaviorExtractor_BehaviorDefinition struct {
-	props                    *JTList[*PolymerPass_MemberDefinition]
-	functionsToCopy          *JTList[*PolymerPass_MemberDefinition]
-	nonPropertyMembersToCopy *JTList[*PolymerPass_MemberDefinition]
+	props                    *TList[*PolymerPass_MemberDefinition]
+	functionsToCopy          *TList[*PolymerPass_MemberDefinition]
+	nonPropertyMembersToCopy *TList[*PolymerPass_MemberDefinition]
 	features_                *FeatureSet
-	lazyModuleLocalNames     *JTSet[string]
+	lazyModuleLocalNames     *TSet[string]
 	behaviorModule           Node
 	isGlobalDeclaration      bool
 }
 
-func (this *PolymerBehaviorExtractor_BehaviorDefinition) init_PolymerBehaviorExtractor_BehaviorDefinition(props *JTList[*PolymerPass_MemberDefinition], functionsToCopy *JTList[*PolymerPass_MemberDefinition], nonPropertyMembersToCopy *JTList[*PolymerPass_MemberDefinition], isGlobalDeclaration bool, features *FeatureSet, behaviorModule Node) {
+func (this *PolymerBehaviorExtractor_BehaviorDefinition) init_PolymerBehaviorExtractor_BehaviorDefinition(props *TList[*PolymerPass_MemberDefinition], functionsToCopy *TList[*PolymerPass_MemberDefinition], nonPropertyMembersToCopy *TList[*PolymerPass_MemberDefinition], isGlobalDeclaration bool, features *FeatureSet, behaviorModule Node) {
 	this.props = props
 	this.functionsToCopy = functionsToCopy
 	this.nonPropertyMembersToCopy = nonPropertyMembersToCopy
@@ -414,20 +414,20 @@ func (this *PolymerBehaviorExtractor_BehaviorDefinition) init_PolymerBehaviorExt
 	this.behaviorModule = behaviorModule
 }
 
-func new_PolymerBehaviorExtractor_BehaviorDefinition(props *JTList[*PolymerPass_MemberDefinition], functionsToCopy *JTList[*PolymerPass_MemberDefinition], nonPropertyMembersToCopy *JTList[*PolymerPass_MemberDefinition], isGlobalDeclaration bool, features *FeatureSet, behaviorModule Node) *PolymerBehaviorExtractor_BehaviorDefinition {
+func new_PolymerBehaviorExtractor_BehaviorDefinition(props *TList[*PolymerPass_MemberDefinition], functionsToCopy *TList[*PolymerPass_MemberDefinition], nonPropertyMembersToCopy *TList[*PolymerPass_MemberDefinition], isGlobalDeclaration bool, features *FeatureSet, behaviorModule Node) *PolymerBehaviorExtractor_BehaviorDefinition {
 	this := &PolymerBehaviorExtractor_BehaviorDefinition{}
 	this.init_PolymerBehaviorExtractor_BehaviorDefinition(props, functionsToCopy, nonPropertyMembersToCopy, isGlobalDeclaration, features, behaviorModule)
 	return this
 }
 
-func (this *PolymerBehaviorExtractor_BehaviorDefinition) getModuleLocalNames(compiler *AbstractCompiler) *JTSet[string] {
+func (this *PolymerBehaviorExtractor_BehaviorDefinition) getModuleLocalNames(compiler *AbstractCompiler) *TSet[string] {
 	if this.lazyModuleLocalNames == nil {
 		this.lazyModuleLocalNames = this.accumulateModuleLocalVars(compiler)
 	}
 	return this.lazyModuleLocalNames
 }
 
-func (this *PolymerBehaviorExtractor_BehaviorDefinition) accumulateModuleLocalVars(compiler *AbstractCompiler) *JTSet[string] {
+func (this *PolymerBehaviorExtractor_BehaviorDefinition) accumulateModuleLocalVars(compiler *AbstractCompiler) *TSet[string] {
 	var scopeCreator *SyntacticScopeCreator = new_SyntacticScopeCreator_AbstractCompiler(compiler)
 	var globalScope *Scope = Scope_createGlobalScope(this.behaviorModule.getParent())
 	return NodeUtil_getAllVarNamesDeclaredInModule(this.behaviorModule, compiler, SyntacticScopeCreator_as_ScopeCreator(scopeCreator), globalScope)

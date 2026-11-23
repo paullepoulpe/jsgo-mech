@@ -26,8 +26,8 @@ func ReportDecoder_parseMappingFromFile(mappingFilePath string) *Outcome_base[Ma
 }
 
 func ReportDecoder_parseMapping(mappingFileContent string) *Outcome_base[MapT[string, *InstrumentationPoint]] {
-	var mapping *JTMap[string, *InstrumentationPoint] = jnewTMap_(jtc_string, jtc_p_InstrumentationPoint)
-	var linesOfFile *JTList[string] = splitToListT_(jtc_string, Splitter_on('\n').omitEmptyStrings(), strobj_(mappingFileContent))
+	var mapping *TMap[string, *InstrumentationPoint] = newTMap_(tc_string, tc_p_InstrumentationPoint)
+	var linesOfFile *TList[string] = splitToListT_(tc_string, Splitter_on('\n').omitEmptyStrings(), strobj_(mappingFileContent))
 	if ok_, a1_ := (linesOfFile.size() >= 3), linesOfFile.asListT(); !ok_ {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("Malformed report %s", []any{a1_})))
 	}
@@ -60,7 +60,7 @@ func ReportDecoder_parseMapping(mappingFileContent string) *Outcome_base[MapT[st
 	if typesAsStringList.isErr() {
 		return Outcome_base_err[MapT[string, *InstrumentationPoint]](typesAsStringList.error())
 	}
-	var types *JTList[InstrumentationPoint_Type] = jnewTList_(tc_p_InstrumentationPoint_Type)
+	var types *TList[InstrumentationPoint_Type] = newTList_(tc_p_InstrumentationPoint_Type)
 	for typeAsString := range elemsT_(typesAsStringList.get()) {
 		types.add(InstrumentationPoint_Type_valueOf(typeAsString))
 	}
@@ -70,7 +70,7 @@ func ReportDecoder_parseMapping(mappingFileContent string) *Outcome_base[MapT[st
 		var encodedDetails string = lineItem[strings.IndexByte(lineItem, ':')+1:]
 		var encodedDetailsAsCharIt *ReportDecoder_StringCharIterator = new_ReportDecoder_StringCharIterator(encodedDetails)
 		var temp *InstrumentationPoint = cast_[*InstrumentationPoint](InstrumentationPoint_newBuilder().setFileName(localFileNames.get_t(Base64VLQ_decode(ReportDecoder_StringCharIterator_as_Base64VLQ_CharIterator(encodedDetailsAsCharIt)))).setFunctionName(functionNames.get_t(Base64VLQ_decode(ReportDecoder_StringCharIterator_as_Base64VLQ_CharIterator(encodedDetailsAsCharIt)))).setType(types.get(Base64VLQ_decode(ReportDecoder_StringCharIterator_as_Base64VLQ_CharIterator(encodedDetailsAsCharIt)))).setLineNumber(Base64VLQ_decode(ReportDecoder_StringCharIterator_as_Base64VLQ_CharIterator(encodedDetailsAsCharIt))).setColumnNumber(Base64VLQ_decode(ReportDecoder_StringCharIterator_as_Base64VLQ_CharIterator(encodedDetailsAsCharIt))).build())
-		mapping.putIfAbsent(id, temp)
+		mapping.PutIfAbsent(id, temp)
 	}
 	return Outcome_base_ok_Object[MapT[string, *InstrumentationPoint]](mapping.asMapT())
 }
@@ -83,7 +83,7 @@ func ReportDecoder_parseJsonStringList(json string) *Outcome_base[ListT[string]]
 	if parsed.get().kind() != SimpleJsonValue_Kind_ARRAY {
 		return Outcome_base_err[ListT[string]](new_SimpleJsonException("Malformed mapping: expected a JSON array").up_Throwable())
 	}
-	var list *JTList[string] = jnewTList_(jtc_string)
+	var list *TList[string] = newTList_(tc_string)
 	it_1 := parsed.get().elements().each()
 	for it_1.next() {
 		var element *SimpleJsonValue = it_1.v
@@ -101,25 +101,25 @@ func ReportDecoder_parseJsonStringList(json string) *Outcome_base[ListT[string]]
 }
 
 func ReportDecoder_decodeReport(mapping MapT[string, *InstrumentationPoint], frequencies MapT[string, any]) *ReportProfile {
-	var instrumentationPoints *JTList[*InstrumentationPointStats] = jnewTList_(jtc_p_InstrumentationPointStats)
+	var instrumentationPoints *TList[*InstrumentationPointStats] = newTList_(tc_p_InstrumentationPointStats)
 	for entry := range elemsT_(mapping.entrySet_t()) {
 		instrumentationPoints.add(cast_[*InstrumentationPointStats](InstrumentationPointStats_newBuilder().setPoint(entry.getValue_t()).setTimesExecuted(unbox_[int64](Map_getOrDefault_s(Map_un_(frequencies), entry.getKey_t(), int64(0)))).build()))
 	}
 	return ReportDecoder_createReportProfile(instrumentationPoints)
 }
 
-func ReportDecoder_createProfileOfStaticallyUsedCode(mapping *JTMap[string, *InstrumentationPoint], fileContent string, instrumentationArrayName string) *ReportProfile {
+func ReportDecoder_createProfileOfStaticallyUsedCode(mapping *TMap[string, *InstrumentationPoint], fileContent string, instrumentationArrayName string) *ReportProfile {
 	var matcher *Matcher_re2j = Pattern_compile((sstr_(instrumentationArrayName) + "\\.push\\(['\"](" + sstr_(JavaRegex_DOT) + "*?)['\"]\\)")).matcher_s(fileContent)
-	var encodedPoints *JTSet[string] = jnewTSet_(jtc_string)
+	var encodedPoints *TSet[string] = newTSet_(tc_string)
 	for matcher.find() {
-		encodedPoints.add(matcher.group(1))
+		encodedPoints.Add(matcher.group(1))
 	}
-	var instrumentationPoints *JTList[*InstrumentationPointStats] = jnewTList_(jtc_p_InstrumentationPointStats)
+	var instrumentationPoints *TList[*InstrumentationPointStats] = newTList_(tc_p_InstrumentationPointStats)
 	it_2 := mapping.eachEntry()
 	for it_2.next() {
 		var entry *TEntry[string, *InstrumentationPoint] = it_2.entry()
 		instrumentationPoints.add(cast_[*InstrumentationPointStats](InstrumentationPointStats_newBuilder().setPoint(entry.getValue()).setTimesExecuted(0).setPointPresence(func() InstrumentationPointStats_Presence {
-			if encodedPoints.contains(entry.getKey()) {
+			if encodedPoints.Has(entry.getKey()) {
 				return InstrumentationPointStats_Presence_PRESENT
 			}
 			return InstrumentationPointStats_Presence_STATICALLY_REMOVED
@@ -128,9 +128,9 @@ func ReportDecoder_createProfileOfStaticallyUsedCode(mapping *JTMap[string, *Ins
 	return ReportDecoder_createReportProfile(instrumentationPoints)
 }
 
-func ReportDecoder_mergeProfiles(profiles *JTList[*ReportProfile]) *ReportProfile {
-	var frequencies *JTMap[*InstrumentationPoint, any] = jnewTMap_(tce_p_InstrumentationPoint, tc_Long)
-	var presences *JTMap[*InstrumentationPoint, InstrumentationPointStats_Presence] = jnewTMap_(tce_p_InstrumentationPoint, jtc_p_InstrumentationPointStats_Presence)
+func ReportDecoder_mergeProfiles(profiles *TList[*ReportProfile]) *ReportProfile {
+	var frequencies *TMap[*InstrumentationPoint, any] = newTMap_(tch_p_InstrumentationPoint, tc_Long)
+	var presences *TMap[*InstrumentationPoint, InstrumentationPointStats_Presence] = newTMap_(tch_p_InstrumentationPoint, tc_p_InstrumentationPointStats_Presence)
 	it_1 := profiles.each()
 	for it_1.next() {
 		var profile *ReportProfile = it_1.v
@@ -161,17 +161,17 @@ func ReportDecoder_mergeProfiles(profiles *JTList[*ReportProfile]) *ReportProfil
 			}
 		}
 	}
-	var finalPoints *JTList[*InstrumentationPointStats] = jnewTList_(jtc_p_InstrumentationPointStats)
+	var finalPoints *TList[*InstrumentationPointStats] = newTList_(tc_p_InstrumentationPointStats)
 	it_7 := frequencies.eachEntry()
 	for it_7.next() {
 		var entry *TEntry[*InstrumentationPoint, any] = it_7.entry()
-		finalPoints.add(cast_[*InstrumentationPointStats](InstrumentationPointStats_newBuilder().setPoint(entry.getKey()).setTimesExecuted(unbox_[int64](entry.getValue())).setPointPresence(presences.get(entry.getKey())).build()))
+		finalPoints.add(cast_[*InstrumentationPointStats](InstrumentationPointStats_newBuilder().setPoint(entry.getKey()).setTimesExecuted(unbox_[int64](entry.getValue())).setPointPresence(presences.Get(entry.getKey())).build()))
 	}
 	return ReportDecoder_createReportProfile(finalPoints)
 }
 
-func ReportDecoder_createReportProfile(instrumentationPoints *JTList[*InstrumentationPointStats]) *ReportProfile {
-	var sortedPoints *JTList[*InstrumentationPointStats] = tlistCopy_(jtc_p_InstrumentationPointStats, instrumentationPoints)
+func ReportDecoder_createReportProfile(instrumentationPoints *TList[*InstrumentationPointStats]) *ReportProfile {
+	var sortedPoints *TList[*InstrumentationPointStats] = tlistCopy_(tc_p_InstrumentationPointStats, instrumentationPoints)
 	List_sort(List_un_(sortedPoints.asListT()), func() Comparator[any] {
 		f_ := Comparator_comparing[*InstrumentationPointStats, string](Function[*InstrumentationPointStats, string](func(pointStats *InstrumentationPointStats) string {
 			return pointStats.getPoint().getFileName()
@@ -185,15 +185,15 @@ func ReportDecoder_createReportProfile(instrumentationPoints *JTList[*Instrument
 			return f_(cast_[*InstrumentationPointStats](p0), cast_[*InstrumentationPointStats](p1))
 		}
 	}())
-	var pointsByFileName *JTMap[string, ListT[*InstrumentationPointStats]] = jnewTMap_(jtc_string, tc_ListT_p_InstrumentationPointStats_)
+	var pointsByFileName *TMap[string, ListT[*InstrumentationPointStats]] = newTMap_(tc_string, tc_ListT_p_InstrumentationPointStats_)
 	it_1 := sortedPoints.each()
 	for it_1.next() {
 		var pointStats *InstrumentationPointStats = it_1.v
-		pointsByFileName.computeIfAbsent(pointStats.getPoint().getFileName(), Function[string, ListT[*InstrumentationPointStats]](func(k string) ListT[*InstrumentationPointStats] {
-			return jnewTList_(jtc_p_InstrumentationPointStats).asListT()
+		pointsByFileName.ComputeIfAbsent(pointStats.getPoint().getFileName(), Function[string, ListT[*InstrumentationPointStats]](func(k string) ListT[*InstrumentationPointStats] {
+			return newTList_(tc_p_InstrumentationPointStats).asListT()
 		})).add_t(pointStats)
 	}
-	var fileProfiles *JTList[*FileProfile] = jnewTList_(jtc_p_FileProfile)
+	var fileProfiles *TList[*FileProfile] = newTList_(tc_p_FileProfile)
 	it_3 := pointsByFileName.eachEntry()
 	for it_3.next() {
 		var entry *TEntry[string, ListT[*InstrumentationPointStats]] = it_3.entry()

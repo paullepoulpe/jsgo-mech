@@ -3,12 +3,12 @@
 package closure
 
 type MemoizedScopeCreator struct {
-	scopesByScopeRoot *JTMap[Node, *AbstractScope]
+	scopesByScopeRoot *TMap[Node, *AbstractScope]
 	delegate          func(Node, *AbstractScope) *AbstractScope
 }
 
 func (this *MemoizedScopeCreator) finit_MemoizedScopeCreator() {
-	this.scopesByScopeRoot = jnewTMap_(jtc_Node, jtc_p_AbstractScope)
+	this.scopesByScopeRoot = newTMap_(tc_Node, tc_p_AbstractScope)
 }
 
 func (this *MemoizedScopeCreator) init_MemoizedScopeCreator(delegate func(Node, *AbstractScope) *AbstractScope) {
@@ -23,10 +23,10 @@ func new_MemoizedScopeCreator(delegate func(Node, *AbstractScope) *AbstractScope
 }
 
 func (this *MemoizedScopeCreator) createScopeAbstractScope_Node_AbstractScope(n Node, parent *AbstractScope) *AbstractScope {
-	var scope *AbstractScope = this.scopesByScopeRoot.get(n)
+	var scope *AbstractScope = this.scopesByScopeRoot.Get(n)
 	if scope == nil {
 		scope = this.delegate(n, parent)
-		this.scopesByScopeRoot.put(n, scope)
+		this.scopesByScopeRoot.Put(n, scope)
 	} else {
 		if parent != scope.getParent() {
 			panic(new_IllegalStateException_0())

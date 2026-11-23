@@ -9,7 +9,7 @@ type TypeInferencePass struct {
 	topScope                *TypedScope
 	scopeCreator            *TypedScopeCreator
 	assertionFunctionLookup *CodingConvention_AssertionFunctionLookup
-	stepCountHistogram      *JTMap[any, *SimpleMultiset[Token_rhino]]
+	stepCountHistogram      *TMap[any, *SimpleMultiset[Token_rhino]]
 }
 
 func (this *TypeInferencePass) init_TypeInferencePass(compiler *AbstractCompiler, reverseInterpreter ReverseAbstractInterpreter, scopeCreator *TypedScopeCreator) {
@@ -18,9 +18,9 @@ func (this *TypeInferencePass) init_TypeInferencePass(compiler *AbstractCompiler
 	this.reverseInterpreter = reverseInterpreter
 	this.scopeCreator = scopeCreator
 	this.assertionFunctionLookup = CodingConvention_AssertionFunctionLookup_of(compiler.getCodingConvention().getAssertionFunctions())
-	this.stepCountHistogram = func() *JTMap[any, *SimpleMultiset[Token_rhino]] {
+	this.stepCountHistogram = func() *TMap[any, *SimpleMultiset[Token_rhino]] {
 		if compiler.isDebugLoggingEnabled() {
-			return jnewTMap_(tc_Integer, tc_p_SimpleMultiset_p_Token_rhino_)
+			return newTMap_(tc_Integer, tc_p_SimpleMultiset_p_Token_rhino_)
 		}
 		return nil
 	}()
@@ -63,12 +63,12 @@ func (this *TypeInferencePass) inferAllScopes(inferenceRoot Node) *TypedScope {
 			defer closeResource_(histogram.self())
 			histogram.logString("step_count token population")
 			var totals []int32 = []int32{0, 0}
-			var stepCounts *JTList[any] = jtlistFrom_(tc_Integer, Collection(Set_un_(this.stepCountHistogram.keySetT())))
+			var stepCounts *TList[any] = tlistFrom_(tc_Integer, Collection(Set_un_(this.stepCountHistogram.keySetT())))
 			List_sort(List_un_(stepCounts.asListT()), Comparator_naturalOrder[any]().reversed())
 			it_5 := stepCounts.each()
 			for it_5.next() {
 				var stepCount any = it_5.v
-				var entries *JTList[Map_EntryT[Token_rhino, any]] = jtlistFrom_(tc_Map_EntryT_p_Token_rhino__any_, Collection(Set_un_(this.stepCountHistogram.get(stepCount).entrySet())))
+				var entries *TList[Map_EntryT[Token_rhino, any]] = tlistFrom_(tc_Map_EntryT_p_Token_rhino__any_, Collection(Set_un_(this.stepCountHistogram.Get(stepCount).entrySet())))
 				List_sort(List_un_(entries.asListT()), func() Comparator[any] {
 					f_ := Comparator_comparingInt[Map_EntryT[Token_rhino, any]](ToIntFunction[Map_EntryT[Token_rhino, any]](func(p0 Map_EntryT[Token_rhino, any]) int32 { return unbox_[int32](p0.getValue_t()) }))
 					if f_ == nil {
@@ -103,7 +103,7 @@ func (this *TypeInferencePass) inferScope(n Node, scope *TypedScope) {
 				continue
 			}
 			var state *DataFlowAnalysis_LinearFlowState[any] = cast_[*DataFlowAnalysis_LinearFlowState[any]](Annotatable_getAnnotation(Annotatable(node)))
-			this.stepCountHistogram.computeIfAbsent(int32(state.getStepCount()), Function[any, *SimpleMultiset[Token_rhino]](func(k any) *SimpleMultiset[Token_rhino] {
+			this.stepCountHistogram.ComputeIfAbsent(int32(state.getStepCount()), Function[any, *SimpleMultiset[Token_rhino]](func(k any) *SimpleMultiset[Token_rhino] {
 				return SimpleMultiset_create[Token_rhino]()
 			})).add(node.getValue().getToken())
 		}
