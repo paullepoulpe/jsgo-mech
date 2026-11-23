@@ -349,7 +349,7 @@ func (this *ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration) zero_
 
 func (this *ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration) init_ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration(lhs Node, node Node) {
 	if !NodeUtil_isExprAssign(node) {
-		Preconditions_checkState_boolean_Object_H(false, node)
+		panic(new_IllegalStateException_String(objstr_(node.box_())).self())
 	}
 	this.lhs = lhs
 	this.memberName = NodeUtil_getPrototypePropertyName(lhs)

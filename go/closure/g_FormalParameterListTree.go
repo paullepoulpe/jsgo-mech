@@ -21,7 +21,7 @@ func (this *FormalParameterListTree) init_FormalParameterListTree(location *Sour
 	var numParams int32 = parameters.size()
 	var numCommas int32 = commaPositions.size()
 	if ok_, a1_, a2_ := ((numCommas <= numParams) && (numCommas >= (numParams - 1))), parameters.asListT(), commaPositions.asListT(); !ok_ {
-		Preconditions_checkArgument_boolean_String_Object_Object(false, "Unexpected # of comma and formal params.\nparams: %s\ncomma positions: %s", a1_, a2_)
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Unexpected # of comma and formal params.\nparams: %s\ncomma positions: %s", []any{a1_, a2_})).self())
 	}
 	this.parameters = parameters
 	this.hasTrailingComma_ = hasTrailingComma

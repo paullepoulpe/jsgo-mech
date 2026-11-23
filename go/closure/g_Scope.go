@@ -73,17 +73,23 @@ func (this *Scope) getParent_rScope() *Scope {
 }
 
 func (this *Scope) declare(name string, nameNode Node, input *CompilerInput) *Var {
-	Preconditions_checkArgument(!String_isEmpty(name))
-	Preconditions_checkState((this.getOwnSlot_String_rAbstractVar_rVar(name) == nil))
+	if String_isEmpty(name) {
+		panic(new_IllegalArgumentException_0().self())
+	}
+	if this.getOwnSlot_String_rAbstractVar_rVar(name) != nil {
+		panic(new_IllegalStateException_0().self())
+	}
 	var var_ *Var = new_Var(name, nameNode, this, this.getVarCount(), input, 0)
 	this.declareInternal(name, var_)
 	return var_
 }
 
 func (this *Scope) declareImplicitGoogNamespaceIfAbsent(name string, definition Node) *Var {
-	Preconditions_checkArgument(!String_isEmpty(name))
+	if String_isEmpty(name) {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	if !this.isGlobal() {
-		Preconditions_checkState_boolean_String_Object(false, "Cannot declare implicit goog namespace in local scope %s", this)
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Cannot declare implicit goog namespace in local scope %s", []any{this})).self())
 	}
 	var var_ *Var = this.getOwnSlot_String_rAbstractVar_rVar(name)
 	if var_ == nil {
@@ -100,7 +106,10 @@ func (this *Scope) makeImplicitVar_ImplicitVar_rVar(var_ AbstractScope_ImplicitV
 }
 
 func (this *Scope) contains(other *Scope) bool {
-	var s *Scope = Preconditions_checkNotNull_T(other)
+	if other == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	var s *Scope = other
 	for s != nil {
 		if s == this {
 			return true
@@ -123,8 +132,12 @@ func (this *Scope) getParentScope_rAbstractScope_rScope() *Scope {
 }
 
 func (this *Scope) undeclare(var_ *Var) {
-	Preconditions_checkState((var_.getScope_rAbstractScope_rScope() == this))
-	Preconditions_checkState(this.vars.get(var_.getName()).equals(obj_(var_)))
+	if var_.getScope_rAbstractScope_rScope() != this {
+		panic(new_IllegalStateException_0().self())
+	}
+	if !this.vars.get(var_.getName()).equals(obj_(var_)) {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.undeclareInteral(var_)
 }
 
@@ -134,7 +147,7 @@ func (this *Scope) undeclareInteral(var_ *Var) {
 
 func (this *Scope) declareInternal(name string, var_ *Var) {
 	if ok_, a1_ := (this.hasOwnSlot(name) || this.canDeclare(name)), var_.getNode(); !ok_ {
-		Preconditions_checkState_boolean_String_Object_H(false, "Illegal shadow: %s", a1_)
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Illegal shadow: %s", []any{a1_.box_()})).self())
 	}
 	var emptySentinel *JTMap[string, *Var] = jtmapEmptyImm_(jtc_string, jtc_p_Var)
 	if this.vars == emptySentinel {
@@ -275,19 +288,21 @@ func (this *Scope) getClosestContainerScope_rScope() *Scope {
 	if scope.isFunctionBlockScope() {
 		scope = scope.getParent_rScope()
 		if scope.isBlockScope() {
-			Preconditions_checkState_boolean_Object(false, scope)
+			panic(new_IllegalStateException_String(objstr_(scope)).self())
 		}
 	}
 	return scope
 }
 
 func (this *Scope) checkChildScope(parent *Scope) {
-	Preconditions_checkNotNull_T(parent)
-	if !NodeUtil_createsScope(this.rootNode_) {
-		Preconditions_checkArgument_boolean_Object_H(false, this.rootNode_)
+	if parent == nil {
+		panic(new_NullPointerException_0().self())
 	}
-	if !(this.rootNode_ != parent.getRootNode()) {
-		Preconditions_checkArgument_boolean_String_Object_H(false, "rootNode should not be the parent's root node: %s", this.rootNode_)
+	if !NodeUtil_createsScope(this.rootNode_) {
+		panic(new_IllegalArgumentException_String(objstr_(this.rootNode_.box_())).self())
+	}
+	if this.rootNode_ == parent.getRootNode() {
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("rootNode should not be the parent's root node: %s", []any{this.rootNode_.box_()})).self())
 	}
 }
 
@@ -304,7 +319,9 @@ func (this *Scope) getCommonParent(other *Scope) *Scope {
 			right = right.getParent_rScope()
 		}
 	}
-	Preconditions_checkState(((left != nil) && (left == right)))
+	if left == nil || left != right {
+		panic(new_IllegalStateException_0().self())
+	}
 	return left
 }
 

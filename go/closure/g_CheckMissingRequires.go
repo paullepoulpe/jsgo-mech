@@ -158,7 +158,9 @@ func CheckMissingRequires_isGoogScopeBody(hoistScopeRoot Node) bool {
 }
 
 func (this *CheckMissingRequires) visitMaybeGoogModuleGet(t *NodeTraversal, googModuleGet Node, currentFile *ModuleMetadataMap_ModuleMetadata) {
-	Preconditions_checkState(googModuleGet.isCall())
+	if !googModuleGet.isCall() {
+		panic(new_IllegalStateException_0().self())
+	}
 	if !NodeUtil_isGoogModuleGetCall(googModuleGet) {
 		return
 	}
@@ -179,7 +181,9 @@ func (this *CheckMissingRequires) visitMaybeDeclaration(t *NodeTraversal, n Node
 	if this.isTypeScriptSource(n) {
 		return
 	}
-	Preconditions_checkState(n.isName())
+	if !n.isName() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var rootName string = n.getString()
 	var var_ *Var = t.getScope().getVar_String_rVar(rootName)
 	if var_ == nil {
