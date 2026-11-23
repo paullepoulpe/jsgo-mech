@@ -20,6 +20,7 @@ func (e *sliceEach_[T]) next() bool {
 	}
 	return false
 }
+
 // has_ reports whether m has key k (Map.containsKey, Set.contains).
 func has_[K comparable, V any](m map[K]V, k K) bool {
 	_, ok := m[k]
