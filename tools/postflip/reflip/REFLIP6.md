@@ -301,3 +301,73 @@ of this one. getJSType's cost (to_JSType's assertion, ~0.6 s flat here) is left 
 The list now: 272 commits replayed (+ step 561), 166 with tool runs, 122 runtime patches, 1 manual patch.
 Not done: the replay from the base with step 561 (the tail replay resumes on replay6b's commits, whose
 overlay e7d680ff1 differs from this one by the 143 note, step 561 and this record only).
+
+## Step 562 (2026-11-23): final collection fields kept by value (inlinefld)
+
+A Java field `final List<X> f = new ArrayList<>();` was a pointer field *TList[X] that finit_ set from
+newTList_ / newTListN_ (and the same for maps and sets): one object for the header besides the holder.
+The rule (tools/postflip/inlinefld, rule and proof obligation at its head): a field of a generated class
+of type *TList[T], *TMap[K, V] or *TSet[K] assigned exactly once in the package, by its class's finit_ as
+a statement of the body, from one of the six constructors, becomes a field of type TList[T] (etc.);
+finit_ makes it in place with the constructor's twin (reflip6-inlinefld-rt.patch: initTList_, initTListN_,
+initTMap_, initTMapN_, initTSet_, initTSetN_ in rt_tlist.go and rt_tmap.go, the same fields and the same
+capacity; TestInPlaceCollections), and every use of it as a value is &x.f (a selection from it, x.f.m(...),
+is left: Go takes the field's address). The collection's identity is the field's address, fixed for the
+holder's life. Obligations the tool checks (a field or a class that fails is refused, with its reason):
+the field is not compared (nil tests included: such a field is refused, its test not rewritten), its
+address is not taken, it is not a literal's key, not read through a value, in a zero_ method or outside
+generated code; the class's objects are not copied, compared, kept by value or used as a type argument
+(htabself's check), are made only by an empty &T{} in a new_ function and never given to Object_clone;
+finit_ is called once by each constructor of the class, as a statement, by no constructor that delegates to
+another that calls it, the constructors are called only by new_ functions and init_ methods, and what a
+constructor does before finit_ does not let the object escape (statements that do not mention it, field
+assignments from expressions that do not, calls of its methods whose bodies pass the same test: the
+superclass's init_ chain). Not checked: that new_ and the subclass constructors follow j2go's pattern.
+Self-test: tools/postflip/inlinefld/inlinefld_test.go, four classes kept and one negative case per reason.
+
+    step 562: key 6fe460ee (tool eed6e16c, runtime patch reflip6-inlinefld-rt.patch), steps.txt at the end
+    inlinefld: 540 collection fields; 168 kept by value (117 classes; 84 reads as values become &x.f);
+               refused 372: assigned outside its class's finit_ 296, initialized other than by a typed
+               collection's constructor 51, tested for nil 11, read through a value 8, assigned more than
+               once 5, its class's constructor lets the object escape before finit_ 1
+               (JsMessageExtractor_ExtractMessagesVisitor); no class refused for copies, literals,
+               Object_clone or its constructors; 103 files; a rerun changes nothing (168 already by value).
+
+Measured (gast.py on the 3500 subset, three rounds in alternating order, one thread; before = $B/bin/m_flip6h,
+the tree of tree6h; after = $B/bin/m_flip6i; sha 72b57cd286c9 in all six runs, checks.state sha256
+1cb35c70ccb8... for both binaries; the host had a load of 1.2-2.7 from other work):
+
+| run | before total CPU / wall | after total CPU / wall | before CHECKS CPU / wall | after CHECKS CPU / wall |
+|---|---|---|---|---|
+| round 0 | 120.43 / 106.31 | 119.15 / 101.29 | 63.67 / 56.38 | 62.94 / 51.04 |
+| round 1 | 119.59 / 101.01 | 119.18 / 101.13 | 62.50 / 50.71 | 63.09 / 51.25 |
+| round 2 | 119.99 / 101.71 | 122.13 / 103.52 | 62.62 / 51.11 | 64.37 / 51.99 |
+
+No CPU gain above the noise (means 120.00 -> 120.15 s total, 62.93 -> 63.47 s CHECKS). Mallocs
+(JSGO_MEMSTATS, CHECKS alone) 269,917,679 -> 259,993,507 (-9.9 M, -3.7%); bytes allocated
+13,395,805,328 -> 13,323,017,208. The step is kept for its allocations and as the one rule; it does not
+pay for itself in time on this subset.
+
+    bash tools/postflip/reflip/replay6.sh replay6i   (a tail replay: $B/wt/replay6i made from tree6h's tip 88e20f2d)
+    (replay6i was removed after the replay; its commit 11ae55ab is branch flip6-tree-i; its tool log is $B/logs/replay6i.replay.log)
+    REPLAY DONE: replayed 1 commit (step 562), tip 11ae55ab, go/ tree ece9fb99082670197180353df425b19916de6955,
+    go/closure tree c6ef191272615a28867caf3c7a05635b00c16c54 (= the measured tree's); tree worktree $B/wt/tree6i
+    (branch flip6-tree-i, at 11ae55ab; its cache $B/cache-tree6i); $B/gate.sh tree6i flip6i, log $B/logs/gate-flip6i.log:
+
+      GATE FAILED flip6i       (the header: the j2go self-test line, as for every post-flip tree)
+      tests before: 102
+      lstat closure/g_*.go: no such file or directory
+      removed 0 declarations in 0 rounds
+      ok  	jsgomech/closure	3.027s
+      checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+      bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+      downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+      advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+      runtime lines: 26156  test lines: 10238
+      runtime lines of the default build: 26156  off-mode extras (build-tagged files): 0
+      tests after: 102
+
+The list now: 272 commits replayed (+ steps 561, 562), 167 with tool runs, 123 runtime patches, 1 manual patch.
+Not done: the replay from the base with steps 561 and 562; a CPU profile of the step (only gast totals and
+malloc counts were taken); whether the heap kept alive by an interior pointer (a list that outlives its
+holder now keeps the holder) costs anything on the full benchmark.
