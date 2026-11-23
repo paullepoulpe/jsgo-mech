@@ -7,6 +7,7 @@ type TranspileResult struct {
 	originalField   string
 	transpiledField string
 	sourceMapField  string
+	hashMemo_       int32 // hashCode, once computed, when it is not 0 (post-flip step hashmemo)
 }
 
 func (this *TranspileResult) zero_TranspileResult() {
@@ -80,6 +81,16 @@ func (this *TranspileResult) equals(other any) bool {
 }
 
 func (this *TranspileResult) hashCode() int32 {
+	if h := this.hashMemo_; h != 0 {
+		return h
+	}
+	h := this.hashCodeOnce_()
+	this.hashMemo_ = h
+	return h
+}
+
+// hashCodeOnce_ computes hashCode: a function of data that is final in the object (post-flip step hashmemo).
+func (this *TranspileResult) hashCodeOnce_() int32 {
 	return hashOf_(objhashStr_(this.pathField), objhashStr_(this.originalField), objhashStr_(this.transpiledField), objhashStr_(this.sourceMapField))
 }
 
