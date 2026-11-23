@@ -266,7 +266,7 @@ func (this *UnionType) isObject_impl() bool {
 }
 
 func (this *UnionType) contains(type_ *JSType) bool {
-	return JSTypeIterations_anyTypeMatches(Predicate[*JSType](func(p0 *JSType) bool { return type_.equals(p0.self()) }), this)
+	return JSTypeIterations_anyTypeMatches(Predicate[*JSType](func(p0 *JSType) bool { return type_.equals_JSType(p0) }), this)
 }
 
 func (this *UnionType) getRestrictedUnion(type_ *JSType) *JSType {
@@ -530,7 +530,7 @@ func (this *UnionType_Builder) addAlternate(alternate *JSType) *UnionType_Builde
 			continue
 		}
 		if ((alternate.isUnknownType() || current.isUnknownType()) || alternate.hasAnyTemplateTypes()) || current.hasAnyTemplateTypes() {
-			if alternate.equals(current.self()) {
+			if alternate.equals_JSType(current) {
 				return this
 			}
 		} else if alternate.isTemplatizedType() || current.isTemplatizedType() {
@@ -549,7 +549,7 @@ func (this *UnionType_Builder) addAlternate(alternate *JSType) *UnionType_Builde
 				var templatizedAlternate *TemplatizedType = alternate.toMaybeTemplatizedType()
 				var templatizedCurrent *TemplatizedType = current.toMaybeTemplatizedType()
 				if templatizedCurrent.wrapsSameRawType(templatizedAlternate.up_JSType()) {
-					if current.equals(alternate.self()) {
+					if current.equals_JSType(alternate) {
 						return this
 					} else if !templatizedCurrent.getReferencedType().isReadonlyArrayType() {
 						var rawType *ObjectType = templatizedCurrent.getReferencedObjTypeInternal()

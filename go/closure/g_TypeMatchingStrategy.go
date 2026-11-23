@@ -79,7 +79,7 @@ func (this TypeMatchingStrategy) match(templateType *JSType, type_ *JSType) Type
 		return TypeMatchingStrategy_MatchResult_NO_MATCH
 	}
 	return func() TypeMatchingStrategy_MatchResult {
-		if type_.equals(templateType.self()) {
+		if type_.equals_JSType(templateType) {
 			return TypeMatchingStrategy_MatchResult_MATCH
 		}
 		return TypeMatchingStrategy_MatchResult_NO_MATCH
