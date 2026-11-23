@@ -264,7 +264,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter) exitScope(t *NodeT
 		var variableName string = declaredVariableInfo.getName()
 		var oldStackTop MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo = this.variablesStackedByName.popVariableInfo(variableName)
 		if oldStackTop != obj_(declaredVariableInfo) {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("Declared variable \"%s\" was not the top of the name stack", []any{variableName})))
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Declared variable \"%s\" was not the top of the name stack", variableName)))
 		}
 		declaredVariableInfo.tryToInvertName()
 	}
@@ -498,7 +498,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMa
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap) popVariableInfo(name string) MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo {
 	var variableInfos DequeOf[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo] = this.mapOfStacks[name]
 	if variableInfos == nil {
-		panic(new_NullPointerException_String(Strings_lenientFormat("Nonexistent variable info requested: '%s'", []any{name})))
+		panic(new_NullPointerException_String(Strings_lenientFormat("Nonexistent variable info requested: '%s'", name)))
 	}
 	var info MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo = icast_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo(variableInfos.pop())
 	if variableInfos.isEmpty() {

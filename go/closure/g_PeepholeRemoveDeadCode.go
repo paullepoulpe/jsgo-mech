@@ -777,7 +777,7 @@ func (this *PeepholeRemoveDeadCode) removeFollowingNodes(n Node) {
 
 func (this *PeepholeRemoveDeadCode) redeclareIfBlockScopedVar(decl Node, parent Node) {
 	if NodeUtil_isFunctionDeclaration(decl) {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected function declaration %s", []any{decl.box_()})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected function declaration %s", decl.box_())))
 	}
 	if !NodeUtil_isBlockScopedDeclaration(decl) {
 		return

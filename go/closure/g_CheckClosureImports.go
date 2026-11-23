@@ -40,7 +40,7 @@ func (this *CheckClosureImports) verifyRequireOrder(namespace string, call Node,
 	var requiredInputId *InputId = NodeUtil_getInputId(requiredModule.rootNode())
 	var requiredInput *CompilerInput = this.compiler_.getInput(requiredInputId)
 	if requiredInput == nil {
-		panic(new_NullPointerException_String(Strings_lenientFormat("Cannot find CompilerInput for %s", []any{requiredModule})))
+		panic(new_NullPointerException_String(Strings_lenientFormat("Cannot find CompilerInput for %s", requiredModule)))
 	}
 	var requiredChunk *JSChunk = requiredInput.getChunk()
 	var currentChunk *JSChunk = t.getChunk()

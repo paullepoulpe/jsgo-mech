@@ -111,7 +111,7 @@ func (this *ModuleLoader) resolvePaths(inputs IterableT[DependencyInfo_]) *TSet[
 	}())
 	var dupeModulePaths *SimpleMultiset[string] = SimpleMultiset_copyOf[string](slicePtrViewT_(tc_string, sortedModulePaths))
 	if dupeModulePaths.size() != dupeModulePaths.elementSet().size() {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Duplicate module paths after resolving: %s", []any{dupeModulePaths})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Duplicate module paths after resolving: %s", dupeModulePaths)))
 	}
 	return immutableSetCopyOf_(tc_string, Collection(Set_un_(dupeModulePaths.elementSet())))
 }

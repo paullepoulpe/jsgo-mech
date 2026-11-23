@@ -501,7 +501,7 @@ func (this *ReplaceMessages_QuotedKeyObjectLitBuilder) addString(key string, val
 
 func (this *ReplaceMessages_QuotedKeyObjectLitBuilder) addNode(key string, node Node) *ReplaceMessages_QuotedKeyObjectLitBuilder {
 	if this.keyToValueNodeMap.Has(key) {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("repeated key: %s", []any{key})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("repeated key: %s", key)))
 	}
 	this.keyToValueNodeMap.Put(key, node)
 	return this
@@ -620,7 +620,7 @@ func ReplaceMessages_ProtectedMsgFallback_fromAstNode(n Node) *ReplaceMessages_P
 		return nil
 	}
 	if !n.hasXChildren(5) {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("bad message fallback call: %s", []any{n.box_()})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("bad message fallback call: %s", n.box_())))
 	}
 	var firstMsgKeyNode Node = callee.getNext()
 	var firstMsgKey string = firstMsgKeyNode.getString()
