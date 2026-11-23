@@ -11,12 +11,16 @@ pats=[
  ("native Go maps made (make(map[)", r"\bmake\(map\["),
  ("explicit Iterator use (.Iterator()/HasNext())", r"\.Iterator\(\)|\.HasNext\(\)"),
  ("type switches (.(type))", r"\.\(type\)"),
- ("type assertions x.(T) (comma-ok and direct)", r"\.\(\*?[A-Za-z_][\w.]*(\[[^\]]*\])?\)"),
+ ("type assertions x.(T) (comma-ok and direct; .(type) is the row above)", r"\.\((?!type\))\*?[A-Za-z_][\w.]*(\[[^\]]*\])?\)"),
  ("panic(", r"\bpanic\("),
  ("recover()", r"\brecover\(\)"),
  ("defer", r"\bdefer\b"),
  ("Equals/HashCode calls and methods", r"\.Equals\(|\.HashCode\(\)|func \([^)]*\) (Equals|HashCode)\("),
  ("Optional", r"\bOptional\b|\bOptional\["),
+ ("Optional-of-string: base.OptString spellings", r"\bOptString\b"),
+ ("Optional-of-string: SomeString( / NoString() calls", r"\bSomeString\(|\bNoString\(\)"),
+ ("Optional-of-string: functions returning (string, bool)", r"^func .*\) \(string, bool\) \{"),
+ ("func values given where Java has a lambda adapter (no adapter literals): &X_tfn_Y{ / &X_fn{", r"&\w+_t?fn(_\w+)?\{"),
  ("Preconditions (jutil.Check*)", r"\bjutil\.Check\w*\("),
  ("strings.Builder", r"\bstrings\.Builder\b"),
  ("UTF-16 string helpers (jutil string functions)", r"\bjutil\.(String\w+|CharAt|CodePointAt|Substring\w*|IndexOf\w*|LastIndexOf\w*|ToJavaString)\("),
@@ -27,8 +31,10 @@ pats=[
 for name,p in pats:
     rx=re.compile(p,re.M); n=sum(len(rx.findall(t)) for t in txt.values()); nf=sum(1 for t in txt.values() if rx.search(t))
     print(f"{n:8d} in {nf:4d} files  {name}")
-anydecl=0
-for t in txt.values():
-    anydecl+=len(re.findall(r"^\s+\w+\s+any\b",t,re.M))+len(re.findall(r"\b\w+ any[,)]",t))
-print(f"{anydecl:8d}                 fields/params declared any (approx; census.py's regex)")
+# the any row split as census.py splits it (its anyslots function, read from census.py)
+src=open(os.path.join(os.path.dirname(os.path.abspath(__file__)),"..","census.py")).read(); ns={}
+exec(src[src.index("def anyslots"):src.index("for name,p in pats")],{"re":re},ns)
+a=ns["anyslots"](txt.values())
+print(f"{a['total']:8d}                 fields/params declared any (approx; census.py's regex)")
+print(f"{a['total']-a['tparam']-a['ret']-a['helper']:8d}                 fields/params declared any, Object slots only (less {a['tparam']} type parameters, {a['ret']} return any(, {a['helper']} cast-helper operands; census.py's split)")
 print(f"{sum(t.count(chr(10)) for t in txt.values()):8d} lines in {len(files)} files")
