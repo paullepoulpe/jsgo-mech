@@ -1331,7 +1331,7 @@ func Es6NormalizeClasses_clinit() {
 	}
 	Es6NormalizeClasses_clinit_done = true
 	Es6NormalizeClasses_ILLEGAL_PRIVATE_MEMBER_ASSIGNMENT = DiagnosticType_error("JSC_ILLEGAL_PRIVATE_MEMBER_ASSIGNMENT", "Invalid assignment to private method ''#{0}''. Private methods cannot be reassigned.")
-	Es6NormalizeClasses_GENERIC_NAME_REPLACEMENTS = mapAs_(jtc_string, jtc_string, ImmutableMap_as_Map(ImmutableMap_builder().put("CLASS_DECL", strobj_(Es6NormalizeClasses_CLASS_DECL_VAR)).put("CLASS_EXTENDS", strobj_(Es6NormalizeClasses_CLASS_EXTENDS_VAR)).put("COMP_FIELD", strobj_(Es6NormalizeClasses_COMP_FIELD_VAR)).put("STATIC_INIT", strobj_(Es6NormalizeClasses_STATIC_INIT_METHOD_NAME)).put("STATIC_PRIVATE_MAP", strobj_(Es6NormalizeClasses_STATIC_PRIVATE_MAP_VAR)).put("PRIVATE_MAP", strobj_(Es6NormalizeClasses_PRIVATE_MAP_VAR)).put("PRIVATE_PROTO", strobj_(Es6NormalizeClasses_PRIVATE_PROTO_VAR)).put("PRIVATE", strobj_(Es6NormalizeClasses_PRIVATE_VAR)).put("TMP", strobj_(Es6NormalizeClasses_TMP_VAR)).buildOrThrow()))
+	Es6NormalizeClasses_GENERIC_NAME_REPLACEMENTS = mapAs_(jtc_string, jtc_string, ImmutableMap_as_Map(immutableMapBuilder_(tc_string, tc_string).put("CLASS_DECL", Es6NormalizeClasses_CLASS_DECL_VAR).put("CLASS_EXTENDS", Es6NormalizeClasses_CLASS_EXTENDS_VAR).put("COMP_FIELD", Es6NormalizeClasses_COMP_FIELD_VAR).put("STATIC_INIT", Es6NormalizeClasses_STATIC_INIT_METHOD_NAME).put("STATIC_PRIVATE_MAP", Es6NormalizeClasses_STATIC_PRIVATE_MAP_VAR).put("PRIVATE_MAP", Es6NormalizeClasses_PRIVATE_MAP_VAR).put("PRIVATE_PROTO", Es6NormalizeClasses_PRIVATE_PROTO_VAR).put("PRIVATE", Es6NormalizeClasses_PRIVATE_VAR).put("TMP", Es6NormalizeClasses_TMP_VAR).buildOrThrowErased()))
 
 }
 

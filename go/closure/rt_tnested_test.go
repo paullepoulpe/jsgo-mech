@@ -16,14 +16,14 @@ func TestNestedTypedCollections(t *testing.T) {
 		t.Error("a null typed list should box as null")
 	}
 	m := newTMap_(tc_string, lc)
-	m.put("k", l)
+	m.Put("k", l)
 	if got := m.asMap().get(strobj_("k")); got != any(l.asList()) {
 		t.Error("the erased view of the map should give the list's view")
 	}
 	// Map.computeIfAbsent through the view, with a function that makes a typed list's view.
 	made := newTList_(tc_string)
 	r := Map_computeIfAbsent_f(m.asMap(), strobj_("n"), func(any) any { return any(made.asList()) })
-	if tlistOf_[string](r) != made || m.get("n") != made {
+	if tlistOf_[string](r) != made || m.Get("n") != made {
 		t.Error("computeIfAbsent through the view should store the typed list")
 	}
 	if tlistOf_[string](Map_computeIfAbsent_f(m.asMap(), strobj_("k"), func(any) any { t.Error("present"); return nil })) != l {
@@ -47,14 +47,14 @@ func TestTypedComputeIfAbsent(t *testing.T) {
 	m := newTMap_(tc_string, tc_string)
 	calls := 0
 	f := func(k string) string { calls++; return k + "!" }
-	if m.ComputeIfAbsent("a", f) != "a!" || m.ComputeIfAbsent("a", f) != "a!" || calls != 1 || m.size() != 1 {
+	if m.ComputeIfAbsent("a", f) != "a!" || m.ComputeIfAbsent("a", f) != "a!" || calls != 1 || m.Len() != 1 {
 		t.Error("ComputeIfAbsent should compute once and store")
 	}
-	if got := m.ComputeIfAbsent("b", func(string) string { return nullstr_ }); got != nullstr_ || m.containsKey("b") {
+	if got := m.ComputeIfAbsent("b", func(string) string { return nullstr_ }); got != nullstr_ || m.Has("b") {
 		t.Error("ComputeIfAbsent should store nothing for null")
 	}
-	m.put("c", nullstr_)
-	if m.ComputeIfAbsent("c", f) != "c!" || m.get("c") != "c!" {
+	m.Put("c", nullstr_)
+	if m.ComputeIfAbsent("c", f) != "c!" || m.Get("c") != "c!" {
 		t.Error("ComputeIfAbsent should replace a null value")
 	}
 }
@@ -107,9 +107,9 @@ func TestNestedImmutableTypedCollections(t *testing.T) {
 		t.Error("the empty immutable typed list should box as the empty list and unbox to itself")
 	}
 	m := newTMap_(tc_string, lc)
-	m.put("k", l)
-	m.put("e", el)
-	if m.asMap().get(strobj_("k")) != any(l.asImm()) || m.get("k") != l || m.get("e") != el {
+	m.Put("k", l)
+	m.Put("e", el)
+	if m.asMap().get(strobj_("k")) != any(l.asImm()) || m.Get("k") != l || m.Get("e") != el {
 		t.Error("a map of immutable typed lists should give the twin to erased code and the list to typed code")
 	}
 	sc := tsetConv_[string]()
