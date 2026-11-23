@@ -3142,6 +3142,8 @@ E43
 #    methods (get_t, iterator_t read *p at every call, as the typed list's view and its cursor read the items; the typed
 #    cursor of jeachOf_ walks it through iterator_t). TestNativeTypedViews compares it with asListT() of a typed list over
 #    the same items, and sliceOfT_ with tlistOfT_. Both readings apply only when the runtime has the functions.
+# (44a only in the versions that write a list as a pointer to its slice: the ones that know the classes' ptr, slicePtrImm_)
+if grep -q 'slicePtrImm_(' tools/postflip/native/main.go 2>/dev/null; then
 reflip_edit tools/postflip/native/main.go reflip44a <<'E44a'
 		case n == "tlistImm_":
 =====
@@ -3158,6 +3160,7 @@ reflip_edit tools/postflip/native/main.go reflip44a <<'E44a'
 		})
 	case "tlistImm_":
 E44a
+fi
 reflip_edit tools/postflip/native/main.go reflip44b <<'E44b'
 	switch nt.Obj().Name() {
 	case "List", "Collection", "Iterable", "SequencedCollection":
