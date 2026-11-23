@@ -14,12 +14,12 @@ func (this *ObjectRestTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *ObjectRestTree) init_ObjectRestTree(location *SourceRange, assignmentTarget *ParseTree) {
+func (this *ObjectRestTree) init_ObjectRestTree(location SourceRange, assignmentTarget *ParseTree) {
 	this.ParseTree.init_ParseTree(ParseTreeType_OBJECT_REST, location)
 	this.assignmentTarget = assignmentTarget
 }
 
-func new_ObjectRestTree(location *SourceRange, assignmentTarget *ParseTree) *ObjectRestTree {
+func new_ObjectRestTree(location SourceRange, assignmentTarget *ParseTree) *ObjectRestTree {
 	this := &ObjectRestTree{}
 	this.self_ = this
 	this.init_ObjectRestTree(location, assignmentTarget)

@@ -12,12 +12,15 @@ func (this *SourceRange) init_SourceRange(start *SourcePosition_util, end *Sourc
 	this.end_ = end
 }
 
-func new_SourceRange(start *SourcePosition_util, end *SourcePosition_util) *SourceRange {
-	this := &SourceRange{}
+func new_SourceRange(start *SourcePosition_util, end *SourcePosition_util) SourceRange {
+	this := SourceRange{}
 	this.init_SourceRange(start, end)
 	return this
 }
 
-func (this *SourceRange) toString() string {
+// ref_ is a pointer to a copy of the value, for the places that hold a nullable SourceRange (post-flip).
+func (this SourceRange) ref_() *SourceRange { return &this }
+
+func (this SourceRange) toString() string {
 	return String_format("<%s - %s>", obj_(this.start_), obj_(this.end_))
 }

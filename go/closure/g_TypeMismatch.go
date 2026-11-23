@@ -106,13 +106,13 @@ func (this *TypeMismatch_Accumulator) init_TypeMismatch_Accumulator() {
 	this.finit_TypeMismatch_Accumulator()
 }
 
-func new_TypeMismatch_Accumulator() *TypeMismatch_Accumulator {
-	this := &TypeMismatch_Accumulator{}
+func new_TypeMismatch_Accumulator() TypeMismatch_Accumulator {
+	this := TypeMismatch_Accumulator{}
 	this.init_TypeMismatch_Accumulator()
 	return this
 }
 
-func (this *TypeMismatch_Accumulator) registerMismatch(location Node, found *JSType, required *JSType) {
+func (this TypeMismatch_Accumulator) registerMismatch(location Node, found *JSType, required *JSType) {
 	found = TypeMismatch_Accumulator_removeNullUndefinedAndTemplates(found)
 	required = TypeMismatch_Accumulator_removeNullUndefinedAndTemplates(required)
 	if found.isSubtypeOf(required) || required.isSubtypeOf(found) {
@@ -142,11 +142,11 @@ func (this *TypeMismatch_Accumulator) registerMismatch(location Node, found *JST
 	}
 }
 
-func (this *TypeMismatch_Accumulator) getMismatches() CollectionT[*TypeMismatch] {
+func (this TypeMismatch_Accumulator) getMismatches() CollectionT[*TypeMismatch] {
 	return immutableListCopyOfT_(tc_p_TypeMismatch, this.mismatches).asCollT()
 }
 
-func (this *TypeMismatch_Accumulator) registerIfMismatch(location Node, found *JSType, required *JSType) {
+func (this TypeMismatch_Accumulator) registerIfMismatch(location Node, found *JSType, required *JSType) {
 	if ((found != nil) && (required != nil)) && !found.isSubtypeOf(required) {
 		this.registerMismatch(location, found, required)
 	}

@@ -17,7 +17,7 @@ func (this *ForStatementTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *ForStatementTree) init_ForStatementTree(location *SourceRange, variables *ParseTree, condition *ParseTree, increment *ParseTree, body *ParseTree) {
+func (this *ForStatementTree) init_ForStatementTree(location SourceRange, variables *ParseTree, condition *ParseTree, increment *ParseTree, body *ParseTree) {
 	this.ParseTree.init_ParseTree(ParseTreeType_FOR_STATEMENT, location)
 	this.initializer = variables
 	this.condition = condition
@@ -25,7 +25,7 @@ func (this *ForStatementTree) init_ForStatementTree(location *SourceRange, varia
 	this.body = body
 }
 
-func new_ForStatementTree(location *SourceRange, variables *ParseTree, condition *ParseTree, increment *ParseTree, body *ParseTree) *ForStatementTree {
+func new_ForStatementTree(location SourceRange, variables *ParseTree, condition *ParseTree, increment *ParseTree, body *ParseTree) *ForStatementTree {
 	this := &ForStatementTree{}
 	this.self_ = this
 	this.init_ForStatementTree(location, variables, condition, increment, body)

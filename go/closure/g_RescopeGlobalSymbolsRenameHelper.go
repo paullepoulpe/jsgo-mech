@@ -110,14 +110,14 @@ func (this *RescopeGlobalSymbolsRenameHelper_HelperBuilder) init_RescopeGlobalSy
 	this.optimizeLocalAccess = optimizeLocalAccess
 }
 
-func new_RescopeGlobalSymbolsRenameHelper_HelperBuilder(compiler *AbstractCompiler, globalSymbolNamespace string, optimizeLocalAccess CompilerOptions_OptimizeLocalAccess) *RescopeGlobalSymbolsRenameHelper_HelperBuilder {
-	this := &RescopeGlobalSymbolsRenameHelper_HelperBuilder{}
+func new_RescopeGlobalSymbolsRenameHelper_HelperBuilder(compiler *AbstractCompiler, globalSymbolNamespace string, optimizeLocalAccess CompilerOptions_OptimizeLocalAccess) RescopeGlobalSymbolsRenameHelper_HelperBuilder {
+	this := RescopeGlobalSymbolsRenameHelper_HelperBuilder{}
 	this.zero_RescopeGlobalSymbolsRenameHelper_HelperBuilder()
 	this.init_RescopeGlobalSymbolsRenameHelper_HelperBuilder(compiler, globalSymbolNamespace, optimizeLocalAccess)
 	return this
 }
 
-func (this *RescopeGlobalSymbolsRenameHelper_HelperBuilder) recordExistingName(name string) {
+func (this RescopeGlobalSymbolsRenameHelper_HelperBuilder) recordExistingName(name string) {
 	if !this.optimizeLocalAccess.shouldKeepLocalAliasForWrappedReassignables() {
 		return
 	}
@@ -132,7 +132,7 @@ func (this *RescopeGlobalSymbolsRenameHelper_HelperBuilder) recordExistingName(n
 	}
 }
 
-func (this *RescopeGlobalSymbolsRenameHelper_HelperBuilder) build(symbolInfo *RescopeGlobalSymbolsInfo) *RescopeGlobalSymbolsRenameHelper {
+func (this RescopeGlobalSymbolsRenameHelper_HelperBuilder) build(symbolInfo *RescopeGlobalSymbolsInfo) *RescopeGlobalSymbolsRenameHelper {
 	var unwrappedLocalNamesInDefiningChunk *TMap[string, string] = RescopeGlobalSymbolsRenameHelper_collectUnwrappedLocalNamesInDefiningChunk(this.optimizeLocalAccess, symbolInfo, this.namesStartingWithUnderscore)
 	return new_RescopeGlobalSymbolsRenameHelper(this.compiler_, this.globalSymbolNamespace_, unwrappedLocalNamesInDefiningChunk)
 }

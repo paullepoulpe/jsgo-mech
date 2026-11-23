@@ -16,14 +16,14 @@ func (this *ComputedPropertyFieldTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *ComputedPropertyFieldTree) init_ComputedPropertyFieldTree(location *SourceRange, property *ParseTree, isStatic bool, initializer *ParseTree) {
+func (this *ComputedPropertyFieldTree) init_ComputedPropertyFieldTree(location SourceRange, property *ParseTree, isStatic bool, initializer *ParseTree) {
 	this.ParseTree.init_ParseTree(ParseTreeType_COMPUTED_PROPERTY_FIELD, location)
 	this.property_ = property
 	this.isStatic = isStatic
 	this.initializer = initializer
 }
 
-func new_ComputedPropertyFieldTree(location *SourceRange, property *ParseTree, isStatic bool, initializer *ParseTree) *ComputedPropertyFieldTree {
+func new_ComputedPropertyFieldTree(location SourceRange, property *ParseTree, isStatic bool, initializer *ParseTree) *ComputedPropertyFieldTree {
 	this := &ComputedPropertyFieldTree{}
 	this.self_ = this
 	this.init_ComputedPropertyFieldTree(location, property, isStatic, initializer)

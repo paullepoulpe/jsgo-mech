@@ -4,7 +4,7 @@ package closure
 
 type Comment struct {
 	value_    string
-	location_ *SourceRange
+	location_ SourceRange
 	type__    Comment_Type
 }
 
@@ -12,13 +12,13 @@ func (this *Comment) zero_Comment() {
 	this.value_ = nullstr_
 }
 
-func (this *Comment) init_Comment(value string, location *SourceRange, type_ Comment_Type) {
+func (this *Comment) init_Comment(value string, location SourceRange, type_ Comment_Type) {
 	this.value_ = value
 	this.location_ = location
 	this.type__ = type_
 }
 
-func new_Comment(value string, location *SourceRange, type_ Comment_Type) *Comment {
+func new_Comment(value string, location SourceRange, type_ Comment_Type) *Comment {
 	this := &Comment{}
 	this.zero_Comment()
 	this.init_Comment(value, location, type_)

@@ -8,7 +8,7 @@ type Es6NormalizeClasses struct {
 	compiler_                   *AbstractCompiler
 	astFactory_                 *AstFactory
 	expressionDecomposer        *ExpressionDecomposer
-	ctorCreator                 *SynthesizeExplicitConstructors
+	ctorCreator                 SynthesizeExplicitConstructors
 	jscompPrivateMap            RuntimeJsLibManager_JsLibField
 	classStack                  *[]*Es6NormalizeClasses_ClassRecord
 	transpileClassFields        bool

@@ -10,13 +10,13 @@ func (this *UniqueIdSupplier) init_UniqueIdSupplier() {
 	this.counter = SimpleMultiset_create[any]()
 }
 
-func new_UniqueIdSupplier() *UniqueIdSupplier {
-	this := &UniqueIdSupplier{}
+func new_UniqueIdSupplier() UniqueIdSupplier {
+	this := UniqueIdSupplier{}
 	this.init_UniqueIdSupplier()
 	return this
 }
 
-func (this *UniqueIdSupplier) getUniqueId(input *CompilerInput) string {
+func (this UniqueIdSupplier) getUniqueId(input *CompilerInput) string {
 	var filePath string = input.getSourceFile().getName()
 	var fileHashCode int32 = utf16Hash_(filePath)
 	var id int32 = this.counter.add_2(int32(fileHashCode), 1)
@@ -29,7 +29,7 @@ func (this *UniqueIdSupplier) getUniqueId(input *CompilerInput) string {
 	return (sstr_(fileHashString) + "$" + istr_(int64(id)))
 }
 
-func (this *UniqueIdSupplier) toProto() *TList[*UniqueIdProto] {
+func (this UniqueIdSupplier) toProto() *TList[*UniqueIdProto] {
 	var result *TList[*UniqueIdProto] = newTList_(tc_p_UniqueIdProto)
 	for entry := range elemsT_(this.counter.entrySet()) {
 		result.add(UniqueIdProto_newBuilder().setHash(unbox_[int32](entry.getKey_t())).setCounter(unbox_[int32](entry.getValue_t())).buildLastT_())
@@ -37,8 +37,8 @@ func (this *UniqueIdSupplier) toProto() *TList[*UniqueIdProto] {
 	return result
 }
 
-func UniqueIdSupplier_fromProto(protos ListT[*UniqueIdProto]) *UniqueIdSupplier {
-	var supplier *UniqueIdSupplier = new_UniqueIdSupplier()
+func UniqueIdSupplier_fromProto(protos ListT[*UniqueIdProto]) UniqueIdSupplier {
+	var supplier UniqueIdSupplier = new_UniqueIdSupplier()
 	for p := range elemsT_(protos) {
 		supplier.counter.add_2(int32(p.getHash()), p.getCounter())
 	}

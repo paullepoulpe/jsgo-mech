@@ -4,7 +4,7 @@ package closure
 
 type RewriteLogicalAssignmentOperatorsPass struct {
 	compiler_                               *AbstractCompiler
-	rewriteLogicalAssignmentOperatorsHelper *RewriteLogicalAssignmentOperatorsHelper
+	rewriteLogicalAssignmentOperatorsHelper RewriteLogicalAssignmentOperatorsHelper
 }
 
 func (this *RewriteLogicalAssignmentOperatorsPass) init_RewriteLogicalAssignmentOperatorsPass(compiler *AbstractCompiler) {

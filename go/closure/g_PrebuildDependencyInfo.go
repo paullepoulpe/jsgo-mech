@@ -10,13 +10,13 @@ func (this *PrebuildDependencyInfo) init_PrebuildDependencyInfo(numParalleThread
 	this.numParallelThreads = numParalleThreads
 }
 
-func new_PrebuildDependencyInfo(numParalleThreads int32) *PrebuildDependencyInfo {
-	this := &PrebuildDependencyInfo{}
+func new_PrebuildDependencyInfo(numParalleThreads int32) PrebuildDependencyInfo {
+	this := PrebuildDependencyInfo{}
 	this.init_PrebuildDependencyInfo(numParalleThreads)
 	return this
 }
 
-func (this *PrebuildDependencyInfo) prebuild(allInputs IterableT[*CompilerInput]) {
+func (this PrebuildDependencyInfo) prebuild(allInputs IterableT[*CompilerInput]) {
 	var threadFactory ThreadFactory = ThreadFactory(new_PrebuildDependencyInfo_1(this))
 	var poolExecutor *ThreadPoolExecutor = new_ThreadPoolExecutor_int_int_long_TimeUnit_BlockingQueue_ThreadFactory(this.numParallelThreads, this.numParallelThreads, int64(int32(2147483647)), TimeUnit_SECONDS, BlockingQueue(new_LinkedBlockingQueue()), threadFactory)
 	var executorService ListeningExecutorService = MoreExecutors_listeningDecorator(poolExecutor)
@@ -39,14 +39,14 @@ func (this *PrebuildDependencyInfo) prebuild(allInputs IterableT[*CompilerInput]
 }
 
 type PrebuildDependencyInfo_1 struct {
-	outer_ *PrebuildDependencyInfo
+	outer_ PrebuildDependencyInfo
 }
 
 func (this *PrebuildDependencyInfo_1) init_PrebuildDependencyInfo_1() {
 
 }
 
-func new_PrebuildDependencyInfo_1(outer_ *PrebuildDependencyInfo) *PrebuildDependencyInfo_1 {
+func new_PrebuildDependencyInfo_1(outer_ PrebuildDependencyInfo) *PrebuildDependencyInfo_1 {
 	this := &PrebuildDependencyInfo_1{}
 	this.outer_ = outer_
 	this.init_PrebuildDependencyInfo_1()

@@ -14,12 +14,12 @@ func (this *ReturnStatementTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *ReturnStatementTree) init_ReturnStatementTree(location *SourceRange, expression *ParseTree) {
+func (this *ReturnStatementTree) init_ReturnStatementTree(location SourceRange, expression *ParseTree) {
 	this.ParseTree.init_ParseTree(ParseTreeType_RETURN_STATEMENT, location)
 	this.expression = expression
 }
 
-func new_ReturnStatementTree(location *SourceRange, expression *ParseTree) *ReturnStatementTree {
+func new_ReturnStatementTree(location SourceRange, expression *ParseTree) *ReturnStatementTree {
 	this := &ReturnStatementTree{}
 	this.self_ = this
 	this.init_ReturnStatementTree(location, expression)

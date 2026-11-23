@@ -28,8 +28,8 @@ func new_SerializeTypesToPointers(compiler *AbstractCompiler, jstypeReconseriali
 	return this
 }
 
-func SerializeTypesToPointers_create(compiler *AbstractCompiler, stringPoolBuilder *StringPool_Builder, serializationOptions *SerializationOptions) *SerializeTypesToPointers {
-	var invalidatingTypes *InvalidatingTypes = new_InvalidatingTypes_Builder(compiler.getTypeRegistry()).addAllTypeMismatches(compiler.getTypeMismatches()).build()
+func SerializeTypesToPointers_create(compiler *AbstractCompiler, stringPoolBuilder *StringPool_Builder, serializationOptions SerializationOptions) *SerializeTypesToPointers {
+	var invalidatingTypes InvalidatingTypes = new_InvalidatingTypes_Builder(compiler.getTypeRegistry()).addAllTypeMismatches(compiler.getTypeMismatches()).build()
 	var propertiesReferencedInAst SetT[string] = newTSet_(tc_string).asSetT()
 	var jsTypeReconserializer *JSTypeReconserializer = JSTypeReconserializer_create(compiler.getTypeRegistry(), invalidatingTypes, stringPoolBuilder, Predicate[string](func(p0 string) bool { return Collection_contains_s(Collection(Set_un_(propertiesReferencedInAst)), p0) }), serializationOptions)
 	return new_SerializeTypesToPointers(compiler, jsTypeReconserializer, propertiesReferencedInAst)
