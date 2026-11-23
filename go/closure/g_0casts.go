@@ -1648,7 +1648,7 @@ var jtc_CompilerPass = &jtconv_[CompilerPass]{
 }
 
 var jtc_ConformanceRules_CustomRuleProxy_CustomRuleFactory = &jtconv_[ConformanceRules_CustomRuleProxy_CustomRuleFactory]{
-	box: func(v ConformanceRules_CustomRuleProxy_CustomRuleFactory) any { return v },
+	box: func(v ConformanceRules_CustomRuleProxy_CustomRuleFactory) any { return obj_(v) },
 	unbox: func(v any) ConformanceRules_CustomRuleProxy_CustomRuleFactory {
 		return icast_ConformanceRules_CustomRuleProxy_CustomRuleFactory(v)
 	},

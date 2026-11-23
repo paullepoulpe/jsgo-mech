@@ -2088,7 +2088,7 @@ func (this *ConformanceRules_CustomRuleProxy) createRule(compiler *AbstractCompi
 	if factory == nil {
 		return Outcome_base_err[CheckConformance_Rule](new_CheckConformance_InvalidRequirementSpec_String(("Unknown conformance rule: " + sstr_(requirement.getJavaClass()))).up_Throwable())
 	}
-	return factory.create(compiler, requirement)
+	return factory.call(compiler, requirement)
 }
 
 func ConformanceRules_CustomRuleProxy_createCustomRuleRegistry() *JTMap[string, ConformanceRules_CustomRuleProxy_CustomRuleFactory] {
@@ -2097,149 +2097,149 @@ func ConformanceRules_CustomRuleProxy_createCustomRuleRegistry() *JTMap[string, 
 }
 
 // lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_1_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
-var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_1_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_1_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
 	return ConformanceRules_NoOp_create(p0, p1)
-}}
+})
 
 // lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_2_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
-var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_2_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_2_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
 	return ConformanceRules_InferredConstCheck_create(p0, p1)
-}}
+})
 
 // lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_3_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
-var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_3_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_3_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
 	return ConformanceRules_BannedDependency_create(p0, p1)
-}}
+})
 
 // lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_4_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
-var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_4_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_4_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
 	return ConformanceRules_BannedDependencyRegex_create(p0, p1)
-}}
+})
 
 // lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_5_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
-var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_5_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_5_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
 	return ConformanceRules_BannedName_create(p0, p1)
-}}
+})
 
 // lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_6_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
-var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_6_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_6_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
 	return ConformanceRules_BannedProperty_create(p0, p1)
-}}
+})
 
 // lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_7_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
-var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_7_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_7_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
 	return ConformanceRules_BannedStringRegex_create(p0, p1)
-}}
+})
 
 // lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_8_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
-var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_8_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_8_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
 	return ConformanceRules_RestrictedNameCall_create(p0, p1)
-}}
+})
 
 // lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_9_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
-var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_9_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_9_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
 	return ConformanceRules_RestrictedMethodCall_create(p0, p1)
-}}
+})
 
 // lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_10_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
-var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_10_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_10_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
 	return ConformanceRules_RestrictedPropertyWrite_create(p0, p1)
-}}
+})
 
 // lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_11_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
-var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_11_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_11_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
 	return ConformanceRules_BannedCodePattern_create(p0, p1)
-}}
+})
 
 // lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_12_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
-var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_12_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_12_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
 	return ConformanceRules_BanForOf_create(p0, p1)
-}}
+})
 
 // lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_13_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
-var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_13_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_13_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
 	return ConformanceRules_RequireUseStrict_create(p0, p1)
-}}
+})
 
 // lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_14_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
-var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_14_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_14_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
 	return ConformanceRules_BanThrowOfNonErrorTypes_create(p0, p1)
-}}
+})
 
 // lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_15_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
-var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_15_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_15_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
 	return ConformanceRules_BanNullDeref_create(p0, p1)
-}}
+})
 
 // lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_16_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
-var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_16_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_16_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
 	return ConformanceRules_BanUnknownThis_create(p0, p1)
-}}
+})
 
 // lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_17_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
-var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_17_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_17_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
 	return ConformanceRules_BanUnknownDirectThisPropsReferences_create(p0, p1)
-}}
+})
 
 // lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_18_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
-var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_18_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_18_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
 	return ConformanceRules_BanUnknownTypedClassPropsReferences_create(p0, p1)
-}}
+})
 
 // lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_19_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
-var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_19_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_19_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
 	return ConformanceRules_BanUnresolvedType_create(p0, p1)
-}}
+})
 
 // lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_20_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
-var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_20_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_20_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
 	return ConformanceRules_StrictBanUnresolvedType_create(p0, p1)
-}}
+})
 
 // lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_21_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
-var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_21_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_21_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
 	return ConformanceRules_BanGlobalVars_create(p0, p1)
-}}
+})
 
 // lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_22_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
-var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_22_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_22_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
 	return ConformanceRules_BannedEnhance_create(p0, p1)
-}}
+})
 
 // lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_23_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
-var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_23_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_23_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
 	return ConformanceRules_BannedModsRegex_create(p0, p1)
-}}
+})
 
 // lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_24_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
-var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_24_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_24_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
 	return ConformanceRules_BanCreateElement_create(p0, p1)
-}}
+})
 
 // lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_25_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
-var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_25_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_25_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
 	return ConformanceRules_BanCreateDom_create(p0, p1)
-}}
+})
 
 // lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_26_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
-var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_26_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_26_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
 	return ConformanceRules_BanElementSetAttribute_create(p0, p1)
-}}
+})
 
 // lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_27_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
-var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_27_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_27_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
 	return ConformanceRules_BanSettingAttributes_create(p0, p1)
-}}
+})
 
 // lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_28_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
-var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_28_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_28_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
 	return ConformanceRules_BanExecCommand_create(p0, p1)
-}}
+})
 
 // lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_29_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
-var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_29_ = &ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_29_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
 	return ConformanceRules_BanStaticThis_create(p0, p1)
-}}
+})
 
 var ConformanceRules_CustomRuleProxy_CUSTOM_RULE_REGISTRY *JTMap[string, ConformanceRules_CustomRuleProxy_CustomRuleFactory]
 
@@ -2254,17 +2254,7 @@ func ConformanceRules_CustomRuleProxy_clinit() {
 
 }
 
-type ConformanceRules_CustomRuleProxy_CustomRuleFactory interface {
-	create(*AbstractCompiler, *Requirement) *Outcome_base[CheckConformance_Rule]
-}
-
-type ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn struct {
-	f func(*AbstractCompiler, *Requirement) *Outcome_base[CheckConformance_Rule]
-}
-
-func (this *ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn) create(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-	return this.f(p0, p1)
-}
+type ConformanceRules_CustomRuleProxy_CustomRuleFactory = *funcObj_[func(*AbstractCompiler, *Requirement) *Outcome_base[CheckConformance_Rule]]
 
 type ConformanceRules_BanForOf struct {
 	ConformanceRules_AbstractRule
