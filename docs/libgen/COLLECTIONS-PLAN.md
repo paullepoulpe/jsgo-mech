@@ -7,6 +7,11 @@ interfaces", kind `iter`). This file is the handover: a successor continues from
 **The current state, what is left and the traps are in section 5** (stage b5, branch
 `main-libgen-b5`, worktree `/mnt/data/ubuntu/jm/wt/agZ3`; 5.7 replaces 4.6; sections 0 to 4 are
 the records of the stages before, kept as written).
+**Section 6 records piece `fns` (rule candidate T1 of `docs/javaisms6/JAVAISMS6.md`, branch
+`main-libgen-t1`); section 7 records rule candidate T2** (branch
+`main-libgen-t2`, worktree `/mnt/data/ubuntu/jm/wt/libt2`: kinds `sorted`, `enumset`, `cmaps`,
+`deque`, `guava`; 7.6 adds to 5.7 what is left of the library types; written as section 6 on its
+branch, renumbered 7 by the merge of both into main-libgen-t12).
 Scratch files of this stage: `/mnt/data/tmp/claude-1000/-home-ubuntu-work/9db246f3-01a3-48c8-9bf5-1c94d1ed78d6/scratchpad/b3/`
 (`tr.sh` translate + build, `trto.sh <dir>` translate into a scratch directory that has the
 runtime copied in -- the translator reads `rt_*.go` of its output directory, so a directory
@@ -1433,3 +1438,341 @@ above; the default translation made again afterwards was identical.
   `newTyped`, `immutableOf`, `invocation`), `selftest/run.sh` (class list), `tools/j2go/README.md`
   (the switch list). The `SequencedCollection` and `CacheLoader` calls are T2's types; once T2
   types Deque / TreeMap, their default methods can join `LibFns.TYPED` (a receiver template).
+
+## 7. Record of rule candidate T2 (branch `main-libgen-t2`, worktree `/mnt/data/ubuntu/jm/wt/libt2`, 2026-11-23)
+
+On top of `main` 697100e9 (stage b5 merged, `docs/javaisms6/JAVAISMS6.md` written). Task: rule
+candidate T2 of JAVAISMS6.md section 5 ("typed library interfaces for the 34 types the rule did
+not reach", 228 census sites of the sixth flip's tree), as new kinds of the same switch
+`J2GO_NOLIBGEN`, each kind its own commit, gated on, and with the kind off the translation of
+the commit before. Scratch files: `/mnt/data/tmp/claude-1000/-home-ubuntu-work/9db246f3-01a3-48c8-9bf5-1c94d1ed78d6/scratchpad/t2/`
+(`kind.sh <label> <all T2 kinds> <this kind> <md5 before>`: under one hold of the lock, rebuild
+the translator, translate with this kind off, with every T2 kind off and with everything off and
+compare the md5 of `cat g_*.go` with the commit before / main's default / main's all-off
+translation, then the default translation, go build, runtime tests, self-test, gate;
+`tm.sh <tag> <rounds> label=bin ..`: `proto/gast.py` on `gasub/flags3500.txt` under the lock;
+`cdiff.sh A B`: `census.py` rows of two translations and the T2 spellings (`t2sites.py`);
+`out-<label>/`: the generated files of each kind; `kind-<label>.out`, `tm-<label>.out`, gate logs).
+
+A second agent did candidate T1 (typed runtime library functions, branch `main-libgen-t1`) at the
+same time; nothing here touches the runtime's static library functions or their name lists.
+Overlap with that branch is limited to `tools/j2go/src/j2go/LibGen.java` (new tables and
+functions next to the existing ones, three small edits inside `cls`, `served` and `check`),
+one line each in `Ctx.typedMaker` and `ExprEmitter.lgMade`, the self-test files
+(`selftest/lang/LibGen.java`, `selftest/refused/RefusedLib.java`, the count in `selftest/run.sh`)
+and `tools/j2go/README.md`; the runtime additions are in new files (`go/closure/rt_lg_t2.go`,
+`rt_lg_t2_test.go`).
+
+**How far: five kinds are built, gated and committed: `sorted`, `enumset`, `cmaps`, `deque`,
+`guava`. Not built: Guava `Optional`, `Ordering`, `ThreadLocal`, `CacheBuilder`, `TreeMap`, the
+sorted immutables' builders and typed makers, the erased Guava immutables that do not enter a
+typed place** (7.6 says what each needs). Every heavy command ran under
+`flock /mnt/data/ubuntu/jm/heavy.lock` (the other agent's gates and timings held it for up to 15
+minutes at a time).
+
+### 7.1 Commits
+
+| commit | kind (`J2GO_NOLIBGEN=`) | what |
+|---|---|---|
+| 88df15cc | `sorted` | `ImmutableSortedSet<X>`, `SortedSet<X>` are `SetT[X]`, `ImmutableSortedMap<K, V>` is `MapT[K, V]` (`LibGen.CLASSES_T2`, the mechanism of piece `cls`); refusal of an unchecked cast to a class of `CLASSES_T2` |
+| d76811ea | `enumset` | `EnumSet<E>` is `SetT[E]`; `EnumSet.noneOf` / `allOf` / `of(e)` / `of(e, rest...)` / `copyOf(Collection)` for such a place make the typed sorted set with the ordinal comparator (`LibGen.MAKERS_T2`, `rt_lg_t2.go`); refusals: `instanceof` / cast / own method / library parameter of `EnumSet` |
+| fb6166a9 | `cmaps` | `ConcurrentHashMap`, `ConcurrentMap`, `IdentityHashMap`, `EnumMap` are `MapT[K, V]` (erased objects through `mapAs_`) |
+| 696a196e | `deque` | a kind of `LibGen.KINDS`: `Queue<X>` is `QueueT[X]`, `Deque<X>` is `DequeT[X]` (typed `peek`, `poll`, `remove()`, `pop`, `push`); `PriorityQueue<X>` is `QueueT[X]`; the typed deque (`TDeque`) is native |
+| 0547b0a7 | `guava` | a kind of `LibGen.KINDS`: `PeekingIterator<X>` is `PeekingIteratorT[X]` (typed `next`, `peek`), `LoadingCache<K, V>` is `LoadingCacheT[K, V]` (typed `get`, `getUnchecked`) |
+| df2817d5 | | runtime test of kind `guava`: the `LoadingCache` half tagged `!j2go_nofntypes` (7.5) |
+| (the commit after) | | this section |
+
+**Byte identity, checked for every commit by `kind.sh` before its gate** (md5 of `cat
+go/closure/g_*.go`, the same translator binary, the runtime files of the commit in the output
+directory):
+
+| translation | must equal | sorted | enumset | cmaps | deque | guava |
+|---|---|---|---|---|---|---|
+| this kind off | the commit before (default) | f630308f = main | 831bc194 | c3afb8fb | da2191ed | 01a6e9f1 |
+| every T2 kind off | main's default, `f630308fb905a07052ac0ea004b9214c` | equal | equal | equal | equal | equal |
+| everything off (`J2GO_NOFNTYPES=1 J2GO_NOLIBGEN=all`) | main's all-off, `973b5b6d3e4f71ab1cc82872360f9759` | equal | equal | equal | equal | equal |
+| default | | 831bc194 | c3afb8fb | da2191ed | 01a6e9f1 | c7100373 |
+
+(main's two translations were made with main's translator, compiled from `git show HEAD:` of
+`tools/j2go/src/j2go/*.java` into a scratch directory, `main-classes/`.) So with the kinds of
+this stage off the translator writes exactly what main's writes; the runtime additions
+(`rt_lg_t2.go`) do not change any translation.
+
+### 7.2 The form
+
+- **`LibGen.CLASSES_T2`** (class or interface -> collection interface, kind): `cls` of piece
+  `cls` answers for these too when the kind is on (`LibGen.clsIface`), and decides whether the
+  typed family can hold the elements by the collection kind of the interface's use (the
+  classes have no collection kind of `Ctx` themselves). A method that the place's interface
+  (or one above it) does not declare is called on the object erased code knows
+  (`LibGen.served`): for these classes also the methods of other interfaces
+  (`NavigableSet.descendingSet`, `tailSet`), which for the classes of `CLASSES` go to the
+  runtime's helpers. Nothing else of `cls` changed.
+- **`LibGen.MAKERS_T2`** (kind `enumset` only): a library function, keyed by its parameters'
+  erasures, that makes a fresh collection for a typed place: `Ctx.typedMaker` reads it after
+  `Ctx.TYPED_MAKERS`, `ExprEmitter.lgMade` takes the collection kind of the class's interface
+  (`LibGen.t2Kind`). So `EnumSet.noneOf(Feature.class)` for an `EnumSet<Feature>` place is
+  `tenumSetNoneOf_(tc_p_FeatureSet_Feature, classOf_(..)).asSetT()`: the typed set in its sorted
+  mode (`rt_tsorted.go`) with `ordinalCmp_()`, the comparator of the runtime's `EnumSet`, which
+  is a `TreeSet` with that comparator (`rt_coll2.go`). Same structure, same order, typed.
+- **Kind `deque`** is a kind of `LibGen.KINDS` like `list`: the typed interfaces `QueueT` and
+  `DequeT` (`rt_lg_t2.go`) are the erased interface, the methods of `CollectionT`, and typed
+  `peek_t` / `poll_t` / `remove_0_t` / `pop_t` / `push_t` (`LibGen.TYPED_METHODS`). The view of
+  the typed deque (`tdequeView_`) has them, so a `TDeque` enters natively (`asDequeT()`,
+  `asQueueT()`, `LibGen.fromTypedColl`); the wrappers (`dequeAs_`, `queueAs_`) call the erased
+  object through the interface of the one method (the trap of 5.8). `Deque`'s methods that
+  `SequencedCollection` declares first (`getFirst`, `addFirst`, `removeLast` ...) have their
+  root there and stay the runtime's helpers on the erased object.
+- **Kind `guava`**: the same for `PeekingIterator` (typed `next_t`, `peek_t`) and `LoadingCache`
+  (typed `get_t`, `getUnchecked_t`, key and value at their types); the runtime makes both
+  erased (`Iterators.peekingIterator`, `CacheBuilder.build`), so each value is one wrapper.
+
+### 7.3 Counts
+
+Sites, counted on the pre-flip translation (`g_*.go` of the tree, the translator's own output;
+the census of JAVAISMS6.md is of the sixth flip's tree, after the post-flip steps, and its 228
+T2 sites cannot be recounted without a flip): `cdiff.sh` runs `tools/postflip/census.py` (the
+copy in `$B/wt/pf5`) on both translations and `t2sites.py` counts the T2 spellings in
+`g_[A-Z]*.go` (the census rows count `g_0*.go` too, where every new typed conversion adds a
+`tc_` descriptor with an `any` parameter and a `cast_`; that is why "fields/params declared
+any" rises). Each column is against the kind before; the last against main.
+
+| census row (`census.py`) | sorted | enumset | cmaps | deque | guava | main -> final |
+|---|---:|---:|---:|---:|---:|---:|
+| Java collections (erased): constructors | 0 | 0 | 0 | -2 | 0 | 44 -> 42 (-2) |
+| for-each via iterator objects (foreach_/each) | -14 | -1 | -1 | -1 | 0 | 782 -> 765 (-17) |
+| interface casts icast_X( | -2 | 0 | -1 | -1 | 0 | 322 -> 318 (-4) |
+| class casts to_X( / cast_[T]( | -1 | 0 | -4 | -1 | -1 | 1255 -> 1248 (-7) |
+| boxing to any: obj_( / strobj_( / .box_() / any( | -7 | -4 | -7 | +1 | +2 | 1601 -> 1586 (-15) |
+| unboxing from any: str_( / unboxing casts | -7 | 0 | -2 | 0 | 0 | 210 -> 201 (-9) |
+| Java equals/hashCode protocol | +2 | 0 | +2 | 0 | 0 | 437 -> 441 (+4) |
+| fields/params declared any (approx) | +5 | +1 | 0 | +2 | +3 | 1378 -> 1389 (+11) |
+
+| T2 spelling (`t2sites.py`, `g_[A-Z]*.go`) | sorted | enumset | cmaps | deque | guava | main -> final |
+|---|---:|---:|---:|---:|---:|---:|
+| alias uses XOf[ of T2 types | -21 | -17 | -12 | -7 | -3 | 123 -> 63 (-60) |
+| foreach_(obj_(..)) erased loops | -10 | -1 | 0 | 0 | 0 | 41 -> 30 (-11) |
+| foreach_( all | -14 | -1 | -1 | -1 | 0 | 121 -> 104 (-17) |
+| cast_[ all | -6 | -1 | -3 | -1 | -4 | 675 -> 660 (-15) |
+| str_( all | -7 | 0 | 0 | 0 | 0 | 127 -> 120 (-7) |
+| obj_( all | -12 | -5 | -5 | 0 | -1 | 481 -> 458 (-23) |
+| icast_ all | -2 | 0 | -1 | -2 | 0 | 202 -> 197 (-5) |
+| EnumSet_ calls | 0 | -25 | 0 | 0 | 0 | 31 -> 6 (-25) |
+| xAs_ wrappers | +14 | -16 | +6 | +3 | +3 | 243 -> 253 (+10) |
+| lgBox_( | +7 | 0 | +4 | 0 | 0 | 61 -> 72 (+11) |
+| X_un_( | +1 | +1 | +13 | +36 | 0 | 388 -> 439 (+51) |
+
+Reading them: the erased alias uses of the T2 types (`ImmutableSortedSetOf[`, `EnumSetOf[`,
+`DequeOf[` ...) fell from 123 to 63: what is left is `Optional_baseOf` 38 (not built),
+`ImmutableSortedSet_BuilderOf` / `ImmutableSortedMap_BuilderOf` 9 (builders, not built),
+`TreeMapOf` 5, `OrderingOf` 5, `CacheBuilderOf` 5, `RangeSetOf` 1 (7.6). Casts and boxes fell where a
+read of an element went through the erased interface before (`cast_[X](it.v)` of a for-each
+over `foreach_(obj_(s))`, `str_(..)` of a `String` element, `obj_(x)` of an argument). The
+conversions at the boundary rose instead: `X_un_(` +51 (a typed value given to an erased
+parameter or receiver: a type test, no allocation; 36 are `Deque_un_(d.asDequeT())` where an
+erased method or a `SequencedCollection` helper is called on a typed `TDeque` of rule "typed
+collections", which was `d.asDeque()` before, and 13 `Map_un_(m)` where a `cmaps` map reaches
+the String-key helpers `Map_get_s` / `Map_putIfAbsent_s`), `xAs_`
+wrappers +10 net (the T2 values made erased by the runtime now enter through a wrapper,
+while the typed `EnumSet` makers removed 16 `setAs_` of `FeatureSet`), `lgBox_(` +11.
+
+`J2GO_LIBGEN=1` of the final translation against main's (`libgen:` lines; scratch `lg-*.txt`;
+as in 5.5, the "places left erased" lines count calls of `erase`, not places):
+
+| `J2GO_LIBGEN=1` line | main | final |
+|---|---:|---:|
+| erased methods on a typed receiver (no box, no element result) | 330 | 351 |
+| erased methods on a typed receiver that box or give an element as Object | 27 | 29 |
+| erased to typed (dequeAs_) | 0 | 2 |
+| erased to typed (iterableAs_) | 56 | 55 |
+| erased to typed (loadingCacheAs_) | 0 | 2 |
+| erased to typed (mapAs_) | 48 | 58 |
+| erased to typed (peekingIteratorAs_) | 0 | 1 |
+| erased to typed (queueAs_) | 0 | 2 |
+| erased to typed (setAs_) | 40 | 35 |
+| methods of a collection class called on the erased object | 3 | 4 |
+| places left erased: a List with a wildcard (variance) | 377 | 351 |
+| places left erased: a type argument is an erased type variable | 864 | 906 |
+| places left erased: every type argument is the wildcard `?` | 267 | 256 |
+
+Refusals: the tree has none of any kind (every translation above exited 0). New refused uses
+in `selftest/refused/RefusedLib.java`: 8 (unchecked cast to a class of `CLASSES_T2`, kind
+`sorted`), 9 (`instanceof EnumSet`) and 10 (a library parameter of type `EnumSet`:
+`EnumSet.copyOf(EnumSet)`), kind `enumset`; the self-test fails unless exactly the 10 marked
+uses are refused. Kind `deque` adds no reason: the raw-use and unchecked-cast refusals cover
+`Queue` and `Deque` as interfaces of a kind; one self-test program (`Colls.deques`, which casts
+an `Object` back to `Deque<String>` on purpose) is now listed in
+`selftest/unchecked-casts.txt` with the others of its kind.
+
+Runtime lines (verify.sh, default build): 20,117 -> 20,373 (`rt_lg_t2.go` 256 lines:
+the `EnumSet` makers 42, `QueueT` / `DequeT` with wrappers and views 127, `PeekingIteratorT` /
+`LoadingCacheT` with wrappers 79, the file comment 8); off-mode extras unchanged (244); test lines 4,524 ->
+4,626 (`TestLgT2EnumSet`, `TestLgT2Deque`, `TestLgT2Guava`, `TestLgT2GuavaCache`).
+
+### 7.4 Timing (CPU, googleapis 18% subset)
+
+`proto/gast.py gasub/flags3500.txt 3` (three stages, alternating order, `--num_parallel_threads=1`),
+each kind's gate binary against the kind before's, under the lock; the output sha was
+`72b57cd286c9` in every run.
+
+| kind | before: mean (min) CPU s | after: mean (min) CPU s | change of the means |
+|---|---:|---:|---:|
+| sorted (base: main's translation, `m_t2_base`) | 165.45 (164.55) | 166.65 (164.99) | +0.7% |
+| enumset | 167.43 (166.67) | 168.61 (167.91) | +0.7% |
+| cmaps | 167.04 (165.90) | 167.62 (166.86) | +0.3% |
+| deque | 167.44 (167.22) | 167.91 (167.40) | +0.3% |
+| guava | 168.38 (167.96) | 167.61 (166.52) | -0.5% |
+| all five: main's translation (`m_t2_base`) against the final (`m_t2_guava`), 4 rounds | 165.27 (163.87) | 165.84 (165.17) | +0.3% |
+
+The spread of one binary within a session is about 1.5 s (1%), and the same binary measured in
+two sessions differed by 0.8 s (`t2sorted` 166.65 and 167.43), so no single kind's result is
+outside the noise. Neutral, as expected: the sites are in cold code (options, conformance,
+serialization, `FeatureSet`'s constants, the transpiler cache), except
+`PropertyMap.getAllKeys` / `ObjectType.getPropertyNames` (kind `sorted`: one wrapper per cached
+key set; its loops read the erased set as before), `Node.isEquivalentTo` (kind `enumset`: its
+`EnumSet<Prop>` is now the typed sorted set, the same comparisons), `LinkedIdentityHashMap`
+(kind `cmaps`: one wrapper per map, reads through it), `DataFlowAnalysis.UniqueQueue` and
+`ControlFlowAnalysis.prioritizeFromEntryNode` (kind `deque`: the work queue is a typed
+`TDeque` or a wrapped `PriorityQueue`).
+
+### 7.5 Gate lines
+
+Each kind, default translation, `$B/gate.sh libt2 t2_<kind>` under the lock (logs
+`/mnt/data/ubuntu/jm/logs/gate-t2_<kind>.log`, copies in the scratch directory). Every one
+printed `GATE OK t2_<kind>` and these lines (the runtime counts and the test line differ: see
+the table):
+
+```
+selftest: PASS
+ok  	jsgomech/closure	(cached)
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+```
+
+| gate | runtime lines | test lines | default build | runtime tests |
+|---|---:|---:|---:|---|
+| t2_sorted | 20361 | 4524 | 20117 | `ok jsgomech/closure 1.973s` (run before the gate) |
+| t2_enumset | 20409 | 4567 | 20165 | `ok 1.939s` |
+| t2_cmaps | 20409 | 4567 | 20165 | `ok 1.943s` |
+| t2_deque | 20537 | 4599 | 20293 | `ok 2.034s` |
+| t2_guava | 20617 | 4616 | 20373 | `ok 2.041s` (in the gate: the first `kind.sh` run of this kind failed to compile its new runtime test, `new_ArrayList` is `new_ArrayList_0`; fixed before its gate started) |
+
+("cached" in the gate: the same test binary had run just before it, in `kind.sh`.)
+
+Each T2 kind off alone, and everything off (`J2GO_NOFNTYPES=1 J2GO_NOLIBGEN=all`), on the final
+code (`offall.sh`: translate with the switch, build with `-tags j2go_nolibgen` (and
+`j2go_nofntypes`), `tools/prune/verify.sh`, each under the lock; logs `verify-<switch>.log`; after
+the runs the default translation was made again and was identical, md5 `c7100373`). All passed;
+the lines of each (`runtime lines: 20617  test lines: 4626`, `runtime lines of the default build:
+20373  off-mode extras (build-tagged files): 244` in every one):
+
+```
+switches: J2GO_NOLIBGEN=sorted      selftest: PASS  ok  jsgomech/closure 2.029s  checks/bundle/downlevel/advanced: MATCH (the four lines above)
+switches: J2GO_NOLIBGEN=enumset     selftest: PASS  ok  jsgomech/closure 1.993s  MATCH x4
+switches: J2GO_NOLIBGEN=cmaps       selftest: PASS  ok  jsgomech/closure 1.980s  MATCH x4
+switches: J2GO_NOLIBGEN=deque       selftest: PASS  ok  jsgomech/closure 1.997s  MATCH x4
+switches: J2GO_NOLIBGEN=guava       selftest: PASS  ok  jsgomech/closure 1.970s  MATCH x4
+switches: J2GO_NOFNTYPES=1 J2GO_NOLIBGEN=all
+selftest: PASS
+removed 0 declarations in 0 rounds
+ok  	jsgomech/closure	1.980s
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+```
+
+The first run with everything off failed: its four MATCH lines and the self-test passed, but
+the runtime tests did not compile (`TestLgT2Guava` gave a Go func literal for a
+`Function_base_e`, which with `J2GO_NOFNTYPES=1` is an interface; log `verify-alloff-first.log`).
+Fixed in commit df2817d5 (the `LoadingCache` half of the test in `rt_lg_t2_fn_test.go`, tagged
+`!j2go_nofntypes` as `rt_fn_test.go` is); the five single-kind runs above already had the fixed
+file; the run with everything off was repeated (the lines above), and the default translation
+was gated again as `t2_final` after it:
+
+```
+GATE OK t2_final
+tree: df2817d58 runtime test of kind guava: the LoadingCache part needs rule "function types" (b  dirty: 1
+selftest: PASS
+ok  	jsgomech/closure	1.946s
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+runtime lines: 20617  test lines: 4626
+runtime lines of the default build: 20373  off-mode extras (build-tagged files): 244
+```
+
+(`dirty: 1` is the untracked `.cache` link of the worktree.)
+
+### 7.6 Not built, and what each needs
+
+- **Guava `Optional`** (38 alias uses, JAVAISMS6's 34 `Optional_base_*` sites). It is a class,
+  and the runtime's `Optional_base` a struct, so the rule's form (typed interface = erased
+  interface + `_t` methods) needs: `Optional_base` among the libraries of a kind although it is
+  no interface (`Ctx.goType` case `CLS` would answer the typed name; `X_un_` a generic function
+  `Optional_base_un_[T]`), a typed interface with `isPresent`, `get_t`, `or_t`, `orNull_t`,
+  `transform`, `equals`, `unwrap_` (`or` has three overloads of one name and arity:
+  `TYPED_METHODS` keys `name/arity` cannot tell them apart), and typed makers for `of` /
+  `absent` / `fromNullable` (a generic struct with the value at its type and the erased object
+  made when erased code asks; `absent()` a per-type singleton through `single_`), which the
+  makers' path of `lgMade` (collection kinds only) does not serve. Without the makers every
+  `Optional` would be two objects. Not started.
+- **`TreeMap`** (4 places, all `TreeMap<JSDocInfo.Property<?>, Object>`): the key has type
+  arguments, which the typed family does not hold, so the kind would change nothing; and a
+  `TreeMap` made for a typed place is the typed sorted map's view, on which `TreeMap`'s own
+  navigable methods would fail (it is in `LibGen.CONCRETE`; the own-method refusal of piece
+  `cls` is only for `CLASSES`).
+- **The sorted immutables' builders and typed makers** (`ImmutableSortedSet.naturalOrder()`,
+  `copyOf`, `copyOfSorted`: 9 builder places, 10 factory calls of the census row "Guava
+  immutable collections / builders"): kind `sorted` lets the erased objects
+  enter through `setAs_` / `mapAs_`. A typed `ImmutableSortedSet` exists (`tsetImmNew_` of an
+  `icSorted_` twin, `rt_timm.go`); the builders would need `Colls`' proof as the others (5.7
+  item 2).
+- **`Ordering<T>`** (5 fields of `SymbolTable`), **`CacheBuilder<K, V>`** (5, all at `Object,
+  Object`), **`ThreadLocal<T>`** (1): classes whose methods the translator calls through the
+  runtime's static functions (`Ordering_*`, rule candidate T1's subject) or that hold nothing
+  typed; not touched.
+- **The erased Guava immutables that enter no typed place** (49 calls of the census row "Guava
+  immutable collections / builders" in the pre-flip translation, unchanged by this stage):
+  `for (x : ImmutableList.copyOf(..))` (5), arguments of the runtime's static functions
+  (`Lists.reverse`, `Lists.transform`, `ImmutableList.of(..)` as a message argument: T1's
+  subject), builders whose chain `Colls` does not type. A for-each over a fresh immutable copy
+  could be typed by its loop variable (the copy made typed, the loop `eachOf_`); not built.
+
+### 7.7 Traps met
+
+- `LibGen.check` runs before the collection kinds of `Ctx` are registered, so `cx.erase` of a
+  class of `CLASSES_T2` there is still the class: the unchecked-cast refusal for those classes
+  is decided on the type as written (a use with type arguments), not on `is(cx.erase(t))`.
+- A library method with a parameter of the class whose places the makers serve
+  (`EnumSet.copyOf(EnumSet)`) gets `cast_[*EnumSet](lgBox_(x))` for its argument, which fails
+  for a set made by the makers: refused, not served.
+- `EnumSet.of` has fixed-arity overloads (`of(e1, e2, e3)`) that the runtime does not have at
+  all; only `of(e)` and `of(e, rest...)` are makers, keyed by the parameters' erasures.
+- The self-test's `Deque` program (`lang/Colls.java`) has an intentional unchecked cast that
+  the existing refusal reaches as soon as `Deque` is a kind.
+- `tdequeView_` embeds `tlistView_`, so a typed deque's view is also a `ListT`; its own
+  `unwrap_` (rt_lg.go) keeps `lgBox_` on the deque view.
+
+### 7.8 Not verified
+
+- The 228 T2 sites of JAVAISMS6.md are sites of the sixth flip's tree; no flip was made, so how
+  many of them these kinds remove after the post-flip steps is not known. The tables of 7.3
+  are of the translator's own output, before any post-flip step, with JAVAISMS6's census
+  script but not its classifier (`classify6.py` reads the sites of `jclass` on a flipped tree).
+- No allocation profile (CHECKS with `JSGO_MEM_PROFILE`) was taken; the wrappers that kinds
+  `sorted`, `cmaps`, `deque` and `guava` add (one per value entering a typed place from an
+  erased one) and the ones `enumset` removes were not counted at run time.
+- Combinations of switches other than "one T2 kind off", "every T2 kind off" (byte-compared
+  only, not gated) and "everything off" were not translated; the switches of the earlier
+  stages were not gated off again (their translations are byte-identical to main's, 7.1).
+- Concurrent use of the `cmaps` maps (the runtime's `ConcurrentHashMap` is a `LinkedHashMap`
+  without a lock, before and after) and `ConcurrentModificationException` through the new
+  wrappers were not tested.
+- Post-flip steps: not run. Tools that follow types by name meet new names (`QueueT[`,
+  `DequeT[`, `PeekingIteratorT[`, `LoadingCacheT[`, `queueAs_`, `dequeAs_`,
+  `peekingIteratorAs_`, `loadingCacheAs_`, `tenumSet*_`, `asDequeT()` / `asQueueT()` where
+  `asDeque()` was) and fewer `XOf[` aliases (7.3).

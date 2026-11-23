@@ -413,6 +413,44 @@ type Map_EntryT[K any, V any] interface { Map_Entry; getKey_t() K; getValue_t() 
   boxes, `teq_.cmpT`), and `Splitter.splitToList` of a String takes it unboxed
   (`splitToListST_`). `selftest/lang/LibFns.java` has the twins (33 calls, counted by
   `selftest/run.sh`) and calls that must stay erased (4).
+- Kinds of rule candidate T2 (`docs/javaisms6/JAVAISMS6.md`; `LibGen.CLASSES_T2`, each kind its
+  own switch): more library types whose places hold the typed interface of their collection
+  interface, by the mechanism of piece `cls`. A method of the type that its collection
+  interface (or one above it) does not declare, including the methods of other interfaces
+  (`NavigableSet.descendingSet`), is called on the object erased code knows.
+  - Kind `sorted`: `ImmutableSortedSet<X>` and `SortedSet<X>` are `SetT[X]`,
+    `ImmutableSortedMap<K, V>` is `MapT[K, V]`. Nothing is made typed for them: an erased sorted
+    immutable enters through `setAs_` / `mapAs_` (one wrapper per value; its elements are read
+    in the erased collection's order, unboxed as the erased loop cast them). `TreeMap` is not
+    in the kind: its 4 places have a key with type arguments (`Property<?>`), and a
+    `TreeMap` made for a typed place is the typed sorted map's view, on which the class's
+    navigable methods would fail.
+  - Kind `enumset`: `EnumSet<E>` is `SetT[E]`, and what `EnumSet.noneOf` / `allOf` / `of(e)` /
+    `of(e, rest...)` / `copyOf` make for such a place (`LibGen.MAKERS_T2`) is the typed set in
+    its sorted mode with the ordinal comparator of the runtime's `EnumSet` (`rt_lg_t2.go`:
+    `tenumSetNoneOf_` ...), the typed twin of the same structure. Such a set is no `EnumSet`
+    object, so `instanceof EnumSet`, a cast to it and a method that only `EnumSet` declares are
+    refused (the tree has none), as is a library method with a parameter of the class
+    (`EnumSet.copyOf(EnumSet)`, `complementOf`: its argument may be such a set); another
+    overload (`EnumSet.of(a, b, c)`) makes the erased object, which enters through `setAs_`.
+  - Kind `cmaps`: `ConcurrentHashMap<K, V>`, `ConcurrentMap<K, V>`, `IdentityHashMap<K, V>`,
+    `EnumMap<K, V>` are `MapT[K, V]`. Nothing is made typed for them (the typed map compares
+    keys by `equals` and keeps no lock): the erased map enters through `mapAs_`, one wrapper
+    per value, and keeps its own comparison and order.
+  - Kind `deque` (a kind of `LibGen.KINDS`, as `list`): `Queue<X>` is `QueueT[X]` and `Deque<X>`
+    is `DequeT[X]` (`rt_lg_t2.go`: the erased interface, the methods of `CollectionT[X]`, and
+    typed `peek` / `poll` / `remove()`, `pop` / `push`); `PriorityQueue<X>` is `QueueT[X]`
+    (`LibGen.CLASSES_T2`). The typed deque of rule "typed collections" (`TDeque`) is native
+    through its erased view (`asDequeT()` / `asQueueT()`), so `new ArrayDeque<>()` for such a
+    place is typed by it; any other object (an erased `ArrayDeque`, a `LinkedList`, a
+    `PriorityQueue`) enters through `dequeAs_` / `queueAs_`. Of the methods that `Deque`
+    shares with `SequencedCollection` (`getFirst`, `addFirst` ...) none is typed: they are
+    calls of the runtime's helpers on the erased object, as before.
+  - Kind `guava` (a kind of `LibGen.KINDS`): `PeekingIterator<X>` is `PeekingIteratorT[X]`
+    (typed `next` and `peek`), `LoadingCache<K, V>` is `LoadingCacheT[K, V]` (typed `get` and
+    `getUnchecked`). The runtime makes both erased (`Iterators.peekingIterator`,
+    `CacheBuilder.build`), so a value enters through `peekingIteratorAs_` / `loadingCacheAs_`,
+    one wrapper per value.
 
 Refused (`typed library interfaces: refused: File.java:line: ...`, nothing is written):
 
@@ -430,14 +468,19 @@ Refused (`typed library interfaces: refused: File.java:line: ...`, nothing is wr
   collection's view, no object of that class. The tree has none. (The immutable classes are
   not refused: erased code sees an immutable typed collection as its twin, Guava's object.)
 
+- an unchecked cast to a use of a class of `LibGen.CLASSES_T2` whose kind is on
+  (`(ImmutableSortedSet<String>) sortedOfAny`), for the reason above (tools/j2go/unchecked-casts.txt
+  applies too; the tree has none);
+- `instanceof` of, a cast to, a method declared only by, or a library parameter of a class
+  whose typed places the makers of `LibGen.MAKERS_T2` serve (`EnumSet`, kind `enumset`);
 - a method that a class of `LibGen.CONCRETE` declares itself (no method of an interface or of
   `Object`: `ArrayList.ensureCapacity`), called on a receiver of the class with type arguments,
   unless `LibGen.OWN` lists it (piece `cls`; the tree has none).
 
-`tools/j2go/selftest/refused/RefusedLib.java` has one use of each kind (7); the self-test
+`tools/j2go/selftest/refused/RefusedLib.java` has one use of each kind (10); the self-test
 fails unless the translator refuses exactly those and writes nothing.
 
-Each kind and piece is a switch: `J2GO_NOLIBGEN=iter,coll,list,set,map,makers,views,place,cov,elems,wide,nncoll,readers,cls,meth,fns`
+Each kind and piece is a switch: `J2GO_NOLIBGEN=iter,coll,list,set,map,makers,views,place,cov,elems,wide,nncoll,readers,cls,meth,fns,sorted,enumset,cmaps,deque,guava`
 (`all`: every one). A translation with any of them off is built with `-tags j2go_nolibgen`
 (`tools/prune/verify.sh` and the self-test do that when `J2GO_NOLIBGEN` is set): the erased
 factories that only such a translation names are in `go/closure/rt_lg_erased.go`, outside the

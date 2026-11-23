@@ -288,6 +288,7 @@ abstract class ExprEmitter extends Base {
     TypeMirror from = typeOf(t);
     if (from == null || from.getKind() != TypeKind.DECLARED) return null;
     Ctx.CollKind k = cx.collKindOf(from);
+    if (k == null) k = cx.lg.t2Kind(from);
     if (k == null || k.builds != null || k == cx.entryKind) return null;
     List<TypeMirror> args = cx.typedArgs(k, from);
     if (args == null) return null;

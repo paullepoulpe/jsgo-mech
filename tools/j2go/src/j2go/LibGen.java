@@ -21,7 +21,8 @@ import javax.lang.model.type.*;
  * </pre>
  *
  * Kinds: `iter` (java.util.Iterator, java.lang.Iterable), `coll` (java.util.Collection), `list`
- * (java.util.List), `set` (java.util.Set), `map` (java.util.Map, java.util.Map.Entry).
+ * (java.util.List), `set` (java.util.Set), `map` (java.util.Map, java.util.Map.Entry), `deque`
+ * (java.util.Queue, java.util.Deque: rule candidate T2), `guava` (PeekingIterator, LoadingCache: T2).
  *
  * - Types: the interfaces of an enabled kind are typed declarations (Ctx.typedClasses).
  *   `Iterator<Node>` is `IteratorT[Node]`. A wildcard is its bound, an erased type variable what
@@ -54,6 +55,10 @@ final class LibGen {
     KINDS.put("list", List.of("java.util.List"));
     KINDS.put("set", List.of("java.util.Set"));
     KINDS.put("map", List.of("java.util.Map", "java.util.Map.Entry"));
+    // (rule candidate T2: Queue and Deque, with their typed methods in rt_lg_t2.go)
+    KINDS.put("deque", List.of("java.util.Queue", "java.util.Deque"));
+    // (rule candidate T2: two Guava interfaces whose values the runtime makes erased)
+    KINDS.put("guava", List.of("com.google.common.collect.PeekingIterator", "com.google.common.cache.LoadingCache"));
   }
 
   /**
@@ -67,7 +72,11 @@ final class LibGen {
       "java.util.List", Set.of("get/1"),
       "java.util.Set", Set.of(),
       "java.util.Map", Set.of("get/1", "keySet/0", "values/0", "entrySet/0"),
-      "java.util.Map.Entry", Set.of("getKey/0", "getValue/0"));
+      "java.util.Map.Entry", Set.of("getKey/0", "getValue/0"),
+      "java.util.Queue", Set.of("peek/0", "poll/0", "remove/0"),
+      "java.util.Deque", Set.of("pop/0", "push/1"),
+      "com.google.common.collect.PeekingIterator", Set.of("peek/0"),
+      "com.google.common.cache.LoadingCache", Set.of("getUnchecked/1", "get/1"));
 
   /**
    * Piece `meth` (J2GO_NOLIBGEN=meth is the translation without it): the methods that take or
@@ -102,6 +111,92 @@ final class LibGen {
       Map.entry("com.google.common.collect.ImmutableCollection", "java.util.Collection"),
       Map.entry("com.google.common.collect.ImmutableMap", "java.util.Map"));
 
+  /**
+   * Rule candidate T2 (docs/javaisms6): more library collection types whose places hold the typed
+   * interface of their collection interface, as piece `cls` does for CLASSES, each kind behind
+   * its own switch (the value: the interface, then the kind; J2GO_NOLIBGEN=kind is the
+   * translation without it). The class's own methods are called on the object erased code knows.
+   */
+  static final Map<String, String[]> CLASSES_T2 = Map.ofEntries(
+      Map.entry("com.google.common.collect.ImmutableSortedSet", new String[] {"java.util.Set", "sorted"}),
+      Map.entry("com.google.common.collect.ImmutableSortedMap", new String[] {"java.util.Map", "sorted"}),
+      Map.entry("java.util.SortedSet", new String[] {"java.util.Set", "sorted"}),
+      Map.entry("java.util.EnumSet", new String[] {"java.util.Set", "enumset"}),
+      Map.entry("java.util.concurrent.ConcurrentHashMap", new String[] {"java.util.Map", "cmaps"}),
+      Map.entry("java.util.concurrent.ConcurrentMap", new String[] {"java.util.Map", "cmaps"}),
+      Map.entry("java.util.IdentityHashMap", new String[] {"java.util.Map", "cmaps"}),
+      Map.entry("java.util.EnumMap", new String[] {"java.util.Map", "cmaps"}),
+      Map.entry("java.util.PriorityQueue", new String[] {"java.util.Queue", "deque"}));
+
+  /**
+   * The typed makers of the kinds of CLASSES_T2 (rt_lg_t2.go): a library function ("class.method"
+   * with the erasures of its parameters) that makes a fresh collection, for a place of the typed
+   * interface: the runtime's function that makes the typed collection of the same kind (the
+   * value: the function, the collection kind of Ctx, the kind of CLASSES_T2). Another overload
+   * (`EnumSet.of(e1, e2, e3)`) makes the erased object, which enters through a wrapper; one with
+   * a parameter of the class itself (`EnumSet.copyOf(EnumSet)`, `complementOf`) is refused.
+   */
+  static final Map<String, String[]> MAKERS_T2 = Map.ofEntries(
+      Map.entry("java.util.EnumSet.noneOf(java.lang.Class)", new String[] {"tenumSetNoneOf_", "set", "enumset"}),
+      Map.entry("java.util.EnumSet.allOf(java.lang.Class)", new String[] {"tenumSetAllOf_", "set", "enumset"}),
+      Map.entry("java.util.EnumSet.of(java.lang.Enum)", new String[] {"tenumSetOf_", "set", "enumset"}),
+      Map.entry("java.util.EnumSet.of(java.lang.Enum,java.lang.Enum[])", new String[] {"tenumSetOfArr_", "set", "enumset"}),
+      Map.entry("java.util.EnumSet.copyOf(java.util.Collection)", new String[] {"tenumSetCopyOf_", "set", "enumset"}));
+
+  /** The class whose places the makers of a kind of MAKERS_T2 serve: a collection made for such a place is no object of the class. */
+  static final Map<String, String> MADE_T2 = Map.of("enumset", "java.util.EnumSet");
+
+  /** Whether the places of class qn (its kind on) may hold a collection that MAKERS_T2 made. */
+  static boolean madeT2(String qn) {
+    for (var e : MADE_T2.entrySet()) if (on(e.getKey()) && qn.equals(e.getValue())) return true;
+    return false;
+  }
+
+  /** The entry of MAKERS_T2 for library function m (its kind on), in the form of Ctx.TYPED_MAKERS, or null. */
+  static String[] t2Maker(ExecutableElement m) {
+    String[] e = MAKERS_T2.get(sigKey(m));
+    return e != null && on(e[2]) ? new String[] {e[0], e[1], null} : null;
+  }
+
+  /** "class.method(erasures of the parameters)" of library method m. */
+  static String sigKey(ExecutableElement m) {
+    StringBuilder k = new StringBuilder(((TypeElement) m.getEnclosingElement()).getQualifiedName() + "." + m.getSimpleName() + "(");
+    for (VariableElement p : m.getParameters()) {
+      TypeMirror t = p.asType();
+      k.append(k.charAt(k.length() - 1) == '(' ? "" : ",").append(erasureName(t));
+    }
+    return k.append(")").toString();
+  }
+
+  private static String erasureName(TypeMirror t) {
+    if (t.getKind() == TypeKind.ARRAY) return erasureName(((ArrayType) t).getComponentType()) + "[]";
+    if (t.getKind() == TypeKind.TYPEVAR) return erasureName(((TypeVariable) t).getUpperBound());
+    if (t.getKind() == TypeKind.DECLARED) return Ctx.typeElement(t).getQualifiedName().toString();
+    return t.toString();
+  }
+
+  /** The collection kind (Ctx) of the typed collection that a maker's call of type t makes for a typed place (ExprEmitter.lgMade), or null. */
+  Ctx.CollKind t2Kind(TypeMirror t) {
+    if (!t2(t) || !madeT2(Ctx.typeElement(t).getQualifiedName().toString())) return null;
+    DeclaredType v = cx.superView(t, cx.elems.getTypeElement(CLASSES_T2.get(Ctx.typeElement(t).getQualifiedName().toString())[0]));
+    return v == null ? null : cx.collKindOf(v);
+  }
+
+  /** The collection interface whose typed interface a place of class qn holds (CLASSES, CLASSES_T2 where its kind is on), or null. */
+  static String clsIface(String qn) {
+    String iq = CLASSES.get(qn);
+    if (iq != null) return iq;
+    String[] e = CLASSES_T2.get(qn);
+    return e != null && on(e[1]) ? e[0] : null;
+  }
+
+  /** Whether t is a use of a class of CLASSES_T2 whose kind is on. */
+  static boolean t2(TypeMirror t) {
+    if (t == null || t.getKind() != TypeKind.DECLARED) return false;
+    String[] e = CLASSES_T2.get(Ctx.typeElement(t).getQualifiedName().toString());
+    return e != null && on(e[1]);
+  }
+
   /** Above 0 while a type is erased as the runtime declares it (rt): a collection class stays the class. */
   int rtDepth;
   /** Above 0 while cls decides a type: Go type names are given in the order of their first use, so none may be asked for. */
@@ -119,7 +214,7 @@ final class LibGen {
     DeclaredType d = (DeclaredType) t;
     if (d.getTypeArguments().isEmpty()) return null;
     String qn = Ctx.typeElement(t).getQualifiedName().toString();
-    String iq = CLASSES.get(qn);
+    String iq = clsIface(qn);
     if (iq == null) return null;
     TypeElement lib = cx.elems.getTypeElement(iq);
     if (!isLib(lib)) return null;
@@ -129,6 +224,8 @@ final class LibGen {
       TypeMirror n = erase(v);
       Ctx.CollKind ck = cx.collKindOf(t);
       if (qn.endsWith(".ImmutableCollection")) ck = cx.collKindOf(cx.types.getDeclaredType(cx.elems.getTypeElement("java.util.List"), d.getTypeArguments().toArray(new TypeMirror[0])));
+      // (a class of CLASSES_T2: whether the typed family can hold the elements of its interface's use)
+      if (!CLASSES.containsKey(qn)) ck = cx.collKindOf(v);
       deciding++;
       boolean holds = ck != null && cx.typedArgs(ck, t) != null;
       deciding--;
@@ -153,6 +250,11 @@ final class LibGen {
    */
   boolean served(ExecutableElement e, TypeMirror site) {
     TypeElement ro = cx.ownerOf(cx.root(e));
+    // (a class of CLASSES_T2: a method of another interface, NavigableSet.descendingSet, is the class's own)
+    if (site.getKind() == TypeKind.DECLARED && CLASSES_T2.containsKey(Ctx.typeElement(site).getQualifiedName().toString()) && !ro.getQualifiedName().contentEquals("java.lang.Object")) {
+      TypeMirror c = cls(site);
+      return c != null && cx.types.isSubtype(cx.types.erasure(c), cx.types.erasure(ro.asType()));
+    }
     // (a method of Object; a method of another interface, SequencedCollection.getFirst: the object is converted as any value of the place's interface)
     if (ro.getQualifiedName().contentEquals("java.lang.Object") || ro.getKind().isInterface() && !isLib(ro)) return true;
     TypeMirror c = cls(site);
@@ -531,6 +633,8 @@ final class LibGen {
       case "java.util.Set": as = k.name.equals("set") ? ".asSetT()" : null; break;
       case "java.util.Map": as = k.name.equals("map") ? ".asMapT()" : null; break;
       case "java.util.Map.Entry": as = k == cx.entryKind ? ".asEntryT()" : null; break;
+      case "java.util.Queue": as = k.name.equals("deque") ? ".asQueueT()" : null; break;
+      case "java.util.Deque": as = k.name.equals("deque") ? ".asDequeT()" : null; break;
       default: as = null;
     }
     if (as == null) return null;
@@ -711,6 +815,7 @@ final class LibGen {
         if (target == null || target.getKind() != TypeKind.DECLARED || !on("place")) return;
         String qn = Ctx.typeElement(target).getQualifiedName().toString();
         if (CONCRETE.contains(qn)) refuse(at, what + " " + qn + " (a collection made for a typed place is no object of that class)");
+        if (madeT2(qn)) refuse(at, what + " " + qn + " (a collection made for a typed place by LibGen.MAKERS_T2 is no object of that class)");
       }
 
       @Override
@@ -719,7 +824,7 @@ final class LibGen {
         raw(t, target, 0);
         concrete(t, target, "cast to");
         TypeMirror from = trees.getTypeMirror(new TreePath(getCurrentPath(), t.getExpression()));
-        if (target != null && from != null && target.getKind() == TypeKind.DECLARED && isLib(Ctx.typeElement(target)) && is(cx.erase(target))
+        if (target != null && from != null && target.getKind() == TypeKind.DECLARED && (isLib(Ctx.typeElement(target)) && is(cx.erase(target)) || t2(target) && !((DeclaredType) target).getTypeArguments().isEmpty())
             && !allUnbounded((DeclaredType) target) && from.getKind() != TypeKind.NULL && !cx.types.isSubtype(from, target) && !uncheckedOk.contains(where())) {
           // an unchecked cast: the object may be a collection of other elements (a typed collection
           // made for another place, which refuses an element that Java's would take)
@@ -744,12 +849,16 @@ final class LibGen {
             && !m.getModifiers().contains(Modifier.STATIC)) {
           TypeMirror rt = trees.getTypeMirror(new TreePath(new TreePath(getCurrentPath(), ms), ms.getExpression()));
           String qn = rt != null && rt.getKind() == TypeKind.DECLARED && !((DeclaredType) rt).getTypeArguments().isEmpty() ? Ctx.typeElement(rt).getQualifiedName().toString() : "";
+          if (madeT2(qn) && ownMethod(m, Ctx.typeElement(rt)) && !(m.getModifiers().contains(Modifier.STATIC))) {
+            refuse(t, "method " + m.getSimpleName() + " of the class " + qn + " (a collection made for its typed place by LibGen.MAKERS_T2 does not have it)");
+          }
           if (CONCRETE.contains(qn) && CLASSES.containsKey(qn) && isLib(cx.elems.getTypeElement(CLASSES.get(qn))) && ownMethod(m, Ctx.typeElement(rt))) {
             if (!OWN.containsKey(((TypeElement) m.getEnclosingElement()).getQualifiedName() + "." + m.getSimpleName())) {
               refuse(t, "method " + m.getSimpleName() + " of the collection class " + qn + " (the view of a typed collection does not have it; LibGen.OWN)");
             }
           }
         }
+        madeParam(t);
         return super.visitMethodInvocation(t, v);
       }
 
@@ -772,6 +881,17 @@ final class LibGen {
           todo.addAll(cx.types.directSupertypes(st));
         }
         return true;
+      }
+
+      /** A library function or method with a parameter of a class whose typed places MAKERS_T2 serve (EnumSet.copyOf(EnumSet), complementOf): its argument may be no object of the class. */
+      void madeParam(MethodInvocationTree t) {
+        if (!(trees.getElement(new TreePath(getCurrentPath(), t.getMethodSelect())) instanceof ExecutableElement m) || cx.isSource((TypeElement) m.getEnclosingElement())) return;
+        for (VariableElement p : m.getParameters()) {
+          if (p.asType().getKind() == TypeKind.DECLARED && madeT2(Ctx.typeElement(p.asType()).getQualifiedName().toString())) {
+            refuse(t, "library method " + m.getEnclosingElement().getSimpleName() + "." + m.getSimpleName() + " with a parameter of " + Ctx.typeElement(p.asType()).getQualifiedName() + " (a collection made for a typed place by LibGen.MAKERS_T2 is no object of that class)");
+            return;
+          }
+        }
       }
 
       @Override

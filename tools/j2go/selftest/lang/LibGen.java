@@ -1,12 +1,19 @@
 package lang;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Iterators;
+import com.google.common.collect.PeekingIterator;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSortedMap;
+import com.google.common.collect.ImmutableSortedSet;
 import java.util.AbstractCollection;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -14,15 +21,24 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
+import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.PriorityQueue;
+import java.util.Queue;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Rule "typed library interfaces" (j2go.LibGen): Iterator and Iterable with their typed methods.
@@ -1328,7 +1344,278 @@ public class LibGen {
     return r;
   }
 
+  // ---- rule candidate T2: the library types that piece `cls` did not reach
+
+  static ImmutableSortedSet<String> sortedOf(String... xs) {
+    return ImmutableSortedSet.copyOf(Arrays.asList(xs));
+  }
+
+  static String firsts(ImmutableSortedSet<String> s) {
+    String r = "";
+    for (String x : s) {
+      r += x.charAt(0);
+    }
+    return r;
+  }
+
+  /** Kind `sorted`: ImmutableSortedSet, ImmutableSortedMap, SortedSet at typed places. */
+  static String sorted() {
+    String r = "";
+    ImmutableSortedSet<String> s = sortedOf("b", "a", "c");
+    r += s + "" + s.size() + s.contains("a") + s.contains("z") + firsts(s) + s.asList().get(0);
+    ImmutableSortedSet<String> s2 = ImmutableSortedSet.<String>naturalOrder().add("y").add("x").addAll(s).build();
+    r += s2 + "" + s2.equals(sortedOf("a", "b", "c", "x", "y")) + (s2.hashCode() == ImmutableSet.copyOf(Arrays.asList("a", "b", "c", "x", "y")).hashCode()) + s2.descendingSet() + s2.tailSet("c", false);
+    ImmutableSortedSet<Integer> empty = ImmutableSortedSet.of();
+    r += empty.isEmpty() + "" + empty;
+    TreeSet<String> ts = new TreeSet<>();
+    ts.add("q");
+    ts.add("p");
+    ImmutableSortedSet<String> s3 = ImmutableSortedSet.copyOfSorted(ts);
+    Set<String> asSet = s3;
+    Collection<String> asColl = s3;
+    r += s3 + "" + asSet.contains("p") + asColl.size() + (asSet == s3);
+    Object o = s3;
+    r += (o instanceof ImmutableSortedSet) + "" + (o instanceof Set) + (o == s3) + o.equals(ts);
+    try {
+      s3.add("z");
+      r += "added";
+    } catch (UnsupportedOperationException e) {
+      r += "uoe";
+    }
+    SortedSet<String> ss = Collections.unmodifiableSortedSet(ts);
+    ts.add("o");
+    r += ss + "" + ss.size() + ss.contains("o");
+    for (String x : ss) {
+      r += x;
+    }
+    ImmutableSortedMap<String, Integer> m = ImmutableSortedMap.<String, Integer>naturalOrder().put("b", 2).put("a", 1).buildOrThrow();
+    for (Map.Entry<String, Integer> e : m.entrySet()) {
+      r += e.getKey() + e.getValue();
+    }
+    r += m.get("a") + "" + m.get("z") + m.keySet() + m.values() + m + m.containsKey("b") + m.size();
+    Map<String, Integer> lhm = new LinkedHashMap<>();
+    lhm.put("z", 26);
+    lhm.put("y", 25);
+    ImmutableSortedMap<String, Integer> m2 = ImmutableSortedMap.copyOf(lhm);
+    r += m2 + "" + m2.equals(lhm) + m2.keySet();
+    int sum = 0;
+    for (int v : m2.values()) {
+      sum += v;
+    }
+    r += sum;
+    ImmutableSortedSet<String> nul = null;
+    r += (nul == null);
+    try {
+      r += nul.size();
+    } catch (NullPointerException e) {
+      r += "npe";
+    }
+    Object back = s;
+    ImmutableSortedSet<?> w = (ImmutableSortedSet<?>) back;
+    r += w.size();
+    // (a cast of an ImmutableSet to ImmutableSortedSet passes in Go: both are the runtime's ImmutableCollection, with or without the kind)
+    Map<String, ImmutableSortedSet<String>> byKey = new LinkedHashMap<>();
+    byKey.put("k", s);
+    r += byKey.get("k").asList().get(2) + (byKey.get("k") == s) + byKey;
+    return r;
+  }
+
+  enum Hue {
+    RED, GREEN, BLUE, GRAY
+  }
+
+  static EnumSet<Hue> warm() {
+    return EnumSet.of(Hue.RED);
+  }
+
+  static EnumSet<Hue> union(Set<Hue> a, Set<Hue> b) {
+    EnumSet<Hue> r = a.isEmpty() ? EnumSet.noneOf(Hue.class) : EnumSet.copyOf(a);
+    r.addAll(b);
+    return r;
+  }
+
+  /** Kind `enumset`: EnumSet at typed places, made by the typed makers (ordered by ordinal). */
+  static String enumSets() {
+    String r = "";
+    EnumSet<Hue> none = EnumSet.noneOf(Hue.class);
+    none.add(Hue.BLUE);
+    none.add(Hue.RED);
+    none.add(Hue.BLUE);
+    r += none + "" + none.size() + none.contains(Hue.RED) + none.contains(Hue.GREEN) + none.remove(Hue.RED) + none;
+    EnumSet<Hue> all = EnumSet.allOf(Hue.class);
+    for (Hue h : all) {
+      r += h.ordinal();
+    }
+    EnumSet<Hue> some = EnumSet.of(Hue.GRAY, new Hue[] {Hue.GREEN, Hue.RED});
+    r += some + "" + warm() + union(some, warm()) + union(EnumSet.noneOf(Hue.class), all) + union(new LinkedHashSet<>(Arrays.asList(Hue.GRAY, Hue.RED)), warm());
+    Set<Hue> asSet = some;
+    Collection<Hue> asColl = some;
+    r += asSet.contains(Hue.GRAY) + "" + asColl.size() + (asSet == some) + some.equals(EnumSet.copyOf(Arrays.asList(Hue.RED, Hue.GREEN, Hue.GRAY))) + (some.hashCode() == new LinkedHashSet<>(some).hashCode());
+    some.removeAll(warm());
+    r += some + "" + some.containsAll(EnumSet.of(Hue.GREEN)) + some.isEmpty();
+    Object o = some;
+    r += (o instanceof Set) + "" + (o == some) + o.equals(EnumSet.of(Hue.GREEN, new Hue[] {Hue.GRAY})) + o;
+    EnumSet<Hue> copy = EnumSet.copyOf((Collection<Hue>) all);
+    copy.remove(Hue.BLUE);
+    r += copy + "" + all.size() + ImmutableSet.copyOf(copy);
+    EnumSet<Hue> nul = null;
+    r += (nul == null);
+    try {
+      r += nul.size();
+    } catch (NullPointerException e) {
+      r += "npe";
+    }
+    Map<String, EnumSet<Hue>> byKey = new LinkedHashMap<>();
+    byKey.put("k", copy);
+    r += byKey.get("k").contains(Hue.GRAY) + "" + (byKey.get("k") == copy) + byKey;
+    Iterator<Hue> it = all.iterator();
+    it.next();
+    it.remove();
+    r += all;
+    return r;
+  }
+
+  /** Kind `cmaps`: ConcurrentHashMap, ConcurrentMap, IdentityHashMap, EnumMap at typed places (erased objects through mapAs_). */
+  static String cmaps() {
+    String r = "";
+    ConcurrentHashMap<String, Integer> chm = new ConcurrentHashMap<>();
+    chm.put("b", 2);
+    chm.put("a", 1);
+    r += chm.get("a") + "" + chm.get("z") + chm.size() + chm.containsKey("b") + chm.remove("b") + chm;
+    ConcurrentMap<String, Long> cm = new ConcurrentHashMap<>();
+    cm.put("x", 5L);
+    r += cm.putIfAbsent("x", 6L) + "" + cm.putIfAbsent("y", 7L) + cm.get("y");
+    long sum = 0;
+    for (Map.Entry<String, Long> e : cm.entrySet()) {
+      sum += e.getValue();
+      r += e.getKey();
+    }
+    r += sum;
+    Map<String, Long> asMap = cm;
+    r += asMap.get("x") + "" + (asMap == cm);
+    Object o = cm;
+    r += (o instanceof ConcurrentMap) + "" + (o == cm) + (o instanceof Map);
+    IdentityHashMap<Eq, String> ids = new IdentityHashMap<>();
+    Eq e1 = new Eq("q"), e2 = new Eq("q");
+    ids.put(e1, "one");
+    ids.put(e2, "two");
+    r += ids.size() + "" + ids.get(e1) + ids.get(e2) + ids.get(new Eq("q")) + ids.containsKey(e1) + ids.remove(e1) + ids.size();
+    EnumMap<Hue, String> em = new EnumMap<>(Hue.class);
+    em.put(Hue.GRAY, "g");
+    em.put(Hue.RED, "r");
+    for (Map.Entry<Hue, String> e : em.entrySet()) {
+      r += e.getKey() + e.getValue();
+    }
+    r += em.get(Hue.RED) + em.get(Hue.BLUE) + em.keySet() + em.values() + em;
+    Map<String, ConcurrentMap<String, Long>> nested = new LinkedHashMap<>();
+    nested.put("n", cm);
+    r += nested.get("n").get("x") + "" + (nested.get("n") == cm);
+    ConcurrentHashMap<String, Integer> nul = null;
+    r += (nul == null);
+    return r;
+  }
+
+  static Deque<String> stackOf(String... xs) {
+    Deque<String> d = new ArrayDeque<>();
+    for (String x : xs) {
+      d.push(x);
+    }
+    return d;
+  }
+
+  static String drain(Queue<Dog> q) {
+    String r = "";
+    while (!q.isEmpty()) {
+      r += q.poll().name;
+    }
+    return r + q.poll();
+  }
+
+  /** Kind `deque`: Queue and Deque as typed interfaces; the typed deque natively, an erased one through a wrapper. */
+  static String deques() {
+    String r = "";
+    Deque<String> d = stackOf("a", "b", "c");
+    r += d.peek() + d.pop() + d.size() + d + d.contains("a");
+    d.push("z");
+    for (String x : d) {
+      r += x;
+    }
+    Queue<String> q = d;
+    r += q.peek() + q.poll() + q.remove() + q.size() + (q == d);
+    Deque<String> empty = new ArrayDeque<>();
+    r += empty.peek() + "" + empty.poll() + empty.isEmpty();
+    try {
+      empty.pop();
+      r += "popped";
+    } catch (NoSuchElementException e) {
+      r += "nse";
+    }
+    Deque<Dog> linked = new LinkedList<>();
+    linked.push(new Dog("l1"));
+    linked.push(new Dog("l2"));
+    r += linked.peek().name + linked.pop().name + linked.size();
+    Queue<Dog> pq = new PriorityQueue<>((x, y) -> x.name.compareTo(y.name));
+    pq.add(new Dog("p3"));
+    pq.add(new Dog("p1"));
+    pq.add(new Dog("p2"));
+    r += pq.peek().name + drain(pq);
+    PriorityQueue<Dog> pq2 = new PriorityQueue<>((x, y) -> y.name.compareTo(x.name));
+    pq2.add(new Dog("q1"));
+    pq2.add(new Dog("q2"));
+    r += drain(pq2);
+    Queue<Dog> fifo = new ArrayDeque<>();
+    fifo.add(new Dog("f1"));
+    fifo.add(new Dog("f2"));
+    r += drain(fifo);
+    Object o = d;
+    r += (o instanceof Deque) + "" + (o == d) + (o instanceof Collection);
+    Map<String, Deque<String>> stacks = new LinkedHashMap<>();
+    stacks.computeIfAbsent("k", k -> new ArrayDeque<>()).push("s1");
+    stacks.get("k").push("s2");
+    r += stacks.get("k").peek() + stacks + stacks.get("k").pop() + stacks.get("k").size();
+    Deque<String> nul = null;
+    r += (nul == null);
+    return r;
+  }
+
+  static String pairs(PeekingIterator<Dog> it) {
+    String r = "";
+    while (it.hasNext()) {
+      Dog d = it.next();
+      r += d.name + (it.hasNext() ? it.peek().name : "-");
+    }
+    return r;
+  }
+
+  /** Kind `guava`: PeekingIterator and LoadingCache as typed interfaces (the runtime's objects through wrappers). */
+  static String guava() {
+    String r = "";
+    PeekingIterator<String> it = Iterators.peekingIterator(Arrays.asList("a", "b").iterator());
+    r += it.peek() + it.next() + it.peek() + it.hasNext() + it.next() + it.hasNext();
+    r += pairs(Iterators.peekingIterator(Arrays.asList(new Dog("d1"), new Dog("d2"), new Dog("d3")).iterator()));
+    Iterator<String> asIt = Iterators.peekingIterator(Arrays.asList("x").iterator());
+    r += asIt.next() + asIt.hasNext();
+    LoadingCache<String, Integer> cache = CacheBuilder.newBuilder().build(CacheLoader.from(s -> s.length()));
+    r += cache.getUnchecked("abc") + "," + cache.getUnchecked("abc") + "," + cache.size() + "," + cache.getUnchecked("z");
+    LoadingCache<Dog, String> names = CacheBuilder.newBuilder().maximumSize(1).build(new CacheLoader<Dog, String>() {
+      @Override
+      public String load(Dog d) {
+        return d.name + "!";
+      }
+    });
+    Dog k = new Dog("k");
+    r += names.getUnchecked(k) + names.getUnchecked(k) + names.size();
+    Object o = cache;
+    r += (o instanceof LoadingCache) + "" + (o == cache);
+    return r;
+  }
+
   public static String run() {
+    p(guava());
+    p(deques());
+    p(cmaps());
+    p(enumSets());
+    p(sorted());
     p(classes());
     p(methods());
     p(maps());
