@@ -49,7 +49,7 @@ func NodeModuleResolver_buildNodeModulesFoldersRegistry(modulePaths IterableT[st
 		if comparison != 0 {
 			return comparison
 		}
-		return String_compareTo(a, b)
+		return utf16Compare_(a, b)
 	}))
 	for modulePath := range elemsT_(modulePaths) {
 		for moduleRootPath := range elemsT_(moduleRootPaths) {
