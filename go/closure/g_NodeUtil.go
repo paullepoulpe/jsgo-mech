@@ -482,8 +482,8 @@ func NodeUtil_isParsableBigInteger(s string, radix int32) bool {
 	if start == String_length(s) {
 		return false
 	}
-	for i := int32(start); i < String_length(s); i++ {
-		if Character_digit(String_charAt(s, i), radix) < 0 {
+	for _, u_ := range stringUnitsFrom_(s, int32(start)) {
+		if Character_digit(u_, radix) < 0 {
 			return false
 		}
 	}
