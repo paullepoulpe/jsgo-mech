@@ -32,6 +32,7 @@ type DependencyInfo_Require struct {
 	getSymbol_  string
 	getRawText_ string
 	getType_    DependencyInfo_Require_Type
+	hashMemo_   int32 // hashCode, once computed, when it is not 0 (post-flip step hashmemo)
 }
 
 func (this *DependencyInfo_Require) zero_DependencyInfo_Require() {
@@ -120,6 +121,16 @@ func (this *DependencyInfo_Require) equals(p0 any) bool {
 }
 
 func (this *DependencyInfo_Require) hashCode() int32 {
+	if h := this.hashMemo_; h != 0 {
+		return h
+	}
+	h := this.hashCodeOnce_()
+	this.hashMemo_ = h
+	return h
+}
+
+// hashCodeOnce_ computes hashCode: a function of data that is final in the object (post-flip step hashmemo).
+func (this *DependencyInfo_Require) hashCodeOnce_() int32 {
 	var h int32
 	h = h*31 + strhash_(this.getSymbol_)
 	h = h*31 + strhash_(this.getRawText_)
