@@ -221,20 +221,7 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 	if !suppressions.isEmpty() {
 		for suppression := range elemsBy_(suppressions.entrySet(), icast_Map_Entry) {
 			var warnings []string = arrmap_(setAs_(tc_string, icast_Set(suppression.getKey())).toArray(arrmap_(newstrarr_(0), strobj_)), str_)
-			func() {
-				arr_15 := warnings
-				tmp_16 := arrmap_(arr_15, strobj_)
-				Arrays_sort_ObjectArr_Comparator(tmp_16, func() Comparator[any] {
-					f_ := Comparator_naturalOrder[string]()
-					if f_ == nil {
-						return nil
-					}
-					return func(p0 any, p1 any) int32 { return f_(str_(p0), str_(p1)) }
-				}())
-				for i_ := range tmp_16 {
-					arr_15[i_] = str_(tmp_16[i_])
-				}
-			}()
+			sortArrF_(warnings, Comparator_naturalOrder[string]())
 			var text string = str_(suppression.getValue())
 			var sb strBuilder_
 			sb.append("@suppress {").append(Joiner_on_char(',').join_ObjectArr(arrmap_(warnings, strobj_))).append("}")

@@ -181,7 +181,7 @@ func (this *SerializeTypesToPointers_StreamObjectUuidsJson) writeJson(jsonWriter
 		for jstype := range elemsT_(entry.getValue_t()) {
 			jstypes = append(jstypes, jstype.toString())
 		}
-		Collections_sort(sliceView_(tc_string, jstypes))
+		sortSliceF_(jstypes, compareStrNat_)
 		for _, typeName := range jstypes {
 			jsonWriter.stringValue(Optional_of[string](typeName))
 		}
