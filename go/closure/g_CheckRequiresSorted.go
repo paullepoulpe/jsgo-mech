@@ -398,10 +398,14 @@ func CheckRequiresSorted_DestructuringBinding_of(exportedName string, localName 
 	return new_CheckRequiresSorted_DestructuringBinding(exportedName, localName, isShorthandProperty)
 }
 
-func (this *CheckRequiresSorted_DestructuringBinding) compareTo(other_ any) int32 {
-	var other *CheckRequiresSorted_DestructuringBinding = cast_[*CheckRequiresSorted_DestructuringBinding](other_)
-	_ = other
+// compareToT_ is compareTo with the parameter types the class declares (implsplit).
+func (this *CheckRequiresSorted_DestructuringBinding) compareToT_(other *CheckRequiresSorted_DestructuringBinding) int32 {
 	return ComparisonChain_start().compare(strobj_(this.exportedName()), strobj_(other.exportedName())).compare(strobj_(this.localName()), strobj_(other.localName())).result()
+}
+
+// compareTo is the bridge of the interface's erased signature (javac's): it casts its arguments and calls compareToT_.
+func (this *CheckRequiresSorted_DestructuringBinding) compareTo(other_ any) int32 {
+	return this.compareToT_(cast_[*CheckRequiresSorted_DestructuringBinding](other_))
 }
 
 func (this *CheckRequiresSorted_DestructuringBinding) isCanonical() bool {
@@ -561,10 +565,14 @@ func (this *CheckRequiresSorted_ImportStatement) format() string {
 	return sb.toString()
 }
 
-func (this *CheckRequiresSorted_ImportStatement) compareTo(other_ any) int32 {
-	var other *CheckRequiresSorted_ImportStatement = cast_[*CheckRequiresSorted_ImportStatement](other_)
-	_ = other
+// compareToT_ is compareTo with the parameter types the class declares (implsplit).
+func (this *CheckRequiresSorted_ImportStatement) compareToT_(other *CheckRequiresSorted_ImportStatement) int32 {
 	return utf16Compare_(this.formatWithoutDoc(), other.formatWithoutDoc())
+}
+
+// compareTo is the bridge of the interface's erased signature (javac's): it casts its arguments and calls compareToT_.
+func (this *CheckRequiresSorted_ImportStatement) compareTo(other_ any) int32 {
+	return this.compareToT_(cast_[*CheckRequiresSorted_ImportStatement](other_))
 }
 
 func (this *CheckRequiresSorted_ImportStatement) nodes() *TList[Node] {
