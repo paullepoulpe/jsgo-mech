@@ -65,7 +65,7 @@ func (this *LiteralToken) toString_impl() string {
 
 // toString: an object that is exactly a LiteralToken calls its toString_impl directly (post-flip); others dispatch.
 func (this *LiteralToken) toString() string {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*LiteralToken); p == this {
 		return this.toString_impl()
 	}
 	return this.self_.toString_impl()

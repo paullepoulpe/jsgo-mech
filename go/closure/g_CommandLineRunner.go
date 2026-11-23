@@ -1802,7 +1802,7 @@ func new_CommandLineRunner_FlagInputs() *CommandLineRunner_FlagInputs {
 
 // getVersionText: an object that is exactly a CommandLineRunner calls its getVersionText_impl directly (post-flip); others dispatch.
 func (this *CommandLineRunner) getVersionText() string {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*CommandLineRunner); p == this {
 		return this.getVersionText_impl()
 	}
 	return this.self_.(*CommandLineRunner).getVersionText_impl()
@@ -1810,7 +1810,7 @@ func (this *CommandLineRunner) getVersionText() string {
 
 // addAllowlistWarningsGuard: an object that is exactly a CommandLineRunner calls its addAllowlistWarningsGuard_impl directly (post-flip); others dispatch.
 func (this *CommandLineRunner) addAllowlistWarningsGuard(p0 *CompilerOptions, p1 string) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*CommandLineRunner); p == this {
 		this.addAllowlistWarningsGuard_impl(p0, p1)
 		return
 	}
@@ -1819,7 +1819,7 @@ func (this *CommandLineRunner) addAllowlistWarningsGuard(p0 *CompilerOptions, p1
 
 // checkChunkName: an object that is exactly a CommandLineRunner calls its checkChunkName_impl directly (post-flip); others dispatch.
 func (this *CommandLineRunner) checkChunkName(p0 string) *Outcome_base[any] {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*CommandLineRunner); p == this {
 		return this.checkChunkName_impl(p0)
 	}
 	return this.self_.checkChunkName_impl(p0)
@@ -1827,7 +1827,7 @@ func (this *CommandLineRunner) checkChunkName(p0 string) *Outcome_base[any] {
 
 // createOptions: an object that is exactly a CommandLineRunner calls its createOptions_impl directly (post-flip); others dispatch.
 func (this *CommandLineRunner) createOptions() *Outcome_base[*CompilerOptions] {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*CommandLineRunner); p == this {
 		return this.createOptions_impl()
 	}
 	return this.self_.(*CommandLineRunner).createOptions_impl()
@@ -1835,7 +1835,7 @@ func (this *CommandLineRunner) createOptions() *Outcome_base[*CompilerOptions] {
 
 // createCompiler: an object that is exactly a CommandLineRunner calls its createCompiler_impl directly (post-flip); others dispatch.
 func (this *CommandLineRunner) createCompiler() *Compiler {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*CommandLineRunner); p == this {
 		return this.createCompiler_impl()
 	}
 	return this.self_.(*CommandLineRunner).createCompiler_impl()
@@ -1843,7 +1843,7 @@ func (this *CommandLineRunner) createCompiler() *Compiler {
 
 // prepForBundleAndAppendTo: an object that is exactly a CommandLineRunner calls its prepForBundleAndAppendTo_impl directly (post-flip); others dispatch.
 func (this *CommandLineRunner) prepForBundleAndAppendTo(p0 Appendable, p1 *CompilerInput, p2 string) *Outcome_base[any] {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*CommandLineRunner); p == this {
 		return this.prepForBundleAndAppendTo_impl(p0, p1, p2)
 	}
 	return this.self_.(*CommandLineRunner).prepForBundleAndAppendTo_impl(p0, p1, p2)
@@ -1851,7 +1851,7 @@ func (this *CommandLineRunner) prepForBundleAndAppendTo(p0 Appendable, p1 *Compi
 
 // appendRuntimeTo: an object that is exactly a CommandLineRunner calls its appendRuntimeTo_impl directly (post-flip); others dispatch.
 func (this *CommandLineRunner) appendRuntimeTo(p0 Appendable) *Outcome_base[any] {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*CommandLineRunner); p == this {
 		return this.appendRuntimeTo_impl(p0)
 	}
 	return this.self_.(*CommandLineRunner).appendRuntimeTo_impl(p0)
@@ -1859,7 +1859,7 @@ func (this *CommandLineRunner) appendRuntimeTo(p0 Appendable) *Outcome_base[any]
 
 // createExterns: an object that is exactly a CommandLineRunner calls its createExterns_impl directly (post-flip); others dispatch.
 func (this *CommandLineRunner) createExterns(p0 *CompilerOptions) *Outcome_base[ListT[*SourceFile_jscomp]] {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*CommandLineRunner); p == this {
 		return this.createExterns_impl(p0)
 	}
 	return this.self_.createExterns_impl(p0)

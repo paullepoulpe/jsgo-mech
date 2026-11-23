@@ -157,7 +157,7 @@ func RecordType_clinit() {
 
 // getTypeClass: an object that is exactly a RecordType calls its getTypeClass_impl directly (post-flip); others dispatch.
 func (this *RecordType) getTypeClass() JSTypeClass {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RecordType); p == this {
 		return this.getTypeClass_impl()
 	}
 	return this.self_.getTypeClass_impl()
@@ -165,7 +165,7 @@ func (this *RecordType) getTypeClass() JSTypeClass {
 
 // getImplicitPrototype: an object that is exactly a RecordType calls its getImplicitPrototype_impl directly (post-flip); others dispatch.
 func (this *RecordType) getImplicitPrototype() *ObjectType {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RecordType); p == this {
 		return this.getImplicitPrototype_impl()
 	}
 	return this.self_.getImplicitPrototype_impl()
@@ -173,7 +173,7 @@ func (this *RecordType) getImplicitPrototype() *ObjectType {
 
 // defineProperty: an object that is exactly a RecordType calls its defineProperty_impl directly (post-flip); others dispatch.
 func (this *RecordType) defineProperty(p0 Property_Key, p1 *JSType, p2 bool, p3 Node) bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RecordType); p == this {
 		return this.defineProperty_impl(p0, p1, p2, p3)
 	}
 	return this.self_.defineProperty_impl(p0, p1, p2, p3)
@@ -181,7 +181,7 @@ func (this *RecordType) defineProperty(p0 Property_Key, p1 *JSType, p2 bool, p3 
 
 // toMaybeRecordType: an object that is exactly a RecordType calls its toMaybeRecordType_impl directly (post-flip); others dispatch.
 func (this *RecordType) toMaybeRecordType() *RecordType {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RecordType); p == this {
 		return this.toMaybeRecordType_impl()
 	}
 	return this.self_.toMaybeRecordType_impl()
@@ -189,7 +189,7 @@ func (this *RecordType) toMaybeRecordType() *RecordType {
 
 // isStructuralType: an object that is exactly a RecordType calls its isStructuralType_impl directly (post-flip); others dispatch.
 func (this *RecordType) isStructuralType() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RecordType); p == this {
 		return this.isStructuralType_impl()
 	}
 	return this.self_.isStructuralType_impl()

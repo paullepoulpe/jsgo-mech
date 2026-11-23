@@ -1887,7 +1887,7 @@ func (this *ClosureRewriteModule_UnwrapGoogLoadModule) shouldTraverse_impl(t *No
 
 // shouldTraverse: an object that is exactly a ClosureRewriteModule_ScriptPreprocessor calls its shouldTraverse_impl directly (post-flip); others dispatch.
 func (this *ClosureRewriteModule_ScriptPreprocessor) shouldTraverse(p0 *NodeTraversal, p1 Node, p2 Node) bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ClosureRewriteModule_ScriptPreprocessor); p == this {
 		return this.shouldTraverse_impl(p0, p1, p2)
 	}
 	return this.self_.shouldTraverse_impl(p0, p1, p2)
@@ -1895,7 +1895,7 @@ func (this *ClosureRewriteModule_ScriptPreprocessor) shouldTraverse(p0 *NodeTrav
 
 // shouldTraverse: an object that is exactly a ClosureRewriteModule_UnwrapGoogLoadModule calls its shouldTraverse_impl directly (post-flip); others dispatch.
 func (this *ClosureRewriteModule_UnwrapGoogLoadModule) shouldTraverse(p0 *NodeTraversal, p1 Node, p2 Node) bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ClosureRewriteModule_UnwrapGoogLoadModule); p == this {
 		return this.shouldTraverse_impl(p0, p1, p2)
 	}
 	return this.self_.shouldTraverse_impl(p0, p1, p2)

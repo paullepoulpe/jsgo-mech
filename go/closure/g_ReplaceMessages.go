@@ -1021,7 +1021,7 @@ func (this *ReplaceMessages_ReplacementCompletionPass_1) visit_impl(t *NodeTrave
 
 // process_2: an object that is exactly a ReplaceMessages_MsgProtectionPass calls its process_2_impl directly (post-flip); others dispatch.
 func (this *ReplaceMessages_MsgProtectionPass) process_2(p0 Node, p1 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ReplaceMessages_MsgProtectionPass); p == this {
 		this.process_2_impl(p0, p1)
 		return
 	}
@@ -1030,7 +1030,7 @@ func (this *ReplaceMessages_MsgProtectionPass) process_2(p0 Node, p1 Node) {
 
 // processIcuTemplateDefinition: an object that is exactly a ReplaceMessages_MsgProtectionPass calls its processIcuTemplateDefinition_impl directly (post-flip); others dispatch.
 func (this *ReplaceMessages_MsgProtectionPass) processIcuTemplateDefinition(p0 IcuTemplateDefinition) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ReplaceMessages_MsgProtectionPass); p == this {
 		this.processIcuTemplateDefinition_impl(p0)
 		return
 	}
@@ -1039,7 +1039,7 @@ func (this *ReplaceMessages_MsgProtectionPass) processIcuTemplateDefinition(p0 I
 
 // processJsMessageDefinition: an object that is exactly a ReplaceMessages_MsgProtectionPass calls its processJsMessageDefinition_impl directly (post-flip); others dispatch.
 func (this *ReplaceMessages_MsgProtectionPass) processJsMessageDefinition(p0 JsMessageDefinition) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ReplaceMessages_MsgProtectionPass); p == this {
 		this.processJsMessageDefinition_impl(p0)
 		return
 	}
@@ -1048,7 +1048,7 @@ func (this *ReplaceMessages_MsgProtectionPass) processJsMessageDefinition(p0 JsM
 
 // processMessageFallback: an object that is exactly a ReplaceMessages_MsgProtectionPass calls its processMessageFallback_impl directly (post-flip); others dispatch.
 func (this *ReplaceMessages_MsgProtectionPass) processMessageFallback(p0 Node, p1 *JsMessage, p2 *JsMessage) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ReplaceMessages_MsgProtectionPass); p == this {
 		this.processMessageFallback_impl(p0, p1, p2)
 		return
 	}
@@ -1057,7 +1057,7 @@ func (this *ReplaceMessages_MsgProtectionPass) processMessageFallback(p0 Node, p
 
 // processMessageFallback: an object that is exactly a ReplaceMessages_FullReplacementPass calls its processMessageFallback_impl directly (post-flip); others dispatch.
 func (this *ReplaceMessages_FullReplacementPass) processMessageFallback(p0 Node, p1 *JsMessage, p2 *JsMessage) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ReplaceMessages_FullReplacementPass); p == this {
 		this.processMessageFallback_impl(p0, p1, p2)
 		return
 	}
@@ -1066,7 +1066,7 @@ func (this *ReplaceMessages_FullReplacementPass) processMessageFallback(p0 Node,
 
 // processIcuTemplateDefinition: an object that is exactly a ReplaceMessages_FullReplacementPass calls its processIcuTemplateDefinition_impl directly (post-flip); others dispatch.
 func (this *ReplaceMessages_FullReplacementPass) processIcuTemplateDefinition(p0 IcuTemplateDefinition) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ReplaceMessages_FullReplacementPass); p == this {
 		this.processIcuTemplateDefinition_impl(p0)
 		return
 	}
@@ -1075,7 +1075,7 @@ func (this *ReplaceMessages_FullReplacementPass) processIcuTemplateDefinition(p0
 
 // processJsMessageDefinition: an object that is exactly a ReplaceMessages_FullReplacementPass calls its processJsMessageDefinition_impl directly (post-flip); others dispatch.
 func (this *ReplaceMessages_FullReplacementPass) processJsMessageDefinition(p0 JsMessageDefinition) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ReplaceMessages_FullReplacementPass); p == this {
 		this.processJsMessageDefinition_impl(p0)
 		return
 	}
@@ -1084,7 +1084,7 @@ func (this *ReplaceMessages_FullReplacementPass) processJsMessageDefinition(p0 J
 
 // visit: an object that is exactly a ReplaceMessages_ReplacementCompletionPass_1 calls its visit_impl directly (post-flip); others dispatch.
 func (this *ReplaceMessages_ReplacementCompletionPass_1) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ReplaceMessages_ReplacementCompletionPass_1); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}

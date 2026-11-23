@@ -115,7 +115,7 @@ const SuppressDocWarningsGuard_serialVersionUID int64 = 1
 
 // level: an object that is exactly a SuppressDocWarningsGuard calls its level_impl directly (post-flip); others dispatch.
 func (this *SuppressDocWarningsGuard) level(p0 *JSError) CheckLevel {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*SuppressDocWarningsGuard); p == this {
 		return this.level_impl(p0)
 	}
 	return this.self_.level_impl(p0)
@@ -123,7 +123,7 @@ func (this *SuppressDocWarningsGuard) level(p0 *JSError) CheckLevel {
 
 // getPriority: an object that is exactly a SuppressDocWarningsGuard calls its getPriority_impl directly (post-flip); others dispatch.
 func (this *SuppressDocWarningsGuard) getPriority() int32 {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*SuppressDocWarningsGuard); p == this {
 		return this.getPriority_impl()
 	}
 	return this.self_.getPriority_impl()

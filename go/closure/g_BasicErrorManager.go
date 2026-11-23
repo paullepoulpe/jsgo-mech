@@ -64,7 +64,7 @@ func (this *BasicErrorManager) printSummary() {
 
 // generateReport: an object that is exactly a BasicErrorManager calls its generateReport_impl directly (post-flip); others dispatch.
 func (this *BasicErrorManager) generateReport() {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*BasicErrorManager); p == this {
 		this.generateReport_impl()
 		return
 	}

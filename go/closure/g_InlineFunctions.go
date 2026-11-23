@@ -1408,7 +1408,7 @@ func (this *InlineFunctions_ShouldRequireInlining) toString() string {
 
 // visit: an object that is exactly a InlineFunctions_FindCandidateFunctions calls its visit_impl directly (post-flip); others dispatch.
 func (this *InlineFunctions_FindCandidateFunctions) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*InlineFunctions_FindCandidateFunctions); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
@@ -1417,7 +1417,7 @@ func (this *InlineFunctions_FindCandidateFunctions) visit(p0 *NodeTraversal, p1 
 
 // visit: an object that is exactly a InlineFunctions_CallVisitor calls its visit_impl directly (post-flip); others dispatch.
 func (this *InlineFunctions_CallVisitor) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*InlineFunctions_CallVisitor); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
@@ -1426,7 +1426,7 @@ func (this *InlineFunctions_CallVisitor) visit(p0 *NodeTraversal, p1 Node, p2 No
 
 // visit: an object that is exactly a InlineFunctions_FindCandidatesReferences calls its visit_impl directly (post-flip); others dispatch.
 func (this *InlineFunctions_FindCandidatesReferences) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*InlineFunctions_FindCandidatesReferences); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}

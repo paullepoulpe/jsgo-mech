@@ -352,7 +352,7 @@ func new_RenameProperties_Property(name string) *RenameProperties_Property {
 
 // visit: an object that is exactly a RenameProperties_ProcessProperties calls its visit_impl directly (post-flip); others dispatch.
 func (this *RenameProperties_ProcessProperties) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RenameProperties_ProcessProperties); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
