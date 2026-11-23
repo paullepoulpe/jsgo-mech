@@ -57,7 +57,7 @@ replay logs and from git grep of the trees)
 |---|---|---|---|
 | 012 (1646c20a) | rt | regenerated | the same hunks (0 changed +/- lines), context re-made against the base's rt_coll.go |
 | 013, 014, 015 | rt | regenerated (3-way merge by the driver) | context only (0 changed +/- lines) |
-| 143 | rt | regenerated | the same hunks but 3 lines: no EnumSet case in its ImmutableSet_copyOf (why was not recorded by the first part) |
+| 143 | rt | regenerated | the same hunks but one: the EnumSet case of ImmutableSet_copyOf_Iterable goes with that function, which main deleted (62ebd50a: no translation names it); the case of ImmutableSet_copyOf stays, the patch's own (rt_guava.go:543 of the final tree) |
 | 202 (4e23efbd) | tool + rt | adapted | toolfix 37 (ranges reads the typed cursor jeachOf_(X) and `var it IteratorT[T] = C.iterator_t()`), runtime elemsT_ (reflip6-elemst-rt.patch): 518 sites, 92 erased, 426 typed (fifth flip 520: 512 erased, 8 typed collections), 103 left for a body that returns (103) |
 | 322 (2c5fe6be) | rt (test) | regenerated | the test patch against the base's test files |
 | 323 | rt | regenerated | 11 files against the base runtime (rt_lg.go, rt_jtimm.go among them), 52 changed lines against the fifth flip's patch |
@@ -227,7 +227,8 @@ No time or allocation was measured.
   set of property names, TypedAstSerializer's usedPropertyNames and Compiler's map keyed by Class stay
   typed here; Compiler's licensesFromChunks / currentChunkLicencesInTDeps and collections of AmbiguateProperties
   and ReplaceIdGenerators are Go maps here and not there). Not traced further.
-- Patch 143's dropped EnumSet case: the first part regenerated it without recording why.
+- Patch 143's dropped EnumSet case: closed (steps.txt, note at 143): it was the case of
+  ImmutableSet_copyOf_Iterable, a function main deleted (62ebd50a); ImmutableSet_copyOf keeps its case from the patch.
 - Step 472: toolfix 40 does not reach tcmp's version of that step; nothing is lost at the end (481 / 486 take
   the sorts), the per-step count differs (1 against 6).
 - The runtime tests of the gate of the working replay ran once on that tree (2.992 s); the second gate run

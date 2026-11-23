@@ -329,7 +329,7 @@ b38fdf1e patch 140-b38fdf1e-rt.patch
 # 142. postflip (runtime): a naturally ordered TreeMap of strings keeps its keys in a string slice too
 cb46e8ff patch 142-cb46e8ff-rt.patch
 # 143. postflip (runtime): ImmutableSet.copyOf of an EnumSet is an immutable enum set
-#=6 14c27945 regenerated (sixth flip): the same hunks but 3 lines: its ImmutableSet_copyOf has no EnumSet case (immEnumSet_), the rest context (why the case went was not recorded by the first part)
+#=6 14c27945 regenerated (sixth flip): the same hunks but one: the EnumSet case (immEnumSet_) of ImmutableSet_copyOf_Iterable is gone with that function, which main deleted before this flip (62ebd50a, "runtime: delete 14 functions that no translation names": no generated code of either translation names it; it is in neither the base 64ac1148 nor the final tree). The EnumSet case of ImmutableSet_copyOf (Collection) is this patch's own and stays (rt_guava.go:543 of the final tree; the replay of 14c27945 is the only commit that writes it); the rest is context
 14c27945 patch 143-14c27945-rt.patch
 # 144. postflip (runtime): stringUnits_ iterates over a string's UTF-16 units; asciiCharAt_
 58b80f32 patch 144-58b80f32-rt.patch
