@@ -649,3 +649,11 @@ f8f365f2 run t tswitch && f
 c44d5926 run t visit && f
 # 450. postflip step (re-flip): value classes are comparable structs used by value, without equals and hashCode (tool c932f0a6)
 036a41a1 run t valcls && f
+# 451. postflip step (re-flip): typed deques used at one end are stacks or queues of typed lists, then slices (tool aceba30d)
+235bd03d run t tdeque && t native -kind list && f
+# 452. postflip (runtime, re-flip): tconvT_, tconvIdT_, the typed containers' conversion of a type parameter's values, once per instantiation
+594a08ff patch 452-594a08ff-rt.patch
+# 453. postflip step (re-flip): erased maps and sets keyed by a generic class's type parameter are typed (tool 731cbe88)
+2cd604d6 run t gmaps && f
+# 454. postflip step (re-flip): ranges -loops re-run, loops from the head of the stacks of 451 are range loops
+52b78402 run t ranges -loops && f
