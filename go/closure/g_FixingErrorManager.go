@@ -70,9 +70,12 @@ func (this *FixingErrorManager) report_2_impl(level CheckLevel, error_ *JSError)
 }
 
 func (this *FixingErrorManager) containsFixableShorthandModuleWarning() bool {
-	it_1 := this.sureFixes.each()
-	for it_1.next() {
-		var error_ *JSError = it_1.k
+	l_1 := this.sureFixes
+	for i_1 := l_1.first(); i_1 < len(l_1.keys); i_1++ {
+		if l_1.isDead(i_1) {
+			continue
+		}
+		var error_ *JSError = l_1.keys[i_1]
 		if error_.type_().equals_DiagnosticType(ClosureCheckModule_REFERENCE_TO_SHORT_IMPORT_BY_LONG_NAME_INCLUDING_SHORT_NAME) {
 			return true
 		}
@@ -98,9 +101,7 @@ func (this *FixingErrorManager) getFixesForJsError(error_ *JSError) ListT[*Sugge
 func (this *FixingErrorManager) getFixes(fixTypes FixingErrorManager_FixTypes) CollectionT[*SuggestedFix] {
 	var containsFixableShorthandModuleWarning bool = this.containsFixableShorthandModuleWarning()
 	var fixes CollectionT[*SuggestedFix] = newTList_(tc_p_SuggestedFix).asCollT()
-	it_1 := this.getErrors().each()
-	for it_1.next() {
-		var error_ *JSError = it_1.v
+	for error_ := range this.getErrors().All() {
 		if containsFixableShorthandModuleWarning && error_.type_().equals_DiagnosticType(CheckExtraRequires_EXTRA_REQUIRE_WARNING) {
 		} else {
 			if (fixTypes == FixingErrorManager_FixTypes_ONE_FIX) && this.sureFixes.Has(error_) {
@@ -110,9 +111,7 @@ func (this *FixingErrorManager) getFixes(fixTypes FixingErrorManager_FixTypes) C
 			}
 		}
 	}
-	it_3 := this.getWarnings().each()
-	for it_3.next() {
-		var warning *JSError = it_3.v
+	for warning := range this.getWarnings().All() {
 		if warning.type_().equals_DiagnosticType(CheckExtraRequires_EXTRA_REQUIRE_WARNING) && containsFixableShorthandModuleWarning {
 		} else {
 			if (fixTypes == FixingErrorManager_FixTypes_ONE_FIX) && this.sureFixes.Has(warning) {

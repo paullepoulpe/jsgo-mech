@@ -103,9 +103,7 @@ func DotFormatter_toDot_GraphvizGraph(graph GraphvizGraph) string {
 			return f_(icast_GraphvizGraph_GraphvizEdge(p0), icast_GraphvizGraph_GraphvizEdge(p1))
 		}
 	}())
-	it_5 := edges.each()
-	for it_5.next() {
-		var edge GraphvizGraph_GraphvizEdge = it_5.v
+	for edge := range edges.All() {
 		builder.append(DotFormatter_INDENT)
 		builder.append(edge.getNode1Id())
 		builder.append(edgeSymbol)

@@ -54,9 +54,7 @@ func (this *ColorGraphBuilder) connectUnionWithAncestors(unionNode *LinkedDirect
 		panic(new_IllegalStateException_0())
 	}
 	var graphNodesBuilder *ImmutableSet_Builder[*ColorGraphNode] = immutableSetBuilder_(tc_p_ColorGraphNode)
-	it_1 := flatUnion.getColor().getUnionElements().each()
-	for it_1.next() {
-		var element *Color = it_1.v
+	for element := range flatUnion.getColor().getUnionElements().All() {
 		graphNodesBuilder.add(this.nodeFactory.createNode(element))
 	}
 	var graphNodes *TSet[*ColorGraphNode] = graphNodesBuilder.build()
@@ -80,9 +78,7 @@ func (this *ColorGraphBuilder) addInternalColorGraphNode(node *ColorGraphNode) *
 	}
 	flatNode = this.colorHoldsInstanceGraph.createNode_Object_rDiGraphNode_rLinkedDiGraphNode(node)
 	if node.getColor().isUnion() {
-		it_1 := node.getColor().getUnionElements().each()
-		for it_1.next() {
-			var alt *Color = it_1.v
+		for alt := range node.getColor().getUnionElements().All() {
 			this.connectSourceToDest(flatNode, ColorGraphBuilder_EdgeReason_ALGEBRAIC, this.addInternal(alt))
 		}
 		return flatNode
@@ -96,14 +92,10 @@ func (this *ColorGraphBuilder) addInternalColorGraphNode(node *ColorGraphNode) *
 			this.connectSourceToDest(this.addInternal(supertype), ColorGraphBuilder_EdgeReason_CAN_HOLD, flatNode)
 		}
 	}
-	it_5 := color.getPrototypes().each()
-	for it_5.next() {
-		var prototype *Color = it_5.v
+	for prototype := range color.getPrototypes().All() {
 		this.addInternal(prototype)
 	}
-	it_7 := color.getInstanceColors().each()
-	for it_7.next() {
-		var instanceColor *Color = it_7.v
+	for instanceColor := range color.getInstanceColors().All() {
 		this.addInternal(instanceColor)
 	}
 	return flatNode

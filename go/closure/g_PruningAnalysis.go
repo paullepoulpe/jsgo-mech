@@ -30,9 +30,7 @@ func (this *PruningAnalysis) analyze() *PruningAnalysis_Result {
 
 func (this *PruningAnalysis) calculateTotalBlame() *TMap[string, any] {
 	var reachabilityPerEntryPoint *ImmutableMap_Builder[string, any] = immutableMapBuilder_(tc_string, tc_Integer)
-	it_1 := this.entryPoints_.each()
-	for it_1.next() {
-		var provider *CompilerInput = it_1.v
+	for provider := range this.entryPoints_.All() {
 		var transitiveClosure *TSet[*CompilerInput] = immutableSetBuilder_(tc_p_CompilerInput).addAll(this.sorter_.getStrongDependenciesOf(immutableListOf_[*CompilerInput](tc_p_CompilerInput, provider).asListT(), false)).addAll(this.sorter_.getSortedWeakDependenciesOf(immutableListOf_[*CompilerInput](tc_p_CompilerInput, provider).asListT())).build()
 		reachabilityPerEntryPoint.put(provider.getName(), int32(transitiveClosure.Len()))
 	}
@@ -76,9 +74,7 @@ func (this *PruningAnalysis) buildGraph() *DiGraph[string, string] {
 	for input := range elemsT_(this.sorter_.getSortedList()) {
 		graph.createNode_Object_rDiGraphNode(input.getName())
 	}
-	it_3 := this.entryPoints_.each()
-	for it_3.next() {
-		var input *CompilerInput = it_3.v
+	for input := range this.entryPoints_.All() {
 		graph.connect(PruningAnalysis_VIRTUAL_ROOT, nullstr_, input.getName())
 	}
 	for input := range elemsT_(this.sorter_.getSortedList()) {
@@ -88,9 +84,7 @@ func (this *PruningAnalysis) buildGraph() *DiGraph[string, string] {
 			depSymbols.Add(req.getSymbol())
 		}
 		depSymbols.asSetT().addAll(Collection(List_un_(input.getTypeRequires())))
-		it_9 := depSymbols.each()
-		for it_9.next() {
-			var symbol string = it_9.v
+		for symbol := range depSymbols.All() {
 			var depRes *Outcome_base[*CompilerInput] = this.sorter_.getInputProviding(symbol)
 			if depRes.isErr() {
 			} else {

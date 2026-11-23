@@ -445,9 +445,7 @@ func (this *TypeTransformation) evalMapunion(ttlAst Node, nameResolver *TypeTran
 	var unionSize int32 = unionElms.size()
 	var newUnionElms []*JSType = make([]*JSType, unionSize)
 	var i int32 = 0
-	it_1 := unionElms.each()
-	for it_1.next() {
-		var elm *JSType = it_1.v
+	for elm := range unionElms.All() {
 		var newNameResolver *TypeTransformation_NameResolver = new_TypeTransformation_NameResolver(tmapImm_(tc_string, tc_p_JSType, this.addNewEntry(nameResolver.typeVars.asImm(), paramName, elm.self()).asImm()), nameResolver.nameVars)
 		newUnionElms[i] = this.evalInternal(mapFunctionBody, newNameResolver)
 		i++
@@ -541,9 +539,7 @@ func (this *TypeTransformation) putNewPropInPropertyMap(props *TMap[string, *JST
 
 func (this *TypeTransformation) joinRecordTypes(recTypes *TList[*ObjectType]) *JSType {
 	var props *TMap[string, *JSType] = newTMap_(tc_string, tc_p_JSType)
-	it_1 := recTypes.each()
-	for it_1.next() {
-		var recType *ObjectType = it_1.v
+	for recType := range recTypes.All() {
 		for newPropName := range elemsT_(recType.getOwnPropertyNames()) {
 			var newPropValue *JSType = recType.getPropertyType(newPropName)
 			this.putNewPropInPropertyMap(props, newPropName, newPropValue)

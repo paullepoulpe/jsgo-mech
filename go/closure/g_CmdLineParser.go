@@ -239,9 +239,9 @@ func (this *CmdLineParser) findOptionByName(name string) *CmdLineParser_Option {
 		if name == option.nameField {
 			return option
 		}
-		it_3 := option.aliasesField.each()
-		for it_3.next() {
-			var alias string = it_3.v
+		l_3 := option.aliasesField
+		for i_3 := 0; i_3 < len(l_3.items); i_3++ {
+			var alias string = l_3.items[i_3]
 			if name == alias {
 				return option
 			}

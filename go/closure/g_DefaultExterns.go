@@ -17,18 +17,14 @@ func new_DefaultExterns() *DefaultExterns {
 
 func DefaultExterns_prepareExterns(env CompilerOptions_Environment, externs *TMap[string, *SourceFile_jscomp]) *TList[*SourceFile_jscomp] {
 	var out *TList[*SourceFile_jscomp] = newTList_(tc_p_SourceFile_jscomp)
-	it_1 := DefaultExterns_BUILTIN_LANG_EXTERNS.each()
-	for it_1.next() {
-		var key string = it_1.v
+	for key := range DefaultExterns_BUILTIN_LANG_EXTERNS.All() {
 		if !externs.Has(key) {
 			panic(new_IllegalStateException_String(Strings_lenientFormat("Externs must contain builtin: %s", []any{key})))
 		}
 		out.add(externs.Delete(key))
 	}
 	if env == CompilerOptions_Environment_BROWSER {
-		it_3 := DefaultExterns_BROWSER_EXTERN_DEP_ORDER.each()
-		for it_3.next() {
-			var key string = it_3.v
+		for key := range DefaultExterns_BROWSER_EXTERN_DEP_ORDER.All() {
 			if !externs.Has(key) {
 				panic(new_IllegalStateException_String(Strings_lenientFormat("Externs must contain builtin for env %s: %s", []any{env, key})))
 			}

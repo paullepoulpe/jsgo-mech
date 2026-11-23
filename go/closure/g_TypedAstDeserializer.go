@@ -44,9 +44,7 @@ func new_TypedAstDeserializer(syntheticExterns *SourceFile_jscomp, existingColor
 
 func TypedAstDeserializer_deserializeFullAst(compiler *AbstractCompiler, syntheticExterns *SourceFile_jscomp, requiredInputFiles *TSet[*SourceFile_jscomp], typedAstsStream []int8, includeTypeInformation bool, resolveSourceMapAnnotations bool, parseInlineSourceMaps bool) *TypedAstDeserializer_DeserializedAst {
 	var sourceFilesByNameBuilder *ImmutableMap_Builder[string, *SourceFile_jscomp] = immutableMapBuilder_(tc_string, tc_p_SourceFile_jscomp)
-	it_1 := requiredInputFiles.each()
-	for it_1.next() {
-		var file *SourceFile_jscomp = it_1.v
+	for file := range requiredInputFiles.All() {
 		sourceFilesByNameBuilder.put(file.getName(), file)
 	}
 	var sourceFilesByName *TMap[string, *SourceFile_jscomp] = sourceFilesByNameBuilder.buildOrThrow()

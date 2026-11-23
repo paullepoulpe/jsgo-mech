@@ -196,9 +196,7 @@ func (this *ExtraRequireRemover) maybeAddJsDocUsages(n Node) {
 		return
 	}
 	for e := range elemsT_(info.getTypeExpressions()) {
-		it_3 := e.getAllTypeNames().each()
-		for it_3.next() {
-			var typeName string = it_3.v
+		for typeName := range e.getAllTypeNames().All() {
 			this.addUsagesOfAllPrefixes(QualifiedName_of(typeName))
 		}
 	}

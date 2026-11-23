@@ -86,9 +86,7 @@ func (this *StandardUnionFind[E]) elements() SetT[E] {
 
 func (this *StandardUnionFind[E]) allEquivalenceClasses() ListT[SetT[E]] {
 	var groupsTmp *SimpleSetMultimap[*StandardUnionFind_Node[E], E] = SimpleSetMultimap_create[*StandardUnionFind_Node[E], E]()
-	it_1 := this.elmap.each()
-	for it_1.next() {
-		var elem *StandardUnionFind_Node[E] = it_1.v
+	for elem := range this.elmap.Values() {
 		groupsTmp.put(this.findRoot(elem), elem.element)
 	}
 	var result *ImmutableList_Builder[SetT[E]] = immutableListBuilder_(tc_SetT_E_[E]())
@@ -100,9 +98,7 @@ func (this *StandardUnionFind[E]) allEquivalenceClasses() ListT[SetT[E]] {
 
 func (this *StandardUnionFind[E]) allRepresentatives() SetT[E] {
 	var result *ImmutableSet_Builder[E] = immutableSetBuilder_(tchT_[E]())
-	it_1 := this.elmap.each()
-	for it_1.next() {
-		var n *StandardUnionFind_Node[E] = it_1.v
+	for n := range this.elmap.Values() {
 		if n == n.parent {
 			result.add(n.element)
 		}
