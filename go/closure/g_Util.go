@@ -71,16 +71,6 @@ func Util_escapeString(s string) string {
 }
 
 func Util_appendHexJavaScriptRepresentation(sb *StringBuilder, c uint16) {
-	defer func() {
-		if r_ := recover(); r_ != nil {
-			ex_ := catch_(r_)
-			if p, ok := ex_.(IOException_as); ok {
-				var ex *IOException = p.as_IOException()
-				panic(new_RuntimeException_Throwable(ex.up_Throwable()))
-			}
-			panic(r_)
-		}
-	}()
 	Util_appendHexJavaScriptRepresentationInt(int32(c), StringBuilder_as_Appendable(sb))
 }
 
