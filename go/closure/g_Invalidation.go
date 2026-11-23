@@ -95,10 +95,6 @@ func (this Invalidation_Reason) ordinal() int32 {
 
 func (this Invalidation_Reason) toString() string { return this.enum_().name_ }
 
-func (this Invalidation_Reason) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this Invalidation_Reason) self() any {
 	if this == 0 {
 		return nil

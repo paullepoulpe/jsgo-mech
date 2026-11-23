@@ -76,10 +76,6 @@ func (this InlineVariables_Mode) ordinal() int32 {
 
 func (this InlineVariables_Mode) toString() string { return this.enum_().name_ }
 
-func (this InlineVariables_Mode) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this InlineVariables_Mode) self() any {
 	if this == 0 {
 		return nil

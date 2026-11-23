@@ -96,10 +96,6 @@ func (this ShowByPathWarningsGuard_ShowType) toString() string {
 	return this.enum_().name_
 }
 
-func (this ShowByPathWarningsGuard_ShowType) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this ShowByPathWarningsGuard_ShowType) self() any {
 	if this == 0 {
 		return nil

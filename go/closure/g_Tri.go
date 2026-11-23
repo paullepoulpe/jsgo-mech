@@ -31,8 +31,6 @@ func (this Tri) ordinal() int32 {
 	return int32(this) - 1 // constants are ordinal+1
 }
 
-func (this Tri) compareTo(o any) int32 { return this.enum_().compareTo(o) }
-
 func (this Tri) self() any {
 	if this == 0 {
 		return nil

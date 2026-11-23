@@ -1203,10 +1203,6 @@ func (this ClosureRewriteModule_AddAt) toString() string {
 	return this.enum_().name_
 }
 
-func (this ClosureRewriteModule_AddAt) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this ClosureRewriteModule_AddAt) self() any {
 	if this == 0 {
 		return nil
@@ -1272,10 +1268,6 @@ func (this ClosureRewriteModule_ScopeType) ordinal() int32 {
 
 func (this ClosureRewriteModule_ScopeType) toString() string {
 	return this.enum_().name_
-}
-
-func (this ClosureRewriteModule_ScopeType) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
 }
 
 func (this ClosureRewriteModule_ScopeType) self() any {
