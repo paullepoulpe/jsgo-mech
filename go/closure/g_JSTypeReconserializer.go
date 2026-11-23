@@ -252,13 +252,9 @@ func (this *JSTypeReconserializer) seedCachesWithAxiomaticTypes() {
 		var record *JSTypeReconserializer_SeenTypeRecord = new_JSTypeReconserializer_SeenTypeRecord(axiomatic.getId(), index)
 		this.seenTypeRecords.Put(axiomatic.getId(), record)
 	}
-	Map_forEach(Map_un_(JSTypeReconserializer_JSTYPE_NATIVE_TO_AXIOMATIC_COLOR_MAP.asMapT()), BiConsumer[any, any](func(jstypeNative_ any, axiomatic_ any) {
-		var jstypeNative JSTypeNative = cast_[JSTypeNative](jstypeNative_)
-		_ = jstypeNative
-		var axiomatic *Color = cast_[*Color](axiomatic_)
-		_ = axiomatic
+	JSTypeReconserializer_JSTYPE_NATIVE_TO_AXIOMATIC_COLOR_MAP.forEachT_(func(jstypeNative JSTypeNative, axiomatic *Color) {
 		this.getOrCreateRecord(axiomatic.getId(), this.registry.getNativeType(jstypeNative))
-	}))
+	})
 	if this.seenTypeRecords.Len() != TypePointers_OFFSET_TO_AXIOMATIC_COLOR.size() {
 		panic(new_IllegalStateException_0())
 	}

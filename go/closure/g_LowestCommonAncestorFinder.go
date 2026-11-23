@@ -41,31 +41,23 @@ func (this *LowestCommonAncestorFinder[N, E]) findAll(roots SetT[N]) SetT[N] {
 			panic(new_NullPointerException_String(Strings_lenientFormat("Root not present in graph: %s", a1_)))
 		}
 		var color *LowestCommonAncestorFinder_Color = LowestCommonAncestorFinder_Color_create(bitForRoot)
-		Map_merge(Map_un_(this.searchColoring.asMapT()), rootNode, obj_(color), BiFunction[any, any, any](func(p0 any, p1 any) any {
-			return obj_(cast_[*LowestCommonAncestorFinder_Color](p0).mix(cast_[*LowestCommonAncestorFinder_Color](p1)))
-		}))
+		this.searchColoring.mergeT_(rootNode, color, func(p0 *LowestCommonAncestorFinder_Color, p1 *LowestCommonAncestorFinder_Color) *LowestCommonAncestorFinder_Color {
+			return p0.mix(p1)
+		})
 		this.paintAncestors(rootNode, color)
 		bitForRoot = (bitForRoot << 1)
 	}
-	Map_forEach(Map_un_(this.searchColoring.asMapT()), BiConsumer[any, any](func(node_ any, color_ any) {
-		var node DiGraph_DiGraphNode[N, E] = gcast_DiGraph_DiGraphNode_N_E[N, E](node_)
-		_ = node
-		var color *LowestCommonAncestorFinder_Color = cast_[*LowestCommonAncestorFinder_Color](color_)
-		_ = color
+	this.searchColoring.forEachT_(func(node DiGraph_DiGraphNode[N, E], color *LowestCommonAncestorFinder_Color) {
 		if color.equals_LowestCommonAncestorFinder_Color(allColor) {
 			this.paintAncestors(node, LowestCommonAncestorFinder_Color_NOT_LOWEST)
 		}
-	}))
+	})
 	var results *ImmutableSet_Builder[N] = immutableSetBuilder_(tchT_[N]())
-	Map_forEach(Map_un_(this.searchColoring.asMapT()), BiConsumer[any, any](func(node_ any, color_ any) {
-		var node DiGraph_DiGraphNode[N, E] = gcast_DiGraph_DiGraphNode_N_E[N, E](node_)
-		_ = node
-		var color *LowestCommonAncestorFinder_Color = cast_[*LowestCommonAncestorFinder_Color](color_)
-		_ = color
+	this.searchColoring.forEachT_(func(node DiGraph_DiGraphNode[N, E], color *LowestCommonAncestorFinder_Color) {
 		if color.equals_LowestCommonAncestorFinder_Color(allColor) {
 			results.add(node.getValue())
 		}
-	}))
+	})
 	this.searchColoring.Clear()
 	this.searchQueue.clear()
 	return results.build().asSetT()

@@ -168,18 +168,14 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 	var templates *TMap[string, *JSTypeExpression] = info.getTemplateTypes()
 	if !templates.IsEmpty() {
 		multiline = true
-		Map_forEach(Map_un_(templates.asMapT()), BiConsumer[any, any](func(name_ any, boundExpr_ any) {
-			var name string = str_(name_)
-			_ = name
-			var boundExpr *JSTypeExpression = cast_[*JSTypeExpression](boundExpr_)
-			_ = boundExpr
+		templates.forEachT_(func(name string, boundExpr *JSTypeExpression) {
 			var boundRoot Node = boundExpr.getRoot()
 			if (boundRoot.ns_().token == tokOrd1_QMARK) && !boundRoot.hasChildren() {
 				parts.add(("@template " + sstr_(name)))
 			} else {
 				parts.add(this.buildAnnotationWithType_3("template", boundExpr, Optional_of[string](name)))
 			}
-		}))
+		})
 	}
 	var typeTransformations *TMap[string, Node] = info.getTypeTransformations()
 	if !typeTransformations.IsEmpty() {
