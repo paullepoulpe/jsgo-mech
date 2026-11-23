@@ -552,7 +552,7 @@ func (this *Es6RewriteClass_ClassProperty_Builder) propertyType(type_ *Color) *E
 
 func (this *Es6RewriteClass_ClassProperty_Builder) build() *Es6RewriteClass_ClassProperty {
 	if (this.propertyKeyField.isEmpty() || (this.kindField == 0)) || (this.jsDocInfoField == nil) {
-		var missing *StringBuilder = new_StringBuilder()
+		var missing strBuilder_
 		if this.propertyKeyField.isEmpty() {
 			missing.append(" propertyKey")
 		}
@@ -562,7 +562,7 @@ func (this *Es6RewriteClass_ClassProperty_Builder) build() *Es6RewriteClass_Clas
 		if this.jsDocInfoField == nil {
 			missing.append(" jsDocInfo")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + jtostr_(missing))).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + missing.toString())).self())
 	}
 	return new_Es6RewriteClass_ClassProperty(this.propertyKeyField.get(), this.kindField, this.jsDocInfoField, this.propertyTypeField)
 }
@@ -802,7 +802,7 @@ func (this *Es6RewriteClass_ClassDeclarationMetadata_Builder) setDefinePropertie
 
 func (this *Es6RewriteClass_ClassDeclarationMetadata_Builder) build() *Es6RewriteClass_ClassDeclarationMetadata {
 	if ((((((((int32(this.set0) != 1) || (this.insertionPoint_ == nil)) || (this.definePropertiesObjForPrototype_ == 0)) || (this.definePropertiesObjForClass_ == 0)) || (this.classMembersToDeclare_ == nil)) || (this.fullClassNameNodeField == 0)) || (this.classPrototypeNode_ == 0)) || (this.classNameNode_ == 0)) || (this.superClassNameNode_ == 0) {
-		var missing *StringBuilder = new_StringBuilder()
+		var missing strBuilder_
 		if this.insertionPoint_ == nil {
 			missing.append(" insertionPoint")
 		}
@@ -830,7 +830,7 @@ func (this *Es6RewriteClass_ClassDeclarationMetadata_Builder) build() *Es6Rewrit
 		if this.superClassNameNode_ == 0 {
 			missing.append(" superClassNameNode")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + jtostr_(missing))).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + missing.toString())).self())
 	}
 	return new_Es6RewriteClass_ClassDeclarationMetadata(this.insertionPoint_, this.definePropertiesObjForPrototype_, this.definePropertiesObjForClass_, this.classMembersToDeclare_, this.fullClassNameNodeField, this.classPrototypeNode_, this.anonymous_, this.classNameNode_, this.superClassNameNode_)
 }

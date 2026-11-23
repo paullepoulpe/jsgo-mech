@@ -3,7 +3,7 @@
 package closure
 
 type TypeStringBuilder struct {
-	builder               *StringBuilder
+	builder               *strBuilder_
 	indentation           string
 	isForAnnotationsField bool
 }
@@ -13,7 +13,7 @@ func (this *TypeStringBuilder) zero_TypeStringBuilder() {
 }
 
 func (this *TypeStringBuilder) finit_TypeStringBuilder() {
-	this.builder = new_StringBuilder()
+	this.builder = &strBuilder_{}
 	this.indentation = ""
 }
 

@@ -134,7 +134,7 @@ func (this *BaseTranspiler_CompilerSupplier) compile(path string, code string) *
 	}
 	return new_BaseTranspiler_CompileResult(source, transpiled, func() string {
 		if transpiled {
-			return tostrR_(sourceMap)
+			return sourceMap.toString()
 		}
 		return ""
 	}())

@@ -3,7 +3,7 @@
 package closure
 
 type SimpleJsonWriter struct {
-	out            *StringBuilder
+	out            *strBuilder_
 	stack          *JTList[any]
 	indent_        string
 	sink           Consumer[string]
@@ -17,7 +17,7 @@ func (this *SimpleJsonWriter) zero_SimpleJsonWriter() {
 }
 
 func (this *SimpleJsonWriter) finit_SimpleJsonWriter() {
-	this.out = new_StringBuilder()
+	this.out = &strBuilder_{}
 	this.stack = jnewTList_(tc_Integer)
 	this.indent_ = ""
 	this.htmlSafe = false

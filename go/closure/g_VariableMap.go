@@ -159,7 +159,7 @@ func VariableMap_unescape(value string) string {
 		}
 		sb.append_char(c)
 	}
-	return tostrR_(sb)
+	return sb.toString()
 }
 
 func VariableMap_fromMap(map_ *JTMap[string, string]) *VariableMap {
