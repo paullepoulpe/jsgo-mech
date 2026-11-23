@@ -9,11 +9,11 @@ type RewriteGoogJsImports struct {
 	moduleMap          *ModuleMap
 	compiler_          *AbstractCompiler
 	googModule         *Module
-	moduleReplacements *TMap[*Module, *Module]
+	moduleReplacements TMap[*Module, *Module]
 }
 
 func (this *RewriteGoogJsImports) finit_RewriteGoogJsImports() {
-	this.moduleReplacements = newTMap_(tch_p_Module, tc_p_Module)
+	initTMap_(&this.moduleReplacements, tch_p_Module, tc_p_Module)
 }
 
 func (this *RewriteGoogJsImports) init_RewriteGoogJsImports(compiler *AbstractCompiler, mode RewriteGoogJsImports_Mode, moduleMap *ModuleMap) {

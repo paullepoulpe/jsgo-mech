@@ -1,0 +1,289 @@
+package closure
+
+// ---- kept by value
+
+// Node: two lists with a capacity, read by a method call (left as it is), as a value
+// (returned, passed, a for-each's snapshot: &x.f) and through another object's pointer.
+type Node struct {
+	self_ any
+	in    TList[string]
+	out   TList[string]
+	prio  int32
+}
+
+func (this *Node) zero_Node() { this.prio = 0 }
+
+func (this *Node) finit_Node() {
+	initTListN_(&this.in, tc_string, 1)
+	initTListN_(&this.out, tc_string, 1)
+	this.prio = -1
+}
+
+func (this *Node) init_Node() {
+	this.finit_Node()
+}
+
+func new_Node() *Node {
+	this := &Node{}
+	this.self_ = this
+	this.zero_Node()
+	this.init_Node()
+	return this
+}
+
+func (this *Node) getIn() *TList[string] { return &this.in }
+
+func (this *Node) addOut(v string) { this.out.add(v) }
+
+func (this *Node) count(o *Node) int32 {
+	l_1 := &this.in
+	return l_1.size() + useList(&o.out) + int32(len((this.out).items))
+}
+
+// Gen: a generic class with a map and a set made with explicit type arguments.
+type Gen[K comparable, V any] struct {
+	self_ any
+	m     TMap[K, V]
+	s     TSet[string]
+}
+
+func (this *Gen[K, V]) finit_Gen() {
+	initTMap_(&this.m, &tconv_[K]{}, &tconv_[V]{})
+	initTSetN_[string](&this.s, tc_string, 4)
+}
+
+func (this *Gen[K, V]) init_Gen() {
+	this.finit_Gen()
+}
+
+func new_Gen[K comparable, V any]() *Gen[K, V] {
+	this := &Gen[K, V]{}
+	this.self_ = this
+	this.init_Gen()
+	return this
+}
+
+func (this *Gen[K, V]) put(k K, v V) *TMap[K, V] { this.m.Put(k, v); this.s.Add("x"); return &this.m }
+
+// Sub embeds Base by value; its constructor runs Base's (whose body does not let the object
+// escape) before its own finit_; Base's field is read through a *Sub.
+type Base struct {
+	self_ any
+	items TList[string]
+	name  string
+}
+
+func (this *Base) finit_Base() { initTList_(&this.items, tc_string) }
+
+func (this *Base) init_Base(name string) {
+	this.finit_Base()
+	this.name = name
+}
+
+func new_Base(name string) *Base {
+	this := &Base{}
+	this.self_ = this
+	this.init_Base(name)
+	return this
+}
+
+type Sub struct {
+	Base
+	extra TList[string]
+}
+
+func (this *Sub) finit_Sub() { initTList_(&this.extra, tc_string) }
+
+func (this *Sub) init_Sub(name string) {
+	this.Base.init_Base(name + "!")
+	this.finit_Sub()
+}
+
+func new_Sub(name string) *Sub {
+	this := &Sub{}
+	this.self_ = this
+	this.init_Sub(name)
+	return this
+}
+
+func (this *Sub) all() []*TList[string] { return []*TList[string]{&this.items, &this.extra} }
+
+// ---- refused
+
+// Twice: assigned again by a method.
+type Twice struct{ f *TList[string] }
+
+func (this *Twice) finit_Twice()        { this.f = newTList_(tc_string) }
+func (this *Twice) init_Twice()         { this.finit_Twice() }
+func (this *Twice) reset()              { this.f = newTList_(tc_string) }
+func new_Twice() *Twice                 { this := &Twice{}; this.init_Twice(); return this }
+func (this *Twice) get() *TList[string] { return this.f }
+
+// Setter: assigned only outside finit_.
+type Setter struct{ f *TList[string] }
+
+func (this *Setter) set(l *TList[string]) { this.f = l }
+
+// Copied: initialized from a copy.
+type Copied struct{ f *TList[string] }
+
+func (this *Copied) finit_Copied() { this.f = tlistCopy_(tc_string, newTList_(tc_string)) }
+func (this *Copied) init_Copied()  { this.finit_Copied() }
+func new_Copied() *Copied          { this := &Copied{}; this.init_Copied(); return this }
+
+// Cond: assigned under a condition of finit_.
+type Cond struct {
+	f  *TList[string]
+	on bool
+}
+
+func (this *Cond) finit_Cond() {
+	if this.on {
+		this.f = newTList_(tc_string)
+	}
+}
+func (this *Cond) init_Cond() { this.finit_Cond() }
+func new_Cond() *Cond         { this := &Cond{}; this.init_Cond(); return this }
+
+// NilTest, Compared, Addr: the field is tested for nil, compared, its address taken.
+type NilTest struct{ f *TList[string] }
+
+func (this *NilTest) finit_NilTest() { this.f = newTList_(tc_string) }
+func (this *NilTest) init_NilTest()  { this.finit_NilTest() }
+func new_NilTest() *NilTest          { this := &NilTest{}; this.init_NilTest(); return this }
+func (this *NilTest) has() bool      { return this.f != nil }
+
+type Compared struct{ f *TList[string] }
+
+func (this *Compared) finit_Compared()            { this.f = newTList_(tc_string) }
+func (this *Compared) init_Compared()             { this.finit_Compared() }
+func new_Compared() *Compared                     { this := &Compared{}; this.init_Compared(); return this }
+func (this *Compared) same(l *TList[string]) bool { return this.f == l }
+
+type Addr struct{ f *TList[string] }
+
+func (this *Addr) finit_Addr()           { this.f = newTList_(tc_string) }
+func (this *Addr) init_Addr()            { this.finit_Addr() }
+func new_Addr() *Addr                    { this := &Addr{}; this.init_Addr(); return this }
+func (this *Addr) slot() **TList[string] { return &this.f }
+
+// Keyed: the field is set in a composite literal.
+type Keyed struct{ f *TList[string] }
+
+func (this *Keyed) finit_Keyed() { this.f = newTList_(tc_string) }
+func (this *Keyed) init_Keyed()  { this.finit_Keyed() }
+func new_Keyed() *Keyed          { this := &Keyed{}; this.init_Keyed(); return this }
+func keyedOf() *Keyed            { return &Keyed{f: newTList_(tc_string)} }
+
+// ByValue: an object is copied (a variable holds one by value).
+type ByValue struct{ f *TList[string] }
+
+func (this *ByValue) finit_ByValue() { this.f = newTList_(tc_string) }
+func (this *ByValue) init_ByValue()  { this.finit_ByValue() }
+func new_ByValue() *ByValue          { this := &ByValue{}; this.init_ByValue(); return this }
+func (this *ByValue) dup() *ByValue  { c := *this; return &c }
+
+// Elsewhere: an object made by a literal outside a new_ function.
+type Elsewhere struct{ f *TList[string] }
+
+func (this *Elsewhere) finit_Elsewhere() { this.f = newTList_(tc_string) }
+func (this *Elsewhere) init_Elsewhere()  { this.finit_Elsewhere() }
+func new_Elsewhere() *Elsewhere          { this := &Elsewhere{}; this.init_Elsewhere(); return this }
+func blank() *Elsewhere                  { return &Elsewhere{} }
+
+// Escape: the constructor gives the object away before finit_ (a subclass's method could read
+// the field before it is set).
+type Escape struct {
+	self_ any
+	f     *TList[string]
+}
+
+func (this *Escape) finit_Escape() { this.f = newTList_(tc_string) }
+func (this *Escape) init_Escape() {
+	register(this.self_)
+	this.finit_Escape()
+}
+func new_Escape() *Escape { this := &Escape{}; this.self_ = this; this.init_Escape(); return this }
+
+// SuperEscape: the superclass's constructor gives the object away.
+type Leaky struct{ self_ any }
+
+func (this *Leaky) init_Leaky() { register(this.self_) }
+
+type SuperEscape struct {
+	Leaky
+	f *TList[string]
+}
+
+func (this *SuperEscape) finit_SuperEscape() { this.f = newTList_(tc_string) }
+func (this *SuperEscape) init_SuperEscape() {
+	this.Leaky.init_Leaky()
+	this.finit_SuperEscape()
+}
+func new_SuperEscape() *SuperEscape {
+	this := &SuperEscape{}
+	this.self_ = this
+	this.init_SuperEscape()
+	return this
+}
+
+// Cloned: copied by Object_clone.
+type Cloned struct{ f *TList[string] }
+
+func (this *Cloned) finit_Cloned() { this.f = newTList_(tc_string) }
+func (this *Cloned) init_Cloned()  { this.finit_Cloned() }
+func new_Cloned() *Cloned          { this := &Cloned{}; this.init_Cloned(); return this }
+func (this *Cloned) clone_() any   { return Object_clone(obj_(this)) }
+
+// Deleg: a constructor that runs finit_ delegates to another that runs it too.
+type Deleg struct{ f *TList[string] }
+
+func (this *Deleg) finit_Deleg() { this.f = newTList_(tc_string) }
+func (this *Deleg) init_Deleg()  { this.finit_Deleg() }
+func (this *Deleg) init_Deleg_1() {
+	this.finit_Deleg()
+	this.init_Deleg()
+}
+func new_Deleg() *Deleg { this := &Deleg{}; this.init_Deleg_1(); return this }
+
+// Reinit: a constructor called by an ordinary method.
+type Reinit struct{ f *TList[string] }
+
+func (this *Reinit) finit_Reinit() { this.f = newTList_(tc_string) }
+func (this *Reinit) init_Reinit()  { this.finit_Reinit() }
+func new_Reinit() *Reinit          { this := &Reinit{}; this.init_Reinit(); return this }
+func (this *Reinit) again()        { this.init_Reinit() }
+
+// ZeroRead: read by zero_, which runs before the constructor.
+type ZeroRead struct {
+	f *TList[string]
+	n int32
+}
+
+func (this *ZeroRead) zero_ZeroRead()  { this.n = useList(this.f) }
+func (this *ZeroRead) finit_ZeroRead() { this.f = newTList_(tc_string) }
+func (this *ZeroRead) init_ZeroRead()  { this.finit_ZeroRead() }
+func new_ZeroRead() *ZeroRead {
+	this := &ZeroRead{}
+	this.zero_ZeroRead()
+	this.init_ZeroRead()
+	return this
+}
+
+// RtRead: read by the runtime (rt_stub.go).
+type RtRead struct{ f *TList[string] }
+
+func (this *RtRead) finit_RtRead() { this.f = newTList_(tc_string) }
+func (this *RtRead) init_RtRead()  { this.finit_RtRead() }
+func new_RtRead() *RtRead          { this := &RtRead{}; this.init_RtRead(); return this }
+
+// Beside: declared in one field list with a refused field.
+type Beside struct{ a, b *TList[string] }
+
+func (this *Beside) finit_Beside() {
+	this.a = newTList_(tc_string)
+	this.b = newTList_(tc_string)
+}
+func (this *Beside) init_Beside() { this.finit_Beside() }
+func new_Beside() *Beside         { this := &Beside{}; this.init_Beside(); return this }
+func (this *Beside) isB() bool    { return this.b == nil }

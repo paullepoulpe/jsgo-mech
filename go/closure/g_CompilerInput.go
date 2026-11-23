@@ -12,9 +12,9 @@ type CompilerInput struct {
 	dependencyInfo             DependencyInfo_
 	extraRequires              *[]*DependencyInfo_Require
 	extraProvides              *[]string
-	orderedRequires            *TList[*DependencyInfo_Require]
-	dynamicRequires            *TList[string]
-	requireDynamicImports      *TList[string]
+	orderedRequires            TList[*DependencyInfo_Require]
+	dynamicRequires            TList[string]
+	requireDynamicImports      TList[string]
 	jsModuleType               CompilerInput_ModuleType
 	typedScope                 *TypedScope
 	compiler_                  *AbstractCompiler
@@ -26,9 +26,9 @@ func (this *CompilerInput) finit_CompilerInput() {
 	this.ast = new_CompilerInput_JsAst(this)
 	this.extraRequires = &[]*DependencyInfo_Require{}
 	this.extraProvides = &[]string{}
-	this.orderedRequires = newTList_(tc_p_DependencyInfo_Require)
-	this.dynamicRequires = newTList_(tc_string)
-	this.requireDynamicImports = newTList_(tc_string)
+	initTList_(&this.orderedRequires, tc_p_DependencyInfo_Require)
+	initTList_(&this.dynamicRequires, tc_string)
+	initTList_(&this.requireDynamicImports, tc_string)
 	this.hasFullParseDependencyInfo = false
 	this.jsModuleType = CompilerInput_ModuleType_NONE
 }
@@ -140,7 +140,7 @@ func (this *CompilerInput) setCompiler(compiler *AbstractCompiler) {
 
 func (this *CompilerInput) getRequires() ListT[*DependencyInfo_Require] {
 	if this.hasFullParseDependencyInfo {
-		return immutableListCopyOfT_(tc_p_DependencyInfo_Require, this.orderedRequires).asListT()
+		return immutableListCopyOfT_(tc_p_DependencyInfo_Require, &this.orderedRequires).asListT()
 	}
 	return this.getDependencyInfo().getRequires()
 }
@@ -196,7 +196,7 @@ func (this *CompilerInput) addOrderedRequire(require *DependencyInfo_Require) bo
 }
 
 func (this *CompilerInput) getDynamicRequires() *TList[string] {
-	return immutableListCopyOfT_(tc_string, this.dynamicRequires)
+	return immutableListCopyOfT_(tc_string, &this.dynamicRequires)
 }
 
 func (this *CompilerInput) addDynamicRequire(require string) bool {
@@ -208,7 +208,7 @@ func (this *CompilerInput) addDynamicRequire(require string) bool {
 }
 
 func (this *CompilerInput) getRequireDynamicImports() *TList[string] {
-	return immutableListCopyOfT_(tc_string, this.requireDynamicImports)
+	return immutableListCopyOfT_(tc_string, &this.requireDynamicImports)
 }
 
 func (this *CompilerInput) addRequireDynamicImports(require string) {
@@ -345,17 +345,17 @@ const CompilerInput_serialVersionUID int64 = 2
 
 type CompilerInput_DepsFinder struct {
 	loadFlags_   *TMap[string, string]
-	provides     *TList[string]
-	requires     *TList[*DependencyInfo_Require]
-	typeRequires *TList[string]
+	provides     TList[string]
+	requires     TList[*DependencyInfo_Require]
+	typeRequires TList[string]
 	modulePath_  *ModuleLoader_ModulePath
 }
 
 func (this *CompilerInput_DepsFinder) finit_CompilerInput_DepsFinder() {
 	this.loadFlags_ = newTSortedMap_(tc_string, tc_string)
-	this.provides = newTList_(tc_string)
-	this.requires = newTList_(tc_p_DependencyInfo_Require)
-	this.typeRequires = newTList_(tc_string)
+	initTList_(&this.provides, tc_string)
+	initTList_(&this.requires, tc_p_DependencyInfo_Require)
+	initTList_(&this.typeRequires, tc_string)
 }
 
 func (this *CompilerInput_DepsFinder) init_CompilerInput_DepsFinder(modulePath *ModuleLoader_ModulePath) {

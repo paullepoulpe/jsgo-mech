@@ -72,13 +72,13 @@ func StringPool_clinit() {
 }
 
 type StringPool_Builder struct {
-	pool      *TMap[string, any]
+	pool      TMap[string, any]
 	maxLength int32
 }
 
 func (this *StringPool_Builder) finit_StringPool_Builder() {
 	this.maxLength = 0
-	this.pool = newTMap_(tc_string, tc_Integer)
+	initTMap_(&this.pool, tc_string, tc_Integer)
 }
 
 func (this *StringPool_Builder) init_StringPool_Builder() {

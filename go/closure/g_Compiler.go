@@ -64,7 +64,7 @@ type Compiler struct {
 	propertyMap                    *VariableMap
 	stringMap                      *VariableMap
 	instrumentationMapping         *VariableMap
-	exportedNames                  *TSet[string]
+	exportedNames                  TSet[string]
 	defineNames                    *TSet[string]
 	moduleMetadataMap              *ModuleMetadataMap
 	moduleMap                      *ModuleMap
@@ -142,7 +142,7 @@ func (this *Compiler) finit_Compiler() {
 	this.instrumentationMapping = nil
 	this.idGeneratorMap = nullstr_
 	this.transpiledFiles = false
-	this.exportedNames = newTSet_(tc_string)
+	initTSet_(&this.exportedNames, tc_string)
 	this.defineNames = tsetEmptyImm_(tc_string)
 }
 
@@ -2527,11 +2527,11 @@ func (this *Compiler) getInstrumentationMapping() *VariableMap {
 }
 
 func (this *Compiler) addExportedNames_impl(exportedNames *TSet[string]) {
-	tsetAddSetT_(this.exportedNames, exportedNames)
+	tsetAddSetT_(&this.exportedNames, exportedNames)
 }
 
 func (this *Compiler) getExportedNames_impl() *TSet[string] {
-	return this.exportedNames
+	return &this.exportedNames
 }
 
 func (this *Compiler) setDefineNames_impl(defineNames CollectionT[string]) {
@@ -2984,7 +2984,7 @@ func (this *Compiler) restoreFromState(compilerState *JSCompilerStateProto) {
 	this.uniqueNameId = compilerState.getUniqueNameId()
 	this.uniqueIdSupplier = UniqueIdSupplier_fromProto(listAs_(tc_p_UniqueIdProto, compilerState.getUniqueIdSupplierList()))
 	this.exportedNames.Clear()
-	tsetAddAllOfT_(this.exportedNames, Collection(compilerState.getExportedNamesList()))
+	tsetAddAllOfT_(&this.exportedNames, Collection(compilerState.getExportedNamesList()))
 	if compilerState.getHasCssNames() {
 		this.cssNames = tsetFrom_(tc_string, Collection(compilerState.getCssNamesList()), false)
 	} else {
@@ -3355,7 +3355,7 @@ type Compiler_SeenSetLicenseTracker struct {
 	self_                  Compiler_SeenSetLicenseTracker_I
 	compiler_              *AbstractCompiler
 	globallyUniqueLicenses map[string]struct{}
-	currentlySeenLicenses  *TSet[string]
+	currentlySeenLicenses  TSet[string]
 	lastSeenFile           string
 }
 
@@ -3382,7 +3382,7 @@ func (this *Compiler_SeenSetLicenseTracker) zero_Compiler_SeenSetLicenseTracker(
 
 func (this *Compiler_SeenSetLicenseTracker) finit_Compiler_SeenSetLicenseTracker() {
 	this.globallyUniqueLicenses = map[string]struct{}{}
-	this.currentlySeenLicenses = newTSet_(tc_string)
+	initTSet_(&this.currentlySeenLicenses, tc_string)
 	this.lastSeenFile = ""
 }
 
@@ -3419,7 +3419,7 @@ func (this *Compiler_SeenSetLicenseTracker) trackLicensesForNode(node Node) {
 }
 
 func (this *Compiler_SeenSetLicenseTracker) emitLicenses() *TSet[string] {
-	var rv *TSet[string] = immutableSetCopyOfT_(tc_string, this.currentlySeenLicenses)
+	var rv *TSet[string] = immutableSetCopyOfT_(tc_string, &this.currentlySeenLicenses)
 	setAddAllFrom_(tc_string, this.globallyUniqueLicenses, Collection(this.currentlySeenLicenses.asSetT()))
 	this.currentlySeenLicenses.Clear()
 	return rv
@@ -3496,7 +3496,7 @@ type Compiler_ChunkGraphAwareLicenseTracker struct {
 	licensesFromChunks                  map[*JSChunk]SetT[string]
 	currentChunkLicencesInTDeps         map[string]struct{}
 	lastSeenFile                        string
-	licensesNewInCurrentFile            *TSet[string]
+	licensesNewInCurrentFile            TSet[string]
 	licensesNewInCurrentChunk           *TSet[string]
 	log_                                *LogFile
 	currentChunk                        *JSChunk
@@ -3512,7 +3512,7 @@ func (this *Compiler_ChunkGraphAwareLicenseTracker) finit_Compiler_ChunkGraphAwa
 	this.haveInitializedCurrentChunkLicenses = false
 	this.currentChunkLicencesInTDeps = map[string]struct{}{}
 	this.lastSeenFile = ""
-	this.licensesNewInCurrentFile = newTSet_(tc_string)
+	initTSet_(&this.licensesNewInCurrentFile, tc_string)
 	this.licensesNewInCurrentChunk = newTSet_(tc_string)
 	this.log_ = LogFile_createNoOp()
 }
@@ -3590,7 +3590,7 @@ func (this *Compiler_ChunkGraphAwareLicenseTracker) trackLicensesForNode(node No
 }
 
 func (this *Compiler_ChunkGraphAwareLicenseTracker) emitLicenses() *TSet[string] {
-	var licensesNewInFile *TSet[string] = immutableSetCopyOfT_(tc_string, this.licensesNewInCurrentFile)
+	var licensesNewInFile *TSet[string] = immutableSetCopyOfT_(tc_string, &this.licensesNewInCurrentFile)
 	tsetAddSetT_(this.licensesNewInCurrentChunk, licensesNewInFile)
 	this.licensesNewInCurrentFile.Clear()
 	return licensesNewInFile

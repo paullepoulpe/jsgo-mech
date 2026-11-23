@@ -3,8 +3,8 @@
 package closure
 
 type SimpleBiMap[K comparable, V comparable] struct {
-	forward  *TMap[K, V]
-	backward *TMap[V, K]
+	forward  TMap[K, V]
+	backward TMap[V, K]
 }
 
 func (this *SimpleBiMap[K, V]) isa_SimpleBiMap_() {}
@@ -14,8 +14,8 @@ func (this *SimpleBiMap[K, V]) isa_SimpleBiMap_() {}
 type SimpleBiMap_isa interface{ isa_SimpleBiMap_() }
 
 func (this *SimpleBiMap[K, V]) finit_SimpleBiMap() {
-	this.forward = newTMap_(tchT_[K](), tcT_[V]())
-	this.backward = newTMap_(tchT_[V](), tcT_[K]())
+	initTMap_(&this.forward, tchT_[K](), tcT_[V]())
+	initTMap_(&this.backward, tchT_[V](), tcT_[K]())
 }
 
 func (this *SimpleBiMap[K, V]) init_SimpleBiMap() {

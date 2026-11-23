@@ -298,7 +298,7 @@ func (this *InlineVariables_InliningBehavior) varsInThisScopeMayBeModifiedUsingA
 		var arguments *Var = scope.getArgumentsVar_rVar()
 		var refs *ReferenceCollection = referenceMap.getReferences_Var(arguments)
 		if (refs != nil) && !refs.references.isEmpty() {
-			l_1 := refs.references
+			l_1 := &refs.references
 			for i_1 := 0; i_1 < len(l_1.items); i_1++ {
 				var ref *Reference = l_1.items[i_1]
 				if !this.isSafeUseOfArguments(ref.getNode()) {
@@ -699,7 +699,7 @@ func (this *InlineVariables_InliningBehavior_StandardVarExpert) allReferencesAre
 		var neverAssigned bool = this.isNeverAssigned()
 		if hasValidDeclaration && (hasValidInitialization || neverAssigned) {
 			var initialization *Reference = this.getInitialization()
-			l_1 := this.referenceInfo.references
+			l_1 := &this.referenceInfo.references
 			for i_1 := 0; i_1 < len(l_1.items); i_1++ {
 				var ref *Reference = l_1.items[i_1]
 				if ((ref != this.declaration_) && (ref != initialization)) && !this.outer_.isValidReference(ref) {
@@ -743,7 +743,7 @@ func (this *InlineVariables_InliningBehavior_StandardVarExpert) analyzeWithIniti
 			return new_InlineVariables_InliningBehavior_PositiveInlineVarAnalysis(func() {
 				var srcLocation Node = this.declaration_.getNode()
 				var undefinedNode Node = NodeUtil_newUndefinedNode(srcLocation)
-				this.outer_.inlineWellDefinedVariable(this.v, undefinedNode, this.referenceInfo.references)
+				this.outer_.inlineWellDefinedVariable(this.v, undefinedNode, &this.referenceInfo.references)
 			}).up_InlineVariables_InlineVarAnalysis()
 		}
 		if this.isWellDefined() && (initialValueAnalysis.isImmutableValue() || (initValue.isThis() && !this.referenceInfo.isThisRebound())) {
@@ -783,7 +783,7 @@ func (this *InlineVariables_InliningBehavior_StandardVarExpert) getNegativeInlin
 
 func (this *InlineVariables_InliningBehavior_StandardVarExpert) createInlineWellDefinedVarAnalysis(initValue Node) *InlineVariables_InliningBehavior_PositiveInlineVarAnalysis {
 	return new_InlineVariables_InliningBehavior_PositiveInlineVarAnalysis(func() {
-		this.outer_.inlineWellDefinedVariable(this.v, initValue, this.referenceInfo.references)
+		this.outer_.inlineWellDefinedVariable(this.v, initValue, &this.referenceInfo.references)
 	})
 }
 

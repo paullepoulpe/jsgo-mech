@@ -4600,11 +4600,11 @@ func NodeUtil_ValueType_clinit() {
 }
 
 type NodeUtil_VarCollector struct {
-	vars *TMap[string, Node]
+	vars TMap[string, Node]
 }
 
 func (this *NodeUtil_VarCollector) finit_NodeUtil_VarCollector() {
-	this.vars = newTMap_(tc_string, tc_Node)
+	initTMap_(&this.vars, tc_string, tc_Node)
 }
 
 func (this *NodeUtil_VarCollector) init_NodeUtil_VarCollector() {

@@ -7,9 +7,9 @@ type AmbiguateProperties struct {
 	stringNodesToRename        *[]Node
 	reservedFirstCharacters    *TSet[any]
 	reservedNonFirstCharacters *TSet[any]
-	propertyMap                *TMap[string, *AmbiguateProperties_Property]
+	propertyMap                TMap[string, *AmbiguateProperties_Property]
 	externedNames              *TSet[string]
-	quotedNames                *TSet[string]
+	quotedNames                TSet[string]
 	colorRegistry              *ColorRegistry
 	renamingMap                map[string]string
 	graphNodeFactory           *ColorGraphNodeFactory
@@ -17,8 +17,8 @@ type AmbiguateProperties struct {
 
 func (this *AmbiguateProperties) finit_AmbiguateProperties() {
 	this.stringNodesToRename = &[]Node{}
-	this.propertyMap = newTMap_(tc_string, tc_p_AmbiguateProperties_Property)
-	this.quotedNames = newTSet_(tc_string)
+	initTMap_(&this.propertyMap, tc_string, tc_p_AmbiguateProperties_Property)
+	initTSet_(&this.quotedNames, tc_string)
 	this.renamingMap = nil
 	this.graphNodeFactory = nil
 }

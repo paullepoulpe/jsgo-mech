@@ -4,7 +4,7 @@ package closure
 
 type LinkedDirectedGraph[N comparable, E comparable] struct {
 	DiGraph[N, E]
-	nodes_             *TMap[N, *LinkedDirectedGraph_LinkedDiGraphNode[N, E]]
+	nodes_             TMap[N, *LinkedDirectedGraph_LinkedDiGraphNode[N, E]]
 	useNodeAnnotations bool
 	useEdgeAnnotations bool
 }
@@ -50,7 +50,7 @@ func (this *LinkedDirectedGraph[N, E]) up_Graph() *Graph[N, E] {
 }
 
 func (this *LinkedDirectedGraph[N, E]) finit_LinkedDirectedGraph() {
-	this.nodes_ = newTMap_(tchT_[N](), tc_p_LinkedDirectedGraph_LinkedDiGraphNode_N__E_[N, E]())
+	initTMap_(&this.nodes_, tchT_[N](), tc_p_LinkedDirectedGraph_LinkedDiGraphNode_N__E_[N, E]())
 }
 
 func (this *LinkedDirectedGraph[N, E]) init_LinkedDirectedGraph(useNodeAnnotations bool, useEdgeAnnotations bool) {
@@ -395,8 +395,8 @@ func (this *LinkedDirectedGraph[N, E]) getDirectedSuccNodesDiGraphNode_DiGraphNo
 
 type LinkedDirectedGraph_LinkedDiGraphNode[N comparable, E comparable] struct {
 	self_       LinkedDirectedGraph_LinkedDiGraphNode_vt_[N, E]
-	inEdgeList  *TList[*LinkedDirectedGraph_LinkedDiGraphEdge[N, E]]
-	outEdgeList *TList[*LinkedDirectedGraph_LinkedDiGraphEdge[N, E]]
+	inEdgeList  TList[*LinkedDirectedGraph_LinkedDiGraphEdge[N, E]]
+	outEdgeList TList[*LinkedDirectedGraph_LinkedDiGraphEdge[N, E]]
 	value_      N
 	priority    int32
 }
@@ -446,8 +446,8 @@ func (this *LinkedDirectedGraph_LinkedDiGraphNode[N, E]) zero_LinkedDirectedGrap
 }
 
 func (this *LinkedDirectedGraph_LinkedDiGraphNode[N, E]) finit_LinkedDirectedGraph_LinkedDiGraphNode() {
-	this.inEdgeList = newTListN_(tc_p_LinkedDirectedGraph_LinkedDiGraphEdge_N__E_[N, E](), 1)
-	this.outEdgeList = newTListN_(tc_p_LinkedDirectedGraph_LinkedDiGraphEdge_N__E_[N, E](), 1)
+	initTListN_(&this.inEdgeList, tc_p_LinkedDirectedGraph_LinkedDiGraphEdge_N__E_[N, E](), 1)
+	initTListN_(&this.outEdgeList, tc_p_LinkedDirectedGraph_LinkedDiGraphEdge_N__E_[N, E](), 1)
 	this.priority = -1
 }
 

@@ -174,7 +174,7 @@ func (this *AbstractCommandLineRunner) setRunOptions(options *CompilerOptions) *
 	if !this.config.hideWarningsFor.isEmpty() {
 		options.addWarningsGuard(new_ShowByPathWarningsGuard_StringArr_ShowType(arrmap_(this.config.hideWarningsFor.toArray(arrmap_([]string{}, strobj_)), str_), ShowByPathWarningsGuard_ShowType_EXCLUDE).up_WarningsGuard())
 	}
-	var define *TList[string] = tlistCopy_(tc_string, this.config.define)
+	var define *TList[string] = tlistCopy_(tc_string, &this.config.define)
 	if this.config.browserFeaturesetYear != 0 {
 		var yearRes *Outcome_base[CompilerOptions_BrowserFeaturesetYear] = CompilerOptions_BrowserFeaturesetYear_fromResult(this.config.browserFeaturesetYear)
 		if yearRes.isErr() {
@@ -936,7 +936,7 @@ func (this *AbstractCommandLineRunner) doRun() *Outcome_base[any] {
 	options.setDoLateLocalization(this.config.shouldDoLateLocalization())
 	options.setAlwaysGatherSourceMapInfo(this.config.shouldAlwaysGatherSourceMapInfo())
 	this.compiler_.initOptions(options)
-	var sourcesOutcome *Outcome_base[ListT[*SourceFile_jscomp]] = this.createSourceInputs(jsChunkSpecs, this.config.mixedJsSources, jsonFiles, this.config.moduleRoots)
+	var sourcesOutcome *Outcome_base[ListT[*SourceFile_jscomp]] = this.createSourceInputs(jsChunkSpecs, &this.config.mixedJsSources, jsonFiles, this.config.moduleRoots)
 	if sourcesOutcome.isErr() {
 		return Outcome_base_err[any](sourcesOutcome.error())
 	}
@@ -2119,7 +2119,7 @@ type AbstractCommandLineRunner_CommandLineConfig struct {
 	jscompDevMode                    CompilerOptions_DevMode
 	loggingLevel                     string
 	externs                          *[]string
-	mixedJsSources                   *TList[*AbstractCommandLineRunner_FlagEntry[any]]
+	mixedJsSources                   TList[*AbstractCommandLineRunner_FlagEntry[any]]
 	jsOutputFile                     string
 	chunk_                           *[]string
 	sourceMapInputFiles              *TMap[string, string]
@@ -2141,7 +2141,7 @@ type AbstractCommandLineRunner_CommandLineConfig struct {
 	sourceMapFormat                  SourceMap_Format
 	sourceMapLocationMappings        *TList[SourceMap_LocationMapping]
 	warningGuards                    *[]*AbstractCommandLineRunner_FlagEntry[any]
-	define                           *TList[string]
+	define                           TList[string]
 	tweakProcessing                  CompilerOptions_TweakProcessing
 	charset                          string
 	dependencyOptions                *DependencyOptions
@@ -2200,7 +2200,7 @@ func (this *AbstractCommandLineRunner_CommandLineConfig) finit_AbstractCommandLi
 	this.jscompDevMode = CompilerOptions_DevMode_OFF
 	this.loggingLevel = Level_WARNING.getName()
 	this.externs = &[]string{}
-	this.mixedJsSources = newTList_(tc_p_AbstractCommandLineRunner_FlagEntry)
+	initTList_(&this.mixedJsSources, tc_p_AbstractCommandLineRunner_FlagEntry)
 	this.defaultToStdin = false
 	this.jsOutputFile = ""
 	this.continueSavedCompilationFileName = nullstr_
@@ -2232,7 +2232,7 @@ func (this *AbstractCommandLineRunner_CommandLineConfig) finit_AbstractCommandLi
 	this.sourceMapLocationMappings = tlistEmptyImm_(tc_SourceMap_LocationMapping)
 	this.applyInputSourceMaps = false
 	this.warningGuards = &[]*AbstractCommandLineRunner_FlagEntry[any]{}
-	this.define = newTList_(tc_string)
+	initTList_(&this.define, tc_string)
 	this.browserFeaturesetYear = 0
 	this.tweakProcessing = CompilerOptions_TweakProcessing_OFF
 	this.charset = ""

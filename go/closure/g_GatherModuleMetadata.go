@@ -5,8 +5,8 @@ package closure
 import "strings"
 
 type GatherModuleMetadata struct {
-	modulesByPath          *TMap[string, *ModuleMetadataMap_ModuleMetadata]
-	modulesByGoogNamespace *TMap[string, *ModuleMetadataMap_ModuleMetadata]
+	modulesByPath          TMap[string, *ModuleMetadataMap_ModuleMetadata]
+	modulesByGoogNamespace TMap[string, *ModuleMetadataMap_ModuleMetadata]
 	currentModule          *GatherModuleMetadata_ModuleMetadataBuilder
 	parentModule           *GatherModuleMetadata_ModuleMetadataBuilder
 	compiler_              *AbstractCompiler
@@ -16,8 +16,8 @@ type GatherModuleMetadata struct {
 }
 
 func (this *GatherModuleMetadata) finit_GatherModuleMetadata() {
-	this.modulesByPath = newTMap_(tc_string, tc_p_ModuleMetadataMap_ModuleMetadata)
-	this.modulesByGoogNamespace = newTMap_(tc_string, tc_p_ModuleMetadataMap_ModuleMetadata)
+	initTMap_(&this.modulesByPath, tc_string, tc_p_ModuleMetadataMap_ModuleMetadata)
+	initTMap_(&this.modulesByGoogNamespace, tc_string, tc_p_ModuleMetadataMap_ModuleMetadata)
 }
 
 func (this *GatherModuleMetadata) init_GatherModuleMetadata(compiler *AbstractCompiler, processCommonJsModules bool, moduleResolutionMode ModuleLoader_ResolutionMode) {
@@ -36,7 +36,7 @@ func new_GatherModuleMetadata(compiler *AbstractCompiler, processCommonJsModules
 func (this *GatherModuleMetadata) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, externs, NodeTraversal_Callback(new_GatherModuleMetadata_Finder(this)))
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(new_GatherModuleMetadata_Finder(this)))
-	this.compiler_.setModuleMetadataMap(new_ModuleMetadataMap(this.modulesByPath, this.modulesByGoogNamespace))
+	this.compiler_.setModuleMetadataMap(new_ModuleMetadataMap(&this.modulesByPath, &this.modulesByGoogNamespace))
 }
 
 func GatherModuleMetadata_isValidModuleId(id string) bool {

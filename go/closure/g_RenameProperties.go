@@ -7,12 +7,12 @@ type RenameProperties struct {
 	prevUsedPropertyMap             *VariableMap
 	toRemove                        *[]Node
 	stringNodesToRename             *[]Node
-	callNodeToParentMap             *TMap[Node, Node]
+	callNodeToParentMap             TMap[Node, Node]
 	reservedFirstCharacters         *TSet[any]
 	reservedNonFirstCharacters      *TSet[any]
-	propertyMap                     *TMap[string, *RenameProperties_Property]
+	propertyMap                     TMap[string, *RenameProperties_Property]
 	externedNames                   *TSet[string]
-	quotedNames                     *TSet[string]
+	quotedNames                     TSet[string]
 	nameGenerator                   NameGenerator
 	propertyRenameEligibilityFilter Predicate[Node]
 	filteredOutNames                map[string]struct{}
@@ -22,10 +22,10 @@ type RenameProperties struct {
 func (this *RenameProperties) finit_RenameProperties() {
 	this.toRemove = &[]Node{}
 	this.stringNodesToRename = &[]Node{}
-	this.callNodeToParentMap = newTMap_(tc_Node, tc_Node)
-	this.propertyMap = newTMap_(tc_string, tc_p_RenameProperties_Property)
+	initTMap_(&this.callNodeToParentMap, tc_Node, tc_Node)
+	initTMap_(&this.propertyMap, tc_string, tc_p_RenameProperties_Property)
 	this.externedNames = tsetFrom_(tc_string, Collection(Arrays_asList([]any{"prototype"})), false)
-	this.quotedNames = newTSet_(tc_string)
+	initTSet_(&this.quotedNames, tc_string)
 	this.filteredOutNames = map[string]struct{}{}
 }
 
@@ -66,7 +66,7 @@ func (this *RenameProperties) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(new_RenameProperties_ProcessProperties(this)))
 	var reservedNames *TSet[string] = newTSetN_(tc_string, (this.externedNames.Len() + this.quotedNames.Len()))
 	tsetAddSetT_(reservedNames, this.externedNames)
-	tsetAddSetT_(reservedNames, this.quotedNames)
+	tsetAddSetT_(reservedNames, &this.quotedNames)
 	var propsByFreq *TSet[*RenameProperties_Property] = newTSortedSetCT_(tc_p_RenameProperties_Property, RenameProperties_FREQUENCY_COMPARATOR)
 	tsetAddAllOfT_(propsByFreq, Collection_un_(this.propertyMap.valuesT()))
 	if this.prevUsedPropertyMap != nil {

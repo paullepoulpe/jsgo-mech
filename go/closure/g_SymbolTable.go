@@ -6,8 +6,8 @@ import "strings"
 
 type SymbolTable struct {
 	symbols                *SimpleTable[Node, string, *SymbolTable_Symbol]
-	scopes                 *TMap[Node, *SymbolTable_SymbolScope]
-	docInfos               *TList[Node]
+	scopes                 TMap[Node, *SymbolTable_SymbolScope]
+	docInfos               TList[Node]
 	globalScope            *SymbolTable_SymbolScope
 	compiler_              *AbstractCompiler
 	registry               *JSTypeRegistry
@@ -20,8 +20,8 @@ type SymbolTable struct {
 
 func (this *SymbolTable) finit_SymbolTable() {
 	this.symbols = SimpleTable_create[Node, string, *SymbolTable_Symbol]()
-	this.scopes = newTMap_(tc_Node, tc_p_SymbolTable_SymbolScope)
-	this.docInfos = newTList_(tc_Node)
+	initTMap_(&this.scopes, tc_Node, tc_p_SymbolTable_SymbolScope)
+	initTList_(&this.docInfos, tc_Node)
 	this.globalScope = nil
 	this.symbolThatDeclaresType = new_LinkedIdentityHashMap[*JSType, *SymbolTable_Symbol]()
 	this.sourceNameOrdering = Ordering_natural().nullsFirst()
@@ -1041,7 +1041,7 @@ func SymbolTable_clinit() {
 
 type SymbolTable_Symbol struct {
 	SimpleSlot
-	references    *TMap[Node, *SymbolTable_Reference]
+	references    TMap[Node, *SymbolTable_Reference]
 	scope_        *SymbolTable_SymbolScope
 	propertyScope *SymbolTable_SymbolScope
 	declaration_  *SymbolTable_Reference
@@ -1062,7 +1062,7 @@ func (this *SymbolTable_Symbol) zero_SymbolTable_Symbol() {
 }
 
 func (this *SymbolTable_Symbol) finit_SymbolTable_Symbol() {
-	this.references = newTMap_(tc_Node, tc_p_SymbolTable_Reference)
+	initTMap_(&this.references, tc_Node, tc_p_SymbolTable_Reference)
 	this.propertyScope = nil
 	this.declaration_ = nil
 	this.docInfo = nil
@@ -1225,7 +1225,7 @@ func new_SymbolTable_Reference(symbol *SymbolTable_Symbol, node Node) *SymbolTab
 type SymbolTable_SymbolScope struct {
 	parent              *SymbolTable_SymbolScope
 	typeOfThis          *JSType
-	ownSymbols          *TMap[string, *SymbolTable_Symbol]
+	ownSymbols          TMap[string, *SymbolTable_Symbol]
 	mySymbol            *SymbolTable_Symbol
 	rootNode_           Node
 	scopeDepth          int32
@@ -1234,7 +1234,7 @@ type SymbolTable_SymbolScope struct {
 }
 
 func (this *SymbolTable_SymbolScope) finit_SymbolTable_SymbolScope() {
-	this.ownSymbols = newTMap_(tc_string, tc_p_SymbolTable_Symbol)
+	initTMap_(&this.ownSymbols, tc_string, tc_p_SymbolTable_Symbol)
 	this.numberOfChildScopes = 0
 }
 

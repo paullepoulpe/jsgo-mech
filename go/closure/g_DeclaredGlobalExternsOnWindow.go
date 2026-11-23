@@ -5,7 +5,7 @@ package closure
 type DeclaredGlobalExternsOnWindow struct {
 	NodeTraversal_AbstractShallowStatementCallback
 	compiler_       *AbstractCompiler
-	nodes_          *TSet[Node]
+	nodes_          TSet[Node]
 	windowInExterns bool
 }
 
@@ -17,7 +17,7 @@ func (this *DeclaredGlobalExternsOnWindow) up_NodeTraversal_AbstractShallowState
 }
 
 func (this *DeclaredGlobalExternsOnWindow) finit_DeclaredGlobalExternsOnWindow() {
-	this.nodes_ = newTSet_(tc_Node)
+	initTSet_(&this.nodes_, tc_Node)
 	this.windowInExterns = false
 }
 

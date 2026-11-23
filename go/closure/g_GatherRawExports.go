@@ -5,7 +5,7 @@ package closure
 type GatherRawExports struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_         *AbstractCompiler
-	exportedVariables *TSet[string]
+	exportedVariables TSet[string]
 }
 
 func (this *GatherRawExports) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -16,7 +16,7 @@ func (this *GatherRawExports) up_NodeTraversal_AbstractPostOrderCallback() *Node
 }
 
 func (this *GatherRawExports) finit_GatherRawExports() {
-	this.exportedVariables = newTSet_(tc_string)
+	initTSet_(&this.exportedVariables, tc_string)
 }
 
 func (this *GatherRawExports) init_GatherRawExports(compiler *AbstractCompiler) {
@@ -64,7 +64,7 @@ func GatherRawExports_isGlobalThisObject(t *NodeTraversal, n Node) bool {
 }
 
 func (this *GatherRawExports) getExportedVariableNames() *TSet[string] {
-	return this.exportedVariables
+	return &this.exportedVariables
 }
 
 var GatherRawExports_GLOBAL_THIS_NAMES []string

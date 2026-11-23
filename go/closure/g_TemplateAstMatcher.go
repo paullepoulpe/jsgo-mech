@@ -11,7 +11,7 @@ type TemplateAstMatcher struct {
 	paramNodeMatches     *[]Node
 	templateLocals       *[]string
 	localVarMatches      *[]string
-	stringLiteralMatches *TMap[string, Node]
+	stringLiteralMatches TMap[string, Node]
 	typeMatchingStrategy TypeMatchingStrategy
 	templateStart        Node
 	isLooseMatchField    bool
@@ -22,7 +22,7 @@ func (this *TemplateAstMatcher) finit_TemplateAstMatcher() {
 	this.paramNodeMatches = &[]Node{}
 	this.templateLocals = &[]string{}
 	this.localVarMatches = &[]string{}
-	this.stringLiteralMatches = newTMap_(tc_string, tc_Node)
+	initTMap_(&this.stringLiteralMatches, tc_string, tc_Node)
 	this.isLooseMatchField = false
 }
 
@@ -66,7 +66,7 @@ func (this *TemplateAstMatcher) isLooseMatch() bool {
 }
 
 func (this *TemplateAstMatcher) getTemplateNodeToMatchMap() *TMap[string, Node] {
-	var map_ *TMap[string, Node] = tmapCopy_(tc_string, tc_Node, this.stringLiteralMatches)
+	var map_ *TMap[string, Node] = tmapCopy_(tc_string, tc_Node, &this.stringLiteralMatches)
 	for i := int32(0); i < int32(len(*this.templateParams)); i++ {
 		var name string = sliceAt_(*this.templateParams, i)
 		map_.Put(name, sliceAt_(*this.paramNodeMatches, i))
