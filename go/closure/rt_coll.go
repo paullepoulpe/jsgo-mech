@@ -771,10 +771,20 @@ func primHash_(k any) uint32 {
 		return hmix_(int32(n))
 	}
 	if k != nil && reflect.TypeOf(k).Kind() == reflect.Pointer {
-		return uint32((uint64(uintptr((*eface_)(unsafe.Pointer(&k)).data)) * 0x9E3779B97F4A7C15) >> 32)
+		return ptrHash_((*eface_)(unsafe.Pointer(&k)).data)
 	}
 	return uint32(maphash.Comparable(hseed_, k))
 }
+
+func ptrHash_(p unsafe.Pointer) uint32 {
+	return uint32((uint64(uintptr(p)) * 0x9E3779B97F4A7C15) >> 32)
+}
+
+// identKey_ is the pointer type that find last met as a key without equals/hashCode of its
+// own: the next key of that type (a loop's lookups of objects of one class) is hashed by its
+// address at once. The answer depends on the type alone, so a stale or lost store only costs
+// asking again.
+var identKey_ unsafe.Pointer
 
 func hmix_(hc int32) uint32 { return uint32((uint64(uint32(hc)) * 0x9E3779B97F4A7C15) >> 32) }
 
@@ -809,28 +819,38 @@ func (t *htable_) find(k any) int {
 		return -1
 	}
 	x := t.x
-	if h, ok := t.customKey_(k); ok {
-		hv := hmix_(h.hashCode())
-		for j, m := hv&uint32(len(x.slots)-1), uint32(len(x.slots)-1); x.slots[j] != 0; j = (j + 1) & m {
-			sl := x.slots[j]
-			if uint32(sl>>32) != hv {
-				continue
+	var hv uint32
+	if ke := (*eface_)(unsafe.Pointer(&k)); ke.typ != nil && ke.typ == atomic.LoadPointer(&identKey_) {
+		hv = ptrHash_(ke.data) // what primHash_ gives, without asking the type again
+	} else {
+		if h, ok := t.customKey_(k); ok {
+			hv := hmix_(h.hashCode())
+			for j, m := hv&uint32(len(x.slots)-1), uint32(len(x.slots)-1); x.slots[j] != 0; j = (j + 1) & m {
+				sl := x.slots[j]
+				if uint32(sl>>32) != hv {
+					continue
+				}
+				i := int32(uint32(sl)) - 1
+				e := t.keys[i]
+				if e == k { // identity first, as java.util.HashMap
+					return int(i)
+				}
+				if _, isStr := e.(string); isStr || e == dead_ {
+					continue
+				}
+				if _, c := t.customKey_(e); c && h.equals(e) {
+					return int(i)
+				}
 			}
-			i := int32(uint32(sl)) - 1
-			e := t.keys[i]
-			if e == k { // identity first, as java.util.HashMap
-				return int(i)
-			}
-			if _, isStr := e.(string); isStr || e == dead_ {
-				continue
-			}
-			if _, c := t.customKey_(e); c && h.equals(e) {
-				return int(i)
-			}
+			return -1
 		}
-		return -1
+		hv = primHash_(k)
+		if !t.identity && k != nil && reflect.TypeOf(k).Kind() == reflect.Pointer {
+			// not a key with its own equals/hashCode in a table that would use them: no
+			// value of this type is, in any table
+			atomic.StorePointer(&identKey_, ke.typ)
+		}
 	}
-	hv := primHash_(k)
 	for j, m := hv&uint32(len(x.slots)-1), uint32(len(x.slots)-1); x.slots[j] != 0; j = (j + 1) & m {
 		if sl := x.slots[j]; uint32(sl>>32) == hv {
 			if i := int32(uint32(sl)) - 1; t.keys[i] == k {
