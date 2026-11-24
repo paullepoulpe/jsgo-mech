@@ -123,7 +123,7 @@ func (this *SimpleListMultimap[K, V]) keySet() SetT[K] {
 }
 
 func (this *SimpleListMultimap[K, V]) values() CollectionT[V] {
-	return collectionAs_(tcT_[V](), icast_Collection(obj_(new_SimpleListMultimap_1[K, V](this))))
+	return collectionAs_(tcT_[V](), iup_Collection(new_SimpleListMultimap_1[K, V](this)))
 }
 
 func (this *SimpleListMultimap[K, V]) asMap() MapT[K, ListT[V]] {
