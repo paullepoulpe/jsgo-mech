@@ -111,7 +111,7 @@ func (this *LinkedUndirectedGraph[N, E]) getUndirectedGraphEdges_impl(n1 N, n2 N
 	it_1 := jeachOf_(dNode1.getNeighborEdges())
 	for it_1.next() {
 		var outEdge UndiGraph_UndiGraphEdge[N, E] = it_1.v
-		if (any(outEdge.getNodeA()) == any(dNode2)) || (any(outEdge.getNodeB()) == any(dNode2)) {
+		if (outEdge.getNodeA() == dNode2) || (outEdge.getNodeB() == dNode2) {
 			edges.add(outEdge)
 		}
 	}
@@ -142,7 +142,7 @@ func (this *LinkedUndirectedGraph[N, E]) getEdges_impl() List {
 		it_3 := jeachOf_(node.getNeighborEdges())
 		for it_3.next() {
 			var edge UndiGraph_UndiGraphEdge[N, E] = it_3.v
-			if any(edge.getNodeA()) == node.self() {
+			if edge.getNodeA() == node.self() {
 				result.add(Graph_GraphEdge[N, E](edge))
 			}
 		}
@@ -156,7 +156,7 @@ func (this *LinkedUndirectedGraph[N, E]) getFirstEdge_impl(n1 N, n2 N) Graph_Gra
 	it_1 := jeachOf_(dNode1.getNeighborEdges())
 	for it_1.next() {
 		var outEdge UndiGraph_UndiGraphEdge[N, E] = it_1.v
-		if (any(outEdge.getNodeA()) == any(dNode2)) || (any(outEdge.getNodeB()) == any(dNode2)) {
+		if (outEdge.getNodeA() == dNode2) || (outEdge.getNodeB() == dNode2) {
 			return Graph_GraphEdge[N, E](outEdge)
 		}
 	}
@@ -187,7 +187,7 @@ func (this *LinkedUndirectedGraph[N, E]) isConnectedPredicate(n1 N, edgePredicat
 	it_1 := jeachOf_(dNode1.getNeighborEdges())
 	for it_1.next() {
 		var outEdge UndiGraph_UndiGraphEdge[N, E] = it_1.v
-		if ((any(outEdge.getNodeA()) == any(dNode1)) && (any(outEdge.getNodeB()) == any(dNode2))) || ((any(outEdge.getNodeA()) == any(dNode2)) && (any(outEdge.getNodeB()) == any(dNode1))) {
+		if ((outEdge.getNodeA() == dNode1) && (outEdge.getNodeB() == dNode2)) || ((outEdge.getNodeA() == dNode2) && (outEdge.getNodeB() == dNode1)) {
 			if edgePredicate.apply(outEdge.getValue()) {
 				return true
 			}
@@ -204,7 +204,7 @@ func (this *LinkedUndirectedGraph[N, E]) getGraphvizEdges() *JTList[GraphvizGrap
 		it_3 := jeachOf_(node.getNeighborEdges())
 		for it_3.next() {
 			var edge UndiGraph_UndiGraphEdge[N, E] = it_3.v
-			if any(edge.getNodeA()) == node.self() {
+			if edge.getNodeA() == node.self() {
 				edgeList.add(icast_GraphvizGraph_GraphvizEdge(edge))
 			}
 		}
@@ -342,7 +342,7 @@ func (this *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E]) neighborList(
 	it_1 := this.neighborEdges.each()
 	for it_1.next() {
 		var edge UndiGraph_UndiGraphEdge[N, E] = it_1.v
-		if any(edge.getNodeA()) == this.self() {
+		if edge.getNodeA() == this.self() {
 			result.add(edge.getNodeB())
 		} else {
 			result.add(edge.getNodeA())

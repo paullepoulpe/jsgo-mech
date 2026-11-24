@@ -137,10 +137,10 @@ func (this *DataFlowAnalysis[N, L]) flow(node DiGraph_DiGraphNode[N, ControlFlow
 			it_1 := foreach_(node.getOutEdges())
 			for it_1.next() {
 				var outEdge DiGraph_DiGraphEdge[N, ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphEdge[N, ControlFlowGraph_Branch]](it_1.v)
-				var outBranchBefore L = junboxT_[L](any(Annotatable_getAnnotation(Annotatable(outEdge))))
+				var outBranchBefore L = junboxT_[L](Annotatable_getAnnotation(Annotatable(outEdge)))
 				outEdge.setAnnotation(icast_Annotation_graph(boxT_(brancher.branchFlow(outEdge.getValue()))))
 				if !changed {
-					changed = !jequalsT_(outBranchBefore, any(Annotatable_getAnnotation(Annotatable(outEdge))))
+					changed = !jequalsT_(outBranchBefore, Annotatable_getAnnotation(Annotatable(outEdge)))
 				}
 			}
 		}
@@ -189,7 +189,7 @@ func (this *DataFlowAnalysis[N, L]) joinInputs(node DiGraph_DiGraphNode[N, Contr
 
 func (this *DataFlowAnalysis[N, L]) getInputFromEdge(edge DiGraph_DiGraphEdge[N, ControlFlowGraph_Branch]) L {
 	if this.isBranched() {
-		return junboxT_[L](any(Annotatable_getAnnotation(Annotatable(edge))))
+		return junboxT_[L](Annotatable_getAnnotation(Annotatable(edge)))
 	} else if this.isForward() {
 		var state *DataFlowAnalysis_LinearFlowState = cast_[*DataFlowAnalysis_LinearFlowState](Annotatable_getAnnotation(Annotatable(edge.getSource())))
 		return junboxT_[L](state.getOut())

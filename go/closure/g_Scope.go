@@ -170,7 +170,7 @@ func (this *Scope) getOwnImplicitSlot(name AbstractScope_ImplicitVar) *Var {
 		return nil
 	}
 	var emptySentinel *JTMap[AbstractScope_ImplicitVar, *Var] = jtmapEmptyImm_(tc_p_AbstractScope_ImplicitVar, jtc_p_Var)
-	if lgBox_(this.implicitVars) == any(emptySentinel.asMap()) {
+	if lgBox_(this.implicitVars) == emptySentinel.asMap() {
 		this.implicitVars = mapAs_(tc_p_AbstractScope_ImplicitVar, jtc_p_Var, Map(new_EnumMap(classOf_("com.google.javascript.jscomp.AbstractScope.ImplicitVar"))))
 	}
 	return Map_computeIfAbsentT_[AbstractScope_ImplicitVar, *Var](this.implicitVars, name, Function[AbstractScope_ImplicitVar, *Var](func(p0 AbstractScope_ImplicitVar) *Var { return this.makeImplicitVar_ImplicitVar_rVar(p0) }))
