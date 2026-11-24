@@ -2019,3 +2019,71 @@ CHECKS (-13%), the same bytes (a range is 48 bytes inline in every token and tre
 pointer). Gated. Not a gain: 0.3-0.9 s slower in total in each round, no stage faster. NOT
 TAKEN on this line; the tool stays on its branch. What it shows: on this workload time follows
 the bytes allocated and what the collector walks, not the number of objects.
+
+### Thirteenth session, continued: three agents on CHECKS, one pass each (steps 510-535)
+
+Branches lead-infer (510-513), lead-parse (520-523), lead-serialize (530-535), merged here
+(reflip-trial-r18). Each agent profiled its pass, took the largest items an allowed kind of step
+could remove, and kept a step only if its pass's CPU or bytes moved; the commit messages carry
+each step's reason and numbers.
+
+| step | kind | what | full gate |
+|---|---|---|---|
+| 510 d791dde5 | runtime | the erased immutable collection keeps its rarely used fields in a side record (184 -> 80 bytes) | singly |
+| 511 68513bc0 | runtime | helpers for a typed collection converted to its erased form and straight back | with 512 |
+| 512 e9d53d6c | tool trips (a9769ba0) | 88 such round trips in one expression become the helper | singly |
+| 513 4071b655 | runtime | Splitter makes its result slice once at its final size | final state |
+| 520 67684f20 | runtime | a key without equals/hashCode is hashed by its address | final state |
+| 521 fb7f9349 | runtime | per-type memos in the erased lookup and in boxT_; elems_ walks a slice-backed list in its own loop | final state |
+| 530 ec365959 | manual (g_Node.go, 3 accessors) | a node's JSType is stored as the *JSType: belongs in j2go's handle-table rule | singly |
+| 531 313c74a6 | runtime | buildLastT_: a builder's last build turns the builder's allocation into the message | with 532 |
+| 532 e7442814 | tool pblast (7db1e46c) | 29 builds of a builder that is dead afterwards are buildLastT_() | singly |
+| 533 2a0d8fa6 | runtime | the protobuf writer tests presence in line; one-byte varints have a fast path | singly |
+| 535 036df818 | runtime | a direct-mapped front for the shared property lists of nodes | final state |
+
+NOT TAKEN (reverted in 2462f4a7, records commented out): 522 (a view hoisted out of a loop in
+SourceFile), 523 (a token's range and its two positions as one allocation), 534 (an allocation
+moved into the branch that uses it in TypeValidator). Each is a sound, gated, one-off hand edit
+of translated pass code without a second site of its pattern; the plan allows a handful of
+same-pattern manual edits. Measured: the binary with all three is within noise of the one
+without (below).
+
+Stopgaps to delete when the typed-collection rule reaches these sites: the memos of 521 and the
+front table of 535 speed up the erased lookup layer, which is itself a translation artefact.
+Handwritten runtime (rt_*.go without tests and rt_proto_gen.go): 24,034 lines at 492, 25,015
+here.
+
+Found by the parser agent: SortedDependencies.getStrongDependenciesOf asks, per chunk, whether
+each input is in the chunk's set: chunks x inputs lookups (27M at 18% of the input, 126M at
+52%, 335M on the full benchmark). Java does the same; each lookup cost Go about 24 ns through
+the erased runtime, 4.7 s of CHECKS at 52%. 520 and 521 bring it to about 2 s. What is left
+there is the generic class's erased Set<InputT> (handover item #4).
+
+18% subset, 3 clean alternating rounds (runs13/t8_gs3500.runs; gate on this tree: runtime tests
+ok, the four projects MATCH; hashes identical):
+
+| | total wall | CHECKS wall (cpu) | OPTIMIZATIONS | FINALIZATIONS |
+|---|---|---|---|---|
+| pre-flip Java | 92.0 / 93.5 / 92.1 s | 39.29 s (81.3) | 41.83 s | 11.48 s |
+| 497 | 89.3 / 91.0 / 90.2 s | 47.32 s (58.7) | 34.92 s | 7.98 s |
+| this tree | 86.6 / 86.6 / 87.0 s | 44.76 s (54.3) | 34.07 s | 7.95 s |
+| this tree + 522, 523, 534 | 85.6 / 86.7 / 87.1 s | 44.06 s (53.6) | 34.44 s | 8.10 s |
+
+Java/Go at the tip: total about 1.065 (ahead in 3 of 3 rounds), CHECKS 0.88, OPTIMIZATIONS 1.23,
+FINALIZATIONS 1.44.
+
+52% subset, 2 alternating rounds (runs13/t9_gs5447.runs): pre-flip Java 234.2 s, 232.3 s; this
+tree 245.9 s, 246.7 s (Java/Go 0.94-0.95; 497 was at 0.89-0.90). CHECKS 107.0 / 105.9 s
+against 129.2 / 130.0 s (0.82; 0.76 at 497), OPTIMIZATIONS 105.3 / 104.5 s against 97.1 / 96.9 s
+(1.08), FINALIZATIONS 22.0 / 22.0 s against 19.6 / 19.8 s (1.11). Peak RSS in CHECKS 8.1-8.3 GB
+(Java 7.6-8.2), in OPTIMIZATIONS 5.1-5.2 GB (Java 11.3-11.6). Not beaten at this size: CHECKS
+is 23 s behind and the two later stages give 10 s back.
+
+The agents' judgment of what is left in their passes (theirs, from the profiles): type
+inference is flat, about a third of it subtype and equality checks that Java also runs, the
+larger allocations ones Java makes too; type checking the same; the parser's large allocations
+are Java's objects. Items named and not taken, each under 2% of its pass: instanceof on the
+JSType hierarchy as an interface-to-interface assertion (toObjectType, self), the handle lookup
+on setJSType, the Iterable result of getInvocationArgsAsIterable, the closure with a defer that
+the translation writes for try/finally in isSubtypeCaching (paid by inference and checking per
+call), per-message generated protobuf size and write code.
