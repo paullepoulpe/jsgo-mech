@@ -19,12 +19,7 @@ func new_PrebuildAst(compiler *AbstractCompiler, numParalleThreads int32) *Prebu
 }
 
 func (this *PrebuildAst) prebuild(allInputs IterableT[*CompilerInput]) {
-	var threadFactory ThreadFactory = &ThreadFactory_fn{func(r Runnable) *Thread {
-		var t *Thread = new_Thread_ThreadGroup_Runnable_String_long(nil, r, "jscompiler-PrebuildAst", CompilerExecutor_COMPILER_STACK_SIZE)
-		t.setDaemon(true)
-		return t
-		panic("unreachable")
-	}}
+	var threadFactory ThreadFactory = lambda_PrebuildAst_prebuild_1_
 	var poolExecutor *ThreadPoolExecutor = new_ThreadPoolExecutor_int_int_long_TimeUnit_BlockingQueue_ThreadFactory(this.numParallelThreads, this.numParallelThreads, int64(int32(2147483647)), TimeUnit_SECONDS, BlockingQueue(new_LinkedBlockingQueue()), threadFactory)
 	var executorService ListeningExecutorService = MoreExecutors_listeningDecorator(icast_ExecutorService(poolExecutor.self()))
 	var futureList *JTList[ListenableFuture] = jnewTListN_(tc_ListenableFuture, Iterables_size(Iterable_un_(allInputs)))
@@ -52,3 +47,11 @@ func (this *PrebuildAst) prebuild(allInputs IterableT[*CompilerInput]) {
 		return 0
 	}()
 }
+
+// lambda_PrebuildAst_prebuild_1_ is a lambda of PrebuildAst_prebuild that captures nothing (post-flip step lambdas).
+var lambda_PrebuildAst_prebuild_1_ = &ThreadFactory_fn{func(r Runnable) *Thread {
+	var t *Thread = new_Thread_ThreadGroup_Runnable_String_long(nil, r, "jscompiler-PrebuildAst", CompilerExecutor_COMPILER_STACK_SIZE)
+	t.setDaemon(true)
+	return t
+	panic("unreachable")
+}}

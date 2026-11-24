@@ -169,11 +169,14 @@ func ModuleLoader_clinit() {
 	ModuleLoader_LOAD_WARNING = DiagnosticType_error("JSC_JS_MODULE_LOAD_WARNING", "Failed to load module \"{0}\"")
 	ModuleLoader_INVALID_MODULE_PATH = DiagnosticType_error("JSC_INVALID_MODULE_PATH", "Invalid module path \"{0}\" for resolution mode \"{1}\"")
 	ModuleLoader_BEST_MATCH_PATH_ORDERING = Comparator_comparingInt[string](ToIntFunction[string](func(p0 string) int32 { return String_length(p0) })).reversed().thenComparing_Comparator(Comparator_naturalOrder[string]())
-	ModuleLoader_NOOP_ERROR_HANDER = &ErrorHandler_fn{func(level *CheckLevel, error_ *JSError) {
-	}}
+	ModuleLoader_NOOP_ERROR_HANDER = lambda_ModuleLoader_clinit_1_
 	ModuleLoader_EMPTY = ModuleLoader_builder().setModuleRoots(jtlistEmptyImm_(jtc_string).asIterable()).setInputs(jtlistEmptyImm_(tc_DependencyInfo_).asIterable()).setFactory(BrowserModuleResolver_FACTORY).build()
 
 }
+
+// lambda_ModuleLoader_clinit_1_ is a lambda of ModuleLoader_clinit that captures nothing (post-flip step lambdas).
+var lambda_ModuleLoader_clinit_1_ = &ErrorHandler_fn{func(level *CheckLevel, error_ *JSError) {
+}}
 
 type ModuleLoader_Builder struct {
 	errorHandler ErrorHandler
