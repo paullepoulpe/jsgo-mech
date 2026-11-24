@@ -9,87 +9,99 @@ type SourceExcerptProvider interface {
 	getSourceMapping_Optional_int_int(Optional[string], int32, int32) *Mapping_OriginalMapping
 }
 
-type SourceExcerptProvider_SourceExcerpt struct {
-	Enum
-	selfI_ func(SourceExcerptProvider, Optional[string], int32, int32, SourceExcerptProvider_ExcerptFormatter) Optional[string]
+type SourceExcerptProvider_SourceExcerpt uint8
+
+// SourceExcerptProvider_SourceExcerpt_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var SourceExcerptProvider_SourceExcerpt_enum_ = [3]Enum{
+	{self_: SourceExcerptProvider_SourceExcerpt_LINE, name_: "LINE", ordinal_: 0},
+	{self_: SourceExcerptProvider_SourceExcerpt_FULL, name_: "FULL", ordinal_: 1},
+	{self_: SourceExcerptProvider_SourceExcerpt_REGION, name_: "REGION", ordinal_: 2},
 }
 
-// SourceExcerptProvider_SourceExcerpt_I holds the methods the dispatchers of enum SourceExcerptProvider_SourceExcerpt call on its
-// constant (selfI_, set with self_); every constant of the enum implements them (post-flip).
-type SourceExcerptProvider_SourceExcerpt_I interface {
-	get_5_impl(SourceExcerptProvider, Optional[string], int32, int32, SourceExcerptProvider_ExcerptFormatter) Optional[string]
+func (this SourceExcerptProvider_SourceExcerpt) enum_() *Enum {
+	if this == 0 {
+		return nil
+	}
+	return &SourceExcerptProvider_SourceExcerpt_enum_[this-1]
 }
 
-func (this *SourceExcerptProvider_SourceExcerpt) as_SourceExcerptProvider_SourceExcerpt() *SourceExcerptProvider_SourceExcerpt {
+func (this SourceExcerptProvider_SourceExcerpt) name() string { return this.enum_().name_ }
+
+func (this SourceExcerptProvider_SourceExcerpt) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this SourceExcerptProvider_SourceExcerpt) toString() string { return this.enum_().name_ }
+
+func (this SourceExcerptProvider_SourceExcerpt) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this SourceExcerptProvider_SourceExcerpt) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func to_SourceExcerptProvider_SourceExcerpt(v any) *SourceExcerptProvider_SourceExcerpt {
-	switch p := v.(type) {
-	case *SourceExcerptProvider_SourceExcerpt_1:
-		return p.as_SourceExcerptProvider_SourceExcerpt()
-	case *SourceExcerptProvider_SourceExcerpt_2:
-		return p.as_SourceExcerptProvider_SourceExcerpt()
-	case *SourceExcerptProvider_SourceExcerpt_3:
-		return p.as_SourceExcerptProvider_SourceExcerpt()
-	case nil:
-		return nil
+func (this SourceExcerptProvider_SourceExcerpt) as_SourceExcerptProvider_SourceExcerpt() SourceExcerptProvider_SourceExcerpt {
+	return this
+}
+
+func to_SourceExcerptProvider_SourceExcerpt(v any) SourceExcerptProvider_SourceExcerpt {
+	if v == nil {
+		return 0
 	}
 	return v.(interface {
-		as_SourceExcerptProvider_SourceExcerpt() *SourceExcerptProvider_SourceExcerpt
+		as_SourceExcerptProvider_SourceExcerpt() SourceExcerptProvider_SourceExcerpt
 	}).as_SourceExcerptProvider_SourceExcerpt()
 }
 
 func is_SourceExcerptProvider_SourceExcerpt(v any) bool {
 	_, ok := v.(interface {
-		as_SourceExcerptProvider_SourceExcerpt() *SourceExcerptProvider_SourceExcerpt
+		as_SourceExcerptProvider_SourceExcerpt() SourceExcerptProvider_SourceExcerpt
 	})
 	return ok
 }
 
-func (this *SourceExcerptProvider_SourceExcerpt) self() any {
-	if this == nil {
-		return nil
-	}
-	return this.self_
-}
-
-func (this *SourceExcerptProvider_SourceExcerpt) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
-func (this *SourceExcerptProvider_SourceExcerpt) init_SourceExcerptProvider_SourceExcerpt(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
-}
-
-func (this *SourceExcerptProvider_SourceExcerpt) get(source SourceExcerptProvider, sourceName Optional[string], lineNumber int32, formatter SourceExcerptProvider_ExcerptFormatter) Optional[string] {
+func (this SourceExcerptProvider_SourceExcerpt) get(source SourceExcerptProvider, sourceName Optional[string], lineNumber int32, formatter SourceExcerptProvider_ExcerptFormatter) Optional[string] {
 	return this.get_5(source, sourceName, lineNumber, -1, formatter)
 }
 
-func (this *SourceExcerptProvider_SourceExcerpt) get_5(p0 SourceExcerptProvider, p1 Optional[string], p2 int32, p3 int32, p4 SourceExcerptProvider_ExcerptFormatter) Optional[string] {
-	return this.selfI_(p0, p1, p2, p3, p4)
+func (this SourceExcerptProvider_SourceExcerpt) get_5(p0 SourceExcerptProvider, p1 Optional[string], p2 int32, p3 int32, p4 SourceExcerptProvider_ExcerptFormatter) Optional[string] {
+	switch this {
+	case SourceExcerptProvider_SourceExcerpt_LINE:
+		return this.get_5_LINE(p0, p1, p2, p3, p4)
+	case SourceExcerptProvider_SourceExcerpt_FULL:
+		return this.get_5_FULL(p0, p1, p2, p3, p4)
+	case SourceExcerptProvider_SourceExcerpt_REGION:
+		return this.get_5_REGION(p0, p1, p2, p3, p4)
+	default:
+		panic(new_NullPointerException_0().self()) // a call on null
+	}
 }
 
-func SourceExcerptProvider_SourceExcerpt_values() []*SourceExcerptProvider_SourceExcerpt {
-	return append([]*SourceExcerptProvider_SourceExcerpt(nil), SourceExcerptProvider_SourceExcerpt_values_...)
+func SourceExcerptProvider_SourceExcerpt_values() []SourceExcerptProvider_SourceExcerpt {
+	return append([]SourceExcerptProvider_SourceExcerpt(nil), SourceExcerptProvider_SourceExcerpt_values_...)
 }
 
-func SourceExcerptProvider_SourceExcerpt_valueOf(name string) *SourceExcerptProvider_SourceExcerpt {
+func SourceExcerptProvider_SourceExcerpt_valueOf(name string) SourceExcerptProvider_SourceExcerpt {
 	for _, v := range SourceExcerptProvider_SourceExcerpt_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("SourceExcerpt", name))
 }
 
-var SourceExcerptProvider_SourceExcerpt_LINE *SourceExcerptProvider_SourceExcerpt
-var SourceExcerptProvider_SourceExcerpt_FULL *SourceExcerptProvider_SourceExcerpt
-var SourceExcerptProvider_SourceExcerpt_REGION *SourceExcerptProvider_SourceExcerpt
-var SourceExcerptProvider_SourceExcerpt_values_ []*SourceExcerptProvider_SourceExcerpt
+const SourceExcerptProvider_SourceExcerpt_LINE SourceExcerptProvider_SourceExcerpt = 1
+const SourceExcerptProvider_SourceExcerpt_FULL SourceExcerptProvider_SourceExcerpt = 2
+const SourceExcerptProvider_SourceExcerpt_REGION SourceExcerptProvider_SourceExcerpt = 3
+
+var SourceExcerptProvider_SourceExcerpt_values_ []SourceExcerptProvider_SourceExcerpt
 
 var SourceExcerptProvider_SourceExcerpt_clinit_done bool
 
@@ -98,10 +110,7 @@ func SourceExcerptProvider_SourceExcerpt_clinit() {
 		return
 	}
 	SourceExcerptProvider_SourceExcerpt_clinit_done = true
-	SourceExcerptProvider_SourceExcerpt_LINE = new_SourceExcerptProvider_SourceExcerpt_1("LINE", 0).up_SourceExcerptProvider_SourceExcerpt()
-	SourceExcerptProvider_SourceExcerpt_FULL = new_SourceExcerptProvider_SourceExcerpt_2("FULL", 1).up_SourceExcerptProvider_SourceExcerpt()
-	SourceExcerptProvider_SourceExcerpt_REGION = new_SourceExcerptProvider_SourceExcerpt_3("REGION", 2).up_SourceExcerptProvider_SourceExcerpt()
-	SourceExcerptProvider_SourceExcerpt_values_ = []*SourceExcerptProvider_SourceExcerpt{SourceExcerptProvider_SourceExcerpt_LINE, SourceExcerptProvider_SourceExcerpt_FULL, SourceExcerptProvider_SourceExcerpt_REGION}
+	SourceExcerptProvider_SourceExcerpt_values_ = []SourceExcerptProvider_SourceExcerpt{SourceExcerptProvider_SourceExcerpt_LINE, SourceExcerptProvider_SourceExcerpt_FULL, SourceExcerptProvider_SourceExcerpt_REGION}
 	registerEnum_("com.google.javascript.jscomp.SourceExcerptProvider.SourceExcerpt", enumValues_(SourceExcerptProvider_SourceExcerpt_values_))
 
 }
@@ -111,209 +120,14 @@ type SourceExcerptProvider_ExcerptFormatter interface {
 	formatRegion(Region) Optional[string]
 }
 
-type SourceExcerptProvider_SourceExcerpt_1 struct {
-	SourceExcerptProvider_SourceExcerpt
-}
-
-func (this *SourceExcerptProvider_SourceExcerpt_1) up_SourceExcerptProvider_SourceExcerpt() *SourceExcerptProvider_SourceExcerpt {
-	if this == nil {
-		return nil
-	}
-	return &this.SourceExcerptProvider_SourceExcerpt
-}
-
-func (this *SourceExcerptProvider_SourceExcerpt_1) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
-func (this *SourceExcerptProvider_SourceExcerpt_1) init_SourceExcerptProvider_SourceExcerpt_1(name_ string, ordinal_ int32) {
-	this.SourceExcerptProvider_SourceExcerpt.init_SourceExcerptProvider_SourceExcerpt(name_, ordinal_)
-}
-
-func new_SourceExcerptProvider_SourceExcerpt_1(name_ string, ordinal_ int32) *SourceExcerptProvider_SourceExcerpt_1 {
-	this := &SourceExcerptProvider_SourceExcerpt_1{}
-	this.self_ = this
-	this.selfI_ = this.get_5_impl
-	this.init_SourceExcerptProvider_SourceExcerpt_1(name_, ordinal_)
-	return this
-}
-
-func (this *SourceExcerptProvider_SourceExcerpt_1) get_5_impl(source SourceExcerptProvider, sourceName Optional[string], lineNumber int32, unused int32, formatter SourceExcerptProvider_ExcerptFormatter) Optional[string] {
+func (this SourceExcerptProvider_SourceExcerpt) get_5_LINE(source SourceExcerptProvider, sourceName Optional[string], lineNumber int32, unused int32, formatter SourceExcerptProvider_ExcerptFormatter) Optional[string] {
 	return formatter.formatLine(source.getSourceLine(sourceName, lineNumber), lineNumber)
 }
 
-func SourceExcerptProvider_SourceExcerpt_1_values() []*SourceExcerptProvider_SourceExcerpt_1 {
-	return append([]*SourceExcerptProvider_SourceExcerpt_1(nil), SourceExcerptProvider_SourceExcerpt_1_values_...)
-}
-
-func SourceExcerptProvider_SourceExcerpt_1_valueOf(name string) *SourceExcerptProvider_SourceExcerpt_1 {
-	for _, v := range SourceExcerptProvider_SourceExcerpt_1_values_ {
-		if v.Enum.name() == name {
-			return v
-		}
-	}
-	panic(enumValueOfFail_("", name))
-}
-
-var SourceExcerptProvider_SourceExcerpt_1_values_ []*SourceExcerptProvider_SourceExcerpt_1
-
-var SourceExcerptProvider_SourceExcerpt_1_clinit_done bool
-
-func SourceExcerptProvider_SourceExcerpt_1_clinit() {
-	if SourceExcerptProvider_SourceExcerpt_1_clinit_done {
-		return
-	}
-	SourceExcerptProvider_SourceExcerpt_1_clinit_done = true
-	SourceExcerptProvider_SourceExcerpt_1_values_ = []*SourceExcerptProvider_SourceExcerpt_1{}
-	registerEnum_("<anonymous com.google.javascript.jscomp.SourceExcerptProvider.SourceExcerpt>", enumValues_(SourceExcerptProvider_SourceExcerpt_1_values_))
-
-}
-
-type SourceExcerptProvider_SourceExcerpt_2 struct {
-	SourceExcerptProvider_SourceExcerpt
-}
-
-func (this *SourceExcerptProvider_SourceExcerpt_2) up_SourceExcerptProvider_SourceExcerpt() *SourceExcerptProvider_SourceExcerpt {
-	if this == nil {
-		return nil
-	}
-	return &this.SourceExcerptProvider_SourceExcerpt
-}
-
-func (this *SourceExcerptProvider_SourceExcerpt_2) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
-func (this *SourceExcerptProvider_SourceExcerpt_2) init_SourceExcerptProvider_SourceExcerpt_2(name_ string, ordinal_ int32) {
-	this.SourceExcerptProvider_SourceExcerpt.init_SourceExcerptProvider_SourceExcerpt(name_, ordinal_)
-}
-
-func new_SourceExcerptProvider_SourceExcerpt_2(name_ string, ordinal_ int32) *SourceExcerptProvider_SourceExcerpt_2 {
-	this := &SourceExcerptProvider_SourceExcerpt_2{}
-	this.self_ = this
-	this.selfI_ = this.get_5_impl
-	this.init_SourceExcerptProvider_SourceExcerpt_2(name_, ordinal_)
-	return this
-}
-
-func (this *SourceExcerptProvider_SourceExcerpt_2) get_5_impl(source SourceExcerptProvider, sourceName Optional[string], startLineNumber int32, length int32, formatter SourceExcerptProvider_ExcerptFormatter) Optional[string] {
+func (this SourceExcerptProvider_SourceExcerpt) get_5_FULL(source SourceExcerptProvider, sourceName Optional[string], startLineNumber int32, length int32, formatter SourceExcerptProvider_ExcerptFormatter) Optional[string] {
 	return formatter.formatRegion(source.getSourceLines(sourceName, startLineNumber, length))
 }
 
-func SourceExcerptProvider_SourceExcerpt_2_values() []*SourceExcerptProvider_SourceExcerpt_2 {
-	return append([]*SourceExcerptProvider_SourceExcerpt_2(nil), SourceExcerptProvider_SourceExcerpt_2_values_...)
-}
-
-func SourceExcerptProvider_SourceExcerpt_2_valueOf(name string) *SourceExcerptProvider_SourceExcerpt_2 {
-	for _, v := range SourceExcerptProvider_SourceExcerpt_2_values_ {
-		if v.Enum.name() == name {
-			return v
-		}
-	}
-	panic(enumValueOfFail_("", name))
-}
-
-var SourceExcerptProvider_SourceExcerpt_2_values_ []*SourceExcerptProvider_SourceExcerpt_2
-
-var SourceExcerptProvider_SourceExcerpt_2_clinit_done bool
-
-func SourceExcerptProvider_SourceExcerpt_2_clinit() {
-	if SourceExcerptProvider_SourceExcerpt_2_clinit_done {
-		return
-	}
-	SourceExcerptProvider_SourceExcerpt_2_clinit_done = true
-	SourceExcerptProvider_SourceExcerpt_2_values_ = []*SourceExcerptProvider_SourceExcerpt_2{}
-	registerEnum_("<anonymous com.google.javascript.jscomp.SourceExcerptProvider.SourceExcerpt>", enumValues_(SourceExcerptProvider_SourceExcerpt_2_values_))
-
-}
-
-type SourceExcerptProvider_SourceExcerpt_3 struct {
-	SourceExcerptProvider_SourceExcerpt
-}
-
-func (this *SourceExcerptProvider_SourceExcerpt_3) up_SourceExcerptProvider_SourceExcerpt() *SourceExcerptProvider_SourceExcerpt {
-	if this == nil {
-		return nil
-	}
-	return &this.SourceExcerptProvider_SourceExcerpt
-}
-
-func (this *SourceExcerptProvider_SourceExcerpt_3) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
-func (this *SourceExcerptProvider_SourceExcerpt_3) init_SourceExcerptProvider_SourceExcerpt_3(name_ string, ordinal_ int32) {
-	this.SourceExcerptProvider_SourceExcerpt.init_SourceExcerptProvider_SourceExcerpt(name_, ordinal_)
-}
-
-func new_SourceExcerptProvider_SourceExcerpt_3(name_ string, ordinal_ int32) *SourceExcerptProvider_SourceExcerpt_3 {
-	this := &SourceExcerptProvider_SourceExcerpt_3{}
-	this.self_ = this
-	this.selfI_ = this.get_5_impl
-	this.init_SourceExcerptProvider_SourceExcerpt_3(name_, ordinal_)
-	return this
-}
-
-func (this *SourceExcerptProvider_SourceExcerpt_3) get_5_impl(source SourceExcerptProvider, sourceName Optional[string], lineNumber int32, length int32, formatter SourceExcerptProvider_ExcerptFormatter) Optional[string] {
+func (this SourceExcerptProvider_SourceExcerpt) get_5_REGION(source SourceExcerptProvider, sourceName Optional[string], lineNumber int32, length int32, formatter SourceExcerptProvider_ExcerptFormatter) Optional[string] {
 	return formatter.formatRegion(source.getSourceRegion(sourceName, lineNumber))
-}
-
-func SourceExcerptProvider_SourceExcerpt_3_values() []*SourceExcerptProvider_SourceExcerpt_3 {
-	return append([]*SourceExcerptProvider_SourceExcerpt_3(nil), SourceExcerptProvider_SourceExcerpt_3_values_...)
-}
-
-func SourceExcerptProvider_SourceExcerpt_3_valueOf(name string) *SourceExcerptProvider_SourceExcerpt_3 {
-	for _, v := range SourceExcerptProvider_SourceExcerpt_3_values_ {
-		if v.Enum.name() == name {
-			return v
-		}
-	}
-	panic(enumValueOfFail_("", name))
-}
-
-var SourceExcerptProvider_SourceExcerpt_3_values_ []*SourceExcerptProvider_SourceExcerpt_3
-
-var SourceExcerptProvider_SourceExcerpt_3_clinit_done bool
-
-func SourceExcerptProvider_SourceExcerpt_3_clinit() {
-	if SourceExcerptProvider_SourceExcerpt_3_clinit_done {
-		return
-	}
-	SourceExcerptProvider_SourceExcerpt_3_clinit_done = true
-	SourceExcerptProvider_SourceExcerpt_3_values_ = []*SourceExcerptProvider_SourceExcerpt_3{}
-	registerEnum_("<anonymous com.google.javascript.jscomp.SourceExcerptProvider.SourceExcerpt>", enumValues_(SourceExcerptProvider_SourceExcerpt_3_values_))
-
-}
-
-// get_5: an object that is exactly a SourceExcerptProvider_SourceExcerpt_1 calls its get_5_impl directly (post-flip); others dispatch.
-func (this *SourceExcerptProvider_SourceExcerpt_1) get_5(p0 SourceExcerptProvider, p1 Optional[string], p2 int32, p3 int32, p4 SourceExcerptProvider_ExcerptFormatter) Optional[string] {
-	if p, _ := this.self_.(*SourceExcerptProvider_SourceExcerpt_1); p == this {
-		return this.get_5_impl(p0, p1, p2, p3, p4)
-	}
-	return this.selfI_(p0, p1, p2, p3, p4)
-}
-
-// get_5: an object that is exactly a SourceExcerptProvider_SourceExcerpt_2 calls its get_5_impl directly (post-flip); others dispatch.
-func (this *SourceExcerptProvider_SourceExcerpt_2) get_5(p0 SourceExcerptProvider, p1 Optional[string], p2 int32, p3 int32, p4 SourceExcerptProvider_ExcerptFormatter) Optional[string] {
-	if p, _ := this.self_.(*SourceExcerptProvider_SourceExcerpt_2); p == this {
-		return this.get_5_impl(p0, p1, p2, p3, p4)
-	}
-	return this.selfI_(p0, p1, p2, p3, p4)
-}
-
-// get_5: an object that is exactly a SourceExcerptProvider_SourceExcerpt_3 calls its get_5_impl directly (post-flip); others dispatch.
-func (this *SourceExcerptProvider_SourceExcerpt_3) get_5(p0 SourceExcerptProvider, p1 Optional[string], p2 int32, p3 int32, p4 SourceExcerptProvider_ExcerptFormatter) Optional[string] {
-	if p, _ := this.self_.(*SourceExcerptProvider_SourceExcerpt_3); p == this {
-		return this.get_5_impl(p0, p1, p2, p3, p4)
-	}
-	return this.selfI_(p0, p1, p2, p3, p4)
 }

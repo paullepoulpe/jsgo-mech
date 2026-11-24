@@ -2200,8 +2200,8 @@ type AbstractCommandLineRunner_CommandLineConfig struct {
 	chunkOutputFiles                 *JTList[string]
 	chunkConformanceFiles            *JTList[string]
 	createSourceMap                  string
-	sourceMapDetailLevel             *SourceMap_DetailLevel
-	sourceMapFormat                  *SourceMap_Format
+	sourceMapDetailLevel             SourceMap_DetailLevel
+	sourceMapFormat                  SourceMap_Format
 	sourceMapLocationMappings        *JTList[SourceMap_LocationMapping]
 	warningGuards                    *JTList[*AbstractCommandLineRunner_FlagEntry]
 	define                           *JTList[string]
@@ -2570,12 +2570,12 @@ func (this *AbstractCommandLineRunner_CommandLineConfig) setCreateSourceMap(crea
 	return this
 }
 
-func (this *AbstractCommandLineRunner_CommandLineConfig) setSourceMapDetailLevel(level *SourceMap_DetailLevel) *AbstractCommandLineRunner_CommandLineConfig {
+func (this *AbstractCommandLineRunner_CommandLineConfig) setSourceMapDetailLevel(level SourceMap_DetailLevel) *AbstractCommandLineRunner_CommandLineConfig {
 	this.sourceMapDetailLevel = level
 	return this
 }
 
-func (this *AbstractCommandLineRunner_CommandLineConfig) setSourceMapFormat(format *SourceMap_Format) *AbstractCommandLineRunner_CommandLineConfig {
+func (this *AbstractCommandLineRunner_CommandLineConfig) setSourceMapFormat(format SourceMap_Format) *AbstractCommandLineRunner_CommandLineConfig {
 	this.sourceMapFormat = format
 	return this
 }
