@@ -230,9 +230,9 @@ func (this *J2clPass_ClassStaticFunctionsInliner_FunctionDefsCollector) visit(t 
 		var qualifiedFnName Optional[string] = func() Optional[string] {
 			switch n.ns_().token {
 			case tokOrd1_ASSIGN:
-				return Optional_of[string](n.getFirstChild().getQualifiedName()).filter(Predicate[string](func(s string) bool {
+				return Optional_of[string](n.getFirstChild().getQualifiedName()).filterFn_(func(s string) bool {
 					return s != ""
-				}))
+				})
 			case tokOrd1_MEMBER_FUNCTION_DEF:
 				return NodeUtil_getBestLValueName(n)
 			default:
