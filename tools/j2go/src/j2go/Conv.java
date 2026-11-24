@@ -456,6 +456,18 @@ final class Conv {
       Map.entry("Splitter.splitToList", "splitToList_s"),
       Map.entry("Appendable.append_CharSequence", "Appendable_append_s"));
 
+  /**
+   * Piece `seqstr` of rule "typed library interfaces" (J2GO_NOLIBGEN=seqstr is the translation
+   * without it; RESIDUE8.md, rule "Conv.strSeq name list"): more variants taking strings
+   * (rt_conv.go), as STR_SEQ.
+   */
+  static final Map<String, String> STR_SEQ2 = Map.ofEntries(
+      Map.entry("TextFormat_merge", "TextFormat_merge_s"),
+      Map.entry("Ascii_equalsIgnoreCase", "Ascii_equalsIgnoreCase_s"),
+      Map.entry("Integer_parseInt_CharSequence_int_int_int", "Integer_parseInt_s_int_int_int"),
+      Map.entry("CharMatcher.lastIndexIn", "lastIndexIn_s"),
+      Map.entry("CharMatcher.collapseFrom", "collapseFrom_s"));
+
   /** What J2GO_STRSEQ=1 reports: calls passing a String for a CharSequence that have no variant, by name. */
   final TreeMap<String, Integer> strSeqLeft = new TreeMap<>();
 
@@ -485,6 +497,10 @@ final class Conv {
     }
     if (!any) return null;
     String v = STR_SEQ.get(name);
+    if (v == null && LibGen.on("seqstr")) {
+      v = STR_SEQ2.get(name);
+      if (v != null) cx.lg.note("String for CharSequence (seqstr): calls of the variant", name);
+    }
     if (v == null) {
       strSeqLeft.merge(name, 1, Integer::sum);
       return null;

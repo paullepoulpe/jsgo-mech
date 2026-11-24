@@ -578,6 +578,37 @@ type Map_EntryT[K any, V any] interface { Map_Entry; getKey_t() K; getValue_t() 
     `Clone() *Requirement`). With the piece on, `rt_proto_gen.go` must have protogen's typed
     accessors (protogen's default); a translation without it compiles with either.
 
+  - Pieces `rtm`, `fns2` and `seqstr` (`docs/javaisms6/RESIDUE8.md`, its rules "typed runtime
+    instance methods", "more LibFns twins" and "`Conv.strSeq` name list"; COLLECTIONS-PLAN.md
+    section 15): name lists of twins in the runtime (`rt_resid.go`, `rt_lgfn2.go`), each doing
+    what the erased method does with its arguments at their Java types.
+    - `rtm` (`LibFns.RT_METHODS`, `TYPED_RT`): a method of a runtime class on a receiver of that
+      class (`BigInteger.compareTo(BigInteger)` is `x.compareTo_t(y)`, `ComparisonChain.compare`
+      of two Strings `compare_s`, `Enum.compareTo` of a program enum `compareTo_t` (the
+      ordinals), `(BitSet) bs.clone()` `bs.clone_t()`, no box and no cast), and methods of Guava's
+      immutable classes and of `TreeSet` / `Map` on a typed collection: `ImmutableList.subList` /
+      `reverse` of a typed immutable list give the typed immutable list (`subListImm_`, or
+      `ImmutableList_subListT_` on the typed List of a place of the class), not the erased twin's
+      result made typed again; `TreeSet.tailSet` the typed sorted set (`tailSetT_`),
+      `Map.containsValue` of a value of the value's Go type `containsValueT_`; `List.add(int, E)`
+      of a typed List `List_add_intT_`.
+    - `fns2` (`LibFns.TYPED_F2`, as piece `fns`; needs rule "function types"): `Arrays.setAll` of
+      an array of a class type (no converted copy), `Comparator.comparing` /
+      `thenComparing` with a String key (the keys compared as Strings, not boxed),
+      `Lists.transform` whose result is the argument of a method that reads it once
+      (`LibFns.READS_ONCE`: `ImmutableList.Builder.addAll`) is `Iterables.transform`'s twin at
+      `Iterable`, `Splitter.split` of a String an `IterableT[string]` (`split_sT`),
+      `Io.listFiles` a `ListT[string]`, `Map.putIfAbsent` / `replace` with a String key on a
+      typed map, `Collections.singletonList` a typed list.
+    - `seqstr` (`Conv.STR_SEQ2`): more String variants for CharSequence parameters
+      (`TextFormat.merge`, `Ascii.equalsIgnoreCase`, `Integer.parseInt(CharSequence, int, int,
+      int)`, `CharMatcher.lastIndexIn` / `collapseFrom`).
+    Calls that do not fit (another Go type, a receiver that is erased, a key that is no String)
+    keep the erased method, counted by reason in the `J2GO_LIBGEN` report (`typed runtime
+    methods (rtm): calls left (...)`); `J2GO_LIBGEN` also names the entries of the lists that no
+    call of the translation took. `selftest/lang/Resid.java` has the twins and calls left;
+    `selftest/run.sh` counts them.
+
 Refused (`typed library interfaces: refused: File.java:line: ...`, nothing is written):
 
 - a raw use of one of the interfaces;
@@ -614,7 +645,7 @@ Refused (`typed library interfaces: refused: File.java:line: ...`, nothing is wr
 `tools/j2go/selftest/refused/RefusedLib.java` has one use of each kind (15); the self-test
 fails unless the translator refuses exactly those and writes nothing.
 
-Each kind and piece is a switch: `J2GO_NOLIBGEN=iter,coll,list,set,map,makers,views,place,cov,elems,wide,nncoll,readers,cls,meth,fns,sorted,enumset,cmaps,deque,guava,goptional,seqcoll,objarg,cmp,ownwild,nbox,proto,owniter,hstatic`
+Each kind and piece is a switch: `J2GO_NOLIBGEN=iter,coll,list,set,map,makers,views,place,cov,elems,wide,nncoll,readers,cls,meth,fns,sorted,enumset,cmaps,deque,guava,goptional,seqcoll,objarg,cmp,ownwild,nbox,proto,owniter,hstatic,rtm,fns2,seqstr`
 (`all`: every one). A translation with any of them off is built with `-tags j2go_nolibgen`
 (`tools/prune/verify.sh` and the self-test do that when `J2GO_NOLIBGEN` is set): the erased
 factories that only such a translation names are in `go/closure/rt_lg_erased.go`, outside the

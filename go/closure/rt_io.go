@@ -151,13 +151,13 @@ func Io_listFiles(directory string) List {
 		directory = "."
 	}
 	result := new_ArrayList_0()
-	listFilesInto_(directory, "", nil, result)
+	listFilesInto_(directory, "", nil, func(s string) { result.add(any(s)) })
 	return result
 }
 
 // listFilesInto_ adds the files under the directory; around holds the real paths of the
 // directories being listed, outermost first.
-func listFilesInto_(directory string, prefix string, around []string, result *ArrayList) {
+func listFilesInto_(directory string, prefix string, around []string, add func(string)) {
 	real, err := filepath.EvalSymlinks(directory)
 	if err == nil {
 		real, err = filepath.Abs(real)
@@ -178,9 +178,9 @@ func listFilesInto_(directory string, prefix string, around []string, result *Ar
 	sort.Slice(names, func(i, j int) bool { return String_compareTo(names[i], names[j]) < 0 })
 	for _, name := range names {
 		if entry := directory + "/" + name; Io_isDirectory(entry) {
-			listFilesInto_(entry, prefix+name+"/", append(around, real), result)
+			listFilesInto_(entry, prefix+name+"/", append(around, real), add)
 		} else {
-			result.add(any(prefix + name))
+			add(prefix + name)
 		}
 	}
 }

@@ -1747,6 +1747,12 @@ abstract class ExprEmitter extends Base {
   /** Whether the call being translated is lgWantErased (its result enters an Object), for LibFns.call, which clears it. */
   boolean lfErased;
 
+  /** The call being translated, for LibFns.call (set before special). */
+  MethodInvocationTree lfTree;
+
+  /** The arguments of calls of library methods that read an Iterable argument once (LibFns.readsOnce), for LibFns.call. */
+  final Set<Tree> readOnce = Collections.newSetFromMap(new IdentityHashMap<>());
+
   CallResult invocation(MethodInvocationTree t, boolean lgEr) {
     lfErased = lgEr;
     ExpressionTree sel = t.getMethodSelect();
@@ -1759,10 +1765,12 @@ abstract class ExprEmitter extends Base {
       if (eq != null) return new CallResult(eq, prim(TypeKind.BOOLEAN));
     }
     List<Arg> as = args(t.getArguments());
+    if (cx.lf.readsOnce(e)) for (ExpressionTree a : t.getArguments()) readOnce.add(strip(a));
     curInst = typeOf(sel) instanceof ExecutableType et ? et : null;
     retOverride = e.getModifiers().contains(Modifier.STATIC) && !cx.isTypedColl(cx.refinedTrees.get(t)) ? cx.refinedTrees.get(t) : null;
     if (sel instanceof MemberSelectTree ms) {
       ExpressionTree q = ms.getExpression();
+      lfTree = t;
       if (e.getModifiers().contains(Modifier.STATIC)) return special(e, null, as);
       if (q instanceof IdentifierTree id && id.getName().contentEquals("super")) return call(e, new Recv("this", cc().te.asType()), true, as);
       if (q instanceof MemberSelectTree qm && qm.getIdentifier().contentEquals("super")) {
@@ -1784,8 +1792,10 @@ abstract class ExprEmitter extends Base {
       curInst = typeOf(sel) instanceof ExecutableType et ? et : null;
       retOverride = e.getModifiers().contains(Modifier.STATIC) && !cx.isTypedColl(cx.refinedTrees.get(t)) ? cx.refinedTrees.get(t) : null;
       lgErasedNow = lgEr;
+      lfTree = t;
       return special(e, new Recv(rcode, qt), as);
     }
+    lfTree = t;
     return special(e, null, as);
   }
 

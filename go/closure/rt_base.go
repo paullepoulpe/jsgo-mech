@@ -283,7 +283,11 @@ func asciiUpper_(s string) string {
 }
 
 func Ascii_equalsIgnoreCase(a any, b any) bool {
-	x, y := csString_(a), csString_(b)
+	return asciiEqualsIgnoreCase_(csString_(a), csString_(b))
+}
+
+// asciiEqualsIgnoreCase_ is Ascii.equalsIgnoreCase of two strings.
+func asciiEqualsIgnoreCase_(x, y string) bool {
 	if len(x) != len(y) {
 		return false
 	}

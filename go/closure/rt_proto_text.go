@@ -397,7 +397,12 @@ func (this *TextFormat_Parser) merge(p0 any, p1 Message_Builder) {
 	if p0 == nil || p1 == nil {
 		pbNPE_()
 	}
-	t := &pbTok_{text: objstr_(p0)}
+	this.mergeText_(objstr_(p0), p1)
+}
+
+// mergeText_ is merge of the text of the sequence (merge_s, piece seqstr: a String).
+func (this *TextFormat_Parser) mergeText_(text string, p1 Message_Builder) {
+	t := &pbTok_{text: text}
 	t.skipSpace_()
 	t.next_()
 	var unknown []string

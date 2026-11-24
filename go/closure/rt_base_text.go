@@ -24,7 +24,12 @@ func (this *CharMatcher) test(c any) bool { return this.f(c.(uint16)) }
 func (this *CharMatcher) toString() string { return this.desc }
 
 func (this *CharMatcher) collapseFrom(seq any, repl uint16) string {
-	u := String_toCharArray(csString_(seq))
+	return this.collapseStr_(csString_(seq), repl)
+}
+
+// collapseStr_ is collapseFrom of a string that is not null.
+func (this *CharMatcher) collapseStr_(seq string, repl uint16) string {
+	u := String_toCharArray(seq)
 	out := make([]uint16, 0, len(u))
 	changed := false
 	for i := 0; i < len(u); i++ {
@@ -44,13 +49,16 @@ func (this *CharMatcher) collapseFrom(seq any, repl uint16) string {
 		i = j - 1
 	}
 	if !changed {
-		return csString_(seq)
+		return seq
 	}
 	return fromUnits_(out)
 }
 
-func (this *CharMatcher) lastIndexIn(seq any) int32 {
-	u := String_toCharArray(csString_(seq))
+func (this *CharMatcher) lastIndexIn(seq any) int32 { return this.lastIndexStr_(csString_(seq)) }
+
+// lastIndexStr_ is lastIndexIn of a string that is not null.
+func (this *CharMatcher) lastIndexStr_(seq string) int32 {
+	u := String_toCharArray(seq)
 	for i := len(u) - 1; i >= 0; i-- {
 		if this.f(u[i]) {
 			return int32(i)

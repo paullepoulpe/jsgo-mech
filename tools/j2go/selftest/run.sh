@@ -14,7 +14,7 @@ t=.cache/j2go-selftest
 rm -rf "$t" && mkdir -p "$t/java" "$t/go/closure" "$t/go/cmd/t"
 # lang/Imm.java uses Guava (typed immutable collections).
 javac -nowarn -cp .cache/build/stock-libs.jar -d "$t/java" tools/j2go/selftest/lang/*.java
-for c in Lang Lang2 Handles Generics Generics2 Generics3 Colls Imm Unboxed Covariant CovariantIface Layout FnTypes LibGen LibFns GOpt LibObj Cmp OwnWild TriBox OwnIter HStatic; do env -u JAVA_TOOL_OPTIONS java -Dstdout.encoding=UTF-8 -cp "$t/java:.cache/build/stock-libs.jar" lang.$c; done >"$t/expected.txt"
+for c in Lang Lang2 Handles Generics Generics2 Generics3 Colls Imm Unboxed Covariant CovariantIface Layout FnTypes LibGen LibFns GOpt LibObj Cmp OwnWild TriBox OwnIter HStatic Resid; do env -u JAVA_TOOL_OPTIONS java -Dstdout.encoding=UTF-8 -cp "$t/java:.cache/build/stock-libs.jar" lang.$c; done >"$t/expected.txt"
 # The test class is translated together with the whole tree, so that the runtime it needs is all there.
 cp go/go.mod "$t/go/" && cp go/closure/rt_*.go tools/j2go/selftest/rt_*.go "$t/go/closure/" && rm -f "$t"/go/closure/*_test.go
 [[ -d go/closure/resources ]] && cp -r go/closure/resources "$t/go/closure/"
@@ -48,7 +48,7 @@ import (
 	"unsafe"
 )
 
-func SelfTest() string { return Lang_run() + Lang2_run() + Handles_run() + Generics_run() + Generics2_run() + Generics3_run() + Colls_run() + Imm_run() + Unboxed_run() + Covariant_run() + CovariantIface_run() + Layout_run() + FnTypes_run() + LibGen_run() + LibFns_run() + GOpt_run() + LibObj_run() + Cmp_run() + OwnWild_run() + TriBox_run() + OwnIter_run() + HStatic_run() }
+func SelfTest() string { return Lang_run() + Lang2_run() + Handles_run() + Generics_run() + Generics2_run() + Generics3_run() + Colls_run() + Imm_run() + Unboxed_run() + Covariant_run() + CovariantIface_run() + Layout_run() + FnTypes_run() + LibGen_run() + LibFns_run() + GOpt_run() + LibObj_run() + Cmp_run() + OwnWild_run() + TriBox_run() + OwnIter_run() + HStatic_run() + Resid_run() }
 
 // SelfTestSizes: the sizes of the structs of lang/Layout.java.
 func SelfTestSizes() string {
@@ -152,6 +152,20 @@ if [[ ! ,${J2GO_NOLIBGEN:-}, =~ ,(owniter|iter|enumset|all), ]]; then
   ns=$(grep -cE ':= tenumSet(AllOf|NoneOf|Of|OfArr|CopyOf)_\(tc_p_OwnIter_Color, .*\)\.each\(\)$' "$g" || true)
   nx=$(grep -cE ':= foreach_\(' "$g" || true)
   if [[ $ny != 6 || $ns != 5 || $nx != 5 ]]; then echo "selftest: FAIL (piece owniter: $ny typed cursors, $ns EnumSet cursors, $nx erased loops)"; exit 1; fi
+fi
+if [[ ! ,${J2GO_NOLIBGEN:-}, =~ ,(rtm|fns2|seqstr|all), && ${J2GO_NOFNTYPES:-} != 1 ]]; then
+  # Pieces `rtm`, `fns2`, `seqstr` (lang/Resid.java): rtm() has 20 calls of the typed twins (BigInteger and Enum
+  # compareTo_t 6 (and 3 compareTo_t of piece cmp), BitSet clone_t, subList / reverse of typed immutable lists 6, tailSetT_ 2,
+  # containsValueT_ 2), fns2() 11 (setAll, comparing, transform read once, Splitter.split, putIfAbsent 4, replace 2,
+  # singletonList), seqstr() 5 variants, the static comparators 2, Pair.compareTo 2 compare_s; left() none and 3 erased
+  # calls (a key that is no String, a transform that is not read once, a value of another Go type).
+  twin='\.(compareTo_t|compare_s|clone_t|subListImm_|reverseImm_|tailSetT_|containsValueT_|split_sT|lastIndexIn_s|collapseFrom_s)\(|\b(ImmutableList_(subList|reverse)T_|List_add_intT_|Arrays_setAllT_|Comparator_(comparing|thenComparing)S_|Iterables_transformT_|Map_putIfAbsent_sT_|Map_replace_sT_|Collections_singletonListT_)\[|\b(Ascii_equalsIgnoreCase_s|Integer_parseInt_s_int_int_int)\('
+  erased='\bComparator_comparing\[|\bLists_transform\(|\.containsValue\('
+  g="$t/go/closure/g_Resid.go"
+  cnt() { awk -v re="$1" '$0 ~ "^func (\\(this \\*[A-Za-z_]+\\) )?(" re ")\\(" {f=1} f {print} f && /^}/ {f=0}' "$g" | { grep -oE "$2" || true; } | wc -l; }
+  n1=$(cnt Resid_rtm "$twin"); n2=$(cnt Resid_fns2 "$twin"); n3=$(cnt Resid_seqstr "$twin"); n4=$(cnt Resid_clinit "$twin"); n5=$(cnt compareTo_t "$twin")
+  nx=$(cnt Resid_left "$twin"); ne=$(cnt Resid_left "$erased")
+  if [[ $n1 != 20 || $n2 != 11 || $n3 != 5 || $n4 != 2 || $n5 != 2 || $nx != 0 || $ne != 3 ]]; then echo "selftest: FAIL (pieces rtm/fns2/seqstr: $n1 $n2 $n3 $n4 $n5 twins, $nx and $ne erased calls in left())"; exit 1; fi
 fi
 if [[ ${J2GO_NOFNTYPES:-} != 1 ]]; then
   # Rule "function types": the translator must refuse every use in refused/Refused.java (14) and write nothing.
