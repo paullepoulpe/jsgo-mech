@@ -122,19 +122,14 @@ func (l *TList[T]) unwrap_() any { return l.asList() }
 
 // tview_ is the view of the list that typed code holds as a List or Collection: the one erased
 // code sees too, unless the list is an ImmutableList (erased code sees its twin, asList).
-func (l *TList[T]) tview_() *tlistView_[T] {
-	if l.view == nil {
-		l.view = &tlistView_[T]{l: l}
-	}
-	return l.view
-}
+func (l *TList[T]) tview_() *tlistView_[T] { return (*tlistView_[T])(l) }
 func (l *TList[T]) iterator_t() IteratorT[T] {
 	if l == nil {
 		panic(new_NullPointerException_0().self())
 	}
 	return &tlistIter_[T]{l: l}
 }
-func (v *tlistView_[T]) iterator_t() IteratorT[T] { return &tlistIter_[T]{l: v.l} }
+func (v *tlistView_[T]) iterator_t() IteratorT[T] { return &tlistIter_[T]{l: v.tl()} }
 
 func (it *tlistIter_[T]) next_t() T { return it.nextT() }
 
@@ -207,7 +202,7 @@ func jeachOf_[T any](x IterableT[T]) iterEach_[T] {
 	case *TList[T]:
 		return iterEach_[T]{src: &l.items}
 	case *tlistView_[T]:
-		return iterEach_[T]{src: &l.l.items}
+		return iterEach_[T]{src: &l.tl().items}
 	case *TDeque[T]:
 		return iterEach_[T]{src: &l.items}
 	case stepperT_[T]:
@@ -353,7 +348,7 @@ func (l *TList[T]) asCollT() CollectionT[T] {
 	}
 	return l.tview_()
 }
-func (v *tlistView_[T]) unwrap_() any { return v.l.asList() }
+func (v *tlistView_[T]) unwrap_() any { return v.tl().asList() }
 
 func (s *TSet[K]) asCollT() CollectionT[K] {
 	if s == nil {
@@ -465,10 +460,10 @@ func (l *TList[T]) asListT() ListT[T] {
 	return l.tview_()
 }
 
-func (v *tlistView_[T]) get_t(i int32) T      { return v.l.get(i) }
-func (v *tlistView_[T]) add_t(x T) bool       { return v.l.add(x) }
-func (v *tlistView_[T]) set_t(i int32, x T) T { return v.l.set(i, x) }
-func (v *tlistView_[T]) remove_t(i int32) T   { return v.l.removeAt(i) }
+func (v *tlistView_[T]) get_t(i int32) T      { return v.tl().get(i) }
+func (v *tlistView_[T]) add_t(x T) bool       { return v.tl().add(x) }
+func (v *tlistView_[T]) set_t(i int32, x T) T { return v.tl().set(i, x) }
+func (v *tlistView_[T]) remove_t(i int32) T   { return v.tl().removeAt(i) }
 func (v *tsetView_[K]) add_t(x K) bool        { return v.s.Add(x) }
 
 // (the views of a map take no element, as in Java)
@@ -816,8 +811,8 @@ func (e *TEntry[K, V]) asEntryT() Map_EntryT[K, V] {
 // declaration of rule "typed collections": the immutable typed list whose view it is, else
 // tlistImm_ of the object erased code knows (which fails as a cast to the class does).
 func tlistOfT_[T any](c *tconv_[T], x Collection) *TList[T] {
-	if v, ok := x.(*tlistView_[T]); ok && v.l.imm && !v.l.unmod {
-		return v.l
+	if v, ok := x.(*tlistView_[T]); ok && v.tl().imm && !v.tl().unmod {
+		return v.tl()
 	}
 	return tlistImm_(c, cast_[*ImmutableCollection](lgBox_(x)))
 }

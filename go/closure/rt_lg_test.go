@@ -491,7 +491,7 @@ func TestLgCls(t *testing.T) {
 	if tlistOfT_(tc_string, il.asListT()) != il || tlistOfT_(tc_string, il.asCollT()) != il || tlistOfT_(tc_string, nil) != nil {
 		t.Fatal("the typed list of its view")
 	}
-	if il.view.twin != nil {
+	if il.twin != nil {
 		t.Fatal("the twin of an immutable list was made although only typed code read it")
 	}
 	// an erased immutable list in a wrapper: the typed list of that object, made once
