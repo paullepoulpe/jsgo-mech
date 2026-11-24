@@ -3314,9 +3314,9 @@ var tc_p_SourcePosition_util = &tconv_[*SourcePosition_util]{
 	unbox: cast_[*SourcePosition_util],
 }
 
-var tc_p_SourceRange = &tconv_[*SourceRange]{
-	box:   obj_[*SourceRange],
-	unbox: cast_[*SourceRange],
+var tc_SourceRange = &tconv_[SourceRange]{
+	box:   func(v SourceRange) any { return v.ref_() },
+	unbox: func(v any) SourceRange { return *cast_[*SourceRange](v) },
 }
 
 var tc_p_StandardUnionFind_Node_E__single_ singles_

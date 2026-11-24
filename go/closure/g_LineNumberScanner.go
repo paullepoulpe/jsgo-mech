@@ -45,7 +45,7 @@ func (this *LineNumberScanner) getSourcePosition(offset int32) *SourcePosition_u
 	return new_SourcePosition_util(this.sourceFile, offset, this.lastLine, (offset - this.lastLineStart))
 }
 
-func (this *LineNumberScanner) getSourceRange(startOffset int32, endOffset int32) *SourceRange {
+func (this *LineNumberScanner) getSourceRange(startOffset int32, endOffset int32) SourceRange {
 	return new_SourceRange(this.getSourcePosition(startOffset), this.getSourcePosition(endOffset))
 }
 

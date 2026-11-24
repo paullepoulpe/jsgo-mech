@@ -16,14 +16,14 @@ func (this *ForInStatementTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *ForInStatementTree) init_ForInStatementTree(location *SourceRange, initializer *ParseTree, collection *ParseTree, body *ParseTree) {
+func (this *ForInStatementTree) init_ForInStatementTree(location SourceRange, initializer *ParseTree, collection *ParseTree, body *ParseTree) {
 	this.ParseTree.init_ParseTree(ParseTreeType_FOR_IN_STATEMENT, location)
 	this.initializer = initializer
 	this.collection = collection
 	this.body = body
 }
 
-func new_ForInStatementTree(location *SourceRange, initializer *ParseTree, collection *ParseTree, body *ParseTree) *ForInStatementTree {
+func new_ForInStatementTree(location SourceRange, initializer *ParseTree, collection *ParseTree, body *ParseTree) *ForInStatementTree {
 	this := &ForInStatementTree{}
 	this.self_ = this
 	this.init_ForInStatementTree(location, initializer, collection, body)

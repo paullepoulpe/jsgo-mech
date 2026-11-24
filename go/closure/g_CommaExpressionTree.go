@@ -14,12 +14,12 @@ func (this *CommaExpressionTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *CommaExpressionTree) init_CommaExpressionTree(location *SourceRange, expressions *TList[*ParseTree]) {
+func (this *CommaExpressionTree) init_CommaExpressionTree(location SourceRange, expressions *TList[*ParseTree]) {
 	this.ParseTree.init_ParseTree(ParseTreeType_COMMA_EXPRESSION, location)
 	this.expressions = expressions
 }
 
-func new_CommaExpressionTree(location *SourceRange, expressions *TList[*ParseTree]) *CommaExpressionTree {
+func new_CommaExpressionTree(location SourceRange, expressions *TList[*ParseTree]) *CommaExpressionTree {
 	this := &CommaExpressionTree{}
 	this.self_ = this
 	this.init_CommaExpressionTree(location, expressions)

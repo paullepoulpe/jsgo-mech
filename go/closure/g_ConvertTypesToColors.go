@@ -4,15 +4,15 @@ package closure
 
 type ConvertTypesToColors struct {
 	compiler_            *AbstractCompiler
-	serializationOptions *SerializationOptions
+	serializationOptions SerializationOptions
 }
 
-func (this *ConvertTypesToColors) init_ConvertTypesToColors(compiler *AbstractCompiler, serializationOptions *SerializationOptions) {
+func (this *ConvertTypesToColors) init_ConvertTypesToColors(compiler *AbstractCompiler, serializationOptions SerializationOptions) {
 	this.compiler_ = compiler
 	this.serializationOptions = serializationOptions
 }
 
-func new_ConvertTypesToColors(compiler *AbstractCompiler, serializationOptions *SerializationOptions) *ConvertTypesToColors {
+func new_ConvertTypesToColors(compiler *AbstractCompiler, serializationOptions SerializationOptions) *ConvertTypesToColors {
 	this := &ConvertTypesToColors{}
 	this.init_ConvertTypesToColors(compiler, serializationOptions)
 	return this

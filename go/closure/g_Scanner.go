@@ -76,11 +76,11 @@ func (this *Scanner_parser) getPosition_1(offset int32) *SourcePosition_util {
 	return this.lineNumberScanner.getSourcePosition(offset)
 }
 
-func (this *Scanner_parser) getTokenRange(startOffset int32) *SourceRange {
+func (this *Scanner_parser) getTokenRange(startOffset int32) SourceRange {
 	return this.lineNumberScanner.getSourceRange(startOffset, this.index_)
 }
 
-func (this *Scanner_parser) getTokenRangeSourcePosition(position *SourcePosition_util) *SourceRange {
+func (this *Scanner_parser) getTokenRangeSourcePosition(position *SourcePosition_util) SourceRange {
 	this.lineNumberScanner.rewindTo(position)
 	return this.lineNumberScanner.getSourceRange(position.offset, this.index_)
 }
@@ -327,12 +327,12 @@ func (this *Scanner_parser) skipSingleLineComment_1(type_ Comment_Type) {
 	for !this.isAtEnd() && !Scanner_parser_isLineTerminator(this.peekChar()) {
 		this.nextChar()
 	}
-	var range_ *SourceRange = this.lineNumberScanner.getSourceRange(startOffset, this.index_)
+	var range_ SourceRange = this.lineNumberScanner.getSourceRange(startOffset, this.index_)
 	var value string = this.contentsU16.substring(startOffset, this.index_)
 	this.recordComment(type_, range_, value)
 }
 
-func (this *Scanner_parser) recordComment(type_ Comment_Type, range_ *SourceRange, value string) {
+func (this *Scanner_parser) recordComment(type_ Comment_Type, range_ SourceRange, value string) {
 	this.commentRecorder.recordComment(type_, range_, value)
 }
 
@@ -354,7 +354,7 @@ func (this *Scanner_parser) skipMultiLineComment() {
 				type_ = Comment_Type_IMPORTANT
 			}
 		}
-		var range_ *SourceRange = this.lineNumberScanner.getSourceRange(startOffset, this.index_)
+		var range_ SourceRange = this.lineNumberScanner.getSourceRange(startOffset, this.index_)
 		var value string = this.contentsU16.substring(startOffset, this.index_)
 		this.recordComment(type_, range_, value)
 	} else {
@@ -1210,14 +1210,14 @@ func (this *Scanner_parser) createSkipTemplateCharactersResult(message string, e
 }
 
 type Scanner_CommentRecorder interface {
-	recordComment(Comment_Type, *SourceRange, string)
+	recordComment(Comment_Type, SourceRange, string)
 }
 
 type Scanner_CommentRecorder_fn struct {
-	f func(Comment_Type, *SourceRange, string)
+	f func(Comment_Type, SourceRange, string)
 }
 
-func (this *Scanner_CommentRecorder_fn) recordComment(p0 Comment_Type, p1 *SourceRange, p2 string) {
+func (this *Scanner_CommentRecorder_fn) recordComment(p0 Comment_Type, p1 SourceRange, p2 string) {
 	this.f(p0, p1, p2)
 }
 

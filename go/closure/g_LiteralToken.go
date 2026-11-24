@@ -47,12 +47,12 @@ func (this *LiteralToken) zero_LiteralToken() {
 	this.value_ = nullstr_
 }
 
-func (this *LiteralToken) init_LiteralToken(type_ TokenType, value string, location *SourceRange) {
+func (this *LiteralToken) init_LiteralToken(type_ TokenType, value string, location SourceRange) {
 	this.Token_parser.init_Token_parser(type_, location)
 	this.value_ = value
 }
 
-func new_LiteralToken(type_ TokenType, value string, location *SourceRange) *LiteralToken {
+func new_LiteralToken(type_ TokenType, value string, location SourceRange) *LiteralToken {
 	this := &LiteralToken{}
 	this.self_ = this
 	this.zero_LiteralToken()

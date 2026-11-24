@@ -15,13 +15,13 @@ func (this *WhileStatementTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *WhileStatementTree) init_WhileStatementTree(location *SourceRange, condition *ParseTree, body *ParseTree) {
+func (this *WhileStatementTree) init_WhileStatementTree(location SourceRange, condition *ParseTree, body *ParseTree) {
 	this.ParseTree.init_ParseTree(ParseTreeType_WHILE_STATEMENT, location)
 	this.condition = condition
 	this.body = body
 }
 
-func new_WhileStatementTree(location *SourceRange, condition *ParseTree, body *ParseTree) *WhileStatementTree {
+func new_WhileStatementTree(location SourceRange, condition *ParseTree, body *ParseTree) *WhileStatementTree {
 	this := &WhileStatementTree{}
 	this.self_ = this
 	this.init_WhileStatementTree(location, condition, body)

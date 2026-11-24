@@ -16,14 +16,14 @@ func (this *IfStatementTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *IfStatementTree) init_IfStatementTree(location *SourceRange, condition *ParseTree, ifClause *ParseTree, elseClause *ParseTree) {
+func (this *IfStatementTree) init_IfStatementTree(location SourceRange, condition *ParseTree, ifClause *ParseTree, elseClause *ParseTree) {
 	this.ParseTree.init_ParseTree(ParseTreeType_IF_STATEMENT, location)
 	this.condition = condition
 	this.ifClause = ifClause
 	this.elseClause = elseClause
 }
 
-func new_IfStatementTree(location *SourceRange, condition *ParseTree, ifClause *ParseTree, elseClause *ParseTree) *IfStatementTree {
+func new_IfStatementTree(location SourceRange, condition *ParseTree, ifClause *ParseTree, elseClause *ParseTree) *IfStatementTree {
 	this := &IfStatementTree{}
 	this.self_ = this
 	this.init_IfStatementTree(location, condition, ifClause, elseClause)
