@@ -112,6 +112,20 @@ somewhere makes `DiGraph[N]`, with the second parameter `any` everywhere). Then:
   `(C<K, V>[]) new C<?, ?>[n]` is a new array of the instantiation (`GenScan.shared`). The
   constructor of a shared static must have no effect but the new object: it runs once per
   instantiation, on first use.
+- Piece `ownwild` (`J2GO_NOLIBGEN=ownwild` translates without it; `GenScan.ownWild`): inside
+  generic class C's own code a variable written `C<?>` that only holds a C of the receiver's
+  instantiation is `C<T>`, so the wildcard does not erase C for the whole program. A parameter
+  `C<?>` of an instance method of C that overrides nothing and that nothing overrides, never
+  assigned, never referenced (`::`), whose every call passes an argument of the receiver's
+  instantiation (`SourcePosition.isSamePositionAs(SourcePosition<?> that)`: `that` is
+  `*SourcePosition[T]`); and in C's `equals(Object o)`, `if (o instanceof C) { C<?> that = (C<?>)
+  o; ...`: `that` is `C<T>` and the test is of the instantiation (`is_[*C[T]](o)`). Go then
+  answers false for an object of another instantiation, where Java runs the block: the method
+  must be listed with the argument that the block answers false too in
+  `tools/j2go/ownwild-equals.txt` (`AbstractCommandLineRunner.FlagEntry.equals`: instantiated with
+  two enums), and every type argument written for C must be an enum, a type variable or a
+  wildcard. Anything else is left (counted in the `J2GO_LIBGEN` report, `ownwild: left: ...`);
+  `selftest/lang/OwnWild.java` has two typed classes and eight left.
 - A class without subclasses converts to a typed interface it implements as Go converts it
   (null stays the nil interface), not through `cast_`.
 - Performance rule: generic Go code does not assert a value to an interface type that names a
@@ -540,7 +554,7 @@ Refused (`typed library interfaces: refused: File.java:line: ...`, nothing is wr
 `tools/j2go/selftest/refused/RefusedLib.java` has one use of each kind (15); the self-test
 fails unless the translator refuses exactly those and writes nothing.
 
-Each kind and piece is a switch: `J2GO_NOLIBGEN=iter,coll,list,set,map,makers,views,place,cov,elems,wide,nncoll,readers,cls,meth,fns,sorted,enumset,cmaps,deque,guava,goptional,seqcoll,objarg,cmp`
+Each kind and piece is a switch: `J2GO_NOLIBGEN=iter,coll,list,set,map,makers,views,place,cov,elems,wide,nncoll,readers,cls,meth,fns,sorted,enumset,cmaps,deque,guava,goptional,seqcoll,objarg,cmp,ownwild`
 (`all`: every one). A translation with any of them off is built with `-tags j2go_nolibgen`
 (`tools/prune/verify.sh` and the self-test do that when `J2GO_NOLIBGEN` is set): the erased
 factories that only such a translation names are in `go/closure/rt_lg_erased.go`, outside the

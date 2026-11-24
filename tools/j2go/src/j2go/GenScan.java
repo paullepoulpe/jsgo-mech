@@ -371,6 +371,283 @@ final class GenScan {
     }
   }
 
+  // ---------------------------------------------------------------- piece `ownwild`
+
+  /** Piece `ownwild`: the equals methods ("Outer.Inner.equals") whose cast to C<?> was read (tools/j2go/ownwild-equals.txt). */
+  final Set<String> equalsOk = new HashSet<>();
+
+  void readEqualsList(String file) {
+    try {
+      for (String l : java.nio.file.Files.readAllLines(java.nio.file.Path.of(file))) {
+        l = l.replaceAll("#.*", "").trim();
+        if (!l.isEmpty()) equalsOk.add(l);
+      }
+    } catch (java.io.IOException e) {
+      throw new java.io.UncheckedIOException(e);
+    }
+  }
+
+  /** "Outer.Inner.m" for method m (the names the list files use). */
+  static String methodKey(ExecutableElement m) {
+    StringBuilder sb = new StringBuilder(m.getSimpleName());
+    for (Element e = m.getEnclosingElement(); e instanceof TypeElement t; e = e.getEnclosingElement()) sb.insert(0, t.getSimpleName() + ".");
+    return sb.toString();
+  }
+
+  /** Whether t is te<?, ..., ?>, every argument an unbounded wildcard. */
+  static boolean wildOf(TypeMirror t, TypeElement te) {
+    if (!(t instanceof DeclaredType d) || t.getKind() != TypeKind.DECLARED || !te.equals(Ctx.typeElement(d)) || d.getTypeArguments().isEmpty()) return false;
+    for (TypeMirror a : d.getTypeArguments()) {
+      if (!(a instanceof WildcardType w) || w.getExtendsBound() != null || w.getSuperBound() != null) return false;
+    }
+    return true;
+  }
+
+  static ExpressionTree stripParens(ExpressionTree x) {
+    while (x instanceof ParenthesizedTree p) x = p.getExpression();
+    return x;
+  }
+
+  /**
+   * Piece `ownwild` of rule "typed generics" (J2GO_NOLIBGEN=ownwild is the translation without
+   * it): inside generic class C's own code, a variable written C<?> that only ever holds a C of
+   * the receiver's instantiation is C<T> (T: C's own type parameters), so that the wildcard does
+   * not erase C's type parameters for the whole program. Two forms:
+   *
+   * - a parameter C<?> of an instance method of C that overrides nothing and that nothing
+   *   overrides, never assigned, the method never referenced (::), and every call of it passing an
+   *   argument whose view of C is the receiver's view of C (both without wildcards; an implicit
+   *   receiver is the calling class, which must be C or a subclass): Java's typing of the body
+   *   holds for C<T> (a subtype of C<?>), and every call is typed so;
+   * - in C's equals(Object o): `if (o instanceof C) { C<?> v = (C<?>) o; ...`, the if a statement
+   *   of the method's body, v never assigned: v is C<T>, the cast is to C<T> and the test is of
+   *   C's instantiation at T (Ctx.ownTests: is_[*C[T]]). For an object of another instantiation
+   *   Go then answers false where Java runs the block; that is right only when the block answers
+   *   false for it, which the translator does not prove: the method must be listed (with the
+   *   argument) in tools/j2go/ownwild-equals.txt, and every type argument written for C in the
+   *   program must be an enum, a type variable or a wildcard (the cheap part of the argument).
+   *
+   * Anything else is left as it was (C stays erased if nothing else keeps it), counted by reason
+   * in the J2GO_LIBGEN report (`ownwild: ...`).
+   */
+  void ownWild(List<? extends CompilationUnitTree> units) {
+    Set<Element> assigned = new HashSet<>();
+    Map<ExecutableElement, List<Object[]>> params = new LinkedHashMap<>(); // m -> {param VariableTree, path, C}
+    List<Object[]> locals = new ArrayList<>(); // {local VariableTree, path, C, method, method tree}
+    Map<ExecutableElement, List<String>> callWhy = new HashMap<>();
+    Set<TypeElement> nonEnumArgs = new HashSet<>();
+    for (CompilationUnitTree cu : units) {
+      new TreePathScanner<Void, Void>() {
+        void note(Tree target) {
+          Element e = trees.getElement(new TreePath(getCurrentPath(), target));
+          if (e != null) assigned.add(e);
+        }
+
+        @Override
+        public Void visitAssignment(AssignmentTree t, Void v) {
+          note(t.getVariable());
+          return super.visitAssignment(t, v);
+        }
+
+        @Override
+        public Void visitCompoundAssignment(CompoundAssignmentTree t, Void v) {
+          note(t.getVariable());
+          return super.visitCompoundAssignment(t, v);
+        }
+
+        @Override
+        public Void visitUnary(UnaryTree t, Void v) {
+          switch (t.getKind()) {
+            case PREFIX_INCREMENT, PREFIX_DECREMENT, POSTFIX_INCREMENT, POSTFIX_DECREMENT -> note(t.getExpression());
+            default -> {
+            }
+          }
+          return super.visitUnary(t, v);
+        }
+
+        @Override
+        public Void scan(Tree t, Void v) {
+          // the type arguments written for a candidate class anywhere (the cheap part of the equals list's argument)
+          if (t instanceof ExpressionTree || t instanceof VariableTree) {
+            try {
+              TypeMirror tm = trees.getTypeMirror(new TreePath(getCurrentPath(), t));
+              if (tm instanceof DeclaredType d && tm.getKind() == TypeKind.DECLARED && why.containsKey(Ctx.typeElement(d))) {
+                for (TypeMirror a : d.getTypeArguments()) {
+                  boolean ok = a.getKind() == TypeKind.WILDCARD || a.getKind() == TypeKind.TYPEVAR
+                      || a.getKind() == TypeKind.DECLARED && Ctx.typeElement(a).getKind() == ElementKind.ENUM;
+                  if (!ok) nonEnumArgs.add(Ctx.typeElement(d));
+                }
+              }
+            } catch (RuntimeException ex) {
+              // no type for this tree
+            }
+          }
+          return super.scan(t, v);
+        }
+
+        @Override
+        public Void visitMethod(MethodTree t, Void v) {
+          if (trees.getElement(getCurrentPath()) instanceof ExecutableElement m && m.getEnclosingElement() instanceof TypeElement c
+              && c.getKind() == ElementKind.CLASS && why.containsKey(c) && why.get(c) == null) {
+            for (VariableTree p : t.getParameters()) {
+              Element pe = trees.getElement(new TreePath(getCurrentPath(), p));
+              if (pe != null && wildOf(pe.asType(), c)) params.computeIfAbsent(m, k -> new ArrayList<>()).add(new Object[] {p, new TreePath(getCurrentPath(), p), c});
+            }
+            if (t.getBody() != null) {
+              TreePath mp = getCurrentPath();
+              new TreePathScanner<Void, Void>() {
+                @Override
+                public Void visitClass(ClassTree ct, Void v2) {
+                  return null; // a nested class's own code is not C's
+                }
+
+                @Override
+                public Void visitVariable(VariableTree vt, Void v2) {
+                  Element le = trees.getElement(getCurrentPath());
+                  if (le != null && le.getKind() == ElementKind.LOCAL_VARIABLE && wildOf(le.asType(), c)) locals.add(new Object[] {vt, getCurrentPath(), c, m, t});
+                  return super.visitVariable(vt, v2);
+                }
+              }.scan(new TreePath(mp, t.getBody()), null);
+            }
+          }
+          return super.visitMethod(t, v);
+        }
+      }.scan(cu, null);
+    }
+    if (params.isEmpty() && locals.isEmpty()) return;
+    // the calls of the candidate methods
+    for (CompilationUnitTree cu : units) {
+      new TreePathScanner<Void, Void>() {
+        @Override
+        public Void visitMemberReference(MemberReferenceTree t, Void v) {
+          if (trees.getElement(getCurrentPath()) instanceof ExecutableElement m && params.containsKey(m)) callWhy.computeIfAbsent(m, k -> new ArrayList<>()).add("a method reference to the method");
+          return super.visitMemberReference(t, v);
+        }
+
+        @Override
+        public Void visitMethodInvocation(MethodInvocationTree t, Void v) {
+          if (trees.getElement(new TreePath(getCurrentPath(), t.getMethodSelect())) instanceof ExecutableElement m && params.containsKey(m)) {
+            TypeElement c = (TypeElement) m.getEnclosingElement();
+            TypeMirror recv = null;
+            if (t.getMethodSelect() instanceof MemberSelectTree sel) {
+              recv = trees.getTypeMirror(new TreePath(new TreePath(getCurrentPath(), t.getMethodSelect()), sel.getExpression()));
+            } else {
+              for (TreePath p = getCurrentPath(); p != null; p = p.getParentPath()) {
+                if (p.getLeaf() instanceof ClassTree && trees.getElement(p) instanceof TypeElement cls) {
+                  recv = cls.asType();
+                  break;
+                }
+              }
+            }
+            TypeMirror rv = viewOf(recv, c, 0);
+            if (rv == null || !(rv instanceof DeclaredType) || !instOf(rv, c)) {
+              callWhy.computeIfAbsent(m, k -> new ArrayList<>()).add("a call whose receiver is not an instantiation of the class (an implicit receiver of an enclosing class, a wildcard)");
+            } else {
+              for (Object[] pd : params.get(m)) {
+                int i = m.getParameters().indexOf((VariableElement) trees.getElement((TreePath) pd[1]));
+                if (i < 0 || i >= t.getArguments().size()) continue;
+                TypeMirror av = viewOf(trees.getTypeMirror(new TreePath(getCurrentPath(), t.getArguments().get(i))), c, 0);
+                if (av == null || !instOf(av, c) || !cx.types.isSameType(av, rv)) {
+                  callWhy.computeIfAbsent(m, k -> new ArrayList<>()).add("a call whose argument is not of the receiver's instantiation");
+                }
+              }
+            }
+          }
+          return super.visitMethodInvocation(t, v);
+        }
+      }.scan(cu, null);
+    }
+    for (var en : params.entrySet()) {
+      ExecutableElement m = en.getKey();
+      for (Object[] pd : en.getValue()) {
+        VariableTree vt = (VariableTree) pd[0];
+        TreePath path = (TreePath) pd[1];
+        TypeElement c = (TypeElement) pd[2];
+        Element pe = trees.getElement(path);
+        String w = null;
+        if (m.getModifiers().contains(Modifier.STATIC)) w = "a parameter of a static method";
+        else if (cx.root(m) != m || overridden.contains(m)) w = "a parameter of a method that overrides or is overridden";
+        else if (assigned.contains(pe)) w = "an assigned parameter";
+        else if (callWhy.containsKey(m)) w = callWhy.get(m).get(0);
+        String site = methodKey(m) + "(" + pe.getSimpleName() + ")";
+        if (w != null) {
+          cx.lg.note("ownwild: left: " + w, site);
+          continue;
+        }
+        TypeMirror own = c.asType();
+        cx.refinedVars.put(pe, own);
+        cx.refinedTrees.put(vt, own);
+        cx.refinedTypeTrees.add(vt.getType());
+        cx.lg.note("ownwild: typed parameter", site);
+        refineFieldReads(path, pe, own);
+      }
+    }
+    for (Object[] ld : locals) {
+      VariableTree vt = (VariableTree) ld[0];
+      TreePath path = (TreePath) ld[1];
+      TypeElement c = (TypeElement) ld[2];
+      ExecutableElement m = (ExecutableElement) ld[3];
+      MethodTree mt = (MethodTree) ld[4];
+      Element le = trees.getElement(path);
+      String site = methodKey(m) + "(" + le.getSimpleName() + ")";
+      String w = null;
+      boolean isEquals = m.getSimpleName().contentEquals("equals") && !m.getModifiers().contains(Modifier.STATIC) && m.getParameters().size() == 1
+          && m.getParameters().get(0).asType().toString().equals("java.lang.Object");
+      ExpressionTree init = vt.getInitializer() == null ? null : stripParens(vt.getInitializer());
+      VariableElement o = isEquals ? m.getParameters().get(0) : null;
+      InstanceOfTree test = null;
+      if (!isEquals) w = "a local outside equals(Object)";
+      else if (!(init instanceof TypeCastTree cast && stripParens(cast.getExpression()) instanceof IdentifierTree id && id.getName().contentEquals(o.getSimpleName()))) w = "a local that is not the cast of equals' parameter";
+      else {
+        // the if statement of the method's body whose then-block starts with the declaration
+        for (StatementTree st : mt.getBody().getStatements()) {
+          if (st instanceof IfTree it && it.getThenStatement() instanceof BlockTree b && !b.getStatements().isEmpty() && b.getStatements().get(0) == vt
+              && stripParens(it.getCondition()) instanceof InstanceOfTree io && io.getPattern() == null
+              && stripParens(io.getExpression()) instanceof IdentifierTree ie && ie.getName().contentEquals(o.getSimpleName())) {
+            TreePath tp = TreePath.getPath(path.getCompilationUnit(), io.getType());
+            TypeMirror tt = tp == null ? null : trees.getTypeMirror(tp);
+            if (tt != null && tt.getKind() == TypeKind.DECLARED && c.equals(Ctx.typeElement(tt))) test = io;
+          }
+        }
+        if (test == null) w = "a cast not guarded by `o instanceof C` (the first statement of the then-block of an if of the method's body)";
+        else if (assigned.contains(le) || assigned.contains(o)) w = "an assigned local or parameter";
+        else if (!equalsOk.contains(methodKey(m))) w = "an equals not listed in tools/j2go/ownwild-equals.txt";
+        else if (nonEnumArgs.contains(c)) w = "a type argument of the class that is not an enum";
+      }
+      if (w != null) {
+        cx.lg.note("ownwild: left: " + w, site);
+        continue;
+      }
+      TypeMirror own = c.asType();
+      TypeCastTree cast = (TypeCastTree) init;
+      cx.refinedVars.put(le, own);
+      cx.refinedTrees.put(vt, own);
+      cx.refinedTypeTrees.add(vt.getType());
+      cx.refinedTrees.put(cast, own);
+      cx.refinedTypeTrees.add(cast.getType());
+      cx.ownTests.put(test, own);
+      cx.lg.note("ownwild: typed equals cast", site);
+      refineFieldReads(path.getParentPath(), le, own);
+    }
+  }
+
+  /** The reads `v.f` of a field f of the class, under path: of f's type at the refined type of v. */
+  void refineFieldReads(TreePath under, Element v, TypeMirror own) {
+    TreePath scope = under;
+    while (scope != null && !(scope.getLeaf() instanceof MethodTree)) scope = scope.getParentPath();
+    if (scope == null) return;
+    new TreePathScanner<Void, Void>() {
+      @Override
+      public Void visitMemberSelect(MemberSelectTree t, Void x) {
+        if (stripParens(t.getExpression()) instanceof IdentifierTree id && v.equals(trees.getElement(new TreePath(getCurrentPath(), t.getExpression())))
+            && trees.getElement(getCurrentPath()) instanceof VariableElement f && f.getKind() == ElementKind.FIELD && !f.getModifiers().contains(Modifier.STATIC)) {
+          cx.refinedTrees.put(t, cx.types.asMemberOf((DeclaredType) own, f));
+        }
+        return super.visitMemberSelect(t, x);
+      }
+    }.scan(scope, null);
+  }
+
   static boolean captured(TypeMirror t) {
     return t.getKind() == TypeKind.TYPEVAR && t.toString().startsWith("capture");
   }
@@ -566,7 +843,7 @@ final class GenScan {
       public Void visitMethod(MethodTree t, Void v) {
         if (trees.getElement(getCurrentPath()) instanceof ExecutableElement m) {
           check(m.getReturnType(), 0);
-          for (VariableElement p : m.getParameters()) check(p.asType(), 0);
+          for (VariableElement p : m.getParameters()) check(cx.vtype(p), 0);
           checkBounds(m.getTypeParameters());
         }
         return super.visitMethod(t, v);

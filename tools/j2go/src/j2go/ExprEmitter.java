@@ -1075,6 +1075,8 @@ abstract class ExprEmitter extends Base {
   }
 
   String instanceOf(InstanceOfTree t) {
+    TypeMirror own = cx.ownTests.get(t);
+    if (own != null) return "is_[" + cx.goType(own) + "](" + asAny(t.getExpression()) + ")";
     Object[] ht = fieldRead(t.getExpression(), f -> cx.handleTable(f) != null);
     if (ht != null) {
       VariableElement f = (VariableElement) ht[1];

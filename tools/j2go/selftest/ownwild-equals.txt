@@ -1,0 +1,8 @@
+# Piece `ownwild`: the self-test's equals methods typed as their class's instantiation
+# (lang/OwnWild.java; tools/j2go/ownwild-equals.txt says what an entry means).
+# Entry: instantiated with the enums Color and Size; Enum.equals is identity, so a flag of one never equals one of the other.
+OwnWild.Entry.equals
+# Str: listed, but instantiated with String (refused: a type argument that is not an enum).
+OwnWild.Str.equals
+# NoGuard: listed, but its cast is not guarded by instanceof (refused).
+OwnWild.NoGuard.equals

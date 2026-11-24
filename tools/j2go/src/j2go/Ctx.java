@@ -2794,6 +2794,12 @@ final class Ctx {
   final Map<Element, TypeMirror> refinedVars = new HashMap<>();
   final IdentityHashMap<com.sun.source.tree.Tree, TypeMirror> refinedTrees = new IdentityHashMap<>();
   final Set<com.sun.source.tree.Tree> refinedTypeTrees = Collections.newSetFromMap(new IdentityHashMap<>());
+  /**
+   * Piece `ownwild` (GenScan.ownWild): `o instanceof C` guarding the cast of equals' parameter
+   * to C<?> that the piece types as C<T>: a test of C's instantiation at the receiver's type
+   * arguments (is_[*C[T]]), not of any instantiation.
+   */
+  final IdentityHashMap<com.sun.source.tree.Tree, TypeMirror> ownTests = new IdentityHashMap<>();
 
   /**
    * Shared statics (GenScan.shared): static final fields of type C<?, ...> (or an empty array of

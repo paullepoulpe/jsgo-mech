@@ -262,6 +262,11 @@ public final class Main {
     GenScan gs = new GenScan(cx, trees);
     gs.candidates(cx.source);
     gs.noteOverrides(cx.source);
+    if (LibGen.on("ownwild")) {
+      String ol = System.getenv("J2GO_OWNWILD_EQUALS") != null ? System.getenv("J2GO_OWNWILD_EQUALS") : "tools/j2go/ownwild-equals.txt";
+      for (String f : ol.split(":")) if (new java.io.File(f).exists()) gs.readEqualsList(f);
+      gs.ownWild(units);
+    }
     if (System.getenv("J2GO_ERASED") == null) {
       gs.shared(units);
       for (CompilationUnitTree cu : units) gs.refine(cu);

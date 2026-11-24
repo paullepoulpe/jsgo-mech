@@ -1,0 +1,17 @@
+# Piece `ownwild` of rule "typed generics" (tools/j2go/src/j2go/GenScan.java ownWild): equals
+# methods ("Outer.Inner.equals") of a generic class C whose `if (o instanceof C) { C<?> that =
+# (C<?>) o; ...` is typed as C<T>: the test is of C's instantiation at the receiver's type
+# arguments, so for an object of another instantiation Go answers false where Java runs the block.
+# Each entry says why the block answers false for such an object too. The translator checks the
+# shape and that every type argument written for C in the program is an enum, a type variable or
+# a wildcard; the rest is this argument.
+
+# `return that.flag.equals(this.flag) && that.value.equals(this.value);`. The program instantiates
+# FlagEntry with two enums, CheckLevel and JsSourceType (also through the type variable of
+# CommandLineRunner.Flags.addMultiFlagValue, whose five calls pass CheckLevel.ERROR / WARNING /
+# OFF and JsSourceType.JS / JS_ZIP). Enum.equals is identity, so a flag of one enum never equals
+# one of the other: Java's block answers false. It would throw where `that.flag` is null; every
+# `new FlagEntry` of the tree passes an enum constant (AbstractCommandLineRunner 840, 871;
+# CommandLineRunner 1328, 1338, 1348) or addMultiFlagValue's `flag` (the constants above), so
+# no flag is null.
+AbstractCommandLineRunner.FlagEntry.equals
