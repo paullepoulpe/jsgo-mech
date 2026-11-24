@@ -69,7 +69,7 @@ func (this *ProcessConstJsdocCallback) visit_impl(t *NodeTraversal, n Node, pare
 		}
 	case Token_rhino_VAR, Token_rhino_CONST, Token_rhino_LET:
 		if !n.hasOneChild() {
-			Preconditions_checkState_boolean_Object_H(false, n)
+			panic(new_IllegalStateException_String(objstr_(n.box_())).self())
 		}
 		this.recordDeclaration(t, n.getFirstChild(), n.getFirstChild().getLastChild())
 	case Token_rhino_STRING_KEY:
@@ -95,7 +95,9 @@ func (this *ProcessConstJsdocCallback) recordDeclaration(t *NodeTraversal, lhs N
 }
 
 func (this *ProcessConstJsdocCallback) recordNameDeclaration(lhs Node, rhs Node) {
-	Preconditions_checkArgument((NodeUtil_isNameDeclaration(lhs.getParent()) || lhs.getParent().isAssign()))
+	if !NodeUtil_isNameDeclaration(lhs.getParent()) && !lhs.getParent().isAssign() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var isImport bool = PotentialDeclaration_isImportRhs(rhs)
 	var isAlias bool = PotentialDeclaration_isAliasDeclaration(lhs, rhs)
 	NodeUtil_visitLhsNodesInNode(lhs.getParent(), Consumer[Node](func(name Node) {
@@ -109,10 +111,10 @@ func (this *ProcessConstJsdocCallback) recordNameDeclaration(lhs Node, rhs Node)
 
 func (this *ProcessConstJsdocCallback) processDeclarationWithRhs(t *NodeTraversal, lhs Node) {
 	if !((lhs.isQualifiedName() || lhs.isStringKey()) || lhs.isMemberFieldDef()) {
-		Preconditions_checkArgument_boolean_Object_H(false, lhs)
+		panic(new_IllegalArgumentException_String(objstr_(lhs.box_())).self())
 	}
-	if !(NodeUtil_getRValueOfLValue(lhs) != 0) {
-		Preconditions_checkState_boolean_Object_H(false, lhs)
+	if NodeUtil_getRValueOfLValue(lhs) == 0 {
+		panic(new_IllegalStateException_String(objstr_(lhs.box_())).self())
 	}
 	if PotentialDeclaration_isConstToBeInferred(lhs) {
 		this.processConstWithRhs(t, lhs)

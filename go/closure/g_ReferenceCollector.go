@@ -129,8 +129,8 @@ func (this *ReferenceCollector) pushNewBlock(root Node) {
 
 func (this *ReferenceCollector) popLastBlock(root Node) {
 	var last *BasicBlock = SequencedCollection_removeLastT_[*BasicBlock](this.blockStack.asCollT())
-	if !(root == last.getRoot()) {
-		Preconditions_checkState_boolean_Object_H(false, root)
+	if root != last.getRoot() {
+		panic(new_IllegalStateException_String(objstr_(root.box_())).self())
 	}
 }
 

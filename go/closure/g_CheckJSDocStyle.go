@@ -212,7 +212,9 @@ func (this *CheckJSDocStyle) checkInlineParams(t *NodeTraversal, function Node, 
 				return
 			} else {
 				var paramType *JSTypeExpression = jsDoc.getType()
-				Preconditions_checkNotNull_Object_Object_T(paramType, "Inline JSDoc info should always have a type")
+				if paramType == nil {
+					panic(new_NullPointerException_String("Inline JSDoc info should always have a type").self())
+				}
 				this.checkParam(t, param, Optional_empty[string](), paramType)
 			}
 		}
@@ -228,8 +230,8 @@ func (this *CheckJSDocStyle) checkParam(t *NodeTraversal, param Node, name Optio
 	} else if param.isName() {
 		nameOptional = String_startsWith(param.getString(), "opt_")
 	} else {
-		if !(param.isDestructuringPattern() || param.isRest()) {
-			Preconditions_checkState_boolean_Object_H(false, param)
+		if !param.isDestructuringPattern() && !param.isRest() {
+			panic(new_IllegalStateException_String(objstr_(param.box_())).self())
 		}
 		nameOptional = false
 	}

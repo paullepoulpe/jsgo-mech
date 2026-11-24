@@ -142,7 +142,9 @@ func (this *IRFactory) validateAll(n Node) {
 			n = work.poll()
 		}
 	}
-	Preconditions_checkState(work.isEmpty())
+	if !work.isEmpty() {
+		panic(new_IllegalStateException_0().self())
+	}
 }
 
 func (this *IRFactory) validate(n Node) {
@@ -1019,8 +1021,12 @@ func (this *IRFactory) normalizeNumber(token *LiteralToken) float64 {
 	}
 	var location *SourceRange = token.location_
 	var length int32 = String_length(value)
-	Preconditions_checkState((length > 0))
-	Preconditions_checkState(((String_charAt(value, 0) != '-') && (String_charAt(value, 0) != '+')))
+	if length <= 0 {
+		panic(new_IllegalStateException_0().self())
+	}
+	if String_charAt(value, 0) == '-' || String_charAt(value, 0) == '+' {
+		panic(new_IllegalStateException_0().self())
+	}
 	if String_charAt(value, 0) == '.' {
 		return Double_parseDouble(("0" + sstr_(value)))
 	} else if (String_charAt(value, 0) == '0') && (length > 1) {
@@ -1106,8 +1112,12 @@ func (this *IRFactory) normalizeBigInt(token *LiteralToken) *BigInteger {
 		value = this.removeNumericSeparators(value, token)
 	}
 	var length int32 = String_length(value)
-	Preconditions_checkState((length > 0))
-	Preconditions_checkState(((String_charAt(value, 0) != '-') && (String_charAt(value, 0) != '+')))
+	if length <= 0 {
+		panic(new_IllegalStateException_0().self())
+	}
+	if String_charAt(value, 0) == '-' || String_charAt(value, 0) == '+' {
+		panic(new_IllegalStateException_0().self())
+	}
 	if (String_charAt(value, 0) == '0') && (length > 1) {
 		return func() *BigInteger {
 			switch String_charAt(value, 1) {
@@ -1775,7 +1785,9 @@ func (this *IRFactory_TransformDispatcher) processAstRoot(rootNode *ProgramTree)
 }
 
 func (this *IRFactory_TransformDispatcher) isGoogModuleFile(scriptNode Node) bool {
-	Preconditions_checkArgument(scriptNode.isScript())
+	if !scriptNode.isScript() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	if !scriptNode.hasChildren() {
 		return false
 	}
@@ -1936,7 +1948,7 @@ func (this *IRFactory_TransformDispatcher) processFunctionCall(callNode *CallExp
 
 func (this *IRFactory_TransformDispatcher) annotateCalls(n Node) {
 	if !((n.isCall() || n.isOptChainCall()) || n.isTaggedTemplateLit()) {
-		Preconditions_checkState_boolean_Object_H(false, n)
+		panic(new_IllegalStateException_String(objstr_(n.box_())).self())
 	}
 	var callee Node = n.getFirstChild()
 	for callee.isCast() {
@@ -2095,7 +2107,9 @@ func (this *IRFactory_TransformDispatcher) processFunction(functionTree *Functio
 	node.addChildToBack(this.outer_.transform(functionTree.formalParameterList.up_ParseTree()))
 	var bodyNode Node = this.outer_.transform(functionTree.functionBody)
 	if (!isArrow && !isSignature) && !bodyNode.isBlock() {
-		Preconditions_checkState((this.outer_.config.runMode() == Config_RunMode_KEEP_GOING))
+		if this.outer_.config.runMode() != Config_RunMode_KEEP_GOING {
+			panic(new_IllegalStateException_0().self())
+		}
 		bodyNode = IR_block_0()
 	}
 	this.parseDirectives(bodyNode)
@@ -2171,7 +2185,9 @@ func (this *IRFactory_TransformDispatcher) processFormalParameterList(tree *Form
 			paramNode = this.outer_.transformNodeWithInlineComments(param)
 			this.attachPossibleTrailingCommentsForArg(paramNode, zones.get(argCount))
 		}
-		Preconditions_checkState(((((paramNode.isName() || paramNode.isRest()) || paramNode.isArrayPattern()) || paramNode.isObjectPattern()) || paramNode.isDefaultValue()))
+		if !((((paramNode.isName() || paramNode.isRest()) || paramNode.isArrayPattern()) || paramNode.isObjectPattern()) || paramNode.isDefaultValue()) {
+			panic(new_IllegalStateException_0().self())
+		}
 		params.addChildToBack(paramNode)
 		argCount++
 	}
@@ -2335,7 +2351,9 @@ func (this *IRFactory_TransformDispatcher) processName_3(identifierToken *Identi
 }
 
 func (this *IRFactory_TransformDispatcher) processString(token *LiteralToken) Node {
-	Preconditions_checkArgument((token.type__ == TokenType_STRING))
+	if token.type__ != TokenType_STRING {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var comment *NonJSDocComment = this.outer_.parseNonJSDocCommentAt(token.getStart(), true)
 	var node Node = this.outer_.newStringNode_2(Token_rhino_STRINGLIT, this.outer_.normalizeString(token, false))
 	if comment != nil {
@@ -2346,7 +2364,9 @@ func (this *IRFactory_TransformDispatcher) processString(token *LiteralToken) No
 }
 
 func (this *IRFactory_TransformDispatcher) processTemplateLiteralToken(token *TemplateLiteralToken) Node {
-	Preconditions_checkArgument(((((token.type__ == TokenType_NO_SUBSTITUTION_TEMPLATE) || (token.type__ == TokenType_TEMPLATE_HEAD)) || (token.type__ == TokenType_TEMPLATE_MIDDLE)) || (token.type__ == TokenType_TEMPLATE_TAIL)))
+	if !((((token.type__ == TokenType_NO_SUBSTITUTION_TEMPLATE) || (token.type__ == TokenType_TEMPLATE_HEAD)) || (token.type__ == TokenType_TEMPLATE_MIDDLE)) || (token.type__ == TokenType_TEMPLATE_TAIL)) {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var node Node
 	if token.hasError() {
 		node = this.outer_.newTemplateLitStringNode(Optional_empty[string](), token.value_)
@@ -2987,7 +3007,9 @@ func (this *IRFactory_TransformDispatcher) processClassDeclaration(tree *ClassDe
 }
 
 func (this *IRFactory_TransformDispatcher) validatePrivatePropertyUsage(privatePropNames *JTSet[string], classMembers Node) {
-	Preconditions_checkState(classMembers.isClassMembers())
+	if !classMembers.isClassMembers() {
+		panic(new_IllegalStateException_0().self())
+	}
 	if !classMembers.hasChildren() {
 		return
 	}
@@ -3005,7 +3027,10 @@ func (this *IRFactory_TransformDispatcher) validatePrivatePropertyUsage(privateP
 			this.outer_.errorReporter.error(("Private " + sstr_(propType) + " must be declared in an enclosing class"), this.outer_.sourceName_, node.getLineno(), node.getCharno())
 		}
 		if node.isDelProp() {
-			var firstChild Node = Preconditions_checkNotNull_T(node.getFirstChild())
+			var firstChild Node = node.getFirstChild()
+			if firstChild == 0 {
+				panic(new_NullPointerException_0().self())
+			}
 			if firstChild.isPrivateIdentifier() && (firstChild.isGetProp() || firstChild.isOptChainGetProp()) {
 				this.outer_.errorReporter.error("Private fields cannot be deleted", this.outer_.sourceName_, node.getLineno(), node.getCharno())
 			}
@@ -3040,7 +3065,7 @@ func (this *IRFactory_TransformDispatcher) getPrivatePropsAndValidateUniqueness(
 			}
 			var propName string = curNode.getString()
 			if ok_, a1_, a2_ := (((curNode.isGetterDef() || curNode.isSetterDef()) || curNode.isMemberFieldDef()) || curNode.isMemberFunctionDef()), propName, curNode.getToken(); !ok_ {
-				Preconditions_checkState_boolean_String_Object_Object(false, "Private property '%s' has an unsupported token type: %s", a1_, a2_)
+				panic(new_IllegalStateException_String(Strings_lenientFormat("Private property '%s' has an unsupported token type: %s", []any{a1_, a2_})).self())
 			}
 			var isStatic bool = curNode.isStaticMember()
 			var alreadyDeclared bool = privatePropNames.contains(propName)
@@ -3053,12 +3078,14 @@ func (this *IRFactory_TransformDispatcher) getPrivatePropsAndValidateUniqueness(
 						}
 						return privateStaticSetterNames.contains(propName)
 					}())
-					Preconditions_checkState((alreadyDeclaredIsOtherThanItsSetter || func() bool {
+					if !alreadyDeclaredIsOtherThanItsSetter && !func() bool {
 						if isStatic {
 							return privateStaticSetterNames.contains(propName)
 						}
 						return privateSetterNames.contains(propName)
-					}()))
+					}() {
+						panic(new_IllegalStateException_0().self())
+					}
 					alreadyDeclared = alreadyDeclaredIsOtherThanItsSetter
 				}
 				if isStatic {
@@ -3074,12 +3101,14 @@ func (this *IRFactory_TransformDispatcher) getPrivatePropsAndValidateUniqueness(
 						}
 						return privateStaticGetterNames.contains(propName)
 					}())
-					Preconditions_checkState((alreadyDeclaredIsOtherThanItsGetter || func() bool {
+					if !alreadyDeclaredIsOtherThanItsGetter && !func() bool {
 						if isStatic {
 							return privateStaticGetterNames.contains(propName)
 						}
 						return privateGetterNames.contains(propName)
-					}()))
+					}() {
+						panic(new_IllegalStateException_0().self())
+					}
 					alreadyDeclared = alreadyDeclaredIsOtherThanItsGetter
 				}
 				if curNode.isStaticMember() {
@@ -3166,9 +3195,13 @@ func (this *IRFactory_TransformDispatcher) processExportDecl(tree *ExportDeclara
 	this.outer_.maybeWarnForFeature(tree.up_ParseTree(), FeatureSet_Feature_MODULES)
 	var decls Node = 0
 	if tree.isExportAll {
-		Preconditions_checkState(((tree.declaration_ == nil) && (tree.exportSpecifierList == nil)))
+		if tree.declaration_ != nil || tree.exportSpecifierList != nil {
+			panic(new_IllegalStateException_0().self())
+		}
 	} else if tree.declaration_ != nil {
-		Preconditions_checkState((tree.exportSpecifierList == nil))
+		if tree.exportSpecifierList != nil {
+			panic(new_IllegalStateException_0().self())
+		}
 		decls = this.outer_.transform(tree.declaration_)
 	} else {
 		decls = this.transformList(Token_rhino_EXPORT_SPECS, tree.exportSpecifierList)
@@ -3497,7 +3530,9 @@ func (this *IRFactory_TransformDispatcher_ScopeTracker) increment() IRFactory_Tr
 
 func (this *IRFactory_TransformDispatcher_ScopeTracker) maybeIncrement(condition bool) IRFactory_TransformDispatcher_AutoDecrement {
 	if condition {
-		Preconditions_checkState((this.usageCount >= 0))
+		if this.usageCount < 0 {
+			panic(new_IllegalStateException_0().self())
+		}
 		this.usageCount++
 	}
 	return IRFactory_TransformDispatcher_AutoDecrement(new_IRFactory_TransformDispatcher_ScopeTracker_1(this, condition))
@@ -3610,10 +3645,14 @@ func new_IRFactory_TransformDispatcher_ScopeTracker_1(outer_ *IRFactory_Transfor
 }
 
 func (this *IRFactory_TransformDispatcher_ScopeTracker_1) close() {
-	Preconditions_checkState(!this.closed)
+	if this.closed {
+		panic(new_IllegalStateException_0().self())
+	}
 	if this.cap_condition {
 		this.outer_.usageCount--
-		Preconditions_checkState((this.outer_.usageCount >= 0))
+		if this.outer_.usageCount < 0 {
+			panic(new_IllegalStateException_0().self())
+		}
 	}
 	this.closed = true
 }

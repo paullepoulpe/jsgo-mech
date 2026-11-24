@@ -97,7 +97,9 @@ func (this *JsDocInfoParser) addMissingTypeWarning(lineno int32, charno int32) {
 }
 
 func (this *JsDocInfoParser) setLicenseTextMonotonic(x string) {
-	Preconditions_checkState(this.licenseText.isEmpty())
+	if !this.licenseText.isEmpty() {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.licenseText = Optional_of[string](x)
 }
 
@@ -458,7 +460,9 @@ func (this *JsDocInfoParser) parseAnnotation(token JsDocToken, extendedTypes *JT
 				if annotation == Annotation_parsing_EXTENDS {
 					extendedTypes.add(new_JsDocInfoParser_ExtendedTypeInfo(type_, this.stream.getLineno(), this.stream.getCharno()))
 				} else {
-					Preconditions_checkState((annotation == Annotation_parsing_IMPLEMENTS))
+					if annotation != Annotation_parsing_IMPLEMENTS {
+						panic(new_IllegalStateException_0().self())
+					}
 					if !this.jsdocBuilder.recordImplementedInterface(type_) {
 						this.addTypeWarning_3(Msg_JSDOC_IMPLEMENTS_DUPLICATE, lineno, charno)
 					}
@@ -1000,7 +1004,9 @@ func (this *JsDocInfoParser) checkExtendedTypes(extendedTypes *JTList[*JsDocInfo
 		var isFromTsickle bool = eqR_(this.jsDocSourceKind, JsDocInfoParser_JsDocSourceKind_TSICKLE)
 		if !isInterface && isFromTsickle {
 			var result bool = this.jsdocBuilder.recordBaseType(this.createJSTypeExpression(this.wrapNode(Token_rhino_BANG, this.newStringNode(JsDocInfoParser_TSICKLE_MISSING_TYPE_PLACEHOLDER)).srcrefTree(extendedTypes.get(0).type__.getRoot())))
-			Preconditions_checkState_boolean_Object(result, "Unexpected failure to record base type")
+			if !result {
+				panic(new_IllegalStateException_String(objstr_("Unexpected failure to record base type")).self())
+			}
 			return
 		}
 	}
@@ -1208,7 +1214,9 @@ func (this *JsDocInfoParser) parseAndRecordTypeNameNode(token JsDocToken, lineno
 }
 
 func (this *JsDocInfoParser) parseAndRecordParamTypeNode(token JsDocToken) Node {
-	Preconditions_checkArgument((token == JsDocToken_LEFT_CURLY))
+	if token != JsDocToken_LEFT_CURLY {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var lineno int32 = this.stream.getLineno()
 	var startCharno int32 = this.stream.getCharno()
 	var typeNode Node = this.parseParamTypeExpressionAnnotation(token)
@@ -1464,7 +1472,9 @@ func (this *JsDocInfoParser) parseParamTypeExpression(token JsDocToken) Node {
 }
 
 func (this *JsDocInfoParser) parseParamTypeExpressionAnnotation(token JsDocToken) Node {
-	Preconditions_checkArgument((token == JsDocToken_LEFT_CURLY))
+	if token != JsDocToken_LEFT_CURLY {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	this.skipEOLs()
 	var typeNode Node = this.parseParamTypeExpression(this.next())
 	if typeNode != 0 {
@@ -1803,7 +1813,9 @@ func (this *JsDocInfoParser) parseUnionTypeWithAlternate(token JsDocToken, alter
 		if expr != 0 {
 			this.skipEOLs()
 			token = this.next()
-			Preconditions_checkState((token == JsDocToken_PIPE))
+			if token != JsDocToken_PIPE {
+				panic(new_IllegalStateException_0().self())
+			}
 			this.skipEOLs()
 			token = this.next()
 		}

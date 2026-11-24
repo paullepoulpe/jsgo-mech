@@ -19,7 +19,9 @@ func new_ResolveExportResult(binding *Binding, state ResolveExportResult_State) 
 }
 
 func (this *ResolveExportResult) copy(sourceNode Node, createdBy Binding_CreatedBy) *ResolveExportResult {
-	Preconditions_checkNotNull_T(sourceNode)
+	if sourceNode == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	if this.binding == nil {
 		return this
 	}
@@ -47,7 +49,9 @@ func (this *ResolveExportResult) getBinding() *Binding {
 }
 
 func ResolveExportResult_of(binding *Binding) *ResolveExportResult {
-	Preconditions_checkNotNull_T(binding)
+	if binding == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	return new_ResolveExportResult(binding, ResolveExportResult_State_RESOLVED)
 }
 

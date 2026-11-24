@@ -151,7 +151,9 @@ func (this *SymbolTable) getGlobalScope() *SymbolTable_SymbolScope {
 }
 
 func (this *SymbolTable) getSymbolDeclaredBy(fn *FunctionType) *SymbolTable_Symbol {
-	Preconditions_checkState((fn.isConstructor() || fn.isInterface()))
+	if !fn.isConstructor() && !fn.isInterface() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var instanceType *ObjectType = fn.getInstanceType()
 	return this.getSymbolForName(fn.getSource(), instanceType.getReferenceName())
 }
@@ -169,7 +171,9 @@ func (this *SymbolTable) getSymbolForInstancesOfSymbol(sym *SymbolTable_Symbol) 
 }
 
 func (this *SymbolTable) getSymbolForInstancesOf(fn *FunctionType) *SymbolTable_Symbol {
-	Preconditions_checkState((fn.isConstructor() || fn.isInterface()))
+	if !fn.isConstructor() && !fn.isInterface() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var pType *ObjectType = fn.getPrototype()
 	return this.getSymbolForName(fn.getSource(), pType.getReferenceName())
 }
@@ -499,7 +503,9 @@ func (this *SymbolTable) copySymbolTo(sym StaticSlot, scope *SymbolTable_SymbolS
 }
 
 func (this *SymbolTable) copySymbolTo_3(sym StaticSlot, declNode Node, scope *SymbolTable_SymbolScope) *SymbolTable_Symbol {
-	Preconditions_checkNotNull_T(declNode)
+	if declNode == 0 {
+		panic(new_NullPointerException_0().self())
+	}
 	return this.declareSymbol(sym.getName(), this.getType(sym), this.isTypeInferred(sym), scope, declNode, sym.getJSDocInfo())
 }
 
@@ -511,12 +517,12 @@ func (this *SymbolTable) addSymbol(name string, type_ *JSType, inferred bool, sc
 	name = SymbolTable_sanitizeSpecialChars(name)
 	var symbol *SymbolTable_Symbol = new_SymbolTable_Symbol(name, type_, inferred, scope)
 	var replacedSymbol *SymbolTable_Symbol = this.symbols.put(declNode, name, symbol)
-	if !(replacedSymbol == nil) {
-		Preconditions_checkState_boolean_String_Object_Object(false, "Found duplicate symbol %s in global index. Type %s", name, type_)
+	if replacedSymbol != nil {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Found duplicate symbol %s in global index. Type %s", []any{name, type_})).self())
 	}
 	replacedSymbol = scope.ownSymbols.put(name, symbol)
-	if !(replacedSymbol == nil) {
-		Preconditions_checkState_boolean_String_Object_Object(false, "Found duplicate symbol %s in its scope. Type %s", name, type_)
+	if replacedSymbol != nil {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Found duplicate symbol %s in its scope. Type %s", []any{name, type_})).self())
 	}
 	return symbol
 }
@@ -558,7 +564,9 @@ func (this *SymbolTable) removeSymbol(s *SymbolTable_Symbol) {
 }
 
 func (this *SymbolTable) renameSymbol(scope *SymbolTable_SymbolScope, sym *SymbolTable_Symbol, newName string) {
-	Preconditions_checkState_boolean_Object((sym.propertyScope == nil), "Renaming supported for simple symbols that don't have property scopes.")
+	if sym.propertyScope != nil {
+		panic(new_IllegalStateException_String(objstr_("Renaming supported for simple symbols that don't have property scopes.")).self())
+	}
 	var existingSym *SymbolTable_Symbol = scope.getSlot(newName)
 	if existingSym == nil {
 		existingSym = this.declareSymbol(newName, this.getType(SymbolTable_Symbol_as_StaticSlot(sym)), this.isTypeInferred(SymbolTable_Symbol_as_StaticSlot(sym)), scope, sym.getDeclarationNode(), sym.getJSDocInfo())
@@ -892,11 +900,15 @@ func (this *SymbolTable) addRefsInGoogRequireStatement(n Node, googModuleScopes 
 			declaration.defineReferenceAt(n)
 		}
 	} else if n.isDestructuringLhs() {
-		Preconditions_checkState(n.getFirstChild().isObjectPattern())
+		if !n.getFirstChild().isObjectPattern() {
+			panic(new_IllegalStateException_0().self())
+		}
 		it_2 := jeachOf_(n.getFirstChild().children())
 		for it_2.next() {
 			var stringKey Node = it_2.v
-			Preconditions_checkState(stringKey.isStringKey())
+			if !stringKey.isStringKey() {
+				panic(new_IllegalStateException_0().self())
+			}
 			var varName string = stringKey.getString()
 			var varDeclaration *SymbolTable_Symbol = nil
 			switch moduleType {
@@ -1007,7 +1019,9 @@ func (this *SymbolTable) createScopeFrom(otherScope StaticScope) *SymbolTable_Sy
 	if myScope == nil {
 		var otherScopeParent StaticScope = otherScope.getParentScope()
 		if otherScopeParent == nil {
-			Preconditions_checkState_boolean_Object((this.globalScope == nil), "Global scopes found at different roots")
+			if this.globalScope != nil {
+				panic(new_IllegalStateException_String(objstr_("Global scopes found at different roots")).self())
+			}
 		}
 		myScope = new_SymbolTable_SymbolScope(otherScopeRoot, func() *SymbolTable_SymbolScope {
 			if otherScopeParent == nil {
@@ -1027,9 +1041,13 @@ func (this *SymbolTable) getLexicalScopeDepth(scope *SymbolTable_SymbolScope) in
 	if scope.isLexicalScope() || scope.isDocScope() {
 		return scope.getScopeDepth()
 	} else {
-		Preconditions_checkState(scope.isPropertyScope())
+		if !scope.isPropertyScope() {
+			panic(new_IllegalStateException_0().self())
+		}
 		var sym *SymbolTable_Symbol = scope.getSymbolForScope()
-		Preconditions_checkNotNull_T(sym)
+		if sym == nil {
+			panic(new_NullPointerException_0().self())
+		}
 		return (this.getLexicalScopeDepth(this.getScope(sym)) + 1)
 	}
 	panic("unreachable")
@@ -1189,7 +1207,9 @@ func (this *SymbolTable_Symbol) defineReferenceAt(n Node) *SymbolTable_Reference
 }
 
 func (this *SymbolTable_Symbol) setDeclaration(ref *SymbolTable_Reference) {
-	Preconditions_checkState((this.declaration_ == nil))
+	if this.declaration_ != nil {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.declaration_ = ref
 }
 
@@ -1954,7 +1974,9 @@ func (this *SymbolTable_6) compare(a_ any, b_ any) int32 {
 	_ = a
 	var b *SymbolTable_SymbolScope = cast_[*SymbolTable_SymbolScope](b_)
 	_ = b
-	Preconditions_checkState_boolean_Object((a.isLexicalScope() && b.isLexicalScope()), "We can only sort lexical scopes")
+	if !a.isLexicalScope() || !b.isLexicalScope() {
+		panic(new_IllegalStateException_String(objstr_("We can only sort lexical scopes")).self())
+	}
 	var result int32 = this.outer_.nodeOrdering.compare(a.getRootNode().box_(), b.getRootNode().box_())
 	if result != 0 {
 		return result

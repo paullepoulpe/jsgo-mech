@@ -87,7 +87,9 @@ func ConformanceRules_buildPattern(reqPatterns ListT[string]) *Outcome_base[*Pat
 }
 
 func ConformanceRules_isTaggedTemplateLitString(node Node) bool {
-	Preconditions_checkState(node.isTemplateLitString())
+	if !node.isTemplateLitString() {
+		panic(new_IllegalStateException_0().self())
+	}
 	return ((node.getGrandparent() != 0) && node.getGrandparent().isTaggedTemplateLit())
 }
 
@@ -1394,7 +1396,7 @@ func (this *ConformanceRules_BannedStringRegex) checkConformance_impl(traversal 
 			}
 		} else {
 			if ok_, a1_ := ConformanceRules_isTaggedTemplateLitString(node), node.getRawString(); !ok_ {
-				Preconditions_checkState_boolean_String_Object(false, "Found untagged template literal with invalid (uncookable) escape sequence: %s", a1_)
+				panic(new_IllegalStateException_String(Strings_lenientFormat("Found untagged template literal with invalid (uncookable) escape sequence: %s", []any{a1_})).self())
 			}
 			var rawString string = node.getRawString()
 			if this.stringPattern.matcher_s(rawString).matches() {
@@ -1437,7 +1439,9 @@ func ConformanceRules_ConformanceUtil_evaluateTypeString(compiler *AbstractCompi
 }
 
 func ConformanceRules_ConformanceUtil_validateCall(compiler *AbstractCompiler, callOrNew Node, functionType *FunctionType, isCallInvocation bool) bool {
-	Preconditions_checkState((callOrNew.isCall() || callOrNew.isNew()))
+	if !callOrNew.isCall() && !callOrNew.isNew() {
+		panic(new_IllegalStateException_0().self())
+	}
 	return (ConformanceRules_ConformanceUtil_validateParameterList(compiler, callOrNew, functionType, isCallInvocation) && ConformanceRules_ConformanceUtil_validateThis(callOrNew, functionType, isCallInvocation))
 }
 
@@ -1477,7 +1481,9 @@ func ConformanceRules_ConformanceUtil_validateParameterList(compiler *AbstractCo
 
 func ConformanceRules_ConformanceUtil_getPropertyFromDeclarationName(specName string) Optional[string] {
 	var parts *JTList[string] = splitToListST_(jtc_string, ConformanceRules_ON_PROTOTYPE, specName)
-	Preconditions_checkState(((parts.size() == 1) || (parts.size() == 2)))
+	if parts.size() != 1 && parts.size() != 2 {
+		panic(new_IllegalStateException_0().self())
+	}
 	if parts.size() == 2 {
 		return Optional_ofNullable[string](parts.get(1))
 	}
@@ -1487,7 +1493,9 @@ func ConformanceRules_ConformanceUtil_getPropertyFromDeclarationName(specName st
 func ConformanceRules_ConformanceUtil_getClassFromDeclarationName(specName string) Optional[string] {
 	var tmp string = specName
 	var parts *JTList[string] = splitToListST_(jtc_string, ConformanceRules_ON_PROTOTYPE, tmp)
-	Preconditions_checkState(((parts.size() == 1) || (parts.size() == 2)))
+	if parts.size() != 1 && parts.size() != 2 {
+		panic(new_IllegalStateException_0().self())
+	}
 	if parts.size() == 2 {
 		return Optional_ofNullable[string](parts.get(0))
 	}
@@ -4033,7 +4041,9 @@ func (this *ConformanceRules_BanStaticThis) checkConformance_impl(t *NodeTravers
 }
 
 func ConformanceRules_BanStaticThis_isStaticMethod(n Node) bool {
-	Preconditions_checkArgument(n.isFunction())
+	if !n.isFunction() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var parent Node = n.getParent()
 	return (((parent != 0) && parent.isMemberFunctionDef()) && parent.isStaticMember())
 }

@@ -14,7 +14,10 @@ func (this *OptimizeConstructors) finit_OptimizeConstructors() {
 
 func (this *OptimizeConstructors) init_OptimizeConstructors(compiler *AbstractCompiler) {
 	this.finit_OptimizeConstructors()
-	this.compiler_ = Preconditions_checkNotNull_T(compiler)
+	if compiler == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.compiler_ = compiler
 	this.astAnalyzer = compiler.getAstAnalyzer()
 }
 
@@ -25,7 +28,9 @@ func new_OptimizeConstructors(compiler *AbstractCompiler) *OptimizeConstructors 
 }
 
 func (this *OptimizeConstructors) process_2(externs Node, root Node) {
-	Preconditions_checkState((this.compiler_.getLifeCycleStage() == AbstractCompiler_LifeCycleStage_NORMALIZED))
+	if this.compiler_.getLifeCycleStage() != AbstractCompiler_LifeCycleStage_NORMALIZED {
+		panic(new_IllegalStateException_0().self())
+	}
 	OptimizeCalls_builder().setCompiler(this.compiler_).setConsiderExterns(false).addPass(OptimizeCalls_CallGraphCompilerPass(this)).build().process_2(externs, root)
 }
 
@@ -182,7 +187,9 @@ func OptimizeConstructors_isDefinitionClassLiteralOrFunction(n Node) bool {
 }
 
 func OptimizeConstructors_functionHasRest(fn Node) bool {
-	Preconditions_checkState(fn.isFunction())
+	if !fn.isFunction() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var params Node = NodeUtil_getFunctionParameters(fn)
 	var lastParam Node = params.getLastChild()
 	return ((lastParam != 0) && lastParam.isRest())
@@ -250,7 +257,9 @@ func OptimizeConstructors_getOnlySuperCall(fn Node) Node {
 }
 
 func (this *OptimizeConstructors) removeConstructorMethod(member Node) {
-	Preconditions_checkState(member.isMemberFunctionDef())
+	if !member.isMemberFunctionDef() {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.compiler_.reportFunctionDeleted(member.getFirstChild())
 	this.compiler_.reportChangeToEnclosingScope(member)
 	member.detach()
@@ -273,7 +282,9 @@ func new_OptimizeConstructors_ClassConstructorSummary(isVarArgs bool, formalPara
 }
 
 func OptimizeConstructors_ClassConstructorSummary_build(classDefinition Node) *OptimizeConstructors_ClassConstructorSummary {
-	Preconditions_checkState((classDefinition.isClass() || classDefinition.isFunction()))
+	if !classDefinition.isClass() && !classDefinition.isFunction() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var fn Node
 	if classDefinition.isClass() {
 		var member Node = NodeUtil_getEs6ClassConstructorMemberFunctionDef(classDefinition)
