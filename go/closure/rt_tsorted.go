@@ -36,6 +36,9 @@ func tsortCmp_[K any](x *teq_, c *tconv_[K], a, b K) int32 {
 			return String_compareTo(*p, *q)
 		}
 	}
+	if r, ok := cmpTypedT_(a, b); ok {
+		return r
+	}
 	return compareNatural_(c.box(a), c.box(b))
 }
 

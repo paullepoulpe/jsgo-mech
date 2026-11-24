@@ -1,0 +1,10 @@
+# piece objarg (LibObj.PAIRS): the pairs that the self-test's programs (lang/*.java) add to tools/j2go/objarg-pairs.txt in
+# the self-test's translation (the tree and lang/*.java). Generated: the pairs the translator writes with
+# J2GO_OBJARG_PAIRS_OUT=<file> set for tools/j2go/selftest/run.sh, less the tree's.
+map *LibObj_Animal, string
+map *LibObj_Key, any
+set *LibGen_Eq
+set *LibGen_Hue
+set *LibGen_Key
+set *LibObj_Key
+set T

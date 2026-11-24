@@ -235,6 +235,11 @@ final class Ctx {
   /** Rule "typed library interfaces", piece `fns`: the typed twins of library functions. */
   final LibFns lf = new LibFns(this);
 
+  /** Rule "typed library interfaces", piece `objarg`: the typed twins of the collection methods that take an Object. */
+  final LibObj lo = new LibObj(this);
+  /** Rule "typed library interfaces", piece `cmp`: classes implementing Comparable<C> with compareTo_t and the bridge. */
+  final LibCmp cmp = new LibCmp(this);
+
   boolean isValueLib(TypeElement te) {
     return te != null && valueLibs.contains(te);
   }
@@ -841,6 +846,8 @@ final class Ctx {
 
   /** The conversions of the type arguments of typed collection type t, as the arguments of a runtime function: "tc_string, tc_p_Node". */
   String tconvsOf(TypeMirror t) {
+    // (piece `objarg`: the translation makes a typed collection of this type)
+    lo.made(goType(t));
     String tc = "";
     CollKind ck = typedColl(t);
     for (TypeMirror a : ((DeclaredType) t).getTypeArguments()) {

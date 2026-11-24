@@ -14,6 +14,8 @@ the records of the stages before, kept as written).
 branch, renumbered 7 by the merge of both into main-libgen-t12).
 **Section 9 records candidate T3** (branch `main-libgen-t3`: kind `goptional`, Guava's `Optional`
 as a value library class, and piece `seqcoll`, the `SequencedCollection` twins).
+**Section 10 records JAVAISMS6.md's candidate "T3"** (Object-parameter collection methods typed;
+branch `main-libgen-t4`: piece `objarg`; its current form is 10.8).
 Scratch files of this stage: `/mnt/data/tmp/claude-1000/-home-ubuntu-work/9db246f3-01a3-48c8-9bf5-1c94d1ed78d6/scratchpad/b3/`
 (`tr.sh` translate + build, `trto.sh <dir>` translate into a scratch directory that has the
 runtime copied in -- the translator reads `rt_*.go` of its output directory, so a directory
@@ -2056,3 +2058,632 @@ nothing.)
   type; a reference to a generic static crashes the translator); kind `goptional` fixes the first
   for Guava's class only and refuses the second; neither occurs in the tree for `java.util.Optional`
   (it compiles).
+
+## 10. Record of rule candidate "T3" of JAVAISMS6.md: piece `objarg` (branch `main-libgen-t4`, worktree `/mnt/data/ubuntu/jm/wt/libt4`, 2026-11-24)
+
+On top of main ede15525 (section 9). JAVAISMS6.md names this candidate T3; section 9's T3 is
+another one (kind `goptional`, piece `seqcoll`), so the branch is `main-libgen-t4`. One piece of
+rule "typed library interfaces", switch value `J2GO_NOLIBGEN=objarg`. Scratch files:
+`/mnt/data/tmp/claude-1000/-home-ubuntu-work/9db246f3-01a3-48c8-9bf5-1c94d1ed78d6/scratchpad/t4/`
+(`pipe.sh <label>`: under one hold of the lock, rebuild the translator, translate with the piece
+off, with everything off and with the report, then `tools/j2go/run.sh` and the gate; `cdiff.sh A
+B`: census rows and this piece's spellings; `tm.sh`: gast.py; `offall.sh`: verify.sh with the
+switches off; `basebin.sh`: main's translation with main's runtime, `mainbuild/`, as
+`$B/bin/m_t4_base`; `base/` main's default translation, `out-t4_a/` this one; `tx-t4_a-rep.log`
+the `J2GO_LIBGEN=2` report). Every heavy command ran under `flock /mnt/data/ubuntu/jm/heavy.lock`.
+
+### 10.1 Commits
+
+| commit | what |
+|---|---|
+| 369bee50 | piece `objarg`: `LibObj.java`, `rt_lgobj.go`, `rt_lgobj_test.go`, self-test `lang/LibObj.java` |
+| 4722cfc2 | the unconverted parameter of a method reference (`memoized::get`) is an argument at its type |
+| dc83d1bc | the twins test the view's own type (`*tmapView_[K, V]`); no typed methods on the views (10.5) |
+| 3e9cac5b | self-test: no `TreeMap<Dog>` read with an Animal (10.6); README on the twins' form |
+| e6df9ca5 | this section (10.1 to 10.7: the first form) |
+| e7a2818c | twins only for Map / Set receivers of key types on a checked-in pair list (10.8) |
+| (the commit after) | 10.8 |
+
+**The branch's code is 10.8's form; 10.2 to 10.7 record the first one.**
+
+### 10.2 The form
+
+Java declares `Map.get / containsKey / remove(Object)`, `Collection.contains / remove(Object)` and
+`List.indexOf / lastIndexOf(Object)` with an Object parameter, so the typed interfaces (rt_lg.go)
+have them erased: main called `m.get_t(n.box_())`, `c.contains(obj_(x))`, `l.indexOf(obj_(x))`
+on a typed receiver. The piece is the mechanism of piece `fns` (section 6) for these abstract
+methods: a name list (`LibObj.TYPED`, by `LibFns.key` of the root method) and typed twins in the
+runtime (`go/closure/rt_lgobj.go`, 60 lines, no build tag), chosen in `ExprEmitter.special` right
+after `LibFns.call`:
+
+| Java (root) | twin | receiver |
+|---|---|---|
+| `Map.get(Object)` | `Map_getK_[K, V](m, k) V` | `MapT[K, V]` |
+| `Map.containsKey(Object)` | `Map_containsKeyK_[K, V](m, k) bool` | `MapT[K, V]` |
+| `Map.remove(Object)` | `Map_removeK_[K, V](m, k) V` | `MapT[K, V]` |
+| `Collection.contains(Object)` | `Collection_containsE_[T](c, x) bool` | `CollectionT[T]` |
+| `Collection.remove(Object)` | `Collection_removeE_[T](c, x) bool` | `CollectionT[T]` |
+| `List.indexOf(Object)` | `List_indexOfE_[T](l, x) int32` | `ListT[T]` |
+| `List.lastIndexOf(Object)` | `List_lastIndexOfE_[T](l, x) int32` | `ListT[T]` |
+
+The receiver is a typed interface (`LibGen.typedView`), or a typed collection of rule "typed
+collections" whose own typed method does not serve the call (`Ctx.typedMethod` returns null: a
+`TList`'s contains / indexOf, a `TDeque`'s contains / remove), which enters as its view
+(`LibGen.fromTypedColl`: `.asCollT()`, `.asListT()`). A call that `Ctx.typedMethod` serves
+(`TMap.get` of a key, `TSet.contains` of an element: the existing "typed when the argument is a key
+by its static type", `Ctx.isElement`) is not this piece's (854 calls, reported as "not this piece").
+
+**Semantics.** Each twin does what the erased call does:
+
+- where the receiver's object is the view of a typed map or set (`*tmapView_[K, V]`,
+  `*tsetView_[T]`: a type assertion to the view's own type), it calls the typed map's or set's
+  own `get` / `find` / `remove`. That is the view's erased method (`get_t`, `containsKey`,
+  `remove_t`, `contains`, `remove_Object`) after it has taken the key out of its box (`tkeyOf_`:
+  `x.(K)`, else `kc.unbox`), on the same key: the same `find`, so the same `equals` / `hashCode` of
+  the same object for a map or set that compares by equals (`teq_`), `==` otherwise, and the same
+  `frozen_` panic of an immutable one;
+- any other object (a wrapper `mapAs` / `setAs` / `listAs`, a typed map's key set, a typed list,
+  a sorted, deque or enum-set view, an immutable twin) gets the erased method with the argument
+  boxed as the erased code boxes a value of its type: `boxT_` (strobj_ for a String, `box_()` for a
+  handle, the most derived object, `self()`, for a class, nil for null) - the box the erased call
+  made at the call site;
+- a null argument (`k == kc.null`) always takes the erased method with nil: what the erased call
+  passed (obj_ / strobj_ / box_ of null are nil);
+- `List.indexOf / lastIndexOf` have no typed lookup: Java compares by the argument's `equals`, and
+  the twin is the erased method with `boxT_(x)` (the box is made in the runtime, not at the call).
+
+The Map and Collection twins take a `comparable` key type (the assertion names the view's
+type, `TMap[K comparable, V]`); the translator refuses a key type Go cannot compare
+(`LibObj.comparable`). A nil receiver fails the assertion and calls the erased method on nil, as
+the erased call did.
+
+The argument is converted to the key type by the translator's own conversion (`Arg.as(K)`), as
+for any typed parameter (`put_t`'s key): a subclass argument is its view of the key's class
+(`d.up_Animal()`), whose `self()` is the object the erased call boxed. A twin call keeps the
+erased method on the erased interface (`noteMethod`, as the `_t` path does), so `g_zstubs.go` is
+the same as main's and the runtime's own calls of it compile in every translation.
+
+**Refusals** (the erased call stays, reported by `J2GO_LIBGEN=2` under "Object-parameter methods:
+calls left erased (why)"; the translation goes on):
+
+- the argument's static Java type does not fit: it is not the key / element type or a subtype
+  (`LibObj.fits`: `Types.isSubtype`, a primitive by its box): `Object`; a supertype; another class
+  or interface; the element's class at other type arguments (raw);
+- the argument's Go form is not a value of its type: a field or method result whose declared type
+  names a type variable (`any` in Go: `as(K)` would cast it, where Java passes the Object without a
+  checkcast; found in this tree's `SimpleSetMultimap` iterator, `this.last.key()`); a converted parameter of
+  a method reference;
+- the key / element type is `any` in Go (Object, an erased type variable) or a wildcard;
+- the receiver is erased (no typed view), or a typed collection that is not one of the owner;
+- a String that the String-key helpers serve unboxed (`ExprEmitter.stringKeyHelper`:
+  `Collection_contains_s`, `Map_containsKey_s`, `Map_remove_s`; `Map.get` of a String is piece
+  `fns`' `Map_get_sT_` first);
+- `get` / `remove` whose result enters an Object (`lgWantErased`, as `LibFns`: Java casts nothing
+  there);
+- (Map and Collection) a key type that Go cannot compare: a type parameter without the
+  `comparable` constraint (`Ctx.constraint`), a Go func type of rule "function types", a slice, a
+  map, a value struct (`Optional`). The tree has none.
+
+### 10.3 Counts (`J2GO_LIBGEN=2` report of the default translation, `tx-t4_a-rep.log`)
+
+Calls of the seven methods (owner a library interface, receiver typed or not):
+
+| | calls |
+|---|---:|
+| **typed: calls of the twin** | **79** |
+| ... `Map.get` 24, `Map.containsKey` 10, `Map.remove` 7, `Collection.contains` 20, `Collection.remove` 10, `List.indexOf` 7, `List.lastIndexOf` 1 | |
+| refused: a String the String-key helpers serve (`Collection.contains` 19, `Map.containsKey` 6, `Map.get` 2, `Map.remove` 2) | 29 |
+| refused: the receiver is erased (`Map.get` 6, `Map.remove` 4, `Map.containsKey` 2) | 12 |
+| refused: the element type is Object in Go (`Map.get` 2, `Collection.contains` 2, `Map.containsKey` 1) | 5 |
+| refused: the argument is the result of a method of a type variable's type (`Map.get`, `Map.remove`, `Collection.remove` 1 each) | 3 |
+| refused: the argument's static type is a supertype of the element type (`Collection.remove`) | 2 |
+| refused: the result enters an Object (`Map.get`) | 1 |
+| refused: the argument's static type is Object / another class or interface / other type arguments | 0 / 0 / 0 |
+| not this piece: the typed collection's own method (`Map.get` 392, `Collection.contains` 290, `Map.containsKey` 122, `Collection.remove` 28, `Map.remove` 22) | 854 |
+
+JAVAISMS6.md's row 15 has RULE T3 62 = 50 "Object parameter of a typed collection method" + 12
+"erased element argument of a collection method". The 50 are sites of the sixth flip's tree
+(tree6h, other line numbers); by file, every one of their 21 files has at least as many twin calls
+here as it has sites (50 of 50 by that count; not matched line by line). Of them, the one that
+needed the second commit: `TypedScopeCreator`'s `this.memoized::get` (a method reference). The 12
+"erased element argument" sites (`json.Put("reason", obj_(..))` of maps whose value type is Object,
+`externs.add_int_Object(0, obj_(input))`, `hasher.putUnencodedChars(obj_(&name))`) are values that
+enter a parameter of type Object or of an erased type: not methods with an Object parameter of a
+typed collection, not attempted.
+
+Spellings and census rows (`cdiff.sh base out-t4_a`, the translator's output `g_*.go`, main's
+default 627f4289 -> 6f59da7c; census.py of `pf5`): **boxing to any 1,531 -> 1,478 (-53)**, every
+other row unchanged. `obj_(` 697 -> 663, `.box_()` 322 -> 305, `boxT_(` 88 -> 73, `strobj_(` 350 ->
+348, `.self()` 1,273 -> 1,270, `.up_X()` 1,723 -> 1,725 (a subclass argument at the key's class);
+`.get_t(` 68 -> 44, `.remove_t(` 8 -> 1, `.containsKey(` 151 -> 141, `.contains(` 392 -> 372,
+`.remove_Object(` 13 -> 3, `.indexOf(` 8 -> 1, `.lastIndexOf(` 1 -> 0; `.asCollT()` 105 -> 114 /
+`.asListT()` 305 -> 296 (a typed list's `contains` takes the Collection twin). 79 lines of 34
+files differ (one call each); `g_zstubs.go` and `g_0casts.go` are identical.
+
+Self-test `selftest/lang/LibObj.java` (added to `run.sh`): receivers that are typed interfaces
+(parameters of methods with a type parameter, which rule "typed collections" leaves to the typed
+interfaces) given typed maps, sets, lists, deques, a key set, sorted (TreeMap / TreeSet with a
+comparator that takes null), immutable and erased-wrapped collections; keys of the element type, of
+a subtype, null (present and absent), keys equal by `equals` but other objects (`Key`), a key of a
+type parameter of a generic class (`Reg<T>`: `MapT[T, any]`), Strings in a list, a typed list's
+and deque's own view, a method reference `m::get`. `run.sh` counts 51 twin calls in `typed()` and
+the methods it calls and, in `wide()` / `erased()` / `wild()` / `obj()`, no twin and 13 erased
+calls (an Object, a supertype, another interface; Object keys; a wildcard; a result that enters an
+Object; a field of a type variable's type). Both print what Java prints. Go test
+`rt_lgobj_test.go`: each twin against the erased method with the boxed argument on a native view
+and on a wrapped erased collection, present / absent / null, and the changing methods on two equal
+collections that must end equal.
+
+### 10.4 Byte identity (md5 of `cat go/closure/g_*.go`, this branch's translator, `pipe.sh`)
+
+| translation | must equal | 4722cfc2, dc83d1bc, 3e9cac5b |
+|---|---|---|
+| `J2GO_NOLIBGEN=objarg` | main's default 627f428904cd1ab870a348b377934bfb | equal |
+| `J2GO_NOFNTYPES=1 J2GO_NOLIBGEN=all` | main's all-off 973b5b6d3e4f71ab1cc82872360f9759 | equal |
+| default (`tools/j2go/run.sh`) | | 6f59da7cc5054beddb5e4dc4e1cc4579 |
+
+(main's default 627f4289 was made by main's translator in this worktree before the first change.)
+
+### 10.5 Timing (CPU, googleapis 18% subset, `proto/gast.py gasub/flags3500.txt 3`) and the binary
+
+`m_t4_base` (main's translation 627f4289 with main's runtime, `mainbuild/` from `git archive
+main go`) against `m_t4_b` (gate binary of dc83d1bc; 3e9cac5b changes only the self-test and the
+README, the same translation and runtime), alternating, `--num_parallel_threads=1`, output sha
+`72b57cd286c9` in all six runs (`tm-t4.log`):
+
+| binary | runs (CPU s) | mean | min |
+|---|---|---:|---:|
+| m_t4_base | 162.57, 161.16, 162.12 | 161.95 | 161.16 |
+| m_t4_b | 163.20, 161.58, 161.94 | 162.24 | 161.58 |
+
++0.18% of the means, +0.26% of the minima: **neutral** (inside each binary's spread, 1.4 s). No
+allocation or CPU profile was taken.
+
+The binary grows: 122,878,234 -> 126,753,581 bytes (+3.9 MB; `.text` 23,269,376 -> 24,023,040,
++754 KB). Not the twins themselves (their instantiations are about 25 KB: `Map_getK_` 10.0 KB, `Map_containsKeyK_` 10.0 KB, `Collection_containsE_` 4.7 KB ...): the assertion
+`m.(*tmapView_[K, V])` / `c.(*tsetView_[T])` names the view type at the key types of the calls,
+and where the program had no typed map or set of those types Go instantiates the whole typed map
+or set for them (`tmapView_` 244 -> 249 instantiations, `tsetView_` 168 -> 193, with `TSet`,
+`tsortedSetView_`, the entry and key-set views: 7,385 new symbols, 722 KB). Those fast paths can
+never be taken (no such collection exists), but the linker cannot know. The first form (369bee50,
+methods `get_k` ... on the views, found by an assertion to an interface with a type parameter in
+it) was +2.0 MB (+423 KB text): Go keeps such a method for every instantiation of the view types.
+Not tried: giving the Collection twins the set test only when the receiver's Java type is a Set
+(the 25 new `tsetView_` instantiations are probably from `contains` on lists and collections; not
+checked), which might remove most of the growth.
+
+### 10.6 Gate lines
+
+Default translation of 3e9cac5b (`pipe.sh t4_c`: committed, then `tools/j2go/run.sh`, then
+`$B/gate.sh libt4 t4_c` under one hold of the lock; log `/mnt/data/ubuntu/jm/logs/gate-t4_c.log`,
+copy in the scratch directory). The log's first line:
+`tree: 3e9cac5b2 piece objarg: self-test without a Dog TreeMap read with an Animal; README on the  dirty: 1`
+(the one entry: `?? .cache`, the symlink to `/mnt/data/ubuntu/jm/cache-libt4`).
+
+```
+GATE OK t4_c
+tests before: 50
+selftest: PASS
+removed 0 declarations in 0 rounds
+ok  	jsgomech/closure	2.017s
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+runtime lines: 21243  test lines: 4778
+runtime lines of the default build: 20999  off-mode extras (build-tagged files): 244
+tests after: 50
+```
+
+Runtime of the default build: main 20,939 (section 9) -> 20,999 (+60, `rt_lgobj.go`); test lines
+4,671 -> 4,778 (`rt_lgobj_test.go`). The earlier commits were gated the same way: `GATE OK t4_a`
+(4722cfc2, the first form: runtime 21,055) and `GATE OK t4_b` (dc83d1bc), both `dirty: 1` and
+the same selftest / ok / four MATCH lines.
+
+Switches off, on 3e9cac5b (`offall.sh`: translate with the switch, `tools/prune/verify.sh` with
+it; logs `verify-*.log`; the default made again afterwards was 6f59da7c):
+
+```
+switches: J2GO_NOLIBGEN=objarg  translation: exit 0 627f428904cd1ab870a348b377934bfb
+switches: J2GO_NOFNTYPES=1 J2GO_NOLIBGEN=all  translation: exit 0 973b5b6d3e4f71ab1cc82872360f9759
+(each)
+selftest: PASS
+removed 0 declarations in 0 rounds
+ok  	jsgomech/closure	1.981s / 1.923s
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+runtime lines: 21243  test lines: 4778
+runtime lines of the default build: 20999  off-mode extras (build-tagged files): 244
+```
+
+The same run on dc83d1bc failed the self-test with everything off: the erased translation of
+`LibObj.wide`'s second call (a `TreeMap<Dog>` made with a `Comparator<Animal>`, read with an
+Animal) panicked with `interface conversion: interface {} is *closure.LibObj_Animal, not
+*closure.LibObj_Dog`, where Java compares two Animals. That translation is main's translator's
+(the all-off output of the tree is main's, 973b5b6d), so the gap is in the erased translation,
+not in this piece; where exactly it casts was not looked for. 3e9cac5b gives that call a
+LinkedHashMap; the self-test passes in all three modes (st3.out).
+
+### 10.7 Not done, unverified, overlaps
+
+- No flip: the counts are of the translator's output; JAVAISMS6's 50 sites were matched by file,
+  not line by line. Post-flip tools that look for `get_t(x.box_())` / `containsKey(obj_(` meet
+  the twins.
+- No allocation or CPU profile. The twins remove the box at the call (`Node.box_()`, `obj_`) and,
+  on a typed map's or set's view, the `x.(K)` / `kc.unbox` of the erased method; they add a
+  type assertion per call; the list twins box in the runtime as before. The binary is 3.9 MB
+  larger (10.5).
+- No self-test case for the refusal "the element type is not comparable in Go" (the tree has
+  none).
+- The 12 "erased element argument" sites of RULE T3 (values of type Object) are not attempted.
+- Combinations other than "this switch off" and "everything off" were not translated; the
+  earlier pieces' switches were not gated off again.
+- Overlap with the concurrent branch `main-libgen-t5` (typed Comparable), where both touch:
+  `ExprEmitter.special` (4 lines: `toObject` kept before `LibFns.call`, the `LibObj` call after
+  it), `Ctx.java` (the field `lo` after `lf`), `selftest/run.sh` (the class list, the
+  `SelfTest()` line, a block of its own), `tools/j2go/README.md` (the switch list and one
+  paragraph). Everything else is in new files (`LibObj.java`, `rt_lgobj.go`, `rt_lgobj_test.go`,
+  `selftest/lang/LibObj.java`).
+
+### 10.8 Revision: Map / Set receivers only, and a pair list (e7a2818c)
+
+**10.2 to 10.6 record the first form** (79 twin calls, +3.9 MB of binary); the branch's code is
+this form. Asked to bring the binary's growth near 0, I tried first what 10.5 named (choose the
+twin by the receiver's static type; find the view through a method with no type parameter in its
+signature, `tmap_() unsafe.Pointer`, and call the typed map's own lookup): +2.5 MB, .text +407 KB.
+The rest came from Map receivers whose key / value types no typed map has (they hold wrappers
+only, so the typed lookup could never be taken): calling the typed map's lookup at those types
+made Go compile the typed map for them (14 new `TMap` dictionaries with their views). Typed
+methods on the views instead (`find_k` / `remove_k`): +3.1 MB / +463 KB (Go keeps a method whose
+signature names K for every instantiation of the view). The floor, twins that only box in the
+runtime: +58 KB / +18 KB, but that only moves the box out of the census, so it was not taken.
+
+The form now (coordinator's decision):
+
+- **By the receiver's static type.** A Map receiver gets `Map_getK_` / `Map_containsKeyK_` /
+  `Map_removeK_`, a Set receiver (`Collection.contains / remove` on a `Set`) `Set_containsE_` /
+  `Set_removeE_`. Each finds the typed map's or set's view through `tmap_()` / `tset_()` and calls
+  its own `find` / `get` / `remove` (a sorted view embeds the view and has the method too); else
+  the erased method with `boxT_`; null as before. A List or Collection receiver (`List.indexOf /
+  lastIndexOf`, `contains` / `remove` on a List, a Deque, a Collection) has no typed lookup: the
+  call stays erased, box and all, at the call site (new refusal reason). The Collection and List
+  twins are gone.
+- **A checked-in name list, `tools/j2go/objarg-pairs.txt`** (18 pairs: `map Node, *TypedScope`,
+  `set *JSType`, ...; type parameters too, `map K, SetT[V]`, `set V`): the key / element types
+  for which the translation makes a typed map or set (recorded at `Ctx.tconvsOf`, which every
+  constructor and conversion to a typed collection goes through). A twin is called only for a
+  pair on it; any other pair keeps the erased call (new refusal reason). The self-test adds
+  `tools/j2go/selftest/objarg-pairs.txt` (7 pairs of `lang/*.java`) through
+  `J2GO_OBJARG_PAIRS` (paths separated by `:`).
+- **Stale list fails.** `LibObj.finish` (end of `Main`) compares the list with the pairs the calls
+  asked for that have a typed map or set: a pair on the list that is not one of them, one of them
+  not on the list, or a twin called for a pair not on the list fails the translation (exit 3,
+  `objarg: the pair list is stale: ...`; `tools/j2go/run.sh` fails with it, the self-test checks
+  its own translation's log). With another rule off (`J2GO_NOLIBGEN` / `J2GO_NOFNTYPES` set) it
+  only reports. `J2GO_OBJARG_PAIRS_OUT=<file>` writes the list as it should be; both lists were
+  generated that way. Tried (`stale.sh`): the list plus `map *Foo, *Bar` -> exit 3 ("on the list
+  with no typed map or set or no call [map *Foo, *Bar]"); the list without `map Node, *TypedScope`
+  -> exit 3 ("asked for, with a typed map or set, not on the list [map Node, *TypedScope]"); the
+  list as checked in -> exit 0, the same translation.
+
+**Counts** (`J2GO_LIBGEN=2`, `tx-t4_d-rep.log`): **51 twin calls** (`Map.get` 20, `Map.containsKey`
+10, `Map.remove` 6, `Set.contains` 12, `Set.remove` 3). Refused 80: a String the String-key
+helpers serve 29; **a List or Collection receiver 23** (`Collection.contains` 8, `Collection.remove`
+7, `List.indexOf` 7, `List.lastIndexOf` 1); the receiver is erased 12; **no typed map or set of
+these types 5** (`Map.get` 4, `Map.remove` 1); the element type is Object in Go 5; a method
+result of a type variable's type 3; a supertype 2; the result enters an Object 1. Not this piece
+854. Of the first form's 79: 23 + 5 are erased again, 79 - 28 = 51.
+
+**Census** (`cdiff.sh base out-t4_d`): boxing to any 1,531 -> 1,496 (**-35**), every other row
+unchanged; `obj_(` -20, `.box_()` -15, `boxT_(` -12, `.get_t(` -20, `.remove_t(` -6,
+`.containsKey(` -10, `.contains(` -12, `.remove_Object(` -3.
+
+**md5** (`pipe.sh t4_d`): `J2GO_NOLIBGEN=objarg` 627f428904cd1ab870a348b377934bfb (main's
+default); everything off 973b5b6d3e4f71ab1cc82872360f9759 (main's all-off); default
+870508e1a9a9e10603ea0ba173374b86.
+
+**Binary** (`m_t4_d`, gate binary of e7a2818c, against `m_t4_base` 122,878,234 bytes, .text
+23,269,376): 123,787,434 bytes (**+909 KB**), .text 23,435,217 (**+166 KB**). Not d3's +18 KB:
+the twins' own instantiations (311 symbols, 49 KB: the twins in generic classes are instantiated
+per instantiation of the class), their dictionaries (22 KB), `tmap_` / `tset_` on every view
+instantiation (628 small methods), and the typed maps' `find` / `get` / `remove` compiled at
+shapes that the program had not called them at (`TMap[*InputId, *CompilerInput]` and the
+`SimpleSetMultimap` maps of sets). A pair whose Go text names a class's type parameter (`map K,
+SetT[V]`) is checked by its text, so a typed map of another class with type parameters of the same
+names counts for it (not seen to happen; it would only cost size).
+
+**Timing** (CPU, flags3500 subset, 3 rounds alternating, `tm-t4d.log`, sha `72b57cd286c9` in all
+six runs): `m_t4_base` 162.61, 160.14, 162.30 (mean 161.68, min 160.14); `m_t4_d` 161.51, 161.31,
+162.48 (mean 161.77, min 161.31): +0.06% of the means, **neutral**.
+
+**Gate** (`$B/gate.sh libt4 t4_d` after commit and `tools/j2go/run.sh`; log's first line `tree:
+e7a2818ca piece objarg: twins only for Map / Set receivers of key types that have a typed   dirty:
+1`, the one entry `?? .cache`):
+
+```
+GATE OK t4_d
+tests before: 50
+selftest: PASS
+removed 0 declarations in 0 rounds
+ok  	jsgomech/closure	1.947s
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+runtime lines: 21263  test lines: 4761
+runtime lines of the default build: 21019  off-mode extras (build-tagged files): 244
+tests after: 50
+```
+
+Switches off, on e7a2818c (`offall.sh`, `tools/prune/verify.sh` with the switch; the default made
+again afterwards was 870508e1):
+
+```
+switches: J2GO_NOLIBGEN=objarg  translation: exit 0 627f428904cd1ab870a348b377934bfb
+switches: J2GO_NOFNTYPES=1 J2GO_NOLIBGEN=all  translation: exit 0 973b5b6d3e4f71ab1cc82872360f9759
+(each)
+selftest: PASS
+removed 0 declarations in 0 rounds
+ok  	jsgomech/closure	1.952s / 1.965s
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+runtime lines: 21263  test lines: 4761
+runtime lines of the default build: 21019  off-mode extras (build-tagged files): 244
+```
+
+Self-test (`lang/LibObj.java`, unchanged): `run.sh` now counts 25 twin calls and 28 erased calls
+in `typed()` and the methods it calls, and in `wide()` / `erased()` / `wild()` / `obj()` no twin
+and 13 erased calls. Go test `rt_lgobj_test.go`: the Map and Set twins against the erased methods
+on a typed map's / set's view, a typed map's key set and wrapped erased collections.
+
+Not done: no self-test case for "not comparable"; the stale check was tried by hand (above), not in
+the self-test; JAVAISMS6's 50 sites were not matched again (of the first form's coverage, the
+List / Collection receivers and the 5 pairs without a typed map or set are erased again).
+
+## 11. Record of rule candidate T4, Comparable half: piece `cmp` (branch `main-libgen-t5`, worktree `/mnt/data/ubuntu/jm/wt/libt5`, 2026-11-24)
+
+On top of main ede15525 (T3 merged, section 9). (Section 10 is left to the concurrent branch
+`main-libgen-t4`, typed `Map.get` / `contains` with Object parameters.) Task: the Comparable part
+of rule candidate T4 of `docs/javaisms6/JAVAISMS6.md` (63 sites of the sixth flip's tree): a typed
+`ComparableT[T]` with `compareTo_t(T)`, implemented by the classes that implement `Comparable<T>`
+and called by the runtime's typed natural orders instead of the erased `compareTo(any)`; then
+whether the post-flip tool `deadbridge` would delete the bridges. Scratch files:
+`/mnt/data/tmp/claude-1000/-home-ubuntu-work/9db246f3-01a3-48c8-9bf5-1c94d1ed78d6/scratchpad/t5/`
+(`pipe.sh <label>`: under one hold of the lock, rebuild the translator, translate with the piece
+off, with everything off, then the default, go build / test, self-test; `offall.sh`: verify.sh
+with the switches off; `basebin.sh`: main's translation with main's runtime as
+`$B/bin/m_t5_base`; `tm.sh`: gast.py; `out-a1/`, `out-a1-off/`: the default translation and the
+one with the piece off; `db/`: the deadbridge scratch package; `tm.out`, `offall.out`,
+`run-t5a.log`). Every heavy command ran under `flock /mnt/data/ubuntu/jm/heavy.lock`.
+
+### 11.1 Commits
+
+| commit | switch (`J2GO_NOLIBGEN=`) | what |
+|---|---|---|
+| 4368ec45 | `cmp` | classes implementing `Comparable<C>` of their own type have `compareTo_t` and the bridge (`LibCmp.java`, `rt_lgcmp.go`) |
+| (the commit after) | | this section |
+
+### 11.2 The form
+
+The mechanism is the one the rule already has for program classes implementing `Iterator<T>`
+natively (`next_t` and the bridge `next`, `Emitter.lgBridge`), for one more interface, decided by
+its own class (`LibCmp`, one field in `Ctx`, a few lines each in `Emitter.method` and
+`ExprEmitter`'s method call):
+
+```go
+func (this *DiagnosticType) compareTo_t(diagnosticType *DiagnosticType) int32 {
+	return String_compareTo(this.key_, diagnosticType.key_)
+}
+
+func (this *DiagnosticType) compareTo(p0 any) int32 {
+	return this.compareTo_t(cast_[*DiagnosticType](p0))
+}
+```
+
+(was one `compareTo(diagnosticType_ any)` whose first statements were the same cast). The bridge
+is javac's `compareTo(Object)`; the cast is the one the method did on entry, in the same place
+(before anything else), so every caller of the erased method sees the same behaviour.
+
+Runtime (`rt_lgcmp.go`, 26 lines, untagged): `type ComparableT[T any] interface { compareTo_t(T)
+int32 }` and `cmpTypedT_[T](a, b T) (int32, bool)`: when `a` is a non-null value whose type has
+`compareTo_t(T)`, it calls it; else (a null `a`, which `compareNatural_` reports itself; a `T`
+that is an interface or `any`; any other type) it answers false and the caller does what it did.
+Called, before the boxes are made for `compareNatural_`, by the typed natural orders: `naturalT_`
+(the typed sorts of piece `fns`: `Collections_sortT_`, `List_sortT_` without a comparator),
+`tsortCmp_` (the typed sorted sets and maps of rule "typed collections", natural ordering),
+`Comparator_naturalOrder[T]`, `Comparator_comparing[T, U]` (the key). For a class of the piece
+`compareNatural_(box(a), box(b))` called `a.compareTo(b)`, the bridge, whose cast of `b` (a `T`,
+boxed by `self()`, which is the object itself for a class without subclasses) is the identity: the
+same body runs on the same two objects. Erased code (`compareNatural_`, `sortSlice_`, the erased
+`TreeSet`, Guava's builders, `Ordering`, `ComparisonChain`) calls the bridge as before. A call
+`x.compareTo(y)` of the program on a receiver of such a class is `x.compareTo_t(y)` (argument at
+its type, no `obj_`).
+
+**Classes typed and left erased** (`LibCmp.reason`, counted in the `J2GO_LIBGEN` report of the
+default translation, `tx-a1.log`; the tree's translation, `libgen:` lines):
+
+| | classes |
+|---|---:|
+| typed: `Comparable<C>` of the class itself, no subclass, not a handle, `compareTo` implementing nothing else | **10** |
+| left erased: `Comparable` of another type than the class (a supertype or another instantiation): `JSDocInfo.Property<T> implements Comparable<Property<Object>>` | 1 |
+| left erased: raw `Comparable` | 0 |
+| left erased: `Comparable` through a superclass or an interface of the program | 0 |
+| left erased: the class has a subclass | 0 |
+| left erased: a handle class | 0 |
+| left erased: `compareTo` also implements another interface's method (which needs the erased form) | 0 |
+
+The 10: `DefaultNameGenerator.CharPriority`, `DiagnosticType`, `DisambiguateProperties.
+PropertyReferenceIndexJson / PropertyReferenceJson / TypeEdgeJson`, `SerializeTypesToPointers.
+TypeMismatchJson`, `CheckRequiresSorted.DestructuringBinding / ImportStatement`,
+`IRFactory.LineAndColumn` (a record), `CodeReplacement`: the same 10 classes whose `compareTo`
+bridges the seventh flip's tree has (11.5). A refusal here leaves the class as it was (the tree
+must translate); it is not a translation error. The tree has no class of the other five reasons;
+the self-test has one of each (11.4).
+
+**Call sites.** In the program: 0 (no `x.compareTo(y)` on a receiver of one of the 10 classes;
+the 29 `.compareTo(` calls of the Java tree are on Strings, BigIntegers, enums). In the runtime:
+the typed natural orders above, which the tree reaches for these classes at 3 places:
+`Collections_sortT_[*CheckRequiresSorted_DestructuringBinding]`,
+`Collections_sortT_[*CheckRequiresSorted_ImportStatement]`, and
+`SimpleSetMultimap_createSorted[*DiagnosticType, string]` (a typed sorted map, `tsortCmp_`).
+The others reach the bridge through erased code: `ImmutableSortedSet.naturalOrder()` builders (5
+places: the three DisambiguateProperties classes, TypeMismatchJson, CodeReplacement; builders not
+typed, 7.6), `ImmutableSortedSet.copyOf` of CodeReplacements (1), `Arrays.sort(Object[])` of
+CharPriority (2, erased: `Arrays_sort` has no twin), `TreeRangeSet` of LineAndColumn (1).
+
+### 11.3 Counts (the translator's output, `g_*.go`; main's default = this translation with the piece off)
+
+`J2GO_NOLIBGEN=cmp` against the default: 10 files differ, 80 diff lines; per class the method's
+two entry lines (`var x *C = cast_[*C](x_)`, `_ = x`) leave the method, and a 3-line bridge
+follows it. Spellings: `compareTo_t(` 0 -> 20 (10 declarations, 10 calls in the bridges),
+`) compareTo(` declarations 11 -> 11, `cast_[` 814 -> 814 (the cast moved into the bridge),
+`obj_(` 1,055 -> 1,055. **Census rows (`census.py` of `pf5`): no row changes** (both
+translations give the same census output). The rule removes no site of the translator's
+output: what it changes is which method the typed sorts run (11.2) and, for the flipped tree,
+that the classes have the typed method under the translator's name (`compareTo_t`, the
+`implsplit` step's being `compareToT_`).
+
+Runtime: default build 20,939 (section 9) -> 20,982 (+26 `rt_lgcmp.go`, +17 net (19 added, 2 removed) in `rt_fn.go`,
+`rt_lgfn.go`, `rt_tsorted.go`); test lines 4,671 -> 4,755 (`rt_lgcmp_test.go`: `TestLgCmp`,
+`cmpTypedT_`, null and `any` receivers, a typed sorted set; `rt_lgcmp_fn_test.go`, tag
+`!j2go_nofntypes`: `TestLgCmpFn`, `naturalT_`, `Comparator_naturalOrder`, `Comparator_comparing`;
+each test counts which of `compareTo_t` and the bridge ran).
+
+### 11.4 Self-test, refusals
+
+`selftest/lang/Cmp.java` (added to `run.sh`): `Ver` and generic `Box<T> implements
+Comparable<Box<T>>` (typed); `Raw implements Comparable` (raw), `Kid extends Parent implements
+Comparable<Parent>` (a supertype), `Base implements Comparable<Base>` with subclass `Derived`
+overriding `compareTo` (subclass; Derived: through a superclass), `NamedImpl implements Named`,
+`interface Named extends Comparable<Named>` (through an interface of the program), `Both
+implements Comparable<Both>, Ord<Both>` with `interface Ord<T> { int compareTo(T o); }` (also
+implements another method). It sorts with `Collections.sort`, `List.sort(null)`,
+`Comparator.naturalOrder()` and `.reversed()`, `Comparator.comparing`, a `TreeSet` and a
+`TreeMap`, `Arrays.sort(Object[])`, calls `compareTo` directly, through `Comparable` and raw
+`Comparable` (bridge, and its `ClassCastException`), and prints what Java prints with the piece
+on and off. `run.sh` (piece on) counts in the generated `g_Cmp.go`: 2 `compareTo_t`
+declarations, 2 bridges (`return this.compareTo_t(cast_[*Cmp_X](p0))`), 7 `compareTo`
+declarations in all (the two bridges, Base's dispatching stub and four erased methods; Derived's
+is `compareTo_impl`), 1 call of `compareTo_t` in `direct()`; it fails otherwise. So the six
+refused classes are checked to keep the erased method alone.
+
+Found while writing it, not this piece's subject and not changed: an object of `Both` given for
+`Ord<Both>` fails its cast in Go (with the piece on or off): the class's `compareTo` implements
+`Ord.compareTo` too, and the class has no Go method of the name Ord's group has
+(`compareTo_Object`). The tree has no such class; the self-test does not make that call.
+
+### 11.5 `deadbridge` (post-flip step 481/482), checked without a flip
+
+`deadbridge` deletes a bridge `m(any) { return this.mT_(casts) }` when no value of its class ever
+becomes an interface value (no conversion to an interface or `any`, no generic function given
+one, no use of its `tc_p_X` element conversion). Two runs of the tool as of the seventh flip
+(`$B/wt/flip7/tools/postflip/deadbridge`, built into the scratch directory, `-n -v`: report
+only, nothing written):
+
+- On the seventh flip's tree (`$B/wt/tree7/go/closure`, which has `implsplit`'s `compareToT_`
+  and bridges): **0 deleted**; left: the 10 `compareTo` bridges of 11.2 (9 "its element
+  conversion tc_p_ boxes its values for erased code", 1 `LineAndColumn` "a value given to a
+  generic function") and 4 `compare` bridges (`JSChunkGraph.InverseDepthComparator`: "a method of
+  it returns an interface"; `SymbolTable` 5, 6, 7: "assigned to an interface").
+- On this branch's translation (a copy of `go/closure` with the default `g_*.go` and the
+  default-build runtime, `compareTo_t` renamed `compareToT_` in the copy so that the tool's
+  pattern finds the bridges): **0 deleted**; left: the same 10, for the same reasons (9 `tc_p_`,
+  1 generic function).
+
+So **deadbridge would remove 0 bridges** after this piece. The reasons are not the callers the
+piece changes (the runtime's sorts) but the classes' values themselves: each class is an element
+of a typed collection whose `tc_p_` conversion boxes it for erased code, or is given to a generic
+function, and erased code does reach the bridge for 8 of the 10 (11.2: Guava's sorted builders,
+`Arrays.sort`, `TreeRangeSet`). The bridges are live in this tree, not only unproven dead. The
+`compare(any, any)` bridges are of classes extending Guava's `Ordering` (erased, a runtime class)
+or anonymous `Comparator`s assigned to erased places; the rule "function types" already types the
+classes implementing `Comparator` directly. Neither is changed here.
+
+### 11.6 Byte identity (md5 of `cat go/closure/g_*.go`)
+
+| translation | md5 | must equal |
+|---|---|---|
+| piece off (`J2GO_NOLIBGEN=cmp`) | 627f428904cd1ab870a348b377934bfb | main's default: equal |
+| everything off (`J2GO_NOFNTYPES=1 J2GO_NOLIBGEN=all`) | 973b5b6d3e4f71ab1cc82872360f9759 | main's all-off: equal |
+| default (`bash tools/j2go/run.sh` of the commit) | 12b2508cba35deb70850a939b75bcdd0 | (new) |
+
+### 11.7 Gate lines
+
+Commit 4368ec45, then `bash tools/j2go/run.sh` (exit 0, md5 12b2508c), then
+`$B/gate.sh libt5 t5_cmp` under the lock (log `/mnt/data/ubuntu/jm/logs/gate-t5_cmp.log`):
+
+```
+GATE OK t5_cmp
+tree: 4368ec455 rule "typed library interfaces": piece cmp: classes implementing Comparable<C> o  dirty: 1
+selftest: PASS
+removed 0 declarations in 0 rounds
+ok  	jsgomech/closure	2.011s
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+runtime lines: 21226  test lines: 4755
+runtime lines of the default build: 20982  off-mode extras (build-tagged files): 244
+```
+
+(`dirty: 1` is the untracked `.cache` link.) Switches off, on the committed code (`offall.sh`:
+translate with the switch, `tools/prune/verify.sh` with it; the default translation made again
+afterwards was identical, 12b2508c):
+
+```
+switches: J2GO_NOLIBGEN=cmp  translation: exit 0 627f428904cd1ab870a348b377934bfb
+switches: J2GO_NOFNTYPES=1 J2GO_NOLIBGEN=all  translation: exit 0 973b5b6d3e4f71ab1cc82872360f9759
+(each)
+selftest: PASS
+removed 0 declarations in 0 rounds
+ok  	jsgomech/closure	2.018s / 1.939s
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+runtime lines: 21226  test lines: 4755
+runtime lines of the default build: 20982  off-mode extras (build-tagged files): 244
+```
+
+### 11.8 Timing (CPU, googleapis 18% subset, `proto/gast.py gasub/flags3500.txt 3`)
+
+Three rounds, alternating order, CPU first; output sha `72b57cd286c9` in all six runs (log
+`tm-t5.log`, summary `tm.out`). `base` = main's translation (md5 627f4289) with main's runtime,
+built by `basebin.sh` as `$B/bin/m_t5_base`; `new` = the gate binary of 4368ec45, `$B/bin/m_t5_cmp`.
+
+| binary | runs (CPU s) | mean | min |
+|---|---|---:|---:|
+| base | 161.35, 159.64, 160.71 | 160.57 | 159.64 |
+| new | 162.07, 160.68, 162.53 | 161.76 | 160.68 |
+
++0.7% of the means, +0.65% of the minima, new slower in 2 of 3 rounds; within the spread of one
+binary in a session (1.7 s here, about 1.5 s in 7.4), so taken as **neutral, not shown faster**.
+The piece changes no code path of the subset that matters: the typed natural orders reach a class
+of the piece only in `CheckRequiresSorted` (a lint, off) and `AllowlistWarningsGuard` (not in the
+subset's flags, as far as read); every other typed natural comparison now makes one more type
+assertion before boxing, which is the likely cost if the difference is real (not profiled).
+
+### 11.9 Overlaps, not done, unverified
+
+- Overlap with `main-libgen-t4` (typed `Map.get` / `contains`, `LibObj.java`, `rt_lgobj.go`):
+  both add one field to `Ctx` after `lf` (adjacent lines: a textual conflict at a merge, both
+  kept), both edit `selftest/run.sh` (the class list and `SelfTest()` line, and a check block each)
+  and `tools/j2go/README.md` (a bullet each, the switch list); `ExprEmitter.java` is edited by both
+  in different methods. Everything else is in separate files (`LibCmp.java`, `rt_lgcmp*.go`,
+  `selftest/lang/Cmp.java`).
+- The rest of T4's 63 sites (classes implementing `Iterator<T>`, `Collection`, `CacheLoader`,
+  `Supplier`, `Function.apply`, the `Ordering` / anonymous `Comparator` `compare` bridges) is not
+  touched.
+- No flip: the census of a flipped tree was not made. `implsplit` would leave the 10 classes
+  alone (their `compareTo` no longer starts with its parameter's cast: "left, counted"); this
+  was read from the tool's comment, not run. Post-flip tools that look for `compareToT_` (`tcmp`,
+  `deadbridge`) meet `compareTo_t`.
+- No allocation or CPU profile. `cmpTypedT_` converts `a` to an interface for the type
+  assertion on every typed natural comparison that is not of two Strings (no allocation for a
+  pointer; for other shapes the conversion does not escape) — not measured beyond 11.8.
+- Combinations of switches other than "piece off" and "everything off" were not translated; the
+  earlier pieces' switches were not gated off again.

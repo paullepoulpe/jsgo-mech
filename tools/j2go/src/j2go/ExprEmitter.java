@@ -1500,6 +1500,11 @@ abstract class ExprEmitter extends Base {
       ret = cx.lg.rt(ret);
     }
     String name = cx.methodName(e);
+    if (src && !superCall && cx.cmp.typedCall(e, site)) {
+      // piece `cmp` (LibCmp): x.compareTo(y) on a receiver of a class with compareTo_t, the argument at its type
+      name = LibCmp.TYPED;
+      params = List.of(cx.erase(cx.vtype(e.getParameters().get(0))));
+    }
     boolean lgTyped = cx.lg.typedAt(e, site);
     if (lgTyped && lgErasedNow && cx.lg.renamed(cx.root(e)) && cx.kind(cx.lg.rt(cx.groupReturn(e))) == Ctx.K.ANY) {
       // the result enters an Object: the erased method, whose result is that Object
@@ -1806,8 +1811,12 @@ abstract class ExprEmitter extends Base {
 
   CallResult special(ExecutableElement e, Recv recv, List<Arg> as) {
     // rule "typed library interfaces", piece `fns`: the typed twin of a library function (LibFns)
+    boolean toObject = lfErased;
     CallResult lf = cx.lf.call(this, e, recv, as);
     if (lf != null) return lf;
+    // piece `objarg`: the typed twin of a collection method that takes an Object (LibObj)
+    CallResult lo = cx.lo.call(this, e, recv, as, toObject);
+    if (lo != null) return lo;
     as = lgReaders(e, as);
     TypeElement owner = cx.ownerOf(e);
     String qn = owner.getQualifiedName() + "#" + e.getSimpleName();
