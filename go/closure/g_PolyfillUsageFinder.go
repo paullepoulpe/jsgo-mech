@@ -383,6 +383,7 @@ type PolyfillUsageFinder_PolyfillUsage struct {
 	name_             string
 	node_             Node
 	isExplicitGlobal_ bool
+	hashMemo_         int32 // hashCode, once computed, when it is not 0 (post-flip step hashmemo)
 }
 
 func (this *PolyfillUsageFinder_PolyfillUsage) zero_PolyfillUsageFinder_PolyfillUsage() {
@@ -442,6 +443,16 @@ func (this *PolyfillUsageFinder_PolyfillUsage) equals(p0 any) bool {
 }
 
 func (this *PolyfillUsageFinder_PolyfillUsage) hashCode() int32 {
+	if h := this.hashMemo_; h != 0 {
+		return h
+	}
+	h := this.hashCodeOnce_()
+	this.hashMemo_ = h
+	return h
+}
+
+// hashCodeOnce_ computes hashCode: a function of data that is final in the object (post-flip step hashmemo).
+func (this *PolyfillUsageFinder_PolyfillUsage) hashCodeOnce_() int32 {
 	var h int32
 	h = h*31 + objhashId_(this.polyfill_)
 	h = h*31 + objhashId_(this.node_)

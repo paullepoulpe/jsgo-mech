@@ -126,8 +126,9 @@ func (this *PassFactory) hashCode() int32 {
 }
 
 type PassFactory_PreconditionResult struct {
-	message_ Optional[string]
-	success_ bool
+	message_  Optional[string]
+	success_  bool
+	hashMemo_ int32 // hashCode, once computed, when it is not 0 (post-flip step hashmemo)
 }
 
 func (this *PassFactory_PreconditionResult) init_PassFactory_PreconditionResult(success bool, message Optional[string]) {
@@ -158,6 +159,16 @@ func (this *PassFactory_PreconditionResult) equals(p0 any) bool {
 }
 
 func (this *PassFactory_PreconditionResult) hashCode() int32 {
+	if h := this.hashMemo_; h != 0 {
+		return h
+	}
+	h := this.hashCodeOnce_()
+	this.hashMemo_ = h
+	return h
+}
+
+// hashCodeOnce_ computes hashCode: a function of data that is final in the object (post-flip step hashmemo).
+func (this *PassFactory_PreconditionResult) hashCodeOnce_() int32 {
 	var h int32
 	h = h*31 + boolhash_(this.success_)
 	h = h*31 + optHash_(this.message_)
