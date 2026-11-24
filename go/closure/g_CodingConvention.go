@@ -285,12 +285,12 @@ func (this *CodingConvention_AssertionFunctionSpec) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(this.getFunctionName_.box_(), o.getFunctionName_.box_()) && this.getClosurePrimitive_ == o.getClosurePrimitive_ && this.getAssertionKind_ == o.getAssertionKind_ && this.getParamIndex_ == o.getParamIndex_
+	return true && optEqualsNull_(this.getFunctionName_, o.getFunctionName_) && this.getClosurePrimitive_ == o.getClosurePrimitive_ && this.getAssertionKind_ == o.getAssertionKind_ && this.getParamIndex_ == o.getParamIndex_
 }
 
 func (this *CodingConvention_AssertionFunctionSpec) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(this.getFunctionName_.box_())
+	h = h*31 + optHash_(this.getFunctionName_)
 	h = h*31 + objhashId_(this.getClosurePrimitive_)
 	h = h*31 + objhashId_(this.getAssertionKind_)
 	h = h*31 + this.getParamIndex_

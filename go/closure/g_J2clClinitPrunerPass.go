@@ -262,7 +262,7 @@ func (this *J2clClinitPrunerPass_LookAheadRedundantClinitPruner) visit_impl(t *N
 		return
 	}
 	var enclosingFunction Node = NodeUtil_getEnclosingFunction(node)
-	if (enclosingFunction == 0) || Object_equals(Optional_of[string](callOrNewNode.getFirstChild().getString()).box_(), NodeUtil_getNearestFunctionName(enclosingFunction).box_()) {
+	if (enclosingFunction == 0) || optEquals_(Optional_of[string](callOrNewNode.getFirstChild().getString()), NodeUtil_getNearestFunctionName(enclosingFunction)) {
 		return
 	}
 	var var_ *Var = t.getScope().getVar_String_rVar(callOrNewNode.getFirstChild().getString())
@@ -320,7 +320,7 @@ func (this *J2clClinitPrunerPass_LookAheadRedundantClinitPruner) getCallOrNewNod
 
 func (this *J2clClinitPrunerPass_LookAheadRedundantClinitPruner) callsClinit(fnNode Node, clinitName string) bool {
 	var child Node = fnNode.getLastChild().getFirstChild()
-	return (((child != 0) && child.isExprResult()) && Object_equals(Optional_of[string](clinitName).box_(), J2clClinitPrunerPass_getClinitMethodName(child.getFirstChild()).box_()))
+	return (((child != 0) && child.isExprResult()) && optEquals_(Optional_of[string](clinitName), J2clClinitPrunerPass_getClinitMethodName(child.getFirstChild())))
 }
 
 type J2clClinitPrunerPass_EmptyClinitPruner struct {
@@ -392,7 +392,7 @@ func (this *J2clClinitPrunerPass_EmptyClinitPruner) isAssignToEmptyFn(node Node,
 		panic(new_IllegalStateException_String(tostr_(lhs)))
 	}
 	var rhs Node = node.getFirstChild().getLastChild()
-	return (NodeUtil_isEmptyFunctionExpression(rhs) && Object_equals(NodeUtil_getBestLValueName(lhs).box_(), Optional_of[string](enclosingFnName).box_()))
+	return (NodeUtil_isEmptyFunctionExpression(rhs) && optEquals_(NodeUtil_getBestLValueName(lhs), Optional_of[string](enclosingFnName)))
 }
 
 type J2clClinitPrunerPass_HierarchicalSet[T comparable] struct {

@@ -662,7 +662,7 @@ func (this *ClosureRewriteModule) maybeUpdateTopLevelName(t *NodeTraversal, name
 		this.maybeAddAliasToSymbolTable(nameNode, this.currentScript.namespaceId)
 		var inline *ClosureRewriteModule_AliasName = this.currentScript.namesToInlineByAlias[name]
 		var namespaceToInline string = inline.newName
-		if Object_equals(Optional_of[string](namespaceToInline).box_(), this.currentScript.getBinaryNamespace().box_()) {
+		if optEquals_(Optional_of[string](namespaceToInline), this.currentScript.getBinaryNamespace()) {
 			this.currentScript.hasCreatedExportObject = true
 		}
 		var isModuleNamespace bool = ((inline.namespaceId.isPresent() && has_(this.rewriteState.scriptDescriptionsByGoogModuleNamespace, inline.namespaceId.get())) && !this.rewriteState.scriptDescriptionsByGoogModuleNamespace[inline.namespaceId.get()].willCreateExportsObject)

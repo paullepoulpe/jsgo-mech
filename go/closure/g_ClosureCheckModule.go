@@ -81,7 +81,7 @@ func (this *ClosureCheckModule) visit_4_impl(t *NodeTraversal, n Node, currentMo
 	case tokOrd1_CALL:
 		var callee Node = n.getFirstChild()
 		if ClosureCheckModule_GOOG_MODULE_FIELD.matches(callee) {
-			if !Object_equals(Optional_of[string](this.currentModuleInfo.name_).box_(), ClosureCheckModule_extractFirstArgumentName(n).box_()) {
+			if !optEquals_(Optional_of[string](this.currentModuleInfo.name_), ClosureCheckModule_extractFirstArgumentName(n)) {
 				t.report(n, ClosureCheckModule_MULTIPLE_MODULES_IN_FILE, []string{})
 			} else if !ClosureCheckModule_isFirstExpressionInGoogModule(parent) {
 				t.report(n, ClosureCheckModule_GOOG_MODULE_MISPLACED, []string{})
