@@ -87,10 +87,6 @@ func (this *SymbolType) getPossibleToBooleanOutcomes_impl() BooleanLiteralSet {
 	return BooleanLiteralSet_TRUE
 }
 
-func (this *SymbolType) visitUntyped_impl(visitor Visitor) any {
-	return visitor.caseSymbolType(this)
-}
-
 // getTypeClass: an object that is exactly a SymbolType calls its getTypeClass_impl directly (post-flip); others dispatch.
 func (this *SymbolType) getTypeClass() JSTypeClass {
 	if p, _ := this.self_.(*SymbolType); p == this {
@@ -169,12 +165,4 @@ func (this *SymbolType) getPossibleToBooleanOutcomes() BooleanLiteralSet {
 		return this.getPossibleToBooleanOutcomes_impl()
 	}
 	return this.self_.getPossibleToBooleanOutcomes_impl()
-}
-
-// visitUntyped: an object that is exactly a SymbolType calls its visitUntyped_impl directly (post-flip); others dispatch.
-func (this *SymbolType) visitUntyped(p0 Visitor) any {
-	if p, _ := this.self_.(*SymbolType); p == this {
-		return this.visitUntyped_impl(p0)
-	}
-	return this.self_.visitUntyped_impl(p0)
 }

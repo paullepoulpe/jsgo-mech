@@ -355,14 +355,6 @@ func (this *UnionType) getTypesUnderShallowInequality_impl(that *JSType) *JSType
 	return new_JSType_TypePair(thisRestricted.build(), thatRestricted.build())
 }
 
-func (this *UnionType) visitUntyped_impl(visitor Visitor) any {
-	return visitor.caseUnionType(this)
-}
-
-func (this *UnionType) visitUntyped_2_impl(visitor RelationshipVisitor, that *JSType) any {
-	return visitor.caseUnionType(this, that)
-}
-
 func (this *UnionType) resolveInternal_impl(reporter ErrorReporter_rhino) *JSType {
 	if this.alternatesResolvedBeforeBuild {
 		return this.up_JSType()
@@ -873,22 +865,6 @@ func (this *UnionType) getTypesUnderShallowInequality(p0 *JSType) *JSType_TypePa
 		return this.getTypesUnderShallowInequality_impl(p0)
 	}
 	return this.self_.getTypesUnderShallowInequality_impl(p0)
-}
-
-// visitUntyped: an object that is exactly a UnionType calls its visitUntyped_impl directly (post-flip); others dispatch.
-func (this *UnionType) visitUntyped(p0 Visitor) any {
-	if p, _ := this.self_.(*UnionType); p == this {
-		return this.visitUntyped_impl(p0)
-	}
-	return this.self_.visitUntyped_impl(p0)
-}
-
-// visitUntyped_2: an object that is exactly a UnionType calls its visitUntyped_2_impl directly (post-flip); others dispatch.
-func (this *UnionType) visitUntyped_2(p0 RelationshipVisitor, p1 *JSType) any {
-	if p, _ := this.self_.(*UnionType); p == this {
-		return this.visitUntyped_2_impl(p0, p1)
-	}
-	return this.self_.visitUntyped_2_impl(p0, p1)
 }
 
 // resolveInternal: an object that is exactly a UnionType calls its resolveInternal_impl directly (post-flip); others dispatch.

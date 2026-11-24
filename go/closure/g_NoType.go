@@ -81,14 +81,6 @@ func (this *NoType) getPossibleToBooleanOutcomes_impl() BooleanLiteralSet {
 	return BooleanLiteralSet_BOTH
 }
 
-func (this *NoType) visitUntyped_impl(visitor Visitor) any {
-	return visitor.caseNoType(this)
-}
-
-func (this *NoType) visitUntyped_2_impl(visitor RelationshipVisitor, that *JSType) any {
-	return visitor.caseNoType(that)
-}
-
 func (this *NoType) appendTo_impl(sb *TypeStringBuilder) {
 	sb.append(func() string {
 		if sb.isForAnnotations() {
@@ -144,22 +136,6 @@ func (this *NoType) getPossibleToBooleanOutcomes() BooleanLiteralSet {
 		return this.getPossibleToBooleanOutcomes_impl()
 	}
 	return this.self_.getPossibleToBooleanOutcomes_impl()
-}
-
-// visitUntyped: an object that is exactly a NoType calls its visitUntyped_impl directly (post-flip); others dispatch.
-func (this *NoType) visitUntyped(p0 Visitor) any {
-	if p, _ := this.self_.(*NoType); p == this {
-		return this.visitUntyped_impl(p0)
-	}
-	return this.self_.visitUntyped_impl(p0)
-}
-
-// visitUntyped_2: an object that is exactly a NoType calls its visitUntyped_2_impl directly (post-flip); others dispatch.
-func (this *NoType) visitUntyped_2(p0 RelationshipVisitor, p1 *JSType) any {
-	if p, _ := this.self_.(*NoType); p == this {
-		return this.visitUntyped_2_impl(p0, p1)
-	}
-	return this.self_.visitUntyped_2_impl(p0, p1)
 }
 
 // appendTo: an object that is exactly a NoType calls its appendTo_impl directly (post-flip); others dispatch.

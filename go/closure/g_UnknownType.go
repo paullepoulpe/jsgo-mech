@@ -78,14 +78,6 @@ func (this *UnknownType) isVoidable_impl() bool {
 	return true
 }
 
-func (this *UnknownType) visitUntyped_impl(visitor Visitor) any {
-	return visitor.caseUnknownType()
-}
-
-func (this *UnknownType) visitUntyped_2_impl(visitor RelationshipVisitor, that *JSType) any {
-	return visitor.caseUnknownType(this.up_JSType(), that)
-}
-
 func (this *UnknownType) appendTo_impl(sb *TypeStringBuilder) {
 	sb.append(this.getReferenceName().orElseThrow())
 }
@@ -217,22 +209,6 @@ func (this *UnknownType) isVoidable() bool {
 		return this.isVoidable_impl()
 	}
 	return this.self_.isVoidable_impl()
-}
-
-// visitUntyped: an object that is exactly a UnknownType calls its visitUntyped_impl directly (post-flip); others dispatch.
-func (this *UnknownType) visitUntyped(p0 Visitor) any {
-	if p, _ := this.self_.(*UnknownType); p == this {
-		return this.visitUntyped_impl(p0)
-	}
-	return this.self_.visitUntyped_impl(p0)
-}
-
-// visitUntyped_2: an object that is exactly a UnknownType calls its visitUntyped_2_impl directly (post-flip); others dispatch.
-func (this *UnknownType) visitUntyped_2(p0 RelationshipVisitor, p1 *JSType) any {
-	if p, _ := this.self_.(*UnknownType); p == this {
-		return this.visitUntyped_2_impl(p0, p1)
-	}
-	return this.self_.visitUntyped_2_impl(p0, p1)
 }
 
 // appendTo: an object that is exactly a UnknownType calls its appendTo_impl directly (post-flip); others dispatch.
