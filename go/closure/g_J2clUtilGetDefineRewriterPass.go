@@ -103,8 +103,8 @@ func J2clUtilGetDefineRewriterPass_clinit() {
 type J2clUtilGetDefineRewriterPass_CheckGetDefineCalls struct {
 	NodeTraversal_AbstractPostOrderCallback
 	outer_                            *J2clUtilGetDefineRewriterPass
-	defineNameToAddSystemPropertyCall *TMap[string, Node]
-	defineNameToGetDefineCall         *TMap[string, Node]
+	defineNameToAddSystemPropertyCall TMap[string, Node]
+	defineNameToGetDefineCall         TMap[string, Node]
 }
 
 func (this *J2clUtilGetDefineRewriterPass_CheckGetDefineCalls) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -115,8 +115,8 @@ func (this *J2clUtilGetDefineRewriterPass_CheckGetDefineCalls) up_NodeTraversal_
 }
 
 func (this *J2clUtilGetDefineRewriterPass_CheckGetDefineCalls) finit_J2clUtilGetDefineRewriterPass_CheckGetDefineCalls() {
-	this.defineNameToAddSystemPropertyCall = newTMap_(tc_string, tc_Node)
-	this.defineNameToGetDefineCall = newTMap_(tc_string, tc_Node)
+	initTMap_(&this.defineNameToAddSystemPropertyCall, tc_string, tc_Node)
+	initTMap_(&this.defineNameToGetDefineCall, tc_string, tc_Node)
 }
 
 func (this *J2clUtilGetDefineRewriterPass_CheckGetDefineCalls) init_J2clUtilGetDefineRewriterPass_CheckGetDefineCalls() {

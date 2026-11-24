@@ -9,14 +9,14 @@ type RuntimeJsLibManager struct {
 	mode_                RuntimeJsLibManager_RuntimeLibraryMode
 	resourceProvider     func(string, string) Node
 	nodeForCodeInsertion Supplier[Node]
-	injectedLibs         *TSet[string]
-	internedFields       *TMap[string, *RuntimeJsLibManager_InternalField]
+	injectedLibs         TSet[string]
+	internedFields       TMap[string, *RuntimeJsLibManager_InternalField]
 	lastInjectedLibrary  Node
 }
 
 func (this *RuntimeJsLibManager) finit_RuntimeJsLibManager() {
-	this.injectedLibs = newTSet_(tc_string)
-	this.internedFields = newTMap_(tc_string, tc_p_RuntimeJsLibManager_InternalField)
+	initTSet_(&this.injectedLibs, tc_string)
+	initTMap_(&this.internedFields, tc_string, tc_p_RuntimeJsLibManager_InternalField)
 	this.lastInjectedLibrary = 0
 }
 

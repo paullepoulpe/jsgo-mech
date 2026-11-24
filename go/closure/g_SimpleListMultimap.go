@@ -3,7 +3,7 @@
 package closure
 
 type SimpleListMultimap[K comparable, V comparable] struct {
-	map__  *TMap[K, ListT[V]]
+	map__  TMap[K, ListT[V]]
 	frozen bool
 }
 
@@ -14,7 +14,7 @@ func (this *SimpleListMultimap[K, V]) isa_SimpleListMultimap_() {}
 type SimpleListMultimap_isa interface{ isa_SimpleListMultimap_() }
 
 func (this *SimpleListMultimap[K, V]) finit_SimpleListMultimap() {
-	this.map__ = newTMap_(tchT_[K](), tc_ListT_V_[V]())
+	initTMap_(&this.map__, tchT_[K](), tc_ListT_V_[V]())
 	this.frozen = false
 }
 

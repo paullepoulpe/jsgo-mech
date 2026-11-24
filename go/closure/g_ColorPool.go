@@ -148,7 +148,7 @@ func (this *ColorPool_ShardView) updateStateAfterColorPoolIsBuilt(colorPool *Col
 
 type ColorPool_Builder struct {
 	protoToShard            *LinkedIdentityHashMap[*TypePool, *ColorPool_ShardView]
-	idToColor               *TMap[*ColorId, *Color]
+	idToColor               TMap[*ColorId, *Color]
 	registry                ColorRegistry_Builder
 	idToProto               *SimpleTable[*ColorId, *ColorPool_ShardView, *TypeProto]
 	reconcilationDebugStack *[]*ColorId
@@ -157,7 +157,7 @@ type ColorPool_Builder struct {
 
 func (this *ColorPool_Builder) finit_ColorPool_Builder() {
 	this.protoToShard = new_LinkedIdentityHashMap[*TypePool, *ColorPool_ShardView]()
-	this.idToColor = newTMap_(tch_p_ColorId, tc_p_Color)
+	initTMap_(&this.idToColor, tch_p_ColorId, tc_p_Color)
 	this.registry = ColorRegistry_builder()
 	this.idToProto = SimpleTable_create[*ColorId, *ColorPool_ShardView, *TypeProto]()
 	this.forTestingField = false
@@ -239,7 +239,7 @@ func (this *ColorPool_Builder) build() *ColorPool {
 	if this.forTestingField {
 		this.forEachShard(Consumer[*ColorPool_ShardView](func(p0 *ColorPool_ShardView) { shardViewsForTesting.add(p0) }))
 	}
-	var colorPool *ColorPool = new_ColorPool(this.idToColor, this.registry.build(), slicePtrImm_(tc_p_ColorPool_ShardView, shardViewsForTesting.buildErased()))
+	var colorPool *ColorPool = new_ColorPool(&this.idToColor, this.registry.build(), slicePtrImm_(tc_p_ColorPool_ShardView, shardViewsForTesting.buildErased()))
 	this.forEachShard(Consumer[*ColorPool_ShardView](func(shard *ColorPool_ShardView) {
 		shard.updateStateAfterColorPoolIsBuilt(colorPool)
 	}))

@@ -225,7 +225,7 @@ type CrossChunkCodeMotion_GlobalSymbol struct {
 	var_                                         *Var
 	dsgStack                                     *TDeque[*CrossChunkCodeMotion_DeclarationStatementGroup]
 	chunksWithImmovableReferences                *BitSet
-	referencingGlobalSymbols                     *TSet[*CrossChunkCodeMotion_GlobalSymbol]
+	referencingGlobalSymbols                     TSet[*CrossChunkCodeMotion_GlobalSymbol]
 	instanceofReferencesToGuard                  *[]CrossChunkCodeMotion_InstanceofReference
 	preorderNumber                               int32
 	hasBeenAssignedToAStronglyConnectedComponent bool
@@ -235,7 +235,7 @@ type CrossChunkCodeMotion_GlobalSymbol struct {
 func (this *CrossChunkCodeMotion_GlobalSymbol) finit_CrossChunkCodeMotion_GlobalSymbol() {
 	this.dsgStack = newTDeque_(tc_p_CrossChunkCodeMotion_DeclarationStatementGroup)
 	this.chunksWithImmovableReferences = new_BitSet_int(this.outer_.graph.getChunkCount())
-	this.referencingGlobalSymbols = newTSet_(tc_p_CrossChunkCodeMotion_GlobalSymbol)
+	initTSet_(&this.referencingGlobalSymbols, tc_p_CrossChunkCodeMotion_GlobalSymbol)
 	this.instanceofReferencesToGuard = &[]CrossChunkCodeMotion_InstanceofReference{}
 	this.preorderNumber = -1
 	this.hasBeenAssignedToAStronglyConnectedComponent = false
@@ -389,13 +389,13 @@ func (this *CrossChunkCodeMotion_GlobalSymbolCycle) getDsgsLatestFirst() *TDeque
 
 type CrossChunkCodeMotion_DeclarationStatementGroup struct {
 	declaredGlobalSymbol    *CrossChunkCodeMotion_GlobalSymbol
-	referencedGlobalSymbols *TSet[*CrossChunkCodeMotion_GlobalSymbol]
+	referencedGlobalSymbols TSet[*CrossChunkCodeMotion_GlobalSymbol]
 	currentChunk            *JSChunk
 	statementStack          *TDeque[*CrossChunkReferenceCollector_TopLevelStatement]
 }
 
 func (this *CrossChunkCodeMotion_DeclarationStatementGroup) finit_CrossChunkCodeMotion_DeclarationStatementGroup() {
-	this.referencedGlobalSymbols = newTSet_(tc_p_CrossChunkCodeMotion_GlobalSymbol)
+	initTSet_(&this.referencedGlobalSymbols, tc_p_CrossChunkCodeMotion_GlobalSymbol)
 	this.statementStack = newTDeque_(tc_p_CrossChunkReferenceCollector_TopLevelStatement)
 }
 

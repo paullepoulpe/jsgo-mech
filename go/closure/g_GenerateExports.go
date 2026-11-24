@@ -6,14 +6,14 @@ import "strings"
 
 type GenerateExports struct {
 	compiler_              *AbstractCompiler
-	exportedVariables      *TSet[string]
+	exportedVariables      TSet[string]
 	exportSymbolFunction   string
 	exportPropertyFunction string
 	allowNonGlobalExports  bool
 }
 
 func (this *GenerateExports) finit_GenerateExports() {
-	this.exportedVariables = newTSet_(tc_string)
+	initTSet_(&this.exportedVariables, tc_string)
 }
 
 func (this *GenerateExports) init_GenerateExports(compiler *AbstractCompiler, allowNonGlobalExports bool, exportSymbolFunction string, exportPropertyFunction string) {
@@ -34,7 +34,7 @@ func new_GenerateExports(compiler *AbstractCompiler, allowNonGlobalExports bool,
 }
 
 func (this *GenerateExports) getExportedVariableNames() *TSet[string] {
-	return this.exportedVariables
+	return &this.exportedVariables
 }
 
 func (this *GenerateExports) process_2(externs Node, root Node) {

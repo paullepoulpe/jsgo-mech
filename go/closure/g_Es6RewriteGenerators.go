@@ -813,7 +813,7 @@ type Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext
 	catchCases              *[]*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_CatchCase
 	finallyCases            *[]*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case
 	catchNames              map[string]struct{}
-	allCases                *TList[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case]
+	allCases                TList[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case]
 	switchBreaks            *[]Node
 	programEndCase          *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case
 	currentCase             *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case
@@ -830,7 +830,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 	this.catchCases = &[]*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_CatchCase{}
 	this.finallyCases = &[]*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case{}
 	this.catchNames = map[string]struct{}{}
-	this.allCases = newTList_(tc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case)
+	initTList_(&this.allCases, tc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case)
 	this.switchBreaks = &[]Node{}
 	this.nestedFinallyBlockCount = 0
 }

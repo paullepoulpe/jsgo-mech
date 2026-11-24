@@ -214,7 +214,7 @@ func (this *InlineProperties_GatherCandidates) inConstructor(t *NodeTraversal) b
 type InlineProperties_ReplaceCandidates struct {
 	NodeTraversal_AbstractPostOrderCallback
 	outer_                     *InlineProperties
-	hasInSupertypesListSeenSet *TSet[*Color]
+	hasInSupertypesListSeenSet TSet[*Color]
 }
 
 func (this *InlineProperties_ReplaceCandidates) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -225,7 +225,7 @@ func (this *InlineProperties_ReplaceCandidates) up_NodeTraversal_AbstractPostOrd
 }
 
 func (this *InlineProperties_ReplaceCandidates) finit_InlineProperties_ReplaceCandidates() {
-	this.hasInSupertypesListSeenSet = newTSet_(tch_p_Color)
+	initTSet_(&this.hasInSupertypesListSeenSet, tch_p_Color)
 }
 
 func (this *InlineProperties_ReplaceCandidates) init_InlineProperties_ReplaceCandidates() {

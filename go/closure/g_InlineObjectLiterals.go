@@ -55,7 +55,7 @@ func (this *InlineObjectLiterals_InliningBehavior) afterExitScope(t *NodeTravers
 		if referenceInfo == nil {
 			continue
 		}
-		if this.isInlinableObject(referenceInfo.references) {
+		if this.isInlinableObject(&referenceInfo.references) {
 			this.staleVars[vkey_(v)] = struct{}{}
 			var init_ *Reference = referenceInfo.getInitializingReference()
 			this.splitObject(v, init_, referenceInfo)

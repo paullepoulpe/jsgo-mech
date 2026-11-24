@@ -592,10 +592,10 @@ func (this *JsMessage_PlaceholderReference) toString() string {
 }
 
 type JsMessage_Builder struct {
-	parts                            *TList[JsMessage_Part]
-	genderedMessageMap               *TMap[JsMessage_GrammaticalGenderCase, ListT[JsMessage_Part]]
-	jsPlaceholderNames_              *TSet[string]
-	canonicalPlaceholderNames_       *TSet[string]
+	parts                            TList[JsMessage_Part]
+	genderedMessageMap               TMap[JsMessage_GrammaticalGenderCase, ListT[JsMessage_Part]]
+	jsPlaceholderNames_              TSet[string]
+	canonicalPlaceholderNames_       TSet[string]
 	placeholderNameToExampleMap      *TMap[string, string]
 	placeholderNameToOriginalCodeMap *TMap[string, string]
 	key_                             string
@@ -616,10 +616,10 @@ func (this *JsMessage_Builder) finit_JsMessage_Builder() {
 	this.isExternal_ = false
 	this.id = nullstr_
 	this.alternateId = nullstr_
-	this.parts = newTList_(tc_JsMessage_Part)
-	this.genderedMessageMap = newTMap_(tc_p_JsMessage_GrammaticalGenderCase, tc_ListT_JsMessage_Part_)
-	this.jsPlaceholderNames_ = newTSet_(tc_string)
-	this.canonicalPlaceholderNames_ = newTSet_(tc_string)
+	initTList_(&this.parts, tc_JsMessage_Part)
+	initTMap_(&this.genderedMessageMap, tc_p_JsMessage_GrammaticalGenderCase, tc_ListT_JsMessage_Part_)
+	initTSet_(&this.jsPlaceholderNames_, tc_string)
+	initTSet_(&this.canonicalPlaceholderNames_, tc_string)
 	this.placeholderNameToExampleMap = tmapEmptyImm_(tc_string, tc_string)
 	this.placeholderNameToOriginalCodeMap = tmapEmptyImm_(tc_string, tc_string)
 	this.sourceName_ = nullstr_
@@ -767,7 +767,7 @@ func (this *JsMessage_Builder) hasGenderedVariants() bool {
 }
 
 func (this *JsMessage_Builder) getParts() *TList[JsMessage_Part] {
-	return this.parts
+	return &this.parts
 }
 
 func (this *JsMessage_Builder) build() *JsMessage {
@@ -790,7 +790,7 @@ func (this *JsMessage_Builder) build() *JsMessage {
 		immutableGenderedPartsBuilder.put(entry.getKey(), immutableListCopyOf_(tc_JsMessage_Part, Collection(List_un_(entry.getValue()))).asListT())
 	}
 	var immutableGenderedMessageMap *TMap[JsMessage_GrammaticalGenderCase, ListT[JsMessage_Part]] = immutableGenderedPartsBuilder.buildOrThrow()
-	return new_JsMessage(this.sourceName_, optstrGet_(this.key_), this.isAnonymous_, this.isExternal_, optstrGet_(this.id), immutableListCopyOfT_(tc_JsMessage_Part, this.parts), immutableGenderedMessageMap, this.alternateId, this.desc, this.meaning, this.placeholderNameToExampleMap, this.placeholderNameToOriginalCodeMap, immutableSetCopyOfT_(tc_string, this.jsPlaceholderNames_), immutableSetCopyOfT_(tc_string, this.canonicalPlaceholderNames_))
+	return new_JsMessage(this.sourceName_, optstrGet_(this.key_), this.isAnonymous_, this.isExternal_, optstrGet_(this.id), immutableListCopyOfT_(tc_JsMessage_Part, &this.parts), immutableGenderedMessageMap, this.alternateId, this.desc, this.meaning, this.placeholderNameToExampleMap, this.placeholderNameToOriginalCodeMap, immutableSetCopyOfT_(tc_string, &this.jsPlaceholderNames_), immutableSetCopyOfT_(tc_string, &this.canonicalPlaceholderNames_))
 }
 
 type JsMessage_Hash struct {

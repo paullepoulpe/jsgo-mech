@@ -3,13 +3,13 @@
 package closure
 
 type StandardUnionFind[E comparable] struct {
-	elmap *TMap[E, *StandardUnionFind_Node[E]]
+	elmap TMap[E, *StandardUnionFind_Node[E]]
 }
 
 func (this *StandardUnionFind[E]) isa_StandardUnionFind_() {}
 
 func (this *StandardUnionFind[E]) finit_StandardUnionFind() {
-	this.elmap = newTMap_(tchT_[E](), tc_p_StandardUnionFind_Node_E_[E]())
+	initTMap_(&this.elmap, tchT_[E](), tc_p_StandardUnionFind_Node_E_[E]())
 }
 
 func (this *StandardUnionFind[E]) init_StandardUnionFind_0() {

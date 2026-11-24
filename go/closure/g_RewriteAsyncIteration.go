@@ -600,7 +600,7 @@ func (this *RewriteAsyncIteration_LexicalContext) mustReplaceThisSuperArgs() boo
 
 type RewriteAsyncIteration_ThisSuperArgsContext struct {
 	ctx                 *RewriteAsyncIteration_LexicalContext
-	usedSuperProperties *TSet[Node]
+	usedSuperProperties TSet[Node]
 	uniqueId            string
 	thisNodeToAdd       Node
 	usedArguments       bool
@@ -611,7 +611,7 @@ func (this *RewriteAsyncIteration_ThisSuperArgsContext) zero_RewriteAsyncIterati
 }
 
 func (this *RewriteAsyncIteration_ThisSuperArgsContext) finit_RewriteAsyncIteration_ThisSuperArgsContext() {
-	this.usedSuperProperties = newTSet_(tc_Node)
+	initTSet_(&this.usedSuperProperties, tc_Node)
 	this.thisNodeToAdd = 0
 	this.usedArguments = false
 }

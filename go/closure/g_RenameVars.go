@@ -12,12 +12,12 @@ type RenameVars struct {
 	pseudoNameMap                  map[Node]string
 	externNames_                   *TSet[string]
 	reservedNames                  *TSet[string]
-	renameMap                      *TMap[string, string]
+	renameMap                      TMap[string, string]
 	prevUsedRenameMap              *VariableMap
 	prefix_                        string
 	localBleedingFunctions         map[varKey_]struct{}
 	localBleedingFunctionsPerScope *SimpleListMultimap[*Scope, *Var]
-	assignments                    *TMap[string, *RenameVars_Assignment]
+	assignments                    TMap[string, *RenameVars_Assignment]
 	reservedCharacters             *TSet[any]
 	nameGenerator                  NameGenerator
 	assignmentCount                int32
@@ -33,11 +33,11 @@ func (this *RenameVars) finit_RenameVars() {
 	this.globalNameNodes = &[]Node{}
 	this.localNameNodes = &[]Node{}
 	this.originalNameByNode = map[Node]string{}
-	this.renameMap = newTMap_(tc_string, tc_string)
+	initTMap_(&this.renameMap, tc_string, tc_string)
 	this.assignmentCount = 0
 	this.localBleedingFunctions = map[varKey_]struct{}{}
 	this.localBleedingFunctionsPerScope = SimpleListMultimap_create[*Scope, *Var]()
-	this.assignments = newTMap_(tc_string, tc_p_RenameVars_Assignment)
+	initTMap_(&this.assignments, tc_string, tc_p_RenameVars_Assignment)
 }
 
 func (this *RenameVars) init_RenameVars(compiler *AbstractCompiler, prefix string, localRenamingOnly bool, generatePseudoNames bool, preferStableNames bool, prevUsedRenameMap *VariableMap, reservedCharacters *TSet[any], reservedNames *TSet[string], nameGenerator NameGenerator) {
@@ -203,7 +203,7 @@ func (this *RenameVars) finalizeNameAssignment(a *RenameVars_Assignment, newName
 }
 
 func (this *RenameVars) getVariableMap() *VariableMap {
-	return new_VariableMap(immutableMapCopyOfT_(tc_string, tc_string, this.renameMap))
+	return new_VariableMap(immutableMapCopyOfT_(tc_string, tc_string, &this.renameMap))
 }
 
 func (this *RenameVars) okToRenameVar(name string, isLocal bool) bool {

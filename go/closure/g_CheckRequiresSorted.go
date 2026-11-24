@@ -5,7 +5,7 @@ package closure
 type CheckRequiresSorted struct {
 	mode_              CheckRequiresSorted_Mode
 	importsByNamespace *SimpleListMultimap[string, *CheckRequiresSorted_ImportStatement]
-	originalImports    *TList[*CheckRequiresSorted_ImportStatement]
+	originalImports    TList[*CheckRequiresSorted_ImportStatement]
 	replacement_       string
 	firstNode          Node
 	lastNode           Node
@@ -15,7 +15,7 @@ type CheckRequiresSorted struct {
 
 func (this *CheckRequiresSorted) finit_CheckRequiresSorted() {
 	this.importsByNamespace = SimpleListMultimap_create[string, *CheckRequiresSorted_ImportStatement]()
-	this.originalImports = newTList_(tc_p_CheckRequiresSorted_ImportStatement)
+	initTList_(&this.originalImports, tc_p_CheckRequiresSorted_ImportStatement)
 	this.firstNode = 0
 	this.lastNode = 0
 	this.finished = false

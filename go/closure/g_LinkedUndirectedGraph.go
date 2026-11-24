@@ -4,7 +4,7 @@ package closure
 
 type LinkedUndirectedGraph[N comparable, E comparable] struct {
 	UndiGraph[N, E]
-	nodes_             *TMap[N, *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E]]
+	nodes_             TMap[N, *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E]]
 	useNodeAnnotations bool
 	useEdgeAnnotations bool
 }
@@ -26,7 +26,7 @@ func (this *LinkedUndirectedGraph[N, E]) up_Graph() *Graph[N, E] {
 }
 
 func (this *LinkedUndirectedGraph[N, E]) finit_LinkedUndirectedGraph() {
-	this.nodes_ = newTMap_(tchT_[N](), tc_p_LinkedUndirectedGraph_LinkedUndirectedGraphNode_N__E_[N, E]())
+	initTMap_(&this.nodes_, tchT_[N](), tc_p_LinkedUndirectedGraph_LinkedUndirectedGraphNode_N__E_[N, E]())
 }
 
 func (this *LinkedUndirectedGraph[N, E]) init_LinkedUndirectedGraph(useNodeAnnotations bool, useEdgeAnnotations bool) {
@@ -233,7 +233,7 @@ func (this *LinkedUndirectedGraph[N, E]) getNodeDegree_impl(value N) int32 {
 
 type LinkedUndirectedGraph_LinkedUndirectedGraphNode[N comparable, E comparable] struct {
 	self_         LinkedUndirectedGraph_LinkedUndirectedGraphNode_vt_[N, E]
-	neighborEdges *TList[UndiGraph_UndiGraphEdge[N, E]]
+	neighborEdges TList[UndiGraph_UndiGraphEdge[N, E]]
 	value_        N
 }
 
@@ -274,7 +274,7 @@ func (this *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E]) zero_LinkedUn
 }
 
 func (this *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E]) finit_LinkedUndirectedGraph_LinkedUndirectedGraphNode() {
-	this.neighborEdges = newTList_(tc_UndiGraph_UndiGraphEdge_N__E_[N, E]())
+	initTList_(&this.neighborEdges, tc_UndiGraph_UndiGraphEdge_N__E_[N, E]())
 }
 
 func (this *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E]) init_LinkedUndirectedGraph_LinkedUndirectedGraphNode(nodeValue N) {

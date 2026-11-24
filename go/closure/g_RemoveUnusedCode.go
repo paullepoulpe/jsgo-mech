@@ -9,7 +9,7 @@ type RemoveUnusedCode struct {
 	astAnalyzer                                    *AstAnalyzer
 	codingConvention                               CodingConvention
 	worklist                                       *[]*RemoveUnusedCode_Continuation
-	varInfoMap                                     *TMap[*Var, RemoveUnusedCode_VarInfo]
+	varInfoMap                                     TMap[*Var, RemoveUnusedCode_VarInfo]
 	pinnedPropertyNames                            *TSet[string]
 	removablesForPropertyNames                     *SimpleSetMultimap[string, *RemoveUnusedCode_Removable]
 	canonicalUnremovableVarInfo                    RemoveUnusedCode_VarInfo
@@ -34,7 +34,7 @@ type RemoveUnusedCode struct {
 
 func (this *RemoveUnusedCode) finit_RemoveUnusedCode() {
 	this.worklist = &[]*RemoveUnusedCode_Continuation{}
-	this.varInfoMap = newTMap_(tch_p_Var, tc_RemoveUnusedCode_VarInfo)
+	initTMap_(&this.varInfoMap, tch_p_Var, tc_RemoveUnusedCode_VarInfo)
 	this.pinnedPropertyNames = tsetCopy_(tc_string, RemoveUnusedCode_IMPLICITLY_USED_PROPERTIES)
 	this.removablesForPropertyNames = SimpleSetMultimap_createInsertionOrdered[string, *RemoveUnusedCode_Removable]()
 	this.allFunctionParamScopes = &[]*Scope{}

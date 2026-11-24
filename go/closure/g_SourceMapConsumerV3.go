@@ -8,7 +8,7 @@ type SourceMapConsumerV3 struct {
 	names_               []string
 	mappings             *SourceMapConsumerV3_Mappings
 	reverseSourceMapping map[string]MapT[any, CollectionT[*Mapping_OriginalMapping]]
-	extensions           *TMap[string, any]
+	extensions           TMap[string, any]
 	file                 string
 	sourceRoot           string
 	lineCount            int32
@@ -18,7 +18,7 @@ func (this *SourceMapConsumerV3) finit_SourceMapConsumerV3() {
 	this.file = nullstr_
 	this.mappings = nil
 	this.sourceRoot = nullstr_
-	this.extensions = newTMap_(tc_string, tc_Object)
+	initTMap_(&this.extensions, tc_string, tc_Object)
 }
 
 func (this *SourceMapConsumerV3) init_SourceMapConsumerV3() {
@@ -168,7 +168,7 @@ func (this *SourceMapConsumerV3) getSourceRoot() string {
 }
 
 func (this *SourceMapConsumerV3) getExtensions() *TMap[string, any] {
-	return this.extensions
+	return &this.extensions
 }
 
 func (this *SourceMapConsumerV3) search(target int32, start int32, end int32) int32 {

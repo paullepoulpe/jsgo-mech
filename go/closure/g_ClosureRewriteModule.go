@@ -8,29 +8,29 @@ type ClosureRewriteModule struct {
 	compiler_                         *AbstractCompiler
 	astFactory_                       *AstFactory
 	preprocessorSymbolTable           *PreprocessorSymbolTable
-	syntheticExterns                  *TMap[string, Node]
+	syntheticExterns                  TMap[string, Node]
 	globalScope                       *Scope
 	scriptStack                       *[]*ClosureRewriteModule_ScriptDescription
 	currentScript                     *ClosureRewriteModule_ScriptDescription
 	rewriteState                      ClosureRewriteModule_GlobalRewriteState
 	legacyScriptNamespacesAndPrefixes map[string]struct{}
 	unrecognizedRequires              *[]*ClosureRewriteModule_UnrecognizedRequire
-	googModuleGetCalls                *TList[Node]
-	googRequireDynamicCalls           *TList[Node]
+	googModuleGetCalls                TList[Node]
+	googRequireDynamicCalls           TList[Node]
 	globalTypedScope                  *TypedScope
 	preserveSugar                     bool
 }
 
 func (this *ClosureRewriteModule) finit_ClosureRewriteModule() {
-	this.syntheticExterns = newTMap_(tc_string, tc_Node)
+	initTMap_(&this.syntheticExterns, tc_string, tc_Node)
 	this.globalScope = nil
 	this.scriptStack = &[]*ClosureRewriteModule_ScriptDescription{}
 	this.currentScript = nil
 	this.rewriteState = new_ClosureRewriteModule_GlobalRewriteState()
 	this.legacyScriptNamespacesAndPrefixes = map[string]struct{}{}
 	this.unrecognizedRequires = &[]*ClosureRewriteModule_UnrecognizedRequire{}
-	this.googModuleGetCalls = newTList_(tc_Node)
-	this.googRequireDynamicCalls = newTList_(tc_Node)
+	initTList_(&this.googModuleGetCalls, tc_Node)
+	initTList_(&this.googRequireDynamicCalls, tc_Node)
 }
 
 func (this *ClosureRewriteModule) init_ClosureRewriteModule(compiler *AbstractCompiler, preprocessorSymbolTable *PreprocessorSymbolTable, globalTypedScope *TypedScope) {
@@ -1448,7 +1448,7 @@ type ClosureRewriteModule_ScriptDescription struct {
 	namesToInlineByAlias    map[string]*ClosureRewriteModule_AliasName
 	defaultExport           *ClosureRewriteModule_ExportDefinition
 	namedExports            map[string]struct{}
-	exportsToInline         *TMap[*Var, *ClosureRewriteModule_ExportDefinition]
+	exportsToInline         TMap[*Var, *ClosureRewriteModule_ExportDefinition]
 	namespaceId             string
 	defaultExportLocalName  string
 	rootNode_               Node
@@ -1469,7 +1469,7 @@ func (this *ClosureRewriteModule_ScriptDescription) finit_ClosureRewriteModule_S
 	this.namesToInlineByAlias = map[string]*ClosureRewriteModule_AliasName{}
 	this.defaultExportLocalName = nullstr_
 	this.namedExports = map[string]struct{}{}
-	this.exportsToInline = newTMap_(tch_p_Var, tc_p_ClosureRewriteModule_ExportDefinition)
+	initTMap_(&this.exportsToInline, tch_p_Var, tc_p_ClosureRewriteModule_ExportDefinition)
 }
 
 func (this *ClosureRewriteModule_ScriptDescription) init_ClosureRewriteModule_ScriptDescription() {

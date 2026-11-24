@@ -9,8 +9,8 @@ type GlobalNamespace struct {
 	spreadSiblingCache            map[Node]any
 	sourceKind                    GlobalNamespace_SourceKind
 	decisionsLog                  *LogFile
-	globalNames                   *TList[*GlobalNamespace_Name]
-	nameMap                       *TMap[string, *GlobalNamespace_Name]
+	globalNames                   TList[*GlobalNamespace_Name]
+	nameMap                       TMap[string, *GlobalNamespace_Name]
 	nameMapByModule               *SimpleTable[*ModuleMetadataMap_ModuleMetadata, string, *GlobalNamespace_Name]
 	shouldTraverseScript          Predicate[Node]
 	root                          Node
@@ -24,8 +24,8 @@ func (this *GlobalNamespace) finit_GlobalNamespace() {
 	this.globalRoot = IR_root([]Node{})
 	this.spreadSiblingCache = map[Node]any{}
 	this.generated = false
-	this.globalNames = newTList_(tc_p_GlobalNamespace_Name)
-	this.nameMap = newTMap_(tc_string, tc_p_GlobalNamespace_Name)
+	initTList_(&this.globalNames, tc_p_GlobalNamespace_Name)
+	initTMap_(&this.nameMap, tc_string, tc_p_GlobalNamespace_Name)
 	this.nameMapByModule = SimpleTable_create[*ModuleMetadataMap_ModuleMetadata, string, *GlobalNamespace_Name]()
 	this.shouldTraverseScript = Predicate[Node](func(n Node) bool {
 		return true
@@ -138,12 +138,12 @@ func (this *GlobalNamespace) ensureGenerated() {
 
 func (this *GlobalNamespace) getNameForest() *TList[*GlobalNamespace_Name] {
 	this.ensureGenerated()
-	return this.globalNames
+	return &this.globalNames
 }
 
 func (this *GlobalNamespace) getNameIndex() *TMap[string, *GlobalNamespace_Name] {
 	this.ensureGenerated()
-	return this.nameMap
+	return &this.nameMap
 }
 
 func (this *GlobalNamespace) scanNewNodes(newNodes *TSet[GlobalNamespace_AstChange]) {

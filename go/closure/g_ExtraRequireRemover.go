@@ -6,12 +6,12 @@ import "strings"
 
 type ExtraRequireRemover struct {
 	compiler_ *AbstractCompiler
-	requires  *TMap[string, Node]
+	requires  TMap[string, Node]
 	usages    map[string]struct{}
 }
 
 func (this *ExtraRequireRemover) finit_ExtraRequireRemover() {
-	this.requires = newTMap_(tc_string, tc_Node)
+	initTMap_(&this.requires, tc_string, tc_Node)
 	this.usages = map[string]struct{}{}
 }
 

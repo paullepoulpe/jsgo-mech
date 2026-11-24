@@ -6,12 +6,12 @@ type ColorSerializer struct {
 	serializationMode       SerializationOptions
 	getStringPoolIndexFn    Function[string, any]
 	propertyFilter          Predicate[string]
-	colorIdToTypePointer    *TMap[*ColorId, any]
+	colorIdToTypePointer    TMap[*ColorId, any]
 	colorsInSerializedOrder *[]*Color
 }
 
 func (this *ColorSerializer) finit_ColorSerializer() {
-	this.colorIdToTypePointer = newTMap_(tch_p_ColorId, tc_Integer)
+	initTMap_(&this.colorIdToTypePointer, tch_p_ColorId, tc_Integer)
 	this.colorsInSerializedOrder = &[]*Color{}
 }
 
