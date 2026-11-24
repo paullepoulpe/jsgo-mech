@@ -21,7 +21,8 @@ import "sync/atomic"
 // post-flip typed collections (rt_tlist.go, rt_tmap.go): a typed list, set or map is, for typed
 // code, its erased view object (tlistView_, tsetView_ / tsortedSetView_, tmapView_ /
 // tsortedMapView_; of an immutable collection too, where erased code gets its twin instead),
-// and the views of a map are tkeysView_, tvalsView_ and tentriesView_.
+// and the views of a map are tkeysView_, tvalsView_ and tentriesView_. Since steps 554b and
+// 556 each of them is the collection itself under the view's type.
 
 // lgWrap_ is a value whose identity for erased code is another object: a wrapper (the object
 // it wraps) or a typed collection (its erased view or twin).
@@ -155,7 +156,7 @@ func (s *TSet[K]) iterator_t() IteratorT[K] {
 	return &tmapKeyIter_[K, struct{}]{tmapIter_[K, struct{}]{m: &s.TMap, i: s.first(), out: keyOut_[K, struct{}]}}
 }
 func (v *tsetView_[K]) iterator_t() IteratorT[K] {
-	return &tmapKeyIter_[K, struct{}]{tmapIter_[K, struct{}]{m: v.m, i: v.m.first(), out: keyOut_[K, struct{}]}}
+	return &tmapKeyIter_[K, struct{}]{tmapIter_[K, struct{}]{m: v.tm(), i: v.tm().first(), out: keyOut_[K, struct{}]}}
 }
 
 // stepperT_ is a typed collection that a for-each cursor reads by position, as stepper_ is
@@ -166,7 +167,7 @@ type stepperT_[T any] interface {
 
 func (s *TSet[K]) step_t(i int) (v K, next int, ok bool) { return keyStep_(&s.TMap, i) }
 
-func (v *tsetView_[K]) step_t(i int) (K, int, bool) { return keyStep_(v.m, i) }
+func (v *tsetView_[K]) step_t(i int) (K, int, bool) { return keyStep_(v.tm(), i) }
 
 // keyStep_ is step_t over the keys of a typed map or set: the live position at or after i.
 func keyStep_[K comparable, V any](m *TMap[K, V], i int) (k K, next int, ok bool) {
@@ -269,17 +270,17 @@ func (it *tmapValIter_[K, V]) next_t() V {
 }
 
 func (v *tkeysView_[K, V]) iterator_t() IteratorT[K] {
-	return &tmapKeyIter_[K, V]{tmapIter_[K, V]{m: v.m, i: v.m.first(), out: keyOut_[K, V]}}
+	return &tmapKeyIter_[K, V]{tmapIter_[K, V]{m: v.tm(), i: v.tm().first(), out: keyOut_[K, V]}}
 }
 
-func (v *tkeysView_[K, V]) step_t(i int) (k K, next int, ok bool) { return keyStep_(v.m, i) }
+func (v *tkeysView_[K, V]) step_t(i int) (k K, next int, ok bool) { return keyStep_(v.tm(), i) }
 
 func (v *tvalsView_[K, V]) iterator_t() IteratorT[V] {
-	return &tmapValIter_[K, V]{tmapIter_[K, V]{m: v.m, i: v.m.first(), out: valOut_[K, V]}}
+	return &tmapValIter_[K, V]{tmapIter_[K, V]{m: v.tm(), i: v.tm().first(), out: valOut_[K, V]}}
 }
 
 func (v *tvalsView_[K, V]) step_t(i int) (x V, next int, ok bool) {
-	m := v.m
+	m := v.tm()
 	if i == 0 {
 		i = m.first()
 	}
@@ -356,7 +357,7 @@ func (s *TSet[K]) asCollT() CollectionT[K] {
 	}
 	return s.asSetT()
 }
-func (v *tsetView_[K]) unwrap_() any { return v.s.asSet() }
+func (v *tsetView_[K]) unwrap_() any { return v.ts().asSet() }
 
 func (d *TDeque[T]) asCollT() CollectionT[T] {
 	if d == nil {
@@ -367,17 +368,6 @@ func (d *TDeque[T]) asCollT() CollectionT[T] {
 }
 func (v *tdequeFace_[T]) unwrap_() any { return v }
 
-// viewp_ is the plain erased view of the map, made when first needed: the object that the
-// map's key set, values and entry set are for typed code (under their types), and for erased
-// code too when the map is neither immutable nor sorted.
-func (m *TMap[K, V]) viewp_() *tmapView_[K, V] {
-	x := m.ext()
-	if x.view == nil {
-		x.view = &tmapView_[K, V]{m: m}
-	}
-	return x.view
-}
-
 // valuesT is values() of a typed map for typed code: the Collection of its values, which is the
 // map itself under another type (no object, no box; live, as Java's view). It serves an
 // immutable map too (every change throws); erased code and Object get what the erased map's
@@ -385,11 +375,11 @@ func (m *TMap[K, V]) viewp_() *tmapView_[K, V] {
 // A null map throws NullPointerException.
 func (m *TMap[K, V]) valuesT() CollectionT[V] {
 	_ = m.live
-	return (*tvalsView_[K, V])(m.viewp_())
+	return (*tvalsView_[K, V])(m)
 }
 func (v *tvalsView_[K, V]) unwrap_() any {
-	if v.m.imm || v.m.sorted() {
-		return v.m.asMap().values()
+	if v.tm().imm {
+		return v.tm().asMap().values()
 	}
 	return v
 }
@@ -464,7 +454,7 @@ func (v *tlistView_[T]) get_t(i int32) T      { return v.tl().get(i) }
 func (v *tlistView_[T]) add_t(x T) bool       { return v.tl().add(x) }
 func (v *tlistView_[T]) set_t(i int32, x T) T { return v.tl().set(i, x) }
 func (v *tlistView_[T]) remove_t(i int32) T   { return v.tl().removeAt(i) }
-func (v *tsetView_[K]) add_t(x K) bool        { return v.s.Add(x) }
+func (v *tsetView_[K]) add_t(x K) bool        { return v.ts().Add(x) }
 
 // (the views of a map take no element, as in Java)
 func (v *tkeysView_[K, V]) add_t(x K) bool                   { return v.add(nil) }
@@ -525,14 +515,10 @@ func (s *TSet[K]) asSetT() SetT[K] {
 	if s == nil {
 		return nil
 	}
-	x := s.ext()
-	if x.sort != nil {
+	if s.x != nil && s.x.sort != nil {
 		return s.sortedView()
 	}
-	if x.sview == nil {
-		x.sview = &tsetView_[K]{m: &s.TMap, s: s}
-	}
-	return x.sview
+	return (*tsetView_[K])(s)
 }
 
 // keySetT is keySet() of a typed map for typed code: the Set of its keys, which is the map
@@ -540,11 +526,11 @@ func (s *TSet[K]) asSetT() SetT[K] {
 // too, and erased code and Object get what the erased map's keySet() gives (unwrap_).
 func (m *TMap[K, V]) keySetT() SetT[K] {
 	_ = m.live
-	return (*tkeysView_[K, V])(m.viewp_())
+	return (*tkeysView_[K, V])(m)
 }
 func (v *tkeysView_[K, V]) unwrap_() any {
-	if v.m.imm || v.m.sorted() {
-		return v.m.asMap().keySet()
+	if v.tm().imm {
+		return v.tm().asMap().keySet()
 	}
 	return v
 }
@@ -698,60 +684,56 @@ func (m *TMap[K, V]) asMapT() MapT[K, V] {
 	if m == nil {
 		return nil
 	}
-	x := m.ext()
-	if x.sort != nil {
+	if m.x != nil && m.x.sort != nil {
 		return m.sortedView()
 	}
-	if x.view == nil {
-		x.view = &tmapView_[K, V]{m: m}
-	}
-	return x.view
+	return (*tmapView_[K, V])(m)
 }
-func (v *tmapView_[K, V]) unwrap_() any { return v.m.asMap() }
+func (v *tmapView_[K, V]) unwrap_() any { return v.tm().asMap() }
 
 func (v *tmapView_[K, V]) get_t(x any) V {
-	if k, ok := v.m.kc.try(x); ok {
-		if i := v.m.find(k); i >= 0 {
-			return v.m.vals[i]
+	if k, ok := v.tm().kc.try(x); ok {
+		if i := v.tm().find(k); i >= 0 {
+			return v.tm().vals[i]
 		}
 	}
-	return v.m.vc.null
+	return v.tm().vc.null
 }
-func (v *tmapView_[K, V]) put_t(k K, x V) V { return v.m.Put(k, x) }
+func (v *tmapView_[K, V]) put_t(k K, x V) V { return v.tm().Put(k, x) }
 func (v *tmapView_[K, V]) remove_t(x any) V {
-	if v.m.imm {
+	if v.tm().imm {
 		throwUOE_()
 	}
-	if k, ok := v.m.kc.try(x); ok {
-		if i := v.m.find(k); i >= 0 {
-			return v.m.removeAt(i)
+	if k, ok := v.tm().kc.try(x); ok {
+		if i := v.tm().find(k); i >= 0 {
+			return v.tm().removeAt(i)
 		}
 	}
-	return v.m.vc.null
+	return v.tm().vc.null
 }
-func (v *tmapView_[K, V]) keySet_t() SetT[K]        { return (*tkeysView_[K, V])(v) }
-func (v *tmapView_[K, V]) values_t() CollectionT[V] { return (*tvalsView_[K, V])(v) }
+func (v *tmapView_[K, V]) keySet_t() SetT[K]        { return (*tkeysView_[K, V])(v.tm()) }
+func (v *tmapView_[K, V]) values_t() CollectionT[V] { return (*tvalsView_[K, V])(v.tm()) }
 func (v *tmapView_[K, V]) entrySet_t() SetT[Map_EntryT[K, V]] {
-	return (*tentriesView_[K, V])(v)
+	return (*tentriesView_[K, V])(v.tm())
 }
 
 // (a sorted map casts the key, as its erased get and remove do)
 func (v *tsortedMapView_[K, V]) get_t(x any) V {
-	if i := v.m.find(v.m.kc.unbox(x)); i >= 0 {
-		return v.m.vals[i]
+	if i := v.tm().find(v.tm().kc.unbox(x)); i >= 0 {
+		return v.tm().vals[i]
 	}
-	return v.m.vc.null
+	return v.tm().vc.null
 }
-func (v *tsortedMapView_[K, V]) remove_t(x any) V { return v.m.Delete(v.m.kc.unbox(x)) }
+func (v *tsortedMapView_[K, V]) remove_t(x any) V { return v.tm().Delete(v.tm().kc.unbox(x)) }
 
 // entrySetT is entrySet() of a typed map for typed code (as keySetT, valuesT).
 func (m *TMap[K, V]) entrySetT() SetT[Map_EntryT[K, V]] {
 	_ = m.live
-	return (*tentriesView_[K, V])(m.viewp_())
+	return (*tentriesView_[K, V])(m)
 }
 func (v *tentriesView_[K, V]) unwrap_() any {
-	if v.m.imm || v.m.sorted() {
-		return v.m.asMap().entrySet()
+	if v.tm().imm {
+		return v.tm().asMap().entrySet()
 	}
 	return v
 }
@@ -776,11 +758,11 @@ func (m *TMap[K, V]) entryAt(i int) *tentryView_[K, V] {
 }
 
 func (v *tentriesView_[K, V]) iterator_t() IteratorT[Map_EntryT[K, V]] {
-	return &tmapEntryIter_[K, V]{tmapIter_[K, V]{m: v.m, i: v.m.first(), out: entryOut_[K, V]}}
+	return &tmapEntryIter_[K, V]{tmapIter_[K, V]{m: v.tm(), i: v.tm().first(), out: entryOut_[K, V]}}
 }
 
 func (v *tentriesView_[K, V]) step_t(i int) (e Map_EntryT[K, V], next int, ok bool) {
-	m := v.m
+	m := v.tm()
 	if i == 0 {
 		i = m.first()
 	}
@@ -821,12 +803,12 @@ func tlistOfT_[T any](c *tconv_[T], x Collection) *TList[T] {
 func tsetOfT_[K comparable](c *tconv_[K], x Collection) *TSet[K] {
 	switch v := x.(type) {
 	case *tsetView_[K]:
-		if v.s.imm {
-			return v.s
+		if v.ts().imm {
+			return v.ts()
 		}
 	case *tsortedSetView_[K]:
-		if v.s.imm {
-			return v.s
+		if v.ts().imm {
+			return v.ts()
 		}
 	}
 	return tsetImm_(c, cast_[*ImmutableCollection](lgBox_(x)))
@@ -836,12 +818,12 @@ func tsetOfT_[K comparable](c *tconv_[K], x Collection) *TSet[K] {
 func tmapOfT_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], x Map) *TMap[K, V] {
 	switch v := x.(type) {
 	case *tmapView_[K, V]:
-		if v.m.imm {
-			return v.m
+		if v.tm().imm {
+			return v.tm()
 		}
 	case *tsortedMapView_[K, V]:
-		if v.m.imm {
-			return v.m
+		if v.tm().imm {
+			return v.tm()
 		}
 	}
 	return tmapImm_(kc, vc, cast_[*ErasedImmutableMap](lgBox_(x)))
