@@ -139,7 +139,7 @@ type Conv struct {
 }
 
 func ConvFor(t types.Type) Conv {
-	if ReflipGeneric_(t, true) {
+	if ReflipGeneric_(t, false) {
 		return Conv{IsUnbox: func(string) bool { return false }}
 	}
 	id := func(e string) string { return e }
@@ -172,6 +172,17 @@ func ConvFor(t types.Type) Conv {
 			// a class that only inherits it has no subclasses, so the pointer is the object.
 			if o, ix, _ := types.LookupFieldOrMethod(u, true, Pkg, "self"); o != nil && len(ix) == 1 {
 				box = func(e string) string { return e + ".self()" }
+			}
+			if n.TypeArgs().Len() > 0 {
+				// A pointer to an instance of a generic type (a functional interface that is a
+				// *funcObj_[func(...)...]): the cast spells the whole type, by its alias where
+				// t is one (icast_Alias where the casts file declares it).
+				spelled := types.TypeString(t, types.RelativeTo(Pkg))
+				un := "cast_[" + spelled + "]"
+				if a, ok := t.(*types.Alias); ok && a.TypeArgs().Len() == 0 && HasFunc("icast_"+a.Obj().Name()) {
+					un = "icast_" + a.Obj().Name()
+				}
+				return Conv{box, func(e string) string { return un + "(" + e + ")" }, func(n string) bool { return n == un }, true}
 			}
 			un := "cast_[*" + name + "]"
 			if HasFunc("to_" + name) {
