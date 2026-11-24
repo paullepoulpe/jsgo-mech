@@ -3550,7 +3550,8 @@ self_ 522 -> 521, anonymous interface assertions 887 -> 882, class casts 1,070 -
 1,220 -> 1,205; no row higher.
 
 Binary (`go build ./cmd/mech`, GOENV goenv-c1): main (`m_resc_base`, built from this worktree's
-translation of caf03d23) 124,772,189 bytes; 7961ea06 (`m_resc_c7`, the gate's) 124,909,453
+translation of caf03d23) 124,772,189 bytes; 7961ea06 (`m_resc_c7`, the gate's; both deleted after
+the timing for disk space) 124,909,453
 (+137,264: the generic structs at each instantiation, not broken down). Runtime lines of the default
 build 21,807 (15.4: 21,382 for fed280c9, whose code caf03d23 has; +391 `rt_rtcls.go`, +25 `rt_nboxarg.go`, +9 `CacheBuilder.build`),
 off-mode extras 244.
@@ -3580,8 +3581,10 @@ which the default translation no longer names (ddc7a07f). Switches off (`off.sh`
 translate fresh with the switches, `tools/prune/verify.sh` with them): `J2GO_NOLIBGEN=annqual,
 ownwild2,rtcls,nboxarg` (md5 d77b2172) selftest PASS, `ok` (1.942s), the four MATCH lines as above.
 `J2GO_NOFNTYPES=1 J2GO_NOLIBGEN=all` (md5 973b5b6d): selftest PASS, `ok` (1.986s), then the link of
-`cmd/mech` failed with "no space left on device" (17.8); run again, 17.5a. The default translated
-again afterwards was 6b904c16, `dirty: 1` (`.cache`).
+`cmd/mech` failed with "no space left on device" (17.8); run again on 12a90cd6 (= 7961ea06's code plus
+this section; `off2.sh`, after one more such failure and deleting this branch's two timing binaries):
+selftest PASS, `ok` (1.959s), the four MATCH lines as above. The default translated again after each
+was 6b904c16, `dirty: 1` (`.cache`).
 
 Self-test `lang/RtCls.java` (counted in `selftest/run.sh`): piece `rtcls` 4 overriding methods at
 their types (Countdown.computeNext, ByLength.compare, an anonymous Ordering's compare, an anonymous
