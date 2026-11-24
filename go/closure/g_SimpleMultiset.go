@@ -32,11 +32,11 @@ func new_SimpleMultiset[E comparable](counts MapT[E, any]) *SimpleMultiset[E] {
 }
 
 func SimpleMultiset_create[E comparable]() *SimpleMultiset[E] {
-	return new_SimpleMultiset[E](jnewTMap_(tceT_[E](), tc_Integer).asMapT())
+	return new_SimpleMultiset[E](newTMap_(tchT_[E](), tc_Integer).asMapT())
 }
 
 func SimpleMultiset_createSorted[E comparable]() *SimpleMultiset[E] {
-	return new_SimpleMultiset[E](newTSortedMap_(tceT_[E](), tc_Integer).asMapT())
+	return new_SimpleMultiset[E](newTSortedMap_(tchT_[E](), tc_Integer).asMapT())
 }
 
 func SimpleMultiset_of[E comparable]() *SimpleMultiset[E] {
@@ -155,7 +155,7 @@ func (this *SimpleMultiset[E]) isEmpty() bool {
 }
 
 func (this *SimpleMultiset[E]) asList() ListT[E] {
-	var list *TListBuilder[E] = newTListBuilder_(tcT_[E]())
+	var list *ImmutableList_Builder[E] = immutableListBuilder_(tcT_[E]())
 	for e := range elemsT_(this.counts.entrySet_t()) {
 		for i := int32(0); i < unbox_[int32](e.getValue_t()); i++ {
 			list.add(e.getKey_t())
@@ -181,7 +181,7 @@ func (this *SimpleMultiset[E]) hashCode() int32 {
 }
 
 func (this *SimpleMultiset[E]) toString() string {
-	var parts *JTList[string] = jnewTList_(jtc_string)
+	var parts *TList[string] = newTList_(tc_string)
 	for e := range elemsT_(this.counts.entrySet_t()) {
 		var element string = objstr_(e.getKey())
 		parts.add(func() string {

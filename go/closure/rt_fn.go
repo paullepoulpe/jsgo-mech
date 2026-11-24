@@ -70,22 +70,6 @@ func Suppliers_memoize[T any](s Supplier_base[T]) Supplier_base[T] {
 	}
 }
 
-// computeIfAbsent returns the value of key k if it has one that is not null; else the value f
-// makes for the key, which becomes the key's value unless it is null.
-func (m *JTMap[K, V]) computeIfAbsent(k K, f Function[K, V]) V {
-	if m.imm != nil && m.imm != sortedMapMark_ {
-		panic(frozen_{})
-	}
-	if i := m.find(k); i >= 0 && !m.isNull(m.vals[i]) {
-		return m.vals[i]
-	}
-	v := f(k)
-	if !m.isNull(v) {
-		m.put(k, v)
-	}
-	return v
-}
-
 // asFunction is the escaper as a function of strings.
 func (this *Escaper) asFunction() Function_base[string, string] {
 	return this.escape

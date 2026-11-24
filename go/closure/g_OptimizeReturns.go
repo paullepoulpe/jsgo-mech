@@ -28,7 +28,7 @@ func (this *OptimizeReturns) process_3(externs Node, root Node, definitions *Opt
 	var logFile *LogFile = this.compiler_.createOrReopenIndexedLog(Object_getClass(this), "decisions.log", []string{})
 	defer closeResource_(logFile.self())
 	this.decisionsLog = logFile
-	var toOptimize *JTList[ListT[Node]] = jnewTList_(tc_ListT_Node_)
+	var toOptimize *TList[ListT[Node]] = newTList_(tc_ListT_Node_)
 	for entry := range elemsT_(definitions.getNameReferences()) {
 		var key string = entry.getKey_t()
 		var refs ListT[Node] = entry.getValue_t()

@@ -6,12 +6,12 @@ type ScriptNodeDeserializer struct {
 	sourceFile       *SourceFile_jscomp
 	scriptBytes      *ByteString
 	stringPool       *StringPool
-	filePool         *JTList[*SourceFile_jscomp]
+	filePool         *TList[*SourceFile_jscomp]
 	sourceMappingURL Optional[string]
 	colorPoolShard   GOptional[*ColorPool_ShardView]
 }
 
-func (this *ScriptNodeDeserializer) init_ScriptNodeDeserializer(ast *LazyAst, stringPool *StringPool, colorPoolShard GOptional[*ColorPool_ShardView], filePool *JTList[*SourceFile_jscomp]) {
+func (this *ScriptNodeDeserializer) init_ScriptNodeDeserializer(ast *LazyAst, stringPool *StringPool, colorPoolShard GOptional[*ColorPool_ShardView], filePool *TList[*SourceFile_jscomp]) {
 	this.scriptBytes = ast.getScript()
 	this.sourceFile = filePool.get((ast.getSourceFile() - 1))
 	this.sourceMappingURL = Optional_ofNullable[string](ast.getSourceMappingUrl())
@@ -20,7 +20,7 @@ func (this *ScriptNodeDeserializer) init_ScriptNodeDeserializer(ast *LazyAst, st
 	this.filePool = filePool
 }
 
-func new_ScriptNodeDeserializer(ast *LazyAst, stringPool *StringPool, colorPoolShard GOptional[*ColorPool_ShardView], filePool *JTList[*SourceFile_jscomp]) *ScriptNodeDeserializer {
+func new_ScriptNodeDeserializer(ast *LazyAst, stringPool *StringPool, colorPoolShard GOptional[*ColorPool_ShardView], filePool *TList[*SourceFile_jscomp]) *ScriptNodeDeserializer {
 	this := &ScriptNodeDeserializer{}
 	this.init_ScriptNodeDeserializer(ast, stringPool, colorPoolShard, filePool)
 	return this
@@ -413,7 +413,7 @@ func (this *ScriptNodeDeserializer_Runner) run() (ret_1 Node) {
 	}()
 	var astStream *CodedInputStream = this.owner().scriptBytes.newCodedInput()
 	astStream.setRecursionLimit(int32(2147483647))
-	var contextStack *JTList[FeatureCollector_FeatureContext] = jnewTList_(jtc_p_FeatureCollector_FeatureContext)
+	var contextStack *TList[FeatureCollector_FeatureContext] = newTList_(tc_p_FeatureCollector_FeatureContext)
 	SequencedCollection_addLastT_[FeatureCollector_FeatureContext](contextStack.asCollT(), FeatureCollector_FeatureContext_NONE)
 	var scriptNode Node = this.visit(AstNode_parseFrom(astStream, ExtensionRegistry_getEmptyRegistry().up_ExtensionRegistryLite()), contextStack, this.owner().createSourceInfoTemplate(this.owner().sourceFile))
 	scriptNode.setFeatureSet(this.featureCollector.allFeatures())
@@ -424,7 +424,7 @@ func (this *ScriptNodeDeserializer_Runner) owner() *ScriptNodeDeserializer {
 	return this.outer_
 }
 
-func (this *ScriptNodeDeserializer_Runner) visit(astNode *AstNode, contextStack *JTList[FeatureCollector_FeatureContext], sourceFileTemplate Node) Node {
+func (this *ScriptNodeDeserializer_Runner) visit(astNode *AstNode, contextStack *TList[FeatureCollector_FeatureContext], sourceFileTemplate Node) Node {
 	if (sourceFileTemplate == 0) || (astNode.getSourceFile() != 0) {
 		sourceFileTemplate = this.owner().createSourceInfoTemplate(this.owner().filePool.get((astNode.getSourceFile() - 1)))
 	}

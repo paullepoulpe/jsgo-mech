@@ -131,7 +131,7 @@ func (this *CompilerBasedTransformer_CompilerSupplier) transformed_impl(result *
 func (this *CompilerBasedTransformer_CompilerSupplier) runtime(library string) string {
 	var compiler *Compiler = this.compiler()
 	var options *CompilerOptions = this.options()
-	options.setForceLibraryInjection(jimmutableListOf_[string](jtc_string, library).asIterable())
+	options.setForceLibraryInjection(immutableListOf_[string](tc_string, library).asIterable())
 	compiler.compileSourceFile(CompilerBasedTransformer_CompilerSupplier_EXTERNS, CompilerBasedTransformer_CompilerSupplier_EMPTY, options)
 	return compiler.toSource()
 }
@@ -186,7 +186,7 @@ func CompilerBasedTransformer_CompilerSupplier_clinit() {
 
 type CompilerBasedTransformer_CompileResult struct {
 	source       string
-	errors_      *JTList[*JSError]
+	errors_      *TList[*JSError]
 	sourceMap_   string
 	transformed_ bool
 }
@@ -196,7 +196,7 @@ func (this *CompilerBasedTransformer_CompileResult) zero_CompilerBasedTransforme
 	this.sourceMap_ = nullstr_
 }
 
-func (this *CompilerBasedTransformer_CompileResult) init_CompilerBasedTransformer_CompileResult(source string, errors *JTList[*JSError], transformed bool, sourceMap string) {
+func (this *CompilerBasedTransformer_CompileResult) init_CompilerBasedTransformer_CompileResult(source string, errors *TList[*JSError], transformed bool, sourceMap string) {
 	this.source = source
 	if errors == nil {
 		panic(new_NullPointerException_0())
@@ -206,7 +206,7 @@ func (this *CompilerBasedTransformer_CompileResult) init_CompilerBasedTransforme
 	this.sourceMap_ = sourceMap
 }
 
-func new_CompilerBasedTransformer_CompileResult(source string, errors *JTList[*JSError], transformed bool, sourceMap string) *CompilerBasedTransformer_CompileResult {
+func new_CompilerBasedTransformer_CompileResult(source string, errors *TList[*JSError], transformed bool, sourceMap string) *CompilerBasedTransformer_CompileResult {
 	this := &CompilerBasedTransformer_CompileResult{}
 	this.zero_CompilerBasedTransformer_CompileResult()
 	this.init_CompilerBasedTransformer_CompileResult(source, errors, transformed, sourceMap)

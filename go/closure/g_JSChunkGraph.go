@@ -30,7 +30,7 @@ func new_JSChunkGraph(chunks []*JSChunk, chunksByDepth ListT[ListT[*JSChunk]]) *
 }
 
 func JSChunkGraph_createFromArray(chunksInDepOrder []*JSChunk) *Outcome_base[*JSChunkGraph] {
-	return JSChunkGraph_create(listAs_(jtc_p_JSChunk, Arrays_asList(arrmap_(chunksInDepOrder, func(v_ *JSChunk) any { return obj_(v_) }))))
+	return JSChunkGraph_create(listAs_(tc_p_JSChunk, Arrays_asList(arrmap_(chunksInDepOrder, func(v_ *JSChunk) any { return obj_(v_) }))))
 }
 
 func JSChunkGraph_create(chunksInDepOrder ListT[*JSChunk]) *Outcome_base[*JSChunkGraph] {
@@ -55,7 +55,7 @@ func JSChunkGraph_create(chunksInDepOrder ListT[*JSChunk]) *Outcome_base[*JSChun
 }
 
 func JSChunkGraph_initChunksByDepth(chunks []*JSChunk) *Outcome_base[ListT[ListT[*JSChunk]]] {
-	var tmpChunksByDepth *JTList[ListT[*JSChunk]] = jnewTList_(tc_ListT_p_JSChunk_)
+	var tmpChunksByDepth *TList[ListT[*JSChunk]] = newTList_(tc_ListT_p_JSChunk_)
 	for chunkIndex := int32(0); chunkIndex < int32(len(chunks)); chunkIndex++ {
 		var chunk *JSChunk = chunks[chunkIndex]
 		if chunk.getDepth() != -1 {
@@ -73,7 +73,7 @@ func JSChunkGraph_initChunksByDepth(chunks []*JSChunk) *Outcome_base[ListT[ListT
 		}
 		chunk.setDepth(depth)
 		if depth == tmpChunksByDepth.size() {
-			tmpChunksByDepth.add(jnewTList_(jtc_p_JSChunk).asListT())
+			tmpChunksByDepth.add(newTList_(tc_p_JSChunk).asListT())
 		}
 		tmpChunksByDepth.get(depth).add_t(chunk)
 	}
@@ -85,20 +85,20 @@ func JSChunkGraph_makeWeakChunk(chunksInDepOrder ListT[*JSChunk]) ListT[*JSChunk
 	for chunk := range elemsT_(chunksInDepOrder) {
 		if chunk.getName() == JSChunk_WEAK_CHUNK_NAME {
 			hasWeakChunk = true
-			var allOtherChunks *JTSet[*JSChunk] = jtsetFrom_(jtc_p_JSChunk, Collection(List_un_(chunksInDepOrder)))
-			allOtherChunks.remove(chunk)
+			var allOtherChunks *TSet[*JSChunk] = tsetFrom_(tc_p_JSChunk, Collection(List_un_(chunksInDepOrder)), false)
+			allOtherChunks.Delete(chunk)
 			if !chunk.getAllDependencies().containsAll(Collection(allOtherChunks.asSetT())) {
 				panic(new_IllegalStateException_String(objstr_("A weak chunk already exists but it does not depend on every other chunk.")))
 			}
-			if chunk.getAllDependencies().size() != allOtherChunks.size() {
+			if chunk.getAllDependencies().size() != allOtherChunks.Len() {
 				panic(new_IllegalStateException_String(objstr_("The weak chunk cannot have extra dependencies.")))
 			}
 			break
 		}
 	}
 	if hasWeakChunk {
-		var misplacedWeakFiles *JTList[string] = jnewTList_(jtc_string)
-		var misplacedStrongFiles *JTList[string] = jnewTList_(jtc_string)
+		var misplacedWeakFiles *TList[string] = newTList_(tc_string)
+		var misplacedStrongFiles *TList[string] = newTList_(tc_string)
 		for chunk := range elemsT_(chunksInDepOrder) {
 			var isWeakChunk bool = (chunk.getName() == JSChunk_WEAK_CHUNK_NAME)
 			for input := range elemsT_(chunk.getInputs()) {
@@ -125,7 +125,7 @@ func JSChunkGraph_makeWeakChunk(chunksInDepOrder ListT[*JSChunk]) ListT[*JSChunk
 		for chunk := range elemsT_(chunksInDepOrder) {
 			weakChunk.addDependency(chunk)
 		}
-		chunksInDepOrder = jtlistFrom_(jtc_p_JSChunk, Collection(List_un_(chunksInDepOrder))).asListT()
+		chunksInDepOrder = tlistFrom_(tc_p_JSChunk, Collection(List_un_(chunksInDepOrder))).asListT()
 		chunksInDepOrder.add_t(weakChunk)
 	}
 	return chunksInDepOrder
@@ -159,7 +159,7 @@ func (this *JSChunkGraph) initSubtreeSize() []int32 {
 }
 
 func (this *JSChunkGraph) getAllInputs() IterableT[*CompilerInput] {
-	return iterableAs_(jtc_p_CompilerInput, Iterables_concat_Iterable(Iterables_transform(Iterable(Arrays_asList(arrmap_(this.chunks, func(v_ *JSChunk) any { return obj_(v_) }))), Function_base[any, any](func(p0 any) any { return lgBox_(p0.(*JSChunk).getInputs()) }))))
+	return iterableAs_(tc_p_CompilerInput, Iterables_concat_Iterable(Iterables_transform(Iterable(Arrays_asList(arrmap_(this.chunks, func(v_ *JSChunk) any { return obj_(v_) }))), Function_base[any, any](func(p0 any) any { return lgBox_(p0.(*JSChunk).getInputs()) }))))
 }
 
 func (this *JSChunkGraph) getInputCount() int32 {
@@ -171,7 +171,7 @@ func (this *JSChunkGraph) getInputCount() int32 {
 }
 
 func (this *JSChunkGraph) getAllChunks() IterableT[*JSChunk] {
-	return iterableAs_(jtc_p_JSChunk, Iterable(Arrays_asList(arrmap_(this.chunks, func(v_ *JSChunk) any { return obj_(v_) }))))
+	return iterableAs_(tc_p_JSChunk, Iterable(Arrays_asList(arrmap_(this.chunks, func(v_ *JSChunk) any { return obj_(v_) }))))
 }
 
 func (this *JSChunkGraph) getIntegralChunkArrayForSerialization() []*JSChunk {
@@ -187,10 +187,10 @@ func (this *JSChunkGraph) getChunkByName(name string) *JSChunk {
 	return nil
 }
 
-func (this *JSChunkGraph) getChunksByName() *JTMap[string, *JSChunk] {
-	var result *JTMap[string, *JSChunk] = jnewTMap_(jtc_string, jtc_p_JSChunk)
+func (this *JSChunkGraph) getChunksByName() *TMap[string, *JSChunk] {
+	var result *TMap[string, *JSChunk] = newTMap_(tc_string, tc_p_JSChunk)
 	for _, m := range this.chunks {
-		result.put(m.getName(), m)
+		result.Put(m.getName(), m)
 	}
 	return result
 }
@@ -207,21 +207,21 @@ func (this *JSChunkGraph) toJson() *SimpleJsonValue {
 	var chunks *SimpleJsonValue = SimpleJsonValue_newArray()
 	for chunk := range elemsT_(this.getAllChunks()) {
 		var node *SimpleJsonValue = SimpleJsonValue_newObject()
-		node.members().put("name", SimpleJsonValue_ofString(chunk.getName()))
+		node.members().Put("name", SimpleJsonValue_ofString(chunk.getName()))
 		var deps *SimpleJsonValue = SimpleJsonValue_newArray()
-		node.members().put("dependencies", deps)
+		node.members().Put("dependencies", deps)
 		it_3 := chunk.getDependencies().each()
 		for it_3.next() {
 			var m *JSChunk = it_3.v
 			deps.elements().add(SimpleJsonValue_ofString(m.getName()))
 		}
 		var transitiveDeps *SimpleJsonValue = SimpleJsonValue_newArray()
-		node.members().put("transitive-dependencies", transitiveDeps)
+		node.members().Put("transitive-dependencies", transitiveDeps)
 		for m := range elemsT_(this.getTransitiveDepsDeepestFirst(chunk)) {
 			transitiveDeps.elements().add(SimpleJsonValue_ofString(m.getName()))
 		}
 		var inputs *SimpleJsonValue = SimpleJsonValue_newArray()
-		node.members().put("inputs", inputs)
+		node.members().Put("inputs", inputs)
 		for input := range elemsT_(chunk.getInputs()) {
 			inputs.elements().add(SimpleJsonValue_ofString(input.getSourceFile().getName()))
 		}
@@ -296,7 +296,7 @@ func (this *JSChunkGraph) getDeepestCommonDependencyInclusive(chunks CollectionT
 }
 
 func (this *JSChunkGraph) getTransitiveDepsDeepestFirst(m *JSChunk) ListT[*JSChunk] {
-	return listAs_(jtc_p_JSChunk, JSChunkGraph_InverseDepthComparator_INSTANCE.sortedCopy(Iterable(Set_un_(this.getTransitiveDeps(m)))))
+	return listAs_(tc_p_JSChunk, JSChunkGraph_InverseDepthComparator_INSTANCE.sortedCopy(Iterable(Set_un_(this.getTransitiveDeps(m)))))
 }
 
 func (this *JSChunkGraph) getTransitiveDeps(m *JSChunk) SetT[*JSChunk] {
@@ -307,7 +307,7 @@ func JSChunkGraph_moveMarkedWeakSources(weakChunk *JSChunk, inputs IterableT[*Co
 	if weakChunk == nil {
 		panic(new_NullPointerException_0())
 	}
-	var allInputs *JTList[*CompilerInput] = jimmutableListCopyOf_(jtc_p_CompilerInput, Iterable_un_(inputs))
+	var allInputs *TList[*CompilerInput] = immutableListCopyOf_(tc_p_CompilerInput, Iterable_un_(inputs))
 	it_1 := allInputs.each()
 	for it_1.next() {
 		var i *CompilerInput = it_1.v
@@ -325,28 +325,28 @@ func JSChunkGraph_moveMarkedWeakSources(weakChunk *JSChunk, inputs IterableT[*Co
 }
 
 func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, dependencyOptions *DependencyOptions) *Outcome_base[*JSChunkGraph_DependencyManagementResult] {
-	var originalInputs *JTList[*CompilerInput] = jimmutableListCopyOf_(jtc_p_CompilerInput, Iterable_un_(this.getAllInputs()))
+	var originalInputs *TList[*CompilerInput] = immutableListCopyOf_(tc_p_CompilerInput, Iterable_un_(this.getAllInputs()))
 	var sorter *SortedDependencies[*CompilerInput] = new_SortedDependencies[*CompilerInput](originalInputs.asListT())
 	var entryPointInputsRes *Outcome_base[SetT[*CompilerInput]] = this.createEntryPointInputs(compiler, dependencyOptions, this.getAllInputs(), sorter)
 	if entryPointInputsRes.isErr() {
 		return Outcome_base_err[*JSChunkGraph_DependencyManagementResult](entryPointInputsRes.error())
 	}
 	var entryPointInputs SetT[*CompilerInput] = entryPointInputsRes.get()
-	var inputsByProvide *JTMap[string, SetT[*CompilerInput]] = jnewTMap_(jtc_string, tc_SetT_p_CompilerInput_)
+	var inputsByProvide *TMap[string, SetT[*CompilerInput]] = newTMap_(tc_string, tc_SetT_p_CompilerInput_)
 	it_1 := originalInputs.each()
 	for it_1.next() {
 		var input *CompilerInput = it_1.v
 		for provide := range elemsT_(input.getKnownProvides()) {
-			inputsByProvide.computeIfAbsent(provide, Function[string, SetT[*CompilerInput]](func(k string) SetT[*CompilerInput] {
-				return jnewTSet_(jtc_p_CompilerInput).asSetT()
+			inputsByProvide.ComputeIfAbsent(provide, Function[string, SetT[*CompilerInput]](func(k string) SetT[*CompilerInput] {
+				return newTSet_(tc_p_CompilerInput).asSetT()
 			}))
-			inputsByProvide.get(provide).add_t(input)
+			inputsByProvide.Get(provide).add_t(input)
 		}
 		var chunkName string = input.getPath().toModuleName()
-		inputsByProvide.computeIfAbsent(chunkName, Function[string, SetT[*CompilerInput]](func(k string) SetT[*CompilerInput] {
-			return jnewTSet_(jtc_p_CompilerInput).asSetT()
+		inputsByProvide.ComputeIfAbsent(chunkName, Function[string, SetT[*CompilerInput]](func(k string) SetT[*CompilerInput] {
+			return newTSet_(tc_p_CompilerInput).asSetT()
 		}))
-		inputsByProvide.get(chunkName).add_t(input)
+		inputsByProvide.Get(chunkName).add_t(input)
 	}
 	it_5 := originalInputs.each()
 	for it_5.next() {
@@ -354,8 +354,8 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 		it_7 := input.getDynamicRequires().each()
 		for it_7.next() {
 			var require string = it_7.v
-			if inputsByProvide.containsKey(require) {
-				entryPointInputs.addAll(Collection(Set_un_(inputsByProvide.get(require))))
+			if inputsByProvide.Has(require) {
+				entryPointInputs.addAll(Collection(Set_un_(inputsByProvide.Get(require))))
 			}
 		}
 	}
@@ -365,12 +365,12 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 		it_11 := input.getRequireDynamicImports().each()
 		for it_11.next() {
 			var require string = it_11.v
-			if inputsByProvide.containsKey(require) {
-				entryPointInputs.addAll(Collection(Set_un_(inputsByProvide.get(require))))
+			if inputsByProvide.Has(require) {
+				entryPointInputs.addAll(Collection(Set_un_(inputsByProvide.Get(require))))
 			}
 		}
 	}
-	var absoluteOrder *JTList[*CompilerInput] = tlistOfT_(jtc_p_CompilerInput, sorter.getStrongDependenciesOf(originalInputs.asListT(), dependencyOptions.shouldSort()))
+	var absoluteOrder *TList[*CompilerInput] = tlistOfT_(tc_p_CompilerInput, sorter.getStrongDependenciesOf(originalInputs.asListT(), dependencyOptions.shouldSort()))
 	var entryPointInputsPerChunk *SimpleListMultimap[*JSChunk, *CompilerInput] = SimpleListMultimap_create[*JSChunk, *CompilerInput]()
 	for input := range elemsT_(entryPointInputs) {
 		var chunk *JSChunk = input.getChunk()
@@ -382,25 +382,25 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 	for chunk := range elemsT_(this.getAllChunks()) {
 		chunk.removeAll()
 	}
-	var orderedInputs *JTList[*CompilerInput] = jnewTList_(jtc_p_CompilerInput)
-	var reachedInputs *JTSet[*CompilerInput] = jnewTSet_(jtc_p_CompilerInput)
+	var orderedInputs *TList[*CompilerInput] = newTList_(tc_p_CompilerInput)
+	var reachedInputs *TSet[*CompilerInput] = newTSet_(tc_p_CompilerInput)
 	for _, chunk := range this.chunks {
-		var transitiveClosure *JTList[*CompilerInput]
+		var transitiveClosure *TList[*CompilerInput]
 		if dependencyOptions.shouldSort() && dependencyOptions.shouldPrune() {
-			transitiveClosure = jnewTList_(jtc_p_CompilerInput)
-			var inputsNotYetReached *JTSet[*CompilerInput] = jtsetFrom_(jtc_p_CompilerInput, Collection(originalInputs.asList()))
+			transitiveClosure = newTList_(tc_p_CompilerInput)
+			var inputsNotYetReached *TSet[*CompilerInput] = tsetFrom_(tc_p_CompilerInput, Collection(originalInputs.asList()), false)
 			for entryPoint := range elemsT_(entryPointInputsPerChunk.get(chunk)) {
 				transitiveClosure.asListT().addAll(Collection(this.getDepthFirstDependenciesOf(entryPoint, inputsNotYetReached, inputsByProvide).asList()))
 			}
 			it_20 := transitiveClosure.each()
 			for it_20.next() {
 				var orderedInput *CompilerInput = it_20.v
-				if reachedInputs.add(orderedInput) {
+				if reachedInputs.Add(orderedInput) {
 					orderedInputs.add(orderedInput)
 				}
 			}
 		} else {
-			transitiveClosure = tlistOfT_(jtc_p_CompilerInput, sorter.getStrongDependenciesOf(entryPointInputsPerChunk.get(chunk), dependencyOptions.shouldSort()))
+			transitiveClosure = tlistOfT_(tc_p_CompilerInput, sorter.getStrongDependenciesOf(entryPointInputsPerChunk.get(chunk), dependencyOptions.shouldSort()))
 		}
 		it_22 := transitiveClosure.each()
 		for it_22.next() {
@@ -425,7 +425,7 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 		panic(new_NullPointerException_0())
 	}
 	if dependencyOptions.shouldPrune() {
-		var weakInputs *JTList[*CompilerInput] = tlistOfT_(jtc_p_CompilerInput, sorter.getSortedWeakDependenciesOf(orderedInputs.asListT()))
+		var weakInputs *TList[*CompilerInput] = tlistOfT_(tc_p_CompilerInput, sorter.getSortedWeakDependenciesOf(orderedInputs.asListT()))
 		it_24 := weakInputs.each()
 		for it_24.next() {
 			var i *CompilerInput = it_24.v
@@ -447,18 +447,18 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 			chunk.addCompilerInput(input)
 		}
 	}
-	return Outcome_base_ok_Object[*JSChunkGraph_DependencyManagementResult](new_JSChunkGraph_DependencyManagementResult(immutableListCopyOfT_(jtc_p_CompilerInput, orderedInputs), sorter, jimmutableSetCopyOf_(jtc_p_CompilerInput, Collection(Set_un_(entryPointInputs)))))
+	return Outcome_base_ok_Object[*JSChunkGraph_DependencyManagementResult](new_JSChunkGraph_DependencyManagementResult(immutableListCopyOfT_(tc_p_CompilerInput, orderedInputs), sorter, immutableSetCopyOf_(tc_p_CompilerInput, Collection(Set_un_(entryPointInputs)))))
 }
 
-func (this *JSChunkGraph) getDepthFirstDependenciesOf(rootInput *CompilerInput, unreachedInputs *JTSet[*CompilerInput], inputsByProvide *JTMap[string, SetT[*CompilerInput]]) *JTList[*CompilerInput] {
-	var orderedInputs *JTList[*CompilerInput] = jnewTList_(jtc_p_CompilerInput)
-	if !unreachedInputs.remove(rootInput) {
+func (this *JSChunkGraph) getDepthFirstDependenciesOf(rootInput *CompilerInput, unreachedInputs *TSet[*CompilerInput], inputsByProvide *TMap[string, SetT[*CompilerInput]]) *TList[*CompilerInput] {
+	var orderedInputs *TList[*CompilerInput] = newTList_(tc_p_CompilerInput)
+	if !unreachedInputs.Delete(rootInput) {
 		return orderedInputs
 	}
 	for importedNamespace := range elemsT_(rootInput.getRequiredSymbols()) {
-		if inputsByProvide.containsKey(importedNamespace) {
-			for input := range elemsT_(inputsByProvide.get(importedNamespace)) {
-				if unreachedInputs.contains(input) {
+		if inputsByProvide.Has(importedNamespace) {
+			for input := range elemsT_(inputsByProvide.Get(importedNamespace)) {
+				if unreachedInputs.Has(input) {
 					orderedInputs.asListT().addAll(Collection(this.getDepthFirstDependenciesOf(input, unreachedInputs, inputsByProvide).asList()))
 				}
 			}
@@ -469,19 +469,19 @@ func (this *JSChunkGraph) getDepthFirstDependenciesOf(rootInput *CompilerInput, 
 }
 
 func (this *JSChunkGraph) createEntryPointInputs(compiler *AbstractCompiler, dependencyOptions *DependencyOptions, inputs IterableT[*CompilerInput], sorter *SortedDependencies[*CompilerInput]) *Outcome_base[SetT[*CompilerInput]] {
-	var entryPointInputs *JTSet[*CompilerInput] = jnewTSet_(jtc_p_CompilerInput)
-	var chunksByName *JTMap[string, *JSChunk] = this.getChunksByName()
+	var entryPointInputs *TSet[*CompilerInput] = newTSet_(tc_p_CompilerInput)
+	var chunksByName *TMap[string, *JSChunk] = this.getChunksByName()
 	if dependencyOptions.shouldPrune() {
 		var baseJs *CompilerInput = sorter.maybeGetInputProviding("goog")
 		if baseJs != nil {
-			entryPointInputs.add(baseJs)
+			entryPointInputs.Add(baseJs)
 		}
 		if !dependencyOptions.shouldDropMoochers() {
 			for entryPointInput := range elemsT_(sorter.getInputsWithoutProvides()) {
 				if entryPointInput.getSourceFile().isWeak() {
 					compiler.report(JSError_make_DiagnosticType_StringArr(JSChunkGraph_IMPLICIT_WEAK_ENTRY_POINT_ERROR, []string{entryPointInput.getSourceFile().getName()}))
 				} else {
-					entryPointInputs.add(entryPointInput)
+					entryPointInputs.Add(entryPointInput)
 				}
 			}
 		}
@@ -499,7 +499,7 @@ func (this *JSChunkGraph) createEntryPointInputs(compiler *AbstractCompiler, dep
 					entryPointInput = inputRes.get()
 				}
 			} else {
-				var chunk *JSChunk = chunksByName.get(entryPoint.moduleName())
+				var chunk *JSChunk = chunksByName.Get(entryPoint.moduleName())
 				if chunk == nil {
 					return Outcome_base_err[SetT[*CompilerInput]](new_JSChunkGraph_MissingChunkException(entryPoint.moduleName()).up_Throwable())
 				} else {
@@ -514,7 +514,7 @@ func (this *JSChunkGraph) createEntryPointInputs(compiler *AbstractCompiler, dep
 			if entryPointInput.getSourceFile().isWeak() {
 				compiler.report(JSError_make_DiagnosticType_StringArr(JSChunkGraph_EXPLICIT_WEAK_ENTRY_POINT_ERROR, []string{entryPointInput.getSourceFile().getName()}))
 			} else {
-				entryPointInputs.add(entryPointInput)
+				entryPointInputs.Add(entryPointInput)
 			}
 		}
 	} else {
@@ -574,24 +574,24 @@ func JSChunkGraph_clinit() {
 }
 
 type JSChunkGraph_DependencyManagementResult struct {
-	orderedInputs_    *JTList[*CompilerInput]
+	orderedInputs_    *TList[*CompilerInput]
 	sorter_           *SortedDependencies[*CompilerInput]
-	entryPointInputs_ *JTSet[*CompilerInput]
+	entryPointInputs_ *TSet[*CompilerInput]
 }
 
-func (this *JSChunkGraph_DependencyManagementResult) init_JSChunkGraph_DependencyManagementResult(orderedInputs *JTList[*CompilerInput], sorter *SortedDependencies[*CompilerInput], entryPointInputs *JTSet[*CompilerInput]) {
+func (this *JSChunkGraph_DependencyManagementResult) init_JSChunkGraph_DependencyManagementResult(orderedInputs *TList[*CompilerInput], sorter *SortedDependencies[*CompilerInput], entryPointInputs *TSet[*CompilerInput]) {
 	this.orderedInputs_ = orderedInputs
 	this.sorter_ = sorter
 	this.entryPointInputs_ = entryPointInputs
 }
 
-func new_JSChunkGraph_DependencyManagementResult(orderedInputs *JTList[*CompilerInput], sorter *SortedDependencies[*CompilerInput], entryPointInputs *JTSet[*CompilerInput]) *JSChunkGraph_DependencyManagementResult {
+func new_JSChunkGraph_DependencyManagementResult(orderedInputs *TList[*CompilerInput], sorter *SortedDependencies[*CompilerInput], entryPointInputs *TSet[*CompilerInput]) *JSChunkGraph_DependencyManagementResult {
 	this := &JSChunkGraph_DependencyManagementResult{}
 	this.init_JSChunkGraph_DependencyManagementResult(orderedInputs, sorter, entryPointInputs)
 	return this
 }
 
-func (this *JSChunkGraph_DependencyManagementResult) orderedInputs() *JTList[*CompilerInput] {
+func (this *JSChunkGraph_DependencyManagementResult) orderedInputs() *TList[*CompilerInput] {
 	return this.orderedInputs_
 }
 
@@ -599,7 +599,7 @@ func (this *JSChunkGraph_DependencyManagementResult) sorter() *SortedDependencie
 	return this.sorter_
 }
 
-func (this *JSChunkGraph_DependencyManagementResult) entryPointInputs() *JTSet[*CompilerInput] {
+func (this *JSChunkGraph_DependencyManagementResult) entryPointInputs() *TSet[*CompilerInput] {
 	return this.entryPointInputs_
 }
 

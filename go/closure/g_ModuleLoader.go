@@ -6,7 +6,7 @@ import "strings"
 
 type ModuleLoader struct {
 	errorHandler    ErrorHandler
-	moduleRootPaths *JTList[string]
+	moduleRootPaths *TList[string]
 	pathResolver    ModuleLoader_PathResolver
 	pathEscaper     ModuleLoader_PathEscaper
 	moduleResolver  *ModuleResolver
@@ -32,7 +32,7 @@ func (this *ModuleLoader) init_ModuleLoader(builder *ModuleLoader_Builder) {
 	if builder.inputs == nil {
 		panic(new_NullPointerException_0())
 	}
-	var modulePaths *JTSet[string] = this.resolvePaths(builder.inputs)
+	var modulePaths *TSet[string] = this.resolvePaths(builder.inputs)
 	this.moduleResolver = builder.factory.create(modulePaths.asSetT(), this.moduleRootPaths.asListT(), this.errorHandler, this.pathEscaper)
 }
 
@@ -46,7 +46,7 @@ func ModuleLoader_builder() *ModuleLoader_Builder {
 	return new_ModuleLoader_Builder()
 }
 
-func (this *ModuleLoader) getPackageJsonMainEntries() *JTMap[string, string] {
+func (this *ModuleLoader) getPackageJsonMainEntries() *TMap[string, string] {
 	return this.moduleResolver.getPackageJsonMainEntries()
 }
 
@@ -70,7 +70,7 @@ func ModuleLoader_isPathIdentifier(name string) bool {
 	return JString_contains_s(name, ModuleLoader_MODULE_SLASH)
 }
 
-func (this *ModuleLoader) createRootPaths(roots IterableT[string]) *JTList[string] {
+func (this *ModuleLoader) createRootPaths(roots IterableT[string]) *TList[string] {
 	var result ImmutableSortedSet_BuilderOf[string] = new_ImmutableSortedSet_Builder(func() Comparator[any] {
 		f_ := ModuleLoader_BEST_MATCH_PATH_ORDERING
 		if f_ == nil {
@@ -87,11 +87,11 @@ func (this *ModuleLoader) createRootPaths(roots IterableT[string]) *JTList[strin
 			return strobj_(n)
 		}())
 	}
-	return jtlistImm_(jtc_string, lgBox_(setAs_(jtc_string, ImmutableCollection_as_Set(result.build()))).(*ImmutableSortedSet).asList())
+	return tlistImm_(tc_string, lgBox_(setAs_(tc_string, ImmutableCollection_as_Set(result.build()))).(*ImmutableSortedSet).asList())
 }
 
-func (this *ModuleLoader) resolvePaths(inputs IterableT[DependencyInfo_]) *JTSet[string] {
-	var sortedModulePaths *JTList[string] = jnewTList_(jtc_string)
+func (this *ModuleLoader) resolvePaths(inputs IterableT[DependencyInfo_]) *TSet[string] {
+	var sortedModulePaths *TList[string] = newTList_(tc_string)
 	for input := range elemsT_(inputs) {
 		var p string = this.pathEscaper.escape(this.pathResolver.apply(input.getName()))
 		var n string = ModuleLoader_normalize(p, this.moduleRootPaths.asIterable())
@@ -107,7 +107,7 @@ func (this *ModuleLoader) resolvePaths(inputs IterableT[DependencyInfo_]) *JTSet
 	if dupeModulePaths.size() != dupeModulePaths.elementSet().size() {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("Duplicate module paths after resolving: %s", []any{dupeModulePaths})))
 	}
-	return jimmutableSetCopyOf_(jtc_string, Collection(Set_un_(dupeModulePaths.elementSet())))
+	return immutableSetCopyOf_(tc_string, Collection(Set_un_(dupeModulePaths.elementSet())))
 }
 
 func ModuleLoader_normalize(path string, moduleRootPaths IterableT[string]) string {
@@ -185,7 +185,7 @@ func ModuleLoader_clinit() {
 	ModuleLoader_INVALID_MODULE_PATH = DiagnosticType_error("JSC_INVALID_MODULE_PATH", "Invalid module path \"{0}\" for resolution mode \"{1}\"")
 	ModuleLoader_BEST_MATCH_PATH_ORDERING = Comparator_comparingInt[string](ToIntFunction[string](func(p0 string) int32 { return String_length(p0) })).reversed().thenComparing_Comparator(Comparator_naturalOrder[string]())
 	ModuleLoader_NOOP_ERROR_HANDER = lambda_ModuleLoader_clinit_1_
-	ModuleLoader_EMPTY = ModuleLoader_builder().setModuleRoots(jtlistEmptyImm_(jtc_string).asIterable()).setInputs(jtlistEmptyImm_(tc_DependencyInfo_).asIterable()).setFactory(BrowserModuleResolver_FACTORY).build()
+	ModuleLoader_EMPTY = ModuleLoader_builder().setModuleRoots(tlistEmptyImm_(tc_string).asIterable()).setInputs(tlistEmptyImm_(tc_DependencyInfo_).asIterable()).setFactory(BrowserModuleResolver_FACTORY).build()
 
 }
 

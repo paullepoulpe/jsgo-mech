@@ -1,0 +1,179 @@
+diff --git a/go/closure/rt_base.go b/go/closure/rt_base.go
+index 848bf882..a7420221 100644
+--- a/go/closure/rt_base.go
++++ b/go/closure/rt_base.go
+@@ -529,6 +529,18 @@ func (this *Optional_base) or_Optional(o *Optional_base) *Optional_base {
+ 	return o
+ }
+ 
++// transform_f is transform of a lambda, as a Go func value (post-flip step funcparams).
++func (this *Optional_base) transform_f(f func(any) any) *Optional_base {
++	if !this.present {
++		return this
++	}
++	r := f(this.value)
++	if r == nil {
++		nullFail_("the Function passed to Optional.transform() must not return null.")
++	}
++	return &Optional_base{true, r}
++}
++
+ func (this *Optional_base) transform(f Function_base) *Optional_base {
+ 	if f == nil {
+ 		panic(new_NullPointerException_0().self())
+@@ -677,6 +689,14 @@ func (this Optional[T]) ifPresent(c Consumer) {
+ 	}
+ }
+ 
++// ifPresent_f is ifPresent of a lambda, as a Go func value (post-flip step funcparams).
++func (this Optional[T]) ifPresent_f(c func(any)) {
++	this.nn_()
++	if this.present {
++		c(this.content_())
++	}
++}
++
+ func (this Optional[T]) isEmpty() bool   { this.nn_(); return !this.present }
+ func (this Optional[T]) isPresent() bool { this.nn_(); return this.present }
+ 
+@@ -740,16 +760,22 @@ type identityFunction_ struct{}
+ 
+ type memoizingSupplier_ struct {
+ 	delegate Supplier_base
++	fn       func() any // the delegate of Suppliers_memoize_f
+ 	done     bool
+ 	value    any
+ }
+ 
+ func (this *memoizingSupplier_) get() any {
+ 	if !this.done {
+-		v := this.delegate.get()
++		var v any
++		if this.fn != nil {
++			v = this.fn()
++		} else {
++			v = this.delegate.get()
++		}
+ 		this.value = v
+ 		this.done = true
+-		this.delegate = nil
++		this.delegate, this.fn = nil, nil
+ 	}
+ 	return this.value
+ }
+@@ -758,6 +784,9 @@ func (this *memoizingSupplier_) toString() string {
+ 	if this.done {
+ 		return "Suppliers.memoize(<supplier that returned " + objstr_(this.value) + ">)"
+ 	}
++	if this.fn != nil {
++		return "Suppliers.memoize(<lambda>)" // Java prints the lambda's class and identity hash
++	}
+ 	return "Suppliers.memoize(" + objstr_(this.delegate) + ")"
+ }
+ 
+@@ -771,6 +800,12 @@ func Suppliers_memoize(s Supplier_base) Supplier_base {
+ 	return &memoizingSupplier_{delegate: s}
+ }
+ 
++// Suppliers_memoize_f is Suppliers_memoize of a lambda, as a Go func value (post-flip step
++// funcparams): a lambda is never a memoizing supplier, nor null.
++func Suppliers_memoize_f(s func() any) Supplier_base {
++	return &memoizingSupplier_{fn: s}
++}
++
+ // ---- Throwables
+ 
+ func Throwables_throwIfUnchecked(t *Throwable) {
+diff --git a/go/closure/rt_base_text.go b/go/closure/rt_base_text.go
+index 44a46ec5..d69ed220 100644
+--- a/go/closure/rt_base_text.go
++++ b/go/closure/rt_base_text.go
+@@ -523,6 +523,13 @@ func (this *AtomicIntegerArray) updateAndGet(i int32, f IntUnaryOperator) int32
+ 	return v
+ }
+ 
++// updateAndGet_f is updateAndGet of a lambda, as a Go func value (post-flip step funcparams).
++func (this *AtomicIntegerArray) updateAndGet_f(i int32, f func(int32) int32) int32 {
++	v := f(this.a[i])
++	this.a[i] = v
++	return v
++}
++
+ func (this *AtomicIntegerArray) toString() string {
+ 	parts := make([]string, len(this.a))
+ 	for i, v := range this.a {
+diff --git a/go/closure/rt_coll.go b/go/closure/rt_coll.go
+index 5d6575e9..e94e39cc 100644
+--- a/go/closure/rt_coll.go
++++ b/go/closure/rt_coll.go
+@@ -1672,6 +1672,20 @@ func Comparator_comparing_Function_Comparator(f Function, c Comparator) Comparat
+ 	return &keyCmp_{key: f, c: c}
+ }
+ 
++// keyCmpF_ is Comparator.comparing(key, c) of two lambdas, as Go func values.
++type keyCmpF_ struct {
++	key func(any) any
++	c   func(any, any) int32
++}
++
++func (k *keyCmpF_) compare(a, b any) int32 { return k.c(k.key(a), k.key(b)) }
++
++// Comparator_comparing_Function_Comparator_f is Comparator_comparing_Function_Comparator of
++// lambdas, as Go func values (post-flip step funcparams).
++func Comparator_comparing_Function_Comparator_f(f func(any) any, c func(any, any) int32) Comparator {
++	return &keyCmpF_{key: f, c: c}
++}
++
+ func Comparator_comparingInt(f ToIntFunction) Comparator {
+ 	if fn, ok := f.(*ToIntFunction_fn); ok && fn != nil {
+ 		return &intKeyCmp_{key: fn.f}
+@@ -2106,6 +2120,13 @@ func Arrays_setAll(a []any, f IntFunction) {
+ 	}
+ }
+ 
++// Arrays_setAll_f is Arrays_setAll of a lambda, as a Go func value (post-flip step funcparams).
++func Arrays_setAll_f(a []any, f func(int32) any) {
++	for i := range a {
++		a[i] = f(int32(i))
++	}
++}
++
+ func Arrays_sort(a []any)                                    { sortSlice_(a, nil) }
+ func Arrays_sort_ObjectArr_Comparator(a []any, c Comparator) { sortSlice_(a, c) }
+ func Arrays_sort_byteArr(a []int8)                           { sort.Slice(a, func(i, j int) bool { return a[i] < a[j] }) }
+diff --git a/go/closure/rt_guava_cache.go b/go/closure/rt_guava_cache.go
+index 7c4f62ad..24958882 100644
+--- a/go/closure/rt_guava_cache.go
++++ b/go/closure/rt_guava_cache.go
+@@ -19,6 +19,7 @@ func (this *CacheLoader) init_CacheLoader() {}
+ type functionCacheLoader_ struct {
+ 	CacheLoader
+ 	f_ Function_base
++	fn func(any) any // the function of CacheLoader_from_f
+ }
+ 
+ type CacheBuilder struct {
+@@ -135,6 +136,14 @@ func (this *localCache_) size() int64 { return int64(this.map_.size()) }
+ 
+ func (this *localCache_) cleanUp() {}
+ 
++// CacheLoader_from_f is CacheLoader_from of a lambda, as a Go func value (post-flip step
++// funcparams).
++func CacheLoader_from_f(f func(any) any) *CacheLoader {
++	l := &functionCacheLoader_{fn: f}
++	l.self_ = l
++	return &l.CacheLoader
++}
++
+ func CacheLoader_from(f Function_base) *CacheLoader {
+ 	if f == nil {
+ 		panic(new_NullPointerException_0().self())
+@@ -188,5 +197,8 @@ func (this *functionCacheLoader_) load(key any) any {
+ 	if key == nil {
+ 		panic(new_NullPointerException_0().self())
+ 	}
++	if this.fn != nil {
++		return this.fn(key)
++	}
+ 	return this.f_.apply(key)
+ }

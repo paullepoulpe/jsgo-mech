@@ -3,13 +3,13 @@
 package closure
 
 type StandardUnionFind[E comparable] struct {
-	elmap *JTMap[E, *StandardUnionFind_Node[E]]
+	elmap *TMap[E, *StandardUnionFind_Node[E]]
 }
 
 func (this *StandardUnionFind[E]) isa_StandardUnionFind_() {}
 
 func (this *StandardUnionFind[E]) finit_StandardUnionFind() {
-	this.elmap = jnewTMap_(tceT_[E](), tc_p_StandardUnionFind_Node_E_[E]())
+	this.elmap = newTMap_(tchT_[E](), tc_p_StandardUnionFind_Node_E_[E]())
 }
 
 func (this *StandardUnionFind[E]) init_StandardUnionFind_0() {
@@ -68,10 +68,10 @@ func (this *StandardUnionFind[E]) union(a E, b E) E {
 }
 
 func (this *StandardUnionFind[E]) find(e E) E {
-	if ok_, a1_ := this.elmap.containsKey(e), boxT_(e); !ok_ {
+	if ok_, a1_ := this.elmap.Has(e), boxT_(e); !ok_ {
 		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Element does not exist: %s", []any{a1_})))
 	}
-	return this.findRoot(this.elmap.get(e)).element
+	return this.findRoot(this.elmap.Get(e)).element
 }
 
 func (this *StandardUnionFind[E]) areEquivalent(a E, b E) bool {
@@ -86,21 +86,21 @@ func (this *StandardUnionFind[E]) elements() SetT[E] {
 
 func (this *StandardUnionFind[E]) allEquivalenceClasses() ListT[SetT[E]] {
 	var groupsTmp *SimpleSetMultimap[*StandardUnionFind_Node[E], E] = SimpleSetMultimap_create[*StandardUnionFind_Node[E], E]()
-	it_1 := this.elmap.eachValue()
+	it_1 := this.elmap.each()
 	for it_1.next() {
 		var elem *StandardUnionFind_Node[E] = it_1.v
 		groupsTmp.put(this.findRoot(elem), elem.element)
 	}
-	var result *TListBuilder[SetT[E]] = newTListBuilder_(tc_SetT_E_[E]())
+	var result *ImmutableList_Builder[SetT[E]] = immutableListBuilder_(tc_SetT_E_[E]())
 	for group := range elemsT_(groupsTmp.asMap().values_t()) {
-		result.add(jimmutableSetCopyOf_(tceT_[E](), Collection(Set_un_(group))).asSetT())
+		result.add(immutableSetCopyOf_(tchT_[E](), Collection(Set_un_(group))).asSetT())
 	}
 	return result.build().asListT()
 }
 
 func (this *StandardUnionFind[E]) allRepresentatives() SetT[E] {
-	var result *TSetBuilder[E] = newTSetBuilder_(tceT_[E]())
-	it_1 := this.elmap.eachValue()
+	var result *ImmutableSet_Builder[E] = immutableSetBuilder_(tchT_[E]())
+	it_1 := this.elmap.each()
 	for it_1.next() {
 		var n *StandardUnionFind_Node[E] = it_1.v
 		if n == n.parent {
@@ -111,12 +111,12 @@ func (this *StandardUnionFind[E]) allRepresentatives() SetT[E] {
 }
 
 func (this *StandardUnionFind[E]) findRootOrCreateNode(e E) *StandardUnionFind_Node[E] {
-	var node *StandardUnionFind_Node[E] = this.elmap.get(e)
+	var node *StandardUnionFind_Node[E] = this.elmap.Get(e)
 	if node != nil {
 		return this.findRoot(node)
 	}
 	node = new_StandardUnionFind_Node[E](e)
-	this.elmap.put(e, node)
+	this.elmap.Put(e, node)
 	return node
 }
 
@@ -128,7 +128,7 @@ func (this *StandardUnionFind[E]) findRoot(node *StandardUnionFind_Node[E]) *Sta
 }
 
 func (this *StandardUnionFind[E]) findAll(value E) SetT[E] {
-	if ok_, a1_ := this.elmap.containsKey(value), boxT_(value); !ok_ {
+	if ok_, a1_ := this.elmap.Has(value), boxT_(value); !ok_ {
 		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Element does not exist: %s", []any{a1_})))
 	}
 	var isSameRoot Predicate_base[any] = func() Predicate_base[any] {
@@ -181,7 +181,7 @@ type StandardUnionFind_1[E comparable] struct {
 func (this *StandardUnionFind_1[E]) isa_StandardUnionFind_1_() {}
 
 func (this *StandardUnionFind_1[E]) finit_StandardUnionFind_1() {
-	this.nodeForValue = this.outer_.elmap.get(this.cap_value)
+	this.nodeForValue = this.outer_.elmap.Get(this.cap_value)
 }
 
 func (this *StandardUnionFind_1[E]) init_StandardUnionFind_1() {
@@ -200,7 +200,7 @@ func (this *StandardUnionFind_1[E]) apply(b any) bool {
 	if Objects_equals(boxT_(this.cap_value), b) {
 		return true
 	}
-	var nodeForB *StandardUnionFind_Node[E] = this.outer_.elmap.get(junboxT_[E](b))
+	var nodeForB *StandardUnionFind_Node[E] = this.outer_.elmap.Get(junboxT_[E](b))
 	if nodeForB == nil {
 		return false
 	}
@@ -247,5 +247,5 @@ func (this *StandardUnionFind_2[E]) iterator() Iterator {
 }
 
 func (this *StandardUnionFind_2[E]) size() int32 {
-	return this.outer_.findRoot(this.outer_.elmap.get(this.cap_value)).size_
+	return this.outer_.findRoot(this.outer_.elmap.Get(this.cap_value)).size_
 }

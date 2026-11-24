@@ -14,7 +14,7 @@ func (this *BrowserModuleResolver) up_ModuleResolver() *ModuleResolver {
 }
 
 func (this *BrowserModuleResolver) init_BrowserModuleResolver(modulePaths SetT[string], moduleRootPaths ListT[string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) {
-	this.ModuleResolver.init_ModuleResolver(tsetOfT_(jtc_string, modulePaths), tlistOfT_(jtc_string, moduleRootPaths), errorHandler, pathEscaper)
+	this.ModuleResolver.init_ModuleResolver(tsetOfT_(tc_string, modulePaths), tlistOfT_(tc_string, moduleRootPaths), errorHandler, pathEscaper)
 }
 
 func new_BrowserModuleResolver(modulePaths SetT[string], moduleRootPaths ListT[string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) *BrowserModuleResolver {

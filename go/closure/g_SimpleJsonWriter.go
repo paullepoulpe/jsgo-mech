@@ -4,7 +4,7 @@ package closure
 
 type SimpleJsonWriter struct {
 	out            *strBuilder_
-	stack          *JTList[any]
+	stack          *TList[any]
 	indent_        string
 	sink           Consumer[string]
 	deferredName   Optional[string]
@@ -18,7 +18,7 @@ func (this *SimpleJsonWriter) zero_SimpleJsonWriter() {
 
 func (this *SimpleJsonWriter) finit_SimpleJsonWriter() {
 	this.out = &strBuilder_{}
-	this.stack = jnewTList_(tc_Integer)
+	this.stack = newTList_(tc_Integer)
 	this.indent_ = ""
 	this.htmlSafe = false
 	this.serializeNulls = true

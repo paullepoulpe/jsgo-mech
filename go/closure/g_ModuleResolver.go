@@ -6,8 +6,8 @@ import "strings"
 
 type ModuleResolver struct {
 	self_           ModuleResolver_I
-	modulePaths     *JTSet[string]
-	moduleRootPaths *JTList[string]
+	modulePaths     *TSet[string]
+	moduleRootPaths *TList[string]
 	errorHandler    ErrorHandler
 	pathEscaper     ModuleLoader_PathEscaper
 }
@@ -15,7 +15,7 @@ type ModuleResolver struct {
 // ModuleResolver_I holds the methods the dispatchers of ModuleResolver's hierarchy call on the most derived
 // object (self_); every class of the hierarchy implements them (post-flip).
 type ModuleResolver_I interface {
-	getPackageJsonMainEntries_impl() *JTMap[string, string]
+	getPackageJsonMainEntries_impl() *TMap[string, string]
 	resolveJsModuleSilently_impl(string, string) Optional[string]
 	resolveJsModule_impl(string, string, Optional[string], int32, int32) Optional[string]
 	resolveModuleAsPath_impl(string, string) string
@@ -30,15 +30,15 @@ func (this *ModuleResolver) self() any {
 	return this.self_
 }
 
-func (this *ModuleResolver) init_ModuleResolver(modulePaths *JTSet[string], moduleRootPaths *JTList[string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) {
+func (this *ModuleResolver) init_ModuleResolver(modulePaths *TSet[string], moduleRootPaths *TList[string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) {
 	this.modulePaths = modulePaths
 	this.moduleRootPaths = moduleRootPaths
 	this.errorHandler = errorHandler
 	this.pathEscaper = pathEscaper
 }
 
-func (this *ModuleResolver) getPackageJsonMainEntries_impl() *JTMap[string, string] {
-	return jtmapEmptyImm_(jtc_string, jtc_string)
+func (this *ModuleResolver) getPackageJsonMainEntries_impl() *TMap[string, string] {
+	return tmapEmptyImm_(tc_string, tc_string)
 }
 
 func (this *ModuleResolver) resolveModuleAsPath_impl(scriptAddress string, moduleAddress string) string {
@@ -60,14 +60,14 @@ func (this *ModuleResolver) locate(scriptAddress string, name string) Optional[s
 	if ModuleLoader_isAmbiguousIdentifier(canonicalizedPath) {
 		normalizedPath = (sstr_(ModuleLoader_MODULE_SLASH) + sstr_(canonicalizedPath))
 	}
-	if this.modulePaths.contains(normalizedPath) {
+	if this.modulePaths.Has(normalizedPath) {
 		return Optional_of[string](canonicalizedPath)
 	}
 	it_1 := this.moduleRootPaths.each()
 	for it_1.next() {
 		var rootPath string = it_1.v
 		var modulePath string = (sstr_(rootPath) + sstr_(normalizedPath))
-		if this.modulePaths.contains(modulePath) {
+		if this.modulePaths.Has(modulePath) {
 			return Optional_of[string](canonicalizedPath)
 		}
 	}
@@ -100,6 +100,6 @@ func (this *ModuleResolver) resolveModuleAsPath(p0 string, p1 string) string {
 	return this.self_.resolveModuleAsPath_impl(p0, p1)
 }
 
-func (this *ModuleResolver) getPackageJsonMainEntries() *JTMap[string, string] {
+func (this *ModuleResolver) getPackageJsonMainEntries() *TMap[string, string] {
 	return this.self_.getPackageJsonMainEntries_impl()
 }

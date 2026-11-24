@@ -11,17 +11,17 @@ func TestLgObjargMaps(t *testing.T) {
 	keys := []string{"a", "z", nullstr_}
 	mk := func(native bool) MapT[string, string] {
 		if native {
-			m := jnewTMap_(jtc_string, jtc_string)
-			m.put("a", "A")
-			m.put(nullstr_, "N")
-			m.put("b", "B")
+			m := newTMap_(tc_string, tc_string)
+			m.Put("a", "A")
+			m.Put(nullstr_, "N")
+			m.Put("b", "B")
 			return m.asMapT()
 		}
 		e := new_LinkedHashMap()
 		e.put("a", "A")
 		e.put(nil, "N")
 		e.put("b", "B")
-		return mapAs_(jtc_string, jtc_string, Map(e))
+		return mapAs_(tc_string, tc_string, Map(e))
 	}
 	for _, native := range []bool{true, false} {
 		tm, em := mk(native), mk(native)
@@ -49,23 +49,23 @@ func TestLgObjargSets(t *testing.T) {
 	mk := func(kind int) SetT[string] {
 		switch kind {
 		case 0:
-			s := jnewTSet_(jtc_string)
-			s.add("a")
-			s.add(nullstr_)
-			s.add("b")
+			s := newTSet_(tc_string)
+			s.Add("a")
+			s.Add(nullstr_)
+			s.Add("b")
 			return s.asSetT()
 		case 1:
-			m := jnewTMap_(jtc_string, jtc_string)
-			m.put("a", "A")
-			m.put(nullstr_, "N")
-			m.put("b", "B")
+			m := newTMap_(tc_string, tc_string)
+			m.Put("a", "A")
+			m.Put(nullstr_, "N")
+			m.Put("b", "B")
 			return m.keySetT()
 		default:
 			e := new_LinkedHashSet()
 			e.add("a")
 			e.add(nil)
 			e.add("b")
-			return setAs_(jtc_string, Set(e))
+			return setAs_(tc_string, Set(e))
 		}
 	}
 	for kind := 0; kind < 3; kind++ {

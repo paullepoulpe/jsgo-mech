@@ -105,7 +105,7 @@ func JSDocSerializer_serializeJsdoc(jsdoc *JSDocInfo, stringPool *StringPool_Bui
 	if jsdoc.isInterface() {
 		builder.addKind(JsdocTag_JSDOC_INTERFACE)
 	}
-	if jsdoc.getSuppressions().contains("partialAlias") {
+	if jsdoc.getSuppressions().Has("partialAlias") {
 		builder.addKind(JsdocTag_JSDOC_SUPPRESS_PARTIAL_ALIAS)
 	}
 	if jsdoc.isAbstract() {
@@ -120,10 +120,10 @@ func JSDocSerializer_serializeJsdoc(jsdoc *JSDocInfo, stringPool *StringPool_Bui
 	if jsdoc.getMeaning().isPresent() {
 		builder.setMeaningPointer(stringPool.put(jsdoc.getMeaning().get()))
 	}
-	if jsdoc.getSuppressions().contains("messageConventions") {
+	if jsdoc.getSuppressions().Has("messageConventions") {
 		builder.addKind(JsdocTag_JSDOC_SUPPRESS_MESSAGE_CONVENTION)
 	}
-	if jsdoc.getSuppressions().contains("untranspilableFeatures") {
+	if jsdoc.getSuppressions().Has("untranspilableFeatures") {
 		builder.addKind(JsdocTag_JSDOC_SUPPRESS_UNTRANSPILABLE_FEATURES)
 	}
 	if jsdoc.isUsedViaDotConstructor() {
@@ -185,8 +185,8 @@ func JSDocSerializer_deserializeJsdoc(serializedJsdoc *OptimizationJsdoc, string
 	if serializedJsdoc.getAlternateMessageIdPointer() != 0 {
 		builder.recordAlternateMessageId(stringPool.get(serializedJsdoc.getAlternateMessageIdPointer()))
 	}
-	var modifies *JTSet[string] = nil
-	var suppressions *JTSet[string] = nil
+	var modifies *TSet[string] = nil
+	var suppressions *TSet[string] = nil
 L_1:
 	for i := int32(0); i < serializedJsdoc.getKindCount(); i++ {
 		var tag JsdocTag = listAs_(tc_p_JsdocTag, serializedJsdoc.getKindList()).get_t(i)
@@ -234,22 +234,22 @@ L_1:
 			builder.recordNoSideEffects()
 			continue L_1
 		case JsdocTag_JSDOC_MODIFIES_THIS:
-			modifies = func() *JTSet[string] {
+			modifies = func() *TSet[string] {
 				if modifies != nil {
 					return modifies
 				}
-				return newTSortedSet_(jtc_string)
+				return newTSortedSet_(tc_string)
 			}()
-			modifies.add("this")
+			modifies.Add("this")
 			continue L_1
 		case JsdocTag_JSDOC_MODIFIES_ARGUMENTS:
-			modifies = func() *JTSet[string] {
+			modifies = func() *TSet[string] {
 				if modifies != nil {
 					return modifies
 				}
-				return newTSortedSet_(jtc_string)
+				return newTSortedSet_(tc_string)
 			}()
-			modifies.add("arguments")
+			modifies.Add("arguments")
 			continue L_1
 		case JsdocTag_JSDOC_THROWS:
 			builder.recordThrowsAnnotation(("{!" + sstr_(JSDocSerializer_PLACEHOLDER_TYPE_NAME) + "}"))
@@ -261,13 +261,13 @@ L_1:
 			builder.recordInterface()
 			continue L_1
 		case JsdocTag_JSDOC_SUPPRESS_PARTIAL_ALIAS:
-			suppressions = func() *JTSet[string] {
+			suppressions = func() *TSet[string] {
 				if suppressions != nil {
 					return suppressions
 				}
-				return newTSortedSet_(jtc_string)
+				return newTSortedSet_(tc_string)
 			}()
-			suppressions.add("partialAlias")
+			suppressions.Add("partialAlias")
 			continue L_1
 		case JsdocTag_JSDOC_ID_GENERATOR_CONSISTENT:
 			builder.recordConsistentIdGenerator()
@@ -288,22 +288,22 @@ L_1:
 			builder.recordAbstract()
 			continue L_1
 		case JsdocTag_JSDOC_SUPPRESS_MESSAGE_CONVENTION:
-			suppressions = func() *JTSet[string] {
+			suppressions = func() *TSet[string] {
 				if suppressions != nil {
 					return suppressions
 				}
-				return newTSortedSet_(jtc_string)
+				return newTSortedSet_(tc_string)
 			}()
-			suppressions.add("messageConventions")
+			suppressions.Add("messageConventions")
 			continue L_1
 		case JsdocTag_JSDOC_SUPPRESS_UNTRANSPILABLE_FEATURES:
-			suppressions = func() *JTSet[string] {
+			suppressions = func() *TSet[string] {
 				if suppressions != nil {
 					return suppressions
 				}
-				return newTSortedSet_(jtc_string)
+				return newTSortedSet_(tc_string)
 			}()
-			suppressions.add("untranspilableFeatures")
+			suppressions.Add("untranspilableFeatures")
 			continue L_1
 		case JsdocTag_JSDOC_FILEOVERVIEW:
 			builder.recordFileOverview("")

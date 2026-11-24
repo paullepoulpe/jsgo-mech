@@ -15,8 +15,8 @@ func new_ConformanceAllowlister() *ConformanceAllowlister {
 	return this
 }
 
-func ConformanceAllowlister_getViolatingPaths(compiler *Compiler, externs Node, ast Node, requirement *Requirement) *JTSet[string] {
-	var result *TSetBuilder[string] = newTSetBuilder_(jtc_string)
+func ConformanceAllowlister_getViolatingPaths(compiler *Compiler, externs Node, ast Node, requirement *Requirement) *TSet[string] {
+	var result *ImmutableSet_Builder[string] = immutableSetBuilder_(tc_string)
 	it_1 := ConformanceAllowlister_getConformanceErrors(compiler, externs, ast, requirement).each()
 	for it_1.next() {
 		var error_ *JSError = it_1.v
@@ -25,8 +25,8 @@ func ConformanceAllowlister_getViolatingPaths(compiler *Compiler, externs Node, 
 	return result.build()
 }
 
-func ConformanceAllowlister_getViolatingNodes(compiler *Compiler, externs Node, ast Node, requirement *Requirement) *JTSet[Node] {
-	var result *TSetBuilder[Node] = newTSetBuilder_(jtc_Node)
+func ConformanceAllowlister_getViolatingNodes(compiler *Compiler, externs Node, ast Node, requirement *Requirement) *TSet[Node] {
+	var result *ImmutableSet_Builder[Node] = immutableSetBuilder_(tc_Node)
 	it_1 := ConformanceAllowlister_getConformanceErrors(compiler, externs, ast, requirement).each()
 	for it_1.next() {
 		var error_ *JSError = it_1.v
@@ -35,17 +35,17 @@ func ConformanceAllowlister_getViolatingNodes(compiler *Compiler, externs Node, 
 	return result.build()
 }
 
-func ConformanceAllowlister_getConformanceErrors(compiler *Compiler, externs Node, ast Node, requirement *Requirement) *JTList[*JSError] {
+func ConformanceAllowlister_getConformanceErrors(compiler *Compiler, externs Node, ast Node, requirement *Requirement) *TList[*JSError] {
 	var cleanedRequirement *Requirement = cast_[*Requirement](requirement.toBuilder().(*Requirement_Builder).clearWhitelist().clearAllowlist().clearWhitelistRegexp().clearAllowlistRegexp().clearWhitelistEntry().clearAllowlistEntry().setSeverity(Requirement_Severity_ERROR).build())
 	var cleanedConfig *ConformanceConfig = cast_[*ConformanceConfig](ConformanceConfig_newBuilder().addRequirement(cleanedRequirement).build())
 	var oldErrorManager ErrorManager = compiler.getErrorManager()
-	var errors *TListBuilder[*JSError] = newTListBuilder_(jtc_p_JSError)
+	var errors *ImmutableList_Builder[*JSError] = immutableListBuilder_(tc_p_JSError)
 	func() {
 		defer func() {
 			compiler.setErrorManager(oldErrorManager)
 		}()
 		compiler.setErrorManager(ErrorManager(new_ConformanceAllowlister_1(errors, oldErrorManager)))
-		var check *CheckConformance = new_CheckConformance_AbstractCompiler_ImmutableList_ConformanceReportingMode(compiler.up_AbstractCompiler(), jimmutableListOf_[*ConformanceConfig](jtc_p_ConformanceConfig, cleanedConfig), 0)
+		var check *CheckConformance = new_CheckConformance_AbstractCompiler_ImmutableList_ConformanceReportingMode(compiler.up_AbstractCompiler(), immutableListOf_[*ConformanceConfig](tc_p_ConformanceConfig, cleanedConfig), 0)
 		check.process_2(externs, ast)
 	}()
 	return errors.build()
@@ -53,7 +53,7 @@ func ConformanceAllowlister_getConformanceErrors(compiler *Compiler, externs Nod
 
 type ConformanceAllowlister_1 struct {
 	ThreadSafeDelegatingErrorManager
-	cap_errors *TListBuilder[*JSError]
+	cap_errors *ImmutableList_Builder[*JSError]
 }
 
 func (this *ConformanceAllowlister_1) up_ThreadSafeDelegatingErrorManager() *ThreadSafeDelegatingErrorManager {
@@ -67,7 +67,7 @@ func (this *ConformanceAllowlister_1) init_ConformanceAllowlister_1(delegated Er
 	this.ThreadSafeDelegatingErrorManager.init_ThreadSafeDelegatingErrorManager(delegated)
 }
 
-func new_ConformanceAllowlister_1(cap_errors *TListBuilder[*JSError], delegated ErrorManager) *ConformanceAllowlister_1 {
+func new_ConformanceAllowlister_1(cap_errors *ImmutableList_Builder[*JSError], delegated ErrorManager) *ConformanceAllowlister_1 {
 	this := &ConformanceAllowlister_1{}
 	this.self_ = this
 	this.cap_errors = cap_errors

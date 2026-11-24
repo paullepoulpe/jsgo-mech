@@ -5,13 +5,13 @@ package closure
 type CheckConstantCaseNames struct {
 	compiler_             *AbstractCompiler
 	convention            CodingConvention
-	invalidNamesPerModule *JTMap[string, Node]
-	reassignedNames       *JTSet[string]
+	invalidNamesPerModule *TMap[string, Node]
+	reassignedNames       *TSet[string]
 }
 
 func (this *CheckConstantCaseNames) finit_CheckConstantCaseNames() {
-	this.invalidNamesPerModule = jnewTMap_(jtc_string, jtc_Node)
-	this.reassignedNames = jnewTSet_(jtc_string)
+	this.invalidNamesPerModule = newTMap_(tc_string, tc_Node)
+	this.reassignedNames = newTSet_(tc_string)
 }
 
 func (this *CheckConstantCaseNames) init_CheckConstantCaseNames(compiler *AbstractCompiler) {
@@ -53,11 +53,11 @@ func (this *CheckConstantCaseNames) visit(t *NodeTraversal, n Node, parent Node)
 		}
 		NodeUtil_visitLhsNodesInNode(n, Consumer[Node](func(name Node) {
 			if this.convention.isConstant(name.getString()) {
-				this.invalidNamesPerModule.put(name.getString(), name)
+				this.invalidNamesPerModule.Put(name.getString(), name)
 			}
 		}))
 	case tokOrd1_NAME:
-		if !this.invalidNamesPerModule.containsKey(n.getString()) {
+		if !this.invalidNamesPerModule.Has(n.getString()) {
 			return
 		}
 		if !NodeUtil_isLValue(n) {
@@ -65,25 +65,25 @@ func (this *CheckConstantCaseNames) visit(t *NodeTraversal, n Node, parent Node)
 		}
 		var v *Var = t.getScope().getVar_String_rVar(n.getString())
 		if v.getScopeRoot().isModuleBody() {
-			this.reassignedNames.add(n.getString())
+			this.reassignedNames.Add(n.getString())
 		}
 	default:
 	}
 }
 
 func (this *CheckConstantCaseNames) reportWarningsAndClear() {
-	it_1 := this.invalidNamesPerModule.eachValue()
+	it_1 := this.invalidNamesPerModule.each()
 	for it_1.next() {
 		var nameNode Node = it_1.v
 		var name string = nameNode.getString()
-		if this.reassignedNames.contains(name) {
+		if this.reassignedNames.Has(name) {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(nameNode, CheckConstantCaseNames_REASSIGNED_CONSTANT_CASE_NAME, []string{name}))
 		} else {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(nameNode, CheckConstantCaseNames_MISSING_CONST_PROPERTY, []string{name}))
 		}
 	}
-	this.invalidNamesPerModule = jnewTMap_(jtc_string, jtc_Node)
-	this.reassignedNames = jnewTSet_(jtc_string)
+	this.invalidNamesPerModule = newTMap_(tc_string, tc_Node)
+	this.reassignedNames = newTSet_(tc_string)
 }
 
 var CheckConstantCaseNames_MISSING_CONST_PROPERTY *DiagnosticType

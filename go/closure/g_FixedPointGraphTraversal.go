@@ -29,16 +29,16 @@ func FixedPointGraphTraversal_newReverseTraversal[NodeT comparable, EdgeT compar
 }
 
 func (this *FixedPointGraphTraversal[N, E]) computeFixedPoint(graph *DiGraph[N, E]) {
-	var nodes *JTSet[N] = jnewTSet_(tceT_[N]())
+	var nodes *TSet[N] = newTSet_(tchT_[N]())
 	for node := range elemsT_(graph.getNodes_rCollectionOf_DiGraphNode()) {
-		nodes.add(node.getValue())
+		nodes.Add(node.getValue())
 	}
 	this.computeFixedPointSet(graph, nodes.asSetT())
 }
 
 func (this *FixedPointGraphTraversal[N, E]) computeFixedPoint_2(graph *DiGraph[N, E], entry N) {
-	var entrySet *JTSet[N] = jnewTSet_(tceT_[N]())
-	entrySet.add(entry)
+	var entrySet *TSet[N] = newTSet_(tchT_[N]())
+	entrySet.Add(entry)
 	this.computeFixedPointSet(graph, entrySet.asSetT())
 }
 
@@ -46,7 +46,7 @@ func (this *FixedPointGraphTraversal[N, E]) computeFixedPointSet(graph *DiGraph[
 	var cycleCount int64 = 0
 	var nodeCount int64 = Math_min_long_long(int64(graph.getNodeCount()), FixedPointGraphTraversal_MAX_NODE_COUNT_FOR_ITERATION_LIMIT)
 	var maxIterations int64 = Math_max_long_long(((nodeCount * nodeCount) * nodeCount), 100)
-	var workSet SetT[DiGraph_DiGraphNode[N, E]] = jnewTSet_(tce_DiGraph_DiGraphNode_N__E_[N, E]()).asSetT()
+	var workSet SetT[DiGraph_DiGraphNode[N, E]] = newTSet_(tch_DiGraph_DiGraphNode_N__E_[N, E]()).asSetT()
 	for n := range elemsT_(entrySet) {
 		workSet.add_t(graph.getNode_Object_rDiGraphNode(n))
 	}

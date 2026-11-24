@@ -245,8 +245,8 @@ func Map_getOrDefaultT_[K, V any](m MapT[K, V], k any, def V) V {
 // Map_get_sT_ is Map.get with a String key on a map whose keys are Strings (Map_get_s): the
 // typed map's own lookup, else the erased helper's and the cast of erased code.
 func Map_get_sT_[V any](m MapT[string, V], k string) V {
-	if v, ok := m.(*jtmapView_[string, V]); ok && k != nullstr_ {
-		return v.m.get(k)
+	if v, ok := m.(*tmapView_[string, V]); ok && k != nullstr_ {
+		return v.m.Get(k)
 	}
 	return junboxT_[V](Map_get_s(Map_un_(m), k))
 }
@@ -254,8 +254,8 @@ func Map_get_sT_[V any](m MapT[string, V], k string) V {
 // Map_getOrDefault_sT_ is Map.getOrDefault with a String key on a map whose keys are Strings
 // (Map_getOrDefault_s).
 func Map_getOrDefault_sT_[V any](m MapT[string, V], k string, def V) V {
-	if v, ok := m.(*jtmapView_[string, V]); ok && k != nullstr_ {
-		return v.m.getOrDefault(k, def)
+	if v, ok := m.(*tmapView_[string, V]); ok && k != nullstr_ {
+		return v.m.GetOr(k, def)
 	}
 	u := Map_un_(m)
 	if v := Map_get_s(u, k); v != nil || Map_containsKey_s(u, k) {
@@ -267,27 +267,28 @@ func Map_getOrDefault_sT_[V any](m MapT[string, V], k string, def V) V {
 // ---- constructors with a comparator, and Splitter
 
 // newTSortedSetCT_ is newTSortedSetC_ with the comparator at the element type: the set compares
-// its keys with it as they are (tsortCmp_); erased code that asks for the comparator gets it at
+// its keys with it as they are (tsort_.cmp); erased code that asks for the comparator gets it at
 // Object.
-func newTSortedSetCT_[K comparable](c *jtconv_[K], cmp Comparator[K]) *JTSet[K] {
+func newTSortedSetCT_[K comparable](c *tconv_[K], cmp Comparator[K]) *TSet[K] {
 	s := newTSortedSetC_(c, cmpErased_(c, cmp))
 	if cmp != nil {
-		s.eq.cmpT = (func(K, K) int32)(cmp)
+		s.x.sort.cmp = (func(K, K) int32)(cmp)
 	}
 	return s
 }
 
 // newTSortedMapCT_ is newTSortedMapC_ with the comparator at the key type.
-func newTSortedMapCT_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V], cmp Comparator[K]) *JTMap[K, V] {
-	m := newTSortedMapC_(kc, vc, cmpErased_(kc, cmp))
+func newTSortedMapCT_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], cmp Comparator[K]) *TMap[K, V] {
+	m := newTMap_(kc, vc)
+	m.setSorted_(cmpErased_(kc, cmp))
 	if cmp != nil {
-		m.eq.cmpT = (func(K, K) int32)(cmp)
+		m.x.sort.cmp = (func(K, K) int32)(cmp)
 	}
 	return m
 }
 
 // cmpErased_ is comparator cmp of keys of type K as erased code calls it (null stays null).
-func cmpErased_[K any](c *jtconv_[K], cmp Comparator[K]) Comparator_e {
+func cmpErased_[K any](c *tconv_[K], cmp Comparator[K]) Comparator_e {
 	if cmp == nil {
 		return nil
 	}
@@ -295,13 +296,11 @@ func cmpErased_[K any](c *jtconv_[K], cmp Comparator[K]) Comparator_e {
 }
 
 // splitToListST_ is splitToListT_ of a String (no box).
-func splitToListST_(c *jtconv_[string], sp *Splitter, s string) *JTList[string] {
+func splitToListST_(c *tconv_[string], sp *Splitter, s string) *TList[string] {
 	if s == nullstr_ {
 		return splitToListT_(c, sp, nil)
 	}
-	l := &JTList[string]{c: c, items: sp.splitStrs_(s), twin: unmodMark_}
-	l.view.l = l
-	return l
+	return &TList[string]{c: c, items: sp.splitStrs_(s), imm: true, unmod: true}
 }
 
 // Collections_sortT_ is Collections.sort(List) (Collections_sort).

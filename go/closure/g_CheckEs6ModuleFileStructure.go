@@ -5,7 +5,7 @@ package closure
 type CheckEs6ModuleFileStructure struct {
 	NodeTraversal_AbstractPreOrderCallback
 	compiler_         *AbstractCompiler
-	orderedStatements *JTSet[CheckEs6ModuleFileStructure_OrderedStatement]
+	orderedStatements *TSet[CheckEs6ModuleFileStructure_OrderedStatement]
 }
 
 func (this *CheckEs6ModuleFileStructure) up_NodeTraversal_AbstractPreOrderCallback() *NodeTraversal_AbstractPreOrderCallback {
@@ -40,7 +40,7 @@ func (this *CheckEs6ModuleFileStructure) shouldTraverse_impl(t *NodeTraversal, n
 		case tokOrd1_SCRIPT:
 			return n.getBooleanProp(Node_ES6_MODULE)
 		case tokOrd1_MODULE_BODY:
-			this.orderedStatements.clear()
+			this.orderedStatements.Clear()
 			return true
 		case tokOrd1_IMPORT:
 			this.visitImport(t, n)
@@ -59,7 +59,7 @@ func (this *CheckEs6ModuleFileStructure) shouldTraverse_impl(t *NodeTraversal, n
 }
 
 func (this *CheckEs6ModuleFileStructure) checkOrder(t *NodeTraversal, n Node, statement CheckEs6ModuleFileStructure_OrderedStatement) {
-	this.orderedStatements.add(statement)
+	this.orderedStatements.Add(statement)
 	var outOfOrder SetT[CheckEs6ModuleFileStructure_OrderedStatement] = setAs_(tc_p_CheckEs6ModuleFileStructure_OrderedStatement, Set(this.orderedStatements.asSorted().tailSet(obj_(statement), false)))
 	if !outOfOrder.isEmpty() {
 		t.report(n, CheckEs6ModuleFileStructure_MUST_COME_BEFORE, []string{statement.toString(), Joiner_on(", ").join(Iterable(Set_un_(outOfOrder)))})

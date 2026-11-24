@@ -55,7 +55,7 @@ func (this *DiagnosticGroupWarningsGuard) mustRunChecks_impl(otherGroup *Diagnos
 	}
 }
 
-func (this *DiagnosticGroupWarningsGuard) groupMatchesAny(types *JTSet[*DiagnosticType]) bool {
+func (this *DiagnosticGroupWarningsGuard) groupMatchesAny(types *TSet[*DiagnosticType]) bool {
 	it_1 := types.each()
 	for it_1.next() {
 		var type_ *DiagnosticType = it_1.v
@@ -66,7 +66,7 @@ func (this *DiagnosticGroupWarningsGuard) groupMatchesAny(types *JTSet[*Diagnost
 	return false
 }
 
-func (this *DiagnosticGroupWarningsGuard) groupMatchesAll(types *JTSet[*DiagnosticType]) bool {
+func (this *DiagnosticGroupWarningsGuard) groupMatchesAll(types *TSet[*DiagnosticType]) bool {
 	it_1 := types.each()
 	for it_1.next() {
 		var type_ *DiagnosticType = it_1.v

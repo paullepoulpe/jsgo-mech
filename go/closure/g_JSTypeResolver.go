@@ -10,8 +10,8 @@ type JSTypeResolver struct {
 }
 
 func (this *JSTypeResolver) finit_JSTypeResolver() {
-	this.captureStack = newTDeque_(jtc_p_JSType)
-	this.resolutionQueue = newTDeque_(jtc_p_JSType)
+	this.captureStack = newTDeque_(tc_p_JSType)
+	this.resolutionQueue = newTDeque_(tc_p_JSType)
 	this.state = JSTypeResolver_State_CLOSED
 }
 
@@ -78,7 +78,7 @@ func (this *JSTypeResolver) resolveAll() {
 	for !this.resolutionQueue.isEmpty() {
 		this.doResolve(this.resolutionQueue.pop())
 	}
-	this.resolutionQueue = newTDeque_(jtc_p_JSType)
+	this.resolutionQueue = newTDeque_(tc_p_JSType)
 	this.state = JSTypeResolver_State_CLOSED
 	var globalThis *PrototypeObjectType = to_PrototypeObjectType(this.registry.getNativeType(JSTypeNative_GLOBAL_THIS).self())
 	var windowType *JSType = this.registry.getGlobalType("Window")

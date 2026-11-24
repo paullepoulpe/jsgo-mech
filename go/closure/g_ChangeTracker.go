@@ -5,7 +5,7 @@ package closure
 type ChangeTracker struct {
 	changeTimeline     *Timeline[Node]
 	recentChange       *RecentChange
-	codeChangeHandlers *JTList[CodeChangeHandler]
+	codeChangeHandlers *TList[CodeChangeHandler]
 	changeStamp        int32
 }
 
@@ -13,7 +13,7 @@ func (this *ChangeTracker) finit_ChangeTracker() {
 	this.changeStamp = 1
 	this.changeTimeline = new_Timeline[Node]()
 	this.recentChange = new_RecentChange()
-	this.codeChangeHandlers = jnewTList_(jtc_CodeChangeHandler)
+	this.codeChangeHandlers = newTList_(tc_CodeChangeHandler)
 }
 
 func (this *ChangeTracker) init_ChangeTracker() {

@@ -24,7 +24,12 @@ func ttreeCmp_[K any](kc *tconv_[K], c Comparator_e) func(a, b K) int32 {
 	if _, ok := any(kc).(*tconv_[string]); ok {
 		return any(ttreeStrCmp_).(func(a, b K) int32)
 	}
-	return func(a, b K) int32 { return compareNatural_(kc.box(a), kc.box(b)) }
+	return func(a, b K) int32 {
+		if r, ok := cmpTypedT_(a, b); ok {
+			return r
+		}
+		return compareNatural_(kc.box(a), kc.box(b))
+	}
 }
 
 // ttreeStrCmp_ is natural ordering of strings (a function, so a map or set made with it

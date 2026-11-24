@@ -4,7 +4,7 @@ package closure
 
 type RecordTypeBuilder struct {
 	registry   *JSTypeRegistry
-	properties *JTMap[string, *RecordTypeBuilder_RecordProperty]
+	properties *TMap[string, *RecordTypeBuilder_RecordProperty]
 	isEmpty_   bool
 	isDeclared bool
 }
@@ -12,7 +12,7 @@ type RecordTypeBuilder struct {
 func (this *RecordTypeBuilder) finit_RecordTypeBuilder() {
 	this.isEmpty_ = true
 	this.isDeclared = true
-	this.properties = jnewTMap_(jtc_string, jtc_p_RecordTypeBuilder_RecordProperty)
+	this.properties = newTMap_(tc_string, tc_p_RecordTypeBuilder_RecordProperty)
 }
 
 func (this *RecordTypeBuilder) init_RecordTypeBuilder(registry *JSTypeRegistry) {
@@ -32,7 +32,7 @@ func (this *RecordTypeBuilder) setSynthesized(synthesized bool) {
 
 func (this *RecordTypeBuilder) addProperty(name string, type_ *JSType, propertyNode Node) *RecordTypeBuilder {
 	this.isEmpty_ = false
-	this.properties.put(name, new_RecordTypeBuilder_RecordProperty(type_, propertyNode))
+	this.properties.Put(name, new_RecordTypeBuilder_RecordProperty(type_, propertyNode))
 	return this
 }
 
@@ -42,7 +42,7 @@ func (this *RecordTypeBuilder) build() *JSType {
 	}
 	var m ImmutableSortedMap_BuilderOf[string, *RecordTypeBuilder_RecordProperty] = ImmutableSortedMap_naturalOrder()
 	m.putAll(this.properties.asMap())
-	return new_RecordType(this.registry, mapAs_(jtc_string, jtc_p_RecordTypeBuilder_RecordProperty, ImmutableMap_as_Map(m.buildOrThrow())), this.isDeclared).up_JSType()
+	return new_RecordType(this.registry, mapAs_(tc_string, tc_p_RecordTypeBuilder_RecordProperty, ImmutableMap_as_Map(m.buildOrThrow())), this.isDeclared).up_JSType()
 }
 
 type RecordTypeBuilder_RecordProperty struct {

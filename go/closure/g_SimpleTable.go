@@ -3,13 +3,13 @@
 package closure
 
 type SimpleTable[R comparable, C comparable, V comparable] struct {
-	rows *JTMap[R, MapT[C, V]]
+	rows *TMap[R, MapT[C, V]]
 }
 
 func (this *SimpleTable[R, C, V]) isa_SimpleTable_() {}
 
 func (this *SimpleTable[R, C, V]) finit_SimpleTable() {
-	this.rows = jnewTMap_(tceT_[R](), tc_MapT_C__V_[C, V]())
+	this.rows = newTMap_(tchT_[R](), tc_MapT_C__V_[C, V]())
 }
 
 func (this *SimpleTable[R, C, V]) init_SimpleTable() {
@@ -27,16 +27,16 @@ func SimpleTable_create[R comparable, C comparable, V comparable]() *SimpleTable
 }
 
 func (this *SimpleTable[R, C, V]) put(rowKey R, columnKey C, value V) V {
-	var row MapT[C, V] = this.rows.get(rowKey)
+	var row MapT[C, V] = this.rows.Get(rowKey)
 	if row == nil {
-		row = jnewTMap_(tceT_[C](), tcT_[V]()).asMapT()
-		this.rows.put(rowKey, row)
+		row = newTMap_(tchT_[C](), tcT_[V]()).asMapT()
+		this.rows.Put(rowKey, row)
 	}
 	return row.put_t(columnKey, value)
 }
 
 func (this *SimpleTable[R, C, V]) get(rowKey R, columnKey C) V {
-	var row MapT[C, V] = this.rows.get(rowKey)
+	var row MapT[C, V] = this.rows.Get(rowKey)
 	return func() V {
 		if row == nil {
 			return jnull_[V]()
@@ -46,31 +46,31 @@ func (this *SimpleTable[R, C, V]) get(rowKey R, columnKey C) V {
 }
 
 func (this *SimpleTable[R, C, V]) contains(rowKey R, columnKey C) bool {
-	var row MapT[C, V] = this.rows.get(rowKey)
+	var row MapT[C, V] = this.rows.Get(rowKey)
 	return ((row != nil) && Map_containsKeyK_[C, V](row, columnKey))
 }
 
 func (this *SimpleTable[R, C, V]) containsRow(rowKey R) bool {
-	return this.rows.containsKey(rowKey)
+	return this.rows.Has(rowKey)
 }
 
 func (this *SimpleTable[R, C, V]) remove(rowKey R, columnKey C) V {
-	var row MapT[C, V] = this.rows.get(rowKey)
+	var row MapT[C, V] = this.rows.Get(rowKey)
 	if row == nil {
 		return jnull_[V]()
 	}
 	var value V = Map_removeK_[C, V](row, columnKey)
 	if row.isEmpty() {
-		this.rows.remove(rowKey)
+		this.rows.Delete(rowKey)
 	}
 	return value
 }
 
 func (this *SimpleTable[R, C, V]) row(rowKey R) MapT[C, V] {
-	var row MapT[C, V] = this.rows.get(rowKey)
+	var row MapT[C, V] = this.rows.Get(rowKey)
 	return func() MapT[C, V] {
 		if row == nil {
-			return jtmapEmptyImm_(tceT_[C](), tcT_[V]()).asMapT()
+			return tmapEmptyImm_(tchT_[C](), tcT_[V]()).asMapT()
 		}
 		return row
 	}()
@@ -85,7 +85,7 @@ func (this *SimpleTable[R, C, V]) values() IterableT[V] {
 }
 
 func (this *SimpleTable[R, C, V]) isEmpty() bool {
-	return this.rows.isEmpty()
+	return this.rows.IsEmpty()
 }
 
 func (this *SimpleTable[R, C, V]) toString() string {

@@ -3,13 +3,13 @@
 package closure
 
 type ClosureExportTypeClassifier struct {
-	topLevelNames     *JTMap[string, *ClosureExportTypeClassifier_NameInfo]
-	forcedNamedExport *JTSet[string]
+	topLevelNames     *TMap[string, *ClosureExportTypeClassifier_NameInfo]
+	forcedNamedExport *TSet[string]
 }
 
 func (this *ClosureExportTypeClassifier) finit_ClosureExportTypeClassifier() {
-	this.topLevelNames = jnewTMap_(jtc_string, jtc_p_ClosureExportTypeClassifier_NameInfo)
-	this.forcedNamedExport = jnewTSet_(jtc_string)
+	this.topLevelNames = newTMap_(tc_string, tc_p_ClosureExportTypeClassifier_NameInfo)
+	this.forcedNamedExport = newTSet_(tc_string)
 }
 
 func (this *ClosureExportTypeClassifier) init_ClosureExportTypeClassifier() {
@@ -26,8 +26,8 @@ func ClosureExportTypeClassifier_classify(moduleRoot Node, googNamespace string)
 	var classifier *ClosureExportTypeClassifier = new_ClosureExportTypeClassifier()
 	classifier.addGoogModuleExports()
 	ClosureExportTypeClassifier_forEachTopLevelStatement(moduleRoot, Consumer[Node](func(p0 Node) { classifier.visitStatement(p0) }))
-	var info *ClosureExportTypeClassifier_NameInfo = classifier.topLevelNames.get(ClosureExportTypeClassifier_EXPORTS)
-	if classifier.forcedNamedExport.contains(googNamespace) || (classifier.kindOfName(info, 0) == ClosureExportTypeClassifier_Kind_NAMESPACE) {
+	var info *ClosureExportTypeClassifier_NameInfo = classifier.topLevelNames.Get(ClosureExportTypeClassifier_EXPORTS)
+	if classifier.forcedNamedExport.Has(googNamespace) || (classifier.kindOfName(info, 0) == ClosureExportTypeClassifier_Kind_NAMESPACE) {
 		return ClosureExportTypeClassifier_TsExportType_NAMED
 	}
 	return ClosureExportTypeClassifier_TsExportType_DEFAULT
@@ -36,7 +36,7 @@ func ClosureExportTypeClassifier_classify(moduleRoot Node, googNamespace string)
 func (this *ClosureExportTypeClassifier) addGoogModuleExports() {
 	var info *ClosureExportTypeClassifier_NameInfo = new_ClosureExportTypeClassifier_NameInfo()
 	info.isGoogModuleExports_ = true
-	this.topLevelNames.put(ClosureExportTypeClassifier_EXPORTS, info)
+	this.topLevelNames.Put(ClosureExportTypeClassifier_EXPORTS, info)
 }
 
 func ClosureExportTypeClassifier_forEachTopLevelStatement(moduleRoot Node, callback Consumer[Node]) {
@@ -76,7 +76,7 @@ func (this *ClosureExportTypeClassifier) maybeRecordLegacyNamedTsExport(statemen
 	if (jsdoc == nil) || !jsdoc.isLegacyNamedTsExport() {
 		return
 	}
-	this.forcedNamedExport.add(call.getSecondChild().getString())
+	this.forcedNamedExport.Add(call.getSecondChild().getString())
 }
 
 func (this *ClosureExportTypeClassifier) visitNameDeclaration(declaration Node) {
@@ -136,7 +136,7 @@ func (this *ClosureExportTypeClassifier) visitAssign(expr Node) {
 }
 
 func (this *ClosureExportTypeClassifier) getOrCreate(name string) *ClosureExportTypeClassifier_NameInfo {
-	return this.topLevelNames.computeIfAbsent(name, Function[string, *ClosureExportTypeClassifier_NameInfo](func(unused string) *ClosureExportTypeClassifier_NameInfo {
+	return this.topLevelNames.ComputeIfAbsent(name, Function[string, *ClosureExportTypeClassifier_NameInfo](func(unused string) *ClosureExportTypeClassifier_NameInfo {
 		return new_ClosureExportTypeClassifier_NameInfo()
 	}))
 }
@@ -193,7 +193,7 @@ func (this *ClosureExportTypeClassifier) kindOfValue(value Node, jsdoc *JSDocInf
 			if depth >= ClosureExportTypeClassifier_MAX_ALIAS_DEPTH {
 				return ClosureExportTypeClassifier_Kind_NOT_NAMESPACE
 			}
-			var aliased *ClosureExportTypeClassifier_NameInfo = this.topLevelNames.get(value.getString())
+			var aliased *ClosureExportTypeClassifier_NameInfo = this.topLevelNames.Get(value.getString())
 			return func() ClosureExportTypeClassifier_Kind {
 				if aliased == nil {
 					return ClosureExportTypeClassifier_Kind_NOT_NAMESPACE

@@ -4,7 +4,7 @@ package closure
 
 type SimpleSetMultimap[K comparable, V comparable] struct {
 	map__      MapT[K, SetT[V]]
-	entryOrder *JTSet[*SimpleSetMultimap_Entry[any, any]]
+	entryOrder *TSet[*SimpleSetMultimap_Entry[any, any]]
 	sorted     bool
 	frozen     bool
 }
@@ -24,14 +24,14 @@ func (this *SimpleSetMultimap[K, V]) init_SimpleSetMultimap(sorted bool, inserti
 	this.finit_SimpleSetMultimap()
 	this.map__ = func() MapT[K, SetT[V]] {
 		if sorted {
-			return newTSortedMap_(tceT_[K](), tc_SetT_V_[V]()).asMapT()
+			return newTSortedMap_(tchT_[K](), tc_SetT_V_[V]()).asMapT()
 		}
-		return jnewTMap_(tceT_[K](), tc_SetT_V_[V]()).asMapT()
+		return newTMap_(tchT_[K](), tc_SetT_V_[V]()).asMapT()
 	}()
 	this.sorted = sorted
-	this.entryOrder = func() *JTSet[*SimpleSetMultimap_Entry[any, any]] {
+	this.entryOrder = func() *TSet[*SimpleSetMultimap_Entry[any, any]] {
 		if insertionOrdered {
-			return jnewTSet_(tce_p_SimpleSetMultimap_Entry)
+			return newTSet_(tch_p_SimpleSetMultimap_Entry)
 		}
 		return nil
 	}()
@@ -58,7 +58,7 @@ func SimpleSetMultimap_createSorted[K comparable, V comparable]() *SimpleSetMult
 func (this *SimpleSetMultimap[K, V]) immutableCopy() *SimpleSetMultimap[K, V] {
 	var copy_ *SimpleSetMultimap[K, V] = new_SimpleSetMultimap[K, V](false, false)
 	for e := range elemsT_(this.map__.entrySet_t()) {
-		copy_.map__.put_t(e.getKey_t(), jtsetFrom_(tceT_[V](), Collection(Set_un_(e.getValue_t()))).asSetT())
+		copy_.map__.put_t(e.getKey_t(), tsetFrom_(tchT_[V](), Collection(Set_un_(e.getValue_t())), false).asSetT())
 	}
 	copy_.frozen = true
 	return copy_
@@ -83,9 +83,9 @@ func (this *SimpleSetMultimap[K, V]) put(key K, value V) bool {
 	if values == nil {
 		values = func() SetT[V] {
 			if this.sorted {
-				return newTSortedSet_(tceT_[V]()).asSetT()
+				return newTSortedSet_(tchT_[V]()).asSetT()
 			}
-			return jnewTSet_(tceT_[V]()).asSetT()
+			return newTSet_(tchT_[V]()).asSetT()
 		}()
 		values.add_t(value)
 		this.map__.put_t(key, values)
@@ -93,7 +93,7 @@ func (this *SimpleSetMultimap[K, V]) put(key K, value V) bool {
 		return false
 	}
 	if this.entryOrder != nil {
-		this.entryOrder.add(new_SimpleSetMultimap_Entry(boxT_(key), boxT_(value)))
+		this.entryOrder.Add(new_SimpleSetMultimap_Entry(boxT_(key), boxT_(value)))
 	}
 	return true
 }
@@ -122,7 +122,7 @@ func (this *SimpleSetMultimap[K, V]) get(key K) SetT[V] {
 	var values SetT[V] = Map_getK_[K, SetT[V]](this.map__, key)
 	return func() SetT[V] {
 		if values == nil {
-			return jtsetEmptyImm_(tceT_[V]()).asSetT()
+			return tsetEmptyImm_(tchT_[V]()).asSetT()
 		}
 		return values
 	}()
@@ -143,11 +143,11 @@ func (this *SimpleSetMultimap[K, V]) removeAll(key K) SetT[V] {
 	}
 	var values SetT[V] = Map_removeK_[K, SetT[V]](this.map__, key)
 	if values == nil {
-		return jtsetEmptyImm_(tceT_[V]()).asSetT()
+		return tsetEmptyImm_(tchT_[V]()).asSetT()
 	}
 	if this.entryOrder != nil {
 		for value := range elemsT_(values) {
-			this.entryOrder.remove(new_SimpleSetMultimap_Entry(boxT_(key), boxT_(value)))
+			this.entryOrder.Delete(new_SimpleSetMultimap_Entry(boxT_(key), boxT_(value)))
 		}
 	}
 	return values
@@ -159,7 +159,7 @@ func (this *SimpleSetMultimap[K, V]) clear() {
 	}
 	this.map__.clear()
 	if this.entryOrder != nil {
-		this.entryOrder.clear()
+		this.entryOrder.Clear()
 	}
 }
 

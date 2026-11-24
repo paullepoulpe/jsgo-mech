@@ -199,12 +199,12 @@ func ExtractPrototypeMemberDeclarations_Pattern_clinit() {
 }
 
 type ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo struct {
-	instances  *JTList[*ExtractPrototypeMemberDeclarations_ExtractionInstance]
+	instances  *TList[*ExtractPrototypeMemberDeclarations_ExtractionInstance]
 	totalDelta int32
 }
 
 func (this *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo) finit_ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo() {
-	this.instances = jnewTList_(jtc_p_ExtractPrototypeMemberDeclarations_ExtractionInstance)
+	this.instances = newTList_(tc_p_ExtractPrototypeMemberDeclarations_ExtractionInstance)
 	this.totalDelta = 0
 }
 
@@ -221,7 +221,7 @@ func new_ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo() *ExtractPro
 type ExtractPrototypeMemberDeclarations_GatherExtractionInfo struct {
 	NodeTraversal_AbstractShallowCallback
 	outer_           *ExtractPrototypeMemberDeclarations
-	instancesByChunk *JTMap[*JSChunk, *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo]
+	instancesByChunk *TMap[*JSChunk, *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo]
 }
 
 func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) up_NodeTraversal_AbstractShallowCallback() *NodeTraversal_AbstractShallowCallback {
@@ -232,7 +232,7 @@ func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) up_NodeTrav
 }
 
 func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) finit_ExtractPrototypeMemberDeclarations_GatherExtractionInfo() {
-	this.instancesByChunk = jnewTMap_(jtc_p_JSChunk, jtc_p_ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo)
+	this.instancesByChunk = newTMap_(tc_p_JSChunk, tc_p_ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo)
 }
 
 func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) init_ExtractPrototypeMemberDeclarations_GatherExtractionInfo() {
@@ -262,10 +262,10 @@ func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) visit_impl(
 			var instance *ExtractPrototypeMemberDeclarations_ExtractionInstance = new_ExtractPrototypeMemberDeclarations_ExtractionInstance(this.outer_, prototypeMember, n)
 			cur = Iterables_getLastT_[*ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration](instance.declarations.asIterable()).node_
 			if instance.isFavorable() {
-				this.instancesByChunk.computeIfAbsent(t.getChunk(), Function[*JSChunk, *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo](func(k *JSChunk) *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo {
+				this.instancesByChunk.ComputeIfAbsent(t.getChunk(), Function[*JSChunk, *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo](func(k *JSChunk) *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo {
 					return new_ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo()
 				}))
-				var instanceInfo *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo = this.instancesByChunk.get(t.getChunk())
+				var instanceInfo *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo = this.instancesByChunk.Get(t.getChunk())
 				instanceInfo.instances.add(instance)
 				instanceInfo.totalDelta += instance.delta
 			}
@@ -275,7 +275,7 @@ func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) visit_impl(
 
 func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) shouldExtractGlobal() bool {
 	var allModulesDelta int32 = 0
-	it_1 := this.instancesByChunk.eachValue()
+	it_1 := this.instancesByChunk.each()
 	for it_1.next() {
 		var instanceInfo *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo = it_1.v
 		allModulesDelta += instanceInfo.totalDelta
@@ -284,7 +284,7 @@ func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) shouldExtra
 }
 
 func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) shouldExtractChunk(chunk *JSChunk) bool {
-	var instanceInfo *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo = this.instancesByChunk.get(chunk)
+	var instanceInfo *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo = this.instancesByChunk.Get(chunk)
 	if instanceInfo == nil {
 		return false
 	}
@@ -293,13 +293,13 @@ func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) shouldExtra
 
 type ExtractPrototypeMemberDeclarations_ExtractionInstance struct {
 	outer_       *ExtractPrototypeMemberDeclarations
-	declarations *JTList[*ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration]
+	declarations *TList[*ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration]
 	delta        int32
 	parent       Node
 }
 
 func (this *ExtractPrototypeMemberDeclarations_ExtractionInstance) finit_ExtractPrototypeMemberDeclarations_ExtractionInstance() {
-	this.declarations = jnewTList_(jtc_p_ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration)
+	this.declarations = newTList_(tc_p_ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration)
 	this.delta = 0
 }
 

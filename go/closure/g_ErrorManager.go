@@ -8,8 +8,8 @@ type ErrorManager interface {
 	generateReport()
 	getErrorCount() int32
 	getWarningCount() int32
-	getErrors() *JTList[*JSError]
-	getWarnings() *JTList[*JSError]
+	getErrors() *TList[*JSError]
+	getWarnings() *TList[*JSError]
 	setTypedPercent(float64)
 	getTypedPercent() float64
 	hasHaltingErrors() bool
