@@ -69,7 +69,13 @@ func (this *AbstractList) subList(p0 int32, p1 int32) List {
 }
 
 type AbstractMap struct {
-	self_ any
+	self_ AbstractMap_as
+}
+
+// AbstractMap_as is implemented by AbstractMap and the classes that extend it: a cast to AbstractMap asserts to it
+// (post-flip).
+type AbstractMap_as interface {
+	as_AbstractMap() *AbstractMap
 }
 
 func (this *AbstractMap) as_AbstractMap() *AbstractMap { return this }

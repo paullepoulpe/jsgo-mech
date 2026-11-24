@@ -722,7 +722,6 @@ func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) init_TypeValidator_
 func new_TypeValidator_WellFormedTemplatizedTypeVerifier(outer_ *TypeValidator, node Node) *TypeValidator_WellFormedTemplatizedTypeVerifier {
 	this := &TypeValidator_WellFormedTemplatizedTypeVerifier{}
 	this.self_ = this
-	this.vt_Visitor_WithDefaultCase_ = this
 	this.outer_ = outer_
 	this.init_TypeValidator_WellFormedTemplatizedTypeVerifier(node)
 	return this

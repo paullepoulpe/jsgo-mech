@@ -37,7 +37,6 @@ func (this *LiveVariablesAnalysis) init_LiveVariablesAnalysis(cfg *ControlFlowGr
 func new_LiveVariablesAnalysis(cfg *ControlFlowGraph[Node], jsScope *Scope, jsScopeChild *Scope, compiler *AbstractCompiler, scopeCreator ScopeCreator, allVarsDeclaredInFunction *NodeUtil_AllVarsDeclaredInFunction) *LiveVariablesAnalysis {
 	this := &LiveVariablesAnalysis{}
 	this.self_ = this
-	this.vt_DataFlowAnalysis_ = this
 	this.init_LiveVariablesAnalysis(cfg, jsScope, jsScopeChild, compiler, scopeCreator, allVarsDeclaredInFunction)
 	return this
 }
