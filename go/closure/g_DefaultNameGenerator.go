@@ -177,7 +177,7 @@ func DefaultNameGenerator_contains(arr []*DefaultNameGenerator_CharPriority, c u
 func (this *DefaultNameGenerator) generateNextName() string {
 	var name string
 	for do_2 := true; do_2; do_2 = ((TokenStream_isKeyword(name) || Collection_contains_s(Collection(Set_un_(this.reservedNames)), name)) || DefaultNameGenerator_isBadName(name)) {
-		var sb *StringBuilder = new_StringBuilder()
+		var sb strBuilder_
 		var i int32 = this.nameCount
 		if !String_isEmpty(this.prefix_) {
 			sb.append(this.prefix_)
@@ -194,7 +194,7 @@ func (this *DefaultNameGenerator) generateNextName() string {
 			i /= int32(len(this.nonFirstChars))
 		}
 		this.nameCount++
-		name = tostrR_(sb)
+		name = sb.toString()
 	}
 	return name
 }

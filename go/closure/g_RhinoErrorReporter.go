@@ -44,11 +44,12 @@ func new_RhinoErrorReporter(internalReporter ErrorHandler) *RhinoErrorReporter {
 
 func RhinoErrorReporter_replacePlaceHolders(s string) *Pattern {
 	var parts []string = RhinoErrorReporter_PLACE_HOLDER.split_String_int(s, -1)
-	var regex *StringBuilder = new_StringBuilder_String(Pattern_quote(parts[0]))
+	var regex strBuilder_
+	regex.append(Pattern_quote(parts[0]))
 	for i := int32(1); i < int32(len(parts)); i++ {
 		regex.append(JavaRegex_DOT).append("*").append(Pattern_quote(parts[i]))
 	}
-	return Pattern_compile(tostrR_(regex))
+	return Pattern_compile(regex.toString())
 }
 
 func RhinoErrorReporter_forOldRhino(internalReporter ErrorHandler) ErrorReporter_rhino {
