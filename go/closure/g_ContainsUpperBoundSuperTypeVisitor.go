@@ -45,31 +45,31 @@ func (this *ContainsUpperBoundSuperTypeVisitor) caseDefault_impl(type_ *JSType) 
 	}()
 }
 
-func (this *ContainsUpperBoundSuperTypeVisitor) caseTemplateType_impl(type_ *TemplateType) any {
-	return obj_(this.caseForwardingType(type_.up_JSType(), type_.getBound()))
+func (this *ContainsUpperBoundSuperTypeVisitor) caseTemplateType_impl(type_ *TemplateType) ContainsUpperBoundSuperTypeVisitor_Result {
+	return this.caseForwardingType(type_.up_JSType(), type_.getBound())
 }
 
-func (this *ContainsUpperBoundSuperTypeVisitor) caseNamedType_impl(type_ *NamedType) any {
-	return obj_(this.caseForwardingType(type_.up_JSType(), type_.getReferencedType()))
+func (this *ContainsUpperBoundSuperTypeVisitor) caseNamedType_impl(type_ *NamedType) ContainsUpperBoundSuperTypeVisitor_Result {
+	return this.caseForwardingType(type_.up_JSType(), type_.getReferencedType())
 }
 
-func (this *ContainsUpperBoundSuperTypeVisitor) caseTemplatizedType_impl(type_ *TemplatizedType) any {
-	return obj_(this.caseForwardingType(type_.up_JSType(), type_.getReferencedType().up_JSType()))
+func (this *ContainsUpperBoundSuperTypeVisitor) caseTemplatizedType_impl(type_ *TemplatizedType) ContainsUpperBoundSuperTypeVisitor_Result {
+	return this.caseForwardingType(type_.up_JSType(), type_.getReferencedType().up_JSType())
 }
 
-func (this *ContainsUpperBoundSuperTypeVisitor) caseUnionType_impl(type_ *UnionType) any {
+func (this *ContainsUpperBoundSuperTypeVisitor) caseUnionType_impl(type_ *UnionType) ContainsUpperBoundSuperTypeVisitor_Result {
 	if type_.up_JSType() == this.target {
-		return obj_(ContainsUpperBoundSuperTypeVisitor_Result_PRESENT)
+		return ContainsUpperBoundSuperTypeVisitor_Result_PRESENT
 	}
 	l_1 := type_.getAlternates()
 	for i_1 := 0; i_1 < len(l_1.items); i_1++ {
 		var alt *JSType = l_1.items[i_1]
-		var foundInAlt ContainsUpperBoundSuperTypeVisitor_Result = cast_[ContainsUpperBoundSuperTypeVisitor_Result](alt.visit(Visitor(this)))
+		var foundInAlt ContainsUpperBoundSuperTypeVisitor_Result = JSType_visit(alt, Visitor[ContainsUpperBoundSuperTypeVisitor_Result](this))
 		if foundInAlt != ContainsUpperBoundSuperTypeVisitor_Result_ABSENT {
-			return obj_(foundInAlt)
+			return foundInAlt
 		}
 	}
-	return obj_(ContainsUpperBoundSuperTypeVisitor_Result_ABSENT)
+	return ContainsUpperBoundSuperTypeVisitor_Result_ABSENT
 }
 
 func (this *ContainsUpperBoundSuperTypeVisitor) caseForwardingType(type_ *JSType, reference *JSType) ContainsUpperBoundSuperTypeVisitor_Result {
@@ -79,7 +79,7 @@ func (this *ContainsUpperBoundSuperTypeVisitor) caseForwardingType(type_ *JSType
 		return ContainsUpperBoundSuperTypeVisitor_Result_CYCLE
 	} else {
 		this.seen.add(type_)
-		return cast_[ContainsUpperBoundSuperTypeVisitor_Result](reference.visit(Visitor(this)))
+		return JSType_visit(reference, Visitor[ContainsUpperBoundSuperTypeVisitor_Result](this))
 	}
 }
 

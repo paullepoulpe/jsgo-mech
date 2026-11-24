@@ -70,10 +70,6 @@ func (this *NumberType) getPossibleToBooleanOutcomes_impl() BooleanLiteralSet {
 	return BooleanLiteralSet_BOTH
 }
 
-func (this *NumberType) visitUntyped_impl(visitor Visitor) any {
-	return visitor.caseNumberType()
-}
-
 func (this *NumberType) autoboxesTo_impl() *JSType {
 	return this.getNativeType(JSTypeNative_NUMBER_OBJECT_TYPE)
 }
@@ -140,14 +136,6 @@ func (this *NumberType) getPossibleToBooleanOutcomes() BooleanLiteralSet {
 		return this.getPossibleToBooleanOutcomes_impl()
 	}
 	return this.self_.getPossibleToBooleanOutcomes_impl()
-}
-
-// visitUntyped: an object that is exactly a NumberType calls its visitUntyped_impl directly (post-flip); others dispatch.
-func (this *NumberType) visitUntyped(p0 Visitor) any {
-	if p, _ := this.self_.(*NumberType); p == this {
-		return this.visitUntyped_impl(p0)
-	}
-	return this.self_.visitUntyped_impl(p0)
 }
 
 // autoboxesTo: an object that is exactly a NumberType calls its autoboxesTo_impl directly (post-flip); others dispatch.
