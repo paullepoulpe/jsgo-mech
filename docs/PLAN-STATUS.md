@@ -235,6 +235,12 @@ Subset CPU against main's binary, three rounds: 161.93 to 161.67 s (-0.2%, neutr
 
 ## Open
 
+- Compile memory: during the eighth flip (2026-11-24) one `go test ./closure` compile of the
+  post-flip package had 21.8 GB resident on this 23 GB host (observed with ps, one sample). The
+  session's low-memory guard killed another agent's waiting pipeline. Every gate and timing build
+  compiles this package; a few more rules that grow it may make the gate fail to compile here.
+  Not yet measured per tree (peak RSS of the compile of each flip's tree would say how fast it
+  grows).
 - Translator bug (pre-existing, found by piece objarg's self-test, main-libgen-t4): in the
   erased translation (all switches off), a TreeMap<Dog> built with a Comparator<Animal> and read
   with an Animal key panics; Java returns normally. Not located; the self-test uses a
