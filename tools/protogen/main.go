@@ -30,6 +30,13 @@ var (
 	extMethods []extEntry
 	extFuncs   []extEntry
 	problems   []string
+
+	// Rule T5 of docs/javaisms6/JAVAISMS6.md (PROTOGEN_NOT5=1 generates without it): typed
+	// accessors next to the erased ones, which the translator's piece `proto` calls
+	// (J2GO_NOLIBGEN=proto): getFooList_t() ListT[X] for a repeated field of a message or string
+	// type, on the message and its builder (and in FooOrBuilder where protogen declares it), and
+	// toBuilder_t() *Foo_Builder on the message.
+	t5 = os.Getenv("PROTOGEN_NOT5") == ""
 )
 
 // extEntry is one line of externals.tsv.
@@ -426,7 +433,7 @@ func (m *method) suffix() string {
 func lookupMethod(owners []string, java, params string) *extEntry {
 	for i := range extMethods {
 		e := &extMethods[i]
-		if e.java != java || e.params != params {
+		if e.java != java || e.params != params || typedName(e.goName) {
 			continue
 		}
 		for _, o := range owners {
@@ -437,6 +444,30 @@ func lookupMethod(owners []string, java, params string) *extEntry {
 		}
 	}
 	return nil
+}
+
+// typedName: a typed accessor of rule T5 (getFooList_t, toBuilder_t), which no erased method is named after.
+func typedName(goName string) bool {
+	return strings.HasSuffix(goName, "_t") && (goName == "toBuilder_t" || strings.HasPrefix(goName, "get") && strings.HasSuffix(goName, "List_t"))
+}
+
+// markTyped marks the externals.tsv entries of typed accessor mt as generated (it has a fixed
+// name) and checks the result the translator expects.
+func markTyped(owners []string, mt *method) {
+	for i := range extMethods {
+		e := &extMethods[i]
+		if e.goName != mt.name || e.params != mt.sig() {
+			continue
+		}
+		for _, o := range owners {
+			if e.owner == o {
+				e.seen = true
+				if e.ret != mt.ret {
+					problems = append(problems, fmt.Sprintf("%s.%s: translator expects result %q, generated %q", o, mt.name, e.ret, mt.ret))
+				}
+			}
+		}
+	}
 }
 
 func lookupFunc(class, java, params string) *extEntry {
@@ -939,6 +970,30 @@ func (g *gen) message(m *Message) {
 	ms = append(ms, &method{java: "mergeFrom", params: []string{"*" + G}, tokens: []string{simple}, ret: "*" + GB,
 		body: "this.mergeData_(pbDataOf_(obj_(p0)))\n\treturn this", builder: true, name: "mergeFrom_" + simple})
 
+	// Rule T5: the typed accessors (names fixed: the Java name and _t, as the translator calls them).
+	var typed []*method
+	if t5 {
+		for i, fd := range m.Fields {
+			if !fd.Rep {
+				continue
+			}
+			var et string
+			switch fd.Kind {
+			case "message":
+				et = "*" + fd.Msg.Go
+			case "string":
+				et = "string"
+			default:
+				continue
+			}
+			N := camel(fd.Name, true)
+			typed = append(typed, &method{java: "get" + N + "List", ret: "ListT[" + et + "]", name: "get" + N + "List_t",
+				body: fmt.Sprintf("return pbListT_[%s](&this.pbData_, %d)", et, i)})
+		}
+		typed = append(typed, &method{java: "toBuilder", ret: "*" + GB, name: "toBuilder_t", builder: true,
+			body: "return this.toBuilder().(*" + GB + ")"})
+	}
+
 	var iface []*method
 	g.emitGroups(ms, func(mt *method) *extEntry {
 		owners := []string{GB}
@@ -955,6 +1010,22 @@ func (g *gen) message(m *Message) {
 		g.p("")
 		g.p("func (this *%s) %s(%s) %s {\n\t%s\n}", GB, mt.name, named(mt.params), mt.ret, mt.body)
 	})
+
+	for _, mt := range typed {
+		// (builder: here, the method of the message only)
+		owners := []string{G}
+		if !mt.builder {
+			owners = []string{GO, G, GB}
+		}
+		markTyped(owners, mt)
+		g.p("")
+		g.p("func (this *%s) %s(%s) %s {\n\t%s\n}", G, mt.name, named(mt.params), mt.ret, mt.body)
+		if !mt.builder {
+			iface = append(iface, mt)
+			g.p("")
+			g.p("func (this *%s) %s(%s) %s {\n\t%s\n}", GB, mt.name, named(mt.params), mt.ret, mt.body)
+		}
+	}
 
 	if !stubIface[GO] {
 		g.p("")

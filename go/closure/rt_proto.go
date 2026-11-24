@@ -373,6 +373,18 @@ func (this *pbData_) list_(i int) List {
 	return listOf_(a[:len(a):len(a)])
 }
 
+// pbListT_ is getFooList_t() (protogen's typed list accessor, rule T5 of docs/javaisms6): the
+// elements of repeated field i of a message or string type, as a typed list of T. A new list each
+// call, as list_ is for a builder.
+func pbListT_[T any](d *pbData_, i int) ListT[T] {
+	a := d.rep_(i)
+	l := newTListN_(tcT_[T](), int32(len(a)))
+	for _, v := range a {
+		l.items = append(l.items, pbBuilt_(v).(T))
+	}
+	return &l.view
+}
+
 // enumList_ is getFooList() of a repeated enum field.
 func (this *pbData_) enumList_(i int, conv func(int32) any) List {
 	a := this.rep_(i)

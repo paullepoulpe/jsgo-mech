@@ -1502,6 +1502,14 @@ abstract class ExprEmitter extends Base {
       ret = cx.lg.rt(ret);
     }
     String name = cx.methodName(e);
+    // piece `proto` (LibProto, rule candidate T5): the typed accessor of a protobuf message that protogen writes
+    LibProto.Typed pb = !src && !superCall && recv != null ? cx.pb.typed(e) : null;
+    if (pb != null) {
+      name = pb.name();
+      params = List.of();
+      ret = pb.ret();
+      noteMethod("method " + cx.className(cx.ownerOf(pb.noteAs())) + "." + name, pb.noteAs(), params, ret, "method");
+    }
     if (src && !superCall && cx.cmp.typedCall(e, site)) {
       // piece `cmp` (LibCmp): x.compareTo(y) on a receiver of a class with compareTo_t, the argument at its type
       name = LibCmp.TYPED;
@@ -1541,7 +1549,7 @@ abstract class ExprEmitter extends Base {
     } else if (recv != null && cx.isTypedColl(recv.type) && cx.lg.is(ret) && name.equals("iterator")) {
       // the iterator of a typed collection, at its element type
       name = "iterator_t";
-    } else if (!src) noteMethod("method " + cx.className(cx.ownerOf(cx.root(e))) + "." + name, cx.root(e), params, ret, "method");
+    } else if (!src && pb == null) noteMethod("method " + cx.className(cx.ownerOf(cx.root(e))) + "." + name, cx.root(e), params, ret, "method");
     String strVariant = null;
     if (!src && !superCall && recv != null) {
       List<TypeMirror> sp = new ArrayList<>(params);

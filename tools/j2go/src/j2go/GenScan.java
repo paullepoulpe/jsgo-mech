@@ -170,6 +170,14 @@ final class GenScan {
         super.visitVariable(t, v);
         Element e = trees.getElement(getCurrentPath());
         if (e != null && e.getKind() == ElementKind.LOCAL_VARIABLE && t.getInitializer() != null && !assigned.contains(e)) tryRefine(e, t, ty(t.getInitializer()));
+        // piece `proto` (LibProto): a ProtocolStringList local holding a string list accessor's typed list is a List<String>
+        if (e != null && e.getKind() == ElementKind.LOCAL_VARIABLE && !assigned.contains(e) && !cx.refinedVars.containsKey(e)
+            && t.getInitializer() instanceof MethodInvocationTree mi && e.asType().getKind() == TypeKind.DECLARED
+            && Ctx.typeElement(e.asType()).getQualifiedName().contentEquals("com.google.protobuf.ProtocolStringList")
+            && trees.getElement(new TreePath(getCurrentPath(), mi.getMethodSelect())) instanceof ExecutableElement m) {
+          TypeMirror r = cx.pb.varLocal(m);
+          if (r != null) cx.refinedVars.put(e, r);
+        }
         return null;
       }
 

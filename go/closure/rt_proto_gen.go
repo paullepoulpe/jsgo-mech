@@ -327,6 +327,10 @@ func (this *Mapping_OriginalMapping_Builder) mergeFrom_OriginalMapping(p0 *Mappi
 	return this
 }
 
+func (this *Mapping_OriginalMapping) toBuilder_t() *Mapping_OriginalMapping_Builder {
+	return this.toBuilder().(*Mapping_OriginalMapping_Builder)
+}
+
 // ================================================================ java/src/com/google/javascript/jscomp/additional_conformance_report.proto
 
 // ---- message jscomp.AdditionalConformanceReport
@@ -529,6 +533,18 @@ func (this *AdditionalConformanceReport_Builder) mergeFrom_AdditionalConformance
 	return this
 }
 
+func (this *AdditionalConformanceReport) getReportByRuleIdList_t() ListT[*AdditionalConformanceReport_ReportByRuleId] {
+	return pbListT_[*AdditionalConformanceReport_ReportByRuleId](&this.pbData_, 1)
+}
+
+func (this *AdditionalConformanceReport_Builder) getReportByRuleIdList_t() ListT[*AdditionalConformanceReport_ReportByRuleId] {
+	return pbListT_[*AdditionalConformanceReport_ReportByRuleId](&this.pbData_, 1)
+}
+
+func (this *AdditionalConformanceReport) toBuilder_t() *AdditionalConformanceReport_Builder {
+	return this.toBuilder().(*AdditionalConformanceReport_Builder)
+}
+
 type AdditionalConformanceReportOrBuilder interface {
 	MessageOrBuilder
 	getNumViolations() int32
@@ -537,6 +553,7 @@ type AdditionalConformanceReportOrBuilder interface {
 	getReportByRuleId(int32) *AdditionalConformanceReport_ReportByRuleId
 	getReportByRuleIdOrBuilder(int32) AdditionalConformanceReport_ReportByRuleIdOrBuilder
 	getReportByRuleIdOrBuilderList() List
+	getReportByRuleIdList_t() ListT[*AdditionalConformanceReport_ReportByRuleId]
 }
 
 // ---- message jscomp.AdditionalConformanceReport.ReportByRuleId
@@ -772,6 +789,18 @@ func (this *AdditionalConformanceReport_ReportByRuleId_Builder) mergeFrom_Report
 	return this
 }
 
+func (this *AdditionalConformanceReport_ReportByRuleId) getViolationLocationsList_t() ListT[*AdditionalConformanceReport_ViolationLocation] {
+	return pbListT_[*AdditionalConformanceReport_ViolationLocation](&this.pbData_, 2)
+}
+
+func (this *AdditionalConformanceReport_ReportByRuleId_Builder) getViolationLocationsList_t() ListT[*AdditionalConformanceReport_ViolationLocation] {
+	return pbListT_[*AdditionalConformanceReport_ViolationLocation](&this.pbData_, 2)
+}
+
+func (this *AdditionalConformanceReport_ReportByRuleId) toBuilder_t() *AdditionalConformanceReport_ReportByRuleId_Builder {
+	return this.toBuilder().(*AdditionalConformanceReport_ReportByRuleId_Builder)
+}
+
 type AdditionalConformanceReport_ReportByRuleIdOrBuilder interface {
 	MessageOrBuilder
 	getRuleId() string
@@ -782,6 +811,7 @@ type AdditionalConformanceReport_ReportByRuleIdOrBuilder interface {
 	getViolationLocations(int32) *AdditionalConformanceReport_ViolationLocation
 	getViolationLocationsOrBuilder(int32) AdditionalConformanceReport_ViolationLocationOrBuilder
 	getViolationLocationsOrBuilderList() List
+	getViolationLocationsList_t() ListT[*AdditionalConformanceReport_ViolationLocation]
 }
 
 // ---- message jscomp.AdditionalConformanceReport.ViolationLocation
@@ -965,6 +995,10 @@ func (this *AdditionalConformanceReport_ViolationLocation_Builder) setErrorMessa
 func (this *AdditionalConformanceReport_ViolationLocation_Builder) mergeFrom_ViolationLocation(p0 *AdditionalConformanceReport_ViolationLocation) *AdditionalConformanceReport_ViolationLocation_Builder {
 	this.mergeData_(pbDataOf_(obj_(p0)))
 	return this
+}
+
+func (this *AdditionalConformanceReport_ViolationLocation) toBuilder_t() *AdditionalConformanceReport_ViolationLocation_Builder {
+	return this.toBuilder().(*AdditionalConformanceReport_ViolationLocation_Builder)
 }
 
 type AdditionalConformanceReport_ViolationLocationOrBuilder interface {
@@ -2819,6 +2853,90 @@ func (this *JSCompilerStateProto_Builder) mergeFrom_JSCompilerStateProto(p0 *JSC
 	return this
 }
 
+func (this *JSCompilerStateProto) getChunksList_t() ListT[*ChunkProto] {
+	return pbListT_[*ChunkProto](&this.pbData_, 5)
+}
+
+func (this *JSCompilerStateProto_Builder) getChunksList_t() ListT[*ChunkProto] {
+	return pbListT_[*ChunkProto](&this.pbData_, 5)
+}
+
+func (this *JSCompilerStateProto) getUniqueIdSupplierList_t() ListT[*UniqueIdProto] {
+	return pbListT_[*UniqueIdProto](&this.pbData_, 7)
+}
+
+func (this *JSCompilerStateProto_Builder) getUniqueIdSupplierList_t() ListT[*UniqueIdProto] {
+	return pbListT_[*UniqueIdProto](&this.pbData_, 7)
+}
+
+func (this *JSCompilerStateProto) getExportedNamesList_t() ListT[string] {
+	return pbListT_[string](&this.pbData_, 8)
+}
+
+func (this *JSCompilerStateProto_Builder) getExportedNamesList_t() ListT[string] {
+	return pbListT_[string](&this.pbData_, 8)
+}
+
+func (this *JSCompilerStateProto) getCssNamesList_t() ListT[string] {
+	return pbListT_[string](&this.pbData_, 10)
+}
+
+func (this *JSCompilerStateProto_Builder) getCssNamesList_t() ListT[string] {
+	return pbListT_[string](&this.pbData_, 10)
+}
+
+func (this *JSCompilerStateProto) getExternsList_t() ListT[string] {
+	return pbListT_[string](&this.pbData_, 15)
+}
+
+func (this *JSCompilerStateProto_Builder) getExternsList_t() ListT[string] {
+	return pbListT_[string](&this.pbData_, 15)
+}
+
+func (this *JSCompilerStateProto) getInjectedLibrariesList_t() ListT[string] {
+	return pbListT_[string](&this.pbData_, 16)
+}
+
+func (this *JSCompilerStateProto_Builder) getInjectedLibrariesList_t() ListT[string] {
+	return pbListT_[string](&this.pbData_, 16)
+}
+
+func (this *JSCompilerStateProto) getStringMapList_t() ListT[*VariableMapEntryProto] {
+	return pbListT_[*VariableMapEntryProto](&this.pbData_, 20)
+}
+
+func (this *JSCompilerStateProto_Builder) getStringMapList_t() ListT[*VariableMapEntryProto] {
+	return pbListT_[*VariableMapEntryProto](&this.pbData_, 20)
+}
+
+func (this *JSCompilerStateProto) getInstrumentationMappingList_t() ListT[*VariableMapEntryProto] {
+	return pbListT_[*VariableMapEntryProto](&this.pbData_, 22)
+}
+
+func (this *JSCompilerStateProto_Builder) getInstrumentationMappingList_t() ListT[*VariableMapEntryProto] {
+	return pbListT_[*VariableMapEntryProto](&this.pbData_, 22)
+}
+
+func (this *JSCompilerStateProto) getConformanceViolationsList_t() ListT[*ConformanceViolationsProto] {
+	return pbListT_[*ConformanceViolationsProto](&this.pbData_, 23)
+}
+
+func (this *JSCompilerStateProto_Builder) getConformanceViolationsList_t() ListT[*ConformanceViolationsProto] {
+	return pbListT_[*ConformanceViolationsProto](&this.pbData_, 23)
+}
+
+func (this *JSCompilerStateProto) getUnattributedConformanceViolationsList_t() ListT[*ViolationProto] {
+	return pbListT_[*ViolationProto](&this.pbData_, 24)
+}
+
+func (this *JSCompilerStateProto_Builder) getUnattributedConformanceViolationsList_t() ListT[*ViolationProto] {
+	return pbListT_[*ViolationProto](&this.pbData_, 24)
+}
+
+func (this *JSCompilerStateProto) toBuilder_t() *JSCompilerStateProto_Builder {
+	return this.toBuilder().(*JSCompilerStateProto_Builder)
+}
+
 // ---- message jscomp.ChunkProto
 
 type ChunkProto struct {
@@ -3034,6 +3152,18 @@ func (this *ChunkProto_Builder) mergeFrom_ChunkProto(p0 *ChunkProto) *ChunkProto
 	return this
 }
 
+func (this *ChunkProto) getInputIdsList_t() ListT[string] {
+	return pbListT_[string](&this.pbData_, 2)
+}
+
+func (this *ChunkProto_Builder) getInputIdsList_t() ListT[string] {
+	return pbListT_[string](&this.pbData_, 2)
+}
+
+func (this *ChunkProto) toBuilder_t() *ChunkProto_Builder {
+	return this.toBuilder().(*ChunkProto_Builder)
+}
+
 // ---- message jscomp.UniqueIdProto
 
 type UniqueIdProto struct {
@@ -3149,6 +3279,10 @@ func (this *UniqueIdProto_Builder) clearCounter() *UniqueIdProto_Builder {
 func (this *UniqueIdProto_Builder) mergeFrom_UniqueIdProto(p0 *UniqueIdProto) *UniqueIdProto_Builder {
 	this.mergeData_(pbDataOf_(obj_(p0)))
 	return this
+}
+
+func (this *UniqueIdProto) toBuilder_t() *UniqueIdProto_Builder {
+	return this.toBuilder().(*UniqueIdProto_Builder)
 }
 
 // ---- message jscomp.AccessorSummaryEntryProto
@@ -3292,6 +3426,10 @@ func (this *AccessorSummaryEntryProto_Builder) setKindValue(p0 int32) *AccessorS
 func (this *AccessorSummaryEntryProto_Builder) mergeFrom_AccessorSummaryEntryProto(p0 *AccessorSummaryEntryProto) *AccessorSummaryEntryProto_Builder {
 	this.mergeData_(pbDataOf_(obj_(p0)))
 	return this
+}
+
+func (this *AccessorSummaryEntryProto) toBuilder_t() *AccessorSummaryEntryProto_Builder {
+	return this.toBuilder().(*AccessorSummaryEntryProto_Builder)
 }
 
 // ---- message jscomp.AccessorSummaryProto
@@ -3494,6 +3632,18 @@ func (this *AccessorSummaryProto_Builder) mergeFrom_AccessorSummaryProto(p0 *Acc
 	return this
 }
 
+func (this *AccessorSummaryProto) getAccessorsList_t() ListT[*AccessorSummaryEntryProto] {
+	return pbListT_[*AccessorSummaryEntryProto](&this.pbData_, 1)
+}
+
+func (this *AccessorSummaryProto_Builder) getAccessorsList_t() ListT[*AccessorSummaryEntryProto] {
+	return pbListT_[*AccessorSummaryEntryProto](&this.pbData_, 1)
+}
+
+func (this *AccessorSummaryProto) toBuilder_t() *AccessorSummaryProto_Builder {
+	return this.toBuilder().(*AccessorSummaryProto_Builder)
+}
+
 // ---- message jscomp.VariableMapEntryProto
 
 type VariableMapEntryProto struct {
@@ -3635,6 +3785,10 @@ func (this *VariableMapEntryProto_Builder) setNewNameBytes(p0 *ByteString) *Vari
 func (this *VariableMapEntryProto_Builder) mergeFrom_VariableMapEntryProto(p0 *VariableMapEntryProto) *VariableMapEntryProto_Builder {
 	this.mergeData_(pbDataOf_(obj_(p0)))
 	return this
+}
+
+func (this *VariableMapEntryProto) toBuilder_t() *VariableMapEntryProto_Builder {
+	return this.toBuilder().(*VariableMapEntryProto_Builder)
 }
 
 // ---- message jscomp.ConformanceViolationsProto
@@ -3850,6 +4004,18 @@ func (this *ConformanceViolationsProto_Builder) mergeFrom_ConformanceViolationsP
 	return this
 }
 
+func (this *ConformanceViolationsProto) getViolationsList_t() ListT[*ViolationProto] {
+	return pbListT_[*ViolationProto](&this.pbData_, 1)
+}
+
+func (this *ConformanceViolationsProto_Builder) getViolationsList_t() ListT[*ViolationProto] {
+	return pbListT_[*ViolationProto](&this.pbData_, 1)
+}
+
+func (this *ConformanceViolationsProto) toBuilder_t() *ConformanceViolationsProto_Builder {
+	return this.toBuilder().(*ConformanceViolationsProto_Builder)
+}
+
 type ConformanceViolationsProtoOrBuilder interface {
 	MessageOrBuilder
 	getInputName() string
@@ -3859,6 +4025,7 @@ type ConformanceViolationsProtoOrBuilder interface {
 	getViolations(int32) *ViolationProto
 	getViolationsOrBuilder(int32) ViolationProtoOrBuilder
 	getViolationsOrBuilderList() List
+	getViolationsList_t() ListT[*ViolationProto]
 }
 
 // ---- message jscomp.ViolationProto
@@ -4137,6 +4304,10 @@ func (this *ViolationProto_Builder) clearShouldReportDuringLibraryDepsConformanc
 func (this *ViolationProto_Builder) mergeFrom_ViolationProto(p0 *ViolationProto) *ViolationProto_Builder {
 	this.mergeData_(pbDataOf_(obj_(p0)))
 	return this
+}
+
+func (this *ViolationProto) toBuilder_t() *ViolationProto_Builder {
+	return this.toBuilder().(*ViolationProto_Builder)
 }
 
 type ViolationProtoOrBuilder interface {
@@ -4830,6 +5001,18 @@ func (this *ConformanceConfig_Builder) clearLibraryLevelNonAllowlistedConformanc
 func (this *ConformanceConfig_Builder) mergeFrom_ConformanceConfig(p0 *ConformanceConfig) *ConformanceConfig_Builder {
 	this.mergeData_(pbDataOf_(obj_(p0)))
 	return this
+}
+
+func (this *ConformanceConfig) getRequirementList_t() ListT[*Requirement] {
+	return pbListT_[*Requirement](&this.pbData_, 0)
+}
+
+func (this *ConformanceConfig_Builder) getRequirementList_t() ListT[*Requirement] {
+	return pbListT_[*Requirement](&this.pbData_, 0)
+}
+
+func (this *ConformanceConfig) toBuilder_t() *ConformanceConfig_Builder {
+	return this.toBuilder().(*ConformanceConfig_Builder)
 }
 
 // ---- message jscomp.Requirement
@@ -5891,6 +6074,90 @@ func (this *Requirement_Builder) mergeFrom_Requirement(p0 *Requirement) *Require
 	return this
 }
 
+func (this *Requirement) getWhitelistList_t() ListT[string] {
+	return pbListT_[string](&this.pbData_, 1)
+}
+
+func (this *Requirement_Builder) getWhitelistList_t() ListT[string] {
+	return pbListT_[string](&this.pbData_, 1)
+}
+
+func (this *Requirement) getWhitelistRegexpList_t() ListT[string] {
+	return pbListT_[string](&this.pbData_, 2)
+}
+
+func (this *Requirement_Builder) getWhitelistRegexpList_t() ListT[string] {
+	return pbListT_[string](&this.pbData_, 2)
+}
+
+func (this *Requirement) getAllowlistList_t() ListT[string] {
+	return pbListT_[string](&this.pbData_, 3)
+}
+
+func (this *Requirement_Builder) getAllowlistList_t() ListT[string] {
+	return pbListT_[string](&this.pbData_, 3)
+}
+
+func (this *Requirement) getAllowlistRegexpList_t() ListT[string] {
+	return pbListT_[string](&this.pbData_, 4)
+}
+
+func (this *Requirement_Builder) getAllowlistRegexpList_t() ListT[string] {
+	return pbListT_[string](&this.pbData_, 4)
+}
+
+func (this *Requirement) getWhitelistEntryList_t() ListT[*RequirementScopeEntry] {
+	return pbListT_[*RequirementScopeEntry](&this.pbData_, 5)
+}
+
+func (this *Requirement_Builder) getWhitelistEntryList_t() ListT[*RequirementScopeEntry] {
+	return pbListT_[*RequirementScopeEntry](&this.pbData_, 5)
+}
+
+func (this *Requirement) getAllowlistEntryList_t() ListT[*RequirementScopeEntry] {
+	return pbListT_[*RequirementScopeEntry](&this.pbData_, 6)
+}
+
+func (this *Requirement_Builder) getAllowlistEntryList_t() ListT[*RequirementScopeEntry] {
+	return pbListT_[*RequirementScopeEntry](&this.pbData_, 6)
+}
+
+func (this *Requirement) getOnlyApplyToList_t() ListT[string] {
+	return pbListT_[string](&this.pbData_, 7)
+}
+
+func (this *Requirement_Builder) getOnlyApplyToList_t() ListT[string] {
+	return pbListT_[string](&this.pbData_, 7)
+}
+
+func (this *Requirement) getOnlyApplyToRegexpList_t() ListT[string] {
+	return pbListT_[string](&this.pbData_, 8)
+}
+
+func (this *Requirement_Builder) getOnlyApplyToRegexpList_t() ListT[string] {
+	return pbListT_[string](&this.pbData_, 8)
+}
+
+func (this *Requirement) getValueList_t() ListT[string] {
+	return pbListT_[string](&this.pbData_, 10)
+}
+
+func (this *Requirement_Builder) getValueList_t() ListT[string] {
+	return pbListT_[string](&this.pbData_, 10)
+}
+
+func (this *Requirement) getConfigFileList_t() ListT[string] {
+	return pbListT_[string](&this.pbData_, 18)
+}
+
+func (this *Requirement_Builder) getConfigFileList_t() ListT[string] {
+	return pbListT_[string](&this.pbData_, 18)
+}
+
+func (this *Requirement) toBuilder_t() *Requirement_Builder {
+	return this.toBuilder().(*Requirement_Builder)
+}
+
 // ---- message jscomp.RequirementScopeEntry
 
 type RequirementScopeEntry struct {
@@ -6270,6 +6537,34 @@ func (this *RequirementScopeEntry_Builder) mergeFrom_RequirementScopeEntry(p0 *R
 	return this
 }
 
+func (this *RequirementScopeEntry) getPrefixList_t() ListT[string] {
+	return pbListT_[string](&this.pbData_, 1)
+}
+
+func (this *RequirementScopeEntry_Builder) getPrefixList_t() ListT[string] {
+	return pbListT_[string](&this.pbData_, 1)
+}
+
+func (this *RequirementScopeEntry) getRegexpList_t() ListT[string] {
+	return pbListT_[string](&this.pbData_, 2)
+}
+
+func (this *RequirementScopeEntry_Builder) getRegexpList_t() ListT[string] {
+	return pbListT_[string](&this.pbData_, 2)
+}
+
+func (this *RequirementScopeEntry) getCommentList_t() ListT[string] {
+	return pbListT_[string](&this.pbData_, 4)
+}
+
+func (this *RequirementScopeEntry_Builder) getCommentList_t() ListT[string] {
+	return pbListT_[string](&this.pbData_, 4)
+}
+
+func (this *RequirementScopeEntry) toBuilder_t() *RequirementScopeEntry_Builder {
+	return this.toBuilder().(*RequirementScopeEntry_Builder)
+}
+
 // ---- message jscomp.RequirementScope
 
 type RequirementScope struct {
@@ -6594,6 +6889,26 @@ func (this *RequirementScope_Builder) mergeFrom_RequirementScope(p0 *Requirement
 	return this
 }
 
+func (this *RequirementScope) getAllowlistList_t() ListT[*RequirementScopeEntry] {
+	return pbListT_[*RequirementScopeEntry](&this.pbData_, 1)
+}
+
+func (this *RequirementScope_Builder) getAllowlistList_t() ListT[*RequirementScopeEntry] {
+	return pbListT_[*RequirementScopeEntry](&this.pbData_, 1)
+}
+
+func (this *RequirementScope) getOnlyApplyToList_t() ListT[*RequirementScopeEntry] {
+	return pbListT_[*RequirementScopeEntry](&this.pbData_, 2)
+}
+
+func (this *RequirementScope_Builder) getOnlyApplyToList_t() ListT[*RequirementScopeEntry] {
+	return pbListT_[*RequirementScopeEntry](&this.pbData_, 2)
+}
+
+func (this *RequirementScope) toBuilder_t() *RequirementScope_Builder {
+	return this.toBuilder().(*RequirementScope_Builder)
+}
+
 type RequirementScopeOrBuilder interface {
 	MessageOrBuilder
 	hasRuleId() bool
@@ -6609,6 +6924,8 @@ type RequirementScopeOrBuilder interface {
 	getOnlyApplyTo(int32) *RequirementScopeEntry
 	getOnlyApplyToOrBuilder(int32) RequirementScopeEntryOrBuilder
 	getOnlyApplyToOrBuilderList() List
+	getAllowlistList_t() ListT[*RequirementScopeEntry]
+	getOnlyApplyToList_t() ListT[*RequirementScopeEntry]
 }
 
 // ================================================================ java/src/com/google/javascript/jscomp/instrumentation/reporter/proto/profile.proto
@@ -7014,6 +7331,10 @@ func (this *InstrumentationPoint_Builder) mergeFrom_InstrumentationPoint(p0 *Ins
 	return this
 }
 
+func (this *InstrumentationPoint) toBuilder_t() *InstrumentationPoint_Builder {
+	return this.toBuilder().(*InstrumentationPoint_Builder)
+}
+
 // ---- message third_party.java_src.jscomp.java.com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPointStats
 
 type InstrumentationPointStats struct {
@@ -7195,6 +7516,10 @@ func (this *InstrumentationPointStats_Builder) clearPointPresence() *Instrumenta
 func (this *InstrumentationPointStats_Builder) mergeFrom_InstrumentationPointStats(p0 *InstrumentationPointStats) *InstrumentationPointStats_Builder {
 	this.mergeData_(pbDataOf_(obj_(p0)))
 	return this
+}
+
+func (this *InstrumentationPointStats) toBuilder_t() *InstrumentationPointStats_Builder {
+	return this.toBuilder().(*InstrumentationPointStats_Builder)
 }
 
 // ---- message third_party.java_src.jscomp.java.com.google.javascript.jscomp.instrumentation.reporter.proto.FileProfile
@@ -7418,6 +7743,18 @@ func (this *FileProfile_Builder) mergeFrom_FileProfile(p0 *FileProfile) *FilePro
 	return this
 }
 
+func (this *FileProfile) getInstrumentationPointsStatsList_t() ListT[*InstrumentationPointStats] {
+	return pbListT_[*InstrumentationPointStats](&this.pbData_, 1)
+}
+
+func (this *FileProfile_Builder) getInstrumentationPointsStatsList_t() ListT[*InstrumentationPointStats] {
+	return pbListT_[*InstrumentationPointStats](&this.pbData_, 1)
+}
+
+func (this *FileProfile) toBuilder_t() *FileProfile_Builder {
+	return this.toBuilder().(*FileProfile_Builder)
+}
+
 // ---- message third_party.java_src.jscomp.java.com.google.javascript.jscomp.instrumentation.reporter.proto.ReportProfile
 
 type ReportProfile struct {
@@ -7596,6 +7933,18 @@ func (this *ReportProfile_Builder) getFileProfileBuilderList() List {
 func (this *ReportProfile_Builder) mergeFrom_ReportProfile(p0 *ReportProfile) *ReportProfile_Builder {
 	this.mergeData_(pbDataOf_(obj_(p0)))
 	return this
+}
+
+func (this *ReportProfile) getFileProfileList_t() ListT[*FileProfile] {
+	return pbListT_[*FileProfile](&this.pbData_, 0)
+}
+
+func (this *ReportProfile_Builder) getFileProfileList_t() ListT[*FileProfile] {
+	return pbListT_[*FileProfile](&this.pbData_, 0)
+}
+
+func (this *ReportProfile) toBuilder_t() *ReportProfile_Builder {
+	return this.toBuilder().(*ReportProfile_Builder)
 }
 
 // ================================================================ java/src/com/google/javascript/jscomp/jscompiler_conformance_report.proto
@@ -8005,6 +8354,10 @@ func (this *JsCompilerConformanceReportWrapper_Builder) mergeFrom_JsCompilerConf
 	return this
 }
 
+func (this *JsCompilerConformanceReportWrapper) toBuilder_t() *JsCompilerConformanceReportWrapper_Builder {
+	return this.toBuilder().(*JsCompilerConformanceReportWrapper_Builder)
+}
+
 type JsCompilerConformanceReportWrapperOrBuilder interface {
 	MessageOrBuilder
 	hasMainReport() bool
@@ -8314,6 +8667,18 @@ func (this *JsCompilerConformanceReport_Builder) mergeFrom_JsCompilerConformance
 	return this
 }
 
+func (this *JsCompilerConformanceReport) getViolationsList_t() ListT[*JsCompilerConformanceReport_ConformanceViolation] {
+	return pbListT_[*JsCompilerConformanceReport_ConformanceViolation](&this.pbData_, 3)
+}
+
+func (this *JsCompilerConformanceReport_Builder) getViolationsList_t() ListT[*JsCompilerConformanceReport_ConformanceViolation] {
+	return pbListT_[*JsCompilerConformanceReport_ConformanceViolation](&this.pbData_, 3)
+}
+
+func (this *JsCompilerConformanceReport) toBuilder_t() *JsCompilerConformanceReport_Builder {
+	return this.toBuilder().(*JsCompilerConformanceReport_Builder)
+}
+
 type JsCompilerConformanceReportOrBuilder interface {
 	MessageOrBuilder
 	hasFilename() bool
@@ -8329,6 +8694,7 @@ type JsCompilerConformanceReportOrBuilder interface {
 	getViolations(int32) *JsCompilerConformanceReport_ConformanceViolation
 	getViolationsOrBuilder(int32) JsCompilerConformanceReport_ConformanceViolationOrBuilder
 	getViolationsOrBuilderList() List
+	getViolationsList_t() ListT[*JsCompilerConformanceReport_ConformanceViolation]
 }
 
 // ---- message jscomp.JsCompilerConformanceReport.ConformanceViolation
@@ -8685,6 +9051,10 @@ func (this *JsCompilerConformanceReport_ConformanceViolation_Builder) setLibrary
 func (this *JsCompilerConformanceReport_ConformanceViolation_Builder) mergeFrom_ConformanceViolation(p0 *JsCompilerConformanceReport_ConformanceViolation) *JsCompilerConformanceReport_ConformanceViolation_Builder {
 	this.mergeData_(pbDataOf_(obj_(p0)))
 	return this
+}
+
+func (this *JsCompilerConformanceReport_ConformanceViolation) toBuilder_t() *JsCompilerConformanceReport_ConformanceViolation_Builder {
+	return this.toBuilder().(*JsCompilerConformanceReport_ConformanceViolation_Builder)
 }
 
 type JsCompilerConformanceReport_ConformanceViolationOrBuilder interface {
@@ -9164,6 +9534,10 @@ func (this *OptimizationJsdoc_Builder) mergeFrom_OptimizationJsdoc(p0 *Optimizat
 	return this
 }
 
+func (this *OptimizationJsdoc) toBuilder_t() *OptimizationJsdoc_Builder {
+	return this.toBuilder().(*OptimizationJsdoc_Builder)
+}
+
 // ================================================================ java/src/com/google/javascript/rhino/typed_ast/source_file.proto
 
 // ---- enum jscomp.SourceFileProto.SourceKind
@@ -9426,6 +9800,18 @@ func (this *SourceFilePool_Builder) getSourceFileBuilderList() List {
 func (this *SourceFilePool_Builder) mergeFrom_SourceFilePool(p0 *SourceFilePool) *SourceFilePool_Builder {
 	this.mergeData_(pbDataOf_(obj_(p0)))
 	return this
+}
+
+func (this *SourceFilePool) getSourceFileList_t() ListT[*SourceFileProto] {
+	return pbListT_[*SourceFileProto](&this.pbData_, 0)
+}
+
+func (this *SourceFilePool_Builder) getSourceFileList_t() ListT[*SourceFileProto] {
+	return pbListT_[*SourceFileProto](&this.pbData_, 0)
+}
+
+func (this *SourceFilePool) toBuilder_t() *SourceFilePool_Builder {
+	return this.toBuilder().(*SourceFilePool_Builder)
 }
 
 // ---- message jscomp.SourceFileProto
@@ -9886,6 +10272,10 @@ func (this *SourceFileProto_Builder) mergeFrom_SourceFileProto(p0 *SourceFilePro
 	return this
 }
 
+func (this *SourceFileProto) toBuilder_t() *SourceFileProto_Builder {
+	return this.toBuilder().(*SourceFileProto_Builder)
+}
+
 // ---- message jscomp.SourceFileProto.FileOnDisk
 
 type SourceFileProto_FileOnDisk struct {
@@ -10027,6 +10417,10 @@ func (this *SourceFileProto_FileOnDisk_Builder) setCharsetBytes(p0 *ByteString) 
 func (this *SourceFileProto_FileOnDisk_Builder) mergeFrom_FileOnDisk(p0 *SourceFileProto_FileOnDisk) *SourceFileProto_FileOnDisk_Builder {
 	this.mergeData_(pbDataOf_(obj_(p0)))
 	return this
+}
+
+func (this *SourceFileProto_FileOnDisk) toBuilder_t() *SourceFileProto_FileOnDisk_Builder {
+	return this.toBuilder().(*SourceFileProto_FileOnDisk_Builder)
 }
 
 // ---- message jscomp.SourceFileProto.ZipEntryOnDisk
@@ -10203,6 +10597,10 @@ func (this *SourceFileProto_ZipEntryOnDisk_Builder) setCharsetBytes(p0 *ByteStri
 func (this *SourceFileProto_ZipEntryOnDisk_Builder) mergeFrom_ZipEntryOnDisk(p0 *SourceFileProto_ZipEntryOnDisk) *SourceFileProto_ZipEntryOnDisk_Builder {
 	this.mergeData_(pbDataOf_(obj_(p0)))
 	return this
+}
+
+func (this *SourceFileProto_ZipEntryOnDisk) toBuilder_t() *SourceFileProto_ZipEntryOnDisk_Builder {
+	return this.toBuilder().(*SourceFileProto_ZipEntryOnDisk_Builder)
 }
 
 // ================================================================ java/src/com/google/javascript/rhino/typed_ast/typed_ast.proto
@@ -11623,6 +12021,34 @@ func (this *TypedAst_Builder) mergeFrom_TypedAst(p0 *TypedAst) *TypedAst_Builder
 	return this
 }
 
+func (this *TypedAst) getExternAstList_t() ListT[*LazyAst] {
+	return pbListT_[*LazyAst](&this.pbData_, 2)
+}
+
+func (this *TypedAst_Builder) getExternAstList_t() ListT[*LazyAst] {
+	return pbListT_[*LazyAst](&this.pbData_, 2)
+}
+
+func (this *TypedAst) getCodeAstList_t() ListT[*LazyAst] {
+	return pbListT_[*LazyAst](&this.pbData_, 3)
+}
+
+func (this *TypedAst_Builder) getCodeAstList_t() ListT[*LazyAst] {
+	return pbListT_[*LazyAst](&this.pbData_, 3)
+}
+
+func (this *TypedAst) getRuntimeLibraryToInjectList_t() ListT[string] {
+	return pbListT_[string](&this.pbData_, 6)
+}
+
+func (this *TypedAst_Builder) getRuntimeLibraryToInjectList_t() ListT[string] {
+	return pbListT_[string](&this.pbData_, 6)
+}
+
+func (this *TypedAst) toBuilder_t() *TypedAst_Builder {
+	return this.toBuilder().(*TypedAst_Builder)
+}
+
 // ---- message jscomp.TypedAst.List
 
 type TypedAst_List struct {
@@ -11803,6 +12229,18 @@ func (this *TypedAst_List_Builder) mergeFrom_List(p0 *TypedAst_List) *TypedAst_L
 	return this
 }
 
+func (this *TypedAst_List) getTypedAstsList_t() ListT[*TypedAst] {
+	return pbListT_[*TypedAst](&this.pbData_, 0)
+}
+
+func (this *TypedAst_List_Builder) getTypedAstsList_t() ListT[*TypedAst] {
+	return pbListT_[*TypedAst](&this.pbData_, 0)
+}
+
+func (this *TypedAst_List) toBuilder_t() *TypedAst_List_Builder {
+	return this.toBuilder().(*TypedAst_List_Builder)
+}
+
 // ---- message jscomp.LazyAst
 
 type LazyAst struct {
@@ -11951,6 +12389,10 @@ func (this *LazyAst_Builder) setSourceMappingUrlBytes(p0 *ByteString) *LazyAst_B
 func (this *LazyAst_Builder) mergeFrom_LazyAst(p0 *LazyAst) *LazyAst_Builder {
 	this.mergeData_(pbDataOf_(obj_(p0)))
 	return this
+}
+
+func (this *LazyAst) toBuilder_t() *LazyAst_Builder {
+	return this.toBuilder().(*LazyAst_Builder)
 }
 
 // ---- message jscomp.NonLazyTypedAst
@@ -12436,6 +12878,26 @@ func (this *NonLazyTypedAst_Builder) mergeFrom_NonLazyTypedAst(p0 *NonLazyTypedA
 	return this
 }
 
+func (this *NonLazyTypedAst) getExternAstList_t() ListT[*NonLazyAst] {
+	return pbListT_[*NonLazyAst](&this.pbData_, 2)
+}
+
+func (this *NonLazyTypedAst_Builder) getExternAstList_t() ListT[*NonLazyAst] {
+	return pbListT_[*NonLazyAst](&this.pbData_, 2)
+}
+
+func (this *NonLazyTypedAst) getCodeAstList_t() ListT[*NonLazyAst] {
+	return pbListT_[*NonLazyAst](&this.pbData_, 3)
+}
+
+func (this *NonLazyTypedAst_Builder) getCodeAstList_t() ListT[*NonLazyAst] {
+	return pbListT_[*NonLazyAst](&this.pbData_, 3)
+}
+
+func (this *NonLazyTypedAst) toBuilder_t() *NonLazyTypedAst_Builder {
+	return this.toBuilder().(*NonLazyTypedAst_Builder)
+}
+
 type NonLazyTypedAstOrBuilder interface {
 	MessageOrBuilder
 	hasTypePool() bool
@@ -12460,6 +12922,8 @@ type NonLazyTypedAstOrBuilder interface {
 	hasExternsSummary() bool
 	getExternsSummary() *ExternsSummary
 	getExternsSummaryOrBuilder() ExternsSummaryOrBuilder
+	getExternAstList_t() ListT[*NonLazyAst]
+	getCodeAstList_t() ListT[*NonLazyAst]
 }
 
 // ---- message jscomp.NonLazyTypedAst.List
@@ -12642,6 +13106,18 @@ func (this *NonLazyTypedAst_List_Builder) mergeFrom_List(p0 *NonLazyTypedAst_Lis
 	return this
 }
 
+func (this *NonLazyTypedAst_List) getTypedAstsList_t() ListT[*NonLazyTypedAst] {
+	return pbListT_[*NonLazyTypedAst](&this.pbData_, 0)
+}
+
+func (this *NonLazyTypedAst_List_Builder) getTypedAstsList_t() ListT[*NonLazyTypedAst] {
+	return pbListT_[*NonLazyTypedAst](&this.pbData_, 0)
+}
+
+func (this *NonLazyTypedAst_List) toBuilder_t() *NonLazyTypedAst_List_Builder {
+	return this.toBuilder().(*NonLazyTypedAst_List_Builder)
+}
+
 type NonLazyTypedAst_ListOrBuilder interface {
 	MessageOrBuilder
 	getTypedAstsList() List
@@ -12649,6 +13125,7 @@ type NonLazyTypedAst_ListOrBuilder interface {
 	getTypedAsts(int32) *NonLazyTypedAst
 	getTypedAstsOrBuilder(int32) NonLazyTypedAstOrBuilder
 	getTypedAstsOrBuilderList() List
+	getTypedAstsList_t() ListT[*NonLazyTypedAst]
 }
 
 // ---- message jscomp.NonLazyAst
@@ -12831,6 +13308,10 @@ func (this *NonLazyAst_Builder) mergeFrom_NonLazyAst(p0 *NonLazyAst) *NonLazyAst
 	return this
 }
 
+func (this *NonLazyAst) toBuilder_t() *NonLazyAst_Builder {
+	return this.toBuilder().(*NonLazyAst_Builder)
+}
+
 type NonLazyAstOrBuilder interface {
 	MessageOrBuilder
 	hasScript() bool
@@ -12984,6 +13465,10 @@ func (this *StringPoolProto_Builder) mergeFrom_StringPoolProto(p0 *StringPoolPro
 	return this
 }
 
+func (this *StringPoolProto) toBuilder_t() *StringPoolProto_Builder {
+	return this.toBuilder().(*StringPoolProto_Builder)
+}
+
 // ---- message jscomp.ExternsSummary
 
 type ExternsSummary struct {
@@ -13105,6 +13590,10 @@ func (this *ExternsSummary_Builder) clearPropNamePtr() *ExternsSummary_Builder {
 func (this *ExternsSummary_Builder) mergeFrom_ExternsSummary(p0 *ExternsSummary) *ExternsSummary_Builder {
 	this.mergeData_(pbDataOf_(obj_(p0)))
 	return this
+}
+
+func (this *ExternsSummary) toBuilder_t() *ExternsSummary_Builder {
+	return this.toBuilder().(*ExternsSummary_Builder)
 }
 
 // ---- message jscomp.AstNode
@@ -13687,6 +14176,18 @@ func (this *AstNode_Builder) mergeFrom_AstNode(p0 *AstNode) *AstNode_Builder {
 	return this
 }
 
+func (this *AstNode) getChildList_t() ListT[*AstNode] {
+	return pbListT_[*AstNode](&this.pbData_, 1)
+}
+
+func (this *AstNode_Builder) getChildList_t() ListT[*AstNode] {
+	return pbListT_[*AstNode](&this.pbData_, 1)
+}
+
+func (this *AstNode) toBuilder_t() *AstNode_Builder {
+	return this.toBuilder().(*AstNode_Builder)
+}
+
 // ---- message jscomp.TemplateStringValue
 
 type TemplateStringValue struct {
@@ -13802,6 +14303,10 @@ func (this *TemplateStringValue_Builder) clearCookedStringPointer() *TemplateStr
 func (this *TemplateStringValue_Builder) mergeFrom_TemplateStringValue(p0 *TemplateStringValue) *TemplateStringValue_Builder {
 	this.mergeData_(pbDataOf_(obj_(p0)))
 	return this
+}
+
+func (this *TemplateStringValue) toBuilder_t() *TemplateStringValue_Builder {
+	return this.toBuilder().(*TemplateStringValue_Builder)
 }
 
 // ================================================================ java/src/com/google/javascript/rhino/typed_ast/types.proto
@@ -14247,6 +14752,26 @@ func (this *TypePool_Builder) mergeFrom_TypePool(p0 *TypePool) *TypePool_Builder
 	return this
 }
 
+func (this *TypePool) getTypeList_t() ListT[*TypeProto] {
+	return pbListT_[*TypeProto](&this.pbData_, 0)
+}
+
+func (this *TypePool_Builder) getTypeList_t() ListT[*TypeProto] {
+	return pbListT_[*TypeProto](&this.pbData_, 0)
+}
+
+func (this *TypePool) getDisambiguationEdgesList_t() ListT[*SubtypingEdge] {
+	return pbListT_[*SubtypingEdge](&this.pbData_, 1)
+}
+
+func (this *TypePool_Builder) getDisambiguationEdgesList_t() ListT[*SubtypingEdge] {
+	return pbListT_[*SubtypingEdge](&this.pbData_, 1)
+}
+
+func (this *TypePool) toBuilder_t() *TypePool_Builder {
+	return this.toBuilder().(*TypePool_Builder)
+}
+
 // ---- message jscomp.TypePool.DebugInfo
 
 type TypePool_DebugInfo struct {
@@ -14427,6 +14952,18 @@ func (this *TypePool_DebugInfo_Builder) mergeFrom_DebugInfo(p0 *TypePool_DebugIn
 	return this
 }
 
+func (this *TypePool_DebugInfo) getMismatchList_t() ListT[*TypePool_DebugInfo_Mismatch] {
+	return pbListT_[*TypePool_DebugInfo_Mismatch](&this.pbData_, 0)
+}
+
+func (this *TypePool_DebugInfo_Builder) getMismatchList_t() ListT[*TypePool_DebugInfo_Mismatch] {
+	return pbListT_[*TypePool_DebugInfo_Mismatch](&this.pbData_, 0)
+}
+
+func (this *TypePool_DebugInfo) toBuilder_t() *TypePool_DebugInfo_Builder {
+	return this.toBuilder().(*TypePool_DebugInfo_Builder)
+}
+
 // ---- message jscomp.TypePool.DebugInfo.Mismatch
 
 type TypePool_DebugInfo_Mismatch struct {
@@ -14583,6 +15120,10 @@ func (this *TypePool_DebugInfo_Mismatch_Builder) mergeFrom_Mismatch(p0 *TypePool
 	return this
 }
 
+func (this *TypePool_DebugInfo_Mismatch) toBuilder_t() *TypePool_DebugInfo_Mismatch_Builder {
+	return this.toBuilder().(*TypePool_DebugInfo_Mismatch_Builder)
+}
+
 // ---- message jscomp.SubtypingEdge
 
 type SubtypingEdge struct {
@@ -14698,6 +15239,10 @@ func (this *SubtypingEdge_Builder) clearSupertype() *SubtypingEdge_Builder {
 func (this *SubtypingEdge_Builder) mergeFrom_SubtypingEdge(p0 *SubtypingEdge) *SubtypingEdge_Builder {
 	this.mergeData_(pbDataOf_(obj_(p0)))
 	return this
+}
+
+func (this *SubtypingEdge) toBuilder_t() *SubtypingEdge_Builder {
+	return this.toBuilder().(*SubtypingEdge_Builder)
 }
 
 // ---- message jscomp.UnionTypeProto
@@ -14821,6 +15366,10 @@ func (this *UnionTypeProto_Builder) clearUnionMember() *UnionTypeProto_Builder {
 func (this *UnionTypeProto_Builder) mergeFrom_UnionTypeProto(p0 *UnionTypeProto) *UnionTypeProto_Builder {
 	this.mergeData_(pbDataOf_(obj_(p0)))
 	return this
+}
+
+func (this *UnionTypeProto) toBuilder_t() *UnionTypeProto_Builder {
+	return this.toBuilder().(*UnionTypeProto_Builder)
 }
 
 // ---- message jscomp.ObjectTypeProto
@@ -15188,6 +15737,10 @@ func (this *ObjectTypeProto_Builder) mergeFrom_ObjectTypeProto(p0 *ObjectTypePro
 	return this
 }
 
+func (this *ObjectTypeProto) toBuilder_t() *ObjectTypeProto_Builder {
+	return this.toBuilder().(*ObjectTypeProto_Builder)
+}
+
 // ---- message jscomp.ObjectTypeProto.DebugInfo
 
 type ObjectTypeProto_DebugInfo struct {
@@ -15309,6 +15862,10 @@ func (this *ObjectTypeProto_DebugInfo_Builder) clearTypenamePointer() *ObjectTyp
 func (this *ObjectTypeProto_DebugInfo_Builder) mergeFrom_DebugInfo(p0 *ObjectTypeProto_DebugInfo) *ObjectTypeProto_DebugInfo_Builder {
 	this.mergeData_(pbDataOf_(obj_(p0)))
 	return this
+}
+
+func (this *ObjectTypeProto_DebugInfo) toBuilder_t() *ObjectTypeProto_DebugInfo_Builder {
+	return this.toBuilder().(*ObjectTypeProto_DebugInfo_Builder)
 }
 
 type ObjectTypeProto_DebugInfoOrBuilder interface {
@@ -15575,6 +16132,10 @@ func (this *TypeProto_Builder) mergeFrom_TypeProto(p0 *TypeProto) *TypeProto_Bui
 	return this
 }
 
+func (this *TypeProto) toBuilder_t() *TypeProto_Builder {
+	return this.toBuilder().(*TypeProto_Builder)
+}
+
 // ---- message jscomp.TypePoolList
 
 type TypePoolList struct {
@@ -15755,6 +16316,18 @@ func (this *TypePoolList_Builder) mergeFrom_TypePoolList(p0 *TypePoolList) *Type
 	return this
 }
 
+func (this *TypePoolList) getTypePoolList_t() ListT[*TypePool] {
+	return pbListT_[*TypePool](&this.pbData_, 0)
+}
+
+func (this *TypePoolList_Builder) getTypePoolList_t() ListT[*TypePool] {
+	return pbListT_[*TypePool](&this.pbData_, 0)
+}
+
+func (this *TypePoolList) toBuilder_t() *TypePoolList_Builder {
+	return this.toBuilder().(*TypePoolList_Builder)
+}
+
 type TypePoolListOrBuilder interface {
 	MessageOrBuilder
 	getTypePoolList() List
@@ -15762,6 +16335,7 @@ type TypePoolListOrBuilder interface {
 	getTypePool(int32) *TypePool
 	getTypePoolOrBuilder(int32) TypePoolOrBuilder
 	getTypePoolOrBuilderList() List
+	getTypePoolList_t() ListT[*TypePool]
 }
 
 func init() {

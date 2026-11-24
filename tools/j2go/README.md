@@ -536,6 +536,21 @@ type Map_EntryT[K any, V any] interface { Map_Entry; getKey_t() K; getValue_t() 
     (`::`), a function parameter passed on as a value or given anything but a lambda, a field
     of a record, an interface or a handle class. `selftest/lang/TriBox.java` counts them.
 
+  - Piece `proto` (`LibProto`; rule candidate T5 of `docs/javaisms6/JAVAISMS6.md`; needs kinds
+    `list` and `iter`): a call of a protobuf message's list accessor whose element is a message
+    or a String (`List<Foo> getFooList()`, `ProtocolStringList getBarList()`), on the message,
+    its builder or its `OrBuilder` interface, is the call of the typed accessor that
+    `tools/protogen` writes next to the erased one (its rule T5): `getFooList_t() ListT[*Foo]`,
+    `getBarList_t() ListT[string]` (a new typed list, `pbListT_` in `rt_proto.go`); a call of
+    `Msg.toBuilder()` is `toBuilder_t() *Msg_Builder`. So a for-each over it runs on the typed
+    cursor and its elements need no cast. A local of type `ProtocolStringList` (written `var`)
+    that holds such a list and is never assigned again is a `List<String>` (`GenScan.refine`).
+    Left, counted in the `J2GO_LIBGEN` report (`proto: list accessors left erased: ...`): a
+    list of enums, numbers or bytes, and the OrBuilder / Builder lists (`List<? extends ..>`).
+    jsgo's generated messages have the same typed forms (`GetValueList() []string`,
+    `Clone() *Requirement`). With the piece on, `rt_proto_gen.go` must have protogen's typed
+    accessors (protogen's default); a translation without it compiles with either.
+
 Refused (`typed library interfaces: refused: File.java:line: ...`, nothing is written):
 
 - a raw use of one of the interfaces;
@@ -572,7 +587,7 @@ Refused (`typed library interfaces: refused: File.java:line: ...`, nothing is wr
 `tools/j2go/selftest/refused/RefusedLib.java` has one use of each kind (15); the self-test
 fails unless the translator refuses exactly those and writes nothing.
 
-Each kind and piece is a switch: `J2GO_NOLIBGEN=iter,coll,list,set,map,makers,views,place,cov,elems,wide,nncoll,readers,cls,meth,fns,sorted,enumset,cmaps,deque,guava,goptional,seqcoll,objarg,cmp,ownwild,nbox`
+Each kind and piece is a switch: `J2GO_NOLIBGEN=iter,coll,list,set,map,makers,views,place,cov,elems,wide,nncoll,readers,cls,meth,fns,sorted,enumset,cmaps,deque,guava,goptional,seqcoll,objarg,cmp,ownwild,nbox,proto`
 (`all`: every one). A translation with any of them off is built with `-tags j2go_nolibgen`
 (`tools/prune/verify.sh` and the self-test do that when `J2GO_NOLIBGEN` is set): the erased
 factories that only such a translation names are in `go/closure/rt_lg_erased.go`, outside the

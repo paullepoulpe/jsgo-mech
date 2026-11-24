@@ -239,6 +239,8 @@ final class Ctx {
   final LibObj lo = new LibObj(this);
   /** Rule "typed library interfaces", piece `cmp`: classes implementing Comparable<C> with compareTo_t and the bridge. */
   final LibCmp cmp = new LibCmp(this);
+  /** Piece `proto` (rule candidate T5): typed protobuf accessors. */
+  final LibProto pb = new LibProto(this);
 
   boolean isValueLib(TypeElement te) {
     return te != null && valueLibs.contains(te);
