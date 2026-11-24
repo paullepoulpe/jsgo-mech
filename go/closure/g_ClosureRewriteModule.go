@@ -1387,7 +1387,7 @@ func (this *ClosureRewriteModule_ExportDefinition) getExportPostfix() string {
 }
 
 func (this *ClosureRewriteModule_ExportDefinition) hasInlinableName(exportedNames SetT[*Var]) bool {
-	if (((this.nameDecl == nil) || exportedNames.contains(obj_(this.nameDecl))) || !ClosureRewriteModule_ExportDefinition_INLINABLE_NAME_PARENTS.Has(this.nameDecl.getParentNode().getToken())) || NodeUtil_isFunctionDeclaration(this.nameDecl.getParentNode()) {
+	if (((this.nameDecl == nil) || exportedNames.contains(obj_(this.nameDecl))) || !ClosureRewriteModule_ExportDefinition_INLINABLE_NAME_PARENTS_has_(this.nameDecl.getParentNode().getToken())) || NodeUtil_isFunctionDeclaration(this.nameDecl.getParentNode()) {
 		return false
 	}
 	var initialValue Node = this.nameDecl.getInitialValue()
