@@ -1,0 +1,18 @@
+diff --git a/go/closure/g_SerializeTypesToPointers.go b/go/closure/g_SerializeTypesToPointers.go
+index 0eaa8be2..63e1935f 100644
+--- a/go/closure/g_SerializeTypesToPointers.go
++++ b/go/closure/g_SerializeTypesToPointers.go
+@@ -150,7 +150,12 @@ func (this *SerializeTypesToPointers_TypeSearchCallback) visit(t *NodeTraversal,
+ 	}
+ 	var type_ *JSType = n.getJSType()
+ 	if type_ != nil {
+-		this.outer_.typePointersByJstype.computeIfAbsent(type_, &Function_fn{func(p0 any) any { return any(int32(this.outer_.jstypeReconserializer.serializeType(to_JSType(p0)))) }})
++		// typePointersByJstype.computeIfAbsent(type, serializeType) without the function object
++		// (post-flip manual step: a closure and a Function per node): the value of a type that
++		// has one, else the type serialized and stored (it is never null).
++		if m := this.outer_.typePointersByJstype; jisnull_(m.get(type_)) {
++			m.put(type_, any(int32(this.outer_.jstypeReconserializer.serializeType(type_))))
++		}
+ 	}
+ 	var shadow Node = n.getClosureUnawareShadow()
+ 	if shadow != 0 {
