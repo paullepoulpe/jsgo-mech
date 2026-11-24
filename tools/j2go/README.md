@@ -454,6 +454,19 @@ type Map_EntryT[K any, V any] interface { Map_Entry; getKey_t() K; getValue_t() 
     `Collection` of the interface it extends (`LibFns.RECV_AT`): a typed deque or list enters as
     its view (`d.asCollT()`, was `SequencedCollection(Deque_un_(d.asDequeT()))`), a `DequeT` /
     `ListT` as it is; the result needs no cast.
+  - Piece `cmp` (`LibCmp`; rule candidate T4 of `docs/javaisms6/JAVAISMS6.md`): a class of the
+    program that implements `Comparable<C>` of its own type has `compareTo_t(o *C) int32` at its
+    Java types and the bridge `compareTo(p0 any)`, which casts its argument and calls it
+    (javac's bridge). The runtime's typed natural orders (`naturalT_` of the typed sorts,
+    `tsortCmp_` of the typed sorted collections, `Comparator_naturalOrder[T]`,
+    `Comparator_comparing[T, U]`) call `compareTo_t` through `ComparableT[T]` (`rt_lgcmp.go`)
+    before they box the values for `compareNatural_`, which calls the bridge; a call
+    `x.compareTo(y)` on a receiver of the class is `x.compareTo_t(y)`. Left erased (counted in
+    `J2GO_LIBGEN`'s report by reason): raw `Comparable`, `Comparable` of another type than the
+    class (a supertype, another instantiation), `Comparable` through a superclass or an
+    interface of the program, a class with a subclass, a handle class, a `compareTo` that also
+    implements another interface's method. `selftest/lang/Cmp.java` has two typed classes and
+    six left erased; the self-test counts them.
   - Kind `guava` (a kind of `LibGen.KINDS`): `PeekingIterator<X>` is `PeekingIteratorT[X]`
     (typed `next` and `peek`), `LoadingCache<K, V>` is `LoadingCacheT[K, V]` (typed `get` and
     `getUnchecked`). The runtime makes both erased (`Iterators.peekingIterator`,
@@ -509,7 +522,7 @@ Refused (`typed library interfaces: refused: File.java:line: ...`, nothing is wr
 `tools/j2go/selftest/refused/RefusedLib.java` has one use of each kind (15); the self-test
 fails unless the translator refuses exactly those and writes nothing.
 
-Each kind and piece is a switch: `J2GO_NOLIBGEN=iter,coll,list,set,map,makers,views,place,cov,elems,wide,nncoll,readers,cls,meth,fns,sorted,enumset,cmaps,deque,guava,goptional,seqcoll`
+Each kind and piece is a switch: `J2GO_NOLIBGEN=iter,coll,list,set,map,makers,views,place,cov,elems,wide,nncoll,readers,cls,meth,fns,sorted,enumset,cmaps,deque,guava,goptional,seqcoll,cmp`
 (`all`: every one). A translation with any of them off is built with `-tags j2go_nolibgen`
 (`tools/prune/verify.sh` and the self-test do that when `J2GO_NOLIBGEN` is set): the erased
 factories that only such a translation names are in `go/closure/rt_lg_erased.go`, outside the

@@ -1500,6 +1500,11 @@ abstract class ExprEmitter extends Base {
       ret = cx.lg.rt(ret);
     }
     String name = cx.methodName(e);
+    if (src && !superCall && cx.cmp.typedCall(e, site)) {
+      // piece `cmp` (LibCmp): x.compareTo(y) on a receiver of a class with compareTo_t, the argument at its type
+      name = LibCmp.TYPED;
+      params = List.of(cx.erase(cx.vtype(e.getParameters().get(0))));
+    }
     boolean lgTyped = cx.lg.typedAt(e, site);
     if (lgTyped && lgErasedNow && cx.lg.renamed(cx.root(e)) && cx.kind(cx.lg.rt(cx.groupReturn(e))) == Ctx.K.ANY) {
       // the result enters an Object: the erased method, whose result is that Object

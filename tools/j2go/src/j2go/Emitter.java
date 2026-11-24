@@ -765,12 +765,19 @@ final class Emitter extends StmtEmitter {
       head = "func " + cx.genFnName(e) + cx.genFnTparamsDecl(e) + "(" + join("this " + cx.ref(te), p.decl) + ")";
     } else {
       ret = cx.groupReturn(e, te.asType());
-      p = params(mt.getParameters(), cx.groupParams(e, te.asType()));
+      boolean cmpT = cx.cmp.typed(e, te);
+      // (piece `cmp`: compareTo_t has the parameter the class declares)
+      p = params(mt.getParameters(), cmpT ? null : cx.groupParams(e, te.asType()));
       String mn = cx.implName(e, te);
       if (cx.lg.typedAt(e, te.asType()) && cx.lg.renamed(cx.root(e))) {
         // rule "typed library interfaces": the method at its Java types (next_t), and the bridge with the erased name and signature
         mn = cx.lg.methodName(e, te.asType());
         lgBridge(te, e, mn);
+      }
+      if (cmpT) {
+        // piece `cmp` (LibCmp): Comparable<C>.compareTo at its Java types, and the bridge with the erased signature
+        mn = LibCmp.TYPED;
+        cmpBridge(te, e);
       }
       head = recv(te) + mn + "(" + p.decl + ")";
     }
@@ -804,6 +811,14 @@ final class Emitter extends StmtEmitter {
   }
 
   final StringBuilder bridgesOut = new StringBuilder();
+
+  /** Piece `cmp`: the bridge compareTo(p0 any) of class te, which casts its argument to the parameter m declares and calls compareTo_t. */
+  void cmpBridge(TypeElement te, ExecutableElement m) {
+    TypeMirror obj = cx.elems.getTypeElement("java.lang.Object").asType();
+    TypeMirror pt = cx.erase(cx.vtype(m.getParameters().get(0)));
+    bridgesOut.append(recv(te)).append(cx.methodName(m)).append(paramList(List.of(obj))).append(retSuffix(cx.groupReturn(m))).append(" {\n\t")
+        .append("return this.").append(LibCmp.TYPED).append("(").append(cx.coerce("p0", obj, pt)).append(")\n}\n\n");
+  }
 
   /** Whether the stub of root r on class te finds the implementation in a library superclass when no subclass overrides it. */
   boolean libraryImpl(TypeElement te, ExecutableElement r) {
