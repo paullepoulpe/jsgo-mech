@@ -27,15 +27,19 @@ type DiGraph_vt_[N comparable, E comparable] interface {
 
 func (this *DiGraph[N, E]) isa_DiGraph_() {}
 
-func (this *DiGraph[N, E]) as_DiGraph() *DiGraph[N, E] { return this }
+// DiGraph_as is implemented by DiGraph and the classes that extend it: a cast to DiGraph asserts to it
+// (post-flip).
+type DiGraph_as[N comparable, E comparable] interface {
+	as_DiGraph() *DiGraph[N, E]
+}
 
-func (this *DiGraph[N, E]) as_DiGraph_() any { return this }
+func (this *DiGraph[N, E]) as_DiGraph() *DiGraph[N, E] { return this }
 
 func to_DiGraph[N comparable, E comparable](v any) *DiGraph[N, E] {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_DiGraph_() any }).as_DiGraph_().(*DiGraph[N, E])
+	return v.(DiGraph_as[N, E]).as_DiGraph()
 }
 
 func (this *DiGraph[N, E]) self() any {

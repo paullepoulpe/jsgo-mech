@@ -11,17 +11,21 @@ type LinkedDirectedGraph[N comparable, E comparable] struct {
 
 func (this *LinkedDirectedGraph[N, E]) isa_LinkedDirectedGraph_() {}
 
+// LinkedDirectedGraph_as is implemented by LinkedDirectedGraph and the classes that extend it: a cast to LinkedDirectedGraph asserts to it
+// (post-flip).
+type LinkedDirectedGraph_as[N comparable, E comparable] interface {
+	as_LinkedDirectedGraph() *LinkedDirectedGraph[N, E]
+}
+
 func (this *LinkedDirectedGraph[N, E]) as_LinkedDirectedGraph() *LinkedDirectedGraph[N, E] {
 	return this
 }
-
-func (this *LinkedDirectedGraph[N, E]) as_LinkedDirectedGraph_() any { return this }
 
 func to_LinkedDirectedGraph[N comparable, E comparable](v any) *LinkedDirectedGraph[N, E] {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_LinkedDirectedGraph_() any }).as_LinkedDirectedGraph_().(*LinkedDirectedGraph[N, E])
+	return v.(LinkedDirectedGraph_as[N, E]).as_LinkedDirectedGraph()
 }
 
 func (this *LinkedDirectedGraph[N, E]) self() any {
@@ -60,7 +64,6 @@ func new_LinkedDirectedGraph[N comparable, E comparable](useNodeAnnotations bool
 	this := &LinkedDirectedGraph[N, E]{}
 	this.self_ = this
 	this.vt_DiGraph_ = this
-	this.vt_Graph_ = this
 	this.init_LinkedDirectedGraph(useNodeAnnotations, useEdgeAnnotations)
 	return this
 }
@@ -391,12 +394,11 @@ func (this *LinkedDirectedGraph[N, E]) getDirectedSuccNodesDiGraphNode_DiGraphNo
 }
 
 type LinkedDirectedGraph_LinkedDiGraphNode[N comparable, E comparable] struct {
-	self_                                     any
-	vt_LinkedDirectedGraph_LinkedDiGraphNode_ LinkedDirectedGraph_LinkedDiGraphNode_vt_[N, E]
-	inEdgeList                                *TList[*LinkedDirectedGraph_LinkedDiGraphEdge[N, E]]
-	outEdgeList                               *TList[*LinkedDirectedGraph_LinkedDiGraphEdge[N, E]]
-	value_                                    N
-	priority                                  int32
+	self_       LinkedDirectedGraph_LinkedDiGraphNode_vt_[N, E]
+	inEdgeList  *TList[*LinkedDirectedGraph_LinkedDiGraphEdge[N, E]]
+	outEdgeList *TList[*LinkedDirectedGraph_LinkedDiGraphEdge[N, E]]
+	value_      N
+	priority    int32
 }
 
 type LinkedDirectedGraph_LinkedDiGraphNode_vt_[N comparable, E comparable] interface {
@@ -408,11 +410,13 @@ type LinkedDirectedGraph_LinkedDiGraphNode_vt_[N comparable, E comparable] inter
 func (this *LinkedDirectedGraph_LinkedDiGraphNode[N, E]) isa_LinkedDirectedGraph_LinkedDiGraphNode_() {
 }
 
-func (this *LinkedDirectedGraph_LinkedDiGraphNode[N, E]) as_LinkedDirectedGraph_LinkedDiGraphNode() *LinkedDirectedGraph_LinkedDiGraphNode[N, E] {
-	return this
+// LinkedDirectedGraph_LinkedDiGraphNode_as is implemented by LinkedDirectedGraph_LinkedDiGraphNode and the classes that extend it: a cast to LinkedDirectedGraph_LinkedDiGraphNode asserts to it
+// (post-flip).
+type LinkedDirectedGraph_LinkedDiGraphNode_as[N comparable, E comparable] interface {
+	as_LinkedDirectedGraph_LinkedDiGraphNode() *LinkedDirectedGraph_LinkedDiGraphNode[N, E]
 }
 
-func (this *LinkedDirectedGraph_LinkedDiGraphNode[N, E]) as_LinkedDirectedGraph_LinkedDiGraphNode_() any {
+func (this *LinkedDirectedGraph_LinkedDiGraphNode[N, E]) as_LinkedDirectedGraph_LinkedDiGraphNode() *LinkedDirectedGraph_LinkedDiGraphNode[N, E] {
 	return this
 }
 
@@ -427,7 +431,7 @@ func to_LinkedDirectedGraph_LinkedDiGraphNode[N comparable, E comparable](v any)
 	case *LinkedDirectedGraph_LinkedDiGraphNode[N, E]:
 		return p
 	}
-	return v.(interface{ as_LinkedDirectedGraph_LinkedDiGraphNode_() any }).as_LinkedDirectedGraph_LinkedDiGraphNode_().(*LinkedDirectedGraph_LinkedDiGraphNode[N, E])
+	return v.(LinkedDirectedGraph_LinkedDiGraphNode_as[N, E]).as_LinkedDirectedGraph_LinkedDiGraphNode()
 }
 
 func (this *LinkedDirectedGraph_LinkedDiGraphNode[N, E]) self() any {
@@ -455,7 +459,6 @@ func (this *LinkedDirectedGraph_LinkedDiGraphNode[N, E]) init_LinkedDirectedGrap
 func new_LinkedDirectedGraph_LinkedDiGraphNode[N comparable, E comparable](nodeValue N) *LinkedDirectedGraph_LinkedDiGraphNode[N, E] {
 	this := &LinkedDirectedGraph_LinkedDiGraphNode[N, E]{}
 	this.self_ = this
-	this.vt_LinkedDirectedGraph_LinkedDiGraphNode_ = this
 	this.zero_LinkedDirectedGraph_LinkedDiGraphNode()
 	this.init_LinkedDirectedGraph_LinkedDiGraphNode(nodeValue)
 	return this
@@ -516,15 +519,15 @@ func (this *LinkedDirectedGraph_LinkedDiGraphNode[N, E]) setPriority(priority in
 }
 
 func (this *LinkedDirectedGraph_LinkedDiGraphNode[N, E]) getAnnotationUntyped() Annotation_graph {
-	return this.vt_LinkedDirectedGraph_LinkedDiGraphNode_.getAnnotationUntyped_impl()
+	return this.self_.getAnnotationUntyped_impl()
 }
 
 func (this *LinkedDirectedGraph_LinkedDiGraphNode[N, E]) setAnnotation(p0 Annotation_graph) {
-	this.vt_LinkedDirectedGraph_LinkedDiGraphNode_.setAnnotation_impl(p0)
+	this.self_.setAnnotation_impl(p0)
 }
 
 func (this *LinkedDirectedGraph_LinkedDiGraphNode[N, E]) getLabel() string {
-	return this.vt_LinkedDirectedGraph_LinkedDiGraphNode_.getLabel_impl()
+	return this.self_.getLabel_impl()
 }
 
 func (this *LinkedDirectedGraph_LinkedDiGraphNode[N, E]) getInEdges() List {
@@ -561,7 +564,6 @@ func (this *LinkedDirectedGraph_AnnotatedLinkedDiGraphNode[N, E]) init_LinkedDir
 func new_LinkedDirectedGraph_AnnotatedLinkedDiGraphNode[N comparable, E comparable](nodeValue N) *LinkedDirectedGraph_AnnotatedLinkedDiGraphNode[N, E] {
 	this := &LinkedDirectedGraph_AnnotatedLinkedDiGraphNode[N, E]{}
 	this.self_ = this
-	this.vt_LinkedDirectedGraph_LinkedDiGraphNode_ = this
 	this.zero_LinkedDirectedGraph_AnnotatedLinkedDiGraphNode()
 	this.init_LinkedDirectedGraph_AnnotatedLinkedDiGraphNode(nodeValue)
 	return this
@@ -584,11 +586,10 @@ func (this *LinkedDirectedGraph_AnnotatedLinkedDiGraphNode[N, E]) getLabel_impl(
 }
 
 type LinkedDirectedGraph_LinkedDiGraphEdge[N comparable, E comparable] struct {
-	self_                                     any
-	vt_LinkedDirectedGraph_LinkedDiGraphEdge_ LinkedDirectedGraph_LinkedDiGraphEdge_vt_[N, E]
-	sourceNode_                               *LinkedDirectedGraph_LinkedDiGraphNode[N, E]
-	destNode                                  *LinkedDirectedGraph_LinkedDiGraphNode[N, E]
-	value_                                    E
+	self_       LinkedDirectedGraph_LinkedDiGraphEdge_vt_[N, E]
+	sourceNode_ *LinkedDirectedGraph_LinkedDiGraphNode[N, E]
+	destNode    *LinkedDirectedGraph_LinkedDiGraphNode[N, E]
+	value_      E
 }
 
 type LinkedDirectedGraph_LinkedDiGraphEdge_vt_[N comparable, E comparable] interface {
@@ -599,11 +600,13 @@ type LinkedDirectedGraph_LinkedDiGraphEdge_vt_[N comparable, E comparable] inter
 func (this *LinkedDirectedGraph_LinkedDiGraphEdge[N, E]) isa_LinkedDirectedGraph_LinkedDiGraphEdge_() {
 }
 
-func (this *LinkedDirectedGraph_LinkedDiGraphEdge[N, E]) as_LinkedDirectedGraph_LinkedDiGraphEdge() *LinkedDirectedGraph_LinkedDiGraphEdge[N, E] {
-	return this
+// LinkedDirectedGraph_LinkedDiGraphEdge_as is implemented by LinkedDirectedGraph_LinkedDiGraphEdge and the classes that extend it: a cast to LinkedDirectedGraph_LinkedDiGraphEdge asserts to it
+// (post-flip).
+type LinkedDirectedGraph_LinkedDiGraphEdge_as[N comparable, E comparable] interface {
+	as_LinkedDirectedGraph_LinkedDiGraphEdge() *LinkedDirectedGraph_LinkedDiGraphEdge[N, E]
 }
 
-func (this *LinkedDirectedGraph_LinkedDiGraphEdge[N, E]) as_LinkedDirectedGraph_LinkedDiGraphEdge_() any {
+func (this *LinkedDirectedGraph_LinkedDiGraphEdge[N, E]) as_LinkedDirectedGraph_LinkedDiGraphEdge() *LinkedDirectedGraph_LinkedDiGraphEdge[N, E] {
 	return this
 }
 
@@ -617,7 +620,7 @@ func to_LinkedDirectedGraph_LinkedDiGraphEdge[N comparable, E comparable](v any)
 	case *LinkedDirectedGraph_LinkedDiGraphEdge[N, E]:
 		return p
 	}
-	return v.(interface{ as_LinkedDirectedGraph_LinkedDiGraphEdge_() any }).as_LinkedDirectedGraph_LinkedDiGraphEdge_().(*LinkedDirectedGraph_LinkedDiGraphEdge[N, E])
+	return v.(LinkedDirectedGraph_LinkedDiGraphEdge_as[N, E]).as_LinkedDirectedGraph_LinkedDiGraphEdge()
 }
 
 func (this *LinkedDirectedGraph_LinkedDiGraphEdge[N, E]) self() any {
@@ -640,7 +643,6 @@ func (this *LinkedDirectedGraph_LinkedDiGraphEdge[N, E]) init_LinkedDirectedGrap
 func new_LinkedDirectedGraph_LinkedDiGraphEdge[N comparable, E comparable](sourceNode *LinkedDirectedGraph_LinkedDiGraphNode[N, E], edgeValue E, destNode *LinkedDirectedGraph_LinkedDiGraphNode[N, E]) *LinkedDirectedGraph_LinkedDiGraphEdge[N, E] {
 	this := &LinkedDirectedGraph_LinkedDiGraphEdge[N, E]{}
 	this.self_ = this
-	this.vt_LinkedDirectedGraph_LinkedDiGraphEdge_ = this
 	this.zero_LinkedDirectedGraph_LinkedDiGraphEdge()
 	this.init_LinkedDirectedGraph_LinkedDiGraphEdge(sourceNode, edgeValue, destNode)
 	return this
@@ -695,11 +697,11 @@ func (this *LinkedDirectedGraph_LinkedDiGraphEdge[N, E]) getNodeB() GraphNode[N,
 }
 
 func (this *LinkedDirectedGraph_LinkedDiGraphEdge[N, E]) getAnnotationUntyped() Annotation_graph {
-	return this.vt_LinkedDirectedGraph_LinkedDiGraphEdge_.getAnnotationUntyped_impl()
+	return this.self_.getAnnotationUntyped_impl()
 }
 
 func (this *LinkedDirectedGraph_LinkedDiGraphEdge[N, E]) setAnnotation(p0 Annotation_graph) {
-	this.vt_LinkedDirectedGraph_LinkedDiGraphEdge_.setAnnotation_impl(p0)
+	this.self_.setAnnotation_impl(p0)
 }
 
 func (this *LinkedDirectedGraph_LinkedDiGraphEdge[N, E]) getSource() DiGraph_DiGraphNode[N, E] {
@@ -736,7 +738,6 @@ func (this *LinkedDirectedGraph_AnnotatedLinkedDiGraphEdge[N, E]) init_LinkedDir
 func new_LinkedDirectedGraph_AnnotatedLinkedDiGraphEdge[N comparable, E comparable](sourceNode *LinkedDirectedGraph_LinkedDiGraphNode[N, E], edgeValue E, destNode *LinkedDirectedGraph_LinkedDiGraphNode[N, E]) *LinkedDirectedGraph_AnnotatedLinkedDiGraphEdge[N, E] {
 	this := &LinkedDirectedGraph_AnnotatedLinkedDiGraphEdge[N, E]{}
 	this.self_ = this
-	this.vt_LinkedDirectedGraph_LinkedDiGraphEdge_ = this
 	this.zero_LinkedDirectedGraph_AnnotatedLinkedDiGraphEdge()
 	this.init_LinkedDirectedGraph_AnnotatedLinkedDiGraphEdge(sourceNode, edgeValue, destNode)
 	return this

@@ -25,6 +25,11 @@
 // level deeper than the chain has it. S is evaluated once instead of once per
 // test, which is the same because it is pure.
 //
+// A link may also be `if is_[A](S) || is_B(S) ...`, a disjunction of instanceof tests of S
+// alone (the generic is_[T], or a generated helper is_X whose body is the assertion to a named
+// type): it is the case `case A, B:`, taken when the value's type is one of them, as the
+// disjunction is true when one of the assertions succeeds. It binds no name.
+//
 // The switch binds one name: links that bind must bind the same name, and a link that does not,
 // and the default, must not mention that name (the switch would shadow it there). The ok
 // variables are not used anywhere else. Left, counted: chains that do not meet these. A rerun
@@ -52,6 +57,95 @@ type link struct {
 	ok   *ast.Ident
 	typ  ast.Expr
 	subj ast.Expr
+	// typs: the types of a link whose condition is a disjunction of instanceof tests of one
+	// value (is_[A](v) || is_B(v) ...): a case with several types. Such a link binds nothing
+	// and has no ok variable.
+	typs []ast.Expr
+}
+
+// isTest returns the tested value and type when e is is_[T](v), or is_X(v) of a generated
+// helper without type parameters whose body is `_, ok := v.(T); return ok`.
+func isTest(e ast.Expr) (ast.Expr, ast.Expr) {
+	c, ok := rw.Unparen(e).(*ast.CallExpr)
+	if !ok || len(c.Args) != 1 {
+		return nil, nil
+	}
+	switch f := c.Fun.(type) {
+	case *ast.IndexExpr:
+		if id, ok := f.X.(*ast.Ident); ok && id.Name == "is_" {
+			if fn, ok := rw.Info.Uses[id].(*types.Func); ok && fn.Pkg() == rw.Pkg && fn.Parent() == rw.Pkg.Scope() {
+				return c.Args[0], f.Index
+			}
+		}
+	case *ast.Ident:
+		fn, ok := rw.Info.Uses[f].(*types.Func)
+		if !ok || !strings.HasPrefix(f.Name, "is_") || fn.Pkg() != rw.Pkg || fn.Parent() != rw.Pkg.Scope() {
+			return nil, nil
+		}
+		if t := helperType(fn); t != nil {
+			return c.Args[0], t
+		}
+	}
+	return nil, nil
+}
+
+var helperDecls map[types.Object]*ast.FuncDecl
+
+// helperType is T of func is_X(v any) bool { _, ok := v.(T); return ok }, T a named type.
+func helperType(fn *types.Func) ast.Expr {
+	if helperDecls == nil {
+		helperDecls = map[types.Object]*ast.FuncDecl{}
+		for _, f := range rw.Files {
+			for _, d := range f.Decls {
+				if fd, ok := d.(*ast.FuncDecl); ok && fd.Recv == nil && fd.Body != nil {
+					helperDecls[rw.Info.Defs[fd.Name]] = fd
+				}
+			}
+		}
+	}
+	fd := helperDecls[fn]
+	if fd == nil || fd.Type.TypeParams != nil || fd.Type.Params.NumFields() != 1 || len(fd.Type.Params.List[0].Names) != 1 || len(fd.Body.List) != 2 {
+		return nil
+	}
+	as, ok := fd.Body.List[0].(*ast.AssignStmt)
+	if !ok || as.Tok != token.DEFINE || len(as.Lhs) != 2 || len(as.Rhs) != 1 || rw.Text(as.Lhs[0]) != "_" {
+		return nil
+	}
+	ta, ok := as.Rhs[0].(*ast.TypeAssertExpr)
+	if !ok || ta.Type == nil || rw.Text(ta.X) != fd.Type.Params.List[0].Names[0].Name {
+		return nil
+	}
+	rs, ok := fd.Body.List[1].(*ast.ReturnStmt)
+	if !ok || len(rs.Results) != 1 || rw.Text(rs.Results[0]) != rw.Text(as.Lhs[1]) {
+		return nil
+	}
+	switch t := ta.Type.(type) {
+	case *ast.Ident:
+		return t
+	case *ast.StarExpr:
+		if _, ok := t.X.(*ast.Ident); ok {
+			return t
+		}
+	}
+	return nil
+}
+
+// orTests: the tests of a disjunction a || b || ..., each an instanceof test of the same value.
+func orTests(e ast.Expr) (subj ast.Expr, typs []ast.Expr) {
+	e = rw.Unparen(e)
+	if b, ok := e.(*ast.BinaryExpr); ok && b.Op == token.LOR {
+		s1, t1 := orTests(b.X)
+		s2, t2 := orTests(b.Y)
+		if s1 == nil || s2 == nil || rw.Text(s1) != rw.Text(s2) {
+			return nil, nil
+		}
+		return s1, append(t1, t2...)
+	}
+	s, t := isTest(e)
+	if s == nil {
+		return nil, nil
+	}
+	return s, []ast.Expr{t}
 }
 
 func main() {
@@ -83,6 +177,12 @@ func main() {
 	}
 	// asLink is ifs as a link, or nil.
 	asLink := func(ifs *ast.IfStmt) *link {
+		if ifs.Init == nil {
+			if subj, typs := orTests(ifs.Cond); len(typs) >= 2 {
+				return &link{ifs: ifs, subj: subj, typs: typs}
+			}
+			return nil
+		}
 		as, ok := ifs.Init.(*ast.AssignStmt)
 		if !ok || as.Tok != token.DEFINE || len(as.Lhs) != 2 || len(as.Rhs) != 1 {
 			return nil
@@ -97,7 +197,7 @@ func main() {
 		if !ok1 || !ok2 || !ok3 || okId.Name == "_" || cond.Name != okId.Name {
 			return nil
 		}
-		l := &link{ifs: ifs, ok: okId, typ: ta.Type, subj: ta.X}
+		l := &link{ifs: ifs, ok: okId, typ: ta.Type, subj: ta.X, typs: []ast.Expr{ta.Type}}
 		if v.Name != "_" {
 			l.bind = v
 		}
@@ -120,6 +220,9 @@ func main() {
 	}
 	// usedOnlyAsCond: the ok variable is read only by its if's condition.
 	usedOnlyAsCond := func(l *link) bool {
+		if l.ok == nil {
+			return true
+		}
 		obj := rw.Info.Defs[l.ok]
 		for _, u := range rw.UsesOf[obj] {
 			if u != l.ifs.Cond {
@@ -199,12 +302,14 @@ func main() {
 			// The cases' types must be distinct (Go rejects a duplicate case).
 			seen := map[string]bool{}
 			for _, l := range chain {
-				t := types.TypeString(rw.Info.Types[l.typ].Type, nil)
-				if seen[t] {
-					skip("two links test one type", ifs)
-					return true
+				for _, typ := range l.typs {
+					t := types.TypeString(rw.Info.Types[typ].Type, nil)
+					if seen[t] {
+						skip("two links test one type", ifs)
+						return true
+					}
+					seen[t] = true
 				}
-				seen[t] = true
 			}
 			done[fmt.Sprintf("if/else-if chain of %d type tests -> type switch", len(chain))]++
 			rw.Rewrite[ifs] = func() string {
@@ -215,7 +320,11 @@ func main() {
 				}
 				b.WriteString(rw.Render(first.subj) + ".(type) {\n")
 				for _, l := range chain {
-					b.WriteString("case " + rw.Render(l.typ) + ":\n")
+					var ts []string
+					for _, typ := range l.typs {
+						ts = append(ts, rw.Render(typ))
+					}
+					b.WriteString("case " + strings.Join(ts, ", ") + ":\n")
 					b.WriteString(blockBody(rw.RenderChildren(l.ifs.Body)))
 				}
 				if rest != nil {
