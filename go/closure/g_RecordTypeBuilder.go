@@ -3,16 +3,16 @@
 package closure
 
 type RecordTypeBuilder struct {
-	registry *JSTypeRegistry
-	properties *TMap[string, *RecordTypeBuilder_RecordProperty]
-	isEmpty_ bool
+	registry   *JSTypeRegistry
+	properties *JTMap[string, *RecordTypeBuilder_RecordProperty]
+	isEmpty_   bool
 	isDeclared bool
 }
 
 func (this *RecordTypeBuilder) finit_RecordTypeBuilder() {
 	this.isEmpty_ = true
 	this.isDeclared = true
-	this.properties = newTMap_(tc_string, tc_p_RecordTypeBuilder_RecordProperty)
+	this.properties = jnewTMap_(jtc_string, jtc_p_RecordTypeBuilder_RecordProperty)
 }
 
 func (this *RecordTypeBuilder) init_RecordTypeBuilder(registry *JSTypeRegistry) {
@@ -42,11 +42,11 @@ func (this *RecordTypeBuilder) build() *JSType {
 	}
 	var m ImmutableSortedMap_BuilderOf[string, *RecordTypeBuilder_RecordProperty] = ImmutableSortedMap_naturalOrder()
 	m.putAll(this.properties.asMap())
-	return new_RecordType(this.registry, mapAs_(tc_string, tc_p_RecordTypeBuilder_RecordProperty, ImmutableMap_as_Map(m.buildOrThrow())), this.isDeclared).up_JSType()
+	return new_RecordType(this.registry, mapAs_(jtc_string, jtc_p_RecordTypeBuilder_RecordProperty, ImmutableMap_as_Map(m.buildOrThrow())), this.isDeclared).up_JSType()
 }
 
 type RecordTypeBuilder_RecordProperty struct {
-	type__ *JSType
+	type__       *JSType
 	propertyNode Node
 }
 
@@ -72,4 +72,3 @@ func (this *RecordTypeBuilder_RecordProperty) getPropertyNode() Node {
 func (this *RecordTypeBuilder_RecordProperty) toString() string {
 	return ("RecordProperty{type: " + objstr_(this.type__.self()) + ", node: " + tostrH_(this.propertyNode) + "}")
 }
-

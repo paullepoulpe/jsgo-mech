@@ -3,43 +3,43 @@
 package closure
 
 type PerformanceTracker struct {
-	mode_ *CompilerOptions_TracerMode
-	codeChange *RecentChange
-	startTime int64
-	endTime int64
-	currentPass *TDeque[*PerformanceTracker_Stats]
-	passSummary *TMap[string, *PerformanceTracker_Stats]
-	astManifest *SimpleMultiset[*Token_rhino]
-	log_ *TList[*PerformanceTracker_Stats]
-	pruningAnalysisSummary string
-	disambiguatePropertiesSummary string
-	ambiguatePropertiesSummary string
-	externsRoot Node
-	jsRoot Node
-	initAstSize int32
-	initCodeSize int32
-	initGzCodeSize int32
-	passesRuntime int32
-	maxMem int32
-	runs int32
-	changes int32
-	loopRuns int32
-	loopChanges int32
-	jsLines int32
-	jsSources int32
-	externLines int32
-	externSources int32
-	transitiveSummaryLines int32
-	transitiveSummarySources int32
-	transitiveSummaryLinesParsed int32
+	mode_                          *CompilerOptions_TracerMode
+	codeChange                     *RecentChange
+	startTime                      int64
+	endTime                        int64
+	currentPass                    *TDeque[*PerformanceTracker_Stats]
+	passSummary                    *JTMap[string, *PerformanceTracker_Stats]
+	astManifest                    *SimpleMultiset[*Token_rhino]
+	log_                           *JTList[*PerformanceTracker_Stats]
+	pruningAnalysisSummary         string
+	disambiguatePropertiesSummary  string
+	ambiguatePropertiesSummary     string
+	externsRoot                    Node
+	jsRoot                         Node
+	initAstSize                    int32
+	initCodeSize                   int32
+	initGzCodeSize                 int32
+	passesRuntime                  int32
+	maxMem                         int32
+	runs                           int32
+	changes                        int32
+	loopRuns                       int32
+	loopChanges                    int32
+	jsLines                        int32
+	jsSources                      int32
+	externLines                    int32
+	externSources                  int32
+	transitiveSummaryLines         int32
+	transitiveSummarySources       int32
+	transitiveSummaryLinesParsed   int32
 	transitiveSummarySourcesParsed int32
-	astSize int32
-	codeSize int32
-	gzCodeSize int32
-	astDiff int32
-	diff int32
-	gzDiff int32
-	prePruningRecorded bool
+	astSize                        int32
+	codeSize                       int32
+	gzCodeSize                     int32
+	astDiff                        int32
+	diff                           int32
+	gzDiff                         int32
+	prePruningRecorded             bool
 }
 
 func (this *PerformanceTracker) zero_PerformanceTracker() {
@@ -74,8 +74,8 @@ func (this *PerformanceTracker) finit_PerformanceTracker() {
 	this.astDiff = 0
 	this.diff = 0
 	this.gzDiff = 0
-	this.currentPass = newTDeque_(tc_p_PerformanceTracker_Stats)
-	this.log_ = newTList_(tc_p_PerformanceTracker_Stats)
+	this.currentPass = newTDeque_(jtc_p_PerformanceTracker_Stats)
+	this.log_ = jnewTList_(jtc_p_PerformanceTracker_Stats)
 	this.pruningAnalysisSummary = "not executed"
 	this.disambiguatePropertiesSummary = "not executed"
 	this.ambiguatePropertiesSummary = "not executed"
@@ -141,9 +141,9 @@ func (this *PerformanceTracker) recordPassStop(passName string, runtime int64) {
 	if this.codeChange.hasCodeChanged() {
 		logStats.changes = 1
 	}
-	if (passName == PassNames_PARSE_INPUTS) {
+	if passName == PassNames_PARSE_INPUTS {
 		this.recordParsingStop(logStats)
-	} else if (this.codeChange.hasCodeChanged() && this.tracksAstSize()) {
+	} else if this.codeChange.hasCodeChanged() && this.tracksAstSize() {
 		this.recordOtherPassStop(logStats)
 	}
 }
@@ -200,7 +200,7 @@ func (this *PerformanceTracker) recordOtherPassStop(logStats *PerformanceTracker
 func (this *PerformanceTracker) recordInputCount() {
 	{
 		var n Node = this.externsRoot.getFirstChild()
-		for ; (n != 0); n = n.getNext() {
+		for ; n != 0; n = n.getNext() {
 			if NodeUtil_isFromTypeSummary(n) {
 				this.transitiveSummarySources += 1
 				this.transitiveSummaryLines += NodeUtil_estimateNumLines(n)
@@ -212,7 +212,7 @@ func (this *PerformanceTracker) recordInputCount() {
 	}
 	{
 		var n Node = this.jsRoot.getFirstChild()
-		for ; (n != 0); n = n.getNext() {
+		for ; n != 0; n = n.getNext() {
 			this.jsSources += 1
 			this.jsLines += NodeUtil_estimateNumLines(n)
 		}
@@ -283,13 +283,13 @@ func (this *PerformanceTracker) getLoopRuns() int32 {
 	return this.loopRuns
 }
 
-func (this *PerformanceTracker) getStats() *TMap[string, *PerformanceTracker_Stats] {
+func (this *PerformanceTracker) getStats() *JTMap[string, *PerformanceTracker_Stats] {
 	this.calcTotalStats()
 	return this.passSummary
 }
 
 func (this *PerformanceTracker) calcTotalStats() {
-	if (this.passSummary != nil) {
+	if this.passSummary != nil {
 		return
 	}
 	this.endTime = System_currentTimeMillis()
@@ -315,7 +315,7 @@ func (this *PerformanceTracker) calcTotalStats() {
 }
 
 func (this *PerformanceTracker) populatePassSummary() {
-	var tmpPassSummary *TMap[string, *PerformanceTracker_Stats] = newTMap_(tc_string, tc_p_PerformanceTracker_Stats)
+	var tmpPassSummary *JTMap[string, *PerformanceTracker_Stats] = jnewTMap_(jtc_string, jtc_p_PerformanceTracker_Stats)
 	it_1 := this.log_.each()
 	for it_1.next() {
 		var logStat *PerformanceTracker_Stats = it_1.v
@@ -331,11 +331,11 @@ func (this *PerformanceTracker) populatePassSummary() {
 		entry.diff += logStat.diff
 		entry.gzDiff += logStat.gzDiff
 	}
-	this.passSummary = immutableMapCopyOfT_(tc_string, tc_p_PerformanceTracker_Stats, tmpPassSummary)
+	this.passSummary = immutableMapCopyOfT_(jtc_string, jtc_p_PerformanceTracker_Stats, tmpPassSummary)
 }
 
 func (this *PerformanceTracker) populateAstManifest() {
-	if (this.astManifest != nil) {
+	if this.astManifest != nil {
 		return
 	}
 	var builder *SimpleMultiset[*Token_rhino] = SimpleMultiset_create[*Token_rhino]()
@@ -350,7 +350,7 @@ func (this *PerformanceTracker) setPruningAnalysisSummary(summary string) {
 }
 
 func (this *PerformanceTracker) recordPrePruningInputCount(originalInputs IterableT[*CompilerInput], originalExterns IterableT[*CompilerInput]) {
-	it_1 := eachOf_(originalExterns)
+	it_1 := jeachOf_(originalExterns)
 	for it_1.next() {
 		var input *CompilerInput = it_1.v
 		var name string = input.getSourceFile().getName()
@@ -359,7 +359,7 @@ func (this *PerformanceTracker) recordPrePruningInputCount(originalInputs Iterab
 			this.transitiveSummaryLinesParsed += input.getSourceFile().getNumLines()
 		}
 	}
-	it_3 := eachOf_(originalInputs)
+	it_3 := jeachOf_(originalInputs)
 	for it_3.next() {
 		var input *CompilerInput = it_3.v
 		var name string = input.getSourceFile().getName()
@@ -383,9 +383,19 @@ func (this *PerformanceTracker) outputTracerReport(output *Output) {
 	JvmMetrics_maybeWriteJvmMetrics(output, Optional_of[string]("verbose:pretty:all"))
 	this.calcTotalStats()
 	output.println(JSCompStrings_lines([]string{"", "TOTAL:", ("Start time(ms): " + istr_(int64(this.startTime))), ("End time(ms): " + istr_(int64(this.endTime))), ("Wall time(ms): " + istr_(int64((this.endTime - this.startTime)))), ("Passes runtime(ms): " + istr_(int64(this.passesRuntime))), ("Max mem usage (measured after each pass)(MB): " + istr_(int64(this.maxMem))), ("#Runs: " + istr_(int64(this.runs))), ("#Changing runs: " + istr_(int64(this.changes))), ("#Loopable runs: " + istr_(int64(this.loopRuns))), ("#Changing loopable runs: " + istr_(int64(this.loopChanges))), ("Estimated AST reduction(#nodes): " + istr_(int64(this.astDiff))), ("Estimated Reduction(bytes): " + istr_(int64(this.diff))), ("Estimated GzReduction(bytes): " + istr_(int64(this.gzDiff))), ("Estimated AST size(#nodes): " + istr_(int64(this.astSize))), ("Estimated Size(bytes): " + istr_(int64(this.codeSize))), ("Estimated GzSize(bytes): " + istr_(int64(this.gzCodeSize))), "", ("DisambiguateProperties: " + sstr_(this.disambiguatePropertiesSummary)), ("AmbiguateProperties: " + sstr_(this.ambiguatePropertiesSummary))}))
-	output.println(JSCompStrings_lines([]string{"", "Inputs:", ("JS lines:   " + istr_(int64(this.jsLines))), ("JS sources: " + istr_(int64(this.jsSources))), ("Extern lines:   " + istr_(int64(this.externLines))), ("Extern sources: " + istr_(int64(this.externSources))), ("Type summary lines (raw input):   " + istr_(int64(func() int32 { if this.prePruningRecorded { return this.transitiveSummaryLinesParsed }; return this.transitiveSummaryLines }()))), ("Type summary lines (post-pruning):   " + istr_(int64(this.transitiveSummaryLines))), ("Type summary sources (raw input):   " + istr_(int64(func() int32 { if this.prePruningRecorded { return this.transitiveSummarySourcesParsed }; return this.transitiveSummarySources }()))), ("Type summary sources (post-pruning):   " + istr_(int64(this.transitiveSummarySources))), "", ("Dependency pruning analysis: " + sstr_(this.pruningAnalysisSummary))}))
+	output.println(JSCompStrings_lines([]string{"", "Inputs:", ("JS lines:   " + istr_(int64(this.jsLines))), ("JS sources: " + istr_(int64(this.jsSources))), ("Extern lines:   " + istr_(int64(this.externLines))), ("Extern sources: " + istr_(int64(this.externSources))), ("Type summary lines (raw input):   " + istr_(int64(func() int32 {
+		if this.prePruningRecorded {
+			return this.transitiveSummaryLinesParsed
+		}
+		return this.transitiveSummaryLines
+	}()))), ("Type summary lines (post-pruning):   " + istr_(int64(this.transitiveSummaryLines))), ("Type summary sources (raw input):   " + istr_(int64(func() int32 {
+		if this.prePruningRecorded {
+			return this.transitiveSummarySourcesParsed
+		}
+		return this.transitiveSummarySources
+	}()))), ("Type summary sources (post-pruning):   " + istr_(int64(this.transitiveSummarySources))), "", ("Dependency pruning analysis: " + sstr_(this.pruningAnalysisSummary))}))
 	output.println(JSCompStrings_lines([]string{"", "Summary:", "pass,runtime,allocMem,runs,changingRuns,astReduction,reduction,gzReduction"}))
-	var sortedPassSummary *TList[Map_EntryT[string, *PerformanceTracker_Stats]] = tlistFrom_(tc_Map_EntryT_string__p_PerformanceTracker_Stats_, Collection(this.passSummary.asImm().entrySet()))
+	var sortedPassSummary *JTList[Map_EntryT[string, *PerformanceTracker_Stats]] = jtlistFrom_(tc_Map_EntryT_string__p_PerformanceTracker_Stats_, Collection(this.passSummary.asImm().entrySet()))
 	List_sortT_[Map_EntryT[string, *PerformanceTracker_Stats]](sortedPassSummary.asListT(), Comparator_comparingLong[Map_EntryT[string, *PerformanceTracker_Stats]](ToLongFunction[Map_EntryT[string, *PerformanceTracker_Stats]](func(e Map_EntryT[string, *PerformanceTracker_Stats]) int64 {
 		return e.getValue_t().runtime_
 	})))
@@ -402,10 +412,10 @@ func (this *PerformanceTracker) outputTracerReport(output *Output) {
 		var stats *PerformanceTracker_Stats = it_3.v
 		output.print(String_format("%s,%d,%d,%s,%d,%d,%d,%d,%d,%d\n", []any{strobj_(stats.pass), int64(stats.runtime_), int32(stats.allocMem), strobj_(String_valueOf_boolean((stats.changes == 1))), int32(stats.astDiff), int32(stats.diff), int32(stats.gzDiff), int32(stats.astSize), int32(stats.size_), int32(stats.gzSize)}))
 	}
-	if (this.astManifest != nil) {
+	if this.astManifest != nil {
 		output.println(JSCompStrings_lines([]string{"", "Input AST Manifest:", "token,count"}))
-		var manifestLines *TList[string] = newTList_(tc_string)
-		it_5 := eachOf_(this.astManifest.entrySet())
+		var manifestLines *JTList[string] = jnewTList_(jtc_string)
+		it_5 := jeachOf_(this.astManifest.entrySet())
 		for it_5.next() {
 			var e Map_EntryT[*Token_rhino, any] = it_5.v
 			manifestLines.add(String_format("%s,%d", []any{e.getKey(), e.getValue()}))
@@ -424,17 +434,17 @@ func (this *PerformanceTracker) outputTracerReport(output *Output) {
 const PerformanceTracker_DEFAULT_WHEN_SIZE_UNTRACKED int32 = -1
 
 type PerformanceTracker_Stats struct {
-	pass string
-	runtime_ int64
-	allocMem int32
-	runs int32
-	changes int32
-	diff int32
-	gzDiff int32
-	size_ int32
-	gzSize int32
-	astDiff int32
-	astSize int32
+	pass      string
+	runtime_  int64
+	allocMem  int32
+	runs      int32
+	changes   int32
+	diff      int32
+	gzDiff    int32
+	size_     int32
+	gzSize    int32
+	astDiff   int32
+	astSize   int32
 	isOneTime bool
 }
 
@@ -467,4 +477,3 @@ func new_PerformanceTracker_Stats(pass string, iot bool) *PerformanceTracker_Sta
 	this.init_PerformanceTracker_Stats(pass, iot)
 	return this
 }
-

@@ -35,7 +35,7 @@ func (this *ProcessCommonJSModules) shouldTraverse_impl(t *NodeTraversal, n Node
 	if n.isRoot() {
 		return true
 	} else if n.isScript() {
-		if (this.compiler_.getOptions().getModuleResolutionMode() == ModuleLoader_ResolutionMode_WEBPACK) {
+		if this.compiler_.getOptions().getModuleResolutionMode() == ModuleLoader_ResolutionMode_WEBPACK {
 			this.removeWebpackModuleShim(n)
 		}
 		var finder *ProcessCommonJSModules_FindImportsAndExports = new_ProcessCommonJSModules_FindImportsAndExports(this)
@@ -46,8 +46,8 @@ func (this *ProcessCommonJSModules) shouldTraverse_impl(t *NodeTraversal, n Node
 		var forceModuleDetection bool = (moduleType == CompilerInput_ModuleType_IMPORTED_SCRIPT)
 		var defaultExportIsConst bool = true
 		var isCommonJsModule bool = finder.isCommonJsModule()
-		var exports *TListBuilder[*ProcessCommonJSModules_ExportInfo] = newTListBuilder_(tc_p_ProcessCommonJSModules_ExportInfo)
-		if (isCommonJsModule || forceModuleDetection) {
+		var exports *TListBuilder[*ProcessCommonJSModules_ExportInfo] = newTListBuilder_(jtc_p_ProcessCommonJSModules_ExportInfo)
+		if isCommonJsModule || forceModuleDetection {
 			if !finder.umdPatterns.isEmpty() {
 				var needsRetraverse bool = false
 				if finder.replaceUmdPatterns() {
@@ -75,7 +75,7 @@ func (this *ProcessCommonJSModules) shouldTraverse_impl(t *NodeTraversal, n Node
 
 func ProcessCommonJSModules_getModuleName(input *CompilerInput) Optional[string] {
 	var modulePath *ModuleLoader_ModulePath = input.getPath()
-	if (modulePath == nil) {
+	if modulePath == nil {
 		return Optional_empty[string]()
 	}
 	return Optional_of[string](ProcessCommonJSModules_getModuleNameModulePath(modulePath))
@@ -87,7 +87,7 @@ func ProcessCommonJSModules_getModuleNameModulePath(input *ModuleLoader_ModulePa
 
 func (this *ProcessCommonJSModules) getBasePropertyImport_2(moduleName string, requireCall Node) Optional[string] {
 	Preconditions_checkArgument(requireCall.isCall())
-	if ((this.compiler_.getOptions().getModuleResolutionMode() == ModuleLoader_ResolutionMode_WEBPACK) && requireCall.getFirstChild().matchesQualifiedName(ProcessCommonJSModules_WEBPACK_REQUIRE_NAMESPACE)) {
+	if (this.compiler_.getOptions().getModuleResolutionMode() == ModuleLoader_ResolutionMode_WEBPACK) && requireCall.getFirstChild().matchesQualifiedName(ProcessCommonJSModules_WEBPACK_REQUIRE_NAMESPACE) {
 		return Optional_of[string](moduleName)
 	}
 	return this.getBasePropertyImport(Optional_of[string](moduleName))
@@ -95,7 +95,7 @@ func (this *ProcessCommonJSModules) getBasePropertyImport_2(moduleName string, r
 
 func (this *ProcessCommonJSModules) getBasePropertyImport(moduleName Optional[string]) Optional[string] {
 	var moduleType *CompilerInput_ModuleType = this.compiler_.getModuleTypeByName(moduleName)
-	if ((moduleType != nil) && (moduleType != CompilerInput_ModuleType_COMMONJS)) {
+	if (moduleType != nil) && (moduleType != CompilerInput_ModuleType_COMMONJS) {
 		return moduleName
 	}
 	return Optional_of[string]((sstr_(moduleName.orElse("null")) + "." + sstr_(ProcessCommonJSModules_EXPORT_PROPERTY_NAME)))
@@ -106,13 +106,13 @@ func (this *ProcessCommonJSModules) isCommonJsImport(requireCall Node) bool {
 }
 
 func ProcessCommonJSModules_isCommonJsImport(requireCall Node, resolutionMode *ModuleLoader_ResolutionMode) bool {
-	if (requireCall.isCall() && requireCall.hasTwoChildren()) {
-		if (((resolutionMode == ModuleLoader_ResolutionMode_WEBPACK) && (requireCall.getFirstChild().matchesQualifiedName(ProcessCommonJSModules_WEBPACK_REQUIRE) || requireCall.getFirstChild().matchesQualifiedName(ProcessCommonJSModules_WEBPACK_REQUIRE_NAMESPACE))) && (requireCall.getSecondChild().isNumber() || requireCall.getSecondChild().isStringLit())) {
+	if requireCall.isCall() && requireCall.hasTwoChildren() {
+		if ((resolutionMode == ModuleLoader_ResolutionMode_WEBPACK) && (requireCall.getFirstChild().matchesQualifiedName(ProcessCommonJSModules_WEBPACK_REQUIRE) || requireCall.getFirstChild().matchesQualifiedName(ProcessCommonJSModules_WEBPACK_REQUIRE_NAMESPACE))) && (requireCall.getSecondChild().isNumber() || requireCall.getSecondChild().isStringLit()) {
 			return true
-		} else if (requireCall.getFirstChild().matchesQualifiedName(ProcessCommonJSModules_REQUIRE) && requireCall.getSecondChild().isStringLit()) {
+		} else if requireCall.getFirstChild().matchesQualifiedName(ProcessCommonJSModules_REQUIRE) && requireCall.getSecondChild().isStringLit() {
 			return true
 		}
-	} else if (((((requireCall.isCall() && requireCall.hasXChildren(3)) && (resolutionMode == ModuleLoader_ResolutionMode_WEBPACK)) && requireCall.getFirstChild().matchesQualifiedName((sstr_(ProcessCommonJSModules_WEBPACK_REQUIRE) + ".bind"))) && requireCall.getSecondChild().isNull()) && (requireCall.getLastChild().isNumber() || requireCall.getLastChild().isStringLit())) {
+	} else if ((((requireCall.isCall() && requireCall.hasXChildren(3)) && (resolutionMode == ModuleLoader_ResolutionMode_WEBPACK)) && requireCall.getFirstChild().matchesQualifiedName((sstr_(ProcessCommonJSModules_WEBPACK_REQUIRE) + ".bind"))) && requireCall.getSecondChild().isNull()) && (requireCall.getLastChild().isNumber() || requireCall.getLastChild().isStringLit()) {
 		return true
 	}
 	return false
@@ -123,8 +123,13 @@ func (this *ProcessCommonJSModules) getCommonJsImportPath(requireCall Node) stri
 }
 
 func ProcessCommonJSModules_getCommonJsImportPath(requireCall Node, resolutionMode *ModuleLoader_ResolutionMode) string {
-	if (resolutionMode == ModuleLoader_ResolutionMode_WEBPACK) {
-		var pathArgument Node = func() Node { if (requireCall.getChildCount() >= 3) { return requireCall.getChildAtIndex(2) }; return requireCall.getSecondChild() }()
+	if resolutionMode == ModuleLoader_ResolutionMode_WEBPACK {
+		var pathArgument Node = func() Node {
+			if requireCall.getChildCount() >= 3 {
+				return requireCall.getChildAtIndex(2)
+			}
+			return requireCall.getSecondChild()
+		}()
 		if pathArgument.isNumber() {
 			return String_valueOf(f2i_[int32](float64(pathArgument.getDouble())))
 		} else {
@@ -142,21 +147,21 @@ func (this *ProcessCommonJSModules) getImportedModuleName_3(t *NodeTraversal, n 
 	var modulePath *ModuleLoader_ModulePath = t.getInput().getPath().resolveJsModule(importPath, Optional_of[string](n.getSourceFileName()).filter(Predicate[string](func(s string) bool {
 		return !String_isEmpty(s)
 	})), n.getLineno(), n.getCharno())
-	if (modulePath == nil) {
+	if modulePath == nil {
 		return ModuleIdentifier_forFile(importPath).moduleName()
 	}
 	return modulePath.toModuleName()
 }
 
 func ProcessCommonJSModules_isCommonJsExport(t *NodeTraversal, export Node, resolutionMode *ModuleLoader_ResolutionMode) bool {
-	if (export.matchesQualifiedName((sstr_(ProcessCommonJSModules_MODULE) + "." + sstr_(ProcessCommonJSModules_EXPORTS))) || (((export.isGetElem() && export.getFirstChild().matchesQualifiedName(ProcessCommonJSModules_MODULE)) && export.getSecondChild().isStringLit()) && (export.getSecondChild().getString() == ProcessCommonJSModules_EXPORTS))) {
+	if export.matchesQualifiedName((sstr_(ProcessCommonJSModules_MODULE) + "." + sstr_(ProcessCommonJSModules_EXPORTS))) || (((export.isGetElem() && export.getFirstChild().matchesQualifiedName(ProcessCommonJSModules_MODULE)) && export.getSecondChild().isStringLit()) && (export.getSecondChild().getString() == ProcessCommonJSModules_EXPORTS)) {
 		var v *Var = t.getScope().getVar_String_rVar(ProcessCommonJSModules_MODULE)
-		if ((v == nil) || v.isExtern()) {
+		if (v == nil) || v.isExtern() {
 			return true
 		}
-	} else if (export.isName() && (ProcessCommonJSModules_EXPORTS == export.getString())) {
+	} else if export.isName() && (ProcessCommonJSModules_EXPORTS == export.getString()) {
 		var v *Var = t.getScope().getVar_String_rVar(export.getString())
-		if ((v == nil) || v.isGlobal()) {
+		if (v == nil) || v.isGlobal() {
 			return true
 		}
 	}
@@ -168,10 +173,10 @@ func (this *ProcessCommonJSModules) isCommonJsExport(t *NodeTraversal, export No
 }
 
 func ProcessCommonJSModules_isCommonJsDynamicImportCallback(n Node, resolutionMode *ModuleLoader_ResolutionMode) bool {
-	if ((n == 0) || (resolutionMode != ModuleLoader_ResolutionMode_WEBPACK)) {
+	if (n == 0) || (resolutionMode != ModuleLoader_ResolutionMode_WEBPACK) {
 		return false
 	}
-	if (n.isFunction() && ProcessCommonJSModules_isWebpackRequireEnsureCallback(n)) {
+	if n.isFunction() && ProcessCommonJSModules_isWebpackRequireEnsureCallback(n) {
 		return true
 	}
 	return false
@@ -179,7 +184,7 @@ func ProcessCommonJSModules_isCommonJsDynamicImportCallback(n Node, resolutionMo
 
 func ProcessCommonJSModules_isWebpackRequireEnsureCallback(fnc Node) bool {
 	Preconditions_checkArgument(fnc.isFunction())
-	if (fnc.getParent() == 0) {
+	if fnc.getParent() == 0 {
 		return false
 	}
 	var callParent Node = fnc.getParent()
@@ -190,13 +195,13 @@ func ProcessCommonJSModules_isWebpackRequireEnsureCallback(fnc Node) bool {
 		return false
 	}
 	var callParentTarget Node = callParent.getFirstFirstChild().getFirstChild()
-	if (callParentTarget.matchesQualifiedName((sstr_(ProcessCommonJSModules_WEBPACK_REQUIRE) + ".e")) && (callParent.getFirstChild().getString() == "then")) {
+	if callParentTarget.matchesQualifiedName((sstr_(ProcessCommonJSModules_WEBPACK_REQUIRE) + ".e")) && (callParent.getFirstChild().getString() == "then") {
 		return true
-	} else if ((ProcessCommonJSModules_PROMISE_ALL.matches(callParentTarget) && (callParentTarget.getNext() != 0)) && callParentTarget.getNext().isArrayLit()) {
+	} else if (ProcessCommonJSModules_PROMISE_ALL.matches(callParentTarget) && (callParentTarget.getNext() != 0)) && callParentTarget.getNext().isArrayLit() {
 		var allElementsAreDynamicImports bool = false
 		{
 			var arrayItem Node = callParentTarget.getNext().getFirstChild()
-			for ; (arrayItem != 0); arrayItem = arrayItem.getNext() {
+			for ; arrayItem != 0; arrayItem = arrayItem.getNext() {
 				if !((arrayItem.isCall() && arrayItem.hasTwoChildren()) && arrayItem.getFirstChild().matchesQualifiedName((sstr_(ProcessCommonJSModules_WEBPACK_REQUIRE) + ".e"))) {
 					return false
 				}
@@ -210,7 +215,7 @@ func ProcessCommonJSModules_isWebpackRequireEnsureCallback(fnc Node) bool {
 
 func (this *ProcessCommonJSModules) getBaseQualifiedNameNode(n Node) Node {
 	var refParent Node = n
-	for (refParent.hasParent() && refParent.getParent().isQualifiedName()) {
+	for refParent.hasParent() && refParent.getParent().isQualifiedName() {
 		refParent = refParent.getParent()
 	}
 	return refParent
@@ -219,23 +224,23 @@ func (this *ProcessCommonJSModules) getBaseQualifiedNameNode(n Node) Node {
 func (this *ProcessCommonJSModules) removeIIFEWrapper(root Node) bool {
 	Preconditions_checkState(root.isScript())
 	var n Node = root.getFirstChild()
-	for ((n != 0) && n.isEmpty()) {
+	for (n != 0) && n.isEmpty() {
 		n = n.getNext()
 	}
-	if (((n == 0) || !n.isExprResult()) || (n.getNext() != 0)) {
+	if ((n == 0) || !n.isExprResult()) || (n.getNext() != 0) {
 		return false
 	}
-	if (((n != 0) && n.hasChildren()) && n.getFirstChild().isNot()) {
+	if ((n != 0) && n.hasChildren()) && n.getFirstChild().isNot() {
 		n = n.getFirstChild()
 	}
 	var call Node = n.getFirstChild()
-	if ((call == 0) || !call.isCall()) {
+	if (call == 0) || !call.isCall() {
 		return false
 	}
 	var fnc Node
 	if call.getFirstChild().isFunction() {
 		fnc = n.getFirstFirstChild()
-	} else if ((call.getFirstChild().isGetProp() && call.getFirstFirstChild().isFunction()) && (call.getFirstChild().getString() == "call")) {
+	} else if (call.getFirstChild().isGetProp() && call.getFirstFirstChild().isFunction()) && (call.getFirstChild().getString() == "call") {
 		fnc = call.getFirstFirstChild()
 		if !((call.getSecondChild() != 0) && (call.getSecondChild().isThis() || call.getSecondChild().matchesQualifiedName(ProcessCommonJSModules_EXPORTS))) {
 			return false
@@ -248,7 +253,7 @@ func (this *ProcessCommonJSModules) removeIIFEWrapper(root Node) bool {
 	}
 	var ci *CompilerInput = this.compiler_.getInput(root.getInputId())
 	var modulePath *ModuleLoader_ModulePath = ci.getPath()
-	if (modulePath == nil) {
+	if modulePath == nil {
 		return false
 	}
 	var iifeLabel string = (sstr_(ProcessCommonJSModules_getModuleNameModulePath(modulePath)) + "_iifeWrapper")
@@ -264,14 +269,14 @@ func (this *ProcessCommonJSModules) removeIIFEWrapper(root Node) bool {
 func (this *ProcessCommonJSModules) removeWebpackModuleShim(root Node) {
 	Preconditions_checkState(root.isScript())
 	var n Node = root.getFirstChild()
-	for ((n != 0) && n.isEmpty()) {
+	for (n != 0) && n.isEmpty() {
 		n = n.getNext()
 	}
-	if (((n == 0) || !n.isExprResult()) || (n.getNext() != 0)) {
+	if ((n == 0) || !n.isExprResult()) || (n.getNext() != 0) {
 		return
 	}
 	var call Node = n.getFirstChild()
-	if ((call == 0) || !call.isCall()) {
+	if (call == 0) || !call.isCall() {
 		return
 	}
 	var callTarget Node = call.getFirstChild()
@@ -283,32 +288,37 @@ func (this *ProcessCommonJSModules) removeWebpackModuleShim(root Node) {
 	var moduleParam Node = 0
 	var param Node = params.getFirstChild()
 	var paramNumber int32 = 0
-	for (param != 0) {
+	for param != 0 {
 		paramNumber++
-		if (param.isName() && (param.getString() == ProcessCommonJSModules_MODULE)) {
+		if param.isName() && (param.getString() == ProcessCommonJSModules_MODULE) {
 			moduleParam = param
 			break
 		}
 		param = param.getNext()
 	}
-	if (moduleParam == 0) {
+	if moduleParam == 0 {
 		return
 	}
 	var isFreeCall bool = call.getBooleanProp(Node_FREE_CALL)
-	var arg Node = call.getChildAtIndex(func() int32 { if isFreeCall { return paramNumber }; return (paramNumber + 1) }())
-	if (arg == 0) {
+	var arg Node = call.getChildAtIndex(func() int32 {
+		if isFreeCall {
+			return paramNumber
+		}
+		return (paramNumber + 1)
+	}())
+	if arg == 0 {
 		return
 	}
 	var argCallTarget Node = arg.getFirstChild()
-	if (((arg.isCall() && argCallTarget.isCall()) && this.isCommonJsImport(argCallTarget)) && argCallTarget.getNext().matchesName(ProcessCommonJSModules_MODULE)) {
+	if ((arg.isCall() && argCallTarget.isCall()) && this.isCommonJsImport(argCallTarget)) && argCallTarget.getNext().matchesName(ProcessCommonJSModules_MODULE) {
 		var importPath string = this.getCommonJsImportPath(argCallTarget)
 		var modulePath *ModuleLoader_ModulePath = this.compiler_.getInput(root.getInputId()).getPath().resolveJsModule(importPath, Optional_of[string](arg.getSourceFileName()).filter(Predicate[string](func(s string) bool {
 			return !String_isEmpty(s)
 		})), arg.getLineno(), arg.getCharno())
-		if (modulePath == nil) {
+		if modulePath == nil {
 			return
 		}
-		if String_contains_s(modulePath.toString(), "/buildin/module.js") {
+		if JString_contains_s(modulePath.toString(), "/buildin/module.js") {
 			arg.detach()
 			param.detach()
 			this.compiler_.reportChangeToChangeScope(fnc)
@@ -325,11 +335,11 @@ func (this *ProcessCommonJSModules) reportNestedScopesChanged(n Node) {
 	NodeUtil_visitPreOrder_Node_Visitor(n, NodeUtil_Visitor(new_ProcessCommonJSModules_2(this)))
 }
 
-func ProcessCommonJSModules_findUmdPattern(umdPatterns *TList[*ProcessCommonJSModules_UmdPattern], n Node) *ProcessCommonJSModules_UmdPattern {
+func ProcessCommonJSModules_findUmdPattern(umdPatterns *JTList[*ProcessCommonJSModules_UmdPattern], n Node) *ProcessCommonJSModules_UmdPattern {
 	it_1 := umdPatterns.each()
 	for it_1.next() {
 		var umd *ProcessCommonJSModules_UmdPattern = it_1.v
-		if (umd.ifRoot == n) {
+		if umd.ifRoot == n {
 			return umd
 		}
 	}
@@ -342,6 +352,7 @@ const ProcessCommonJSModules_REQUIRE string = "require"
 const ProcessCommonJSModules_WEBPACK_REQUIRE string = "__webpack_require__"
 const ProcessCommonJSModules_WEBPACK_REQUIRE_NAMESPACE string = "__webpack_require__.t"
 const ProcessCommonJSModules_EXPORT_PROPERTY_NAME string = "default"
+
 var ProcessCommonJSModules_UNKNOWN_REQUIRE_ENSURE *DiagnosticType
 var ProcessCommonJSModules_SUSPICIOUS_EXPORTS_ASSIGNMENT *DiagnosticType
 var ProcessCommonJSModules_PROMISE_ALL *QualifiedName
@@ -374,7 +385,7 @@ func ProcessCommonJSModules_clinit() {
 }
 
 type ProcessCommonJSModules_UmdPattern struct {
-	ifRoot Node
+	ifRoot       Node
 	activeBranch Node
 }
 
@@ -390,8 +401,8 @@ func new_ProcessCommonJSModules_UmdPattern(ifRoot Node, activeBranch Node) *Proc
 }
 
 type ProcessCommonJSModules_ExportInfo struct {
-	scope_ *Scope
-	node_ Node
+	scope_             *Scope
+	node_              Node
 	isInSupportedScope bool
 }
 
@@ -411,22 +422,22 @@ func new_ProcessCommonJSModules_ExportInfo(node Node, scope *Scope) *ProcessComm
 }
 
 type ProcessCommonJSModules_FindImportsAndExports struct {
-	outer_ *ProcessCommonJSModules
-	umdPatterns *TList[*ProcessCommonJSModules_UmdPattern]
-	moduleExports *TList[*ProcessCommonJSModules_ExportInfo]
-	exports *TList[*ProcessCommonJSModules_ExportInfo]
-	errors_ *TList[*JSError]
-	script_ Node
+	outer_                 *ProcessCommonJSModules
+	umdPatterns            *JTList[*ProcessCommonJSModules_UmdPattern]
+	moduleExports          *JTList[*ProcessCommonJSModules_ExportInfo]
+	exports                *JTList[*ProcessCommonJSModules_ExportInfo]
+	errors_                *JTList[*JSError]
+	script_                Node
 	hasGoogProvideOrModule bool
 }
 
 func (this *ProcessCommonJSModules_FindImportsAndExports) finit_ProcessCommonJSModules_FindImportsAndExports() {
 	this.hasGoogProvideOrModule = false
 	this.script_ = 0
-	this.umdPatterns = newTList_(tc_p_ProcessCommonJSModules_UmdPattern)
-	this.moduleExports = newTList_(tc_p_ProcessCommonJSModules_ExportInfo)
-	this.exports = newTList_(tc_p_ProcessCommonJSModules_ExportInfo)
-	this.errors_ = newTList_(tc_p_JSError)
+	this.umdPatterns = jnewTList_(jtc_p_ProcessCommonJSModules_UmdPattern)
+	this.moduleExports = jnewTList_(jtc_p_ProcessCommonJSModules_ExportInfo)
+	this.exports = jnewTList_(jtc_p_ProcessCommonJSModules_ExportInfo)
+	this.errors_ = jnewTList_(jtc_p_JSError)
 }
 
 func (this *ProcessCommonJSModules_FindImportsAndExports) init_ProcessCommonJSModules_FindImportsAndExports() {
@@ -448,12 +459,12 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) report_2(ignoredLevel 
 	this.errors_.add(error_)
 }
 
-func (this *ProcessCommonJSModules_FindImportsAndExports) getModuleExports() *TList[*ProcessCommonJSModules_ExportInfo] {
-	return immutableListCopyOfT_(tc_p_ProcessCommonJSModules_ExportInfo, this.moduleExports)
+func (this *ProcessCommonJSModules_FindImportsAndExports) getModuleExports() *JTList[*ProcessCommonJSModules_ExportInfo] {
+	return immutableListCopyOfT_(jtc_p_ProcessCommonJSModules_ExportInfo, this.moduleExports)
 }
 
-func (this *ProcessCommonJSModules_FindImportsAndExports) getExports() *TList[*ProcessCommonJSModules_ExportInfo] {
-	return immutableListCopyOfT_(tc_p_ProcessCommonJSModules_ExportInfo, this.exports)
+func (this *ProcessCommonJSModules_FindImportsAndExports) getExports() *JTList[*ProcessCommonJSModules_ExportInfo] {
+	return immutableListCopyOfT_(jtc_p_ProcessCommonJSModules_ExportInfo, this.exports)
 }
 
 func (this *ProcessCommonJSModules_FindImportsAndExports) shouldTraverse(nodeTraversal *NodeTraversal, n Node, parent Node) bool {
@@ -468,56 +479,56 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) visit(t *NodeTraversal
 	if NodeUtil_isShallowStatementTree(parent) {
 		if n.isExprResult() {
 			var maybeGetProp Node = n.getFirstFirstChild()
-			if ((maybeGetProp != 0) && (ProcessCommonJSModules_GOOG_PROVIDE.matches(maybeGetProp) || ProcessCommonJSModules_GOOG_MODULE.matches(maybeGetProp))) {
+			if (maybeGetProp != 0) && (ProcessCommonJSModules_GOOG_PROVIDE.matches(maybeGetProp) || ProcessCommonJSModules_GOOG_MODULE.matches(maybeGetProp)) {
 				this.hasGoogProvideOrModule = true
 			}
 		}
 	}
-	if (n.isCall() && ProcessCommonJSModules_REQUIRE_ENSURE.matches(n.getFirstChild())) {
+	if n.isCall() && ProcessCommonJSModules_REQUIRE_ENSURE.matches(n.getFirstChild()) {
 		this.visitRequireEnsureCall(t, n)
 	}
-	if (n.matchesQualifiedName((sstr_(ProcessCommonJSModules_MODULE) + "." + sstr_(ProcessCommonJSModules_EXPORTS))) || (((n.isGetElem() && n.getFirstChild().matchesQualifiedName(ProcessCommonJSModules_MODULE)) && n.getSecondChild().isStringLit()) && (n.getSecondChild().getString() == ProcessCommonJSModules_EXPORTS))) {
+	if n.matchesQualifiedName((sstr_(ProcessCommonJSModules_MODULE) + "." + sstr_(ProcessCommonJSModules_EXPORTS))) || (((n.isGetElem() && n.getFirstChild().matchesQualifiedName(ProcessCommonJSModules_MODULE)) && n.getSecondChild().isStringLit()) && (n.getSecondChild().getString() == ProcessCommonJSModules_EXPORTS)) {
 		if this.outer_.isCommonJsExport(t, n) {
 			this.moduleExports.add(new_ProcessCommonJSModules_ExportInfo(n, t.getScope()))
 			var umdTestAncestor *ProcessCommonJSModules_FindImportsAndExports_UmdTestInfo = this.getOutermostUmdTest(parent)
-			if ((umdTestAncestor != nil) && !this.isInIfTest(n)) {
+			if (umdTestAncestor != nil) && !this.isInIfTest(n) {
 				var existingPattern *ProcessCommonJSModules_UmdPattern = ProcessCommonJSModules_findUmdPattern(this.umdPatterns, umdTestAncestor.enclosingIf)
-				if (existingPattern == nil) {
+				if existingPattern == nil {
 					this.umdPatterns.add(new_ProcessCommonJSModules_UmdPattern(umdTestAncestor.enclosingIf, umdTestAncestor.activeBranch))
 				}
 			}
 		}
-	} else if (ProcessCommonJSModules_DEFINE_AMD.matches(n) || ProcessCommonJSModules_WINDOW_DEFINE_AMD.matches(n)) {
+	} else if ProcessCommonJSModules_DEFINE_AMD.matches(n) || ProcessCommonJSModules_WINDOW_DEFINE_AMD.matches(n) {
 		var umdTestAncestor *ProcessCommonJSModules_FindImportsAndExports_UmdTestInfo = this.getOutermostUmdTest(parent)
-		if ((umdTestAncestor != nil) && this.isInIfTest(n)) {
+		if (umdTestAncestor != nil) && this.isInIfTest(n) {
 			var existingPattern *ProcessCommonJSModules_UmdPattern = ProcessCommonJSModules_findUmdPattern(this.umdPatterns, umdTestAncestor.enclosingIf)
-			if ((existingPattern == nil) && (umdTestAncestor.enclosingIf.getChildAtIndex(2) == 0)) {
+			if (existingPattern == nil) && (umdTestAncestor.enclosingIf.getChildAtIndex(2) == 0) {
 				this.umdPatterns.add(new_ProcessCommonJSModules_UmdPattern(umdTestAncestor.enclosingIf, 0))
 			}
 		}
 	}
-	if (n.isName() && (ProcessCommonJSModules_EXPORTS == n.getString())) {
+	if n.isName() && (ProcessCommonJSModules_EXPORTS == n.getString()) {
 		var v *Var = t.getScope().getVar_String_rVar(ProcessCommonJSModules_EXPORTS)
-		if ((v == nil) || v.isGlobal()) {
+		if (v == nil) || v.isGlobal() {
 			var qNameRoot Node = this.outer_.getBaseQualifiedNameNode(n)
-			if (((qNameRoot != 0) && qNameRoot.matchesQualifiedName(ProcessCommonJSModules_EXPORTS)) && NodeUtil_isLValue(qNameRoot)) {
-				if ((n.getGrandparent().isExprResult() && (n.getNext() != 0)) && ((n.getNext().isGetProp() && n.getNext().matchesQualifiedName((sstr_(ProcessCommonJSModules_MODULE) + "." + sstr_(ProcessCommonJSModules_EXPORTS)))) || (n.getNext().isAssign() && n.getNext().getFirstChild().matchesQualifiedName((sstr_(ProcessCommonJSModules_MODULE) + "." + sstr_(ProcessCommonJSModules_EXPORTS)))))) {
+			if ((qNameRoot != 0) && qNameRoot.matchesQualifiedName(ProcessCommonJSModules_EXPORTS)) && NodeUtil_isLValue(qNameRoot) {
+				if (n.getGrandparent().isExprResult() && (n.getNext() != 0)) && ((n.getNext().isGetProp() && n.getNext().matchesQualifiedName((sstr_(ProcessCommonJSModules_MODULE) + "." + sstr_(ProcessCommonJSModules_EXPORTS)))) || (n.getNext().isAssign() && n.getNext().getFirstChild().matchesQualifiedName((sstr_(ProcessCommonJSModules_MODULE) + "." + sstr_(ProcessCommonJSModules_EXPORTS))))) {
 					this.exports.add(new_ProcessCommonJSModules_ExportInfo(n, t.getScope()))
-				} else if (!this.hasGoogProvideOrModule && ((v == nil) || ((v.getNameNode() == 0) && (v.getNameNode().getFirstChild() != n)))) {
+				} else if !this.hasGoogProvideOrModule && ((v == nil) || ((v.getNameNode() == 0) && (v.getNameNode().getFirstChild() != n))) {
 					this.errors_.add(JSError_make_Node_DiagnosticType_StringArr(qNameRoot, ProcessCommonJSModules_SUSPICIOUS_EXPORTS_ASSIGNMENT, []string{}))
 				}
 			} else {
 				this.exports.add(new_ProcessCommonJSModules_ExportInfo(n, t.getScope()))
 				var umdTestAncestor *ProcessCommonJSModules_FindImportsAndExports_UmdTestInfo = this.getOutermostUmdTest(parent)
-				if ((umdTestAncestor != nil) && !this.isInIfTest(n)) {
+				if (umdTestAncestor != nil) && !this.isInIfTest(n) {
 					var existingPattern *ProcessCommonJSModules_UmdPattern = ProcessCommonJSModules_findUmdPattern(this.umdPatterns, umdTestAncestor.enclosingIf)
-					if (existingPattern == nil) {
+					if existingPattern == nil {
 						this.umdPatterns.add(new_ProcessCommonJSModules_UmdPattern(umdTestAncestor.enclosingIf, umdTestAncestor.activeBranch))
 					}
 				}
 			}
 		}
-	} else if ((n.isThis() && n.getParent().isGetProp()) && t.inGlobalScope()) {
+	} else if (n.isThis() && n.getParent().isGetProp()) && t.inGlobalScope() {
 		this.exports.add(new_ProcessCommonJSModules_ExportInfo(n, t.getScope()))
 	}
 	if this.outer_.isCommonJsImport(n) {
@@ -526,7 +537,7 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) visit(t *NodeTraversal
 }
 
 func (this *ProcessCommonJSModules_FindImportsAndExports) visitRequireCall(t *NodeTraversal, require Node, parent Node) {
-	if ((!NodeUtil_isExpressionResultUsed(require) && parent.isExprResult()) && NodeUtil_isStatementBlock(parent.getParent())) {
+	if (!NodeUtil_isExpressionResultUsed(require) && parent.isExprResult()) && NodeUtil_isStatementBlock(parent.getParent()) {
 		t.getInput().getPath().resolveJsModule(this.outer_.getCommonJsImportPath(require), Optional_of[string](require.getSourceFileName()).filter(Predicate[string](func(s string) bool {
 			return !String_isEmpty(s)
 		})), require.getLineno(), require.getCharno())
@@ -548,7 +559,7 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) visitRequireEnsureCall
 	}
 	{
 		var dep Node = dependencies.getFirstChild()
-		for ; (dep != 0); dep = dep.getNext() {
+		for ; dep != 0; dep = dep.getNext() {
 			if !dep.isStringLit() {
 				this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(dep, ProcessCommonJSModules_UNKNOWN_REQUIRE_ENSURE, []string{"The first argument must be an array literal of string literals."}))
 				return
@@ -579,25 +590,25 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) reportModuleErrors() {
 func (this *ProcessCommonJSModules_FindImportsAndExports) initializeModule() bool {
 	var ci *CompilerInput = this.outer_.compiler_.getInput(this.script_.getInputId())
 	var modulePath *ModuleLoader_ModulePath = ci.getPath()
-	if (modulePath == nil) {
+	if modulePath == nil {
 		return true
 	}
 	var moduleName Optional[string] = ProcessCommonJSModules_getModuleName(ci)
-	var exportsToRemove *TList[*ProcessCommonJSModules_ExportInfo] = newTList_(tc_p_ProcessCommonJSModules_ExportInfo)
+	var exportsToRemove *JTList[*ProcessCommonJSModules_ExportInfo] = jnewTList_(jtc_p_ProcessCommonJSModules_ExportInfo)
 	it_1 := this.exports.each()
 	for it_1.next() {
 		var export *ProcessCommonJSModules_ExportInfo = it_1.v
-		if (NodeUtil_getEnclosingScript(export.node_) == 0) {
+		if NodeUtil_getEnclosingScript(export.node_) == 0 {
 			exportsToRemove.add(export)
 			continue
 		}
 		var qNameBase Node = this.outer_.getBaseQualifiedNameNode(export.node_)
-		if (((((export.node_ == qNameBase) && export.node_.getParent().isAssign()) && export.node_.getGrandparent().isExprResult()) && (export.node_.getPrevious() == 0)) && (export.node_.getNext() != 0)) {
-			if (export.node_.getNext().isGetProp() && export.node_.getNext().matchesQualifiedName((sstr_(ProcessCommonJSModules_MODULE) + "." + sstr_(ProcessCommonJSModules_EXPORTS)))) {
+		if ((((export.node_ == qNameBase) && export.node_.getParent().isAssign()) && export.node_.getGrandparent().isExprResult()) && (export.node_.getPrevious() == 0)) && (export.node_.getNext() != 0) {
+			if export.node_.getNext().isGetProp() && export.node_.getNext().matchesQualifiedName((sstr_(ProcessCommonJSModules_MODULE) + "." + sstr_(ProcessCommonJSModules_EXPORTS))) {
 				it_3 := this.moduleExports.each()
 				for it_3.next() {
 					var moduleExport *ProcessCommonJSModules_ExportInfo = it_3.v
-					if (moduleExport.node_ == export.node_.getNext()) {
+					if moduleExport.node_ == export.node_.getNext() {
 						this.moduleExports.asListT().remove_Object(obj_(moduleExport))
 						break
 					}
@@ -606,13 +617,13 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) initializeModule() boo
 				export.node_.getGrandparent().detach()
 				exportsToRemove.add(export)
 				this.outer_.compiler_.reportChangeToEnclosingScope(changeRoot)
-			} else if (export.node_.getNext().isAssign() && export.node_.getNext().getFirstChild().matchesQualifiedName((sstr_(ProcessCommonJSModules_MODULE) + "." + sstr_(ProcessCommonJSModules_EXPORTS)))) {
+			} else if export.node_.getNext().isAssign() && export.node_.getNext().getFirstChild().matchesQualifiedName((sstr_(ProcessCommonJSModules_MODULE) + "." + sstr_(ProcessCommonJSModules_EXPORTS))) {
 				var assign Node = export.node_.getNext()
 				export.node_.getParent().replaceWith(assign.detach())
 				exportsToRemove.add(export)
 				this.outer_.compiler_.reportChangeToEnclosingScope(assign)
 			}
-		} else if (((((export.node_.getParent().isGetElem() && export.node_.getNext().isStringLit()) && (export.node_.getNext().getString() == ProcessCommonJSModules_EXPORT_PROPERTY_NAME)) && export.node_.getGrandparent().isAssign()) && (export.node_.getParent().getPrevious() != 0)) && export.node_.getParent().getPrevious().matchesQualifiedName((sstr_(ProcessCommonJSModules_MODULE) + "." + sstr_(ProcessCommonJSModules_EXPORTS)))) {
+		} else if ((((export.node_.getParent().isGetElem() && export.node_.getNext().isStringLit()) && (export.node_.getNext().getString() == ProcessCommonJSModules_EXPORT_PROPERTY_NAME)) && export.node_.getGrandparent().isAssign()) && (export.node_.getParent().getPrevious() != 0)) && export.node_.getParent().getPrevious().matchesQualifiedName((sstr_(ProcessCommonJSModules_MODULE) + "." + sstr_(ProcessCommonJSModules_EXPORTS))) {
 			var parent Node = export.node_.getParent()
 			var grandparent Node = parent.getParent()
 			var prop Node = export.node_.getNext()
@@ -622,11 +633,11 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) initializeModule() boo
 	}
 	this.exports.asListT().removeAll(Collection(exportsToRemove.asListT()))
 	exportsToRemove.clear()
-	var exportsToReplace *TMap[*ProcessCommonJSModules_ExportInfo, *ProcessCommonJSModules_ExportInfo] = newTMap_(tc_p_ProcessCommonJSModules_ExportInfo, tc_p_ProcessCommonJSModules_ExportInfo)
+	var exportsToReplace *JTMap[*ProcessCommonJSModules_ExportInfo, *ProcessCommonJSModules_ExportInfo] = jnewTMap_(jtc_p_ProcessCommonJSModules_ExportInfo, jtc_p_ProcessCommonJSModules_ExportInfo)
 	it_5 := this.moduleExports.each()
 	for it_5.next() {
 		var export *ProcessCommonJSModules_ExportInfo = it_5.v
-		if (NodeUtil_getEnclosingScript(export.node_) == 0) {
+		if NodeUtil_getEnclosingScript(export.node_) == 0 {
 			exportsToRemove.add(export)
 		} else if export.node_.isGetElem() {
 			var prop Node = export.node_.getSecondChild().detach()
@@ -648,19 +659,19 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) initializeModule() boo
 	it_9 := this.moduleExports.each()
 	for it_9.next() {
 		var export *ProcessCommonJSModules_ExportInfo = it_9.v
-		if (NodeUtil_getEnclosingScript(export.node_) == 0) {
+		if NodeUtil_getEnclosingScript(export.node_) == 0 {
 			continue
 		}
 		var base Node = this.outer_.getBaseQualifiedNameNode(export.node_)
-		if ((base == export.node_) && export.node_.getParent().isAssign()) {
+		if (base == export.node_) && export.node_.getParent().isAssign() {
 			var rValue Node = NodeUtil_getRValueOfLValue(export.node_)
-			if ((rValue == 0) || !rValue.isObjectLit()) {
+			if (rValue == 0) || !rValue.isObjectLit() {
 				directAssignments++
 			} else if rValue.isObjectLit() {
 				{
 					var key Node = rValue.getFirstChild()
-					for ; (key != 0); key = key.getNext() {
-						if ((!key.isStringKey() || key.isQuotedStringKey()) && !key.isMemberFunctionDef()) {
+					for ; key != 0; key = key.getNext() {
+						if (!key.isStringKey() || key.isQuotedStringKey()) && !key.isMemberFunctionDef() {
 							directAssignments++
 							break
 						}
@@ -675,12 +686,12 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) initializeModule() boo
 	var builder *JSDocInfo_Builder = JSDocInfo_builder().parseDocumentation()
 	builder.recordConstancy()
 	initModule.setJSDocInfo(builder.build())
-	if ((directAssignments == 0) || (!this.exports.isEmpty() && !this.moduleExports.isEmpty())) {
+	if (directAssignments == 0) || (!this.exports.isEmpty() && !this.moduleExports.isEmpty()) {
 		var defaultProp Node = IR_stringKey_String(ProcessCommonJSModules_EXPORT_PROPERTY_NAME)
 		defaultProp.putBooleanProp(Node_MODULE_EXPORT, true)
 		defaultProp.addChildToFront(IR_objectlit([]Node{}))
 		initModule.getFirstFirstChild().addChildToFront(defaultProp)
-		if (this.exports.isEmpty() || this.moduleExports.isEmpty()) {
+		if this.exports.isEmpty() || this.moduleExports.isEmpty() {
 			builder = JSDocInfo_builder().parseDocumentation()
 			builder.recordConstancy()
 			defaultProp.setJSDocInfo(builder.build())
@@ -692,24 +703,24 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) initializeModule() boo
 }
 
 func (this *ProcessCommonJSModules_FindImportsAndExports) getOutermostUmdTest(n Node) *ProcessCommonJSModules_FindImportsAndExports_UmdTestInfo {
-	if (((n == 0) || NodeUtil_isTopLevel(n)) || n.isFunction()) {
+	if ((n == 0) || NodeUtil_isTopLevel(n)) || n.isFunction() {
 		return nil
 	}
 	var parent Node = n.getParent()
-	if (parent == 0) {
+	if parent == 0 {
 		return nil
 	}
-	if (parent.isIf() || parent.isHook()) {
+	if parent.isIf() || parent.isHook() {
 		var umdTestInfo *ProcessCommonJSModules_FindImportsAndExports_UmdTestInfo = this.getOutermostUmdTest(parent)
-		if (umdTestInfo != nil) {
-			if (((((parent.isIf() && (parent.getSecondChild() == n)) && parent.hasParent()) && parent.getParent().isBlock()) && (parent.getNext() == 0)) && (umdTestInfo.activeBranch == parent.getParent())) {
+		if umdTestInfo != nil {
+			if ((((parent.isIf() && (parent.getSecondChild() == n)) && parent.hasParent()) && parent.getParent().isBlock()) && (parent.getNext() == 0)) && (umdTestInfo.activeBranch == parent.getParent()) {
 				return new_ProcessCommonJSModules_FindImportsAndExports_UmdTestInfo(umdTestInfo.enclosingIf, n)
 			}
 			return umdTestInfo
 		}
-		var umdTests *TList[Node] = newTList_(tc_Node)
+		var umdTests *JTList[Node] = jnewTList_(jtc_Node)
 		NodeUtil_visitPreOrder_Node_Visitor(parent.getFirstChild(), NodeUtil_Visitor(new_ProcessCommonJSModules_FindImportsAndExports_1(this, umdTests)))
-		if (umdTests.isEmpty() && parent.getFirstChild().isTrue()) {
+		if umdTests.isEmpty() && parent.getFirstChild().isTrue() {
 			umdTests.add(parent.getFirstChild())
 		}
 		if !umdTests.isEmpty() {
@@ -721,14 +732,14 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) getOutermostUmdTest(n 
 }
 
 func (this *ProcessCommonJSModules_FindImportsAndExports) isInIfTest(n Node) bool {
-	if (((n == 0) || NodeUtil_isTopLevel(n)) || n.isFunction()) {
+	if ((n == 0) || NodeUtil_isTopLevel(n)) || n.isFunction() {
 		return false
 	}
 	var parent Node = n.getParent()
-	if (parent == 0) {
+	if parent == 0 {
 		return false
 	}
-	if ((parent.isIf() || parent.isHook()) && (parent.getFirstChild() == n)) {
+	if (parent.isIf() || parent.isHook()) && (parent.getFirstChild() == n) {
 		return true
 	}
 	return this.isInIfTest(parent)
@@ -740,20 +751,20 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) replaceUmdPatterns() b
 	it_1 := this.umdPatterns.each()
 	for it_1.next() {
 		var umdPattern *ProcessCommonJSModules_UmdPattern = it_1.v
-		if (NodeUtil_getEnclosingScript(umdPattern.ifRoot) == 0) {
+		if NodeUtil_getEnclosingScript(umdPattern.ifRoot) == 0 {
 			this.outer_.reportNestedScopesDeleted(umdPattern.ifRoot)
 			continue
 		}
 		var parent Node = umdPattern.ifRoot.getParent()
 		var newNode Node = umdPattern.activeBranch
-		if (newNode == 0) {
+		if newNode == 0 {
 			umdPattern.ifRoot.detach()
 			this.outer_.reportNestedScopesDeleted(umdPattern.ifRoot)
 			this.outer_.compiler_.reportChangeToEnclosingScope(parent)
 			needsRetraverse = true
 			continue
 		}
-		if (umdPattern.activeBranch.isBlock() && umdPattern.activeBranch.hasOneChild()) {
+		if umdPattern.activeBranch.isBlock() && umdPattern.activeBranch.hasOneChild() {
 			newNode = umdPattern.activeBranch.removeFirstChild()
 		} else {
 			newNode.detach()
@@ -762,47 +773,47 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) replaceUmdPatterns() b
 		umdPattern.ifRoot.replaceWith(newNode)
 		this.outer_.reportNestedScopesDeleted(umdPattern.ifRoot)
 		changeScope = ChangeTracker_getEnclosingChangeScopeRoot(newNode)
-		if (changeScope != 0) {
+		if changeScope != 0 {
 			this.outer_.compiler_.reportChangeToEnclosingScope(newNode)
 		}
 		var block Node = parent
 		if block.isExprResult() {
 			block = block.getParent()
 		}
-		if (((block.isBlock() && block.getParent().isFunction()) && block.getGrandparent().isCall()) && parent.hasOneChild()) {
+		if ((block.isBlock() && block.getParent().isFunction()) && block.getGrandparent().isCall()) && parent.hasOneChild() {
 			var enclosingFnCall Node = block.getGrandparent()
 			var fn Node = block.getParent()
 			var enclosingScript Node = NodeUtil_getEnclosingScript(enclosingFnCall)
-			if (enclosingScript == 0) {
+			if enclosingScript == 0 {
 				continue
 			}
 			var ci *CompilerInput = this.outer_.compiler_.getInput(NodeUtil_getEnclosingScript(enclosingFnCall).getInputId())
 			var modulePath *ModuleLoader_ModulePath = ci.getPath()
-			if (modulePath == nil) {
+			if modulePath == nil {
 				continue
 			}
 			needsRetraverse = true
 			var factoryLabel string = (sstr_(modulePath.toModuleName()) + "_factory" + sstr_(this.outer_.compiler_.getUniqueIdSupplier().getUniqueId(ci)))
 			var mutator *FunctionToBlockMutator = new_FunctionToBlockMutator(this.outer_.compiler_, this.outer_.compiler_.getUniqueNameIdSupplier())
 			var newStatements Node = mutator.mutateWithoutRenaming(factoryLabel, fn, enclosingFnCall, Optional_empty[string](), false, false)
-			if (((((newStatements.isBlock() && newStatements.hasTwoChildren()) && newStatements.getFirstChild().isVar()) && newStatements.getFirstFirstChild().hasOneChild()) && newStatements.getFirstFirstChild().getFirstChild().isFunction()) && newStatements.getSecondChild().isExprResult()) {
+			if ((((newStatements.isBlock() && newStatements.hasTwoChildren()) && newStatements.getFirstChild().isVar()) && newStatements.getFirstFirstChild().hasOneChild()) && newStatements.getFirstFirstChild().getFirstChild().isFunction()) && newStatements.getSecondChild().isExprResult() {
 				var inlinedFn Node = newStatements.getFirstFirstChild().getFirstChild()
 				var expr Node = newStatements.getSecondChild().getFirstChild()
 				var call Node = 0
 				var assignedName Optional[string] = Optional_empty[string]()
-				if (expr.isAssign() && expr.getSecondChild().isCall()) {
+				if expr.isAssign() && expr.getSecondChild().isCall() {
 					call = expr.getSecondChild()
 					assignedName = Optional_of[string]((sstr_(modulePath.toModuleName()) + "_iife" + sstr_(this.outer_.compiler_.getUniqueIdSupplier().getUniqueId(ci))))
 				} else if expr.isCall() {
 					call = expr
 				}
-				if (call != 0) {
+				if call != 0 {
 					newStatements = mutator.mutateWithoutRenaming(factoryLabel, inlinedFn, call, assignedName, false, false)
 					if assignedName.isPresent() {
 						var newName Node = IR_var_Node(NodeUtil_newName_AbstractCompiler_String_Node_Optional(this.outer_.compiler_, assignedName.get(), fn, Optional_of[string](expr.getFirstChild().getQualifiedName()).filter(Predicate[string](func(s string) bool {
 							return !String_isEmpty(s)
 						})))).srcrefTree(fn)
-						if ((((newStatements.hasChildren() && newStatements.getFirstChild().isExprResult()) && newStatements.getFirstFirstChild().isAssign()) && newStatements.getFirstFirstChild().getFirstChild().isName()) && (newStatements.getFirstFirstChild().getFirstChild().getString() == assignedName.get())) {
+						if (((newStatements.hasChildren() && newStatements.getFirstChild().isExprResult()) && newStatements.getFirstFirstChild().isAssign()) && newStatements.getFirstFirstChild().getFirstChild().isName()) && (newStatements.getFirstFirstChild().getFirstChild().getString() == assignedName.get()) {
 							newName.getFirstChild().addChildToFront(newStatements.getFirstFirstChild().getSecondChild().detach())
 							newStatements.getFirstChild().replaceWith(newName)
 						} else {
@@ -835,7 +846,7 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) replaceUmdPatterns() b
 }
 
 type ProcessCommonJSModules_FindImportsAndExports_UmdTestInfo struct {
-	enclosingIf Node
+	enclosingIf  Node
 	activeBranch Node
 }
 
@@ -852,13 +863,13 @@ func new_ProcessCommonJSModules_FindImportsAndExports_UmdTestInfo(enclosingIf No
 
 type ProcessCommonJSModules_RewriteModule struct {
 	NodeTraversal_AbstractPostOrderCallback
-	outer_ *ProcessCommonJSModules
-	exports CollectionT[*ProcessCommonJSModules_ExportInfo]
-	imports *TList[Node]
-	rewrittenClassExpressions *TList[Node]
-	functionsToHoist *TList[Node]
-	allowFullRewrite bool
-	defaultExportIsConst bool
+	outer_                    *ProcessCommonJSModules
+	exports                   CollectionT[*ProcessCommonJSModules_ExportInfo]
+	imports                   *JTList[Node]
+	rewrittenClassExpressions *JTList[Node]
+	functionsToHoist          *JTList[Node]
+	allowFullRewrite          bool
+	defaultExportIsConst      bool
 }
 
 func (this *ProcessCommonJSModules_RewriteModule) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -869,9 +880,9 @@ func (this *ProcessCommonJSModules_RewriteModule) up_NodeTraversal_AbstractPostO
 }
 
 func (this *ProcessCommonJSModules_RewriteModule) finit_ProcessCommonJSModules_RewriteModule() {
-	this.imports = newTList_(tc_Node)
-	this.rewrittenClassExpressions = newTList_(tc_Node)
-	this.functionsToHoist = newTList_(tc_Node)
+	this.imports = jnewTList_(jtc_Node)
+	this.rewrittenClassExpressions = jnewTList_(jtc_Node)
+	this.functionsToHoist = jnewTList_(jtc_Node)
 }
 
 func (this *ProcessCommonJSModules_RewriteModule) init_ProcessCommonJSModules_RewriteModule(allowFullRewrite bool, exports CollectionT[*ProcessCommonJSModules_ExportInfo], defaultExportIsConst bool) {
@@ -901,7 +912,7 @@ func (this *ProcessCommonJSModules_RewriteModule) visit_impl(t *NodeTraversal, n
 		}
 		var ci *CompilerInput = this.outer_.compiler_.getInput(n.getInputId())
 		var moduleName Optional[string] = ProcessCommonJSModules_getModuleName(ci)
-		for i := int32(1); (i < this.functionsToHoist.size()); i++ {
+		for i := int32(1); i < this.functionsToHoist.size(); i++ {
 			if this.functionsToHoist.get(i).getFirstFirstChild().matchesQualifiedName(this.outer_.getBasePropertyImport(moduleName).get()) {
 				var fncVar Node = this.functionsToHoist.get(i)
 				this.functionsToHoist.removeAt(i)
@@ -909,22 +920,22 @@ func (this *ProcessCommonJSModules_RewriteModule) visit_impl(t *NodeTraversal, n
 				break
 			}
 		}
-		for i := int32((this.functionsToHoist.size() - 1)); (i >= 0); i-- {
+		for i := int32((this.functionsToHoist.size() - 1)); i >= 0; i-- {
 			var functionExpr Node = this.functionsToHoist.get(i)
 			var scopeRoot Node = t.getClosestHoistScopeRoot()
 			var insertionPoint Node = scopeRoot.getFirstChild()
-			if ((insertionPoint == 0) || !(insertionPoint.isVar() && Object_equals(Optional_of[string](insertionPoint.getFirstChild().getString()).box_(), moduleName.box_()))) {
+			if (insertionPoint == 0) || !(insertionPoint.isVar() && Object_equals(Optional_of[string](insertionPoint.getFirstChild().getString()).box_(), moduleName.box_())) {
 				insertionPoint = 0
 			}
-			if (insertionPoint == 0) {
-				if (scopeRoot.getFirstChild() != functionExpr) {
+			if insertionPoint == 0 {
+				if scopeRoot.getFirstChild() != functionExpr {
 					scopeRoot.addChildToFront(functionExpr.detach())
 				}
-			} else if ((insertionPoint != functionExpr) && (insertionPoint.getNext() != functionExpr)) {
+			} else if (insertionPoint != functionExpr) && (insertionPoint.getNext() != functionExpr) {
 				functionExpr.detach().insertAfter(insertionPoint)
 			}
 		}
-		it_6 := eachOf_(this.exports)
+		it_6 := jeachOf_(this.exports)
 		for it_6.next() {
 			var export *ProcessCommonJSModules_ExportInfo = it_6.v
 			this.visitExport(t, export)
@@ -939,8 +950,8 @@ func (this *ProcessCommonJSModules_RewriteModule) visit_impl(t *NodeTraversal, n
 			this.imports.add(n)
 		}
 	case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST:
-		if ((n.hasMoreThanOneChild() && !NodeUtil_isAnyFor(parent)) && !parent.isExport()) {
-			var vars *TList[Node] = this.splitMultipleDeclarations(n)
+		if (n.hasMoreThanOneChild() && !NodeUtil_isAnyFor(parent)) && !parent.isExport() {
+			var vars *JTList[Node] = this.splitMultipleDeclarations(n)
 			t.reportCodeChange()
 			it_10 := vars.each()
 			for it_10.next() {
@@ -948,13 +959,13 @@ func (this *ProcessCommonJSModules_RewriteModule) visit_impl(t *NodeTraversal, n
 				this.visit(t, var_.getFirstChild(), var_)
 			}
 		}
-		if ((n.getFirstChild().hasChildren() && n.getFirstFirstChild().isName()) && (n.getFirstChild().getString() == n.getFirstFirstChild().getString())) {
+		if (n.getFirstChild().hasChildren() && n.getFirstFirstChild().isName()) && (n.getFirstChild().getString() == n.getFirstFirstChild().getString()) {
 			n.detach()
 			t.reportCodeChange()
 			return
 		}
 	case Token_rhino_NAME:
-		if ((NodeUtil_isNameDeclaration(n.getParent()) && n.getParent().hasMoreThanOneChild()) && !NodeUtil_isAnyFor(n.getGrandparent())) {
+		if (NodeUtil_isNameDeclaration(n.getParent()) && n.getParent().hasMoreThanOneChild()) && !NodeUtil_isAnyFor(n.getGrandparent()) {
 			break
 		}
 		var qName string = n.getQualifiedName()
@@ -962,38 +973,38 @@ func (this *ProcessCommonJSModules_RewriteModule) visit_impl(t *NodeTraversal, n
 			break
 		}
 		var nameDeclaration *Var = t.getScope().getVar_String_rVar(qName)
-		if (nameDeclaration != nil) {
+		if nameDeclaration != nil {
 			if NodeUtil_isLhsByDestructuring(n) {
 				this.maybeUpdateName(t, n, nameDeclaration)
-			} else if ((nameDeclaration.getNode() != 0) && (equals_(nameDeclaration.getNode().getInputId(), n.getInputId()))) {
+			} else if (nameDeclaration.getNode() != 0) && (equals_(nameDeclaration.getNode().getInputId(), n.getInputId())) {
 				var enclosingDeclaration Node = NodeUtil_getEnclosingNode(n, Predicate_base[Node](func(node Node) bool {
 					return (node == nameDeclaration.getNameNode())
 				}))
-				if (((enclosingDeclaration == 0) || (enclosingDeclaration == n)) || (nameDeclaration.getScope_rAbstractScope_rScope() != t.getScope())) {
+				if ((enclosingDeclaration == 0) || (enclosingDeclaration == n)) || (nameDeclaration.getScope_rAbstractScope_rScope() != t.getScope()) {
 					this.maybeUpdateName(t, n, nameDeclaration)
 				}
 			}
-		} else if ((this.allowFullRewrite && (n.getString() == ProcessCommonJSModules_MODULE)) && !((n.getParent().isGetProp() || n.getParent().isGetElem()) || n.getParent().isTypeOf())) {
+		} else if (this.allowFullRewrite && (n.getString() == ProcessCommonJSModules_MODULE)) && !((n.getParent().isGetProp() || n.getParent().isGetElem()) || n.getParent().isTypeOf()) {
 			var objectLit Node = IR_objectlit([]Node{}).srcref(n)
 			n.replaceWith(objectLit)
 			t.reportCodeChange_1(objectLit)
 		}
 	case Token_rhino_GETPROP:
-		if (n.matchesQualifiedName((sstr_(ProcessCommonJSModules_MODULE) + ".id")) || n.matchesQualifiedName((sstr_(ProcessCommonJSModules_MODULE) + ".filename"))) {
+		if n.matchesQualifiedName((sstr_(ProcessCommonJSModules_MODULE) + ".id")) || n.matchesQualifiedName((sstr_(ProcessCommonJSModules_MODULE) + ".filename")) {
 			var v *Var = t.getScope().getVar_String_rVar(ProcessCommonJSModules_MODULE)
-			if ((v == nil) || v.isExtern()) {
+			if (v == nil) || v.isExtern() {
 				n.replaceWith(IR_string(t.getInput().getPath().toString()).srcref(n))
 			}
-		} else if (((this.allowFullRewrite && n.getFirstChild().isName()) && (n.getFirstChild().getString() == ProcessCommonJSModules_MODULE)) && !n.matchesQualifiedName((sstr_(ProcessCommonJSModules_MODULE) + "." + sstr_(ProcessCommonJSModules_EXPORTS)))) {
+		} else if ((this.allowFullRewrite && n.getFirstChild().isName()) && (n.getFirstChild().getString() == ProcessCommonJSModules_MODULE)) && !n.matchesQualifiedName((sstr_(ProcessCommonJSModules_MODULE) + "." + sstr_(ProcessCommonJSModules_EXPORTS))) {
 			var v *Var = t.getScope().getVar_String_rVar(ProcessCommonJSModules_MODULE)
-			if ((v == nil) || v.isExtern()) {
+			if (v == nil) || v.isExtern() {
 				n.getFirstChild().replaceWith(IR_objectlit([]Node{}).srcref(n.getFirstChild()))
 			}
 		}
 	case Token_rhino_TYPEOF:
-		if ((this.allowFullRewrite && n.getFirstChild().isName()) && ((n.getFirstChild().getString() == ProcessCommonJSModules_MODULE) || (n.getFirstChild().getString() == ProcessCommonJSModules_EXPORTS))) {
+		if (this.allowFullRewrite && n.getFirstChild().isName()) && ((n.getFirstChild().getString() == ProcessCommonJSModules_MODULE) || (n.getFirstChild().getString() == ProcessCommonJSModules_EXPORTS)) {
 			var v *Var = t.getScope().getVar_String_rVar(n.getFirstChild().getString())
-			if ((v == nil) || v.isExtern()) {
+			if (v == nil) || v.isExtern() {
 				n.replaceWith(IR_string("object"))
 			}
 		}
@@ -1004,8 +1015,8 @@ func (this *ProcessCommonJSModules_RewriteModule) visit_impl(t *NodeTraversal, n
 
 func (this *ProcessCommonJSModules_RewriteModule) fixTypeAnnotationsForNode(t *NodeTraversal, n Node) {
 	var info *JSDocInfo = n.getJSDocInfo()
-	if (info != nil) {
-		it_1 := eachOf_(info.getTypeNodes())
+	if info != nil {
+		it_1 := jeachOf_(info.getTypeNodes())
 		for it_1.next() {
 			var typeNode Node = it_1.v
 			this.fixTypeNode(t, typeNode)
@@ -1024,7 +1035,7 @@ func (this *ProcessCommonJSModules_RewriteModule) visitExport(t *NodeTraversal, 
 	var root Node = this.outer_.getBaseQualifiedNameNode(export.node_)
 	var rValue Node = NodeUtil_getRValueOfLValue(root)
 	if ProcessCommonJSModules_MODULE_EXPORTS.matches(root) {
-		if ((((rValue != 0) && rValue.isObjectLit()) && root.getParent().isAssign()) && root.getGrandparent().isExprResult()) {
+		if (((rValue != 0) && rValue.isObjectLit()) && root.getParent().isAssign()) && root.getGrandparent().isExprResult() {
 			if this.expandObjectLitAssignment(t, root, export.scope_) {
 				return
 			}
@@ -1033,10 +1044,10 @@ func (this *ProcessCommonJSModules_RewriteModule) visitExport(t *NodeTraversal, 
 	var moduleName Optional[string] = ProcessCommonJSModules_getModuleName(t.getInput())
 	var moduleInitialization *Var = t.getScope().getVar_String_rVar(moduleName.get())
 	var rValueVar *Var = nil
-	if ((rValue != 0) && rValue.isQualifiedName()) {
+	if (rValue != 0) && rValue.isQualifiedName() {
 		rValueVar = export.scope_.getVar_String_rVar(rValue.getQualifiedName())
 	}
-	if (((((((root.getParent().isAssign() && root.getGrandparent().isExprResult()) && ((root.getNext() != 0) && (root.getNext().isName() || root.getNext().isGetProp()))) && root.getGrandparent().isExprResult()) && (rValueVar != nil)) && ((NodeUtil_getEnclosingScript(rValueVar.getNameNode()) == 0) || (rValueVar.getNameNode().hasParent() && !rValueVar.isParam()))) && export.isInSupportedScope) && ((rValueVar.getNameNode().getParent() == 0) || !NodeUtil_isLhsByDestructuring(rValueVar.getNameNode()))) {
+	if ((((((root.getParent().isAssign() && root.getGrandparent().isExprResult()) && ((root.getNext() != 0) && (root.getNext().isName() || root.getNext().isGetProp()))) && root.getGrandparent().isExprResult()) && (rValueVar != nil)) && ((NodeUtil_getEnclosingScript(rValueVar.getNameNode()) == 0) || (rValueVar.getNameNode().hasParent() && !rValueVar.isParam()))) && export.isInSupportedScope) && ((rValueVar.getNameNode().getParent() == 0) || !NodeUtil_isLhsByDestructuring(rValueVar.getNameNode())) {
 		root.getGrandparent().detach()
 		t.reportCodeChange()
 		return
@@ -1046,7 +1057,7 @@ func (this *ProcessCommonJSModules_RewriteModule) visitExport(t *NodeTraversal, 
 	updatedExport.putBooleanProp(Node_MODULE_EXPORT, true)
 	var exportIsConst bool = (((this.defaultExportIsConst && updatedExport.matchesQualifiedName(this.outer_.getBasePropertyImport(ProcessCommonJSModules_getModuleName(t.getInput())).get())) && (root == export.node_)) && NodeUtil_isLValue(export.node_))
 	var changeScope Node = 0
-	if (((((ProcessCommonJSModules_MODULE_EXPORTS.matches(root) && (rValue != 0)) && (export.scope_.getVar_String_rVar("module.exports") == nil)) && root.getParent().isAssign()) && root.getGrandparent().isExprResult()) && (moduleInitialization == nil)) {
+	if ((((ProcessCommonJSModules_MODULE_EXPORTS.matches(root) && (rValue != 0)) && (export.scope_.getVar_String_rVar("module.exports") == nil)) && root.getParent().isAssign()) && root.getGrandparent().isExprResult()) && (moduleInitialization == nil) {
 		var parent Node = root.getParent()
 		var exportName Node = IR_exprResult(IR_assign(updatedExport, rValue.detach()))
 		if exportIsConst {
@@ -1056,25 +1067,25 @@ func (this *ProcessCommonJSModules_RewriteModule) visitExport(t *NodeTraversal, 
 		}
 		parent.getParent().replaceWith(exportName.srcrefTree(root.getParent()))
 		changeScope = ChangeTracker_getEnclosingChangeScopeRoot(parent)
-	} else if ((((((root.getNext() != 0) && root.getNext().isName()) && (rValueVar != nil)) && rValueVar.isGlobal()) && export.isInSupportedScope) && ((rValueVar.getNameNode().getParent() == 0) || !NodeUtil_isLhsByDestructuring(rValueVar.getNameNode()))) {
+	} else if (((((root.getNext() != 0) && root.getNext().isName()) && (rValueVar != nil)) && rValueVar.isGlobal()) && export.isInSupportedScope) && ((rValueVar.getNameNode().getParent() == 0) || !NodeUtil_isLhsByDestructuring(rValueVar.getNameNode())) {
 		var parent Node = root.getParent()
 		root.detach()
 		parent.replaceWith(root)
-		if (root == export.node_) {
+		if root == export.node_ {
 			root = updatedExport
 		}
 		export.node_.replaceWith(updatedExport)
 		changeScope = ChangeTracker_getEnclosingChangeScopeRoot(root)
 	} else {
 		export.node_.replaceWith(updatedExport)
-		if (updatedExport.getParent().isAssign() && exportIsConst) {
+		if updatedExport.getParent().isAssign() && exportIsConst {
 			var infoBuilder *JSDocInfo_Builder = JSDocInfo_Builder_maybeCopyFrom(updatedExport.getParent().getJSDocInfo())
 			infoBuilder.recordConstancy()
 			updatedExport.getParent().setJSDocInfo(infoBuilder.build())
 		}
 		changeScope = ChangeTracker_getEnclosingChangeScopeRoot(updatedExport)
 	}
-	if (changeScope != 0) {
+	if changeScope != 0 {
 		this.outer_.compiler_.reportChangeToChangeScope(changeScope)
 	}
 }
@@ -1088,8 +1099,8 @@ func (this *ProcessCommonJSModules_RewriteModule) expandObjectLitAssignment(t *N
 	var rValue Node = NodeUtil_getRValueOfLValue(export)
 	var key Node = rValue.getFirstChild()
 	var removedNodes bool = false
-	for (key != 0) {
-		if ((!key.isStringKey() || key.isQuotedStringKey()) && !key.isMemberFunctionDef()) {
+	for key != 0 {
+		if (!key.isStringKey() || key.isQuotedStringKey()) && !key.isMemberFunctionDef() {
 			key = key.getNext()
 			continue
 		}
@@ -1104,7 +1115,7 @@ func (this *ProcessCommonJSModules_RewriteModule) expandObjectLitAssignment(t *N
 		expr.insertAfter(insertionRef)
 		var newExport *ProcessCommonJSModules_ExportInfo = new_ProcessCommonJSModules_ExportInfo(lhs.getFirstChild(), scope)
 		this.visitExport(t, newExport)
-		if ((expr != 0) && expr.hasParent()) {
+		if (expr != 0) && expr.hasParent() {
 			insertionRef = expr
 		}
 		var currentKey Node = key
@@ -1128,32 +1139,32 @@ func (this *ProcessCommonJSModules_RewriteModule) maybeUpdateName(t *NodeTravers
 	Preconditions_checkState(n.hasParent())
 	var importedModuleName Optional[string] = this.getModuleImportName(t, var_.getNode())
 	var name string = n.getQualifiedName()
-	if (importedModuleName.isPresent() && (n != var_.getNode())) {
+	if importedModuleName.isPresent() && (n != var_.getNode()) {
 		this.updateNameReference(t, n, Optional_of[string](name).filter(Predicate[string](func(s string) bool {
 			return !String_isEmpty(s)
 		})), importedModuleName.get(), false, false)
 	} else if this.allowFullRewrite {
 		var exportedName Optional[string] = this.getExportedName(t, n, var_)
-		if ((((n != var_.getNode()) || n.getParent().isClass()) && exportedName.isEmpty()) && (((var_ == nil) || (var_.getNameNode().getParent() == 0)) || !NodeUtil_isLhsByDestructuring(var_.getNameNode()))) {
-			if (n.getParent().isClass() && (n.getParent().getFirstChild() == n)) {
+		if (((n != var_.getNode()) || n.getParent().isClass()) && exportedName.isEmpty()) && (((var_ == nil) || (var_.getNameNode().getParent() == 0)) || !NodeUtil_isLhsByDestructuring(var_.getNameNode())) {
+			if n.getParent().isClass() && (n.getParent().getFirstChild() == n) {
 				this.rewrittenClassExpressions.add(n.getParent())
 			}
 			return
 		}
-		if ((((importedModuleName.isEmpty() && exportedName.isPresent()) && !(exportedName.get() == name)) && !var_.isParam()) && ((var_.getNameNode().getParent() == 0) || !NodeUtil_isLhsByDestructuring(var_.getNameNode()))) {
+		if (((importedModuleName.isEmpty() && exportedName.isPresent()) && !(exportedName.get() == name)) && !var_.isParam()) && ((var_.getNameNode().getParent() == 0) || !NodeUtil_isLhsByDestructuring(var_.getNameNode())) {
 			var exportPropIsConst bool = (((this.defaultExportIsConst && Object_equals(this.outer_.getBasePropertyImport(ProcessCommonJSModules_getModuleName(t.getInput())).box_(), exportedName.box_())) && (this.outer_.getBaseQualifiedNameNode(n) == n)) && NodeUtil_isLValue(n))
 			this.updateNameReference(t, n, Optional_of[string](name).filter(Predicate[string](func(s string) bool {
 				return !String_isEmpty(s)
 			})), exportedName.get(), true, exportPropIsConst)
 		} else if var_.isGlobal() {
 			var currentModuleName Optional[string] = ProcessCommonJSModules_getModuleName(t.getInput())
-			if (currentModuleName.get() == name) {
+			if currentModuleName.get() == name {
 				return
 			}
-			if (ProcessCommonJSModules_EXPORTS == name) {
+			if ProcessCommonJSModules_EXPORTS == name {
 				return
 			}
-			if (this.outer_.compiler_.getOptions().shouldExportTestFunctions() && String_startsWith(currentModuleName.get(), "test")) {
+			if this.outer_.compiler_.getOptions().shouldExportTestFunctions() && String_startsWith(currentModuleName.get(), "test") {
 				return
 			}
 			var newName string = (sstr_(name) + "$$" + sstr_(currentModuleName.orElse("null")))
@@ -1172,14 +1183,14 @@ func (this *ProcessCommonJSModules_RewriteModule) updateNameReference(t *NodeTra
 	var newNameDeclaration *Var = t.getScope().getVar_String_rVar(newName)
 	switch parent.getToken() {
 	case Token_rhino_CLASS:
-		if ((parent.getIndexOfChild(nameRef) == 0) && (newNameIsQualified || requireFunctionExpressions)) {
+		if (parent.getIndexOfChild(nameRef) == 0) && (newNameIsQualified || requireFunctionExpressions) {
 			this.rewrittenClassExpressions.add(parent)
 			var newNameRef Node = NodeUtil_newQName_AbstractCompiler_String_Node_String(this.outer_.compiler_, newName, nameRef, originalName.get())
 			if newNameIsModuleExport {
 				newNameRef.putBooleanProp(Node_MODULE_EXPORT, true)
 			}
 			var expr Node
-			if (!newNameIsQualified && (newNameDeclaration == nil)) {
+			if !newNameIsQualified && (newNameDeclaration == nil) {
 				expr = IR_let_Node_Node(newNameRef, IR_nullNode()).srcrefTreeIfMissing(nameRef)
 			} else {
 				expr = IR_exprResult(IR_assign(newNameRef, IR_nullNode())).srcrefTreeIfMissing(nameRef)
@@ -1197,7 +1208,7 @@ func (this *ProcessCommonJSModules_RewriteModule) updateNameReference(t *NodeTra
 			} else {
 				expr.getFirstChild().getSecondChild().replaceWith(parent)
 			}
-		} else if (parent.getIndexOfChild(nameRef) == 1) {
+		} else if parent.getIndexOfChild(nameRef) == 1 {
 			var newNameRef Node = NodeUtil_newQName_AbstractCompiler_String_Node_String(this.outer_.compiler_, newName, nameRef, originalName.get())
 			if newNameIsModuleExport {
 				newNameRef.putBooleanProp(Node_MODULE_EXPORT, true)
@@ -1208,7 +1219,7 @@ func (this *ProcessCommonJSModules_RewriteModule) updateNameReference(t *NodeTra
 			nameRef.setOriginalName(originalName.orElse(""))
 		}
 	case Token_rhino_FUNCTION:
-		if (newNameIsQualified || requireFunctionExpressions) {
+		if newNameIsQualified || requireFunctionExpressions {
 			if NodeUtil_isFunctionExpression(parent) {
 				return
 			}
@@ -1218,7 +1229,7 @@ func (this *ProcessCommonJSModules_RewriteModule) updateNameReference(t *NodeTra
 			}
 			nameRef.setString("")
 			var expr Node
-			if (!newNameIsQualified && (newNameDeclaration == nil)) {
+			if !newNameIsQualified && (newNameDeclaration == nil) {
 				expr = IR_var_Node_Node(newNameRef, IR_nullNode()).srcrefTreeIfMissing(nameRef)
 			} else {
 				expr = IR_exprResult(IR_assign(newNameRef, IR_nullNode())).srcrefTreeIfMissing(nameRef)
@@ -1242,13 +1253,13 @@ func (this *ProcessCommonJSModules_RewriteModule) updateNameReference(t *NodeTra
 			nameRef.setOriginalName(originalName.orElse(""))
 		}
 	case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST:
-		if (parent.hasMoreThanOneChild() && !NodeUtil_isAnyFor(parent.getParent())) {
+		if parent.hasMoreThanOneChild() && !NodeUtil_isAnyFor(parent.getParent()) {
 			this.splitMultipleDeclarations(parent)
 			parent = nameRef.getParent()
 			newNameDeclaration = t.getScope().getVar_String_rVar(newName)
 		}
 		if newNameIsQualified {
-			if (!nameRef.hasChildren() && (parent.getJSDocInfo() == nil)) {
+			if !nameRef.hasChildren() && (parent.getJSDocInfo() == nil) {
 				parent.detach()
 				break
 			}
@@ -1274,7 +1285,7 @@ func (this *ProcessCommonJSModules_RewriteModule) updateNameReference(t *NodeTra
 				getProp.setJSDocInfo(info)
 				parent.replaceWith(IR_exprResult(getProp).srcref(getProp))
 			}
-		} else if ((newNameDeclaration != nil) && (newNameDeclaration.getNameNode() != nameRef)) {
+		} else if (newNameDeclaration != nil) && (newNameDeclaration.getNameNode() != nameRef) {
 			if !nameRef.hasChildren() {
 				parent.detach()
 				break
@@ -1282,7 +1293,7 @@ func (this *ProcessCommonJSModules_RewriteModule) updateNameReference(t *NodeTra
 			var name Node = NodeUtil_newName_AbstractCompiler_String_Node_Optional(this.outer_.compiler_, newName, nameRef, originalName)
 			var assign Node = IR_assign(name, nameRef.removeFirstChild())
 			var info *JSDocInfo = parent.getJSDocInfo()
-			if (info != nil) {
+			if info != nil {
 				parent.setJSDocInfo(nil)
 				assign.setJSDocInfo(info)
 			}
@@ -1292,16 +1303,21 @@ func (this *ProcessCommonJSModules_RewriteModule) updateNameReference(t *NodeTra
 			nameRef.setOriginalName(originalName.orElse(""))
 		}
 	default:
-		if (!newNameIsQualified && nameRef.isName()) {
+		if !newNameIsQualified && nameRef.isName() {
 			nameRef.setString(newName)
 			nameRef.setOriginalName(originalName.orElse(""))
 		} else {
-			var name Node = func() Node { if newNameIsQualified { return NodeUtil_newQName_AbstractCompiler_String_Node_String(this.outer_.compiler_, newName, nameRef, originalName.get()) }; return NodeUtil_newName_AbstractCompiler_String_Node_Optional(this.outer_.compiler_, newName, nameRef, originalName) }()
+			var name Node = func() Node {
+				if newNameIsQualified {
+					return NodeUtil_newQName_AbstractCompiler_String_Node_String(this.outer_.compiler_, newName, nameRef, originalName.get())
+				}
+				return NodeUtil_newName_AbstractCompiler_String_Node_Optional(this.outer_.compiler_, newName, nameRef, originalName)
+			}()
 			if newNameIsModuleExport {
 				name.putBooleanProp(Node_MODULE_EXPORT, true)
 			}
 			var info *JSDocInfo = nameRef.getJSDocInfo()
-			if (info != nil) {
+			if info != nil {
 				nameRef.setJSDocInfo(nil)
 				name.setJSDocInfo(info)
 			}
@@ -1316,22 +1332,22 @@ func (this *ProcessCommonJSModules_RewriteModule) updateNameReference(t *NodeTra
 }
 
 func (this *ProcessCommonJSModules_RewriteModule) getExportedName(t *NodeTraversal, n Node, var_ *Var) Optional[string] {
-	if ((var_ == nil) || !(equals_(var_.getNode().getInputId(), n.getInputId()))) {
+	if (var_ == nil) || !(equals_(var_.getNode().getInputId(), n.getInputId())) {
 		return Optional_of[string](n.getQualifiedName()).filter(Predicate[string](func(s string) bool {
 			return !String_isEmpty(s)
 		}))
 	}
 	var baseExportName Optional[string] = this.outer_.getBasePropertyImport(ProcessCommonJSModules_getModuleName(t.getInput()))
-	it_1 := eachOf_(this.exports)
+	it_1 := jeachOf_(this.exports)
 	for it_1.next() {
 		var export *ProcessCommonJSModules_ExportInfo = it_1.v
 		var exportBase Node = this.outer_.getBaseQualifiedNameNode(export.node_)
 		var exportRValue Node = NodeUtil_getRValueOfLValue(exportBase)
-		if (exportRValue == 0) {
+		if exportRValue == 0 {
 			continue
 		}
 		var exportedName Node = this.getExportedNameNode(export)
-		if (export.isInSupportedScope && ((exportRValue == n) || ((NodeUtil_isClassExpression(exportRValue) || NodeUtil_isFunctionExpression(exportRValue)) && (exportedName == n)))) {
+		if export.isInSupportedScope && ((exportRValue == n) || ((NodeUtil_isClassExpression(exportRValue) || NodeUtil_isFunctionExpression(exportRValue)) && (exportedName == n))) {
 			return Optional_empty[string]()
 		}
 		var exportBaseQName string = exportBase.getQualifiedName()
@@ -1343,14 +1359,14 @@ func (this *ProcessCommonJSModules_RewriteModule) getExportedName(t *NodeTravers
 			}
 			var key Node = exportRValue.getFirstChild()
 			var keyIsExport bool = false
-			for (key != 0) {
-				if ((key.isStringKey() && !key.isQuotedStringKey()) && NodeUtil_isValidPropertyName(this.outer_.compiler_.getOptions().getLanguageIn().toFeatureSet(), key.getString())) {
+			for key != 0 {
+				if (key.isStringKey() && !key.isQuotedStringKey()) && NodeUtil_isValidPropertyName(this.outer_.compiler_.getOptions().getLanguageIn().toFeatureSet(), key.getString()) {
 					if key.getFirstChild().isQualifiedName() {
-						if (key.getFirstChild() == n) {
+						if key.getFirstChild() == n {
 							return Optional_empty[string]()
 						}
 						var valVar *Var = t.getScope().getVar_String_rVar(key.getFirstChild().getQualifiedName())
-						if ((valVar != nil) && (valVar.getNameNode() == var_.getNameNode())) {
+						if (valVar != nil) && (valVar.getNameNode() == var_.getNameNode()) {
 							keyIsExport = true
 							break
 						}
@@ -1358,7 +1374,7 @@ func (this *ProcessCommonJSModules_RewriteModule) getExportedName(t *NodeTravers
 				}
 				key = key.getNext()
 			}
-			if ((key != 0) && keyIsExport) {
+			if (key != 0) && keyIsExport {
 				if export.isInSupportedScope {
 					return Optional_of[string]((sstr_(baseExportName.orElse("null")) + "." + sstr_(key.getString())))
 				} else {
@@ -1373,14 +1389,14 @@ func (this *ProcessCommonJSModules_RewriteModule) getExportedName(t *NodeTravers
 					return !String_isEmpty(s)
 				}))
 			}
-			if (var_.getNameNode() == exportedName) {
+			if var_.getNameNode() == exportedName {
 				var exportPrefix string
 				if String_startsWith(exportBaseQName, ProcessCommonJSModules_MODULE) {
 					exportPrefix = (sstr_(ProcessCommonJSModules_MODULE) + "." + sstr_(ProcessCommonJSModules_EXPORTS))
 				} else {
 					exportPrefix = ProcessCommonJSModules_EXPORTS
 				}
-				if (String_length(exportBaseQName) == String_length(exportPrefix)) {
+				if String_length(exportBaseQName) == String_length(exportPrefix) {
 					return baseExportName
 				}
 				return Optional_of[string]((sstr_(baseExportName.orElse("null")) + sstr_(String_substring_int(exportBaseQName, String_length(exportPrefix)))))
@@ -1395,20 +1411,20 @@ func (this *ProcessCommonJSModules_RewriteModule) getExportedName(t *NodeTravers
 func (this *ProcessCommonJSModules_RewriteModule) getExportedNameNode(info *ProcessCommonJSModules_ExportInfo) Node {
 	var qNameBase Node = this.outer_.getBaseQualifiedNameNode(info.node_)
 	var rValue Node = NodeUtil_getRValueOfLValue(qNameBase)
-	if (rValue == 0) {
+	if rValue == 0 {
 		return 0
 	}
 	if NodeUtil_isFunctionExpression(rValue) {
 		return rValue.getFirstChild()
 	}
-	if (NodeUtil_isClassExpression(rValue) && (rValue.getFirstChild() == qNameBase)) {
+	if NodeUtil_isClassExpression(rValue) && (rValue.getFirstChild() == qNameBase) {
 		return rValue.getFirstChild()
 	}
 	if !rValue.isName() {
 		return 0
 	}
 	var var_ *Var = info.scope_.getVar_String_rVar(rValue.getString())
-	if (var_ == nil) {
+	if var_ == nil {
 		return 0
 	}
 	return var_.getNameNode()
@@ -1418,22 +1434,22 @@ func (this *ProcessCommonJSModules_RewriteModule) getModuleImportName(t *NodeTra
 	var rValue Node = 0
 	var propSuffix string = ""
 	var parent Node = n.getParent()
-	if ((parent != 0) && parent.isStringKey()) {
+	if (parent != 0) && parent.isStringKey() {
 		var grandparent Node = parent.getParent()
-		if (grandparent.isObjectPattern() && grandparent.getParent().isDestructuringLhs()) {
+		if grandparent.isObjectPattern() && grandparent.getParent().isDestructuringLhs() {
 			rValue = grandparent.getNext()
 			propSuffix = ("." + sstr_(parent.getString()))
 		}
 	}
-	if (String_isEmpty(propSuffix) && (parent != 0)) {
+	if String_isEmpty(propSuffix) && (parent != 0) {
 		rValue = NodeUtil_getRValueOfLValue(n)
 	}
-	if (rValue == 0) {
+	if rValue == 0 {
 		return Optional_empty[string]()
 	}
-	if (rValue.isCall() && this.outer_.isCommonJsImport(rValue)) {
+	if rValue.isCall() && this.outer_.isCommonJsImport(rValue) {
 		return Optional_of[string]((sstr_(this.outer_.getBasePropertyImport_2(this.outer_.getImportedModuleName(t, rValue), rValue).orElse("null")) + sstr_(propSuffix)))
-	} else if (rValue.isGetProp() && this.outer_.isCommonJsImport(rValue.getFirstChild())) {
+	} else if rValue.isGetProp() && this.outer_.isCommonJsImport(rValue.getFirstChild()) {
 		var importName Optional[string] = this.outer_.getBasePropertyImport_2(this.outer_.getImportedModuleName(t, rValue.getFirstChild()), rValue.getFirstChild())
 		var suffix string = rValue.getString()
 		return Optional_of[string]((sstr_(importName.orElse("null")) + "." + sstr_(suffix) + sstr_(propSuffix)))
@@ -1448,7 +1464,7 @@ func (this *ProcessCommonJSModules_RewriteModule) fixTypeNode(t *NodeTraversal, 
 			var lastSlash int32 = String_lastIndexOf(name, 47)
 			var endIndex int32 = String_indexOf_int_int(name, 46, lastSlash)
 			var localTypeName Optional[string] = Optional_empty[string]()
-			if (endIndex == -1) {
+			if endIndex == -1 {
 				endIndex = String_length(name)
 			} else {
 				localTypeName = Optional_of[string](String_substring_int(name, endIndex))
@@ -1456,19 +1472,29 @@ func (this *ProcessCommonJSModules_RewriteModule) fixTypeNode(t *NodeTraversal, 
 			var moduleName string = String_substring(name, 0, endIndex)
 			var globalModuleName string = this.outer_.getImportedModuleName_3(t, typeNode, moduleName)
 			var baseImportProperty Optional[string] = this.outer_.getBasePropertyImport(Optional_of[string](globalModuleName))
-			typeNode.setString(func() string { if localTypeName.isEmpty() { return baseImportProperty.orElse(nullstr_) }; return (sstr_(baseImportProperty.orElse("null")) + sstr_(localTypeName.get())) }())
+			typeNode.setString(func() string {
+				if localTypeName.isEmpty() {
+					return baseImportProperty.orElse(nullstr_)
+				}
+				return (sstr_(baseImportProperty.orElse("null")) + sstr_(localTypeName.get()))
+			}())
 		} else {
 			var wasRewritten bool = false
 			var endIndex int32 = -1
-			for (endIndex < String_length(name)) {
+			for endIndex < String_length(name) {
 				endIndex = String_indexOf_int_int(name, 46, (endIndex + 1))
-				if (endIndex == -1) {
+				if endIndex == -1 {
 					endIndex = String_length(name)
 				}
 				var baseName string = String_substring(name, 0, endIndex)
-				var suffix string = func() string { if (endIndex < String_length(name)) { return String_substring_int(name, endIndex) }; return "" }()
+				var suffix string = func() string {
+					if endIndex < String_length(name) {
+						return String_substring_int(name, endIndex)
+					}
+					return ""
+				}()
 				var typeDeclaration *Var = t.getScope().getVar_String_rVar(baseName)
-				if (((typeDeclaration != nil) && (typeDeclaration.getNode() != 0)) && (equals_(typeDeclaration.getNode().getInputId(), typeNode.getInputId()))) {
+				if ((typeDeclaration != nil) && (typeDeclaration.getNode() != 0)) && (equals_(typeDeclaration.getNode().getInputId(), typeNode.getInputId())) {
 					var importedModuleName Optional[string] = this.getModuleImportName(t, typeDeclaration.getNode())
 					if importedModuleName.isPresent() {
 						typeNode.setString((sstr_(importedModuleName.get()) + sstr_(suffix)))
@@ -1477,7 +1503,7 @@ func (this *ProcessCommonJSModules_RewriteModule) fixTypeNode(t *NodeTraversal, 
 						break
 					} else if this.allowFullRewrite {
 						var exportedName Optional[string] = this.getExportedName(t, typeNode, typeDeclaration)
-						if (exportedName.isPresent() && !(exportedName.get() == name)) {
+						if exportedName.isPresent() && !(exportedName.get() == name) {
 							typeNode.setString((sstr_(exportedName.get()) + sstr_(suffix)))
 							typeNode.setOriginalName(name)
 							wasRewritten = true
@@ -1486,17 +1512,17 @@ func (this *ProcessCommonJSModules_RewriteModule) fixTypeNode(t *NodeTraversal, 
 					}
 				}
 			}
-			if (!wasRewritten && this.allowFullRewrite) {
+			if !wasRewritten && this.allowFullRewrite {
 				endIndex = String_indexOf(name, 46)
-				if (endIndex == -1) {
+				if endIndex == -1 {
 					endIndex = String_length(name)
 				}
 				var baseName string = String_substring(name, 0, endIndex)
 				var typeDeclaration *Var = t.getScope().getVar_String_rVar(baseName)
-				if ((typeDeclaration != nil) && typeDeclaration.isGlobal()) {
+				if (typeDeclaration != nil) && typeDeclaration.isGlobal() {
 					var moduleName Optional[string] = ProcessCommonJSModules_getModuleName(t.getInput())
 					var newName string = (sstr_(baseName) + "$$" + sstr_(moduleName.orElse("null")))
-					if (endIndex < String_length(name)) {
+					if endIndex < String_length(name) {
 						newName += sstr_(String_substring_int(name, endIndex))
 					}
 					typeNode.setString(newName)
@@ -1507,19 +1533,19 @@ func (this *ProcessCommonJSModules_RewriteModule) fixTypeNode(t *NodeTraversal, 
 	}
 	{
 		var child Node = typeNode.getFirstChild()
-		for ; (child != 0); child = child.getNext() {
+		for ; child != 0; child = child.getNext() {
 			this.fixTypeNode(t, child)
 		}
 	}
 }
 
-func (this *ProcessCommonJSModules_RewriteModule) splitMultipleDeclarations(var_ Node) *TList[Node] {
+func (this *ProcessCommonJSModules_RewriteModule) splitMultipleDeclarations(var_ Node) *JTList[Node] {
 	Preconditions_checkState(NodeUtil_isNameDeclaration(var_))
-	var vars *TList[Node] = newTList_(tc_Node)
+	var vars *JTList[Node] = jnewTList_(jtc_Node)
 	var info *JSDocInfo = var_.getJSDocInfo()
-	for (var_.getSecondChild() != 0) {
+	for var_.getSecondChild() != 0 {
 		var newVar Node = new_Node_Token_Node(var_.getToken(), var_.removeFirstChild())
-		if (info != nil) {
+		if info != nil {
 			newVar.setJSDocInfo(info.clone_rJSDocInfo())
 		}
 		newVar.srcref(var_)
@@ -1573,15 +1599,15 @@ func (this *ProcessCommonJSModules_2) visit(n Node) {
 }
 
 type ProcessCommonJSModules_FindImportsAndExports_1 struct {
-	outer_ *ProcessCommonJSModules_FindImportsAndExports
-	cap_umdTests *TList[Node]
+	outer_       *ProcessCommonJSModules_FindImportsAndExports
+	cap_umdTests *JTList[Node]
 }
 
 func (this *ProcessCommonJSModules_FindImportsAndExports_1) init_ProcessCommonJSModules_FindImportsAndExports_1() {
 
 }
 
-func new_ProcessCommonJSModules_FindImportsAndExports_1(outer_ *ProcessCommonJSModules_FindImportsAndExports, cap_umdTests *TList[Node]) *ProcessCommonJSModules_FindImportsAndExports_1 {
+func new_ProcessCommonJSModules_FindImportsAndExports_1(outer_ *ProcessCommonJSModules_FindImportsAndExports, cap_umdTests *JTList[Node]) *ProcessCommonJSModules_FindImportsAndExports_1 {
 	this := &ProcessCommonJSModules_FindImportsAndExports_1{}
 	this.outer_ = outer_
 	this.cap_umdTests = cap_umdTests
@@ -1592,7 +1618,7 @@ func new_ProcessCommonJSModules_FindImportsAndExports_1(outer_ *ProcessCommonJSM
 func (this *ProcessCommonJSModules_FindImportsAndExports_1) visit(node Node) {
 	switch node.getToken() {
 	case Token_rhino_NAME:
-		if ((node.getString() == ProcessCommonJSModules_MODULE) || (node.getString() == "define")) {
+		if (node.getString() == ProcessCommonJSModules_MODULE) || (node.getString() == "define") {
 			break
 		}
 		return
@@ -1602,7 +1628,7 @@ func (this *ProcessCommonJSModules_FindImportsAndExports_1) visit(node Node) {
 		}
 		return
 	case Token_rhino_STRINGLIT:
-		if (node.getParent().isIn() && (node.getString() == "amd")) {
+		if node.getParent().isIn() && (node.getString() == "amd") {
 			break
 		}
 		return
@@ -1611,4 +1637,3 @@ func (this *ProcessCommonJSModules_FindImportsAndExports_1) visit(node Node) {
 	}
 	this.cap_umdTests.add(node)
 }
-

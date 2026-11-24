@@ -3,16 +3,16 @@
 package closure
 
 type ExpressionDecomposer struct {
-	compiler_ *AbstractCompiler
-	astAnalyzer *AstAnalyzer
-	astFactory_ *AstFactory
-	safeNameIdSupplier_ Supplier[string]
-	knownConstantFunctions *TSet[string]
-	scope_ *Scope
-	enabledWorkarounds SetT[*ExpressionDecomposer_Workaround]
-	unknownType *JSType
-	tempNamePrefix string
-	resultNamePrefix string
+	compiler_              *AbstractCompiler
+	astAnalyzer            *AstAnalyzer
+	astFactory_            *AstFactory
+	safeNameIdSupplier_    Supplier[string]
+	knownConstantFunctions *JTSet[string]
+	scope_                 *Scope
+	enabledWorkarounds     SetT[*ExpressionDecomposer_Workaround]
+	unknownType            *JSType
+	tempNamePrefix         string
+	resultNamePrefix       string
 }
 
 func (this *ExpressionDecomposer) zero_ExpressionDecomposer() {
@@ -25,7 +25,7 @@ func (this *ExpressionDecomposer) finit_ExpressionDecomposer() {
 	this.resultNamePrefix = "JSCompiler_inline_result"
 }
 
-func (this *ExpressionDecomposer) init_ExpressionDecomposer(compiler *AbstractCompiler, safeNameIdSupplier Supplier[string], constFunctionNames *TSet[string], scope *Scope, enabledWorkarounds SetT[*ExpressionDecomposer_Workaround]) {
+func (this *ExpressionDecomposer) init_ExpressionDecomposer(compiler *AbstractCompiler, safeNameIdSupplier Supplier[string], constFunctionNames *JTSet[string], scope *Scope, enabledWorkarounds SetT[*ExpressionDecomposer_Workaround]) {
 	this.finit_ExpressionDecomposer()
 	Preconditions_checkNotNull_T(compiler)
 	func() Supplier[string] { f_ := safeNameIdSupplier; Preconditions_checkNotNull(f_.box_()); return f_ }()
@@ -37,10 +37,15 @@ func (this *ExpressionDecomposer) init_ExpressionDecomposer(compiler *AbstractCo
 	this.knownConstantFunctions = constFunctionNames
 	this.scope_ = scope
 	this.enabledWorkarounds = enabledWorkarounds
-	this.unknownType = func() *JSType { if (compiler.hasTypeCheckingRun() && !compiler.hasOptimizationColors()) { return compiler.getTypeRegistry().getNativeType(JSTypeNative_UNKNOWN_TYPE) }; return nil }()
+	this.unknownType = func() *JSType {
+		if compiler.hasTypeCheckingRun() && !compiler.hasOptimizationColors() {
+			return compiler.getTypeRegistry().getNativeType(JSTypeNative_UNKNOWN_TYPE)
+		}
+		return nil
+	}()
 }
 
-func new_ExpressionDecomposer(compiler *AbstractCompiler, safeNameIdSupplier Supplier[string], constFunctionNames *TSet[string], scope *Scope, enabledWorkarounds SetT[*ExpressionDecomposer_Workaround]) *ExpressionDecomposer {
+func new_ExpressionDecomposer(compiler *AbstractCompiler, safeNameIdSupplier Supplier[string], constFunctionNames *JTSet[string], scope *Scope, enabledWorkarounds SetT[*ExpressionDecomposer_Workaround]) *ExpressionDecomposer {
 	this := &ExpressionDecomposer{}
 	this.zero_ExpressionDecomposer()
 	this.init_ExpressionDecomposer(compiler, safeNameIdSupplier, constFunctionNames, scope, enabledWorkarounds)
@@ -49,12 +54,12 @@ func new_ExpressionDecomposer(compiler *AbstractCompiler, safeNameIdSupplier Sup
 
 func (this *ExpressionDecomposer) maybeExposeExpression(expression Node) {
 	var i int32 = 0
-	for (ExpressionDecomposer_DecompositionType_DECOMPOSABLE == this.canExposeExpression(expression)) {
+	for ExpressionDecomposer_DecompositionType_DECOMPOSABLE == this.canExposeExpression(expression) {
 		if !this.exposeExpression(expression) {
 			panic(new_IllegalStateException_String(("exposeExpression exposed nothing for:\n" + sstr_(expression.toStringTree()))).self())
 		}
 		i++
-		if (i > ExpressionDecomposer_MAX_ITERATIONS) {
+		if i > ExpressionDecomposer_MAX_ITERATIONS {
 			panic(new_IllegalStateException_String(("exposeExpression depth exceeded on:\n" + sstr_(expression.toStringTree()))).self())
 		}
 	}
@@ -79,7 +84,7 @@ func (this *ExpressionDecomposer) exposeExpression_2(expressionRoot Node, subExp
 	var lastExposedSubexpression Node = 0
 	var expressionToExpose Node = nodeWithNonconditionalParent
 	var expressionParent Node = expressionToExpose.getParent()
-	for (expressionParent != expressionRoot) {
+	for expressionParent != expressionRoot {
 		Preconditions_checkState_boolean_Object_H((!ExpressionDecomposer_isConditionalOp(expressionParent) || expressionToExpose.isFirstChildOf(expressionParent)), expressionParent)
 		if expressionParent.isAssign() {
 			if this.isSafeAssign(expressionParent, state.sideEffects) {
@@ -93,12 +98,12 @@ func (this *ExpressionDecomposer) exposeExpression_2(expressionRoot Node, subExp
 					panic(new_IllegalStateException_String(("Expected a property access or destructuring pattern: " + sstr_(left.toStringTree()))).self())
 				}
 			}
-		} else if (expressionParent.isCall() && NodeUtil_isNormalGet(expressionParent.getFirstChild())) {
+		} else if expressionParent.isCall() && NodeUtil_isNormalGet(expressionParent.getFirstChild()) {
 			var callee Node = expressionParent.getFirstChild()
-			if (callee != expressionToExpose) {
+			if callee != expressionToExpose {
 				exposedSomething = (this.decomposeSubExpressions(callee.getNext(), expressionToExpose, state) || exposedSomething)
 			}
-			if (this.isExpressionTreeUnsafe(callee, state.sideEffects) && (lastExposedSubexpression != callee.getFirstChild())) {
+			if this.isExpressionTreeUnsafe(callee, state.sideEffects) && (lastExposedSubexpression != callee.getFirstChild()) {
 				state.sideEffects = true
 				this.rewriteCallExpression(expressionParent, state)
 				exposedSomething = true
@@ -110,7 +115,7 @@ func (this *ExpressionDecomposer) exposeExpression_2(expressionRoot Node, subExp
 		expressionToExpose = expressionParent
 		expressionParent = expressionToExpose.getParent()
 	}
-	if (nodeWithNonconditionalParent == subExpression) {
+	if nodeWithNonconditionalParent == subExpression {
 	} else {
 		var parent Node = nodeWithNonconditionalParent.getParent()
 		var needResult bool = !parent.isExprResult()
@@ -122,7 +127,7 @@ func (this *ExpressionDecomposer) exposeExpression_2(expressionRoot Node, subExp
 
 func (this *ExpressionDecomposer) rewriteAllContainingOptionalChains(subExpression Node) {
 	var optChainRewriterBuilder *OptionalChainRewriter_Builder = OptionalChainRewriter_builder(this.compiler_).setTmpVarNameCreator(&OptionalChainRewriter_TmpVarNameCreator_fn{func() string { return this.getTempConstantValueName() }}).setScope(this.scope_)
-	var rewriters *TDeque[*OptionalChainRewriter] = newTDeque_(tc_p_OptionalChainRewriter)
+	var rewriters *TDeque[*OptionalChainRewriter] = newTDeque_(jtc_p_OptionalChainRewriter)
 	{
 		var exprParent Node = subExpression.getParent()
 		for ; !NodeUtil_isStatement(exprParent); exprParent = exprParent.getParent() {
@@ -171,7 +176,7 @@ func ExpressionDecomposer_findNonconditionalParent(subExpression Node, expressio
 			if !(parent != expressionRoot) {
 				break
 			}
-			if (ExpressionDecomposer_isConditionalOp(parent) && !child.isFirstChildOf(parent)) {
+			if ExpressionDecomposer_isConditionalOp(parent) && !child.isFirstChildOf(parent) {
 				result = parent
 			}
 		}
@@ -183,12 +188,12 @@ func ExpressionDecomposer_findNonconditionalParent(subExpression Node, expressio
 }
 
 func (this *ExpressionDecomposer) decomposeSubExpressions(n Node, stopNode Node, state *ExpressionDecomposer_DecompositionState) bool {
-	if ((n == 0) || (n == stopNode)) {
+	if (n == 0) || (n == stopNode) {
 		return false
 	}
 	var decomposedSomething bool = false
 	decomposedSomething = (this.decomposeSubExpressions(n.getNext(), stopNode, state) || decomposedSomething)
-	if (NodeUtil_mayBeObjectLitKey(n) || n.isComputedProp()) {
+	if NodeUtil_mayBeObjectLitKey(n) || n.isComputedProp() {
 		if n.isComputedProp() {
 			decomposedSomething = (this.decomposeSubExpressions(n.getSecondChild(), stopNode, state) || decomposedSomething)
 		}
@@ -278,15 +283,15 @@ func (this *ExpressionDecomposer) extractExpression(expr Node, injectionPoint No
 	var parent Node = expr.getParent()
 	var isLhsOfAssignOp bool = ((NodeUtil_isAssignmentOp(parent) && !parent.isAssign()) && expr.isFirstChildOf(parent))
 	var firstExtractedNode Node = 0
-	if (isLhsOfAssignOp && NodeUtil_isNormalGet(expr)) {
+	if isLhsOfAssignOp && NodeUtil_isNormalGet(expr) {
 		{
 			var n Node = expr.getFirstChild()
 			var next Node
-			for ; (n != 0); n = next {
+			for ; n != 0; n = next {
 				next = n.getNext()
-				if (!n.isStringLit() && !this.isConstantNameNode(n)) {
+				if !n.isStringLit() && !this.isConstantNameNode(n) {
 					var extractedNode Node = this.extractExpression(n, injectionPoint)
-					if (firstExtractedNode == 0) {
+					if firstExtractedNode == 0 {
 						firstExtractedNode = extractedNode
 					}
 				}
@@ -330,7 +335,7 @@ func (this *ExpressionDecomposer) extractExpression(expr Node, injectionPoint No
 	var containingHoistScope *Scope = this.scope_.getClosestHoistScope_rScope()
 	containingHoistScope.declare(tempName, tempVarNode.getFirstChild(), nil)
 	tempVarNode.insertBefore(injectionPoint)
-	if (firstExtractedNode == 0) {
+	if firstExtractedNode == 0 {
 		firstExtractedNode = tempVarNode
 	}
 	Preconditions_checkState(firstExtractedNode.isVar())
@@ -344,7 +349,12 @@ func (this *ExpressionDecomposer) rewriteCallExpression(call Node, state *Expres
 	var fnCallType *JSType = nil
 	if this.astFactory_.isAddingTypes() {
 		var fnType *JSType = first.getJSType()
-		fnCallType = func() *JSType { if fnType.isFunctionType() { return fnType.toMaybeFunctionType().getPropertyType("call") }; return this.unknownType }()
+		fnCallType = func() *JSType {
+			if fnType.isFunctionType() {
+				return fnType.toMaybeFunctionType().getPropertyType("call")
+			}
+			return this.unknownType
+		}()
 	}
 	var getVarNode Node = this.extractExpression(first, state.extractBeforeStatement)
 	state.extractBeforeStatement = getVarNode
@@ -393,7 +403,7 @@ func (this *ExpressionDecomposer) getTempConstantValueName() string {
 }
 
 func (this *ExpressionDecomposer) isTempConstantValueName(name Node) bool {
-	return (name.isName() && String_startsWith(name.getString(), (sstr_(this.tempNamePrefix) + "_const" + sstr_(MakeDeclaredNamesUnique_ContextualRenamer_UNIQUE_ID_SEPARATOR))))
+	return (name.isName() && String_startsWith(name.getString(), (sstr_(this.tempNamePrefix)+"_const"+sstr_(MakeDeclaredNamesUnique_ContextualRenamer_UNIQUE_ID_SEPARATOR))))
 }
 
 func ExpressionDecomposer_findInjectionPoint(subExpression Node) Node {
@@ -452,7 +462,7 @@ func ExpressionDecomposer_findExpressionRoot(subExpression Node) Node {
 
 func (this *ExpressionDecomposer) canExposeExpression(subExpression Node) *ExpressionDecomposer_DecompositionType {
 	var expressionRoot Node = ExpressionDecomposer_findExpressionRoot(subExpression)
-	if (expressionRoot != 0) {
+	if expressionRoot != 0 {
 		return this.isSubexpressionMovable(expressionRoot, subExpression)
 	}
 	return ExpressionDecomposer_DecompositionType_UNDECOMPOSABLE
@@ -461,24 +471,29 @@ func (this *ExpressionDecomposer) canExposeExpression(subExpression Node) *Expre
 func (this *ExpressionDecomposer) isSubexpressionMovable(expressionRoot Node, subExpression Node) *ExpressionDecomposer_DecompositionType {
 	var requiresDecomposition bool = false
 	var seenSideEffects bool = this.astAnalyzer.mayHaveSideEffects(subExpression)
-	if (NodeUtil_isOptChainNode(subExpression) && !NodeUtil_isEndOfFullOptChain(subExpression)) {
+	if NodeUtil_isOptChainNode(subExpression) && !NodeUtil_isEndOfFullOptChain(subExpression) {
 		requiresDecomposition = true
 	}
 	var child Node = subExpression
 	it_1 := foreach_(obj_(child.getAncestors()))
 	for it_1.next() {
 		var parent Node = Node_of_(it_1.v)
-		if (NodeUtil_isNameDeclaration(parent) && !child.isFirstChildOf(parent)) {
+		if NodeUtil_isNameDeclaration(parent) && !child.isFirstChildOf(parent) {
 			return ExpressionDecomposer_DecompositionType_UNDECOMPOSABLE
 		}
-		if (parent.isTaggedTemplateLit() && !parent.getBooleanProp(Node_FREE_CALL)) {
+		if parent.isTaggedTemplateLit() && !parent.getBooleanProp(Node_FREE_CALL) {
 			return ExpressionDecomposer_DecompositionType_UNDECOMPOSABLE
 		}
-		if (parent == expressionRoot) {
-			return func() *ExpressionDecomposer_DecompositionType { if requiresDecomposition { return ExpressionDecomposer_DecompositionType_DECOMPOSABLE }; return ExpressionDecomposer_DecompositionType_MOVABLE }()
+		if parent == expressionRoot {
+			return func() *ExpressionDecomposer_DecompositionType {
+				if requiresDecomposition {
+					return ExpressionDecomposer_DecompositionType_DECOMPOSABLE
+				}
+				return ExpressionDecomposer_DecompositionType_MOVABLE
+			}()
 		}
 		if ExpressionDecomposer_isConditionalOp(parent) {
-			if (child != parent.getFirstChild()) {
+			if child != parent.getFirstChild() {
 				requiresDecomposition = true
 			}
 		} else {
@@ -487,8 +502,8 @@ func (this *ExpressionDecomposer) isSubexpressionMovable(expressionRoot Node, su
 				var direction *ExpressionDecomposer_EvaluationDirection = ExpressionDecomposer_getEvaluationDirection(parent)
 				{
 					var n Node = this.getFirstEvaluatedChild(parent, direction)
-					for ; (n != 0); n = this.getNextEvaluatedSibling(n, direction) {
-						if (n == child) {
+					for ; n != 0; n = this.getNextEvaluatedSibling(n, direction) {
+						if n == child {
 							break
 						}
 						if this.isExpressionTreeUnsafe(n, seenSideEffects) {
@@ -498,7 +513,7 @@ func (this *ExpressionDecomposer) isSubexpressionMovable(expressionRoot Node, su
 					}
 				}
 				var first Node = parent.getFirstChild()
-				if ((requiresDecomposition && parent.isCall()) && NodeUtil_isNormalGet(first)) {
+				if (requiresDecomposition && parent.isCall()) && NodeUtil_isNormalGet(first) {
 					return ExpressionDecomposer_DecompositionType_DECOMPOSABLE
 				}
 			}
@@ -522,11 +537,21 @@ func ExpressionDecomposer_getEvaluationDirection(node Node) *ExpressionDecompose
 }
 
 func (this *ExpressionDecomposer) getFirstEvaluatedChild(parent Node, direction *ExpressionDecomposer_EvaluationDirection) Node {
-	return func() Node { if (direction == ExpressionDecomposer_EvaluationDirection_FORWARD) { return parent.getFirstChild() }; return parent.getLastChild() }()
+	return func() Node {
+		if direction == ExpressionDecomposer_EvaluationDirection_FORWARD {
+			return parent.getFirstChild()
+		}
+		return parent.getLastChild()
+	}()
 }
 
 func (this *ExpressionDecomposer) getNextEvaluatedSibling(node Node, direction *ExpressionDecomposer_EvaluationDirection) Node {
-	return func() Node { if (direction == ExpressionDecomposer_EvaluationDirection_FORWARD) { return node.getNext() }; return node.getPrevious() }()
+	return func() Node {
+		if direction == ExpressionDecomposer_EvaluationDirection_FORWARD {
+			return node.getNext()
+		}
+		return node.getPrevious()
+	}()
 }
 
 func (this *ExpressionDecomposer) isSafeAssign(n Node, seenSideEffects bool) bool {
@@ -553,13 +578,18 @@ func (this *ExpressionDecomposer) isExpressionTreeUnsafe(tree Node, followingSid
 	}
 	if followingSideEffectsExist {
 		var parent Node = tree.getParent()
-		if (NodeUtil_isObjectCallMethod(parent, "call") || parent.getBooleanProp(Node_FREE_CALL)) {
-			var callee Node = func() Node { if (tree.isGetProp() && (tree.getString() == "call")) { return tree.getFirstChild() }; return tree }()
-			if (tree.isFirstChildOf(parent) && (this.isTempConstantValueName(callee) || this.knownConstantFunctions.contains(callee.getQualifiedName()))) {
+		if NodeUtil_isObjectCallMethod(parent, "call") || parent.getBooleanProp(Node_FREE_CALL) {
+			var callee Node = func() Node {
+				if tree.isGetProp() && (tree.getString() == "call") {
+					return tree.getFirstChild()
+				}
+				return tree
+			}()
+			if tree.isFirstChildOf(parent) && (this.isTempConstantValueName(callee) || this.knownConstantFunctions.contains(callee.getQualifiedName())) {
 				return false
 			}
 		}
-		if (Set_containsE_[*ExpressionDecomposer_Workaround](this.enabledWorkarounds, ExpressionDecomposer_Workaround_BROKEN_IE11_LOCATION_ASSIGN) && ExpressionDecomposer_WINDOW_LOCATION_ASSIGN.matches(tree)) {
+		if Set_containsE_[*ExpressionDecomposer_Workaround](this.enabledWorkarounds, ExpressionDecomposer_Workaround_BROKEN_IE11_LOCATION_ASSIGN) && ExpressionDecomposer_WINDOW_LOCATION_ASSIGN.matches(tree) {
 			return false
 		}
 		return NodeUtil_canBeSideEffected_Node_Set_Scope(tree, this.knownConstantFunctions, this.scope_)
@@ -570,6 +600,7 @@ func (this *ExpressionDecomposer) isExpressionTreeUnsafe(tree Node, followingSid
 }
 
 const ExpressionDecomposer_MAX_ITERATIONS int32 = 1000
+
 var ExpressionDecomposer_WINDOW_LOCATION_ASSIGN *QualifiedName
 
 var ExpressionDecomposer_clinit_done bool
@@ -691,7 +722,7 @@ func ExpressionDecomposer_Workaround_clinit() {
 
 type ExpressionDecomposer_DecompositionState struct {
 	extractBeforeStatement Node
-	sideEffects bool
+	sideEffects            bool
 }
 
 func (this *ExpressionDecomposer_DecompositionState) init_ExpressionDecomposer_DecompositionState() {
@@ -760,4 +791,3 @@ func ExpressionDecomposer_EvaluationDirection_clinit() {
 	registerEnum_("com.google.javascript.jscomp.ExpressionDecomposer.EvaluationDirection", enumValues_(ExpressionDecomposer_EvaluationDirection_values_))
 
 }
-

@@ -34,21 +34,27 @@ func CodingConventions_defaultIsFunctionCallThatAlwaysThrows(n Node, alwaysThrow
 }
 
 type CodingConventions_Proxy struct {
-	self_ any
+	self_          any
 	nextConvention CodingConvention
 }
 
-func (this *CodingConventions_Proxy) as_CodingConventions_Proxy() *CodingConventions_Proxy { return this }
+func (this *CodingConventions_Proxy) as_CodingConventions_Proxy() *CodingConventions_Proxy {
+	return this
+}
 
 func to_CodingConventions_Proxy(v any) *CodingConventions_Proxy {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_CodingConventions_Proxy() *CodingConventions_Proxy }).as_CodingConventions_Proxy()
+	return v.(interface {
+		as_CodingConventions_Proxy() *CodingConventions_Proxy
+	}).as_CodingConventions_Proxy()
 }
 
 func is_CodingConventions_Proxy(v any) bool {
-	_, ok := v.(interface{ as_CodingConventions_Proxy() *CodingConventions_Proxy })
+	_, ok := v.(interface {
+		as_CodingConventions_Proxy() *CodingConventions_Proxy
+	})
 	return ok
 }
 
@@ -138,7 +144,7 @@ func (this *CodingConventions_Proxy) getExportSymbolFunction_impl() string {
 	return this.nextConvention.getExportSymbolFunction()
 }
 
-func (this *CodingConventions_Proxy) identifyTypeDeclarationCall_impl(n Node) *TList[string] {
+func (this *CodingConventions_Proxy) identifyTypeDeclarationCall_impl(n Node) *JTList[string] {
 	return this.nextConvention.identifyTypeDeclarationCall(n)
 }
 
@@ -191,15 +197,21 @@ func (this *CodingConventions_Proxy) getSingletonGetterClassName(p0 Node) string
 }
 
 func (this *CodingConventions_Proxy) applySingletonGetter(p0 *NominalTypeBuilder, p1 *FunctionType) {
-	this.self_.(interface{ applySingletonGetter_impl(*NominalTypeBuilder, *FunctionType) }).applySingletonGetter_impl(p0, p1)
+	this.self_.(interface {
+		applySingletonGetter_impl(*NominalTypeBuilder, *FunctionType)
+	}).applySingletonGetter_impl(p0, p1)
 }
 
 func (this *CodingConventions_Proxy) applySubclassRelationship(p0 *NominalTypeBuilder, p1 *NominalTypeBuilder, p2 *CodingConvention_SubclassType) {
-	this.self_.(interface{ applySubclassRelationship_impl(*NominalTypeBuilder, *NominalTypeBuilder, *CodingConvention_SubclassType) }).applySubclassRelationship_impl(p0, p1, p2)
+	this.self_.(interface {
+		applySubclassRelationship_impl(*NominalTypeBuilder, *NominalTypeBuilder, *CodingConvention_SubclassType)
+	}).applySubclassRelationship_impl(p0, p1, p2)
 }
 
 func (this *CodingConventions_Proxy) getClassesDefinedByCall(p0 Node) *CodingConvention_SubclassRelationship {
-	return this.self_.(interface{ getClassesDefinedByCall_impl(Node) *CodingConvention_SubclassRelationship }).getClassesDefinedByCall_impl(p0)
+	return this.self_.(interface {
+		getClassesDefinedByCall_impl(Node) *CodingConvention_SubclassRelationship
+	}).getClassesDefinedByCall_impl(p0)
 }
 
 func (this *CodingConventions_Proxy) isSuperClassReference(p0 string) bool {
@@ -211,11 +223,15 @@ func (this *CodingConventions_Proxy) extractIsModuleFile(p0 Node, p1 Node) bool 
 }
 
 func (this *CodingConventions_Proxy) extractClassNameIfProvide(p0 Node, p1 Node) Optional[string] {
-	return this.self_.(interface{ extractClassNameIfProvide_impl(Node, Node) Optional[string] }).extractClassNameIfProvide_impl(p0, p1)
+	return this.self_.(interface {
+		extractClassNameIfProvide_impl(Node, Node) Optional[string]
+	}).extractClassNameIfProvide_impl(p0, p1)
 }
 
 func (this *CodingConventions_Proxy) extractClassNameIfRequire(p0 Node, p1 Node) Optional[string] {
-	return this.self_.(interface{ extractClassNameIfRequire_impl(Node, Node) Optional[string] }).extractClassNameIfRequire_impl(p0, p1)
+	return this.self_.(interface {
+		extractClassNameIfRequire_impl(Node, Node) Optional[string]
+	}).extractClassNameIfRequire_impl(p0, p1)
 }
 
 func (this *CodingConventions_Proxy) getExportPropertyFunction() string {
@@ -226,8 +242,8 @@ func (this *CodingConventions_Proxy) getExportSymbolFunction() string {
 	return this.self_.(interface{ getExportSymbolFunction_impl() string }).getExportSymbolFunction_impl()
 }
 
-func (this *CodingConventions_Proxy) identifyTypeDeclarationCall(p0 Node) *TList[string] {
-	return this.self_.(interface{ identifyTypeDeclarationCall_impl(Node) *TList[string] }).identifyTypeDeclarationCall_impl(p0)
+func (this *CodingConventions_Proxy) identifyTypeDeclarationCall(p0 Node) *JTList[string] {
+	return this.self_.(interface{ identifyTypeDeclarationCall_impl(Node) *JTList[string] }).identifyTypeDeclarationCall_impl(p0)
 }
 
 func (this *CodingConventions_Proxy) getAbstractMethodName() string {
@@ -247,19 +263,27 @@ func (this *CodingConventions_Proxy) isFunctionCallThatAlwaysThrows(p0 Node) boo
 }
 
 func (this *CodingConventions_Proxy) getObjectLiteralCast(p0 Node) *CodingConvention_ObjectLiteralCast {
-	return this.self_.(interface{ getObjectLiteralCast_impl(Node) *CodingConvention_ObjectLiteralCast }).getObjectLiteralCast_impl(p0)
+	return this.self_.(interface {
+		getObjectLiteralCast_impl(Node) *CodingConvention_ObjectLiteralCast
+	}).getObjectLiteralCast_impl(p0)
 }
 
 func (this *CodingConventions_Proxy) describeFunctionBind(p0 Node, p1 bool) *CodingConvention_Bind {
-	return this.self_.(interface{ describeFunctionBind_impl(Node, bool) *CodingConvention_Bind }).describeFunctionBind_impl(p0, p1)
+	return this.self_.(interface {
+		describeFunctionBind_impl(Node, bool) *CodingConvention_Bind
+	}).describeFunctionBind_impl(p0, p1)
 }
 
 func (this *CodingConventions_Proxy) describeCachingCall(p0 Node) *CodingConvention_Cache {
-	return this.self_.(interface{ describeCachingCall_impl(Node) *CodingConvention_Cache }).describeCachingCall_impl(p0)
+	return this.self_.(interface {
+		describeCachingCall_impl(Node) *CodingConvention_Cache
+	}).describeCachingCall_impl(p0)
 }
 
 func (this *CodingConventions_Proxy) getAssertionFunctions() CollectionT[*CodingConvention_AssertionFunctionSpec] {
-	return this.self_.(interface{ getAssertionFunctions_impl() CollectionT[*CodingConvention_AssertionFunctionSpec] }).getAssertionFunctions_impl()
+	return this.self_.(interface {
+		getAssertionFunctions_impl() CollectionT[*CodingConvention_AssertionFunctionSpec]
+	}).getAssertionFunctions_impl()
 }
 
 func (this *CodingConventions_Proxy) isConstant(p0 string) bool {
@@ -291,7 +315,9 @@ func (this *CodingConventions_Proxy) isClassFactoryCall(p0 Node) bool {
 }
 
 func (this *CodingConventions_Proxy) getPackageName(p0 StaticSourceFile) Optional[string] {
-	return this.self_.(interface{ getPackageName_impl(StaticSourceFile) Optional[string] }).getPackageName_impl(p0)
+	return this.self_.(interface {
+		getPackageName_impl(StaticSourceFile) Optional[string]
+	}).getPackageName_impl(p0)
 }
 
 func (this *CodingConventions_Proxy) blockRenamingForProperty(p0 string) bool {
@@ -342,7 +368,12 @@ func (this *CodingConventions_DefaultCodingConvention) isFunctionCallThatAlwaysT
 func (this *CodingConventions_DefaultCodingConvention) getPackageName(source StaticSourceFile) Optional[string] {
 	var name string = source.getName()
 	var lastSlash int32 = String_lastIndexOf(name, 47)
-	return func() Optional[string] { if (lastSlash == -1) { return Optional_of[string]("") }; return Optional_of[string](String_substring(name, 0, lastSlash)) }()
+	return func() Optional[string] {
+		if lastSlash == -1 {
+			return Optional_of[string]("")
+		}
+		return Optional_of[string](String_substring(name, 0, lastSlash))
+	}()
 }
 
 func (this *CodingConventions_DefaultCodingConvention) isExported_2(name string, local bool) bool {
@@ -355,10 +386,10 @@ func (this *CodingConventions_DefaultCodingConvention) isExported(name string) b
 
 func (this *CodingConventions_DefaultCodingConvention) getClassesDefinedByCall(callNode Node) *CodingConvention_SubclassRelationship {
 	var callName Node = callNode.getFirstChild()
-	if ((CodingConventions_DefaultCodingConvention_JSCOMP_INHERITS.matches(callName) || callName.matchesName("$jscomp$inherits")) && callNode.hasXChildren(3)) {
+	if (CodingConventions_DefaultCodingConvention_JSCOMP_INHERITS.matches(callName) || callName.matchesName("$jscomp$inherits")) && callNode.hasXChildren(3) {
 		var subclass Node = callName.getNext()
 		var superclass Node = subclass.getNext()
-		if (subclass.isQualifiedName() && superclass.isQualifiedName()) {
+		if subclass.isQualifiedName() && superclass.isQualifiedName() {
 			return new_CodingConvention_SubclassRelationship(CodingConvention_SubclassType_INHERITS, subclass, superclass)
 		}
 	}
@@ -396,8 +427,8 @@ func (this *CodingConventions_DefaultCodingConvention) getExportSymbolFunction()
 	return ""
 }
 
-func (this *CodingConventions_DefaultCodingConvention) identifyTypeDeclarationCall(n Node) *TList[string] {
-	return tlistEmptyImm_(tc_string)
+func (this *CodingConventions_DefaultCodingConvention) identifyTypeDeclarationCall(n Node) *JTList[string] {
+	return jtlistEmptyImm_(jtc_string)
 }
 
 func (this *CodingConventions_DefaultCodingConvention) applySubclassRelationship(parent *NominalTypeBuilder, child *NominalTypeBuilder, type_ *CodingConvention_SubclassType) {
@@ -421,7 +452,7 @@ func (this *CodingConventions_DefaultCodingConvention) isPropertyTestFunction(ca
 	if target.isGetProp() {
 		var src Node = target.getFirstChild()
 		var prop string = target.getString()
-		if ((src.isName() && (src.getString() == "Array")) && (prop == "isArray")) {
+		if (src.isName() && (src.getString() == "Array")) && (prop == "isArray") {
 			return true
 		}
 	}
@@ -440,8 +471,8 @@ func (this *CodingConventions_DefaultCodingConvention) getObjectLiteralCast(call
 	return nil
 }
 
-func (this *CodingConventions_DefaultCodingConvention) getAssertionFunctions_rImmutableSet() *TSet[*CodingConvention_AssertionFunctionSpec] {
-	return immutableSetOf_[*CodingConvention_AssertionFunctionSpec](tce_p_CodingConvention_AssertionFunctionSpec, CodingConvention_AssertionFunctionSpec_forTruthy().setClosurePrimitive(ClosurePrimitive_ASSERTS_TRUTHY).build(), CodingConvention_AssertionFunctionSpec_forMatchesReturn().setClosurePrimitive(ClosurePrimitive_ASSERTS_MATCHES_RETURN).build())
+func (this *CodingConventions_DefaultCodingConvention) getAssertionFunctions_rImmutableSet() *JTSet[*CodingConvention_AssertionFunctionSpec] {
+	return jimmutableSetOf_[*CodingConvention_AssertionFunctionSpec](tce_p_CodingConvention_AssertionFunctionSpec, CodingConvention_AssertionFunctionSpec_forTruthy().setClosurePrimitive(ClosurePrimitive_ASSERTS_TRUTHY).build(), CodingConvention_AssertionFunctionSpec_forMatchesReturn().setClosurePrimitive(ClosurePrimitive_ASSERTS_MATCHES_RETURN).build())
 }
 
 func (this *CodingConventions_DefaultCodingConvention) describeFunctionBind(n Node, checkTypes bool) *CodingConvention_Bind {
@@ -452,7 +483,7 @@ func (this *CodingConventions_DefaultCodingConvention) describeFunctionBind(n No
 	if callTarget.isQualifiedName() {
 		if CodingConventions_DefaultCodingConvention_FUNCTION_PROTOTYPE_BIND_CALL.matches(callTarget) {
 			var fn Node = callTarget.getNext()
-			if (fn == 0) {
+			if fn == 0 {
 				return nil
 			}
 			var thisValue Node = CodingConventions_DefaultCodingConvention_safeNext(fn)
@@ -460,14 +491,14 @@ func (this *CodingConventions_DefaultCodingConvention) describeFunctionBind(n No
 			return new_CodingConvention_Bind(fn, thisValue, parameters)
 		}
 	}
-	if (callTarget.isGetProp() && (callTarget.getString() == "bind")) {
+	if callTarget.isGetProp() && (callTarget.getString() == "bind") {
 		var maybeFn Node = callTarget.getFirstChild()
 		var maybeFnType *JSType = maybeFn.getJSType()
 		var fnType *FunctionType = nil
-		if (checkTypes && (maybeFnType != nil)) {
+		if checkTypes && (maybeFnType != nil) {
 			fnType = maybeFnType.restrictByNotNullOrUndefined().toMaybeFunctionType()
 		}
-		if ((fnType != nil) || maybeFn.isFunction()) {
+		if (fnType != nil) || maybeFn.isFunction() {
 			var thisValue Node = callTarget.getNext()
 			var parameters Node = CodingConventions_DefaultCodingConvention_safeNext(thisValue)
 			return new_CodingConvention_Bind(maybeFn, thisValue, parameters)
@@ -481,7 +512,7 @@ func (this *CodingConventions_DefaultCodingConvention) describeCachingCall(node 
 }
 
 func CodingConventions_DefaultCodingConvention_safeNext(n Node) Node {
-	if (n != 0) {
+	if n != 0 {
 		return n.getNext()
 	}
 	return 0
@@ -496,6 +527,7 @@ func (this *CodingConventions_DefaultCodingConvention) getAssertionFunctions() C
 }
 
 const CodingConventions_DefaultCodingConvention_serialVersionUID int64 = 1
+
 var CodingConventions_DefaultCodingConvention_JSCOMP_INHERITS *QualifiedName
 var CodingConventions_DefaultCodingConvention_FUNCTION_PROTOTYPE_BIND_CALL *QualifiedName
 
@@ -510,4 +542,3 @@ func CodingConventions_DefaultCodingConvention_clinit() {
 	CodingConventions_DefaultCodingConvention_FUNCTION_PROTOTYPE_BIND_CALL = QualifiedName_of("Function.prototype.bind.call")
 
 }
-

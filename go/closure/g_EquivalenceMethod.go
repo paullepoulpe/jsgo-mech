@@ -54,4 +54,3 @@ func EquivalenceMethod_clinit() {
 	registerEnum_("com.google.javascript.rhino.jstype.EquivalenceMethod", enumValues_(EquivalenceMethod_values_))
 
 }
-

@@ -41,7 +41,7 @@ func (this *CheckJSDocStyle) visit_impl(t *NodeTraversal, n Node, unused Node) {
 		this.checkStyleForPrivateProperties(t, n)
 	case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST, Token_rhino_STRING_KEY:
 	case Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF:
-		if (NodeUtil_getEnclosingClass(n) != 0) {
+		if NodeUtil_getEnclosingClass(n) != 0 {
 			this.checkStyleForPrivateProperties(t, n)
 		}
 	case Token_rhino_SCRIPT:
@@ -52,7 +52,7 @@ func (this *CheckJSDocStyle) visit_impl(t *NodeTraversal, n Node, unused Node) {
 }
 
 func (this *CheckJSDocStyle) checkForAtSignCodePresence(t *NodeTraversal, n Node, jsDoc *JSDocInfo) {
-	if (jsDoc == nil) {
+	if jsDoc == nil {
 		return
 	}
 	if jsDoc.isAtSignCodePresent() {
@@ -73,8 +73,8 @@ func (this *CheckJSDocStyle) checkStyleForPrivateProperties(t *NodeTraversal, n 
 func CheckJSDocStyle_checkNoTypeOnGettersAndSetters(t *NodeTraversal, function Node, jsDoc *JSDocInfo) {
 	if function.getGrandparent().isClassMembers() {
 		var memberNode Node = function.getParent()
-		if (memberNode.isSetterDef() || memberNode.isGetterDef()) {
-			if ((jsDoc != nil) && jsDoc.hasType()) {
+		if memberNode.isSetterDef() || memberNode.isGetterDef() {
+			if (jsDoc != nil) && jsDoc.hasType() {
 				t.report(function, CheckJSDocStyle_INCORRECT_ANNOTATION_ON_GETTER_SETTER, []string{})
 			}
 		}
@@ -84,10 +84,10 @@ func CheckJSDocStyle_checkNoTypeOnGettersAndSetters(t *NodeTraversal, function N
 func (this *CheckJSDocStyle) visitFunction(t *NodeTraversal, function Node) {
 	var jsDoc *JSDocInfo = NodeUtil_getBestJSDocInfo(function)
 	this.checkForAtSignCodePresence(t, function, jsDoc)
-	if ((jsDoc == nil) && !this.hasAnyInlineJsDoc(function)) {
+	if (jsDoc == nil) && !this.hasAnyInlineJsDoc(function) {
 		this.checkMissingJsDoc(t, function)
 	} else {
-		if ((((t.inGlobalScope() || this.hasAnyInlineJsDoc(function)) || !jsDoc.getParameterNames().isEmpty()) || jsDoc.hasReturnType()) || jsDoc.isOverride()) {
+		if (((t.inGlobalScope() || this.hasAnyInlineJsDoc(function)) || !jsDoc.getParameterNames().isEmpty()) || jsDoc.hasReturnType()) || jsDoc.isOverride() {
 			this.checkParams(t, function, jsDoc)
 		}
 		CheckJSDocStyle_checkNoTypeOnGettersAndSetters(t, function, jsDoc)
@@ -98,7 +98,7 @@ func (this *CheckJSDocStyle) visitFunction(t *NodeTraversal, function Node) {
 func (this *CheckJSDocStyle) visitClass(t *NodeTraversal, cls Node) {
 	var jsDoc *JSDocInfo = NodeUtil_getBestJSDocInfo(cls)
 	this.checkForAtSignCodePresence(t, cls, jsDoc)
-	if (jsDoc == nil) {
+	if jsDoc == nil {
 		return
 	}
 	if jsDoc.isConstructor() {
@@ -107,7 +107,7 @@ func (this *CheckJSDocStyle) visitClass(t *NodeTraversal, cls Node) {
 }
 
 func (this *CheckJSDocStyle) checkMissingJsDoc(t *NodeTraversal, function Node) {
-	if (this.isFunctionThatShouldHaveJsDoc(t, function) && !this.isTestMethod(function)) {
+	if this.isFunctionThatShouldHaveJsDoc(t, function) && !this.isTestMethod(function) {
 		t.report(function, CheckJSDocStyle_MISSING_JSDOC, []string{})
 	}
 }
@@ -119,7 +119,7 @@ func (this *CheckJSDocStyle) isFunctionThatShouldHaveJsDoc(t *NodeTraversal, fun
 	if NodeUtil_isFunctionDeclaration(function) {
 		return true
 	}
-	if (NodeUtil_isNameDeclaration(function.getGrandparent()) || function.getParent().isAssign()) {
+	if NodeUtil_isNameDeclaration(function.getGrandparent()) || function.getParent().isAssign() {
 		return true
 	}
 	if function.getParent().isExport() {
@@ -129,7 +129,7 @@ func (this *CheckJSDocStyle) isFunctionThatShouldHaveJsDoc(t *NodeTraversal, fun
 		var memberNode Node = function.getParent()
 		if memberNode.isMemberFunctionDef() {
 			return !this.isConstructorWithoutParameters(function)
-		} else if (memberNode.isGetterDef() || memberNode.isSetterDef()) {
+		} else if memberNode.isGetterDef() || memberNode.isSetterDef() {
 			return true
 		}
 	}
@@ -138,7 +138,12 @@ func (this *CheckJSDocStyle) isFunctionThatShouldHaveJsDoc(t *NodeTraversal, fun
 
 func (this *CheckJSDocStyle) isTestMethod(function Node) bool {
 	var bestLValue Node = NodeUtil_getBestLValue(function)
-	var name Optional[string] = func() Optional[string] { if (bestLValue != 0) { return NodeUtil_getBestLValueName(bestLValue) }; return Optional_empty[string]() }()
+	var name Optional[string] = func() Optional[string] {
+		if bestLValue != 0 {
+			return NodeUtil_getBestLValueName(bestLValue)
+		}
+		return Optional_empty[string]()
+	}()
 	return (name.isPresent() && ExportTestFunctions_isTestFunction(name))
 }
 
@@ -147,23 +152,33 @@ func (this *CheckJSDocStyle) isConstructorWithoutParameters(function Node) bool 
 }
 
 func (this *CheckJSDocStyle) checkParams(t *NodeTraversal, function Node, jsDoc *JSDocInfo) {
-	if ((jsDoc != nil) && (jsDoc.getType() != nil)) {
+	if (jsDoc != nil) && (jsDoc.getType() != nil) {
 		return
 	}
-	var paramsFromJsDoc *TList[string] = func() *TList[string] { if (jsDoc == nil) { return tlistEmptyImm_(tc_string) }; return immutableListCopyOf_(tc_string, Collection(jsDoc.getParameterNames().asSet())) }()
+	var paramsFromJsDoc *JTList[string] = func() *JTList[string] {
+		if jsDoc == nil {
+			return jtlistEmptyImm_(jtc_string)
+		}
+		return jimmutableListCopyOf_(jtc_string, Collection(jsDoc.getParameterNames().asSet()))
+	}()
 	if paramsFromJsDoc.isEmpty() {
 		this.checkInlineParams(t, function, jsDoc)
 	} else {
 		var paramList Node = NodeUtil_getFunctionParameters(function)
 		if !paramList.hasXChildren(paramsFromJsDoc.size()) {
-			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(paramList, CheckJSDocStyle_WRONG_NUMBER_OF_PARAMS, []string{func() string { if jsDoc.isOverride() { return "" }; return "" }()}))
+			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(paramList, CheckJSDocStyle_WRONG_NUMBER_OF_PARAMS, []string{func() string {
+				if jsDoc.isOverride() {
+					return ""
+				}
+				return ""
+			}()}))
 			return
 		}
 		var param Node = paramList.getFirstChild()
 		it_1 := paramsFromJsDoc.each()
 		for it_1.next() {
 			var s string = it_1.v
-			if (param.getJSDocInfo() != nil) {
+			if param.getJSDocInfo() != nil {
 				t.report(param, CheckJSDocStyle_MIXED_PARAM_JSDOC_STYLES, []string{})
 			}
 			var name string = s
@@ -180,10 +195,20 @@ func (this *CheckJSDocStyle) checkInlineParams(t *NodeTraversal, function Node, 
 	var paramList Node = NodeUtil_getFunctionParameters(function)
 	{
 		var param Node = paramList.getFirstChild()
-		for ; (param != 0); param = param.getNext() {
-			var jsDoc *JSDocInfo = func() *JSDocInfo { if param.isDefaultValue() { return param.getFirstChild().getJSDocInfo() }; return param.getJSDocInfo() }()
-			if (jsDoc == nil) {
-				this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(param, CheckJSDocStyle_MISSING_PARAMETER_JSDOC, []string{func() string { if ((fnJSDoc != nil) && fnJSDoc.isOverride()) { return "" }; return "" }()}))
+		for ; param != 0; param = param.getNext() {
+			var jsDoc *JSDocInfo = func() *JSDocInfo {
+				if param.isDefaultValue() {
+					return param.getFirstChild().getJSDocInfo()
+				}
+				return param.getJSDocInfo()
+			}()
+			if jsDoc == nil {
+				this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(param, CheckJSDocStyle_MISSING_PARAMETER_JSDOC, []string{func() string {
+					if (fnJSDoc != nil) && fnJSDoc.isOverride() {
+						return ""
+					}
+					return ""
+				}()}))
 				return
 			} else {
 				var paramType *JSTypeExpression = jsDoc.getType()
@@ -206,7 +231,7 @@ func (this *CheckJSDocStyle) checkParam(t *NodeTraversal, param Node, name Optio
 		Preconditions_checkState_boolean_Object_H((param.isDestructuringPattern() || param.isRest()), param)
 		nameOptional = false
 	}
-	if (name.isEmpty() || !nodeToCheck.isName()) {
+	if name.isEmpty() || !nodeToCheck.isName() {
 		name = Optional_of[string]("<unknown name>")
 	} else if !nodeToCheck.matchesQualifiedName(name.get()) {
 		t.report(nodeToCheck, CheckJSDocStyle_INCORRECT_PARAM_NAME, []string{})
@@ -219,14 +244,19 @@ func (this *CheckJSDocStyle) checkParam(t *NodeTraversal, param Node, name Optio
 	if jsDocOptional {
 		return false
 	}
-	var errorSource Node = func() Node { if (paramType != nil) { return paramType.getRoot() }; return nodeToCheck }()
+	var errorSource Node = func() Node {
+		if paramType != nil {
+			return paramType.getRoot()
+		}
+		return nodeToCheck
+	}()
 	t.report(errorSource, CheckJSDocStyle_OPTIONAL_PARAM_NOT_MARKED_OPTIONAL, []string{name.orElse("null")})
 	return true
 }
 
 func CheckJSDocStyle_isDefaultAssignedParamWithInlineJsDoc(param Node) bool {
 	if param.isDefaultValue() {
-		if (param.hasChildren() && param.getFirstChild().isName()) {
+		if param.hasChildren() && param.getFirstChild().isName() {
 			return (param.getFirstChild().getJSDocInfo() != nil)
 		}
 	}
@@ -234,13 +264,13 @@ func CheckJSDocStyle_isDefaultAssignedParamWithInlineJsDoc(param Node) bool {
 }
 
 func (this *CheckJSDocStyle) hasAnyInlineJsDoc(function Node) bool {
-	if (function.getFirstChild().getJSDocInfo() != nil) {
+	if function.getFirstChild().getJSDocInfo() != nil {
 		return true
 	}
 	{
 		var param Node = NodeUtil_getFunctionParameters(function).getFirstChild()
-		for ; (param != 0); param = param.getNext() {
-			if ((param.getJSDocInfo() != nil) || CheckJSDocStyle_isDefaultAssignedParamWithInlineJsDoc(param)) {
+		for ; param != 0; param = param.getNext() {
+			if (param.getJSDocInfo() != nil) || CheckJSDocStyle_isDefaultAssignedParamWithInlineJsDoc(param) {
 				return true
 			}
 		}
@@ -249,28 +279,33 @@ func (this *CheckJSDocStyle) hasAnyInlineJsDoc(function Node) bool {
 }
 
 func (this *CheckJSDocStyle) checkReturn(function Node, jsDoc *JSDocInfo) {
-	if ((jsDoc != nil) && ((jsDoc.hasType() || jsDoc.isConstructor()) || jsDoc.hasReturnType())) {
+	if (jsDoc != nil) && ((jsDoc.hasType() || jsDoc.isConstructor()) || jsDoc.hasReturnType()) {
 		return
 	}
 	if NodeUtil_isEs6Constructor(function) {
 		return
 	}
-	if (function.getFirstChild().getJSDocInfo() != nil) {
+	if function.getFirstChild().getJSDocInfo() != nil {
 		return
 	}
 	var finder *CheckJSDocStyle_FindNonTrivialReturn = new_CheckJSDocStyle_FindNonTrivialReturn()
 	NodeTraversal_traverse(this.compiler_, function.getLastChild(), CheckJSDocStyle_FindNonTrivialReturn_as_NodeTraversal_Callback(finder))
 	if finder.found_ {
-		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(function, CheckJSDocStyle_MISSING_RETURN_JSDOC, []string{func() string { if ((jsDoc != nil) && jsDoc.isOverride()) { return "" }; return "" }()}))
+		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(function, CheckJSDocStyle_MISSING_RETURN_JSDOC, []string{func() string {
+			if (jsDoc != nil) && jsDoc.isOverride() {
+				return ""
+			}
+			return ""
+		}()}))
 	}
 }
 
 func (this *CheckJSDocStyle) checkLicenseComment(t *NodeTraversal, n Node) {
-	if ((n.getJSDocInfo() == nil) || n.getJSDocInfo().getLicense().isEmpty()) {
+	if (n.getJSDocInfo() == nil) || n.getJSDocInfo().getLicense().isEmpty() {
 		return
 	}
 	var license string = n.getJSDocInfo().getLicense().get()
-	if String_contains_s(license, "@externs") {
+	if JString_contains_s(license, "@externs") {
 		t.report(n, CheckJSDocStyle_LICENSE_CONTAINS_AT_EXTERNS, []string{})
 	}
 }
@@ -342,7 +377,7 @@ func (this *CheckJSDocStyle_FindNonTrivialReturn) shouldTraverse_impl(t *NodeTra
 		return false
 	}
 	if NodeUtil_isShallowStatementTree(parent) {
-		if (n.isReturn() && n.hasChildren()) {
+		if n.isReturn() && n.hasChildren() {
 			this.found_ = true
 			return false
 		}
@@ -371,9 +406,8 @@ func (this *CheckJSDocStyle_ExternsCallback) shouldTraverse(t *NodeTraversal, n 
 func (this *CheckJSDocStyle_ExternsCallback) visit(t *NodeTraversal, n Node, parent Node) {
 	if n.isScript() {
 		var info *JSDocInfo = n.getJSDocInfo()
-		if ((info == nil) || !info.isExterns()) {
+		if (info == nil) || !info.isExterns() {
 			t.report(n, CheckJSDocStyle_EXTERNS_FILES_SHOULD_BE_ANNOTATED, []string{})
 		}
 	}
 }
-

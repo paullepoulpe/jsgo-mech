@@ -14,54 +14,54 @@ import "unsafe"
 // is nil in both translations).
 //
 // The view is found through a method whose signature names no type parameter (tmap_ / tset_):
-// a value of MapT[K, V] whose object is a typed map's view is the view of a TMap[K, V] (its
+// a value of MapT[K, V] whose object is a typed map's view is the view of a JTMap[K, V] (its
 // put_t takes a K and a V), so the pointer it gives is one. (A type assertion to the view's own
 // type would make Go instantiate it with its methods; an interface with K in a method's
 // signature would make Go keep that method for every instantiation of the view. The pair list
 // keeps the twins to the K, V that have a typed map, so the twins compile no typed map that the
 // translation does not have.)
 
-func (v *tmapView_[K, V]) tmap_() unsafe.Pointer { return unsafe.Pointer(v.m) }
-func (v *tsetView_[K]) tset_() unsafe.Pointer    { return unsafe.Pointer(v.s) }
+func (v *jtmapView_[K, V]) tmap_() unsafe.Pointer { return unsafe.Pointer(v.m) }
+func (v *jtsetView_[K]) tset_() unsafe.Pointer    { return unsafe.Pointer(v.s) }
 
-// tmapOf_ / tsetOf_: the view of a typed map or set (also of a sorted one, which embeds it).
-type tmapOf_ interface{ tmap_() unsafe.Pointer }
-type tsetOf_ interface{ tset_() unsafe.Pointer }
+// jtmapOf_ / jtsetOf_: the view of a typed map or set (also of a sorted one, which embeds it).
+type jtmapOf_ interface{ tmap_() unsafe.Pointer }
+type jtsetOf_ interface{ tset_() unsafe.Pointer }
 
-// Map_getK_ is m.get(k) for a key of the map's key type (tmapView_.get_t).
+// Map_getK_ is m.get(k) for a key of the map's key type (jtmapView_.get_t).
 func Map_getK_[K comparable, V any](m MapT[K, V], k K) V {
-	if p, ok := m.(tmapOf_); ok {
-		if t := (*TMap[K, V])(p.tmap_()); k != t.kc.null {
+	if p, ok := m.(jtmapOf_); ok {
+		if t := (*JTMap[K, V])(p.tmap_()); k != t.kc.null {
 			return t.get(k)
 		}
 	}
 	return m.get_t(boxT_(k))
 }
 
-// Map_containsKeyK_ is m.containsKey(k) for a key of the map's key type (tmapView_.containsKey).
+// Map_containsKeyK_ is m.containsKey(k) for a key of the map's key type (jtmapView_.containsKey).
 func Map_containsKeyK_[K comparable, V any](m MapT[K, V], k K) bool {
-	if p, ok := m.(tmapOf_); ok {
-		if t := (*TMap[K, V])(p.tmap_()); k != t.kc.null {
+	if p, ok := m.(jtmapOf_); ok {
+		if t := (*JTMap[K, V])(p.tmap_()); k != t.kc.null {
 			return t.find(k) >= 0
 		}
 	}
 	return m.containsKey(boxT_(k))
 }
 
-// Map_removeK_ is m.remove(k) for a key of the map's key type (tmapView_.remove_t).
+// Map_removeK_ is m.remove(k) for a key of the map's key type (jtmapView_.remove_t).
 func Map_removeK_[K comparable, V any](m MapT[K, V], k K) V {
-	if p, ok := m.(tmapOf_); ok {
-		if t := (*TMap[K, V])(p.tmap_()); k != t.kc.null {
+	if p, ok := m.(jtmapOf_); ok {
+		if t := (*JTMap[K, V])(p.tmap_()); k != t.kc.null {
 			return t.remove(k)
 		}
 	}
 	return m.remove_t(boxT_(k))
 }
 
-// Set_containsE_ is s.contains(x) for an element of the set's element type (tsetView_.contains).
+// Set_containsE_ is s.contains(x) for an element of the set's element type (jtsetView_.contains).
 func Set_containsE_[T comparable](s SetT[T], x T) bool {
-	if p, ok := s.(tsetOf_); ok {
-		if t := (*TSet[T])(p.tset_()); x != t.c.null {
+	if p, ok := s.(jtsetOf_); ok {
+		if t := (*JTSet[T])(p.tset_()); x != t.c.null {
 			return t.find(x) >= 0
 		}
 	}
@@ -69,10 +69,10 @@ func Set_containsE_[T comparable](s SetT[T], x T) bool {
 }
 
 // Set_removeE_ is s.remove(x) (remove(Object)) for an element of the set's element type
-// (tsetView_.remove_Object).
+// (jtsetView_.remove_Object).
 func Set_removeE_[T comparable](s SetT[T], x T) bool {
-	if p, ok := s.(tsetOf_); ok {
-		if t := (*TSet[T])(p.tset_()); x != t.c.null {
+	if p, ok := s.(jtsetOf_); ok {
+		if t := (*JTSet[T])(p.tset_()); x != t.c.null {
 			return t.remove(x)
 		}
 	}

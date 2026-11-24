@@ -84,4 +84,3 @@ func (this *AllType) isNullable_impl() bool {
 func (this *AllType) isVoidable_impl() bool {
 	return true
 }
-

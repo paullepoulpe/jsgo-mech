@@ -3,11 +3,11 @@
 package closure
 
 type ReferenceCollection struct {
-	references *TList[*Reference]
+	references *JTList[*Reference]
 }
 
 func (this *ReferenceCollection) finit_ReferenceCollection() {
-	this.references = newTList_(tc_p_Reference)
+	this.references = jnewTList_(jtc_p_Reference)
 }
 
 func (this *ReferenceCollection) init_ReferenceCollection() {
@@ -34,16 +34,16 @@ func (this *ReferenceCollection) add(reference *Reference) {
 
 func (this *ReferenceCollection) isWellDefined() bool {
 	var size int32 = this.references.size()
-	if (size == 0) {
+	if size == 0 {
 		return false
 	}
 	var init_ *Reference = this.getInitializingReference()
-	if (init_ == nil) {
+	if init_ == nil {
 		return false
 	}
 	Preconditions_checkState(this.references.get(0).isDeclaration())
 	var initBlock *BasicBlock = init_.getBasicBlock()
-	for i := int32(1); (i < size); i++ {
+	for i := int32(1); i < size; i++ {
 		if !initBlock.provablyExecutesBefore(this.references.get(i).getBasicBlock()) {
 			return false
 		}
@@ -57,9 +57,9 @@ func (this *ReferenceCollection) isEscaped() bool {
 	for it_1.next() {
 		var ref *Reference = it_1.v
 		var refClosureScope *Scope = ReferenceCollection_getEnclosingClosureScope(ref.getScope())
-		if (closureScope == nil) {
+		if closureScope == nil {
 			closureScope = refClosureScope
-		} else if (closureScope != refClosureScope) {
+		} else if closureScope != refClosureScope {
 			return true
 		}
 	}
@@ -69,8 +69,8 @@ func (this *ReferenceCollection) isEscaped() bool {
 func ReferenceCollection_getEnclosingClosureScope(scope *Scope) *Scope {
 	{
 		var s *Scope = scope
-		for ; (s != nil); s = s.getParent_rScope() {
-			if (s.isHoistScope() || ((s.isMemberFieldDefScope() || s.isComputedFieldDefRhsScope()) && !s.getRootNode().isStaticMember())) {
+		for ; s != nil; s = s.getParent_rScope() {
+			if s.isHoistScope() || ((s.isMemberFieldDefScope() || s.isComputedFieldDefRhsScope()) && !s.getRootNode().isStaticMember()) {
 				return s
 			}
 		}
@@ -84,14 +84,14 @@ func (this *ReferenceCollection) isThisRebound() bool {
 	for it_1.next() {
 		var ref *Reference = it_1.v
 		var refHoistScope *Scope = ref.getScope().getClosestHoistScope_rScope()
-		if (hoistScope == nil) {
+		if hoistScope == nil {
 			hoistScope = refHoistScope
-		} else if (hoistScope != refHoistScope) {
+		} else if hoistScope != refHoistScope {
 			return true
 		}
 		{
 			var s *Scope = ref.getScope()
-			for ; ((s != hoistScope) && (s != nil)); s = s.getParent_rScope() {
+			for ; (s != hoistScope) && (s != nil); s = s.getParent_rScope() {
 				if AbstractScope_ImplicitVar_THIS.isMadeByScope(s.up_AbstractScope()) {
 					return true
 				}
@@ -110,9 +110,9 @@ func (this *ReferenceCollection) isInitializingDeclarationAt(index int32) bool {
 }
 
 func (this *ReferenceCollection) isInitializingAssignmentAt(index int32) bool {
-	if ((index < this.references.size()) && (index > 0)) {
+	if (index < this.references.size()) && (index > 0) {
 		var maybeDecl *Reference = this.references.get((index - 1))
-		if (maybeDecl.isVarDeclaration() || maybeDecl.isLetDeclaration()) {
+		if maybeDecl.isVarDeclaration() || maybeDecl.isLetDeclaration() {
 			Preconditions_checkState(!maybeDecl.isInitializingDeclaration())
 			var maybeInit *Reference = this.references.get(index)
 			if maybeInit.isSimpleAssignmentToName() {
@@ -126,7 +126,7 @@ func (this *ReferenceCollection) isInitializingAssignmentAt(index int32) bool {
 func (this *ReferenceCollection) getInitializingReference() *Reference {
 	if this.isInitializingDeclarationAt(0) {
 		return this.references.get(0)
-	} else if (this.isInitializingAssignmentAt(1) && this.areInSameFile(0, 1)) {
+	} else if this.isInitializingAssignmentAt(1) && this.areInSameFile(0, 1) {
 		return this.references.get(1)
 	}
 	return nil
@@ -138,8 +138,8 @@ func (this *ReferenceCollection) areInSameFile(ref0 int32, ref1 int32) bool {
 
 func (this *ReferenceCollection) getInitializingReferenceForConstants() *Reference {
 	var size int32 = this.references.size()
-	for i := int32(0); (i < size); i++ {
-		if (this.isInitializingDeclarationAt(i) || this.isInitializingAssignmentAt(i)) {
+	for i := int32(0); i < size; i++ {
+		if this.isInitializingDeclarationAt(i) || this.isInitializingAssignmentAt(i) {
 			return this.references.get(i)
 		}
 	}
@@ -148,19 +148,19 @@ func (this *ReferenceCollection) getInitializingReferenceForConstants() *Referen
 
 func (this *ReferenceCollection) isAssignedOnceInLifetime() bool {
 	var ref *Reference = this.getOneAndOnlyAssignment()
-	if (ref == nil) {
+	if ref == nil {
 		return false
 	}
 	{
 		var block *BasicBlock = ref.getBasicBlock()
-		for ; (block != nil); block = block.getParent() {
+		for ; block != nil; block = block.getParent() {
 			if block.isFunction() {
-				if (ref.getSymbol_rVar().getScope_rAbstractScope_rScope().getClosestHoistScope_rScope() != ref.getScope().getClosestHoistScope_rScope()) {
+				if ref.getSymbol_rVar().getScope_rAbstractScope_rScope().getClosestHoistScope_rScope() != ref.getScope().getClosestHoistScope_rScope() {
 					return false
 				}
 				break
 			}
-			if (block.getRoot() == ref.getSymbol_rVar().getScope_rAbstractScope_rScope().getRootNode()) {
+			if block.getRoot() == ref.getSymbol_rVar().getScope_rAbstractScope_rScope().getRootNode() {
 				break
 			}
 			if block.isLoop() {
@@ -185,10 +185,10 @@ func (this *ReferenceCollection) isReferencedWeakly() bool {
 func (this *ReferenceCollection) getOneAndOnlyAssignment() *Reference {
 	var assignment *Reference = nil
 	var size int32 = this.references.size()
-	for i := int32(0); (i < size); i++ {
+	for i := int32(0); i < size; i++ {
 		var ref *Reference = this.references.get(i)
-		if (ref.isLvalue() || ref.isInitializingDeclaration()) {
-			if (assignment == nil) {
+		if ref.isLvalue() || ref.isInitializingDeclaration() {
+			if assignment == nil {
 				assignment = ref
 			} else {
 				return nil
@@ -200,9 +200,9 @@ func (this *ReferenceCollection) getOneAndOnlyAssignment() *Reference {
 
 func (this *ReferenceCollection) isNeverAssigned() bool {
 	var size int32 = this.references.size()
-	for i := int32(0); (i < size); i++ {
+	for i := int32(0); i < size; i++ {
 		var ref *Reference = this.references.get(i)
-		if (ref.isLvalue() || ref.isInitializingDeclaration()) {
+		if ref.isLvalue() || ref.isInitializingDeclaration() {
 			return false
 		}
 	}
@@ -217,4 +217,3 @@ func (this *ReferenceCollection) firstReferenceIsAssigningDeclaration() bool {
 func (this *ReferenceCollection) toString() string {
 	return tostrR_(MoreObjects_toStringHelper(this).add("initRef", obj_(this.getInitializingReference())).add("references", this.references.asList()).add_String_boolean("wellDefined", this.isWellDefined()).add_String_boolean("assignedOnce", this.isAssignedOnceInLifetime()))
 }
-

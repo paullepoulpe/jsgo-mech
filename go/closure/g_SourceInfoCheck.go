@@ -3,7 +3,7 @@
 package closure
 
 type SourceInfoCheck struct {
-	compiler_ *AbstractCompiler
+	compiler_           *AbstractCompiler
 	requiresLineNumbers bool
 }
 
@@ -43,24 +43,24 @@ func (this *SourceInfoCheck) visit(unused *NodeTraversal, n Node, parent Node) {
 	if n.isScript() {
 		this.requiresLineNumbers = false
 	} else if this.requiresLineNumbers {
-		if (n.getLineno() == -1) {
+		if n.getLineno() == -1 {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, SourceInfoCheck_MISSING_LINE_INFO, []string{n.toStringTree()}))
-		} else if (n.getLength() < 0) {
+		} else if n.getLength() < 0 {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, SourceInfoCheck_MISSING_LENGTH, []string{n.toStringTree()}))
 		}
 		var info *JSDocInfo = n.getJSDocInfo()
-		if (info != nil) {
+		if info != nil {
 			this.checkJSDoc(info)
 		}
 	}
 }
 
 func (this *SourceInfoCheck) checkJSDoc(info *JSDocInfo) {
-	it_1 := eachOf_(info.getTypeExpressions())
+	it_1 := jeachOf_(info.getTypeExpressions())
 	for it_1.next() {
 		var expression *JSTypeExpression = it_1.v
 		if String_isEmpty(expression.getSourceName()) {
-			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(expression.getRoot(), SourceInfoCheck_MISSING_SOURCE_NAME, []string{("JSTypeExpression " + tostr_(expression))}))
+			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(expression.getRoot(), SourceInfoCheck_MISSING_SOURCE_NAME, []string{("JSTypeExpression " + jtostr_(expression))}))
 		} else {
 			NodeUtil_visitPreOrder_Node_Visitor(expression.getRoot(), &NodeUtil_Visitor_fn{func(p0 Node) { this.checkSourceFile(p0) }})
 		}
@@ -69,7 +69,7 @@ func (this *SourceInfoCheck) checkJSDoc(info *JSDocInfo) {
 
 func (this *SourceInfoCheck) checkSourceFile(n Node) {
 	var sourceName StaticSourceFile = n.getStaticSourceFile()
-	if (sourceName == nil) {
+	if sourceName == nil {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, SourceInfoCheck_MISSING_SOURCE_NAME, []string{("type node " + sstr_(n.toStringTree()))}))
 	}
 }
@@ -90,4 +90,3 @@ func SourceInfoCheck_clinit() {
 	SourceInfoCheck_MISSING_SOURCE_NAME = DiagnosticType_error("JSC_MISSING_SOURCE_NAME", "No source name associated with {0}.\nMost likely a new type was created without setting the source name.")
 
 }
-

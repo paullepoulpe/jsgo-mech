@@ -6,4 +6,3 @@ type SubGraph[N comparable, E comparable] interface {
 	isIndependentOf(N) bool
 	addNode(N)
 }
-

@@ -3,9 +3,9 @@
 package closure
 
 type ModuleIdentifier struct {
-	name_ string
+	name_             string
 	closureNamespace_ string
-	moduleName_ string
+	moduleName_       string
 }
 
 func (this *ModuleIdentifier) zero_ModuleIdentifier() {
@@ -40,7 +40,7 @@ func (this *ModuleIdentifier) getModuleName() string {
 }
 
 func (this *ModuleIdentifier) toString() string {
-	if (this.closureNamespace() == this.moduleName()) {
+	if this.closureNamespace() == this.moduleName() {
 		return this.closureNamespace()
 	}
 	return (sstr_(this.moduleName()) + ":" + sstr_(this.closureNamespace()))
@@ -54,9 +54,9 @@ func ModuleIdentifier_forClosure(name string) *ModuleIdentifier {
 	var namespace string = normalizedName
 	var moduleName string = normalizedName
 	var splitPoint int32 = String_indexOf(normalizedName, 58)
-	if (splitPoint != -1) {
+	if splitPoint != -1 {
 		moduleName = String_substring(normalizedName, 0, splitPoint)
-		namespace = String_substring_int(normalizedName, Math_min((splitPoint + 1), (String_length(normalizedName) - 1)))
+		namespace = String_substring_int(normalizedName, Math_min((splitPoint+1), (String_length(normalizedName)-1)))
 	}
 	return new_ModuleIdentifier(normalizedName, namespace, moduleName)
 }
@@ -102,4 +102,3 @@ func (this *ModuleIdentifier) hashCode() int32 {
 	h = h*31 + strhash_(this.moduleName_)
 	return h
 }
-

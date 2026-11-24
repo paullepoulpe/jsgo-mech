@@ -4,8 +4,8 @@ package closure
 
 type Es6ConvertSuper struct {
 	NodeTraversal_AbstractPostOrderCallback
-	compiler_ *AbstractCompiler
-	astFactory_ *AstFactory
+	compiler_              *AbstractCompiler
+	astFactory_            *AstFactory
 	constructorSynthesizer *SynthesizeExplicitConstructors
 }
 
@@ -46,7 +46,7 @@ func (this *Es6ConvertSuper) isInterface(classNode Node) bool {
 func (this *Es6ConvertSuper) visitSuper(node Node, parent Node) {
 	Preconditions_checkState(node.isSuper())
 	var exprRoot Node = node
-	if (exprRoot.getParent().isGetElem() || exprRoot.getParent().isGetProp()) {
+	if exprRoot.getParent().isGetElem() || exprRoot.getParent().isGetProp() {
 		exprRoot = exprRoot.getParent()
 	}
 	var enclosingMemberDef Node = NodeUtil_getEnclosingNode(exprRoot, Predicate_base[Node](func(n Node) bool {
@@ -60,15 +60,15 @@ func (this *Es6ConvertSuper) visitSuper(node Node, parent Node) {
 			panic("unreachable")
 		}()
 	}))
-	if ((enclosingMemberDef == 0) || enclosingMemberDef.getParent().isObjectLit()) {
+	if (enclosingMemberDef == 0) || enclosingMemberDef.getParent().isObjectLit() {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(node, TranspilationUtil_CANNOT_CONVERT, []string{"super is not supported in object literal methods."}))
 		return
 	}
 	if parent.isCall() {
 		this.visitSuperCall(node, parent, enclosingMemberDef)
-	} else if (parent.isGetProp() || parent.isGetElem()) {
-		if (parent.getFirstChild() == node) {
-			if (parent.getParent().isCall() && NodeUtil_isInvocationTarget(parent)) {
+	} else if parent.isGetProp() || parent.isGetElem() {
+		if parent.getFirstChild() == node {
+			if parent.getParent().isCall() && NodeUtil_isInvocationTarget(parent) {
 				this.visitSuperPropertyCall(node, parent, enclosingMemberDef)
 			} else {
 				this.visitSuperPropertyAccess(node, parent, enclosingMemberDef)
@@ -92,7 +92,7 @@ func (this *Es6ConvertSuper) visitSuperCall(node Node, parent Node, enclosingMem
 		return
 	}
 	if NodeUtil_isEs6ConstructorMemberFunctionDef(enclosingMemberDef) {
-		if (node.isFromExterns() || this.isInterface(clazz)) {
+		if node.isFromExterns() || this.isInterface(clazz) {
 			var enclosingStatement Node = NodeUtil_getEnclosingStatement(node)
 			var enclosingStatementParent Node = enclosingStatement.getParent()
 			enclosingStatement.detach()
@@ -160,9 +160,14 @@ func (this *Es6ConvertSuper) visitSuperPropertyAccess(node Node, parent Node, en
 	} else {
 		newProp = this.astFactory_.createPrototypeAccess(superName.cloneTree()).srcrefTree(node)
 	}
-	if (parent.isGetProp() && this.compiler_.getAccessorSummary().getKind(parent.getString()).hasGetter()) {
+	if parent.isGetProp() && this.compiler_.getAccessorSummary().getKind(parent.getString()).hasGetter() {
 		var superPlaceholder Node = IR_name("sp")
-		var reflectGetCall Node = this.astFactory_.createCall(this.astFactory_.createGetPropWithUnknownType(this.astFactory_.createConstantName("Reflect", AstFactory_typeColor(StandardColors_UNKNOWN)), "get"), AstFactory_type_Node(parent), []Node{superPlaceholder, func() Node { if parent.isGetProp() { return this.astFactory_.createCall(this.astFactory_.createName(NodeUtil_JSC_PROPERTY_NAME_FN, AstFactory_typeColor(StandardColors_UNKNOWN)), AstFactory_typeColor(StandardColors_STRING), []Node{this.astFactory_.createString(parent.getString()), superName.cloneTree().srcrefTree(node)}) }; return node.getNext().detach() }(), this.astFactory_.createThis(AstFactory_type_Node(clazz))}).srcrefTreeIfMissing(parent)
+		var reflectGetCall Node = this.astFactory_.createCall(this.astFactory_.createGetPropWithUnknownType(this.astFactory_.createConstantName("Reflect", AstFactory_typeColor(StandardColors_UNKNOWN)), "get"), AstFactory_type_Node(parent), []Node{superPlaceholder, func() Node {
+			if parent.isGetProp() {
+				return this.astFactory_.createCall(this.astFactory_.createName(NodeUtil_JSC_PROPERTY_NAME_FN, AstFactory_typeColor(StandardColors_UNKNOWN)), AstFactory_typeColor(StandardColors_STRING), []Node{this.astFactory_.createString(parent.getString()), superName.cloneTree().srcrefTree(node)})
+			}
+			return node.getNext().detach()
+		}(), this.astFactory_.createThis(AstFactory_type_Node(clazz))}).srcrefTreeIfMissing(parent)
 		parent.replaceWith(reflectGetCall)
 		superPlaceholder.replaceWith(node.detach())
 		this.ensureNoCollapseOnStaticMemberDef(enclosingMemberDef)
@@ -199,4 +204,3 @@ func Es6ConvertSuper_clinit() {
 	Es6ConvertSuper_FEATURES_TO_RUN_FOR = FeatureSet_BARE_MINIMUM.withFeatureVarargs([]*FeatureSet_Feature{FeatureSet_Feature_SUPER, FeatureSet_Feature_CLASSES})
 
 }
-

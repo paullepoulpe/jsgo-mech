@@ -3,13 +3,13 @@
 package closure
 
 type TypeInferencePass struct {
-	compiler_ *AbstractCompiler
-	registry *JSTypeRegistry
-	reverseInterpreter ReverseAbstractInterpreter
-	topScope *TypedScope
-	scopeCreator *TypedScopeCreator
+	compiler_               *AbstractCompiler
+	registry                *JSTypeRegistry
+	reverseInterpreter      ReverseAbstractInterpreter
+	topScope                *TypedScope
+	scopeCreator            *TypedScopeCreator
 	assertionFunctionLookup *CodingConvention_AssertionFunctionLookup
-	stepCountHistogram *TMap[any, *SimpleMultiset[*Token_rhino]]
+	stepCountHistogram      *JTMap[any, *SimpleMultiset[*Token_rhino]]
 }
 
 func (this *TypeInferencePass) init_TypeInferencePass(compiler *AbstractCompiler, reverseInterpreter ReverseAbstractInterpreter, scopeCreator *TypedScopeCreator) {
@@ -18,7 +18,12 @@ func (this *TypeInferencePass) init_TypeInferencePass(compiler *AbstractCompiler
 	this.reverseInterpreter = reverseInterpreter
 	this.scopeCreator = scopeCreator
 	this.assertionFunctionLookup = CodingConvention_AssertionFunctionLookup_of(compiler.getCodingConvention().getAssertionFunctions())
-	this.stepCountHistogram = func() *TMap[any, *SimpleMultiset[*Token_rhino]] { if compiler.isDebugLoggingEnabled() { return newTMap_(tc_Integer, tc_p_SimpleMultiset_p_Token_rhino_) }; return nil }()
+	this.stepCountHistogram = func() *JTMap[any, *SimpleMultiset[*Token_rhino]] {
+		if compiler.isDebugLoggingEnabled() {
+			return jnewTMap_(tc_Integer, tc_p_SimpleMultiset_p_Token_rhino_)
+		}
+		return nil
+	}()
 }
 
 func new_TypeInferencePass(compiler *AbstractCompiler, reverseInterpreter ReverseAbstractInterpreter, scopeCreator *TypedScopeCreator) *TypeInferencePass {
@@ -42,25 +47,25 @@ func (this *TypeInferencePass) inferAllScopes(inferenceRoot Node) *TypedScope {
 	this.scopeCreator.finishAndFreeze()
 	NodeTraversal_builder().setCompiler(this.compiler_).setCallback(NodeTraversal_Callback(new_TypeInferencePass_SecondScopeBuildingCallback(this))).setScopeCreator(TypedScopeCreator_as_ScopeCreator(this.scopeCreator)).traverseWithScope(inferenceRoot, this.topScope.up_AbstractScope())
 	var unknownType *JSType = this.registry.getNativeType(JSTypeNative_UNKNOWN_TYPE)
-	it_2 := eachOf_(this.scopeCreator.getAllSymbols())
+	it_2 := jeachOf_(this.scopeCreator.getAllSymbols())
 	for it_2.next() {
 		var var_ *TypedVar = it_2.v
-		if (var_.getType() == nil) {
+		if var_.getType() == nil {
 			var_.setType(unknownType)
 		}
 	}
-	if (this.stepCountHistogram != nil) {
+	if this.stepCountHistogram != nil {
 		_ = func() (code_ int) {
 			var histogram *LogFile = this.compiler_.createOrReopenLog(Object_getClass(this), "step_histogram.log", []string{})
 			defer closeResource_(histogram.self())
 			histogram.logString("step_count token population")
 			var totals []int32 = []int32{0, 0}
-			var stepCounts *TList[any] = tlistFrom_(tc_Integer, Collection(Set_un_(this.stepCountHistogram.keySetT())))
+			var stepCounts *JTList[any] = jtlistFrom_(tc_Integer, Collection(Set_un_(this.stepCountHistogram.keySetT())))
 			List_sortT_[any](stepCounts.asListT(), Comparator_naturalOrder[any]().reversed())
 			it_5 := stepCounts.each()
 			for it_5.next() {
 				var stepCount any = it_5.v
-				var entries *TList[Map_EntryT[*Token_rhino, any]] = tlistFrom_(tc_Map_EntryT_p_Token_rhino__any_, Collection(Set_un_(this.stepCountHistogram.get(stepCount).entrySet())))
+				var entries *JTList[Map_EntryT[*Token_rhino, any]] = jtlistFrom_(tc_Map_EntryT_p_Token_rhino__any_, Collection(Set_un_(this.stepCountHistogram.get(stepCount).entrySet())))
 				List_sortT_[Map_EntryT[*Token_rhino, any]](entries.asListT(), Comparator_comparingInt[Map_EntryT[*Token_rhino, any]](ToIntFunction[Map_EntryT[*Token_rhino, any]](func(p0 Map_EntryT[*Token_rhino, any]) int32 { return unbox_[int32](p0.getValue_t()) })))
 				it_7 := entries.each()
 				for it_7.next() {
@@ -81,11 +86,11 @@ func (this *TypeInferencePass) inferScope(n Node, scope *TypedScope) {
 	var cfg *ControlFlowGraph[Node] = this.computeCfg(n)
 	var typeInference *TypeInference = new_TypeInference(this.compiler_, cfg, this.reverseInterpreter, scope, this.scopeCreator, this.assertionFunctionLookup)
 	typeInference.analyze()
-	if (this.stepCountHistogram != nil) {
-		it_1 := eachOf_(cfg.getNodes_rCollectionOf_DiGraphNode_rCollectionOf_LinkedDiGraphNode())
+	if this.stepCountHistogram != nil {
+		it_1 := jeachOf_(cfg.getNodes_rCollectionOf_DiGraphNode_rCollectionOf_LinkedDiGraphNode())
 		for it_1.next() {
 			var node DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch]](it_1.v.self())
-			if (node == cfg.getImplicitReturn()) {
+			if node == cfg.getImplicitReturn() {
 				continue
 			}
 			var state *DataFlowAnalysis_LinearFlowState = cast_[*DataFlowAnalysis_LinearFlowState](Annotatable_getAnnotation(Annotatable(node)))
@@ -156,7 +161,7 @@ func new_TypeInferencePass_SecondScopeBuildingCallback(outer_ *TypeInferencePass
 
 func (this *TypeInferencePass_SecondScopeBuildingCallback) enterScope_impl(t *NodeTraversal) {
 	var scope *TypedScope = t.getTypedScope()
-	if (scope.isCfgRootScope() && !scope.isModuleScope()) {
+	if scope.isCfgRootScope() && !scope.isModuleScope() {
 		this.outer_.inferScope(t.getCurrentNode(), scope)
 	}
 }
@@ -164,4 +169,3 @@ func (this *TypeInferencePass_SecondScopeBuildingCallback) enterScope_impl(t *No
 func (this *TypeInferencePass_SecondScopeBuildingCallback) visit_impl(t *NodeTraversal, n Node, parent Node) {
 
 }
-

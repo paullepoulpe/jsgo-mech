@@ -214,4 +214,3 @@ func ParseTreeType_clinit() {
 	registerEnum_("com.google.javascript.jscomp.parsing.parser.trees.ParseTreeType", enumValues_(ParseTreeType_values_))
 
 }
-

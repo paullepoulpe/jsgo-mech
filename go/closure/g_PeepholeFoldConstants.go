@@ -4,7 +4,7 @@ package closure
 
 type PeepholeFoldConstants struct {
 	AbstractPeepholeOptimization
-	late bool
+	late           bool
 	shouldUseTypes bool
 }
 
@@ -60,11 +60,11 @@ func (this *PeepholeFoldConstants) optimizeSubtree_impl(subtree Node) Node {
 
 func (this *PeepholeFoldConstants) tryFoldBinaryOperator(subtree Node) Node {
 	var left Node = subtree.getFirstChild()
-	if (left == 0) {
+	if left == 0 {
 		return subtree
 	}
 	var right Node = left.getNext()
-	if (right == 0) {
+	if right == 0 {
 		return subtree
 	}
 	return func() Node {
@@ -89,7 +89,7 @@ func (this *PeepholeFoldConstants) tryFoldBinaryOperator(subtree Node) Node {
 			return this.tryFoldArithmeticOp(subtree, left, right)
 		case Token_rhino_BITAND, Token_rhino_BITOR, Token_rhino_BITXOR:
 			var result Node = this.tryFoldArithmeticOp(subtree, left, right)
-			if (result != subtree) {
+			if result != subtree {
 				return result
 			}
 			return this.tryFoldLeftChildOp(subtree, left, right)
@@ -104,7 +104,7 @@ func (this *PeepholeFoldConstants) tryFoldBinaryOperator(subtree Node) Node {
 
 func (this *PeepholeFoldConstants) tryReduceVoid(n Node) Node {
 	var child Node = n.getFirstChild()
-	if ((!child.isNumber() || (child.getDouble() != 0.0)) && !this.mayHaveSideEffects(n)) {
+	if (!child.isNumber() || (child.getDouble() != 0.0)) && !this.mayHaveSideEffects(n) {
 		child.replaceWith(IR_number(0))
 		this.reportChangeToEnclosingScope(n)
 	}
@@ -116,7 +116,7 @@ func (this *PeepholeFoldConstants) tryReduceOperandsForOp(n Node) {
 	case Token_rhino_ADD:
 		var left Node = n.getFirstChild()
 		var right Node = n.getLastChild()
-		if (!NodeUtil_mayBeString_Node_boolean(left, this.shouldUseTypes) && !NodeUtil_mayBeString_Node_boolean(right, this.shouldUseTypes)) {
+		if !NodeUtil_mayBeString_Node_boolean(left, this.shouldUseTypes) && !NodeUtil_mayBeString_Node_boolean(right, this.shouldUseTypes) {
 			this.tryConvertOperandsToNumber(n)
 		}
 	case Token_rhino_ASSIGN_BITOR, Token_rhino_ASSIGN_BITXOR, Token_rhino_ASSIGN_BITAND, Token_rhino_ASSIGN_LSH, Token_rhino_ASSIGN_RSH, Token_rhino_ASSIGN_URSH, Token_rhino_ASSIGN_SUB, Token_rhino_ASSIGN_MUL, Token_rhino_ASSIGN_MOD, Token_rhino_ASSIGN_DIV:
@@ -131,7 +131,7 @@ func (this *PeepholeFoldConstants) tryConvertOperandsToNumber(n Node) {
 	var next Node
 	{
 		var c Node = n.getFirstChild()
-		for ; (c != 0); c = next {
+		for ; c != 0; c = next {
 			next = c.getNext()
 			this.tryConvertToNumber(c)
 		}
@@ -156,7 +156,7 @@ func (this *PeepholeFoldConstants) tryConvertToNumber(n Node) {
 	default:
 	}
 	var result any = this.getSideEffectFreeNumberValue(n)
-	if (result == nil) {
+	if result == nil {
 		return
 	}
 	var value float64 = unbox_[float64](result)
@@ -171,7 +171,7 @@ func (this *PeepholeFoldConstants) tryConvertToNumber(n Node) {
 func (this *PeepholeFoldConstants) tryFoldTypeof(originalTypeofNode Node) Node {
 	Preconditions_checkArgument(originalTypeofNode.isTypeOf())
 	var argumentNode Node = originalTypeofNode.getFirstChild()
-	if ((argumentNode == 0) || !NodeUtil_isLiteralValue(argumentNode, true)) {
+	if (argumentNode == 0) || !NodeUtil_isLiteralValue(argumentNode, true) {
 		return originalTypeofNode
 	}
 	var typeNameString Optional[string] = Optional_empty[string]()
@@ -189,7 +189,7 @@ func (this *PeepholeFoldConstants) tryFoldTypeof(originalTypeofNode Node) Node {
 	case Token_rhino_VOID:
 		typeNameString = Optional_of[string]("undefined")
 	case Token_rhino_NAME:
-		if (argumentNode.getString() == "undefined") {
+		if argumentNode.getString() == "undefined" {
 			typeNameString = Optional_of[string]("undefined")
 		}
 	default:
@@ -208,19 +208,19 @@ func (this *PeepholeFoldConstants) tryFoldUnaryOperator(n Node) Node {
 	Preconditions_checkState_boolean_Object_H(n.hasOneChild(), n)
 	var left Node = n.getFirstChild()
 	var parent Node = n.getParent()
-	if (left == 0) {
+	if left == 0 {
 		return n
 	}
 	var leftVal *Tri = this.getSideEffectFreeBooleanValue(left)
-	if (leftVal == Tri_UNKNOWN) {
+	if leftVal == Tri_UNKNOWN {
 		return n
 	}
 	return func() Node {
 		switch n.getToken() {
 		case Token_rhino_NOT:
-			if (this.late && left.isNumber()) {
+			if this.late && left.isNumber() {
 				var numValue float64 = left.getDouble()
-				if ((numValue == 0) || (numValue == 1)) {
+				if (numValue == 0) || (numValue == 1) {
 					return n
 				}
 			}
@@ -237,15 +237,15 @@ func (this *PeepholeFoldConstants) tryFoldUnaryOperator(n Node) Node {
 			return n
 		case Token_rhino_NEG:
 			var result Node = 0
-			if (left.isName() && (left.getString() == "NaN")) {
+			if left.isName() && (left.getString() == "NaN") {
 				result = left.detach()
 			} else if left.isNeg() {
 				var leftLeft Node = left.getOnlyChild()
-				if (leftLeft.isBigInt() || leftLeft.isNumber()) {
+				if leftLeft.isBigInt() || leftLeft.isNumber() {
 					result = leftLeft.detach()
 				}
 			}
-			if (result != 0) {
+			if result != 0 {
 				n.replaceWith(result)
 				this.reportChangeToEnclosingScope(parent)
 				return result
@@ -253,7 +253,7 @@ func (this *PeepholeFoldConstants) tryFoldUnaryOperator(n Node) Node {
 			return n
 		case Token_rhino_BITNOT:
 			var doubleVal any = this.getSideEffectFreeNumberValue(left)
-			if (doubleVal != nil) {
+			if doubleVal != nil {
 				if JSCompDoubles_isMathematicalInteger(unbox_[float64](doubleVal)) {
 					var intVal int32 = JSCompDoubles_ecmascriptToInt32(unbox_[float64](doubleVal))
 					var notIntValNode Node = NodeUtil_numberNode(float64((^intVal)), left)
@@ -266,7 +266,7 @@ func (this *PeepholeFoldConstants) tryFoldUnaryOperator(n Node) Node {
 				}
 			}
 			var bigintVal *BigInteger = this.getSideEffectFreeBigIntValue(n)
-			if (bigintVal != nil) {
+			if bigintVal != nil {
 				var bigintNotNode Node = PeepholeFoldConstants_bigintNode(bigintVal, n)
 				n.replaceWith(bigintNotNode)
 				this.reportChangeToEnclosingScope(parent)
@@ -286,7 +286,7 @@ func (this *PeepholeFoldConstants) isReasonableDoubleValue(x any) bool {
 
 func (this *PeepholeFoldConstants) tryFoldInstanceof(n Node, left Node, right Node) Node {
 	Preconditions_checkArgument(n.isInstanceOf())
-	if (NodeUtil_isLiteralValue(left, true) && !this.mayHaveSideEffects(right)) {
+	if NodeUtil_isLiteralValue(left, true) && !this.mayHaveSideEffects(right) {
 		var replacementNode Node = 0
 		if NodeUtil_isImmutableValue(left) {
 			replacementNode = IR_falseNode()
@@ -294,10 +294,10 @@ func (this *PeepholeFoldConstants) tryFoldInstanceof(n Node, left Node, right No
 			if !this.mayHaveSideEffects(left) {
 				replacementNode = IR_falseNode()
 			}
-		} else if (right.isName() && ("Object" == right.getString())) {
+		} else if right.isName() && ("Object" == right.getString()) {
 			replacementNode = IR_trueNode()
 		}
-		if (replacementNode != 0) {
+		if replacementNode != 0 {
 			n.replaceWith(replacementNode)
 			this.reportChangeToEnclosingScope(replacementNode)
 			this.markFunctionsDeleted(n)
@@ -344,10 +344,10 @@ func (this *PeepholeFoldConstants) tryFoldAssign(n Node, left Node, right Node) 
 		}
 		panic("unreachable")
 	}()
-	if (newType == nil) {
+	if newType == nil {
 		return n
 	}
-	if (!right.hasChildren() || (right.getSecondChild() != right.getLastChild())) {
+	if !right.hasChildren() || (right.getSecondChild() != right.getLastChild()) {
 		return n
 	}
 	if this.mayHaveSideEffects(left) {
@@ -356,9 +356,9 @@ func (this *PeepholeFoldConstants) tryFoldAssign(n Node, left Node, right Node) 
 	var newRight Node
 	if this.areNodesEqualForInlining(left, right.getFirstChild()) {
 		newRight = right.getLastChild()
-	} else if ((NodeUtil_isCommutative(operator) && !this.mayHaveSideEffects(right.getFirstChild())) && this.areNodesEqualForInlining(left, right.getLastChild())) {
+	} else if (NodeUtil_isCommutative(operator) && !this.mayHaveSideEffects(right.getFirstChild())) && this.areNodesEqualForInlining(left, right.getLastChild()) {
 		newRight = right.getFirstChild()
-	} else if ((NodeUtil_isAssociative(operator) && (right.getFirstChild().getToken() == operator)) && this.areNodesEqualForInlining(left, right.getFirstFirstChild())) {
+	} else if (NodeUtil_isAssociative(operator) && (right.getFirstChild().getToken() == operator)) && this.areNodesEqualForInlining(left, right.getFirstFirstChild()) {
 		var newLeft Node = right.getFirstChild().getLastChild().detach()
 		right.removeFirstChild()
 		right.addChildToFront(newLeft)
@@ -376,7 +376,7 @@ func (this *PeepholeFoldConstants) tryUnfoldAssignOp(n Node, left Node, right No
 	if this.late {
 		return n
 	}
-	if (!n.hasChildren() || (n.getSecondChild() != n.getLastChild())) {
+	if !n.hasChildren() || (n.getSecondChild() != n.getLastChild()) {
 		return n
 	}
 	if this.mayHaveSideEffects(left) {
@@ -395,9 +395,14 @@ func (this *PeepholeFoldConstants) tryFoldAndOr(n Node, left Node, right Node) N
 	var dropped Node = 0
 	var type_ *Token_rhino = n.getToken()
 	var leftVal *Tri = NodeUtil_getBooleanValue(left)
-	if (leftVal != Tri_UNKNOWN) {
+	if leftVal != Tri_UNKNOWN {
 		var lval bool = leftVal.toBoolean(true)
-		if func() bool { if lval { return (type_ == Token_rhino_OR) }; return (type_ == Token_rhino_AND) }() {
+		if func() bool {
+			if lval {
+				return (type_ == Token_rhino_OR)
+			}
+			return (type_ == Token_rhino_AND)
+		}() {
 			result = left
 			dropped = right
 		} else if !this.mayHaveSideEffects(left) {
@@ -408,20 +413,20 @@ func (this *PeepholeFoldConstants) tryFoldAndOr(n Node, left Node, right Node) N
 			result = IR_comma(left, right)
 			dropped = 0
 		}
-	} else if ((parent.getToken() == type_) && (n == parent.getFirstChild())) {
+	} else if (parent.getToken() == type_) && (n == parent.getFirstChild()) {
 		var rightValue *Tri = NodeUtil_getBooleanValue(right)
 		if !this.mayHaveSideEffects(right) {
-			if (((rightValue == Tri_FALSE) && (type_ == Token_rhino_OR)) || ((rightValue == Tri_TRUE) && (type_ == Token_rhino_AND))) {
+			if ((rightValue == Tri_FALSE) && (type_ == Token_rhino_OR)) || ((rightValue == Tri_TRUE) && (type_ == Token_rhino_AND)) {
 				result = left
 				dropped = right
 			}
 		}
 	}
-	if (result != 0) {
+	if result != 0 {
 		n.detachChildren()
 		n.replaceWith(result)
 		this.reportChangeToEnclosingScope(result)
-		if (dropped != 0) {
+		if dropped != 0 {
 			this.markFunctionsDeleted(dropped)
 		}
 		return result
@@ -448,7 +453,7 @@ func (this *PeepholeFoldConstants) tryFoldCoalesce(n Node, left Node, right Node
 		this.markFunctionsDeleted(right)
 	case NodeUtil_ValueType_UNDETERMINED:
 	}
-	if (result != 0) {
+	if result != 0 {
 		n.detachChildren()
 		n.replaceWith(result)
 		this.reportChangeToEnclosingScope(result)
@@ -470,7 +475,7 @@ func (this *PeepholeFoldConstants) tryFoldAdjacentLiteralLeaves(n Node, left Nod
 		rightParent = right
 		right = right.getFirstChild()
 	}
-	if (((leftParent.isAdd() && left.isStringLit()) && rightParent.isAdd()) && NodeUtil_isLiteralValue(right, false)) {
+	if ((leftParent.isAdd() && left.isStringLit()) && rightParent.isAdd()) && NodeUtil_isLiteralValue(right, false) {
 		var rightGrandparent Node = rightParent.getParent()
 		var rr Node = right.getNext()
 		var foldIsTypeSafe bool = ((((rr != 0) && NodeUtil_isStringResult(rr)) || (((((rr != 0) && right.isStringLit()) && (rightGrandparent != 0)) && rightGrandparent.isAdd()) && NodeUtil_isStringResult(rightGrandparent.getSecondChild()))) || (rr == 0))
@@ -489,10 +494,10 @@ func (this *PeepholeFoldConstants) tryFoldAdjacentLiteralLeaves(n Node, left Nod
 }
 
 func (this *PeepholeFoldConstants) tryFoldAddConstantString(n Node, left Node, right Node) Node {
-	if (((left.isStringLit() || right.isStringLit()) || left.isArrayLit()) || right.isArrayLit()) {
+	if ((left.isStringLit() || right.isStringLit()) || left.isArrayLit()) || right.isArrayLit() {
 		var leftString Optional[string] = this.getSideEffectFreeStringValue(left)
 		var rightString Optional[string] = this.getSideEffectFreeStringValue(right)
-		if (leftString.isPresent() && rightString.isPresent()) {
+		if leftString.isPresent() && rightString.isPresent() {
 			var newStringNode Node = IR_string((sstr_(leftString.get()) + sstr_(rightString.get())))
 			n.replaceWith(newStringNode)
 			this.reportChangeToEnclosingScope(newStringNode)
@@ -504,7 +509,7 @@ func (this *PeepholeFoldConstants) tryFoldAddConstantString(n Node, left Node, r
 
 func (this *PeepholeFoldConstants) tryFoldArithmeticOp(n Node, left Node, right Node) Node {
 	var result Node = this.performArithmeticOp(n, left, right)
-	if (result != 0) {
+	if result != 0 {
 		result.srcrefTreeIfMissing(n)
 		this.reportChangeToEnclosingScope(n)
 		n.replaceWith(result)
@@ -514,74 +519,74 @@ func (this *PeepholeFoldConstants) tryFoldArithmeticOp(n Node, left Node, right 
 }
 
 func (this *PeepholeFoldConstants) performArithmeticOp(n Node, left Node, right Node) Node {
-	if (n.isAdd() && (NodeUtil_mayBeString_Node_boolean(left, this.shouldUseTypes) || NodeUtil_mayBeString_Node_boolean(right, this.shouldUseTypes))) {
+	if n.isAdd() && (NodeUtil_mayBeString_Node_boolean(left, this.shouldUseTypes) || NodeUtil_mayBeString_Node_boolean(right, this.shouldUseTypes)) {
 		return 0
 	}
-	if (this.isBigInt(left) && this.isBigInt(right)) {
+	if this.isBigInt(left) && this.isBigInt(right) {
 		return this.performBigIntArithmeticOp(n, left, right)
 	}
 	var result float64
 	var lValObj any = this.getSideEffectFreeNumberValue(left)
 	var rValObj any = this.getSideEffectFreeNumberValue(right)
-	if ((((lValObj == nil) && (rValObj == nil)) || !this.isNumeric(left)) || !this.isNumeric(right)) {
+	if (((lValObj == nil) && (rValObj == nil)) || !this.isNumeric(left)) || !this.isNumeric(right) {
 		return 0
 	}
 	switch n.getToken() {
 	case Token_rhino_ADD:
-		if ((lValObj != nil) && (rValObj != nil)) {
+		if (lValObj != nil) && (rValObj != nil) {
 			return this.maybeReplaceBinaryOpWithNumericResult((unbox_[float64](lValObj) + unbox_[float64](rValObj)), unbox_[float64](lValObj), unbox_[float64](rValObj))
 		}
-		if ((lValObj != nil) && (unbox_[float64](lValObj) == 0)) {
+		if (lValObj != nil) && (unbox_[float64](lValObj) == 0) {
 			return right.cloneTree_1(true)
-		} else if ((rValObj != nil) && (unbox_[float64](rValObj) == 0)) {
+		} else if (rValObj != nil) && (unbox_[float64](rValObj) == 0) {
 			return left.cloneTree_1(true)
 		}
 		return 0
 	case Token_rhino_SUB:
-		if ((lValObj != nil) && (rValObj != nil)) {
+		if (lValObj != nil) && (rValObj != nil) {
 			return this.maybeReplaceBinaryOpWithNumericResult((unbox_[float64](lValObj) - unbox_[float64](rValObj)), unbox_[float64](lValObj), unbox_[float64](rValObj))
 		}
-		if ((lValObj != nil) && (unbox_[float64](lValObj) == 0)) {
+		if (lValObj != nil) && (unbox_[float64](lValObj) == 0) {
 			return IR_neg(right.cloneTree_1(true))
-		} else if ((rValObj != nil) && (unbox_[float64](rValObj) == 0)) {
+		} else if (rValObj != nil) && (unbox_[float64](rValObj) == 0) {
 			return left.cloneTree_1(true)
 		}
 		return 0
 	case Token_rhino_MUL:
-		if ((lValObj != nil) && (rValObj != nil)) {
+		if (lValObj != nil) && (rValObj != nil) {
 			return this.maybeReplaceBinaryOpWithNumericResult((unbox_[float64](lValObj) * unbox_[float64](rValObj)), unbox_[float64](lValObj), unbox_[float64](rValObj))
 		}
-		if (lValObj != nil) {
-			if (unbox_[float64](lValObj) == 1) {
+		if lValObj != nil {
+			if unbox_[float64](lValObj) == 1 {
 				return right.cloneTree_1(true)
 			}
 		} else {
-			if (unbox_[float64](rValObj) == 1) {
+			if unbox_[float64](rValObj) == 1 {
 				return left.cloneTree_1(true)
 			}
 		}
 		return 0
 	case Token_rhino_DIV:
-		if ((lValObj != nil) && (rValObj != nil)) {
-			if (unbox_[float64](rValObj) == 0) {
+		if (lValObj != nil) && (rValObj != nil) {
+			if unbox_[float64](rValObj) == 0 {
 				return 0
 			}
 			return this.maybeReplaceBinaryOpWithNumericResult((unbox_[float64](lValObj) / unbox_[float64](rValObj)), unbox_[float64](lValObj), unbox_[float64](rValObj))
 		}
-		if (rValObj != nil) {
-			if (unbox_[float64](rValObj) == 1) {
+		if rValObj != nil {
+			if unbox_[float64](rValObj) == 1 {
 				return left.cloneTree_1(true)
 			}
 		}
 		return 0
 	case Token_rhino_EXPONENT:
-		if ((lValObj != nil) && (rValObj != nil)) {
+		if (lValObj != nil) && (rValObj != nil) {
 			return this.maybeReplaceBinaryOpWithNumericResult(Math_pow(unbox_[float64](lValObj), unbox_[float64](rValObj)), unbox_[float64](lValObj), unbox_[float64](rValObj))
 		}
 		return 0
 	default:
 	}
-	if ((lValObj == nil) || (rValObj == nil)) {
+	if (lValObj == nil) || (rValObj == nil) {
 		return 0
 	}
 	var lval float64 = unbox_[float64](lValObj)
@@ -594,12 +599,12 @@ func (this *PeepholeFoldConstants) performArithmeticOp(n Node, left Node, right 
 	case Token_rhino_BITXOR:
 		result = float64((JSCompDoubles_ecmascriptToInt32(lval) ^ JSCompDoubles_ecmascriptToInt32(rval)))
 	case Token_rhino_MOD:
-		if (rval == 0) {
+		if rval == 0 {
 			return 0
 		}
 		result = float64(fmod_(float64(lval), float64(rval)))
 	default:
-		panic(new_IllegalStateException_String(("Unexpected arithmetic operator: " + tostr_(n.getToken()))).self())
+		panic(new_IllegalStateException_String(("Unexpected arithmetic operator: " + jtostr_(n.getToken()))).self())
 	}
 	return this.maybeReplaceBinaryOpWithNumericResult(result, lval, rval)
 }
@@ -607,7 +612,7 @@ func (this *PeepholeFoldConstants) performArithmeticOp(n Node, left Node, right 
 func (this *PeepholeFoldConstants) performBigIntArithmeticOp(n Node, left Node, right Node) Node {
 	var lVal *BigInteger = this.getSideEffectFreeBigIntValue(left)
 	var rVal *BigInteger = this.getSideEffectFreeBigIntValue(right)
-	if ((lVal != nil) && (rVal != nil)) {
+	if (lVal != nil) && (rVal != nil) {
 		switch n.getToken() {
 		case Token_rhino_ADD:
 			return PeepholeFoldConstants_bigintNode(lVal.add(rVal), n)
@@ -664,28 +669,28 @@ func (this *PeepholeFoldConstants) performBigIntArithmeticOp(n Node, left Node, 
 	return func() Node {
 		switch n.getToken() {
 		case Token_rhino_ADD:
-			if ((lVal != nil) && equalsRR_(lVal, BigInteger_ZERO)) {
+			if (lVal != nil) && equalsRR_(lVal, BigInteger_ZERO) {
 				return right.cloneTree_1(true)
-			} else if ((rVal != nil) && equalsRR_(rVal, BigInteger_ZERO)) {
+			} else if (rVal != nil) && equalsRR_(rVal, BigInteger_ZERO) {
 				return left.cloneTree_1(true)
 			}
 			return 0
 		case Token_rhino_SUB:
-			if ((lVal != nil) && equalsRR_(lVal, BigInteger_ZERO)) {
+			if (lVal != nil) && equalsRR_(lVal, BigInteger_ZERO) {
 				return IR_neg(right.cloneTree_1(true))
-			} else if ((rVal != nil) && equalsRR_(rVal, BigInteger_ZERO)) {
+			} else if (rVal != nil) && equalsRR_(rVal, BigInteger_ZERO) {
 				return left.cloneTree_1(true)
 			}
 			return 0
 		case Token_rhino_MUL:
-			if ((lVal != nil) && equalsRR_(lVal, BigInteger_ONE)) {
+			if (lVal != nil) && equalsRR_(lVal, BigInteger_ONE) {
 				return right.cloneTree_1(true)
-			} else if ((rVal != nil) && equalsRR_(rVal, BigInteger_ONE)) {
+			} else if (rVal != nil) && equalsRR_(rVal, BigInteger_ONE) {
 				return left.cloneTree_1(true)
 			}
 			return 0
 		case Token_rhino_DIV:
-			if ((rVal != nil) && equalsRR_(rVal, BigInteger_ONE)) {
+			if (rVal != nil) && equalsRR_(rVal, BigInteger_ONE) {
 				return left.cloneTree_1(true)
 			}
 			return 0
@@ -717,7 +722,7 @@ func (this *PeepholeFoldConstants) isBigInt(n Node) bool {
 }
 
 func (this *PeepholeFoldConstants) maybeReplaceBinaryOpWithNumericResult(result float64, lval float64, rval float64) Node {
-	if (((((String_length(String_valueOf_double(result)) <= ((String_length(String_valueOf_double(lval)) + String_length(String_valueOf_double(rval))) + 1)) && (Math_abs(result) <= PeepholeFoldConstants_MAX_FOLD_NUMBER)) || Double_isNaN(result)) || (result == posinf_)) || (result == neginf_)) {
+	if ((((String_length(String_valueOf_double(result)) <= ((String_length(String_valueOf_double(lval)) + String_length(String_valueOf_double(rval))) + 1)) && (Math_abs(result) <= PeepholeFoldConstants_MAX_FOLD_NUMBER)) || Double_isNaN(result)) || (result == posinf_)) || (result == neginf_) {
 		return NodeUtil_numberNode(result, 0)
 	}
 	return 0
@@ -728,17 +733,17 @@ func (this *PeepholeFoldConstants) tryFoldLeftChildOp(n Node, left Node, right N
 	Preconditions_checkState((NodeUtil_isAssociative(opType) && NodeUtil_isCommutative(opType)))
 	var rightValObj any = this.getSideEffectFreeNumberValue(right)
 	var rightBigInt *BigInteger = this.getSideEffectFreeBigIntValue(right)
-	if (((rightValObj != nil) || (rightBigInt != nil)) && (left.getToken() == opType)) {
+	if ((rightValObj != nil) || (rightBigInt != nil)) && (left.getToken() == opType) {
 		Preconditions_checkState(left.hasTwoChildren())
 		var ll Node = left.getFirstChild()
 		var lr Node = ll.getNext()
 		var valueToCombine Node = ll
 		var replacement Node = this.performArithmeticOp(n, valueToCombine, right)
-		if (replacement == 0) {
+		if replacement == 0 {
 			valueToCombine = lr
 			replacement = this.performArithmeticOp(n, valueToCombine, right)
 		}
-		if (replacement != 0) {
+		if replacement != 0 {
 			valueToCombine.detach()
 			left.replaceWith(left.removeFirstChild())
 			replacement.srcrefTreeIfMissing(right)
@@ -752,7 +757,7 @@ func (this *PeepholeFoldConstants) tryFoldLeftChildOp(n Node, left Node, right N
 func (this *PeepholeFoldConstants) foldAddTemplateLiterals(oldNode Node, left Node, right Node) Node {
 	var lastLeft Node = left.getLastChild()
 	var firstRight Node = right.getFirstChild()
-	if (this.endsWithUnescapedDollar(lastLeft.getRawString()) && String_startsWith(firstRight.getRawString(), "{")) {
+	if this.endsWithUnescapedDollar(lastLeft.getRawString()) && String_startsWith(firstRight.getRawString(), "{") {
 		return oldNode
 	}
 	var mergeNode Node = IR_templateLiteralString(Optional_of[string]((sstr_(lastLeft.getCookedString().orElse("null")) + sstr_(firstRight.getCookedString().orElse("null")))), (sstr_(lastLeft.getRawString()) + sstr_(firstRight.getRawString())))
@@ -766,7 +771,7 @@ func (this *PeepholeFoldConstants) foldAddTemplateLiterals(oldNode Node, left No
 }
 
 func (this *PeepholeFoldConstants) isSimpleTemplateStringValue(s string) bool {
-	for i := int32(0); (i < String_length(s)); i++ {
+	for i := int32(0); i < String_length(s); i++ {
 		switch String_charAt(s, i) {
 		case '`', '$', '{', '\\', '\n', '\r', 0x2028, 0x2029:
 			return false
@@ -778,8 +783,8 @@ func (this *PeepholeFoldConstants) isSimpleTemplateStringValue(s string) bool {
 
 func (this *PeepholeFoldConstants) endsWithUnescapedBackslash(raw string) bool {
 	var backslashCount int32 = 0
-	for i := int32((String_length(raw) - 1)); (i >= 0); i-- {
-		if (String_charAt(raw, i) == '\\') {
+	for i := int32((String_length(raw) - 1)); i >= 0; i-- {
+		if String_charAt(raw, i) == '\\' {
 			backslashCount++
 		} else {
 			break
@@ -793,8 +798,8 @@ func (this *PeepholeFoldConstants) endsWithUnescapedDollar(raw string) bool {
 		return false
 	}
 	var backslashCount int32 = 0
-	for i := int32((String_length(raw) - 2)); (i >= 0); i-- {
-		if (String_charAt(raw, i) == '\\') {
+	for i := int32((String_length(raw) - 2)); i >= 0; i-- {
+		if String_charAt(raw, i) == '\\' {
 			backslashCount++
 		} else {
 			break
@@ -804,35 +809,35 @@ func (this *PeepholeFoldConstants) endsWithUnescapedDollar(raw string) bool {
 }
 
 func (this *PeepholeFoldConstants) tryFoldTemplateLiteralSubstitutions(n Node) Node {
-	if ((n.getParent() != 0) && n.getParent().isTaggedTemplateLit()) {
+	if (n.getParent() != 0) && n.getParent().isTaggedTemplateLit() {
 		return n
 	}
 	var changed bool = false
 	var cur Node = n.getFirstChild()
-	if (cur == 0) {
+	if cur == 0 {
 		return n
 	}
-	for (cur != 0) {
+	for cur != 0 {
 		var next Node = cur.getNext()
-		if (next == 0) {
+		if next == 0 {
 			break
 		}
-		if (cur.isTemplateLitString() && next.isTemplateLitSub()) {
+		if cur.isTemplateLitString() && next.isTemplateLitSub() {
 			var expr Node = next.getFirstChild()
-			if ((expr != 0) && (((expr.isStringLit() || expr.isNumber()) || expr.isTrue()) || expr.isFalse())) {
+			if (expr != 0) && (((expr.isStringLit() || expr.isNumber()) || expr.isTrue()) || expr.isFalse()) {
 				var strValue Optional[string] = this.getSideEffectFreeStringValue(expr)
-				if (strValue.isPresent() && this.isSimpleTemplateStringValue(strValue.get())) {
+				if strValue.isPresent() && this.isSimpleTemplateStringValue(strValue.get()) {
 					var nextNext Node = next.getNext()
-					if ((nextNext != 0) && nextNext.isTemplateLitString()) {
+					if (nextNext != 0) && nextNext.isTemplateLitString() {
 						var curCooked Optional[string] = cur.getCookedString()
 						var nextNextCooked Optional[string] = nextNext.getCookedString()
-						if ((String_isEmpty(strValue.get()) && this.endsWithUnescapedDollar(cur.getRawString())) && String_startsWith(nextNext.getRawString(), "{")) {
+						if (String_isEmpty(strValue.get()) && this.endsWithUnescapedDollar(cur.getRawString())) && String_startsWith(nextNext.getRawString(), "{") {
 							cur = next
 							continue
 						}
 						var combinedCooked string = (sstr_(curCooked.orElse("null")) + sstr_(strValue.get()) + sstr_(nextNextCooked.orElse("null")))
 						var combinedRaw string = (sstr_(cur.getRawString()) + sstr_(strValue.get()) + sstr_(nextNext.getRawString()))
-						if (this.isRestrictedOctalEscape(cur.getRawString(), strValue.get()) || this.isRestrictedOctalEscape((sstr_(cur.getRawString()) + sstr_(strValue.get())), nextNext.getRawString())) {
+						if this.isRestrictedOctalEscape(cur.getRawString(), strValue.get()) || this.isRestrictedOctalEscape((sstr_(cur.getRawString())+sstr_(strValue.get())), nextNext.getRawString()) {
 							cur = next
 							continue
 						}
@@ -861,7 +866,7 @@ func (this *PeepholeFoldConstants) isRestrictedOctalEscape(prefixRaw string, suf
 		return false
 	}
 	var firstChar uint16 = String_charAt(suffixRaw, 0)
-	if ((int32(firstChar) < 48) || (int32(firstChar) > 57)) {
+	if (int32(firstChar) < 48) || (int32(firstChar) > 57) {
 		return false
 	}
 	if String_endsWith(prefixRaw, "0") {
@@ -874,24 +879,24 @@ func (this *PeepholeFoldConstants) isRestrictedOctalEscape(prefixRaw string, suf
 func (this *PeepholeFoldConstants) tryFoldAdd(node Node, left Node, right Node) Node {
 	Preconditions_checkArgument(node.isAdd())
 	if NodeUtil_mayBeString_Node_boolean(node, this.shouldUseTypes) {
-		if (left.isTemplateLit() && right.isTemplateLit()) {
+		if left.isTemplateLit() && right.isTemplateLit() {
 			return this.foldAddTemplateLiterals(node, left, right)
 		} else if left.isTemplateLit() {
 			var rightStr Optional[string] = this.getSideEffectFreeStringValue(right)
-			if (rightStr.isPresent() && this.isSimpleTemplateStringValue(rightStr.get())) {
+			if rightStr.isPresent() && this.isSimpleTemplateStringValue(rightStr.get()) {
 				return this.foldTemplateLiteralAndConstant(node, left, rightStr.get())
 			}
 		} else if right.isTemplateLit() {
 			var leftStr Optional[string] = this.getSideEffectFreeStringValue(left)
-			if (leftStr.isPresent() && this.isSimpleTemplateStringValue(leftStr.get())) {
+			if leftStr.isPresent() && this.isSimpleTemplateStringValue(leftStr.get()) {
 				return this.foldConstantAndTemplateLiteral(node, leftStr.get(), right)
 			}
 		}
-		if (NodeUtil_isLiteralValue(left, false) && NodeUtil_isLiteralValue(right, false)) {
+		if NodeUtil_isLiteralValue(left, false) && NodeUtil_isLiteralValue(right, false) {
 			return this.tryFoldAddConstantString(node, left, right)
-		} else if ((left.isStringLit() && String_isEmpty(left.getString())) && this.isStringTyped(right)) {
+		} else if (left.isStringLit() && String_isEmpty(left.getString())) && this.isStringTyped(right) {
 			return this.replace(node, right.cloneTree_1(true))
-		} else if ((right.isStringLit() && String_isEmpty(right.getString())) && this.isStringTyped(left)) {
+		} else if (right.isStringLit() && String_isEmpty(right.getString())) && this.isStringTyped(left) {
 			return this.replace(node, left.cloneTree_1(true))
 		} else {
 			return this.tryFoldAdjacentLiteralLeaves(node, left, right)
@@ -947,7 +952,7 @@ func (this *PeepholeFoldConstants) isStringTyped(n Node) bool {
 func (this *PeepholeFoldConstants) tryFoldShift(n Node, left Node, right Node) Node {
 	var leftVal any = this.getSideEffectFreeNumberValue(left)
 	var rightVal any = this.getSideEffectFreeNumberValue(right)
-	if (!this.isReasonableDoubleValue(leftVal) || !this.isReasonableDoubleValue(rightVal)) {
+	if !this.isReasonableDoubleValue(leftVal) || !this.isReasonableDoubleValue(rightVal) {
 		return n
 	}
 	if !JSCompDoubles_isMathematicalInteger(unbox_[float64](leftVal)) {
@@ -970,9 +975,9 @@ func (this *PeepholeFoldConstants) tryFoldShift(n Node, left Node, right Node) N
 		case Token_rhino_RSH:
 			return float64((bits >> (uint32(rvalInt) & 31)))
 		case Token_rhino_URSH:
-			return float64((4294967295 & int64(int32(uint32(bits) >> (uint32(rvalInt) & 31)))))
+			return float64((4294967295 & int64(int32(uint32(bits)>>(uint32(rvalInt)&31)))))
 		default:
-			panic(new_AssertionError_Object(strobj_(("Unknown shift operator: " + tostr_(n.getToken())))).self())
+			panic(new_AssertionError_Object(strobj_(("Unknown shift operator: " + jtostr_(n.getToken())))).self())
 		}
 		panic("unreachable")
 	}()
@@ -984,7 +989,7 @@ func (this *PeepholeFoldConstants) tryFoldShift(n Node, left Node, right Node) N
 
 func (this *PeepholeFoldConstants) tryFoldComparison(n Node, left Node, right Node) Node {
 	var result *Tri = PeepholeFoldConstants_evaluateComparison(this.up_AbstractPeepholeOptimization(), n.getToken(), left, right)
-	if (result == Tri_UNKNOWN) {
+	if result == Tri_UNKNOWN {
 		return n
 	}
 	var newNode Node = NodeUtil_booleanNode(result.toBoolean(true))
@@ -997,42 +1002,42 @@ func (this *PeepholeFoldConstants) tryFoldComparison(n Node, left Node, right No
 func PeepholeFoldConstants_tryAbstractRelationalComparison(peepholeOptimization *AbstractPeepholeOptimization, left Node, right Node, willNegate bool) *Tri {
 	var leftValueType *NodeUtil_ValueType = NodeUtil_getKnownValueType(left)
 	var rightValueType *NodeUtil_ValueType = NodeUtil_getKnownValueType(right)
-	if ((leftValueType == NodeUtil_ValueType_STRING) && (rightValueType == NodeUtil_ValueType_STRING)) {
+	if (leftValueType == NodeUtil_ValueType_STRING) && (rightValueType == NodeUtil_ValueType_STRING) {
 		var lvStr Optional[string] = peepholeOptimization.getSideEffectFreeStringValue(left)
 		var rvStr Optional[string] = peepholeOptimization.getSideEffectFreeStringValue(right)
-		if (lvStr.isPresent() && rvStr.isPresent()) {
-			if ((String_indexOf(lvStr.get(), 11) != -1) || (String_indexOf(rvStr.get(), 11) != -1)) {
+		if lvStr.isPresent() && rvStr.isPresent() {
+			if (String_indexOf(lvStr.get(), 11) != -1) || (String_indexOf(rvStr.get(), 11) != -1) {
 				return Tri_UNKNOWN
 			} else {
 				return Tri_forBoolean((String_compareTo(lvStr.get(), rvStr.get()) < 0))
 			}
-		} else if ((((left.isTypeOf() && right.isTypeOf()) && left.getFirstChild().isName()) && right.getFirstChild().isName()) && (left.getFirstChild().getString() == right.getFirstChild().getString())) {
+		} else if (((left.isTypeOf() && right.isTypeOf()) && left.getFirstChild().isName()) && right.getFirstChild().isName()) && (left.getFirstChild().getString() == right.getFirstChild().getString()) {
 			return Tri_FALSE
 		}
 	}
-	if ((leftValueType == NodeUtil_ValueType_BIGINT) && (rightValueType == NodeUtil_ValueType_STRING)) {
+	if (leftValueType == NodeUtil_ValueType_BIGINT) && (rightValueType == NodeUtil_ValueType_STRING) {
 		var rvStr Optional[string] = peepholeOptimization.getSideEffectFreeStringValue(right)
 		if rvStr.isPresent() {
 			var rvBig *BigInteger = NodeUtil_getStringBigIntValue(rvStr.get())
-			if (rvBig == nil) {
+			if rvBig == nil {
 				return Tri_forBoolean(willNegate)
 			}
 			var lvBig *BigInteger = peepholeOptimization.getSideEffectFreeBigIntValue(left)
-			if (lvBig != nil) {
+			if lvBig != nil {
 				return Tri_forBoolean((lvBig.compareTo(obj_(rvBig)) < 0))
 			}
 		}
 		return Tri_UNKNOWN
 	}
-	if ((leftValueType == NodeUtil_ValueType_STRING) && (rightValueType == NodeUtil_ValueType_BIGINT)) {
+	if (leftValueType == NodeUtil_ValueType_STRING) && (rightValueType == NodeUtil_ValueType_BIGINT) {
 		var lvStr Optional[string] = peepholeOptimization.getSideEffectFreeStringValue(left)
 		if lvStr.isPresent() {
 			var lvBig *BigInteger = NodeUtil_getStringBigIntValue(lvStr.get())
-			if (lvBig == nil) {
+			if lvBig == nil {
 				return Tri_forBoolean(willNegate)
 			}
 			var rvBig *BigInteger = peepholeOptimization.getSideEffectFreeBigIntValue(right)
-			if (rvBig != nil) {
+			if rvBig != nil {
 				return Tri_forBoolean((lvBig.compareTo(obj_(rvBig)) < 0))
 			}
 		}
@@ -1040,26 +1045,26 @@ func PeepholeFoldConstants_tryAbstractRelationalComparison(peepholeOptimization 
 	}
 	var lvBig *BigInteger = peepholeOptimization.getSideEffectFreeBigIntValue(left)
 	var rvBig *BigInteger = peepholeOptimization.getSideEffectFreeBigIntValue(right)
-	if ((lvBig != nil) && (rvBig != nil)) {
+	if (lvBig != nil) && (rvBig != nil) {
 		return Tri_forBoolean((lvBig.compareTo(obj_(rvBig)) < 0))
 	}
 	var lvNum any = peepholeOptimization.getSideEffectFreeNumberValue(left)
 	var rvNum any = peepholeOptimization.getSideEffectFreeNumberValue(right)
-	if ((lvNum != nil) && (rvNum != nil)) {
-		if (Double_isNaN(unbox_[float64](lvNum)) || Double_isNaN(unbox_[float64](rvNum))) {
+	if (lvNum != nil) && (rvNum != nil) {
+		if Double_isNaN(unbox_[float64](lvNum)) || Double_isNaN(unbox_[float64](rvNum)) {
 			return Tri_forBoolean(willNegate)
 		} else {
 			return Tri_forBoolean((Double_doubleValue(lvNum) < Double_doubleValue(rvNum)))
 		}
 	}
-	if ((lvBig != nil) && (rvNum != nil)) {
+	if (lvBig != nil) && (rvNum != nil) {
 		return PeepholeFoldConstants_bigintLessThanDouble(lvBig, unbox_[float64](rvNum), Tri_FALSE, willNegate)
 	}
-	if ((lvNum != nil) && (rvBig != nil)) {
+	if (lvNum != nil) && (rvBig != nil) {
 		return PeepholeFoldConstants_bigintLessThanDouble(rvBig, unbox_[float64](lvNum), Tri_TRUE, willNegate)
 	}
-	if ((!willNegate && left.isName()) && right.isName()) {
-		if (left.getString() == right.getString()) {
+	if (!willNegate && left.isName()) && right.isName() {
+		if left.getString() == right.getString() {
 			return Tri_FALSE
 		}
 	}
@@ -1069,18 +1074,18 @@ func PeepholeFoldConstants_tryAbstractRelationalComparison(peepholeOptimization 
 func PeepholeFoldConstants_bigintLessThanDouble(bigint *BigInteger, number float64, invert *Tri, willNegate bool) *Tri {
 	if Double_isNaN(number) {
 		return Tri_forBoolean(willNegate)
-	} else if (number == posinf_) {
+	} else if number == posinf_ {
 		return Tri_TRUE.xor(invert)
-	} else if (number == neginf_) {
+	} else if number == neginf_ {
 		return Tri_FALSE.xor(invert)
 	} else if !JSCompDoubles_isAtLeastIntegerPrecision(number) {
 		return Tri_UNKNOWN
 	}
 	var numberAsBigInt *BigInteger = BigInteger_valueOf(f2i_[int64](float64(number)))
 	var negativeMeansBigintSmaller int32 = bigint.compareTo(obj_(numberAsBigInt))
-	if (negativeMeansBigintSmaller < 0) {
+	if negativeMeansBigintSmaller < 0 {
 		return Tri_TRUE.xor(invert)
-	} else if (negativeMeansBigintSmaller > 0) {
+	} else if negativeMeansBigintSmaller > 0 {
 		return Tri_FALSE.xor(invert)
 	} else if JSCompDoubles_isExactInt64(number) {
 		return Tri_FALSE
@@ -1093,66 +1098,86 @@ func PeepholeFoldConstants_bigintLessThanDouble(bigint *BigInteger, number float
 func PeepholeFoldConstants_tryAbstractEqualityComparison(peepholeOptimization *AbstractPeepholeOptimization, left Node, right Node) *Tri {
 	var leftValueType *NodeUtil_ValueType = NodeUtil_getKnownValueType(left)
 	var rightValueType *NodeUtil_ValueType = NodeUtil_getKnownValueType(right)
-	if ((leftValueType != NodeUtil_ValueType_UNDETERMINED) && (rightValueType != NodeUtil_ValueType_UNDETERMINED)) {
-		if (leftValueType == rightValueType) {
+	if (leftValueType != NodeUtil_ValueType_UNDETERMINED) && (rightValueType != NodeUtil_ValueType_UNDETERMINED) {
+		if leftValueType == rightValueType {
 			return PeepholeFoldConstants_tryStrictEqualityComparison(peepholeOptimization, left, right)
 		}
-		if (((leftValueType == NodeUtil_ValueType_NULL) && (rightValueType == NodeUtil_ValueType_VOID)) || ((leftValueType == NodeUtil_ValueType_VOID) && (rightValueType == NodeUtil_ValueType_NULL))) {
+		if ((leftValueType == NodeUtil_ValueType_NULL) && (rightValueType == NodeUtil_ValueType_VOID)) || ((leftValueType == NodeUtil_ValueType_VOID) && (rightValueType == NodeUtil_ValueType_NULL)) {
 			return Tri_TRUE
 		}
-		if (((leftValueType == NodeUtil_ValueType_NUMBER) && (rightValueType == NodeUtil_ValueType_STRING)) || (rightValueType == NodeUtil_ValueType_BOOLEAN)) {
+		if ((leftValueType == NodeUtil_ValueType_NUMBER) && (rightValueType == NodeUtil_ValueType_STRING)) || (rightValueType == NodeUtil_ValueType_BOOLEAN) {
 			var rv any = peepholeOptimization.getSideEffectFreeNumberValue(right)
-			return func() *Tri { if (rv == nil) { return Tri_UNKNOWN }; return PeepholeFoldConstants_tryAbstractEqualityComparison(peepholeOptimization, left, NodeUtil_numberNode(unbox_[float64](rv), right)) }()
+			return func() *Tri {
+				if rv == nil {
+					return Tri_UNKNOWN
+				}
+				return PeepholeFoldConstants_tryAbstractEqualityComparison(peepholeOptimization, left, NodeUtil_numberNode(unbox_[float64](rv), right))
+			}()
 		}
-		if (((leftValueType == NodeUtil_ValueType_STRING) && (rightValueType == NodeUtil_ValueType_NUMBER)) || (leftValueType == NodeUtil_ValueType_BOOLEAN)) {
+		if ((leftValueType == NodeUtil_ValueType_STRING) && (rightValueType == NodeUtil_ValueType_NUMBER)) || (leftValueType == NodeUtil_ValueType_BOOLEAN) {
 			var lv any = peepholeOptimization.getSideEffectFreeNumberValue(left)
-			return func() *Tri { if (lv == nil) { return Tri_UNKNOWN }; return PeepholeFoldConstants_tryAbstractEqualityComparison(peepholeOptimization, NodeUtil_numberNode(unbox_[float64](lv), left), right) }()
+			return func() *Tri {
+				if lv == nil {
+					return Tri_UNKNOWN
+				}
+				return PeepholeFoldConstants_tryAbstractEqualityComparison(peepholeOptimization, NodeUtil_numberNode(unbox_[float64](lv), left), right)
+			}()
 		}
-		if ((leftValueType == NodeUtil_ValueType_BIGINT) && (rightValueType == NodeUtil_ValueType_STRING)) {
+		if (leftValueType == NodeUtil_ValueType_BIGINT) && (rightValueType == NodeUtil_ValueType_STRING) {
 			var rvStr Optional[string] = peepholeOptimization.getSideEffectFreeStringValue(right)
 			if rvStr.isPresent() {
 				var rvBig *BigInteger = NodeUtil_getStringBigIntValue(rvStr.get())
-				if (rvBig == nil) {
+				if rvBig == nil {
 					return Tri_FALSE
 				}
 				var lvBig *BigInteger = peepholeOptimization.getSideEffectFreeBigIntValue(left)
-				return func() *Tri { if (lvBig != nil) { return Tri_forBoolean(equalsRR_(lvBig, rvBig)) }; return Tri_UNKNOWN }()
+				return func() *Tri {
+					if lvBig != nil {
+						return Tri_forBoolean(equalsRR_(lvBig, rvBig))
+					}
+					return Tri_UNKNOWN
+				}()
 			}
 			return Tri_UNKNOWN
 		}
-		if ((leftValueType == NodeUtil_ValueType_STRING) && (rightValueType == NodeUtil_ValueType_BIGINT)) {
+		if (leftValueType == NodeUtil_ValueType_STRING) && (rightValueType == NodeUtil_ValueType_BIGINT) {
 			var lvStr Optional[string] = peepholeOptimization.getSideEffectFreeStringValue(left)
 			if lvStr.isPresent() {
 				var lvBig *BigInteger = NodeUtil_getStringBigIntValue(lvStr.get())
-				if (lvBig == nil) {
+				if lvBig == nil {
 					return Tri_FALSE
 				}
 				var rvBig *BigInteger = peepholeOptimization.getSideEffectFreeBigIntValue(right)
-				return func() *Tri { if (rvBig != nil) { return Tri_forBoolean(equalsRR_(lvBig, rvBig)) }; return Tri_UNKNOWN }()
+				return func() *Tri {
+					if rvBig != nil {
+						return Tri_forBoolean(equalsRR_(lvBig, rvBig))
+					}
+					return Tri_UNKNOWN
+				}()
 			}
 			return Tri_UNKNOWN
 		}
-		if ((leftValueType == NodeUtil_ValueType_BIGINT) || (rightValueType == NodeUtil_ValueType_BIGINT)) {
+		if (leftValueType == NodeUtil_ValueType_BIGINT) || (rightValueType == NodeUtil_ValueType_BIGINT) {
 			var lv *BigInteger = peepholeOptimization.getSideEffectFreeBigIntValue(left)
 			var rv *BigInteger = peepholeOptimization.getSideEffectFreeBigIntValue(right)
-			if ((lv != nil) && (rv != nil)) {
+			if (lv != nil) && (rv != nil) {
 				return Tri_forBoolean(equalsRR_(lv, rv))
 			}
-			if ((((leftValueType == NodeUtil_ValueType_NULL) || (leftValueType == NodeUtil_ValueType_VOID)) || (rightValueType == NodeUtil_ValueType_NULL)) || (rightValueType == NodeUtil_ValueType_VOID)) {
+			if (((leftValueType == NodeUtil_ValueType_NULL) || (leftValueType == NodeUtil_ValueType_VOID)) || (rightValueType == NodeUtil_ValueType_NULL)) || (rightValueType == NodeUtil_ValueType_VOID) {
 				return Tri_FALSE
 			}
-			if (((leftValueType == NodeUtil_ValueType_STRING) && peepholeOptimization.getSideEffectFreeStringValue(left).isPresent()) && (lv == nil)) {
+			if ((leftValueType == NodeUtil_ValueType_STRING) && peepholeOptimization.getSideEffectFreeStringValue(left).isPresent()) && (lv == nil) {
 				return Tri_FALSE
 			}
-			if (((rightValueType == NodeUtil_ValueType_STRING) && peepholeOptimization.getSideEffectFreeStringValue(right).isPresent()) && (rv == nil)) {
+			if ((rightValueType == NodeUtil_ValueType_STRING) && peepholeOptimization.getSideEffectFreeStringValue(right).isPresent()) && (rv == nil) {
 				return Tri_FALSE
 			}
 			return Tri_UNKNOWN
 		}
-		if (((leftValueType == NodeUtil_ValueType_STRING) || (leftValueType == NodeUtil_ValueType_NUMBER)) && (rightValueType == NodeUtil_ValueType_OBJECT)) {
+		if ((leftValueType == NodeUtil_ValueType_STRING) || (leftValueType == NodeUtil_ValueType_NUMBER)) && (rightValueType == NodeUtil_ValueType_OBJECT) {
 			return Tri_UNKNOWN
 		}
-		if ((leftValueType == NodeUtil_ValueType_OBJECT) && ((rightValueType == NodeUtil_ValueType_STRING) || (rightValueType == NodeUtil_ValueType_NUMBER))) {
+		if (leftValueType == NodeUtil_ValueType_OBJECT) && ((rightValueType == NodeUtil_ValueType_STRING) || (rightValueType == NodeUtil_ValueType_NUMBER)) {
 			return Tri_UNKNOWN
 		}
 		return Tri_FALSE
@@ -1163,8 +1188,8 @@ func PeepholeFoldConstants_tryAbstractEqualityComparison(peepholeOptimization *A
 func PeepholeFoldConstants_tryStrictEqualityComparison(peepholeOptimization *AbstractPeepholeOptimization, left Node, right Node) *Tri {
 	var leftValueType *NodeUtil_ValueType = NodeUtil_getKnownValueType(left)
 	var rightValueType *NodeUtil_ValueType = NodeUtil_getKnownValueType(right)
-	if ((leftValueType != NodeUtil_ValueType_UNDETERMINED) && (rightValueType != NodeUtil_ValueType_UNDETERMINED)) {
-		if (leftValueType != rightValueType) {
+	if (leftValueType != NodeUtil_ValueType_UNDETERMINED) && (rightValueType != NodeUtil_ValueType_UNDETERMINED) {
+		if leftValueType != rightValueType {
 			return Tri_FALSE
 		}
 		switch leftValueType {
@@ -1179,19 +1204,24 @@ func PeepholeFoldConstants_tryStrictEqualityComparison(peepholeOptimization *Abs
 			}
 			var lv any = peepholeOptimization.getSideEffectFreeNumberValue(left)
 			var rv any = peepholeOptimization.getSideEffectFreeNumberValue(right)
-			if ((lv != nil) && (rv != nil)) {
+			if (lv != nil) && (rv != nil) {
 				return Tri_forBoolean((Double_doubleValue(lv) == Double_doubleValue(rv)))
 			}
 		case NodeUtil_ValueType_STRING:
 			var lv Optional[string] = peepholeOptimization.getSideEffectFreeStringValue(left)
 			var rv Optional[string] = peepholeOptimization.getSideEffectFreeStringValue(right)
-			if (lv.isPresent() && rv.isPresent()) {
-				if ((String_indexOf(lv.get(), 11) != -1) || (String_indexOf(rv.get(), 11) != -1)) {
+			if lv.isPresent() && rv.isPresent() {
+				if (String_indexOf(lv.get(), 11) != -1) || (String_indexOf(rv.get(), 11) != -1) {
 					return Tri_UNKNOWN
 				} else {
-					return func() *Tri { if Object_equals(lv.box_(), rv.box_()) { return Tri_TRUE }; return Tri_FALSE }()
+					return func() *Tri {
+						if Object_equals(lv.box_(), rv.box_()) {
+							return Tri_TRUE
+						}
+						return Tri_FALSE
+					}()
 				}
-			} else if ((((left.isTypeOf() && right.isTypeOf()) && left.getFirstChild().isName()) && right.getFirstChild().isName()) && (left.getFirstChild().getString() == right.getFirstChild().getString())) {
+			} else if (((left.isTypeOf() && right.isTypeOf()) && left.getFirstChild().isName()) && right.getFirstChild().isName()) && (left.getFirstChild().getString() == right.getFirstChild().getString()) {
 				return Tri_TRUE
 			}
 		case NodeUtil_ValueType_BOOLEAN:
@@ -1201,21 +1231,21 @@ func PeepholeFoldConstants_tryStrictEqualityComparison(peepholeOptimization *Abs
 		case NodeUtil_ValueType_BIGINT:
 			var lv *BigInteger = peepholeOptimization.getSideEffectFreeBigIntValue(left)
 			var rv *BigInteger = peepholeOptimization.getSideEffectFreeBigIntValue(right)
-			if ((lv != nil) && (rv != nil)) {
+			if (lv != nil) && (rv != nil) {
 				return Tri_forBoolean(equalsRR_(lv, rv))
 			}
 		default:
 			return Tri_UNKNOWN
 		}
 	}
-	if (NodeUtil_isNaN(left) || NodeUtil_isNaN(right)) {
+	if NodeUtil_isNaN(left) || NodeUtil_isNaN(right) {
 		return Tri_FALSE
 	}
 	return Tri_UNKNOWN
 }
 
 func PeepholeFoldConstants_evaluateComparison(peepholeOptimization *AbstractPeepholeOptimization, op *Token_rhino, left Node, right Node) *Tri {
-	if (peepholeOptimization.mayHaveSideEffects(left) || peepholeOptimization.mayHaveSideEffects(right)) {
+	if peepholeOptimization.mayHaveSideEffects(left) || peepholeOptimization.mayHaveSideEffects(right) {
 		return Tri_UNKNOWN
 	}
 	switch op {
@@ -1252,7 +1282,7 @@ func (this *PeepholeFoldConstants) tryFoldUselessObjectDotDefinePropertiesCall(n
 	Preconditions_checkArgument((n.isCall() || n.isOptChainCall()))
 	if NodeUtil_isObjectDefinePropertiesDefinition(n) {
 		var srcObj Node = n.getLastChild()
-		if (srcObj.isObjectLit() && !srcObj.hasChildren()) {
+		if srcObj.isObjectLit() && !srcObj.hasChildren() {
 			var parent Node = n.getParent()
 			var destObj Node = n.getSecondChild().detach()
 			n.replaceWith(destObj)
@@ -1263,7 +1293,7 @@ func (this *PeepholeFoldConstants) tryFoldUselessObjectDotDefinePropertiesCall(n
 }
 
 func PeepholeFoldConstants_inForcedStringContext(n Node) bool {
-	if (n.getParent().isGetElem() && (n.getParent().getLastChild() == n)) {
+	if n.getParent().isGetElem() && (n.getParent().getLastChild() == n) {
 		return true
 	}
 	return n.getParent().isAdd()
@@ -1275,10 +1305,10 @@ func (this *PeepholeFoldConstants) tryFoldInForcedStringContext(n Node) Node {
 	if !objectType.isName() {
 		return n
 	}
-	if (objectType.getString() == "String") {
+	if objectType.getString() == "String" {
 		var value Node = objectType.getNext()
 		var stringValue Optional[string]
-		if (value == 0) {
+		if value == 0 {
 			stringValue = Optional_of[string]("")
 		} else {
 			stringValue = this.getSideEffectFreeStringValue(value)
@@ -1317,7 +1347,7 @@ func (this *PeepholeFoldConstants) tryFoldGetProp(n Node) Node {
 	if left.isObjectLit() {
 		return this.tryFoldObjectPropAccess(n, left, name)
 	}
-	if (name == "length") {
+	if name == "length" {
 		if NodeUtil_isLValue(n) {
 			return n
 		}
@@ -1329,7 +1359,7 @@ func (this *PeepholeFoldConstants) tryFoldGetProp(n Node) Node {
 			}
 			{
 				var child Node = left.getFirstChild()
-				for ; (child != 0); child = child.getNext() {
+				for ; child != 0; child = child.getNext() {
 					if child.isSpread() {
 						return n
 					}
@@ -1375,11 +1405,11 @@ func (this *PeepholeFoldConstants) tryFoldArrayAccess(n Node, left Node, right N
 	}
 	var current Node = left.getFirstChild()
 	var elem Node = 0
-	for i := int32(0); (current != 0); i++ {
+	for i := int32(0); current != 0; i++ {
 		if current.isSpread() {
 			return n
 		}
-		if (i != intIndex) {
+		if i != intIndex {
 			if this.mayHaveSideEffects(current) {
 				return n
 			}
@@ -1388,7 +1418,7 @@ func (this *PeepholeFoldConstants) tryFoldArrayAccess(n Node, left Node, right N
 		}
 		current = current.getNext()
 	}
-	if (elem == 0) {
+	if elem == 0 {
 		elem = NodeUtil_newUndefinedNode(left)
 	} else if elem.isEmpty() {
 		elem = NodeUtil_newUndefinedNode(elem)
@@ -1404,7 +1434,7 @@ func (this *PeepholeFoldConstants) tryFoldSpread(spread Node) Node {
 	Preconditions_checkState(spread.isSpread())
 	var parent Node = spread.getParent()
 	var child Node = spread.getOnlyChild()
-	if (child.isArrayLit() && PeepholeFoldConstants_isSafeToFlattenArrayLitSpread(child)) {
+	if child.isArrayLit() && PeepholeFoldConstants_isSafeToFlattenArrayLitSpread(child) {
 		parent.addChildrenAfter(child.removeChildren(), spread)
 		spread.detach()
 		this.reportChangeToEnclosingScope(parent)
@@ -1415,7 +1445,7 @@ func (this *PeepholeFoldConstants) tryFoldSpread(spread Node) Node {
 func (this *PeepholeFoldConstants) tryFlattenArrayOrObjectLit(parentLit Node) Node {
 	{
 		var child Node = parentLit.getFirstChild()
-		for (child != 0) {
+		for child != 0 {
 			var spread Node = child
 			child = child.getNext()
 			if !spread.isSpread() {
@@ -1425,10 +1455,10 @@ func (this *PeepholeFoldConstants) tryFlattenArrayOrObjectLit(parentLit Node) No
 			if !eqR_(parentLit.getToken(), innerLit.getToken()) {
 				continue
 			}
-			if (parentLit.isObjectLit() && !PeepholeFoldConstants_isSafeToFlattenObjectLitSpread(innerLit)) {
+			if parentLit.isObjectLit() && !PeepholeFoldConstants_isSafeToFlattenObjectLitSpread(innerLit) {
 				continue
 			}
-			if (parentLit.isArrayLit() && !PeepholeFoldConstants_isSafeToFlattenArrayLitSpread(innerLit)) {
+			if parentLit.isArrayLit() && !PeepholeFoldConstants_isSafeToFlattenArrayLitSpread(innerLit) {
 				continue
 			}
 			parentLit.addChildrenAfter(innerLit.removeChildren(), spread)
@@ -1451,22 +1481,22 @@ func (this *PeepholeFoldConstants) tryFoldStringArrayAccess(n Node, left Node, r
 	if !PeepholeFoldConstants_isFoldableElementIndexKey(right, intIndex) {
 		return n
 	}
-	if (float64(intIndex) != unbox_[float64](index)) {
+	if float64(intIndex) != unbox_[float64](index) {
 		this.report(PeepholeFoldConstants_INVALID_GETELEM_INDEX_ERROR, right)
 		return n
 	}
 	Preconditions_checkState(left.isStringLit())
 	var value string = left.getString()
-	if ((intIndex < 0) || (intIndex >= String_length(value))) {
+	if (intIndex < 0) || (intIndex >= String_length(value)) {
 		var undefined Node = NodeUtil_newUndefinedNode(left)
 		n.replaceWith(undefined)
 		this.reportChangeToEnclosingScope(undefined)
 		return undefined
 	}
 	var c uint16 = 0x0000
-	for i := int32(0); (i <= intIndex); i++ {
+	for i := int32(0); i <= intIndex; i++ {
 		c = String_charAt(value, i)
-		if ((int32(c) < 32) || (int32(c) > 127)) {
+		if (int32(c) < 32) || (int32(c) > 127) {
 			return n
 		}
 	}
@@ -1489,11 +1519,11 @@ func (this *PeepholeFoldConstants) tryFoldObjectPropAccess(n Node, left Node, na
 	var value Node = 0
 	{
 		var c Node = left.getFirstChild()
-		for ; (c != 0); c = c.getNext() {
+		for ; c != 0; c = c.getNext() {
 			switch c.getToken() {
 			case Token_rhino_SETTER_DEF:
-				if (c.getString() == name) {
-					if ((key != 0) && !PeepholeFoldConstants_isGetterProp(key)) {
+				if c.getString() == name {
+					if (key != 0) && !PeepholeFoldConstants_isGetterProp(key) {
 						key = c
 						value = NodeUtil_newUndefinedNode(c)
 					}
@@ -1506,9 +1536,9 @@ func (this *PeepholeFoldConstants) tryFoldObjectPropAccess(n Node, left Node, na
 				if !prop.isStringLit() {
 					return n
 				}
-				if (prop.getString() == name) {
+				if prop.getString() == name {
 					if c.getBooleanProp(Node_COMPUTED_PROP_SETTER) {
-						if ((key != 0) && !PeepholeFoldConstants_isGetterProp(key)) {
+						if (key != 0) && !PeepholeFoldConstants_isGetterProp(key) {
 							key = c
 							value = NodeUtil_newUndefinedNode(c)
 						}
@@ -1518,7 +1548,7 @@ func (this *PeepholeFoldConstants) tryFoldObjectPropAccess(n Node, left Node, na
 					}
 				}
 			case Token_rhino_GETTER_DEF, Token_rhino_STRING_KEY, Token_rhino_MEMBER_FUNCTION_DEF:
-				if (c.getString() == name) {
+				if c.getString() == name {
 					key = c
 					value = key.getFirstChild()
 				}
@@ -1527,13 +1557,13 @@ func (this *PeepholeFoldConstants) tryFoldObjectPropAccess(n Node, left Node, na
 			}
 		}
 	}
-	if (value == 0) {
+	if value == 0 {
 		return n
 	}
 	if NodeUtil_referencesSuper(value) {
 		return n
 	}
-	if (value.getParent() != 0) {
+	if value.getParent() != 0 {
 		var tempValue Node = IR_nullNode()
 		value.replaceWith(tempValue)
 		var hasSideEffectBesidesValue bool = this.mayHaveSideEffects(left)
@@ -1548,16 +1578,16 @@ func (this *PeepholeFoldConstants) tryFoldObjectPropAccess(n Node, left Node, na
 	}
 	var keyIsGetter bool = PeepholeFoldConstants_isGetterProp(key)
 	var nIsInvoked bool = NodeUtil_isInvocationTarget(n)
-	if (keyIsGetter || nIsInvoked) {
-		if (!value.isFunction() || NodeUtil_referencesOwnReceiver(value)) {
+	if keyIsGetter || nIsInvoked {
+		if !value.isFunction() || NodeUtil_referencesOwnReceiver(value) {
 			return n
 		}
 	}
-	if (value.getParent() != 0) {
+	if value.getParent() != 0 {
 		value.detach()
 	}
 	var parent Node = n.getParent()
-	if ((NodeUtil_isOptChainNode(parent) && n.isFirstChildOf(parent)) && !parent.isOptionalChainStart()) {
+	if (NodeUtil_isOptChainNode(parent) && n.isFirstChildOf(parent)) && !parent.isOptionalChainStart() {
 		var endOfCurrentChain Node = NodeUtil_getEndOfOptChainSegment(parent)
 		NodeUtil_convertToNonOptionalChainSegment(endOfCurrentChain)
 	}
@@ -1574,7 +1604,12 @@ func (this *PeepholeFoldConstants) tryFoldObjectPropAccess(n Node, left Node, na
 }
 
 func PeepholeFoldConstants_bigintNode(val *BigInteger, srcref Node) Node {
-	var tree Node = func() Node { if (val.signum() < 0) { return IR_neg(IR_bigint(val.negate())) }; return IR_bigint(val) }()
+	var tree Node = func() Node {
+		if val.signum() < 0 {
+			return IR_neg(IR_bigint(val.negate()))
+		}
+		return IR_bigint(val)
+	}()
 	return tree.srcrefTree(srcref)
 }
 
@@ -1585,7 +1620,7 @@ func PeepholeFoldConstants_isGetterProp(key Node) bool {
 func PeepholeFoldConstants_isSafeToFlattenObjectLitSpread(innerLit Node) bool {
 	{
 		var prop Node = innerLit.getFirstChild()
-		for ; (prop != 0); prop = prop.getNext() {
+		for ; prop != 0; prop = prop.getNext() {
 			if NodeUtil_isGetOrSetKey(prop) {
 				return false
 			}
@@ -1597,7 +1632,7 @@ func PeepholeFoldConstants_isSafeToFlattenObjectLitSpread(innerLit Node) bool {
 func PeepholeFoldConstants_isSafeToFlattenArrayLitSpread(innerLit Node) bool {
 	{
 		var n Node = innerLit.getFirstChild()
-		for ; (n != 0); n = n.getNext() {
+		for ; n != 0; n = n.getNext() {
 			if n.isEmpty() {
 				return false
 			}
@@ -1622,4 +1657,3 @@ func PeepholeFoldConstants_clinit() {
 	PeepholeFoldConstants_MAX_FOLD_NUMBER = Math_pow(2, 53)
 
 }
-

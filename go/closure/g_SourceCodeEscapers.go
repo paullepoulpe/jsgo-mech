@@ -25,6 +25,7 @@ func SourceCodeEscapers_appendWithJavascriptEscaper(c any, to Appendable) {
 
 const SourceCodeEscapers_PRINTABLE_ASCII_MIN uint16 = ' '
 const SourceCodeEscapers_PRINTABLE_ASCII_MAX uint16 = '~'
+
 var SourceCodeEscapers_HEX_DIGITS []uint16
 var SourceCodeEscapers_JAVASCRIPT_ESCAPER *SourceCodeEscapers_JavaScriptEscaper
 
@@ -65,18 +66,18 @@ func new_SourceCodeEscapers_JavaScriptEscaper() *SourceCodeEscapers_JavaScriptEs
 func (this *SourceCodeEscapers_JavaScriptEscaper) appendTo(cs any, to Appendable) {
 	var last int32 = 0
 	var length int32 = CharSequence_length(cs)
-	for i := int32(0); (i < length); i++ {
+	for i := int32(0); i < length; i++ {
 		var c uint16 = CharSequence_charAt(cs, i)
 		var replacement []uint16
-		if (int32(c) < 256) {
+		if int32(c) < 256 {
 			replacement = SourceCodeEscapers_JavaScriptEscaper_REPLACEMENT_CHARS[c]
-			if (replacement == nil) {
+			if replacement == nil {
 				continue
 			}
 		} else {
 			replacement = SourceCodeEscapers_JavaScriptEscaper_asUnicodeHexEscape(c)
 		}
-		if (last < i) {
+		if last < i {
 			to.append_CharSequence_int_int(cs, last, i)
 		}
 		for _, r := range replacement {
@@ -84,7 +85,7 @@ func (this *SourceCodeEscapers_JavaScriptEscaper) appendTo(cs any, to Appendable
 		}
 		last = (i + 1)
 	}
-	if (last < length) {
+	if last < length {
 		to.append_CharSequence_int_int(cs, last, length)
 	}
 }
@@ -134,7 +135,7 @@ func SourceCodeEscapers_JavaScriptEscaper_clinit() {
 	SourceCodeEscapers_JavaScriptEscaper_clinit_done = true
 	{
 		SourceCodeEscapers_JavaScriptEscaper_REPLACEMENT_CHARS = make([][]uint16, 256)
-		for i := uint16(0x0000); (int32(i) < int32(SourceCodeEscapers_PRINTABLE_ASCII_MIN)); i++ {
+		for i := uint16(0x0000); int32(i) < int32(SourceCodeEscapers_PRINTABLE_ASCII_MIN); i++ {
 			var c uint16 = i
 			var r []uint16 = make([]uint16, 4)
 			r[3] = SourceCodeEscapers_HEX_DIGITS[(int32(c) & 15)]
@@ -144,7 +145,7 @@ func SourceCodeEscapers_JavaScriptEscaper_clinit() {
 			r[0] = '\\'
 			SourceCodeEscapers_JavaScriptEscaper_REPLACEMENT_CHARS[i] = r
 		}
-		for i := uint16(uint16(127)); (int32(i) < 256); i++ {
+		for i := uint16(uint16(127)); int32(i) < 256; i++ {
 			var c uint16 = i
 			var r []uint16 = make([]uint16, 4)
 			r[3] = SourceCodeEscapers_HEX_DIGITS[(int32(c) & 15)]
@@ -169,4 +170,3 @@ func SourceCodeEscapers_JavaScriptEscaper_clinit() {
 	}
 
 }
-

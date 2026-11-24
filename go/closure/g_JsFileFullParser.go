@@ -21,8 +21,8 @@ func JsFileFullParser_parse(code string, filename string, reporter JsFileFullPar
 	var source *SourceFile_jscomp = SourceFile_jscomp_fromCode_String_String(filename, code)
 	var options *CompilerOptions = new_CompilerOptions()
 	options.setChecksOnly(true)
-	compiler.init(tlistEmptyImm_(tc_p_SourceFile_jscomp).asListT(), immutableListOf_[*SourceFile_jscomp](tc_p_SourceFile_jscomp, source).asListT(), options)
-	var config *Config = ParserRunner_createConfig_LanguageMode_JsDocParsing_RunMode_Set_boolean_StrictMode(Config_LanguageMode_ES_NEXT, Config_JsDocParsing_INCLUDE_DESCRIPTIONS_NO_WHITESPACE, Config_RunMode_STOP_AFTER_ERROR, tsetEmptyImm_(tc_string), true, Config_StrictMode_SLOPPY)
+	compiler.init(jtlistEmptyImm_(jtc_p_SourceFile_jscomp).asListT(), jimmutableListOf_[*SourceFile_jscomp](jtc_p_SourceFile_jscomp, source).asListT(), options)
+	var config *Config = ParserRunner_createConfig_LanguageMode_JsDocParsing_RunMode_Set_boolean_StrictMode(Config_LanguageMode_ES_NEXT, Config_JsDocParsing_INCLUDE_DESCRIPTIONS_NO_WHITESPACE, Config_RunMode_STOP_AFTER_ERROR, jtsetEmptyImm_(jtc_string), true, Config_StrictMode_SLOPPY)
 	var info *JsFileFullParser_FileInfo = new_JsFileFullParser_FileInfo()
 	var parsed *ParserRunner_ParseResult = ParserRunner_parse(SourceFile_jscomp_as_StaticSourceFile(source), code, config, JsFileFullParser_DelegatingReporter_as_ErrorReporter_rhino(errorReporter))
 	if errorReporter.seenError {
@@ -37,10 +37,10 @@ func JsFileFullParser_parse(code string, filename string, reporter JsFileFullPar
 	var gatherModuleMetadata *GatherModuleMetadata = new_GatherModuleMetadata(compiler.up_AbstractCompiler(), false, ModuleLoader_ResolutionMode_BROWSER)
 	gatherModuleMetadata.process_2(new_Node_Token(Token_rhino_ROOT), parsed.ast)
 	compiler.generateReport()
-	if (compiler.getModuleMetadataMap().getModulesByPath().size() != 1) {
+	if compiler.getModuleMetadataMap().getModulesByPath().size() != 1 {
 		return info
 	}
-	var module *ModuleMetadataMap_ModuleMetadata = Iterables_getOnlyElementT_[*ModuleMetadataMap_ModuleMetadata](iterableAs_(tc_p_ModuleMetadataMap_ModuleMetadata, Iterable(compiler.getModuleMetadataMap().getModulesByPath().asImm().values())))
+	var module *ModuleMetadataMap_ModuleMetadata = Iterables_getOnlyElementT_[*ModuleMetadataMap_ModuleMetadata](iterableAs_(jtc_p_ModuleMetadataMap_ModuleMetadata, Iterable(compiler.getModuleMetadataMap().getModulesByPath().asImm().values())))
 	if module.isEs6Module() {
 		info.loadFlags_.put("module", "es6")
 	} else if module.isGoogModule() {
@@ -67,12 +67,32 @@ func JsFileFullParser_parse(code string, filename string, reporter JsFileFullPar
 func JsFileFullParser_recordModuleMetadata(info *JsFileFullParser_FileInfo, module *ModuleMetadataMap_ModuleMetadata) {
 	info.importedModules.asSetT().addAll(Collection(Set_un_(module.es6ImportSpecifiers().elementSet())))
 	if module.usesClosure() {
-		info.provides.addAll(func() IterableT[string] { if v := module.googNamespaces(); v != nil { return v }; return nil }())
-		info.requires.addAll(func() IterableT[string] { if v := module.stronglyRequiredGoogNamespaces(); v != nil { return v }; return nil }())
-		info.maybeRequires.addAll(func() IterableT[string] { if v := module.maybeRequiredGoogNamespaces(); v != nil { return v }; return nil }())
+		info.provides.addAll(func() IterableT[string] {
+			if v := module.googNamespaces(); v != nil {
+				return v
+			}
+			return nil
+		}())
+		info.requires.addAll(func() IterableT[string] {
+			if v := module.stronglyRequiredGoogNamespaces(); v != nil {
+				return v
+			}
+			return nil
+		}())
+		info.maybeRequires.addAll(func() IterableT[string] {
+			if v := module.maybeRequiredGoogNamespaces(); v != nil {
+				return v
+			}
+			return nil
+		}())
 		info.dynamicRequires.asSetT().addAll(Collection(Set_un_(module.dynamicallyRequiredGoogNamespaces().elementSet())))
 		info.readToggles_.asSetT().addAll(Collection(Set_un_(module.readToggles().elementSet())))
-		info.typeRequires.addAll(func() IterableT[string] { if v := module.weaklyRequiredGoogNamespaces(); v != nil { return v }; return nil }())
+		info.typeRequires.addAll(func() IterableT[string] {
+			if v := module.weaklyRequiredGoogNamespaces(); v != nil {
+				return v
+			}
+			return nil
+		}())
 		info.testonly = module.isTestOnly()
 	}
 	it_1 := module.nestedModules().each()
@@ -83,18 +103,18 @@ func JsFileFullParser_recordModuleMetadata(info *JsFileFullParser_FileInfo, modu
 }
 
 type JsFileFullParser_FileInfo struct {
-	moduleType_ *JsFileFullParser_FileInfo_ModuleType
-	importedModules *TSet[string]
-	dynamicRequires *TSet[string]
-	readToggles_ *TSet[string]
-	provides *SimpleMultiset[string]
-	requires *SimpleMultiset[string]
-	typeRequires *SimpleMultiset[string]
-	maybeRequires *SimpleMultiset[string]
-	loadFlags_ *SimpleSetMultimap[string, string]
-	parsed *ParserRunner_ParseResult
-	goog bool
-	testonly bool
+	moduleType_       *JsFileFullParser_FileInfo_ModuleType
+	importedModules   *JTSet[string]
+	dynamicRequires   *JTSet[string]
+	readToggles_      *JTSet[string]
+	provides          *SimpleMultiset[string]
+	requires          *SimpleMultiset[string]
+	typeRequires      *SimpleMultiset[string]
+	maybeRequires     *SimpleMultiset[string]
+	loadFlags_        *SimpleSetMultimap[string, string]
+	parsed            *ParserRunner_ParseResult
+	goog              bool
+	testonly          bool
 	isLegacyNamespace bool
 }
 
@@ -103,9 +123,9 @@ func (this *JsFileFullParser_FileInfo) finit_JsFileFullParser_FileInfo() {
 	this.testonly = false
 	this.moduleType_ = JsFileFullParser_FileInfo_ModuleType_UNKNOWN
 	this.isLegacyNamespace = false
-	this.importedModules = newTSet_(tc_string)
-	this.dynamicRequires = newTSet_(tc_string)
-	this.readToggles_ = newTSet_(tc_string)
+	this.importedModules = jnewTSet_(jtc_string)
+	this.dynamicRequires = jnewTSet_(jtc_string)
+	this.readToggles_ = jnewTSet_(jtc_string)
 	this.provides = SimpleMultiset_createSorted[string]()
 	this.requires = SimpleMultiset_createSorted[string]()
 	this.typeRequires = SimpleMultiset_createSorted[string]()
@@ -194,7 +214,7 @@ func (this *JsFileFullParser_Reporter_fn) report(p0 bool, p1 string, p2 Optional
 }
 
 type JsFileFullParser_DelegatingReporter struct {
-	delegate JsFileFullParser_Reporter
+	delegate  JsFileFullParser_Reporter
 	seenError bool
 }
 
@@ -254,9 +274,9 @@ func new_JsFileFullParser_1(cap_errorReporter *JsFileFullParser_DelegatingReport
 }
 
 func (this *JsFileFullParser_1) println_impl(level *CheckLevel, error_ *JSError) {
-	if (level == CheckLevel_ERROR) {
+	if level == CheckLevel_ERROR {
 		this.cap_errorReporter.error(error_.description(), error_.sourceName(), error_.getLineNumber(), error_.charno())
-	} else if (level == CheckLevel_WARNING) {
+	} else if level == CheckLevel_WARNING {
 		this.cap_errorReporter.warning(error_.description(), error_.sourceName(), error_.getLineNumber(), error_.charno())
 	}
 }
@@ -264,4 +284,3 @@ func (this *JsFileFullParser_1) println_impl(level *CheckLevel, error_ *JSError)
 func (this *JsFileFullParser_1) printSummary_impl() {
 
 }
-

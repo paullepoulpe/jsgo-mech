@@ -3,27 +3,27 @@
 package closure
 
 type GlobalNamespace struct {
-	compiler_ *AbstractCompiler
-	spreadSiblingCache *TMap[Node, any]
-	sourceKind *GlobalNamespace_SourceKind
-	decisionsLog *LogFile
-	globalNames *TList[*GlobalNamespace_Name]
-	nameMap *TMap[string, *GlobalNamespace_Name]
-	nameMapByModule *SimpleTable[*ModuleMetadataMap_ModuleMetadata, string, *GlobalNamespace_Name]
-	shouldTraverseScript Predicate[Node]
-	root Node
-	externsRoot Node
-	globalRoot Node
+	compiler_                     *AbstractCompiler
+	spreadSiblingCache            *JTMap[Node, any]
+	sourceKind                    *GlobalNamespace_SourceKind
+	decisionsLog                  *LogFile
+	globalNames                   *JTList[*GlobalNamespace_Name]
+	nameMap                       *JTMap[string, *GlobalNamespace_Name]
+	nameMapByModule               *SimpleTable[*ModuleMetadataMap_ModuleMetadata, string, *GlobalNamespace_Name]
+	shouldTraverseScript          Predicate[Node]
+	root                          Node
+	externsRoot                   Node
+	globalRoot                    Node
 	enableImplicitlyAliasedValues bool
-	generated bool
+	generated                     bool
 }
 
 func (this *GlobalNamespace) finit_GlobalNamespace() {
 	this.globalRoot = IR_root([]Node{})
-	this.spreadSiblingCache = newTMap_(tc_Node, tc_Boolean)
+	this.spreadSiblingCache = jnewTMap_(jtc_Node, tc_Boolean)
 	this.generated = false
-	this.globalNames = newTList_(tc_p_GlobalNamespace_Name)
-	this.nameMap = newTMap_(tc_string, tc_p_GlobalNamespace_Name)
+	this.globalNames = jnewTList_(jtc_p_GlobalNamespace_Name)
+	this.nameMap = jnewTMap_(jtc_string, jtc_p_GlobalNamespace_Name)
 	this.nameMapByModule = SimpleTable_create[*ModuleMetadataMap_ModuleMetadata, string, *GlobalNamespace_Name]()
 	this.shouldTraverseScript = Predicate[Node](func(n Node) bool {
 		return true
@@ -84,11 +84,21 @@ func (this *GlobalNamespace) getRootNode() Node {
 func (this *GlobalNamespace) getRootNode_2(name string, s *Scope) Node {
 	name = GlobalNamespace_getTopVarName(name)
 	var v *Var = s.getVar_String_rVar(name)
-	if (v == nil) {
+	if v == nil {
 		var providedName *GlobalNamespace_Name = this.nameMap.get(name)
-		return func() Node { if ((providedName != nil) && providedName.getBooleanProperty(GlobalNamespace_NameProp_IS_PROVIDED)) { return this.globalRoot }; return 0 }()
+		return func() Node {
+			if (providedName != nil) && providedName.getBooleanProperty(GlobalNamespace_NameProp_IS_PROVIDED) {
+				return this.globalRoot
+			}
+			return 0
+		}()
 	}
-	return func() Node { if v.isLocal() { return v.getScopeRoot() }; return this.globalRoot }()
+	return func() Node {
+		if v.isLocal() {
+			return v.getScopeRoot()
+		}
+		return this.globalRoot
+	}()
 }
 
 func (this *GlobalNamespace) getParentScope() StaticScope {
@@ -124,22 +134,22 @@ func (this *GlobalNamespace) ensureGenerated() {
 	}
 }
 
-func (this *GlobalNamespace) getNameForest() *TList[*GlobalNamespace_Name] {
+func (this *GlobalNamespace) getNameForest() *JTList[*GlobalNamespace_Name] {
 	this.ensureGenerated()
 	return this.globalNames
 }
 
-func (this *GlobalNamespace) getNameIndex() *TMap[string, *GlobalNamespace_Name] {
+func (this *GlobalNamespace) getNameIndex() *JTMap[string, *GlobalNamespace_Name] {
 	this.ensureGenerated()
 	return this.nameMap
 }
 
-func (this *GlobalNamespace) scanNewNodes(newNodes *TSet[GlobalNamespace_AstChange]) {
+func (this *GlobalNamespace) scanNewNodes(newNodes *JTSet[GlobalNamespace_AstChange]) {
 	var builder *GlobalNamespace_BuildGlobalNamespace = new_GlobalNamespace_BuildGlobalNamespace(this)
 	it_1 := newNodes.each()
 	for it_1.next() {
 		var info GlobalNamespace_AstChange = it_1.v
-		if (!info.node().isQualifiedName() && !NodeUtil_mayBeObjectLitKey(info.node())) {
+		if !info.node().isQualifiedName() && !NodeUtil_mayBeObjectLitKey(info.node()) {
 			continue
 		}
 		this.scanFromNode(builder, info.scope(), info.node(), info.chunk())
@@ -148,13 +158,13 @@ func (this *GlobalNamespace) scanNewNodes(newNodes *TSet[GlobalNamespace_AstChan
 
 func (this *GlobalNamespace) scanFromNode(builder *GlobalNamespace_BuildGlobalNamespace, scope *Scope, n Node, chunk *JSChunk) {
 	var parent Node = n.getParent()
-	if ((n.isName() || n.isGetProp()) && parent.isGetProp()) {
+	if (n.isName() || n.isGetProp()) && parent.isGetProp() {
 		this.scanFromNode(builder, scope, n.getParent(), chunk)
-	} else if ((n.getPrevious() != 0) && n.getPrevious().isObjectPattern()) {
+	} else if (n.getPrevious() != 0) && n.getPrevious().isObjectPattern() {
 		var pattern Node = n.getPrevious()
 		{
 			var key Node = pattern.getFirstChild()
-			for ; (key != 0); key = key.getNext() {
+			for ; key != 0; key = key.getNext() {
 				if key.isStringKey() {
 					this.scanFromNode(builder, scope, key, chunk)
 				}
@@ -176,7 +186,12 @@ func (this *GlobalNamespace) process() {
 
 func GlobalNamespace_getTopVarName(name string) string {
 	var firstDotIndex int32 = String_indexOf(name, 46)
-	return func() string { if (firstDotIndex == -1) { return name }; return String_substring(name, 0, firstDotIndex) }()
+	return func() string {
+		if firstDotIndex == -1 {
+			return name
+		}
+		return String_substring(name, 0, firstDotIndex)
+	}()
 }
 
 func (this *GlobalNamespace) getNameFromModule(moduleMetadata *ModuleMetadataMap_ModuleMetadata, name string) *GlobalNamespace_Name {
@@ -188,13 +203,13 @@ func (this *GlobalNamespace) getNameFromModule(moduleMetadata *ModuleMetadataMap
 func (this *GlobalNamespace) declarationHasFollowingObjectSpreadSibling(declaration Node) bool {
 	Preconditions_checkState_boolean_Object_H(declaration.getParent().isObjectLit(), declaration)
 	var cached any = this.spreadSiblingCache.get(declaration)
-	if (cached != nil) {
+	if cached != nil {
 		return unbox_[bool](cached)
 	}
 	var toCache bool = false
 	{
 		var sibling Node = declaration.getParent().getLastChild()
-		for ; (sibling != 0); sibling = sibling.getPrevious() {
+		for ; sibling != 0; sibling = sibling.getPrevious() {
 			if sibling.isSpread() {
 				toCache = true
 			}
@@ -213,7 +228,7 @@ func (this *GlobalNamespace) getOutermostObjectLit(objLitKey Node) Node {
 	Preconditions_checkState_boolean_Object_H(outermostObjectLit.isObjectLit(), outermostObjectLit)
 	for {
 		var objLitGrandparent Node = outermostObjectLit.getGrandparent()
-		if ((objLitGrandparent != 0) && objLitGrandparent.isObjectLit()) {
+		if (objLitGrandparent != 0) && objLitGrandparent.isObjectLit() {
 			outermostObjectLit = objLitGrandparent
 		} else {
 			return outermostObjectLit
@@ -330,7 +345,7 @@ type GlobalNamespace_AstChange interface {
 type GlobalNamespace_SimpleAstChange struct {
 	chunk_ *JSChunk
 	scope_ *Scope
-	node_ Node
+	node_  Node
 }
 
 func (this *GlobalNamespace_SimpleAstChange) init_GlobalNamespace_SimpleAstChange(node Node, chunk *JSChunk, scope *Scope) {
@@ -374,11 +389,11 @@ func (this *GlobalNamespace_SimpleAstChange) hashCode() int32 {
 }
 
 func (this *GlobalNamespace_SimpleAstChange) toString() string {
-	return "SimpleAstChange[" + "node=" + tostrH_(this.node_) + ", chunk=" + tostr_(this.chunk_) + ", scope=" + tostr_(this.scope_) + "]"
+	return "SimpleAstChange[" + "node=" + tostrH_(this.node_) + ", chunk=" + jtostr_(this.chunk_) + ", scope=" + jtostr_(this.scope_) + "]"
 }
 
 type GlobalNamespace_RefBasedAstChange struct {
-	ref_ *GlobalNamespace_Ref
+	ref_  *GlobalNamespace_Ref
 	node_ Node
 }
 
@@ -425,13 +440,13 @@ func (this *GlobalNamespace_RefBasedAstChange) hashCode() int32 {
 }
 
 func (this *GlobalNamespace_RefBasedAstChange) toString() string {
-	return "RefBasedAstChange[" + "ref=" + tostr_(this.ref_) + ", node=" + tostrH_(this.node_) + "]"
+	return "RefBasedAstChange[" + "ref=" + jtostr_(this.ref_) + ", node=" + tostrH_(this.node_) + "]"
 }
 
 type GlobalNamespace_BuildGlobalNamespace struct {
 	NodeTraversal_AbstractPreOrderCallback
-	outer_ *GlobalNamespace
-	curMetadata *ModuleMetadataMap_ModuleMetadata
+	outer_        *GlobalNamespace
+	curMetadata   *ModuleMetadataMap_ModuleMetadata
 	curModuleRoot Node
 }
 
@@ -461,17 +476,17 @@ func new_GlobalNamespace_BuildGlobalNamespace(outer_ *GlobalNamespace) *GlobalNa
 }
 
 func (this *GlobalNamespace_BuildGlobalNamespace) shouldTraverse_impl(t *NodeTraversal, n Node, parent Node) bool {
-	if (n.isScript() && !this.outer_.shouldTraverseScript.test(n)) {
+	if n.isScript() && !this.outer_.shouldTraverseScript.test(n) {
 		return false
 	}
-	if (this.outer_.hasExternsRoot() && n.isScript()) {
+	if this.outer_.hasExternsRoot() && n.isScript() {
 		this.outer_.sourceKind = GlobalNamespace_SourceKind_fromScriptNode(n)
-	} else if (n == this.outer_.root) {
+	} else if n == this.outer_.root {
 		this.outer_.sourceKind = GlobalNamespace_SourceKind_CODE
 	}
-	if (n.isModuleBody() || NodeUtil_isBundledGoogModuleScopeRoot(n)) {
+	if n.isModuleBody() || NodeUtil_isBundledGoogModuleScopeRoot(n) {
 		this.setupModuleMetadata(n)
-	} else if (n.isScript() || NodeUtil_isBundledGoogModuleCall(n)) {
+	} else if n.isScript() || NodeUtil_isBundledGoogModuleCall(n) {
 		this.curModuleRoot = 0
 		this.curMetadata = nil
 	}
@@ -481,7 +496,7 @@ func (this *GlobalNamespace_BuildGlobalNamespace) shouldTraverse_impl(t *NodeTra
 
 func (this *GlobalNamespace_BuildGlobalNamespace) setupModuleMetadata(moduleRoot Node) {
 	var moduleMap *ModuleMap = this.outer_.compiler_.getModuleMap()
-	if (moduleMap == nil) {
+	if moduleMap == nil {
 		return
 	}
 	this.curModuleRoot = moduleRoot
@@ -498,7 +513,7 @@ func (this *GlobalNamespace_BuildGlobalNamespace) collect(scope *Scope, chunk *J
 	var type_ *GlobalNamespace_NameProp = GlobalNamespace_NameProp_OTHER_OBJECT
 	switch n.getToken() {
 	case Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF, Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_MEMBER_FIELD_DEF:
-		if (parent.isClassMembers() && !n.isStaticMember()) {
+		if parent.isClassMembers() && !n.isStaticMember() {
 			return
 		}
 		name = NodeUtil_getBestLValueName(n)
@@ -526,9 +541,14 @@ func (this *GlobalNamespace_BuildGlobalNamespace) collect(scope *Scope, chunk *J
 		case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST:
 			isSet = true
 			var rvalue Node = n.getFirstChild()
-			type_ = func() *GlobalNamespace_NameProp { if (rvalue == 0) { return GlobalNamespace_NameProp_OTHER_OBJECT }; return this.getValueType(rvalue) }()
+			type_ = func() *GlobalNamespace_NameProp {
+				if rvalue == 0 {
+					return GlobalNamespace_NameProp_OTHER_OBJECT
+				}
+				return this.getValueType(rvalue)
+			}()
 		case Token_rhino_ASSIGN:
-			if (parent.getFirstChild() == n) {
+			if parent.getFirstChild() == n {
 				isSet = true
 				type_ = this.getValueType(n.getNext())
 			}
@@ -536,7 +556,7 @@ func (this *GlobalNamespace_BuildGlobalNamespace) collect(scope *Scope, chunk *J
 			return
 		case Token_rhino_FUNCTION:
 			var grandparent Node = parent.getParent()
-			if ((grandparent == 0) || NodeUtil_isFunctionExpression(parent)) {
+			if (grandparent == 0) || NodeUtil_isFunctionExpression(parent) {
 				return
 			}
 			isSet = true
@@ -545,29 +565,29 @@ func (this *GlobalNamespace_BuildGlobalNamespace) collect(scope *Scope, chunk *J
 			isSet = true
 			type_ = GlobalNamespace_NameProp_OTHER_OBJECT
 		case Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF:
-			if (parent.getFirstChild() == n) {
+			if parent.getFirstChild() == n {
 				isSet = true
 				type_ = GlobalNamespace_NameProp_OTHER_OBJECT
 			}
 		case Token_rhino_CLASS:
-			if (parent.getFirstChild() == n) {
+			if parent.getFirstChild() == n {
 				isSet = true
 				type_ = GlobalNamespace_NameProp_CLASS
 			}
 		case Token_rhino_STRING_KEY, Token_rhino_ARRAY_PATTERN, Token_rhino_DEFAULT_VALUE, Token_rhino_COMPUTED_PROP, Token_rhino_ITER_REST, Token_rhino_OBJECT_REST:
-			if (n.isName() && NodeUtil_isLhsByDestructuring(n)) {
+			if n.isName() && NodeUtil_isLhsByDestructuring(n) {
 				isSet = true
 				type_ = GlobalNamespace_NameProp_OTHER_OBJECT
 			}
 		case Token_rhino_ITER_SPREAD, Token_rhino_OBJECT_SPREAD:
 		case Token_rhino_CALL, Token_rhino_OPTCHAIN_CALL:
-			if (n.isFirstChildOf(parent) && this.isObjectHasOwnPropertyCall(parent)) {
+			if n.isFirstChildOf(parent) && this.isObjectHasOwnPropertyCall(parent) {
 				var qname string = n.getFirstChild().getQualifiedName()
 				var globalName *GlobalNamespace_Name = this.getOrCreateName(qname, this.curMetadata)
 				globalName.setBooleanProperty(GlobalNamespace_NameProp_IS_USED_HAS_OWN_PROPERTY)
 			}
 		default:
-			if (NodeUtil_isAssignmentOp(parent) && (parent.getFirstChild() == n)) {
+			if NodeUtil_isAssignmentOp(parent) && (parent.getFirstChild() == n) {
 				isSet = true
 				type_ = GlobalNamespace_NameProp_OTHER_OBJECT
 			}
@@ -579,7 +599,7 @@ func (this *GlobalNamespace_BuildGlobalNamespace) collect(scope *Scope, chunk *J
 			return !String_isEmpty(s)
 		}))
 	case Token_rhino_CALL:
-		if ((parent.isExprResult() && GlobalNamespace_GOOG_PROVIDE.matches(n.getFirstChild())) && n.getSecondChild().isStringLit()) {
+		if (parent.isExprResult() && GlobalNamespace_GOOG_PROVIDE.matches(n.getFirstChild())) && n.getSecondChild().isStringLit() {
 			this.createNamesFromProvide(n.getSecondChild().getString())
 			return
 		}
@@ -594,10 +614,15 @@ func (this *GlobalNamespace_BuildGlobalNamespace) collect(scope *Scope, chunk *J
 	if !this.isTopLevelScopeRoot(root) {
 		return
 	}
-	var nameMetadata *ModuleMetadataMap_ModuleMetadata = func() *ModuleMetadataMap_ModuleMetadata { if (root == this.outer_.globalRoot) { return nil }; return this.curMetadata }()
+	var nameMetadata *ModuleMetadataMap_ModuleMetadata = func() *ModuleMetadataMap_ModuleMetadata {
+		if root == this.outer_.globalRoot {
+			return nil
+		}
+		return this.curMetadata
+	}()
 	if isSet {
 		var hoistScope *Scope = scope.getClosestHoistScope_rScope()
-		if (hoistScope.isGlobal() || ((root != this.outer_.globalRoot) && (hoistScope.getRootNode() == this.curModuleRoot))) {
+		if hoistScope.isGlobal() || ((root != this.outer_.globalRoot) && (hoistScope.getRootNode() == this.curModuleRoot)) {
 			this.handleSetFromGlobal(chunk, scope, n, name.get(), type_, nameMetadata)
 		} else {
 			this.handleSetFromLocal(chunk, scope, n, name.get(), nameMetadata)
@@ -631,9 +656,14 @@ func (this *GlobalNamespace_BuildGlobalNamespace) createObjLitStringKeyAnalysis(
 func (this *GlobalNamespace_BuildGlobalNamespace) createNamesFromProvide(namespace string) {
 	var name *GlobalNamespace_Name
 	var dot int32 = 0
-	for (dot >= 0) {
+	for dot >= 0 {
 		dot = String_indexOf_int_int(namespace, 46, (dot + 1))
-		var subNamespace string = func() string { if (dot < 0) { return namespace }; return String_substring(namespace, 0, dot) }()
+		var subNamespace string = func() string {
+			if dot < 0 {
+				return namespace
+			}
+			return String_substring(namespace, 0, dot)
+		}()
 		Preconditions_checkState(!String_isEmpty(subNamespace))
 		name = this.getOrCreateName(subNamespace, nil)
 		name.setBooleanProperty(GlobalNamespace_NameProp_IS_PROVIDED)
@@ -643,11 +673,11 @@ func (this *GlobalNamespace_BuildGlobalNamespace) createNamesFromProvide(namespa
 }
 
 func (this *GlobalNamespace_BuildGlobalNamespace) isTopLevelScopeRoot(root Node) bool {
-	if (root == 0) {
+	if root == 0 {
 		return false
-	} else if (root == this.outer_.globalRoot) {
+	} else if root == this.outer_.globalRoot {
 		return true
-	} else if (root == this.curModuleRoot) {
+	} else if root == this.curModuleRoot {
 		return true
 	}
 	return (((this.curModuleRoot != 0) && this.curModuleRoot.isBlock()) && (root == this.curModuleRoot.getParent()))
@@ -657,9 +687,9 @@ func (this *GlobalNamespace_BuildGlobalNamespace) getNameForObjectPatternKey(str
 	var parent Node = stringKey.getParent()
 	Preconditions_checkState(parent.isObjectPattern())
 	var patternParent Node = parent.getParent()
-	if (patternParent.isAssign() || patternParent.isDestructuringLhs()) {
+	if patternParent.isAssign() || patternParent.isDestructuringLhs() {
 		var rhs Node = patternParent.getSecondChild()
-		if ((rhs == 0) || !rhs.isQualifiedName()) {
+		if (rhs == 0) || !rhs.isQualifiedName() {
 			return Optional_empty[string]()
 		}
 		return Optional_of[string]((sstr_(rhs.getQualifiedName()) + "." + sstr_(stringKey.getString())))
@@ -682,7 +712,7 @@ func (this *GlobalNamespace_BuildGlobalNamespace) getValueType(n Node) *GlobalNa
 	case Token_rhino_HOOK:
 		var second Node = n.getSecondChild()
 		var t *GlobalNamespace_NameProp = this.getValueType(second)
-		if (t != GlobalNamespace_NameProp_OTHER_OBJECT) {
+		if t != GlobalNamespace_NameProp_OTHER_OBJECT {
 			return t
 		}
 		var third Node = second.getNext()
@@ -715,19 +745,19 @@ func (this *GlobalNamespace_BuildGlobalNamespace) handleSetFromGlobal(chunk *JSC
 func (this *GlobalNamespace_BuildGlobalNamespace) getDeclaredTypeKind(n Node) *GlobalNamespace_NameProp {
 	var valueNode Node = NodeUtil_getRValueOfLValue(n)
 	var kind *GlobalNamespace_NameProp
-	if (valueNode == 0) {
+	if valueNode == 0 {
 		kind = GlobalNamespace_NameProp_NOT_A_TYPE
 	} else if valueNode.isClass() {
 		kind = GlobalNamespace_NameProp_CONSTRUCTOR_TYPE
 	} else {
 		var info *JSDocInfo = NodeUtil_getBestJSDocInfo(n)
-		if (info == nil) {
+		if info == nil {
 			kind = GlobalNamespace_NameProp_NOT_A_TYPE
-		} else if (info.isConstructor() && valueNode.isFunction()) {
+		} else if info.isConstructor() && valueNode.isFunction() {
 			kind = GlobalNamespace_NameProp_CONSTRUCTOR_TYPE
-		} else if (info.isInterface() && valueNode.isFunction()) {
+		} else if info.isInterface() && valueNode.isFunction() {
 			kind = GlobalNamespace_NameProp_INTERFACE_TYPE
-		} else if (info.hasEnumParameterType() && valueNode.isObjectLit()) {
+		} else if info.hasEnumParameterType() && valueNode.isObjectLit() {
 			kind = GlobalNamespace_NameProp_ENUM_TYPE
 		} else {
 			kind = GlobalNamespace_NameProp_NOT_A_TYPE
@@ -766,7 +796,7 @@ func (this *GlobalNamespace_BuildGlobalNamespace) determineRefTypeForGet(n Node,
 	case Token_rhino_EXPR_RESULT, Token_rhino_IF, Token_rhino_WHILE, Token_rhino_FOR, Token_rhino_INSTANCEOF, Token_rhino_TYPEOF, Token_rhino_VOID, Token_rhino_NOT, Token_rhino_BITNOT, Token_rhino_POS, Token_rhino_NEG, Token_rhino_SHEQ, Token_rhino_EQ, Token_rhino_SHNE, Token_rhino_NE, Token_rhino_LT, Token_rhino_LE, Token_rhino_GT, Token_rhino_GE, Token_rhino_ADD, Token_rhino_SUB, Token_rhino_MUL, Token_rhino_DIV, Token_rhino_MOD, Token_rhino_EXPONENT, Token_rhino_BITAND, Token_rhino_BITOR, Token_rhino_BITXOR, Token_rhino_LSH, Token_rhino_RSH, Token_rhino_URSH:
 		type_ = GlobalNamespace_Ref_Type_DIRECT_GET
 	case Token_rhino_OPTCHAIN_CALL, Token_rhino_CALL:
-		if (n == parent.getFirstChild()) {
+		if n == parent.getFirstChild() {
 			type_ = GlobalNamespace_Ref_Type_CALL_GET
 		} else if this.isClassDefiningCall(parent) {
 			type_ = GlobalNamespace_Ref_Type_DIRECT_GET
@@ -774,17 +804,22 @@ func (this *GlobalNamespace_BuildGlobalNamespace) determineRefTypeForGet(n Node,
 			type_ = GlobalNamespace_Ref_Type_ALIASING_GET
 		}
 	case Token_rhino_NEW:
-		type_ = func() *GlobalNamespace_Ref_Type { if (n == parent.getFirstChild()) { return GlobalNamespace_Ref_Type_DIRECT_GET }; return GlobalNamespace_Ref_Type_ALIASING_GET }()
+		type_ = func() *GlobalNamespace_Ref_Type {
+			if n == parent.getFirstChild() {
+				return GlobalNamespace_Ref_Type_DIRECT_GET
+			}
+			return GlobalNamespace_Ref_Type_ALIASING_GET
+		}()
 	case Token_rhino_CAST, Token_rhino_OR, Token_rhino_AND, Token_rhino_COALESCE:
 		type_ = this.determineRefTypeForGet(parent, referenceNode, name)
 	case Token_rhino_NAME:
-		if ((n != referenceNode) && (name == parent.getString())) {
+		if (n != referenceNode) && (name == parent.getString()) {
 			type_ = GlobalNamespace_Ref_Type_DIRECT_GET
 		} else {
 			type_ = GlobalNamespace_Ref_Type_ALIASING_GET
 		}
 	case Token_rhino_COMMA, Token_rhino_HOOK:
-		if (n != parent.getFirstChild()) {
+		if n != parent.getFirstChild() {
 			type_ = this.determineRefTypeForGet(parent, referenceNode, name)
 		} else {
 			type_ = GlobalNamespace_Ref_Type_DIRECT_GET
@@ -795,14 +830,14 @@ func (this *GlobalNamespace_BuildGlobalNamespace) determineRefTypeForGet(n Node,
 		type_ = GlobalNamespace_Ref_Type_SUBCLASSING_GET
 	case Token_rhino_DESTRUCTURING_LHS, Token_rhino_ASSIGN:
 		var lhs Node = n.getPrevious()
-		if (lhs == 0) {
+		if lhs == 0 {
 			type_ = GlobalNamespace_Ref_Type_ALIASING_GET
 			break
 		}
 		for lhs.isCast() {
 			lhs = lhs.getOnlyChild()
 		}
-		if (n != referenceNode) {
+		if n != referenceNode {
 			if lhs.matchesQualifiedName(name) {
 				return GlobalNamespace_Ref_Type_DIRECT_GET
 			}
@@ -811,7 +846,7 @@ func (this *GlobalNamespace_BuildGlobalNamespace) determineRefTypeForGet(n Node,
 		case Token_rhino_NAME, Token_rhino_GETPROP, Token_rhino_GETELEM, Token_rhino_ARRAY_PATTERN, Token_rhino_OBJECT_PATTERN:
 			type_ = GlobalNamespace_Ref_Type_ALIASING_GET
 		default:
-			panic(new_IllegalStateException_String(("Unexpected previous sibling of " + tostr_(n.getToken()) + ": " + tostrH_(n.getPrevious()))).self())
+			panic(new_IllegalStateException_String(("Unexpected previous sibling of " + jtostr_(n.getToken()) + ": " + tostrH_(n.getPrevious()))).self())
 		}
 	default:
 		type_ = GlobalNamespace_Ref_Type_ALIASING_GET
@@ -821,7 +856,7 @@ func (this *GlobalNamespace_BuildGlobalNamespace) determineRefTypeForGet(n Node,
 
 func (this *GlobalNamespace_BuildGlobalNamespace) addOrConfirmRef(nameObj *GlobalNamespace_Name, node Node, refType *GlobalNamespace_Ref_Type, scope *Scope, chunk *JSChunk) {
 	var existingRef *GlobalNamespace_Ref = nameObj.getRefForNode(node)
-	if (existingRef == nil) {
+	if existingRef == nil {
 		nameObj.addRef(chunk, scope, node, refType)
 	} else {
 		var existingRefType *GlobalNamespace_Ref_Type = existingRef.type__
@@ -832,7 +867,7 @@ func (this *GlobalNamespace_BuildGlobalNamespace) addOrConfirmRef(nameObj *Globa
 func (this *GlobalNamespace_BuildGlobalNamespace) isClassDefiningCall(callNode Node) bool {
 	var convention CodingConvention = this.outer_.compiler_.getCodingConvention()
 	var classes *CodingConvention_SubclassRelationship = convention.getClassesDefinedByCall(callNode)
-	if (classes != nil) {
+	if classes != nil {
 		return true
 	}
 	var className string = convention.getSingletonGetterClassName(callNode)
@@ -845,7 +880,7 @@ func (this *GlobalNamespace_BuildGlobalNamespace) isObjectHasOwnPropertyCall(cal
 		return false
 	}
 	var callee Node = callNode.getFirstChild()
-	if (!callee.isGetProp() && !callee.isOptChainGetProp()) {
+	if !callee.isGetProp() && !callee.isOptChainGetProp() {
 		return false
 	}
 	var receiver Node = callee.getFirstChild()
@@ -861,13 +896,13 @@ func (this *GlobalNamespace_BuildGlobalNamespace) maybeHandlePrototypePrefix(chu
 		prefix = String_substring(name, 0, (String_length(name) - 10))
 	} else {
 		var i int32 = String_indexOf_String(name, ".prototype.")
-		if (i == -1) {
+		if i == -1 {
 			return false
 		}
 		prefix = String_substring(name, 0, i)
 		numLevelsToRemove = 2
 		i = String_indexOf_int_int(name, 46, (i + 11))
-		for (i >= 0) {
+		for i >= 0 {
 			numLevelsToRemove++
 			i = String_indexOf_int_int(name, 46, (i + 1))
 		}
@@ -875,7 +910,7 @@ func (this *GlobalNamespace_BuildGlobalNamespace) maybeHandlePrototypePrefix(chu
 	if NodeUtil_mayBeObjectLitKey(n) {
 		return true
 	}
-	for i := int32(0); (i < numLevelsToRemove); i++ {
+	for i := int32(0); i < numLevelsToRemove; i++ {
 		n = n.getFirstChild()
 	}
 	this.addOrConfirmRef(this.getOrCreateName(prefix, metadata), n, GlobalNamespace_Ref_Type_PROTOTYPE_GET, scope, chunk)
@@ -887,21 +922,26 @@ func (this *GlobalNamespace_BuildGlobalNamespace) isNestedAssign(parent Node) bo
 }
 
 func (this *GlobalNamespace_BuildGlobalNamespace) getOrCreateName(name string, metadata *ModuleMetadataMap_ModuleMetadata) *GlobalNamespace_Name {
-	var node *GlobalNamespace_Name = func() *GlobalNamespace_Name { if (metadata == nil) { return this.outer_.nameMap.get(name) }; return this.outer_.nameMapByModule.get(metadata, name) }()
-	if (node == nil) {
+	var node *GlobalNamespace_Name = func() *GlobalNamespace_Name {
+		if metadata == nil {
+			return this.outer_.nameMap.get(name)
+		}
+		return this.outer_.nameMapByModule.get(metadata, name)
+	}()
+	if node == nil {
 		var i int32 = String_lastIndexOf(name, 46)
-		if (i >= 0) {
+		if i >= 0 {
 			var parentName string = String_substring(name, 0, i)
 			var parent *GlobalNamespace_Name = this.getOrCreateName(parentName, metadata)
-			node = parent.addProperty(String_substring_int(name, (i + 1)), this.outer_.sourceKind)
-			if (metadata == nil) {
+			node = parent.addProperty(String_substring_int(name, (i+1)), this.outer_.sourceKind)
+			if metadata == nil {
 				this.outer_.nameMap.put(name, node)
 			} else {
 				this.outer_.nameMapByModule.put(metadata, name, node)
 			}
 		} else {
 			node = new_GlobalNamespace_Name(this.outer_, name, nil, this.outer_.sourceKind)
-			if (metadata == nil) {
+			if metadata == nil {
 				this.outer_.globalNames.add(node)
 				this.outer_.nameMap.put(name, node)
 			} else {
@@ -914,9 +954,9 @@ func (this *GlobalNamespace_BuildGlobalNamespace) getOrCreateName(name string, m
 
 type GlobalNamespace_Inlinability struct {
 	Enum
-	shouldInlineUsagesField bool
+	shouldInlineUsagesField      bool
 	shouldRemoveDeclarationField bool
-	canCollapseField bool
+	canCollapseField             bool
 }
 
 func (this *GlobalNamespace_Inlinability) up_Enum() *Enum {
@@ -988,24 +1028,24 @@ func GlobalNamespace_Inlinability_clinit() {
 }
 
 type GlobalNamespace_Name struct {
-	outer_ *GlobalNamespace
-	baseName string
-	parent *GlobalNamespace_Name
-	props *TList[*GlobalNamespace_Name]
-	declaration_ *GlobalNamespace_Ref
-	initialization *GlobalNamespace_Ref
-	refsForNode any
-	firstDeclarationJSDocInfo *JSDocInfo
+	outer_                                          *GlobalNamespace
+	baseName                                        string
+	parent                                          *GlobalNamespace_Name
+	props                                           *JTList[*GlobalNamespace_Name]
+	declaration_                                    *GlobalNamespace_Ref
+	initialization                                  *GlobalNamespace_Ref
+	refsForNode                                     any
+	firstDeclarationJSDocInfo                       *JSDocInfo
 	firstQnameDeclarationWithoutAssignmentJsDocInfo *JSDocInfo
-	globalSets int32
-	localSets int32
-	localSetsWithNoCollapse int32
-	aliasingGets int32
-	totalGets int32
-	callGets int32
-	deleteProps int32
-	subclassingGets int32
-	propertyBitSet int32
+	globalSets                                      int32
+	localSets                                       int32
+	localSetsWithNoCollapse                         int32
+	aliasingGets                                    int32
+	totalGets                                       int32
+	callGets                                        int32
+	deleteProps                                     int32
+	subclassingGets                                 int32
+	propertyBitSet                                  int32
 }
 
 func (this *GlobalNamespace_Name) zero_GlobalNamespace_Name() {
@@ -1047,8 +1087,8 @@ func new_GlobalNamespace_Name(outer_ *GlobalNamespace, name string, parent *Glob
 }
 
 func (this *GlobalNamespace_Name) addProperty(name string, sourceKind *GlobalNamespace_SourceKind) *GlobalNamespace_Name {
-	if (this.props == nil) {
-		this.props = newTList_(tc_p_GlobalNamespace_Name)
+	if this.props == nil {
+		this.props = jnewTList_(jtc_p_GlobalNamespace_Name)
 	}
 	var node *GlobalNamespace_Name = new_GlobalNamespace_Name(this.outer_, name, this, sourceKind)
 	this.props.add(node)
@@ -1072,7 +1112,12 @@ func (this *GlobalNamespace_Name) getName() string {
 }
 
 func (this *GlobalNamespace_Name) getFullName() string {
-	return func() string { if (this.parent == nil) { return this.baseName }; return (sstr_(this.parent.getFullName()) + "." + sstr_(this.baseName)) }()
+	return func() string {
+		if this.parent == nil {
+			return this.baseName
+		}
+		return (sstr_(this.parent.getFullName()) + "." + sstr_(this.baseName))
+	}()
 }
 
 func (this *GlobalNamespace_Name) usesHasOwnProperty() bool {
@@ -1137,7 +1182,7 @@ func (this *GlobalNamespace_Name) getParent() *GlobalNamespace_Name {
 
 func (this *GlobalNamespace_Name) getDeepestCommonAncestorChunk(chunkGraph *JSChunkGraph) *JSChunk {
 	var commonAncestor *JSChunk = this.getDeclaration_rRef().getChunk()
-	it_1 := eachOf_(this.getRefs())
+	it_1 := jeachOf_(this.getRefs())
 	for it_1.next() {
 		var r *GlobalNamespace_Ref = it_1.v
 		var rChunk *JSChunk = r.getChunk()
@@ -1166,12 +1211,19 @@ func (this *GlobalNamespace_Name) addRef(chunk *JSChunk, scope *Scope, node Node
 }
 
 func (this *GlobalNamespace_Name) checkNoExistingRefsForNode(node Node) {
-	if (this.refsForNode == nil) {
+	if this.refsForNode == nil {
 		return
 	}
 	var ref *GlobalNamespace_Ref
 	_ = ref
-	if func() bool { v_ := this.refsForNode; if !is_[*GlobalNamespace_Ref](v_) { return false }; ref = cast_[*GlobalNamespace_Ref](v_); return true }() {
+	if func() bool {
+		v_ := this.refsForNode
+		if !is_[*GlobalNamespace_Ref](v_) {
+			return false
+		}
+		ref = cast_[*GlobalNamespace_Ref](v_)
+		return true
+	}() {
 		Preconditions_checkState_boolean_String_Object((ref.node_ != node), "Ref already exists for node: %s", this.refsForNode)
 		return
 	}
@@ -1180,7 +1232,7 @@ func (this *GlobalNamespace_Name) checkNoExistingRefsForNode(node Node) {
 }
 
 func (this *GlobalNamespace_Name) castRefsForNodeMap() MapT[Node, *GlobalNamespace_Ref] {
-	return mapAs_(tc_Node, tc_p_GlobalNamespace_Ref, icast_Map(this.refsForNode))
+	return mapAs_(jtc_Node, jtc_p_GlobalNamespace_Ref, icast_Map(this.refsForNode))
 }
 
 func (this *GlobalNamespace_Name) createNewRef(chunk *JSChunk, scope *Scope, node Node, type_ *GlobalNamespace_Ref_Type) *GlobalNamespace_Ref {
@@ -1188,12 +1240,12 @@ func (this *GlobalNamespace_Name) createNewRef(chunk *JSChunk, scope *Scope, nod
 }
 
 func (this *GlobalNamespace_Name) putRef(node Node, ref *GlobalNamespace_Ref) {
-	if (this.refsForNode == nil) {
+	if this.refsForNode == nil {
 		this.refsForNode = obj_(ref)
 		return
 	}
 	if is_[*GlobalNamespace_Ref](this.refsForNode) {
-		var refsForNodeMap *TMap[Node, *GlobalNamespace_Ref] = newTMap_(tc_Node, tc_p_GlobalNamespace_Ref)
+		var refsForNodeMap *JTMap[Node, *GlobalNamespace_Ref] = jnewTMap_(jtc_Node, jtc_p_GlobalNamespace_Ref)
 		var existingRef *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](this.refsForNode)
 		refsForNodeMap.put(existingRef.node_, existingRef)
 		this.refsForNode = any(refsForNodeMap.asMap())
@@ -1216,13 +1268,13 @@ func (this *GlobalNamespace_Name) addAliasingGetClonedFromDeclaration(newRefNode
 func (this *GlobalNamespace_Name) updateStateForAddedRef(ref *GlobalNamespace_Ref) {
 	switch ref.type__ {
 	case GlobalNamespace_Ref_Type_GET_AND_SET_FROM_GLOBAL, GlobalNamespace_Ref_Type_SET_FROM_GLOBAL:
-		if (this.declaration_ == nil) {
+		if this.declaration_ == nil {
 			this.declaration_ = ref
 		}
-		if ((this.initialization == nil) && !ref.isUninitializedDeclaration()) {
+		if (this.initialization == nil) && !ref.isUninitializedDeclaration() {
 			this.initialization = ref
 		}
-		if (this.firstDeclarationJSDocInfo == nil) {
+		if this.firstDeclarationJSDocInfo == nil {
 			this.firstDeclarationJSDocInfo = this.getDocInfoForDeclaration(ref)
 		}
 		this.globalSets++
@@ -1232,8 +1284,13 @@ func (this *GlobalNamespace_Name) updateStateForAddedRef(ref *GlobalNamespace_Re
 		}
 	case GlobalNamespace_Ref_Type_GET_AND_SET_FROM_LOCAL, GlobalNamespace_Ref_Type_SET_FROM_LOCAL:
 		this.localSets++
-		var info *JSDocInfo = func() *JSDocInfo { if (ref.getNode() == 0) { return nil }; return NodeUtil_getBestJSDocInfo(ref.getNode()) }()
-		if ((info != nil) && info.isNoCollapse()) {
+		var info *JSDocInfo = func() *JSDocInfo {
+			if ref.getNode() == 0 {
+				return nil
+			}
+			return NodeUtil_getBestJSDocInfo(ref.getNode())
+		}()
+		if (info != nil) && info.isNoCollapse() {
 			this.localSetsWithNoCollapse++
 		}
 		if eqR_(ref.type__, GlobalNamespace_Ref_Type_GET_AND_SET_FROM_LOCAL) {
@@ -1242,7 +1299,7 @@ func (this *GlobalNamespace_Name) updateStateForAddedRef(ref *GlobalNamespace_Re
 		}
 	case GlobalNamespace_Ref_Type_PROTOTYPE_GET, GlobalNamespace_Ref_Type_DIRECT_GET:
 		var node Node = ref.getNode()
-		if ((this.firstQnameDeclarationWithoutAssignmentJsDocInfo == nil) && GlobalNamespace_isQnameDeclarationWithoutAssignment(node)) {
+		if (this.firstQnameDeclarationWithoutAssignmentJsDocInfo == nil) && GlobalNamespace_isQnameDeclarationWithoutAssignment(node) {
 			this.firstQnameDeclarationWithoutAssignmentJsDocInfo = node.getJSDocInfo()
 		}
 		this.totalGets++
@@ -1265,14 +1322,14 @@ func (this *GlobalNamespace_Name) updateRefNode(ref *GlobalNamespace_Ref, newNod
 	var oldNode Node = ref.getNode()
 	Preconditions_checkState_boolean_String_Object((oldNode != 0), "Ref's node is already null: %s", ref)
 	ref.node_ = newNode
-	if (this.refsForNode == nil) {
+	if this.refsForNode == nil {
 		this.refsForNode = obj_(ref)
 	} else if is_[*GlobalNamespace_Ref](this.refsForNode) {
 		Preconditions_checkState((this.refsForNode == obj_(ref)))
 	} else {
 		var refsForNodeMap MapT[Node, *GlobalNamespace_Ref] = this.castRefsForNodeMap()
 		Map_removeK_[Node, *GlobalNamespace_Ref](refsForNodeMap, oldNode)
-		if (newNode != 0) {
+		if newNode != 0 {
 			var existingRefForNewNode *GlobalNamespace_Ref = Map_getK_[Node, *GlobalNamespace_Ref](refsForNodeMap, newNode)
 			Preconditions_checkArgument_boolean_String_Object((existingRefForNewNode == nil), "refs already exist: %s", existingRefForNewNode)
 			refsForNodeMap.put_t(newNode, ref)
@@ -1288,7 +1345,7 @@ func (this *GlobalNamespace_Name) removeRef(ref *GlobalNamespace_Ref) {
 	} else {
 		Preconditions_checkState_boolean_String_Object(Map_containsKeyK_[Node, *GlobalNamespace_Ref](this.castRefsForNodeMap(), ref.getNode()), "removeRef(%s): unknown ref", ref)
 		var refNode Node = ref.getNode()
-		if (refNode != 0) {
+		if refNode != 0 {
 			this.removeRefFromNodeMap(ref)
 		}
 	}
@@ -1296,12 +1353,12 @@ func (this *GlobalNamespace_Name) removeRef(ref *GlobalNamespace_Ref) {
 }
 
 func (this *GlobalNamespace_Name) removeRefAndUpdateState(ref *GlobalNamespace_Ref) {
-	if (ref == this.declaration_) {
+	if ref == this.declaration_ {
 		this.declaration_ = nil
-		it_1 := eachOf_(this.getRefs())
+		it_1 := jeachOf_(this.getRefs())
 		for it_1.next() {
 			var maybeNewDecl *GlobalNamespace_Ref = it_1.v
-			if (maybeNewDecl.type__ == GlobalNamespace_Ref_Type_SET_FROM_GLOBAL) {
+			if maybeNewDecl.type__ == GlobalNamespace_Ref_Type_SET_FROM_GLOBAL {
 				this.declaration_ = maybeNewDecl
 				break
 			}
@@ -1317,8 +1374,13 @@ func (this *GlobalNamespace_Name) removeRefAndUpdateState(ref *GlobalNamespace_R
 		this.globalSets--
 	case GlobalNamespace_Ref_Type_SET_FROM_LOCAL, GlobalNamespace_Ref_Type_GET_AND_SET_FROM_LOCAL:
 		this.localSets--
-		info = func() *JSDocInfo { if (ref.getNode() == 0) { return nil }; return NodeUtil_getBestJSDocInfo(ref.getNode()) }()
-		if ((info != nil) && info.isNoCollapse()) {
+		info = func() *JSDocInfo {
+			if ref.getNode() == 0 {
+				return nil
+			}
+			return NodeUtil_getBestJSDocInfo(ref.getNode())
+		}()
+		if (info != nil) && info.isNoCollapse() {
 			this.localSetsWithNoCollapse--
 		}
 		if eqR_(ref.type__, GlobalNamespace_Ref_Type_GET_AND_SET_FROM_LOCAL) {
@@ -1354,26 +1416,45 @@ func (this *GlobalNamespace_Name) removeRefFromNodeMap(ref *GlobalNamespace_Ref)
 }
 
 func (this *GlobalNamespace_Name) getRefs() CollectionT[*GlobalNamespace_Ref] {
-	if (this.refsForNode == nil) {
-		return tsetEmptyImm_(tc_p_GlobalNamespace_Ref).asCollT()
+	if this.refsForNode == nil {
+		return jtsetEmptyImm_(jtc_p_GlobalNamespace_Ref).asCollT()
 	}
 	var ref *GlobalNamespace_Ref
 	_ = ref
-	if func() bool { v_ := this.refsForNode; if !is_[*GlobalNamespace_Ref](v_) { return false }; ref = cast_[*GlobalNamespace_Ref](v_); return true }() {
-		return immutableSetOf_[*GlobalNamespace_Ref](tc_p_GlobalNamespace_Ref, ref).asCollT()
+	if func() bool {
+		v_ := this.refsForNode
+		if !is_[*GlobalNamespace_Ref](v_) {
+			return false
+		}
+		ref = cast_[*GlobalNamespace_Ref](v_)
+		return true
+	}() {
+		return jimmutableSetOf_[*GlobalNamespace_Ref](jtc_p_GlobalNamespace_Ref, ref).asCollT()
 	}
 	return this.castRefsForNodeMap().values_t()
 }
 
 func (this *GlobalNamespace_Name) getRefForNode(node Node) *GlobalNamespace_Ref {
 	Preconditions_checkNotNull_T(node)
-	if (this.refsForNode == nil) {
+	if this.refsForNode == nil {
 		return nil
 	}
 	var ref *GlobalNamespace_Ref
 	_ = ref
-	if func() bool { v_ := this.refsForNode; if !is_[*GlobalNamespace_Ref](v_) { return false }; ref = cast_[*GlobalNamespace_Ref](v_); return true }() {
-		return func() *GlobalNamespace_Ref { if (ref.getNode() == node) { return ref }; return nil }()
+	if func() bool {
+		v_ := this.refsForNode
+		if !is_[*GlobalNamespace_Ref](v_) {
+			return false
+		}
+		ref = cast_[*GlobalNamespace_Ref](v_)
+		return true
+	}() {
+		return func() *GlobalNamespace_Ref {
+			if ref.getNode() == node {
+				return ref
+			}
+			return nil
+		}()
 	}
 	return Map_getK_[Node, *GlobalNamespace_Ref](this.castRefsForNodeMap(), node)
 }
@@ -1382,17 +1463,24 @@ func (this *GlobalNamespace_Name) getFirstRef() *GlobalNamespace_Ref {
 	Preconditions_checkNotNull_Object_Object(this.refsForNode, "no first Ref to get")
 	var ref *GlobalNamespace_Ref
 	_ = ref
-	if func() bool { v_ := this.refsForNode; if !is_[*GlobalNamespace_Ref](v_) { return false }; ref = cast_[*GlobalNamespace_Ref](v_); return true }() {
+	if func() bool {
+		v_ := this.refsForNode
+		if !is_[*GlobalNamespace_Ref](v_) {
+			return false
+		}
+		ref = cast_[*GlobalNamespace_Ref](v_)
+		return true
+	}() {
 		return ref
 	}
 	return this.castRefsForNodeMap().values_t().iterator_t().next_t()
 }
 
 func (this *GlobalNamespace_Name) canEliminate() bool {
-	if (!this.canCollapseUnannotatedChildNames() || (this.totalGets > 0)) {
+	if !this.canCollapseUnannotatedChildNames() || (this.totalGets > 0) {
 		return false
 	}
-	if (this.props != nil) {
+	if this.props != nil {
 		it_1 := this.props.each()
 		for it_1.next() {
 			var n *GlobalNamespace_Name = it_1.v
@@ -1405,7 +1493,7 @@ func (this *GlobalNamespace_Name) canEliminate() bool {
 }
 
 func (this *GlobalNamespace_Name) isSimpleStubDeclaration() bool {
-	if (this.getRefs().size() == 1) {
+	if this.getRefs().size() == 1 {
 		var ref *GlobalNamespace_Ref = this.getFirstRef()
 		if ref.node_.getParent().isExprResult() {
 			return true
@@ -1420,16 +1508,21 @@ func (this *GlobalNamespace_Name) isCollapsingExplicitlyDenied() bool {
 }
 
 func (this *GlobalNamespace_Name) calculateInlinability() *GlobalNamespace_Inlinability {
-	if ((this.inExterns() || !this.hasOneRealGlobalSet()) || (this.localSets != 0)) {
+	if (this.inExterns() || !this.hasOneRealGlobalSet()) || (this.localSets != 0) {
 		return GlobalNamespace_Inlinability_DO_NOT_INLINE
 	}
 	var inlinability *GlobalNamespace_Inlinability = this.canCollapseOrInline()
 	if !inlinability.shouldInlineUsages() {
 		return GlobalNamespace_Inlinability_DO_NOT_INLINE
 	}
-	var initialChunk *JSChunk = func() *JSChunk { if (this.getInitialization() != nil) { return this.getInitialization().getChunk() }; return this.getDeclaration_rRef().getChunk() }()
-	it_1 := eachOf_(this.getRefs())
-	L_2:
+	var initialChunk *JSChunk = func() *JSChunk {
+		if this.getInitialization() != nil {
+			return this.getInitialization().getChunk()
+		}
+		return this.getDeclaration_rRef().getChunk()
+	}()
+	it_1 := jeachOf_(this.getRefs())
+L_2:
 	for it_1.next() {
 		var ref *GlobalNamespace_Ref = it_1.v
 		switch ref.type__ {
@@ -1440,7 +1533,7 @@ func (this *GlobalNamespace_Name) calculateInlinability() *GlobalNamespace_Inlin
 			panic(new_IllegalStateException_0().self())
 		case GlobalNamespace_Ref_Type_ALIASING_GET, GlobalNamespace_Ref_Type_DIRECT_GET, GlobalNamespace_Ref_Type_PROTOTYPE_GET, GlobalNamespace_Ref_Type_CALL_GET, GlobalNamespace_Ref_Type_SUBCLASSING_GET:
 			var refChunk *JSChunk = ref.getChunk()
-			if (((inlinability != GlobalNamespace_Inlinability_INLINE_UNLESS_INVALID_CROSS_CHUNK_DEPENDENCY) && (refChunk != initialChunk)) && !this.outer_.compiler_.getChunkGraph().dependsOn(refChunk, initialChunk)) {
+			if ((inlinability != GlobalNamespace_Inlinability_INLINE_UNLESS_INVALID_CROSS_CHUNK_DEPENDENCY) && (refChunk != initialChunk)) && !this.outer_.compiler_.getChunkGraph().dependsOn(refChunk, initialChunk) {
 				inlinability = GlobalNamespace_Inlinability_INLINE_UNLESS_INVALID_CROSS_CHUNK_DEPENDENCY
 			}
 			continue L_2
@@ -1481,11 +1574,11 @@ func (this *GlobalNamespace_Name) canCollapseOrInline() *GlobalNamespace_Inlinab
 		this.logDecision(GlobalNamespace_Inlinability_DO_NOT_INLINE, "references explicit definition of toString/valueOf functions used implicitly in the JS language")
 		return GlobalNamespace_Inlinability_DO_NOT_INLINE
 	}
-	if (this.deleteProps > 0) {
+	if this.deleteProps > 0 {
 		this.logDecision(GlobalNamespace_Inlinability_DO_NOT_INLINE, "delete operator is used on this property")
 		return GlobalNamespace_Inlinability_DO_NOT_INLINE
 	}
-	if (this.getDeclaration_rRef() != nil) {
+	if this.getDeclaration_rRef() != nil {
 		var declaration Node = this.getDeclaration_rRef().getNode()
 		if declaration.getParent().isObjectLit() {
 			if this.outer_.declarationHasFollowingObjectSpreadSibling(declaration) {
@@ -1504,7 +1597,7 @@ func (this *GlobalNamespace_Name) canCollapseOrInline() *GlobalNamespace_Inlinab
 					if !(((p != 0) && (p.getParent() != 0)) && !NodeUtil_isStatement(p)) {
 						break
 					}
-					if (((p.isOr() && (p.getFirstChild() != child)) || (p.isHook() && (p.getFirstChild() != child))) || (p.isAnd() && (p.getFirstChild() != child))) {
+					if ((p.isOr() && (p.getFirstChild() != child)) || (p.isHook() && (p.getFirstChild() != child))) || (p.isAnd() && (p.getFirstChild() != child)) {
 						this.logDecision(GlobalNamespace_Inlinability_DO_NOT_INLINE, "conditional definition")
 						return GlobalNamespace_Inlinability_DO_NOT_INLINE
 					}
@@ -1513,7 +1606,12 @@ func (this *GlobalNamespace_Name) canCollapseOrInline() *GlobalNamespace_Inlinab
 		}
 	}
 	var isUnchangedThroughFullName bool = ((((this.globalSets > 0) || (this.localSets > 0)) && (this.localSetsWithNoCollapse == 0)) && (this.deleteProps == 0))
-	var parentInlinability *GlobalNamespace_Inlinability = func() *GlobalNamespace_Inlinability { if (this.parent == nil) { return GlobalNamespace_Inlinability_INLINE_COMPLETELY }; return this.parent.canCollapseOrInlineChildNames() }()
+	var parentInlinability *GlobalNamespace_Inlinability = func() *GlobalNamespace_Inlinability {
+		if this.parent == nil {
+			return GlobalNamespace_Inlinability_INLINE_COMPLETELY
+		}
+		return this.parent.canCollapseOrInlineChildNames()
+	}()
 	switch parentInlinability {
 	case GlobalNamespace_Inlinability_INLINE_COMPLETELY:
 		if isUnchangedThroughFullName {
@@ -1541,11 +1639,11 @@ func (this *GlobalNamespace_Name) canCollapseOrInline() *GlobalNamespace_Inlinab
 		this.logDecision(unsafeInlinability, "parent cannot be inlined")
 		return unsafeInlinability
 	}
-	panic(new_IllegalStateException_String(("unknown enum value " + tostr_(parentInlinability))).self())
+	panic(new_IllegalStateException_String(("unknown enum value " + jtostr_(parentInlinability))).self())
 }
 
 func (this *GlobalNamespace_Name) logDecision(inlinability *GlobalNamespace_Inlinability, reason string) {
-	if ((this.outer_.decisionsLog != nil) && this.outer_.decisionsLog.isLogging()) {
+	if (this.outer_.decisionsLog != nil) && this.outer_.decisionsLog.isLogging() {
 		this.outer_.decisionsLog.log_2("%s: %s: %s", []any{strobj_(this.getFullName()), obj_(inlinability), strobj_(reason)})
 	}
 }
@@ -1565,15 +1663,20 @@ func (this *GlobalNamespace_Name) getUnsafeInlinabilityBasedOnDeclaredType() *Gl
 
 func (this *GlobalNamespace_Name) referencesSuperOrInnerClassName() bool {
 	var ref *GlobalNamespace_Ref = this.getDeclaration_rRef()
-	if (ref == nil) {
+	if ref == nil {
 		return false
 	}
 	var member Node = ref.getNode()
-	if ((member == 0) || !(member.isStaticMember() && member.getParent().isClassMembers())) {
+	if (member == 0) || !(member.isStaticMember() && member.getParent().isClassMembers()) {
 		return false
 	}
-	var body Node = func() Node { if member.isMemberFieldDef() { return member.getFirstChild() }; return NodeUtil_getFunctionBody(member.getFirstChild()) }()
-	if ((body != 0) && NodeUtil_referencesSuper(body)) {
+	var body Node = func() Node {
+		if member.isMemberFieldDef() {
+			return member.getFirstChild()
+		}
+		return NodeUtil_getFunctionBody(member.getFirstChild())
+	}()
+	if (body != 0) && NodeUtil_referencesSuper(body) {
 		return true
 	}
 	var classNode Node = member.getGrandparent()
@@ -1586,9 +1689,9 @@ func (this *GlobalNamespace_Name) referencesSuperOrInnerClassName() bool {
 
 func (this *GlobalNamespace_Name) isSetInLoop() bool {
 	var ref *GlobalNamespace_Ref = this.getDeclaration_rRef()
-	if (ref != nil) {
+	if ref != nil {
 		var n Node = ref.getNode()
-		if (n != 0) {
+		if n != 0 {
 			return NodeUtil_isWithinLoop(n)
 		}
 	}
@@ -1616,17 +1719,17 @@ func (this *GlobalNamespace_Name) canCollapseOrInlineChildNames() *GlobalNamespa
 	} else if this.isGetOrSetDefinition() {
 		this.logChildNamesDecision(GlobalNamespace_Inlinability_DO_NOT_INLINE, "getter/setter")
 		return GlobalNamespace_Inlinability_DO_NOT_INLINE
-	} else if (this.globalSets != 1) {
+	} else if this.globalSets != 1 {
 		this.logChildNamesDecisionSupplier(GlobalNamespace_Inlinability_DO_NOT_INLINE, Supplier[string](func() string {
 			return String_format("set %d times globally", []any{int32(this.globalSets)})
 		}))
 		return GlobalNamespace_Inlinability_DO_NOT_INLINE
-	} else if (this.localSets != 0) {
+	} else if this.localSets != 0 {
 		this.logChildNamesDecisionSupplier(GlobalNamespace_Inlinability_DO_NOT_INLINE, Supplier[string](func() string {
 			return String_format("set %d times locally", []any{int32(this.localSets)})
 		}))
 		return GlobalNamespace_Inlinability_DO_NOT_INLINE
-	} else if (this.deleteProps != 0) {
+	} else if this.deleteProps != 0 {
 		this.logChildNamesDecisionSupplier(GlobalNamespace_Inlinability_DO_NOT_INLINE, Supplier[string](func() string {
 			return String_format("properties are deleted %d times", []any{int32(this.deleteProps)})
 		}))
@@ -1653,24 +1756,24 @@ func (this *GlobalNamespace_Name) canCollapseOrInlineChildNames() *GlobalNamespa
 		this.logChildNamesDecision(GlobalNamespace_Inlinability_DO_NOT_INLINE, "value implicitly supports aliasing")
 		return GlobalNamespace_Inlinability_DO_NOT_INLINE
 	}
-	if ((this.parent != nil) && this.parent.shouldKeepKeys()) {
+	if (this.parent != nil) && this.parent.shouldKeepKeys() {
 		var unsafeInlinability *GlobalNamespace_Inlinability = this.getUnsafeInlinabilityBasedOnDeclaredType()
 		this.logChildNamesDecision(unsafeInlinability, "parent.shouldKeepKeys()")
 		return unsafeInlinability
 	}
-	if (this.aliasingGets > 0) {
+	if this.aliasingGets > 0 {
 		var unsafeInlinability *GlobalNamespace_Inlinability = this.getUnsafeInlinabilityBasedOnDeclaredType()
 		this.logChildNamesDecisionSupplier(unsafeInlinability, Supplier[string](func() string {
 			return String_format("%d aliasing gets exist", []any{int32(this.aliasingGets)})
 		}))
 		return unsafeInlinability
 	}
-	if (this.parent == nil) {
+	if this.parent == nil {
 		this.logChildNamesDecision(GlobalNamespace_Inlinability_INLINE_COMPLETELY, "no reason not to inline")
 		return GlobalNamespace_Inlinability_INLINE_COMPLETELY
 	}
 	var parentInlinability *GlobalNamespace_Inlinability = this.parent.canCollapseOrInlineChildNames()
-	if (parentInlinability == GlobalNamespace_Inlinability_DO_NOT_INLINE) {
+	if parentInlinability == GlobalNamespace_Inlinability_DO_NOT_INLINE {
 		var unsafeInlinability *GlobalNamespace_Inlinability = this.getUnsafeInlinabilityBasedOnDeclaredType()
 		this.logChildNamesDecision(unsafeInlinability, "parent is not inlineable")
 		return unsafeInlinability
@@ -1680,13 +1783,13 @@ func (this *GlobalNamespace_Name) canCollapseOrInlineChildNames() *GlobalNamespa
 }
 
 func (this *GlobalNamespace_Name) logChildNamesDecision(inlinability *GlobalNamespace_Inlinability, reason string) {
-	if ((this.outer_.decisionsLog != nil) && this.outer_.decisionsLog.isLogging()) {
+	if (this.outer_.decisionsLog != nil) && this.outer_.decisionsLog.isLogging() {
 		this.outer_.decisionsLog.log_2("%s: children: %s: %s", []any{strobj_(this.getFullName()), obj_(inlinability), strobj_(reason)})
 	}
 }
 
 func (this *GlobalNamespace_Name) logChildNamesDecisionSupplier(inlinability *GlobalNamespace_Inlinability, reasonSupplier Supplier[string]) {
-	if ((this.outer_.decisionsLog != nil) && this.outer_.decisionsLog.isLogging()) {
+	if (this.outer_.decisionsLog != nil) && this.outer_.decisionsLog.isLogging() {
 		this.outer_.decisionsLog.log(Supplier[string](func() string {
 			return String_format("%s: children: %s: %s", []any{strobj_(this.getFullName()), obj_(inlinability), strobj_(reasonSupplier.get())})
 		}))
@@ -1718,10 +1821,10 @@ func (this *GlobalNamespace_Name) needsToBeStubbed() bool {
 func (this *GlobalNamespace_Name) setDeclaredTypeKind(declaredType *GlobalNamespace_NameProp) {
 	Preconditions_checkArgument_boolean_String_Object(((declaredType.bit & GlobalNamespace_NameProp_DECLARED_TYPE_KIND_MASK) != 0), "Unexpected NameProp for declaredType %s", declaredType)
 	this.propertyBitSet = ((this.propertyBitSet & (^GlobalNamespace_NameProp_DECLARED_TYPE_KIND_MASK)) | declaredType.bit)
-	if (declaredType != GlobalNamespace_NameProp_NOT_A_TYPE) {
+	if declaredType != GlobalNamespace_NameProp_NOT_A_TYPE {
 		{
 			var ancestor *GlobalNamespace_Name = this.parent
-			for ; (ancestor != nil); ancestor = ancestor.parent {
+			for ; ancestor != nil; ancestor = ancestor.parent {
 				ancestor.setBooleanProperty(GlobalNamespace_NameProp_IS_DECLARED)
 			}
 		}
@@ -1766,24 +1869,34 @@ func (this *GlobalNamespace_Name) getTypeDebugString() string {
 }
 
 func (this *GlobalNamespace_Name) toString() string {
-	return (sstr_(this.getFullName()) + " (" + sstr_(this.getTypeDebugString()) + "): " + sstr_(Joiner_on(", ").join_Object_Object_ObjectArr(strobj_(("globalSets=" + istr_(int64(this.globalSets)))), strobj_(("localSets=" + istr_(int64(this.localSets)))), []any{strobj_(("totalGets=" + istr_(int64(this.totalGets)))), strobj_(("aliasingGets=" + istr_(int64(this.aliasingGets)))), strobj_(("callGets=" + istr_(int64(this.callGets)))), strobj_(("subclassingGets=" + istr_(int64(this.subclassingGets))))})))
+	return (sstr_(this.getFullName()) + " (" + sstr_(this.getTypeDebugString()) + "): " + sstr_(Joiner_on(", ").join_Object_Object_ObjectArr(strobj_(("globalSets="+istr_(int64(this.globalSets)))), strobj_(("localSets="+istr_(int64(this.localSets)))), []any{strobj_(("totalGets=" + istr_(int64(this.totalGets)))), strobj_(("aliasingGets=" + istr_(int64(this.aliasingGets)))), strobj_(("callGets=" + istr_(int64(this.callGets)))), strobj_(("subclassingGets=" + istr_(int64(this.subclassingGets))))})))
 }
 
 func (this *GlobalNamespace_Name) getJSDocInfo() *JSDocInfo {
-	return func() *JSDocInfo { if (this.firstDeclarationJSDocInfo != nil) { return this.firstDeclarationJSDocInfo }; return this.firstQnameDeclarationWithoutAssignmentJsDocInfo }()
+	return func() *JSDocInfo {
+		if this.firstDeclarationJSDocInfo != nil {
+			return this.firstDeclarationJSDocInfo
+		}
+		return this.firstQnameDeclarationWithoutAssignmentJsDocInfo
+	}()
 }
 
 func (this *GlobalNamespace_Name) getDocInfoForDeclaration(ref *GlobalNamespace_Ref) *JSDocInfo {
-	if (ref.node_ != 0) {
+	if ref.node_ != 0 {
 		var refParent Node = ref.node_.getParent()
-		if (refParent == 0) {
+		if refParent == 0 {
 			return nil
 		}
 		switch refParent.getToken() {
 		case Token_rhino_FUNCTION, Token_rhino_ASSIGN, Token_rhino_CLASS:
 			return refParent.getJSDocInfo()
 		case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST:
-			return func() *JSDocInfo { if (ref.node_ == refParent.getFirstChild()) { return refParent.getJSDocInfo() }; return ref.node_.getJSDocInfo() }()
+			return func() *JSDocInfo {
+				if ref.node_ == refParent.getFirstChild() {
+					return refParent.getJSDocInfo()
+				}
+				return ref.node_.getJSDocInfo()
+			}()
 		case Token_rhino_OBJECTLIT, Token_rhino_CLASS_MEMBERS:
 			return ref.node_.getJSDocInfo()
 		default:
@@ -1804,7 +1917,7 @@ type GlobalNamespace_Ref struct {
 	type__ *GlobalNamespace_Ref_Type
 	chunk_ *JSChunk
 	scope_ *Scope
-	node_ Node
+	node_  Node
 }
 
 func (this *GlobalNamespace_Ref) init_GlobalNamespace_Ref(chunk *JSChunk, scope *Scope, node Node, type_ *GlobalNamespace_Ref_Type) {
@@ -1829,7 +1942,12 @@ func (this *GlobalNamespace_Ref) getNode() Node {
 }
 
 func (this *GlobalNamespace_Ref) getSourceFile() StaticSourceFile {
-	return func() StaticSourceFile { if (this.node_ != 0) { return this.node_.getStaticSourceFile() }; return nil }()
+	return func() StaticSourceFile {
+		if this.node_ != 0 {
+			return this.node_.getStaticSourceFile()
+		}
+		return nil
+	}()
 }
 
 func (this *GlobalNamespace_Ref) getSymbol() StaticSlot {
@@ -2057,7 +2175,7 @@ func GlobalNamespace_NameProp_clinit() {
 }
 
 type GlobalNamespace_ObjLitStringKeyAnalysis struct {
-	nameType_ *GlobalNamespace_NameProp
+	nameType_   *GlobalNamespace_NameProp
 	nameString_ Optional[string]
 }
 
@@ -2108,6 +2226,5 @@ func (this *GlobalNamespace_ObjLitStringKeyAnalysis) hashCode() int32 {
 }
 
 func (this *GlobalNamespace_ObjLitStringKeyAnalysis) toString() string {
-	return "ObjLitStringKeyAnalysis[" + "nameString=" + objstr_(this.nameString_.box_()) + ", nameType=" + tostr_(this.nameType_) + "]"
+	return "ObjLitStringKeyAnalysis[" + "nameString=" + objstr_(this.nameString_.box_()) + ", nameType=" + jtostr_(this.nameType_) + "]"
 }
-

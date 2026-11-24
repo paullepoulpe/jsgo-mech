@@ -4,7 +4,7 @@ package closure
 
 type LabelledStatementTree struct {
 	ParseTree
-	name_ *IdentifierToken
+	name_     *IdentifierToken
 	statement *ParseTree
 }
 
@@ -27,4 +27,3 @@ func new_LabelledStatementTree(location *SourceRange, name *IdentifierToken, sta
 	this.init_LabelledStatementTree(location, name, statement)
 	return this
 }
-

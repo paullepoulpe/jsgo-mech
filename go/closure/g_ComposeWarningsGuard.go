@@ -4,11 +4,11 @@ package closure
 
 type ComposeWarningsGuard struct {
 	WarningsGuard
-	orderOfAddition *TMap[*WarningsGuard, any]
+	orderOfAddition *JTMap[*WarningsGuard, any]
 	guardComparator Comparator[*WarningsGuard]
-	guards *TSet[*WarningsGuard]
-	numberOfAdds int32
-	demoteErrors bool
+	guards          *JTSet[*WarningsGuard]
+	numberOfAdds    int32
+	demoteErrors    bool
 }
 
 func (this *ComposeWarningsGuard) up_WarningsGuard() *WarningsGuard {
@@ -19,20 +19,26 @@ func (this *ComposeWarningsGuard) up_WarningsGuard() *WarningsGuard {
 }
 
 func (this *ComposeWarningsGuard) finit_ComposeWarningsGuard() {
-	this.orderOfAddition = newTMap_(tc_p_WarningsGuard, tc_Integer)
+	this.orderOfAddition = jnewTMap_(jtc_p_WarningsGuard, tc_Integer)
 	this.numberOfAdds = 0
-	this.guardComparator = func() Comparator[*WarningsGuard] { v_ := new_ComposeWarningsGuard_GuardComparator(this.orderOfAddition); if v_ == nil { return nil }; return v_.compare }()
+	this.guardComparator = func() Comparator[*WarningsGuard] {
+		v_ := new_ComposeWarningsGuard_GuardComparator(this.orderOfAddition)
+		if v_ == nil {
+			return nil
+		}
+		return v_.compare
+	}()
 	this.demoteErrors = false
-	this.guards = newTSortedSetCT_(tc_p_WarningsGuard, this.guardComparator)
+	this.guards = newTSortedSetCT_(jtc_p_WarningsGuard, this.guardComparator)
 }
 
-func (this *ComposeWarningsGuard) init_ComposeWarningsGuard(guards *TList[*WarningsGuard]) {
+func (this *ComposeWarningsGuard) init_ComposeWarningsGuard(guards *JTList[*WarningsGuard]) {
 	this.WarningsGuard.init_WarningsGuard()
 	this.finit_ComposeWarningsGuard()
 	this.addGuards(guards.asIterable())
 }
 
-func new_ComposeWarningsGuard(guards *TList[*WarningsGuard]) *ComposeWarningsGuard {
+func new_ComposeWarningsGuard(guards *JTList[*WarningsGuard]) *ComposeWarningsGuard {
 	this := &ComposeWarningsGuard{}
 	this.self_ = this
 	this.init_ComposeWarningsGuard(guards)
@@ -40,17 +46,24 @@ func new_ComposeWarningsGuard(guards *TList[*WarningsGuard]) *ComposeWarningsGua
 }
 
 func ComposeWarningsGuard_createFromGuards(guards []*WarningsGuard) *ComposeWarningsGuard {
-	return new_ComposeWarningsGuard(immutableListCopyOfArr_(tc_p_WarningsGuard, guards))
+	return new_ComposeWarningsGuard(jimmutableListCopyOfArr_(jtc_p_WarningsGuard, guards))
 }
 
 func (this *ComposeWarningsGuard) addGuard(guard *WarningsGuard) {
 	var composeGuard *ComposeWarningsGuard
 	_ = composeGuard
-	if func() bool { v_ := guard.self(); if !is_[*ComposeWarningsGuard](v_) { return false }; composeGuard = cast_[*ComposeWarningsGuard](v_); return true }() {
+	if func() bool {
+		v_ := guard.self()
+		if !is_[*ComposeWarningsGuard](v_) {
+			return false
+		}
+		composeGuard = cast_[*ComposeWarningsGuard](v_)
+		return true
+	}() {
 		if composeGuard.demoteErrors {
 			this.demoteErrors = composeGuard.demoteErrors
 		}
-		this.addGuards(tlistFrom_(tc_p_WarningsGuard, Collection(composeGuard.guards.asSorted().descendingSet())).asIterable())
+		this.addGuards(jtlistFrom_(jtc_p_WarningsGuard, Collection(composeGuard.guards.asSorted().descendingSet())).asIterable())
 	} else {
 		this.numberOfAdds++
 		this.orderOfAddition.put(guard, int32(this.numberOfAdds))
@@ -60,7 +73,7 @@ func (this *ComposeWarningsGuard) addGuard(guard *WarningsGuard) {
 }
 
 func (this *ComposeWarningsGuard) addGuards(guards IterableT[*WarningsGuard]) {
-	it_1 := eachOf_(guards)
+	it_1 := jeachOf_(guards)
 	for it_1.next() {
 		var guard *WarningsGuard = it_1.v
 		this.addGuard(guard)
@@ -72,8 +85,8 @@ func (this *ComposeWarningsGuard) level_impl(error_ *JSError) *CheckLevel {
 	for it_1.next() {
 		var guard *WarningsGuard = it_1.v
 		var newLevel *CheckLevel = guard.level(error_)
-		if (newLevel != nil) {
-			if (this.demoteErrors && (newLevel == CheckLevel_ERROR)) {
+		if newLevel != nil {
+			if this.demoteErrors && (newLevel == CheckLevel_ERROR) {
 				return CheckLevel_WARNING
 			}
 			return newLevel
@@ -98,7 +111,7 @@ func (this *ComposeWarningsGuard) mustRunChecks_impl(group *DiagnosticGroup) *Tr
 
 func (this *ComposeWarningsGuard) disables(group *DiagnosticGroup) bool {
 	it_1 := group.getTypes().each()
-	nextSingleton_:
+nextSingleton_:
 	for it_1.next() {
 		var type_ *DiagnosticType = it_1.v
 		var singleton *DiagnosticGroup = DiagnosticGroup_forType(type_)
@@ -134,7 +147,7 @@ func (this *ComposeWarningsGuard) enables(group *DiagnosticGroup) bool {
 }
 
 func (this *ComposeWarningsGuard) getGuards() SetT[*WarningsGuard] {
-	return setAs_(tc_p_WarningsGuard, Set(Collections_unmodifiableSortedSet(this.guards.asSorted())))
+	return setAs_(jtc_p_WarningsGuard, Set(Collections_unmodifiableSortedSet(this.guards.asSorted())))
 }
 
 func (this *ComposeWarningsGuard) toString() string {
@@ -144,14 +157,14 @@ func (this *ComposeWarningsGuard) toString() string {
 const ComposeWarningsGuard_serialVersionUID int64 = 1
 
 type ComposeWarningsGuard_GuardComparator struct {
-	orderOfAddition *TMap[*WarningsGuard, any]
+	orderOfAddition *JTMap[*WarningsGuard, any]
 }
 
-func (this *ComposeWarningsGuard_GuardComparator) init_ComposeWarningsGuard_GuardComparator(orderOfAddition *TMap[*WarningsGuard, any]) {
+func (this *ComposeWarningsGuard_GuardComparator) init_ComposeWarningsGuard_GuardComparator(orderOfAddition *JTMap[*WarningsGuard, any]) {
 	this.orderOfAddition = orderOfAddition
 }
 
-func new_ComposeWarningsGuard_GuardComparator(orderOfAddition *TMap[*WarningsGuard, any]) *ComposeWarningsGuard_GuardComparator {
+func new_ComposeWarningsGuard_GuardComparator(orderOfAddition *JTMap[*WarningsGuard, any]) *ComposeWarningsGuard_GuardComparator {
 	this := &ComposeWarningsGuard_GuardComparator{}
 	this.init_ComposeWarningsGuard_GuardComparator(orderOfAddition)
 	return this
@@ -159,11 +172,10 @@ func new_ComposeWarningsGuard_GuardComparator(orderOfAddition *TMap[*WarningsGua
 
 func (this *ComposeWarningsGuard_GuardComparator) compare(a *WarningsGuard, b *WarningsGuard) int32 {
 	var priorityDiff int32 = (a.getPriority() - b.getPriority())
-	if (priorityDiff != 0) {
+	if priorityDiff != 0 {
 		return priorityDiff
 	}
 	return (Integer_intValue(this.orderOfAddition.get(b)) - Integer_intValue(this.orderOfAddition.get(a)))
 }
 
 const ComposeWarningsGuard_GuardComparator_serialVersionUID int64 = 1
-

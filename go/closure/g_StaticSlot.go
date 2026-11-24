@@ -8,4 +8,3 @@ type StaticSlot interface {
 	getJSDocInfo() *JSDocInfo
 	getScope() StaticScope
 }
-

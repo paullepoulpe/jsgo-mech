@@ -8,8 +8,8 @@ type ErrorManager interface {
 	generateReport()
 	getErrorCount() int32
 	getWarningCount() int32
-	getErrors() *TList[*JSError]
-	getWarnings() *TList[*JSError]
+	getErrors() *JTList[*JSError]
+	getWarnings() *JTList[*JSError]
 	setTypedPercent(float64)
 	getTypedPercent() float64
 	hasHaltingErrors() bool
@@ -17,13 +17,13 @@ type ErrorManager interface {
 }
 
 func ErrorManager_hasHaltingErrors_default(this ErrorManager) bool {
-	if (this.getErrorCount() == 0) {
+	if this.getErrorCount() == 0 {
 		return false
 	}
 	it_1 := this.getErrors().each()
 	for it_1.next() {
 		var error_ *JSError = it_1.v
-		if (error_.type_().level_ == CheckLevel_ERROR) {
+		if error_.type_().level_ == CheckLevel_ERROR {
 			return true
 		}
 	}
@@ -33,4 +33,3 @@ func ErrorManager_hasHaltingErrors_default(this ErrorManager) bool {
 func ErrorManager_shouldReportConformanceViolation_default(this ErrorManager, requirement *Requirement, allowlistEntry GOptional[*RequirementScopeEntry], diagnostic *JSError, behavior *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior, isAllowlisted bool) bool {
 	return (behavior != ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_RECORD_ONLY)
 }
-

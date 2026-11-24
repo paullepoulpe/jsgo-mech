@@ -24,4 +24,3 @@ func GoogEsImports_getClosureIdFromGoogImportSpecifier(moduleSpecifier string) s
 }
 
 const GoogEsImports_GOOG_IMPORT_PREFIX string = "goog:"
-

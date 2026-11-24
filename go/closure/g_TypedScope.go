@@ -4,12 +4,12 @@ package closure
 
 type TypedScope struct {
 	AbstractScope
-	parent *TypedScope
-	module_ *Module
-	reservedNames *TSet[string]
-	vars *TMap[string, *TypedVar]
-	implicitVars MapT[*AbstractScope_ImplicitVar, *TypedVar]
-	depth int32
+	parent        *TypedScope
+	module_       *Module
+	reservedNames *JTSet[string]
+	vars          *JTMap[string, *TypedVar]
+	implicitVars  MapT[*AbstractScope_ImplicitVar, *TypedVar]
+	depth         int32
 	isBottomField bool
 }
 
@@ -21,22 +21,27 @@ func (this *TypedScope) up_AbstractScope() *AbstractScope {
 }
 
 func (this *TypedScope) finit_TypedScope() {
-	this.vars = tmapEmptyImm_(tc_string, tc_p_TypedVar)
-	this.implicitVars = tmapEmptyImm_(tc_p_AbstractScope_ImplicitVar, tc_p_TypedVar).asMapT()
+	this.vars = jtmapEmptyImm_(jtc_string, jtc_p_TypedVar)
+	this.implicitVars = jtmapEmptyImm_(tc_p_AbstractScope_ImplicitVar, jtc_p_TypedVar).asMapT()
 }
 
-func (this *TypedScope) init_TypedScope_TypedScope_Node_Set_Module(parent *TypedScope, rootNode Node, reservedNames *TSet[string], module *Module) {
+func (this *TypedScope) init_TypedScope_TypedScope_Node_Set_Module(parent *TypedScope, rootNode Node, reservedNames *JTSet[string], module *Module) {
 	this.AbstractScope.init_AbstractScope(rootNode)
 	this.finit_TypedScope()
 	this.checkChildScope(parent)
 	this.parent = parent
 	this.depth = (parent.depth + 1)
 	this.isBottomField = false
-	this.reservedNames = func() *TSet[string] { if reservedNames.isEmpty() { return tsetEmptyImm_(tc_string) }; return tsetCopy_(tc_string, reservedNames) }()
+	this.reservedNames = func() *JTSet[string] {
+		if reservedNames.isEmpty() {
+			return jtsetEmptyImm_(jtc_string)
+		}
+		return tsetCopy_(jtc_string, reservedNames)
+	}()
 	this.module_ = module
 }
 
-func new_TypedScope_TypedScope_Node_Set_Module(parent *TypedScope, rootNode Node, reservedNames *TSet[string], module *Module) *TypedScope {
+func new_TypedScope_TypedScope_Node_Set_Module(parent *TypedScope, rootNode Node, reservedNames *JTSet[string], module *Module) *TypedScope {
 	this := &TypedScope{}
 	this.self_ = this
 	this.init_TypedScope_TypedScope_Node_Set_Module(parent, rootNode, reservedNames, module)
@@ -50,7 +55,7 @@ func (this *TypedScope) init_TypedScope_Node_boolean(rootNode Node, isBottom boo
 	this.parent = nil
 	this.depth = 0
 	this.isBottomField = isBottom
-	this.reservedNames = tsetEmptyImm_(tc_string)
+	this.reservedNames = jtsetEmptyImm_(jtc_string)
 	this.module_ = nil
 }
 
@@ -62,7 +67,7 @@ func new_TypedScope_Node_boolean(rootNode Node, isBottom bool) *TypedScope {
 }
 
 func TypedScope_createFromParent(parent *TypedScope, rootNode Node) *TypedScope {
-	return new_TypedScope_TypedScope_Node_Set_Module(parent, rootNode, newTSet_(tc_string), nil)
+	return new_TypedScope_TypedScope_Node_Set_Module(parent, rootNode, jnewTSet_(jtc_string), nil)
 }
 
 func TypedScope_createGlobalScope(rootNode Node) *TypedScope {
@@ -79,7 +84,7 @@ func (this *TypedScope) typed_impl() *TypedScope {
 
 func (this *TypedScope) validateCompletelyBuilt() {
 	Preconditions_checkState_boolean_String_Object_Object(this.reservedNames.isEmpty(), "Expected %s to have no reserved names, found: %s. This probably indicates a bug in TypedScopeCreator where it is failing to declare a variable.", this, this.reservedNames.asSetT())
-	this.reservedNames = tsetEmptyImm_(tc_string)
+	this.reservedNames = jtsetEmptyImm_(jtc_string)
 }
 
 func (this *TypedScope) isBottom() bool {
@@ -104,14 +109,14 @@ func (this *TypedScope) getTypeOfThis() *JSType {
 		return ObjectType_cast(root.getJSType()).up_JSType()
 	} else if NodeUtil_isNonArrowFunction(root) {
 		var nodeType *JSType = root.getJSType()
-		if ((nodeType != nil) && nodeType.isFunctionType()) {
+		if (nodeType != nil) && nodeType.isFunctionType() {
 			return nodeType.toMaybeFunctionType().getTypeOfThis()
 		} else {
 			return nil
 		}
 	} else if this.isStaticBlockScope() {
 		return this.getParent_rTypedScope().getRootNode().getJSType()
-	} else if (this.isMemberFieldDefScope() || this.isComputedFieldDefRhsScope()) {
+	} else if this.isMemberFieldDefScope() || this.isComputedFieldDefRhsScope() {
 		var classType *JSType = this.getParent_rTypedScope().getRootNode().getJSType()
 		if root.isStaticMember() {
 			return classType
@@ -151,16 +156,26 @@ func (this *TypedScope) getImplicitVarType(var_ *AbstractScope_ImplicitVar) *JST
 	switch var_ {
 	case AbstractScope_ImplicitVar_ARGUMENTS:
 		var globalArgs *TypedVar = this.getGlobalScope_rTypedScope().getVar_String_rTypedVar(Var_ARGUMENTS)
-		return func() *JSType { if ((globalArgs != nil) && globalArgs.isExtern()) { return globalArgs.getType() }; return nil }()
+		return func() *JSType {
+			if (globalArgs != nil) && globalArgs.isExtern() {
+				return globalArgs.getType()
+			}
+			return nil
+		}()
 	case AbstractScope_ImplicitVar_THIS:
 		return this.getTypeOfThis()
 	case AbstractScope_ImplicitVar_SUPER:
 		var receiverType *ObjectType = ObjectType_cast(this.getTypeOfThis())
-		if (receiverType == nil) {
+		if receiverType == nil {
 			return nil
 		} else if receiverType.isInstanceType() {
 			var superclassCtor *FunctionType = receiverType.getSuperClassConstructor()
-			return func() *JSType { if (superclassCtor == nil) { return nil }; return superclassCtor.getInstanceType().up_JSType() }()
+			return func() *JSType {
+				if superclassCtor == nil {
+					return nil
+				}
+				return superclassCtor.getInstanceType().up_JSType()
+			}()
 		} else {
 			return receiverType.getImplicitPrototype().up_JSType()
 		}
@@ -180,17 +195,22 @@ func (this *TypedScope) isDeclarativelyUnboundVarWithoutType(var_ *TypedVar) boo
 
 func (this *TypedScope) getVar_String_rTypedVar(name string) *TypedVar {
 	var ownSlot *TypedVar = this.getOwnSlot_String_rAbstractVar_rTypedVar(name)
-	if (ownSlot != nil) {
+	if ownSlot != nil {
 		return ownSlot
-	} else if (this.getParent_rTypedScope() == nil) {
+	} else if this.getParent_rTypedScope() == nil {
 		return nil
 	}
 	var dot int32 = String_indexOf(name, 46)
-	var rootName string = func() string { if (dot < 0) { return name }; return String_substring(name, 0, dot) }()
+	var rootName string = func() string {
+		if dot < 0 {
+			return name
+		}
+		return String_substring(name, 0, dot)
+	}()
 	var rootVar *TypedVar = this.getVarSuper(rootName)
-	if (dot < 0) {
+	if dot < 0 {
 		return rootVar
-	} else if (rootVar == nil) {
+	} else if rootVar == nil {
 		return this.getParent_rTypedScope().getGlobalScope_rTypedScope().getOwnSlot_String_rAbstractVar_rTypedVar(name)
 	} else {
 		return rootVar.getScope_rAbstractScope_rTypedScope().getOwnSlot_String_rAbstractVar_rTypedVar(name)
@@ -200,25 +220,30 @@ func (this *TypedScope) getVar_String_rTypedVar(name string) *TypedVar {
 
 func (this *TypedScope) getTypeThroughNamespace(moduleId string) *JSType {
 	var split int32 = String_lastIndexOf(moduleId, 46)
-	if (split >= 0) {
+	if split >= 0 {
 		var parentName string = String_substring(moduleId, 0, split)
 		var prop string = String_substring_int(moduleId, (split + 1))
 		var parentType *JSType = this.getTypeThroughNamespace(parentName)
-		if ((parentType == nil) || (parentType.toMaybeObjectType() == nil)) {
+		if (parentType == nil) || (parentType.toMaybeObjectType() == nil) {
 			return nil
 		}
 		return parentType.assertObjectType().getPropertyType(prop)
 	} else {
 		var var_ *TypedVar = this.getSlot_String_rAbstractVar_rTypedVar(moduleId)
-		return func() *JSType { if (var_ != nil) { return var_.getType() }; return nil }()
+		return func() *JSType {
+			if var_ != nil {
+				return var_.getType()
+			}
+			return nil
+		}()
 	}
 	panic("unreachable")
 }
 
 func (this *TypedScope) getTopmostScopeOfEventualDeclaration_impl(name string) StaticScope {
-	if ((this.getOwnSlot_String_rAbstractVar_rTypedVar(name) != nil) || this.reservedNames.contains(name)) {
+	if (this.getOwnSlot_String_rAbstractVar_rTypedVar(name) != nil) || this.reservedNames.contains(name) {
 		return StaticScope(this)
-	} else if (this.getParent_rTypedScope() == nil) {
+	} else if this.getParent_rTypedScope() == nil {
 		return nil
 	} else {
 		return this.getParent_rTypedScope().getTopmostScopeOfEventualDeclaration(name)
@@ -228,8 +253,8 @@ func (this *TypedScope) getTopmostScopeOfEventualDeclaration_impl(name string) S
 
 func (this *TypedScope) contains(other *TypedScope) bool {
 	var s *TypedScope = Preconditions_checkNotNull_T(other)
-	for (s != nil) {
-		if (s == this) {
+	for s != nil {
+		if s == this {
 			return true
 		}
 		s = s.getParent_rTypedScope()
@@ -239,7 +264,7 @@ func (this *TypedScope) contains(other *TypedScope) bool {
 
 func (this *TypedScope) getGlobalScope_rTypedScope() *TypedScope {
 	var result *TypedScope = this
-	for (result.getParent_rTypedScope() != nil) {
+	for result.getParent_rTypedScope() != nil {
 		result = result.getParent_rTypedScope()
 	}
 	return result
@@ -261,9 +286,9 @@ func (this *TypedScope) undeclareInteral(var_ *TypedVar) {
 
 func (this *TypedScope) declareInternal(name string, var_ *TypedVar) {
 	Preconditions_checkState_boolean_String_Object_H((this.hasOwnSlot(name) || this.canDeclare(name)), "Illegal shadow: %s", var_.getNode())
-	var emptySentinel *TMap[string, *TypedVar] = tmapEmptyImm_(tc_string, tc_p_TypedVar)
-	if (this.vars == emptySentinel) {
-		this.vars = newTMapN_(tc_string, tc_p_TypedVar, 1)
+	var emptySentinel *JTMap[string, *TypedVar] = jtmapEmptyImm_(jtc_string, jtc_p_TypedVar)
+	if this.vars == emptySentinel {
+		this.vars = newTMapN_(jtc_string, jtc_p_TypedVar, 1)
 	}
 	this.vars.put(name, var_)
 }
@@ -281,7 +306,7 @@ func (this *TypedScope) hasOwnSlot_impl(name string) bool {
 func (this *TypedScope) hasSlot_impl(name string) bool {
 	{
 		var scope *TypedScope = this
-		for ; (scope != nil); scope = scope.getParent_rTypedScope() {
+		for ; scope != nil; scope = scope.getParent_rTypedScope() {
 			if scope.hasOwnSlot(name) {
 				return true
 			}
@@ -294,16 +319,16 @@ func (this *TypedScope) getOwnImplicitSlot(name *AbstractScope_ImplicitVar) *Typ
 	if !this.hasOwnImplicitSlot(name) {
 		return nil
 	}
-	var emptySentinel *TMap[*AbstractScope_ImplicitVar, *TypedVar] = tmapEmptyImm_(tc_p_AbstractScope_ImplicitVar, tc_p_TypedVar)
-	if (lgBox_(this.implicitVars) == any(emptySentinel.asMap())) {
-		this.implicitVars = mapAs_(tc_p_AbstractScope_ImplicitVar, tc_p_TypedVar, Map(new_EnumMap(classOf_("com.google.javascript.jscomp.AbstractScope.ImplicitVar"))))
+	var emptySentinel *JTMap[*AbstractScope_ImplicitVar, *TypedVar] = jtmapEmptyImm_(tc_p_AbstractScope_ImplicitVar, jtc_p_TypedVar)
+	if lgBox_(this.implicitVars) == any(emptySentinel.asMap()) {
+		this.implicitVars = mapAs_(tc_p_AbstractScope_ImplicitVar, jtc_p_TypedVar, Map(new_EnumMap(classOf_("com.google.javascript.jscomp.AbstractScope.ImplicitVar"))))
 	}
 	return Map_computeIfAbsentT_[*AbstractScope_ImplicitVar, *TypedVar](this.implicitVars, name, Function[*AbstractScope_ImplicitVar, *TypedVar](func(p0 *AbstractScope_ImplicitVar) *TypedVar { return this.makeImplicitVar_ImplicitVar_rTypedVar(p0) }))
 }
 
 func (this *TypedScope) getOwnSlot_String_rAbstractVar_rTypedVar(name string) *TypedVar {
 	var var_ *TypedVar = this.vars.get(name)
-	if (var_ != nil) {
+	if var_ != nil {
 		return var_
 	}
 	return this.getOwnImplicitSlot(AbstractScope_ImplicitVar_of(name))
@@ -316,9 +341,9 @@ func (this *TypedScope) getSlot_String_rAbstractVar_rTypedVar(name string) *Type
 func (this *TypedScope) getVarSuper(name string) *TypedVar {
 	{
 		var scope *TypedScope = this
-		for ; (scope != nil); scope = scope.getParent_rTypedScope() {
+		for ; scope != nil; scope = scope.getParent_rTypedScope() {
 			var var_ *TypedVar = scope.getOwnSlot_String_rAbstractVar_rTypedVar(name)
-			if (var_ != nil) {
+			if var_ != nil {
 				return var_
 			}
 		}
@@ -329,9 +354,9 @@ func (this *TypedScope) getVarSuper(name string) *TypedVar {
 func (this *TypedScope) getArgumentsVar_rTypedVar() *TypedVar {
 	{
 		var scope *TypedScope = this
-		for ; (scope != nil); scope = scope.getParent_rTypedScope() {
+		for ; scope != nil; scope = scope.getParent_rTypedScope() {
 			var arguments *TypedVar = scope.getOwnImplicitSlot(AbstractScope_ImplicitVar_ARGUMENTS)
-			if (arguments != nil) {
+			if arguments != nil {
 				return arguments
 			}
 		}
@@ -353,10 +378,10 @@ func (this *TypedScope) getVarIterable_rIterableOf_TypedVar() IterableT[*TypedVa
 }
 
 func (this *TypedScope) getAllAccessibleVariables_rIterableOf_TypedVar() IterableT[*TypedVar] {
-	var accessibleVars *TMap[string, *TypedVar] = newTMap_(tc_string, tc_p_TypedVar)
+	var accessibleVars *JTMap[string, *TypedVar] = jnewTMap_(jtc_string, jtc_p_TypedVar)
 	var s *TypedScope = this
-	for (s != nil) {
-		it_2 := eachOf_(s.getVarIterable_rIterableOf_TypedVar())
+	for s != nil {
+		it_2 := jeachOf_(s.getVarIterable_rIterableOf_TypedVar())
 		for it_2.next() {
 			var v *TypedVar = it_2.v
 			accessibleVars.putIfAbsent(v.getName(), v)
@@ -376,7 +401,7 @@ func (this *TypedScope) getVarCount_impl() int32 {
 
 func (this *TypedScope) getClosestHoistScope_rTypedScope() *TypedScope {
 	var current *TypedScope = this
-	for (current != nil) {
+	for current != nil {
 		if current.isHoistScope() {
 			return current
 		}
@@ -411,13 +436,13 @@ func (this *TypedScope) checkChildScope(parent *TypedScope) {
 func (this *TypedScope) getCommonParent(other *TypedScope) *TypedScope {
 	var left *TypedScope = this
 	var right *TypedScope = other
-	for (((left != nil) && (right != nil)) && (left != right)) {
+	for ((left != nil) && (right != nil)) && (left != right) {
 		var leftDepth int32 = left.getDepth()
 		var rightDepth int32 = right.getDepth()
-		if (leftDepth >= rightDepth) {
+		if leftDepth >= rightDepth {
 			left = left.getParent_rTypedScope()
 		}
-		if (leftDepth <= rightDepth) {
+		if leftDepth <= rightDepth {
 			right = right.getParent_rTypedScope()
 		}
 	}
@@ -431,7 +456,7 @@ func (this *TypedScope) hasSameContainerScope(other *TypedScope) bool {
 
 func (this *TypedScope) getScopeOfThis_rTypedScope() *TypedScope {
 	var scope *TypedScope = this.getClosestContainerScope_rTypedScope()
-	for (!scope.isGlobal() && !NodeUtil_isNonArrowFunction(scope.getRootNode())) {
+	for !scope.isGlobal() && !NodeUtil_isNonArrowFunction(scope.getRootNode()) {
 		scope = scope.getParent_rTypedScope().getClosestContainerScope_rTypedScope()
 	}
 	return scope
@@ -474,15 +499,15 @@ func (this *TypedScope) getArgumentsVar_impl() *AbstractVar {
 }
 
 func (this *TypedScope) getVarIterable_impl() IterableT[*AbstractVar] {
-	return iterableAs_(tc_p_AbstractVar, Iterable_un_(this.getVarIterable_rIterableOf_TypedVar()))
+	return iterableAs_(jtc_p_AbstractVar, Iterable_un_(this.getVarIterable_rIterableOf_TypedVar()))
 }
 
 func (this *TypedScope) getAllAccessibleVariables_impl() IterableT[*AbstractVar] {
-	return iterableAs_(tc_p_AbstractVar, Iterable_un_(this.getAllAccessibleVariables_rIterableOf_TypedVar()))
+	return iterableAs_(jtc_p_AbstractVar, Iterable_un_(this.getAllAccessibleVariables_rIterableOf_TypedVar()))
 }
 
 func (this *TypedScope) getAllSymbols_impl() IterableT[*AbstractVar] {
-	return iterableAs_(tc_p_AbstractVar, Iterable_un_(this.getAllSymbols_rIterableOf_TypedVar()))
+	return iterableAs_(jtc_p_AbstractVar, Iterable_un_(this.getAllSymbols_rIterableOf_TypedVar()))
 }
 
 func (this *TypedScope) getClosestHoistScope_impl() *AbstractScope {
@@ -512,4 +537,3 @@ func (this *TypedScope) getSlot_String_rStaticTypedSlot(p0 string) StaticTypedSl
 func (this *TypedScope) getOwnSlot_String_rStaticTypedSlot(p0 string) StaticTypedSlot {
 	return icast_StaticTypedSlot(obj_(this.getOwnSlot_String_rAbstractVar_rTypedVar(p0)))
 }
-

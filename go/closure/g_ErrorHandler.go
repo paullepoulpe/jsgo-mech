@@ -13,4 +13,3 @@ type ErrorHandler_fn struct {
 func (this *ErrorHandler_fn) report_2(p0 *CheckLevel, p1 *JSError) {
 	this.f(p0, p1)
 }
-

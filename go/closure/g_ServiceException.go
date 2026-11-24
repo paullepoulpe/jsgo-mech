@@ -23,4 +23,3 @@ func new_ServiceException(message string) *ServiceException {
 	this.init_ServiceException(message)
 	return this
 }
-

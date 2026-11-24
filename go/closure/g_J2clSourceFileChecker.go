@@ -19,7 +19,7 @@ func new_J2clSourceFileChecker(compiler *AbstractCompiler) *J2clSourceFileChecke
 func J2clSourceFileChecker_hasJ2cl(root Node) bool {
 	{
 		var script Node = root.getFirstChild()
-		for ; (script != 0); script = script.getNext() {
+		for ; script != 0; script = script.getNext() {
 			Preconditions_checkState(script.isScript())
 			if J2clSourceUtils_isJ2clSource(script) {
 				return true
@@ -42,4 +42,3 @@ func J2clSourceFileChecker_markToRunJ2clPasses(compiler *AbstractCompiler) {
 func J2clSourceFileChecker_shouldRunJ2clPasses(compiler *AbstractCompiler) bool {
 	return compiler.runJ2clPasses()
 }
-

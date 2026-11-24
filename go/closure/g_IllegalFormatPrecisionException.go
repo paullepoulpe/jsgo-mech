@@ -23,4 +23,3 @@ func new_IllegalFormatPrecisionException(precision int32) *IllegalFormatPrecisio
 	this.init_IllegalFormatPrecisionException(precision)
 	return this
 }
-

@@ -17,13 +17,13 @@ func new_InvalidatingTypes(typeToLocation *SimpleSetMultimap[*JSType, Node]) *In
 }
 
 func (this *InvalidatingTypes) isInvalidating(type_ *JSType) bool {
-	if (((type_ == nil) || type_.isUnknownType()) || type_.isEmptyType()) {
+	if ((type_ == nil) || type_.isUnknownType()) || type_.isEmptyType() {
 		return true
 	}
 	if type_.isUnionType() {
 		type_ = type_.restrictByNotNullOrUndefined()
 		if type_.isUnionType() {
-			it_1 := eachOf_(type_.getUnionMembers())
+			it_1 := jeachOf_(type_.getUnionMembers())
 			for it_1.next() {
 				var alt *JSType = it_1.v
 				if this.isInvalidating(alt) {
@@ -34,7 +34,7 @@ func (this *InvalidatingTypes) isInvalidating(type_ *JSType) bool {
 		}
 	}
 	var objType *ObjectType = type_.toMaybeObjectType()
-	if (objType == nil) {
+	if objType == nil {
 		return false
 	}
 	if objType.isTemplatizedType() {
@@ -65,7 +65,7 @@ func InvalidatingTypes_isAmbiguousOrStructuralType(type_ *ObjectType) bool {
 	return true
 }
 
-var InvalidatingTypes_ALWAYS_INVALIDATING_TYPES *TList[*JSTypeNative]
+var InvalidatingTypes_ALWAYS_INVALIDATING_TYPES *JTList[*JSTypeNative]
 var InvalidatingTypes_ALWAYS_INVALIDATING_LOCATION Node
 
 var InvalidatingTypes_clinit_done bool
@@ -75,13 +75,13 @@ func InvalidatingTypes_clinit() {
 		return
 	}
 	InvalidatingTypes_clinit_done = true
-	InvalidatingTypes_ALWAYS_INVALIDATING_TYPES = immutableListOf_[*JSTypeNative](tc_p_JSTypeNative, JSTypeNative_FUNCTION_FUNCTION_TYPE, JSTypeNative_FUNCTION_TYPE, JSTypeNative_FUNCTION_PROTOTYPE, JSTypeNative_FUNCTION_INSTANCE_PROTOTYPE, JSTypeNative_OBJECT_TYPE, JSTypeNative_OBJECT_PROTOTYPE, JSTypeNative_OBJECT_FUNCTION_TYPE)
+	InvalidatingTypes_ALWAYS_INVALIDATING_TYPES = jimmutableListOf_[*JSTypeNative](tc_p_JSTypeNative, JSTypeNative_FUNCTION_FUNCTION_TYPE, JSTypeNative_FUNCTION_TYPE, JSTypeNative_FUNCTION_PROTOTYPE, JSTypeNative_FUNCTION_INSTANCE_PROTOTYPE, JSTypeNative_OBJECT_TYPE, JSTypeNative_OBJECT_PROTOTYPE, JSTypeNative_OBJECT_FUNCTION_TYPE)
 	InvalidatingTypes_ALWAYS_INVALIDATING_LOCATION = IR_name("alwaysInvalidatingLocation").setStaticSourceFile(SourceFile_jscomp_as_StaticSourceFile(SourceFile_jscomp_fromCode_String_String("InvalidatingTypes_alwaysInvalidatingLocation", "")))
 
 }
 
 type InvalidatingTypes_Builder struct {
-	registry *JSTypeRegistry
+	registry       *JSTypeRegistry
 	typeToLocation *SimpleSetMultimap[*JSType, Node]
 }
 
@@ -110,7 +110,7 @@ func (this *InvalidatingTypes_Builder) build() *InvalidatingTypes {
 }
 
 func (this *InvalidatingTypes_Builder) addAllTypeMismatches(mismatches IterableT[*TypeMismatch]) *InvalidatingTypes_Builder {
-	it_1 := eachOf_(mismatches)
+	it_1 := jeachOf_(mismatches)
 	for it_1.next() {
 		var mismatch *TypeMismatch = it_1.v
 		this.addTypeWithReason(mismatch.found(), mismatch.location())
@@ -122,7 +122,7 @@ func (this *InvalidatingTypes_Builder) addAllTypeMismatches(mismatches IterableT
 func (this *InvalidatingTypes_Builder) addTypeWithReason(type_ *JSType, location Node) {
 	type_ = type_.restrictByNotNullOrUndefined()
 	if type_.isUnionType() {
-		it_1 := eachOf_(type_.getUnionMembers())
+		it_1 := jeachOf_(type_.getUnionMembers())
 		for it_1.next() {
 			var alt *JSType = it_1.v
 			this.addTypeWithReason(alt, location)
@@ -134,7 +134,7 @@ func (this *InvalidatingTypes_Builder) addTypeWithReason(type_ *JSType, location
 		return
 	}
 	var objType *ObjectType = type_.toMaybeObjectType()
-	if (objType == nil) {
+	if objType == nil {
 		return
 	}
 	this.recordTypeWithReason(objType, location)
@@ -148,7 +148,7 @@ func (this *InvalidatingTypes_Builder) addTypeWithReason(type_ *JSType, location
 }
 
 func (this *InvalidatingTypes_Builder) recordTypeWithReason(type_ *ObjectType, location Node) {
-	if (type_ == nil) {
+	if type_ == nil {
 		return
 	}
 	if type_.isTemplatizedType() {
@@ -159,4 +159,3 @@ func (this *InvalidatingTypes_Builder) recordTypeWithReason(type_ *ObjectType, l
 	}
 	this.typeToLocation.put(type_.up_JSType(), location)
 }
-

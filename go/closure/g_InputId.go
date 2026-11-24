@@ -30,12 +30,19 @@ func (this *InputId) hashCode() int32 {
 }
 
 func (this *InputId) equals(obj any) bool {
-	if (any(this) == obj) {
+	if any(this) == obj {
 		return true
 	}
 	var inputId *InputId
 	_ = inputId
-	if !(func() bool { v_ := obj; if !is_[*InputId](v_) { return false }; inputId = cast_[*InputId](v_); return true }()) {
+	if !(func() bool {
+		v_ := obj
+		if !is_[*InputId](v_) {
+			return false
+		}
+		inputId = cast_[*InputId](v_)
+		return true
+	}()) {
 		return false
 	}
 	return (this.id == inputId.id)
@@ -46,4 +53,3 @@ func (this *InputId) toString() string {
 }
 
 const InputId_serialVersionUID int64 = 1
-

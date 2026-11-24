@@ -11,7 +11,7 @@ func TestLgObjargMaps(t *testing.T) {
 	keys := []string{"a", "z", nullstr_}
 	mk := func(native bool) MapT[string, string] {
 		if native {
-			m := newTMap_(tc_string, tc_string)
+			m := jnewTMap_(jtc_string, jtc_string)
 			m.put("a", "A")
 			m.put(nullstr_, "N")
 			m.put("b", "B")
@@ -21,11 +21,11 @@ func TestLgObjargMaps(t *testing.T) {
 		e.put("a", "A")
 		e.put(nil, "N")
 		e.put("b", "B")
-		return mapAs_(tc_string, tc_string, Map(e))
+		return mapAs_(jtc_string, jtc_string, Map(e))
 	}
 	for _, native := range []bool{true, false} {
 		tm, em := mk(native), mk(native)
-		if _, ok := tm.(tmapOf_); ok != native {
+		if _, ok := tm.(jtmapOf_); ok != native {
 			t.Fatal("the typed lookup is the view's only", native)
 		}
 		for _, k := range keys {
@@ -49,13 +49,13 @@ func TestLgObjargSets(t *testing.T) {
 	mk := func(kind int) SetT[string] {
 		switch kind {
 		case 0:
-			s := newTSet_(tc_string)
+			s := jnewTSet_(jtc_string)
 			s.add("a")
 			s.add(nullstr_)
 			s.add("b")
 			return s.asSetT()
 		case 1:
-			m := newTMap_(tc_string, tc_string)
+			m := jnewTMap_(jtc_string, jtc_string)
 			m.put("a", "A")
 			m.put(nullstr_, "N")
 			m.put("b", "B")
@@ -65,12 +65,12 @@ func TestLgObjargSets(t *testing.T) {
 			e.add("a")
 			e.add(nil)
 			e.add("b")
-			return setAs_(tc_string, Set(e))
+			return setAs_(jtc_string, Set(e))
 		}
 	}
 	for kind := 0; kind < 3; kind++ {
 		ts, es := mk(kind), mk(kind)
-		if _, ok := ts.(tsetOf_); ok != (kind == 0) {
+		if _, ok := ts.(jtsetOf_); ok != (kind == 0) {
 			t.Fatal("the typed lookup is the typed set's view's only", kind)
 		}
 		for _, x := range elems {

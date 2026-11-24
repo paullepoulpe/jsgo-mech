@@ -3,13 +3,13 @@
 package closure
 
 type OptimizeConstructors struct {
-	compiler_ *AbstractCompiler
-	astAnalyzer *AstAnalyzer
-	removableConstructors *TList[Node]
+	compiler_             *AbstractCompiler
+	astAnalyzer           *AstAnalyzer
+	removableConstructors *JTList[Node]
 }
 
 func (this *OptimizeConstructors) finit_OptimizeConstructors() {
-	this.removableConstructors = newTList_(tc_Node)
+	this.removableConstructors = jnewTList_(jtc_Node)
 }
 
 func (this *OptimizeConstructors) init_OptimizeConstructors(compiler *AbstractCompiler) {
@@ -30,7 +30,7 @@ func (this *OptimizeConstructors) process_2(externs Node, root Node) {
 }
 
 func (this *OptimizeConstructors) process_3(externs Node, root Node, refMap *OptimizeCalls_ReferenceMap) {
-	it_1 := eachOf_(refMap.getNameReferences())
+	it_1 := jeachOf_(refMap.getNameReferences())
 	for it_1.next() {
 		var entry Map_EntryT[string, ListT[Node]] = it_1.v
 		this.addConstructorsToBeRemoved(entry.getKey_t(), entry.getValue_t())
@@ -48,13 +48,13 @@ func (this *OptimizeConstructors) addConstructorsToBeRemoved(name string, refs L
 	}
 	var candidateClassDefinition Node = 0
 	var candidateConstructor Node = 0
-	var subclassConstructors *TList[Node] = nil
-	it_1 := eachOf_(refs)
+	var subclassConstructors *JTList[Node] = nil
+	it_1 := jeachOf_(refs)
 	for it_1.next() {
 		var n Node = it_1.v
 		var definition Node = this.getClassDefinitionOrFunction(n)
-		if (definition != 0) {
-			if (candidateClassDefinition != 0) {
+		if definition != 0 {
+			if candidateClassDefinition != 0 {
 				return
 			}
 			candidateClassDefinition = definition
@@ -62,10 +62,10 @@ func (this *OptimizeConstructors) addConstructorsToBeRemoved(name string, refs L
 				var extendsExpr Node = candidateClassDefinition.getSecondChild()
 				if extendsExpr.isEmpty() {
 					var constructor Node = NodeUtil_getEs6ClassConstructorMemberFunctionDef(candidateClassDefinition)
-					if (constructor != 0) {
+					if constructor != 0 {
 						var fn Node = constructor.getLastChild()
 						var body Node = fn.getLastChild()
-						if (!body.hasChildren() && this.hasRemovableParameterList(constructor)) {
+						if !body.hasChildren() && this.hasRemovableParameterList(constructor) {
 							candidateConstructor = constructor
 						}
 					}
@@ -76,9 +76,9 @@ func (this *OptimizeConstructors) addConstructorsToBeRemoved(name string, refs L
 			if this.isClassExtendsExpression(n) {
 				var subclassLiteral Node = n.getParent()
 				var subclassConstructor Node = NodeUtil_getEs6ClassConstructorMemberFunctionDef(subclassLiteral)
-				if ((subclassConstructor != 0) && OptimizeConstructors_constructorHasRemovableDefinition(subclassConstructor)) {
-					if (subclassConstructors == nil) {
-						subclassConstructors = newTList_(tc_Node)
+				if (subclassConstructor != 0) && OptimizeConstructors_constructorHasRemovableDefinition(subclassConstructor) {
+					if subclassConstructors == nil {
+						subclassConstructors = jnewTList_(jtc_Node)
 					}
 					subclassConstructors.add(subclassConstructor)
 				}
@@ -89,13 +89,13 @@ func (this *OptimizeConstructors) addConstructorsToBeRemoved(name string, refs L
 			}
 		}
 	}
-	if (candidateClassDefinition == 0) {
+	if candidateClassDefinition == 0 {
 		return
 	}
-	if (candidateConstructor != 0) {
+	if candidateConstructor != 0 {
 		this.removableConstructors.add(candidateConstructor)
 	}
-	if (subclassConstructors != nil) {
+	if subclassConstructors != nil {
 		var summary *OptimizeConstructors_ClassConstructorSummary = OptimizeConstructors_ClassConstructorSummary_build(candidateClassDefinition)
 		it_3 := subclassConstructors.each()
 		for it_3.next() {
@@ -141,11 +141,11 @@ func (this *OptimizeConstructors) getClassDefinitionOrFunction(n Node) Node {
 	var expr Node
 	if OptimizeCalls_ReferenceMap_isSimpleAssignmentTarget(n) {
 		expr = parent.getLastChild()
-	} else if (n.isName() && n.hasChildren()) {
+	} else if n.isName() && n.hasChildren() {
 		expr = n.getFirstChild()
-	} else if (parent.isFunction() && n.isFirstChildOf(parent)) {
+	} else if parent.isFunction() && n.isFirstChildOf(parent) {
 		expr = parent
-	} else if (parent.isClass() && n.isFirstChildOf(parent)) {
+	} else if parent.isClass() && n.isFirstChildOf(parent) {
 		expr = parent
 	} else {
 		return 0
@@ -160,7 +160,7 @@ func (this *OptimizeConstructors) getClassDefinitionOrFunction(n Node) Node {
 }
 
 func (this *OptimizeConstructors) unwrap(expr Node) Node {
-	for (expr.isCast() || expr.isComma()) {
+	for expr.isCast() || expr.isComma() {
 		expr = expr.getLastChild()
 	}
 	return expr
@@ -191,18 +191,18 @@ func OptimizeConstructors_functionHasRest(fn Node) bool {
 func OptimizeConstructors_constructorHasRemovableDefinition(member Node) bool {
 	var fn Node = member.getFirstChild()
 	var superCall Node = OptimizeConstructors_getOnlySuperCall(fn)
-	if (superCall == 0) {
+	if superCall == 0 {
 		return false
 	}
 	var paramList Node = NodeUtil_getFunctionParameters(fn)
-	if (paramList.getChildCount() != (superCall.getChildCount() - 1)) {
+	if paramList.getChildCount() != (superCall.getChildCount() - 1) {
 		return false
 	}
 	var param Node = paramList.getFirstChild()
 	var arg Node = superCall.getSecondChild()
-	for (param != 0) {
+	for param != 0 {
 		if param.isRest() {
-			if (!arg.isSpread() || !param.getFirstChild().matchesNameNode(arg.getFirstChild())) {
+			if !arg.isSpread() || !param.getFirstChild().matchesNameNode(arg.getFirstChild()) {
 				return false
 			}
 		} else if !param.matchesNameNode(arg) {
@@ -219,14 +219,14 @@ func (this *OptimizeConstructors) hasRemovableParameterList(member Node) bool {
 	var paramList Node = NodeUtil_getFunctionParameters(fn)
 	{
 		var param Node = paramList.getFirstChild()
-		for ; (param != 0); param = param.getNext() {
+		for ; param != 0; param = param.getNext() {
 			if param.isName() {
 				continue
 			}
-			if (param.isRest() && param.getFirstChild().isName()) {
+			if param.isRest() && param.getFirstChild().isName() {
 				continue
 			}
-			if ((param.isDefaultValue() && param.getFirstChild().isName()) && !this.astAnalyzer.mayHaveSideEffects(param.getLastChild())) {
+			if (param.isDefaultValue() && param.getFirstChild().isName()) && !this.astAnalyzer.mayHaveSideEffects(param.getLastChild()) {
 				continue
 			}
 			return false
@@ -237,11 +237,11 @@ func (this *OptimizeConstructors) hasRemovableParameterList(member Node) bool {
 
 func OptimizeConstructors_getOnlySuperCall(fn Node) Node {
 	var body Node = fn.getLastChild()
-	if (body.isBlock() && body.hasOneChild()) {
+	if body.isBlock() && body.hasOneChild() {
 		var stmt Node = body.getFirstChild()
 		if stmt.isExprResult() {
 			var call Node = stmt.getFirstChild()
-			if (call.isCall() && call.getFirstChild().isSuper()) {
+			if call.isCall() && call.getFirstChild().isSuper() {
 				return call
 			}
 		}
@@ -258,7 +258,7 @@ func (this *OptimizeConstructors) removeConstructorMethod(member Node) {
 
 type OptimizeConstructors_ClassConstructorSummary struct {
 	formalParameterCount int32
-	isVarArgs_ bool
+	isVarArgs_           bool
 }
 
 func (this *OptimizeConstructors_ClassConstructorSummary) init_OptimizeConstructors_ClassConstructorSummary(isVarArgs bool, formalParameterCount int32) {
@@ -296,9 +296,8 @@ func (this *OptimizeConstructors_ClassConstructorSummary) isEquivalentConstructo
 	if this.isVarArgs_ {
 		return false
 	}
-	if (this.formalParameterCount != paramList.getChildCount()) {
+	if this.formalParameterCount != paramList.getChildCount() {
 		return false
 	}
 	return true
 }
-

@@ -4,9 +4,9 @@ package closure
 
 type Es6RewriteRestParameters struct {
 	NodeTraversal_AbstractPostOrderCallback
-	compiler_ *AbstractCompiler
-	astFactory_ *AstFactory
-	namespace_ StaticScope
+	compiler_        *AbstractCompiler
+	astFactory_      *AstFactory
+	namespace_       StaticScope
 	getRestArguments RuntimeJsLibManager_JsLibField
 }
 
@@ -38,7 +38,7 @@ func (this *Es6RewriteRestParameters) process_2(externs Node, root Node) {
 }
 
 func (this *Es6RewriteRestParameters) visit_impl(traversal *NodeTraversal, current Node, parent Node) {
-	if (current.getToken() == Token_rhino_ITER_REST) {
+	if current.getToken() == Token_rhino_ITER_REST {
 		this.visitRestParam(traversal, current, parent)
 	}
 }
@@ -55,7 +55,7 @@ func (this *Es6RewriteRestParameters) visitRestParam(t *NodeTraversal, restParam
 	}
 	var let Node = this.astFactory_.createSingleLetNameDeclaration_2(paramName, this.astFactory_.createCall(this.astFactory_.createGetPropWithUnknownType(this.astFactory_.createQName(this.namespace_, this.getRestArguments), "apply"), AstFactory_type_Node(nameNode), []Node{this.astFactory_.createNumber(float64(restIndex)), this.astFactory_.createArgumentsReference()})).srcrefTreeIfMissing(functionBody)
 	var insertBeforePoint Node = NodeUtil_getInsertionPointAfterAllInnerFunctionDeclarations(functionBody)
-	if (insertBeforePoint != 0) {
+	if insertBeforePoint != 0 {
 		let.insertBefore(insertBeforePoint)
 	} else {
 		functionBody.addChildToBack(let)
@@ -76,4 +76,3 @@ func Es6RewriteRestParameters_clinit() {
 	Es6RewriteRestParameters_TRANSPILED_FEATURES = FeatureSet_BARE_MINIMUM.with(FeatureSet_Feature_REST_PARAMETERS)
 
 }
-

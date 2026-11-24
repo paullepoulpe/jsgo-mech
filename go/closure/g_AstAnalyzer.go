@@ -3,12 +3,12 @@
 package closure
 
 type AstAnalyzer struct {
-	typeRegistry *JSTypeRegistry
-	accessorSummary *AccessorSummary
+	typeRegistry                  *JSTypeRegistry
+	accessorSummary               *AccessorSummary
 	useTypesForLocalOptimization_ bool
-	assumeGettersArePure_ bool
-	assumeKnownBuiltinsArePure_ bool
-	hasRegexpGlobalReferences_ bool
+	assumeGettersArePure_         bool
+	assumeKnownBuiltinsArePure_   bool
+	hasRegexpGlobalReferences_    bool
 }
 
 func (this *AstAnalyzer) init_AstAnalyzer(options *AstAnalyzer_Options, typeRegistry *JSTypeRegistry, accessorSummary *AccessorSummary) {
@@ -40,24 +40,29 @@ func (this *AstAnalyzer) functionCallHasSideEffects(callNode Node) bool {
 	if callNode.isNoSideEffectsCall() {
 		return false
 	}
-	if (callNode.isOnlyModifiesArgumentsCall() && NodeUtil_allArgsUnescapedLocal(callNode)) {
+	if callNode.isOnlyModifiesArgumentsCall() && NodeUtil_allArgsUnescapedLocal(callNode) {
 		return false
 	}
 	var callee Node = callNode.getFirstChild()
 	if callee.isName() {
 		var name string = callee.getString()
-		if (this.assumeKnownBuiltinsArePure_ && AstAnalyzer_BUILTIN_FUNCTIONS_WITHOUT_SIDEEFFECTS.contains(name)) {
+		if this.assumeKnownBuiltinsArePure_ && AstAnalyzer_BUILTIN_FUNCTIONS_WITHOUT_SIDEEFFECTS.contains(name) {
 			return false
 		}
-	} else if (callee.isGetProp() || callee.isOptChainGetProp()) {
+	} else if callee.isGetProp() || callee.isOptChainGetProp() {
 		var method string = callee.getString()
-		if (this.assumeKnownBuiltinsArePure_ && func() bool { if ("valueOf" == method) { return callNode.hasOneChild() }; return (("toString" == method) && (callNode.hasOneChild() || callNode.hasTwoChildren())) }()) {
+		if this.assumeKnownBuiltinsArePure_ && func() bool {
+			if "valueOf" == method {
+				return callNode.hasOneChild()
+			}
+			return (("toString" == method) && (callNode.hasOneChild() || callNode.hasTwoChildren()))
+		}() {
 			return false
 		}
-		if (callNode.isOnlyModifiesThisCall() && NodeUtil_evaluatesToLocalValue(callee.getFirstChild())) {
+		if callNode.isOnlyModifiesThisCall() && NodeUtil_evaluatesToLocalValue(callee.getFirstChild()) {
 			return false
 		}
-		if (((this.assumeKnownBuiltinsArePure_ && callee.getFirstChild().isName()) && callee.isQualifiedName()) && (callee.getFirstChild().getString() == "Math")) {
+		if ((this.assumeKnownBuiltinsArePure_ && callee.getFirstChild().isName()) && callee.isQualifiedName()) && (callee.getFirstChild().getString() == "Math") {
 			switch method {
 			case "abs", "acos", "acosh", "asin", "asinh", "atan", "atanh", "atan2", "cbrt", "ceil", "cos", "cosh", "exp", "expm1", "floor", "hypot", "log", "log10", "log1p", "log2", "max", "min", "pow", "round", "sign", "sin", "sinh", "sqrt", "tan", "tanh", "trunc":
 				return false
@@ -66,18 +71,18 @@ func (this *AstAnalyzer) functionCallHasSideEffects(callNode Node) bool {
 			default:
 			}
 		}
-		if (!this.hasRegexpGlobalReferences_ && this.assumeKnownBuiltinsArePure_) {
-			if (callee.getFirstChild().isRegExp() && AstAnalyzer_REGEXP_METHODS.contains(method)) {
+		if !this.hasRegexpGlobalReferences_ && this.assumeKnownBuiltinsArePure_ {
+			if callee.getFirstChild().isRegExp() && AstAnalyzer_REGEXP_METHODS.contains(method) {
 				return false
 			} else if this.isTypedAsString(callee.getFirstChild()) {
 				var param Node = callee.getNext()
-				if (param != 0) {
+				if param != 0 {
 					if param.isStringLit() {
 						if AstAnalyzer_STRING_REGEXP_METHODS.contains(method) {
 							return false
 						}
 					} else if param.isRegExp() {
-						if ("replace" == method) {
+						if "replace" == method {
 							return !param.getNext().isStringLit()
 						} else if AstAnalyzer_STRING_REGEXP_METHODS.contains(method) {
 							return false
@@ -96,11 +101,11 @@ func (this *AstAnalyzer) isTypedAsString(n Node) bool {
 	}
 	if this.useTypesForLocalOptimization_ {
 		var color *Color = n.getColor()
-		if (color != nil) {
+		if color != nil {
 			return color.equals(obj_(StandardColors_STRING))
 		}
 		var type_ *JSType = n.getJSType()
-		if (type_ != nil) {
+		if type_ != nil {
 			var nativeStringType *JSType = this.typeRegistry.getNativeType(JSTypeNative_STRING_TYPE)
 			if type_.equals(nativeStringType.self()) {
 				return true
@@ -185,7 +190,7 @@ func (this *AstAnalyzer) checkForStateChangeHelper(n Node, checkForNewObjects bo
 func (this *AstAnalyzer) checkForChangeStateInChildren(n Node, checkForNewObjects bool) bool {
 	{
 		var c Node = n.getFirstChild()
-		for ; (c != 0); c = c.getNext() {
+		for ; c != 0; c = c.getNext() {
 			if this.checkForStateChangeHelper(c, checkForNewObjects) {
 				return true
 			}
@@ -200,7 +205,7 @@ func (this *AstAnalyzer) checkAssignmentForChangeState(assignOp Node, checkForNe
 		return true
 	}
 	var assignValue Node = assignOp.getLastChild()
-	if (this.checkForStateChangeHelper(assignTarget, checkForNewObjects) || this.checkForStateChangeHelper(assignValue, checkForNewObjects)) {
+	if this.checkForStateChangeHelper(assignTarget, checkForNewObjects) || this.checkForStateChangeHelper(assignValue, checkForNewObjects) {
 		return true
 	}
 	if !NodeUtil_isNormalGet(assignTarget) {
@@ -221,7 +226,7 @@ func (this *AstAnalyzer) constructorCallHasSideEffects(newNode Node) bool {
 	if newNode.isNoSideEffectsCall() {
 		return false
 	}
-	if (newNode.isOnlyModifiesArgumentsCall() && NodeUtil_allArgsUnescapedLocal(newNode)) {
+	if newNode.isOnlyModifiesArgumentsCall() && NodeUtil_allArgsUnescapedLocal(newNode) {
 		return false
 	}
 	var nameNode Node = newNode.getFirstChild()
@@ -265,13 +270,18 @@ func (this *AstAnalyzer) nodeTypeMayHaveSideEffects(n Node) bool {
 }
 
 func (this *AstAnalyzer) getPropertyKind(name string) *AccessorSummary_PropertyAccessKind {
-	return func() *AccessorSummary_PropertyAccessKind { if this.assumeGettersArePure_ { return AccessorSummary_PropertyAccessKind_NORMAL }; return this.accessorSummary.getKind(name) }()
+	return func() *AccessorSummary_PropertyAccessKind {
+		if this.assumeGettersArePure_ {
+			return AccessorSummary_PropertyAccessKind_NORMAL
+		}
+		return this.accessorSummary.getKind(name)
+	}()
 }
 
-var AstAnalyzer_CONSTRUCTORS_WITHOUT_SIDE_EFFECTS *TSet[string]
-var AstAnalyzer_BUILTIN_FUNCTIONS_WITHOUT_SIDEEFFECTS *TSet[string]
-var AstAnalyzer_REGEXP_METHODS *TSet[string]
-var AstAnalyzer_STRING_REGEXP_METHODS *TSet[string]
+var AstAnalyzer_CONSTRUCTORS_WITHOUT_SIDE_EFFECTS *JTSet[string]
+var AstAnalyzer_BUILTIN_FUNCTIONS_WITHOUT_SIDEEFFECTS *JTSet[string]
+var AstAnalyzer_REGEXP_METHODS *JTSet[string]
+var AstAnalyzer_STRING_REGEXP_METHODS *JTSet[string]
 
 var AstAnalyzer_clinit_done bool
 
@@ -280,18 +290,18 @@ func AstAnalyzer_clinit() {
 		return
 	}
 	AstAnalyzer_clinit_done = true
-	AstAnalyzer_CONSTRUCTORS_WITHOUT_SIDE_EFFECTS = immutableSetOf_[string](tc_string, "Array", "Date", "Error", "Object", "RegExp", "XMLHttpRequest")
-	AstAnalyzer_BUILTIN_FUNCTIONS_WITHOUT_SIDEEFFECTS = immutableSetOf_[string](tc_string, "Object", "Array", "String", "Number", "BigInt", "Boolean", "RegExp", "Error", "Symbol")
-	AstAnalyzer_REGEXP_METHODS = immutableSetOf_[string](tc_string, "test", "exec")
-	AstAnalyzer_STRING_REGEXP_METHODS = immutableSetOf_[string](tc_string, "match", "replace", "search", "split")
+	AstAnalyzer_CONSTRUCTORS_WITHOUT_SIDE_EFFECTS = jimmutableSetOf_[string](jtc_string, "Array", "Date", "Error", "Object", "RegExp", "XMLHttpRequest")
+	AstAnalyzer_BUILTIN_FUNCTIONS_WITHOUT_SIDEEFFECTS = jimmutableSetOf_[string](jtc_string, "Object", "Array", "String", "Number", "BigInt", "Boolean", "RegExp", "Error", "Symbol")
+	AstAnalyzer_REGEXP_METHODS = jimmutableSetOf_[string](jtc_string, "test", "exec")
+	AstAnalyzer_STRING_REGEXP_METHODS = jimmutableSetOf_[string](jtc_string, "match", "replace", "search", "split")
 
 }
 
 type AstAnalyzer_Options struct {
 	useTypesForLocalOptimization_ bool
-	assumeGettersArePure_ bool
-	hasRegexpGlobalReferences_ bool
-	assumeKnownBuiltinsArePure_ bool
+	assumeGettersArePure_         bool
+	hasRegexpGlobalReferences_    bool
+	assumeKnownBuiltinsArePure_   bool
 }
 
 func (this *AstAnalyzer_Options) init_AstAnalyzer_Options(useTypesForLocalOptimization bool, assumeGettersArePure bool, hasRegexpGlobalReferences bool, assumeKnownBuiltinsArePure bool) {
@@ -350,10 +360,10 @@ func (this *AstAnalyzer_Options) toString() string {
 
 type AstAnalyzer_Options_Builder struct {
 	useTypesForLocalOptimization_ bool
-	assumeGettersArePure_ bool
-	hasRegexpGlobalReferences_ bool
-	assumeKnownBuiltinsArePure_ bool
-	set0 int8
+	assumeGettersArePure_         bool
+	hasRegexpGlobalReferences_    bool
+	assumeKnownBuiltinsArePure_   bool
+	set0                          int8
 }
 
 func (this *AstAnalyzer_Options_Builder) init_AstAnalyzer_Options_Builder() {
@@ -391,22 +401,21 @@ func (this *AstAnalyzer_Options_Builder) setAssumeKnownBuiltinsArePure(value boo
 }
 
 func (this *AstAnalyzer_Options_Builder) build() *AstAnalyzer_Options {
-	if (int32(this.set0) != 15) {
+	if int32(this.set0) != 15 {
 		var missing *StringBuilder = new_StringBuilder()
-		if ((int32(this.set0) & 1) == 0) {
+		if (int32(this.set0) & 1) == 0 {
 			missing.append(" useTypesForLocalOptimization")
 		}
-		if ((int32(this.set0) & 2) == 0) {
+		if (int32(this.set0) & 2) == 0 {
 			missing.append(" assumeGettersArePure")
 		}
-		if ((int32(this.set0) & 4) == 0) {
+		if (int32(this.set0) & 4) == 0 {
 			missing.append(" hasRegexpGlobalReferences")
 		}
-		if ((int32(this.set0) & 8) == 0) {
+		if (int32(this.set0) & 8) == 0 {
 			missing.append(" assumeKnownBuiltinsArePure")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + tostr_(missing))).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + jtostr_(missing))).self())
 	}
 	return new_AstAnalyzer_Options(this.useTypesForLocalOptimization_, this.assumeGettersArePure_, this.hasRegexpGlobalReferences_, this.assumeKnownBuiltinsArePure_)
 }
-

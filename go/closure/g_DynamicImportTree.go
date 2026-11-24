@@ -25,4 +25,3 @@ func new_DynamicImportTree(location *SourceRange, argument *ParseTree) *DynamicI
 	this.init_DynamicImportTree(location, argument)
 	return this
 }
-

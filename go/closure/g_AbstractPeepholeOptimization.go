@@ -3,23 +3,29 @@
 package closure
 
 type AbstractPeepholeOptimization struct {
-	self_ any
-	compiler_ *AbstractCompiler
+	self_       any
+	compiler_   *AbstractCompiler
 	astAnalyzer *AstAnalyzer
-	newFeatures *TSet[*FeatureSet_Feature]
+	newFeatures *JTSet[*FeatureSet_Feature]
 }
 
-func (this *AbstractPeepholeOptimization) as_AbstractPeepholeOptimization() *AbstractPeepholeOptimization { return this }
+func (this *AbstractPeepholeOptimization) as_AbstractPeepholeOptimization() *AbstractPeepholeOptimization {
+	return this
+}
 
 func to_AbstractPeepholeOptimization(v any) *AbstractPeepholeOptimization {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_AbstractPeepholeOptimization() *AbstractPeepholeOptimization }).as_AbstractPeepholeOptimization()
+	return v.(interface {
+		as_AbstractPeepholeOptimization() *AbstractPeepholeOptimization
+	}).as_AbstractPeepholeOptimization()
 }
 
 func is_AbstractPeepholeOptimization(v any) bool {
-	_, ok := v.(interface{ as_AbstractPeepholeOptimization() *AbstractPeepholeOptimization })
+	_, ok := v.(interface {
+		as_AbstractPeepholeOptimization() *AbstractPeepholeOptimization
+	})
 	return ok
 }
 
@@ -31,7 +37,7 @@ func (this *AbstractPeepholeOptimization) self() any {
 }
 
 func (this *AbstractPeepholeOptimization) finit_AbstractPeepholeOptimization() {
-	this.newFeatures = newTSet_(tc_p_FeatureSet_Feature)
+	this.newFeatures = jnewTSet_(jtc_p_FeatureSet_Feature)
 }
 
 func (this *AbstractPeepholeOptimization) init_AbstractPeepholeOptimization() {
@@ -74,7 +80,7 @@ func (this *AbstractPeepholeOptimization) mayHaveSideEffects(n Node) bool {
 
 func (this *AbstractPeepholeOptimization) getSideEffectFreeNumberValue(n Node) any {
 	var value any = NodeUtil_getNumberValue(n)
-	if ((value != nil) && this.astAnalyzer.mayHaveSideEffects(n)) {
+	if (value != nil) && this.astAnalyzer.mayHaveSideEffects(n) {
 		value = nil
 	}
 	return value
@@ -82,7 +88,7 @@ func (this *AbstractPeepholeOptimization) getSideEffectFreeNumberValue(n Node) a
 
 func (this *AbstractPeepholeOptimization) getSideEffectFreeNumberValueNoConversion(n Node) any {
 	var value any = NodeUtil_getNumberValueNoConversions(n)
-	if ((value != nil) && this.astAnalyzer.mayHaveSideEffects(n)) {
+	if (value != nil) && this.astAnalyzer.mayHaveSideEffects(n) {
 		value = nil
 	}
 	return value
@@ -90,7 +96,7 @@ func (this *AbstractPeepholeOptimization) getSideEffectFreeNumberValueNoConversi
 
 func (this *AbstractPeepholeOptimization) getSideEffectFreeBigIntValue(n Node) *BigInteger {
 	var value *BigInteger = NodeUtil_getBigIntValue(n)
-	if ((value != nil) && this.astAnalyzer.mayHaveSideEffects(n)) {
+	if (value != nil) && this.astAnalyzer.mayHaveSideEffects(n) {
 		value = nil
 	}
 	return value
@@ -98,7 +104,7 @@ func (this *AbstractPeepholeOptimization) getSideEffectFreeBigIntValue(n Node) *
 
 func (this *AbstractPeepholeOptimization) getSideEffectFreeStringValue(n Node) Optional[string] {
 	var value Optional[string] = NodeUtil_getStringValue(n)
-	if (value.isPresent() && this.astAnalyzer.mayHaveSideEffects(n)) {
+	if value.isPresent() && this.astAnalyzer.mayHaveSideEffects(n) {
 		value = Optional_empty[string]()
 	}
 	return value
@@ -106,7 +112,7 @@ func (this *AbstractPeepholeOptimization) getSideEffectFreeStringValue(n Node) O
 
 func (this *AbstractPeepholeOptimization) getSideEffectFreeBooleanValue(n Node) *Tri {
 	var value *Tri = NodeUtil_getBooleanValue(n)
-	if ((value != Tri_UNKNOWN) && this.astAnalyzer.mayHaveSideEffects(n)) {
+	if (value != Tri_UNKNOWN) && this.astAnalyzer.mayHaveSideEffects(n) {
 		value = Tri_UNKNOWN
 	}
 	return value
@@ -147,8 +153,8 @@ func (this *AbstractPeepholeOptimization) addFeatureToEnclosingScript(feature *F
 	this.newFeatures.add(feature)
 }
 
-func (this *AbstractPeepholeOptimization) getNewFeatures() *TSet[*FeatureSet_Feature] {
-	return immutableSetCopyOfT_(tc_p_FeatureSet_Feature, this.newFeatures)
+func (this *AbstractPeepholeOptimization) getNewFeatures() *JTSet[*FeatureSet_Feature] {
+	return immutableSetCopyOfT_(jtc_p_FeatureSet_Feature, this.newFeatures)
 }
 
 func (this *AbstractPeepholeOptimization) clearNewFeatures() {
@@ -162,4 +168,3 @@ func (this *AbstractPeepholeOptimization) optimizeSubtree(p0 Node) Node {
 func (this *AbstractPeepholeOptimization) beginTraversal(p0 *AbstractCompiler) {
 	this.self_.(interface{ beginTraversal_impl(*AbstractCompiler) }).beginTraversal_impl(p0)
 }
-

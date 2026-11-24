@@ -24,21 +24,35 @@ func LogsGson_toJson(o any) string {
 }
 
 func LogsGson_write(out *SimpleJsonWriter, value any) {
-	if (value == nil) {
+	if value == nil {
 		out.nullValue()
 	} else {
 		var able LogsGson_Able
 		_ = able
-		if func() bool { v_ := value; if !is_[LogsGson_Able](v_) { return false }; able = icast_LogsGson_Able(v_); return true }() {
+		if func() bool {
+			v_ := value
+			if !is_[LogsGson_Able](v_) {
+				return false
+			}
+			able = icast_LogsGson_Able(v_)
+			return true
+		}() {
 			out.rawValue(Optional_of[string](LogsGson_toJson(able.toLogsGson())))
-		} else if ((is_SimpleListMultimap(value) || is_SimpleSetMultimap(value)) || is_SimpleBiMap(value)) {
+		} else if (is_SimpleListMultimap(value) || is_SimpleSetMultimap(value)) || is_SimpleBiMap(value) {
 			out.rawValue(Optional_of[string](LogsGson_toJson(icast_SimpleCollection(value).untypedMap())))
 		} else if is_SimpleMultiset(value) {
 			out.rawValue(Optional_of[string](LogsGson_toJson(obj_(ImmutableList_copyOf_Iterable(icast_Iterable(value))))))
 		} else {
 			var map_ Map
 			_ = map_
-			if func() bool { v_ := value; if !is_[Map](v_) { return false }; map_ = icast_Map(v_); return true }() {
+			if func() bool {
+				v_ := value
+				if !is_[Map](v_) {
+					return false
+				}
+				map_ = icast_Map(v_)
+				return true
+			}() {
 				out.beginObject()
 				it_1 := foreach_(map_.entrySet())
 				for it_1.next() {
@@ -50,7 +64,14 @@ func LogsGson_write(out *SimpleJsonWriter, value any) {
 			} else {
 				var collection Collection
 				_ = collection
-				if func() bool { v_ := value; if !is_[Collection](v_) { return false }; collection = icast_Collection(v_); return true }() {
+				if func() bool {
+					v_ := value
+					if !is_[Collection](v_) {
+						return false
+					}
+					collection = icast_Collection(v_)
+					return true
+				}() {
 					out.beginArray()
 					it_3 := foreach_(collection)
 					for it_3.next() {
@@ -61,19 +82,40 @@ func LogsGson_write(out *SimpleJsonWriter, value any) {
 				} else {
 					var string_ string
 					_ = string_
-					if func() bool { v_ := value; if !isstr_(v_) { return false }; string_ = str_(v_); return true }() {
+					if func() bool {
+						v_ := value
+						if !isstr_(v_) {
+							return false
+						}
+						string_ = str_(v_)
+						return true
+					}() {
 						out.stringValue(Optional_of[string](string_))
 					} else {
 						var bool_ any
 						_ = bool_
-						if func() bool { v_ := value; if !is_[bool](v_) { return false }; bool_ = v_; return true }() {
+						if func() bool {
+							v_ := value
+							if !is_[bool](v_) {
+								return false
+							}
+							bool_ = v_
+							return true
+						}() {
 							out.booleanValue(unbox_[bool](bool_))
-						} else if (is_[int32](value) || is_[int64](value)) {
+						} else if is_[int32](value) || is_[int64](value) {
 							out.longValue(Number_longValue(value))
 						} else {
 							var enumValue *Enum
 							_ = enumValue
-							if func() bool { v_ := value; if !is_Enum(v_) { return false }; enumValue = to_Enum(v_); return true }() {
+							if func() bool {
+								v_ := value
+								if !is_Enum(v_) {
+									return false
+								}
+								enumValue = to_Enum(v_)
+								return true
+							}() {
 								out.stringValue(Optional_of[string](enumValue.name()))
 							} else {
 								panic(new_IllegalArgumentException_String(("Cannot log a " + sstr_(Object_getClass(value).getName()) + "; it must implement LogsGson.Able")).self())
@@ -97,4 +139,3 @@ type LogsGson_Able_fn struct {
 func (this *LogsGson_Able_fn) toLogsGson() any {
 	return this.f()
 }
-

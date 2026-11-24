@@ -3,7 +3,7 @@
 package closure
 
 type CheckSuper struct {
-	compiler_ *AbstractCompiler
+	compiler_    *AbstractCompiler
 	contextStack *TDeque[*CheckSuper_Context]
 }
 
@@ -36,7 +36,7 @@ func (this *CheckSuper) shouldTraverse(t *NodeTraversal, n Node, parent Node) bo
 		{
 			var currentContext *CheckSuper_Context = this.contextStack.peek()
 			var newContext *CheckSuper_Context = this.getContextForFunctionNode(currentContext, n)
-			if (newContext != currentContext) {
+			if newContext != currentContext {
 				this.contextStack.push(newContext)
 			}
 		}
@@ -61,7 +61,12 @@ func (this *CheckSuper) getContextForFunctionNode(currentContext *CheckSuper_Con
 			return new_CheckSuper_MethodContext(fn).up_CheckSuper_Context()
 		}
 	} else {
-		return func() *CheckSuper_Context { if fn.isArrowFunction() { return currentContext.getContextForArrowFunctionNode(fn) }; return new_CheckSuper_SuperNotAllowedContext(fn).up_CheckSuper_Context() }()
+		return func() *CheckSuper_Context {
+			if fn.isArrowFunction() {
+				return currentContext.getContextForArrowFunctionNode(fn)
+			}
+			return new_CheckSuper_SuperNotAllowedContext(fn).up_CheckSuper_Context()
+		}()
 	}
 	panic("unreachable")
 }
@@ -89,7 +94,7 @@ func (this *CheckSuper) visit(t *NodeTraversal, n Node, parent Node) {
 		Preconditions_checkState((this.contextStack.size() == 1))
 	default:
 	}
-	if (n == currentContext.getContextNode()) {
+	if n == currentContext.getContextNode() {
 		currentContext.visitContextNode(t)
 		this.contextStack.pop()
 	}
@@ -147,7 +152,7 @@ func CheckSuper_clinit() {
 }
 
 type CheckSuper_Context struct {
-	self_ any
+	self_       any
 	contextNode Node
 }
 
@@ -201,7 +206,9 @@ func (this *CheckSuper_Context) visitSuperConstructorCall(p0 *NodeTraversal, p1 
 }
 
 func (this *CheckSuper_Context) getContextForArrowFunctionNode(p0 Node) *CheckSuper_Context {
-	return this.self_.(interface{ getContextForArrowFunctionNode_impl(Node) *CheckSuper_Context }).getContextForArrowFunctionNode_impl(p0)
+	return this.self_.(interface {
+		getContextForArrowFunctionNode_impl(Node) *CheckSuper_Context
+	}).getContextForArrowFunctionNode_impl(p0)
 }
 
 func (this *CheckSuper_Context) visitThis(p0 *NodeTraversal, p1 Node) {
@@ -338,7 +345,7 @@ func (this *CheckSuper_MethodContext) visitSuperConstructorCall_impl(t *NodeTrav
 
 func (this *CheckSuper_MethodContext) getPropertyName() Optional[string] {
 	var parent Node = Preconditions_checkNotNull_T(this.getContextNode().getParent())
-	if ((parent.isMemberFunctionDef() || parent.isGetterDef()) || parent.isSetterDef()) {
+	if (parent.isMemberFunctionDef() || parent.isGetterDef()) || parent.isSetterDef() {
 		return Optional_of[string](parent.getString())
 	} else {
 		return Optional_empty[string]()
@@ -348,15 +355,15 @@ func (this *CheckSuper_MethodContext) getPropertyName() Optional[string] {
 
 type CheckSuper_ConstructorContext struct {
 	CheckSuper_Context
-	firstSuperCall Node
-	rootLevelSuperCall Node
-	thisAccessedBeforeSuper Node
+	firstSuperCall                       Node
+	rootLevelSuperCall                   Node
+	thisAccessedBeforeSuper              Node
 	superPropertyAccessedBeforeSuperCall Node
-	hasParentClass bool
-	hasInstanceElements bool
-	hasMultipleSuperCalls bool
-	returnsAValue bool
-	returnsBeforeRootLevelSuperCall bool
+	hasParentClass                       bool
+	hasInstanceElements                  bool
+	hasMultipleSuperCalls                bool
+	returnsAValue                        bool
+	returnsBeforeRootLevelSuperCall      bool
 }
 
 func (this *CheckSuper_ConstructorContext) up_CheckSuper_Context() *CheckSuper_Context {
@@ -397,25 +404,25 @@ func (this *CheckSuper_ConstructorContext) getContextForArrowFunctionNode_impl(a
 }
 
 func (this *CheckSuper_ConstructorContext) visitSuperConstructorCall_impl(t *NodeTraversal, superNode Node) {
-	if (this.firstSuperCall == 0) {
+	if this.firstSuperCall == 0 {
 		this.firstSuperCall = superNode
 	} else {
 		this.hasMultipleSuperCalls = true
 	}
 	var call Node = superNode.getParent()
-	if (((this.rootLevelSuperCall == 0) && equalsRRH_(NodeUtil_getEnclosingStatement(call).getParent(), NodeUtil_getFunctionBody(this.getContextNode()))) && NodeUtil_isExecutedExactlyOnce(call)) {
+	if ((this.rootLevelSuperCall == 0) && equalsRRH_(NodeUtil_getEnclosingStatement(call).getParent(), NodeUtil_getFunctionBody(this.getContextNode()))) && NodeUtil_isExecutedExactlyOnce(call) {
 		this.rootLevelSuperCall = superNode
 	}
 }
 
 func (this *CheckSuper_ConstructorContext) visitSuperPropertyAccess_impl(t *NodeTraversal, superNode Node) {
-	if (this.firstSuperCall == 0) {
+	if this.firstSuperCall == 0 {
 		this.superPropertyAccessedBeforeSuperCall = superNode
 	}
 }
 
 func (this *CheckSuper_ConstructorContext) visitThis_impl(t *NodeTraversal, thisNode Node) {
-	if (this.firstSuperCall == 0) {
+	if this.firstSuperCall == 0 {
 		this.thisAccessedBeforeSuper = thisNode
 	}
 }
@@ -424,26 +431,31 @@ func (this *CheckSuper_ConstructorContext) visitReturn_impl(t *NodeTraversal, re
 	if returnNode.hasChildren() {
 		this.returnsAValue = true
 	}
-	if (this.rootLevelSuperCall == 0) {
+	if this.rootLevelSuperCall == 0 {
 		this.returnsBeforeRootLevelSuperCall = true
 	}
 }
 
 func (this *CheckSuper_ConstructorContext) visitContextNode_impl(t *NodeTraversal) {
 	if !this.hasParentClass {
-		if (this.firstSuperCall != 0) {
+		if this.firstSuperCall != 0 {
 			t.report(this.firstSuperCall, CheckSuper_INVALID_SUPER_CALL, []string{})
 		}
 	} else {
-		if (this.firstSuperCall == 0) {
-			t.report(this.getContextNode().getParent(), func() *DiagnosticType { if this.returnsAValue { return CheckSuper_RETURN_WITHOUT_CALL_TO_SUPER }; return CheckSuper_MISSING_CALL_TO_SUPER }(), []string{})
-		} else if (this.hasInstanceElements && (((this.rootLevelSuperCall == 0) || this.returnsBeforeRootLevelSuperCall) || this.hasMultipleSuperCalls)) {
+		if this.firstSuperCall == 0 {
+			t.report(this.getContextNode().getParent(), func() *DiagnosticType {
+				if this.returnsAValue {
+					return CheckSuper_RETURN_WITHOUT_CALL_TO_SUPER
+				}
+				return CheckSuper_MISSING_CALL_TO_SUPER
+			}(), []string{})
+		} else if this.hasInstanceElements && (((this.rootLevelSuperCall == 0) || this.returnsBeforeRootLevelSuperCall) || this.hasMultipleSuperCalls) {
 			t.report(this.getContextNode().getParent(), CheckSuper_MISSING_ROOT_LEVEL_CALL_TO_SUPER, []string{})
 		}
-		if (this.thisAccessedBeforeSuper != 0) {
+		if this.thisAccessedBeforeSuper != 0 {
 			t.report(this.thisAccessedBeforeSuper, CheckSuper_THIS_BEFORE_SUPER, []string{})
 		}
-		if (this.superPropertyAccessedBeforeSuperCall != 0) {
+		if this.superPropertyAccessedBeforeSuperCall != 0 {
 			t.report(this.superPropertyAccessedBeforeSuperCall, CheckSuper_SUPER_ACCESS_BEFORE_SUPER_CONSTRUCTOR, []string{})
 		}
 	}
@@ -479,10 +491,10 @@ func (this *CheckSuper_ConstructorArrowContext) getContextForArrowFunctionNode_i
 
 func (this *CheckSuper_ConstructorArrowContext) visitSuperConstructorCall_impl(t *NodeTraversal, superNode Node) {
 	t.report(superNode, CheckSuper_SUPER_CALL_IN_ARROW, []string{})
-	if (this.constructorContext.firstSuperCall == 0) {
+	if this.constructorContext.firstSuperCall == 0 {
 		this.constructorContext.firstSuperCall = superNode
 	}
-	if (this.constructorContext.rootLevelSuperCall == 0) {
+	if this.constructorContext.rootLevelSuperCall == 0 {
 		this.constructorContext.rootLevelSuperCall = superNode
 	}
 }
@@ -490,4 +502,3 @@ func (this *CheckSuper_ConstructorArrowContext) visitSuperConstructorCall_impl(t
 func (this *CheckSuper_ConstructorArrowContext) visitSuperPropertyAccess_impl(t *NodeTraversal, superNode Node) {
 	this.constructorContext.visitSuperPropertyAccess(t, superNode)
 }
-

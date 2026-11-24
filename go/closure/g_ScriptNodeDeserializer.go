@@ -3,15 +3,15 @@
 package closure
 
 type ScriptNodeDeserializer struct {
-	sourceFile *SourceFile_jscomp
-	scriptBytes *ByteString
-	stringPool *StringPool
-	filePool *TList[*SourceFile_jscomp]
+	sourceFile       *SourceFile_jscomp
+	scriptBytes      *ByteString
+	stringPool       *StringPool
+	filePool         *JTList[*SourceFile_jscomp]
 	sourceMappingURL Optional[string]
-	colorPoolShard GOptional[*ColorPool_ShardView]
+	colorPoolShard   GOptional[*ColorPool_ShardView]
 }
 
-func (this *ScriptNodeDeserializer) init_ScriptNodeDeserializer(ast *LazyAst, stringPool *StringPool, colorPoolShard GOptional[*ColorPool_ShardView], filePool *TList[*SourceFile_jscomp]) {
+func (this *ScriptNodeDeserializer) init_ScriptNodeDeserializer(ast *LazyAst, stringPool *StringPool, colorPoolShard GOptional[*ColorPool_ShardView], filePool *JTList[*SourceFile_jscomp]) {
 	this.scriptBytes = ast.getScript()
 	this.sourceFile = filePool.get((ast.getSourceFile() - 1))
 	this.sourceMappingURL = Optional_ofNullable[string](ast.getSourceMappingUrl())
@@ -20,7 +20,7 @@ func (this *ScriptNodeDeserializer) init_ScriptNodeDeserializer(ast *LazyAst, st
 	this.filePool = filePool
 }
 
-func new_ScriptNodeDeserializer(ast *LazyAst, stringPool *StringPool, colorPoolShard GOptional[*ColorPool_ShardView], filePool *TList[*SourceFile_jscomp]) *ScriptNodeDeserializer {
+func new_ScriptNodeDeserializer(ast *LazyAst, stringPool *StringPool, colorPoolShard GOptional[*ColorPool_ShardView], filePool *JTList[*SourceFile_jscomp]) *ScriptNodeDeserializer {
 	this := &ScriptNodeDeserializer{}
 	this.init_ScriptNodeDeserializer(ast, stringPool, colorPoolShard, filePool)
 	return this
@@ -45,7 +45,7 @@ func (this *ScriptNodeDeserializer) createSourceInfoTemplate(file *SourceFile_js
 }
 
 func (this *ScriptNodeDeserializer) setOriginalNameIfPresent(astNode *AstNode, n Node) {
-	if (astNode.getOriginalNamePointer() != 0) {
+	if astNode.getOriginalNamePointer() != 0 {
 		n.setOriginalNameFromStringPool(this.stringPool.getInternedStrings(), astNode.getOriginalNamePointer())
 	}
 }
@@ -366,7 +366,7 @@ func (this *ScriptNodeDeserializer) deserializeSingleNode(n *AstNode, templateNo
 		return this.newNodeFromTemplate(Token_rhino_OBJECT_SPREAD, templateNode)
 	case NodeKind_NODE_KIND_UNSPECIFIED, NodeKind_UNRECOGNIZED:
 	}
-	panic(new_IllegalStateException_String(("Unexpected serialized kind for AstNode: " + tostr_(n))).self())
+	panic(new_IllegalStateException_String(("Unexpected serialized kind for AstNode: " + jtostr_(n))).self())
 }
 
 func (this *ScriptNodeDeserializer) filterOutCastProp(nodeProperties int64) int64 {
@@ -377,10 +377,10 @@ func (this *ScriptNodeDeserializer) filterOutCastProp(nodeProperties int64) int6
 }
 
 type ScriptNodeDeserializer_Runner struct {
-	outer_ *ScriptNodeDeserializer
+	outer_           *ScriptNodeDeserializer
 	featureCollector *FeatureCollector
-	previousLine int32
-	previousColumn int32
+	previousLine     int32
+	previousColumn   int32
 }
 
 func (this *ScriptNodeDeserializer_Runner) finit_ScriptNodeDeserializer_Runner() {
@@ -416,7 +416,7 @@ func (this *ScriptNodeDeserializer_Runner) run() Node {
 		}()
 		var astStream *CodedInputStream = this.owner().scriptBytes.newCodedInput()
 		astStream.setRecursionLimit(int32(2147483647))
-		var contextStack *TList[*FeatureCollector_FeatureContext] = newTList_(tc_p_FeatureCollector_FeatureContext)
+		var contextStack *JTList[*FeatureCollector_FeatureContext] = jnewTList_(jtc_p_FeatureCollector_FeatureContext)
 		SequencedCollection_addLastT_[*FeatureCollector_FeatureContext](contextStack.asCollT(), FeatureCollector_FeatureContext_NONE)
 		var scriptNode Node = this.visit(AstNode_parseFrom(astStream, ExtensionRegistry_getEmptyRegistry().up_ExtensionRegistryLite()), contextStack, this.owner().createSourceInfoTemplate(this.owner().sourceFile))
 		scriptNode.setFeatureSet(obj_(this.featureCollector.allFeatures()))
@@ -434,25 +434,25 @@ func (this *ScriptNodeDeserializer_Runner) owner() *ScriptNodeDeserializer {
 	return this.outer_
 }
 
-func (this *ScriptNodeDeserializer_Runner) visit(astNode *AstNode, contextStack *TList[*FeatureCollector_FeatureContext], sourceFileTemplate Node) Node {
-	if ((sourceFileTemplate == 0) || (astNode.getSourceFile() != 0)) {
+func (this *ScriptNodeDeserializer_Runner) visit(astNode *AstNode, contextStack *JTList[*FeatureCollector_FeatureContext], sourceFileTemplate Node) Node {
+	if (sourceFileTemplate == 0) || (astNode.getSourceFile() != 0) {
 		sourceFileTemplate = this.owner().createSourceInfoTemplate(this.owner().filePool.get((astNode.getSourceFile() - 1)))
 	}
 	var currentLine int32 = (this.previousLine + astNode.getRelativeLine())
 	var currentColumn int32 = (this.previousColumn + astNode.getRelativeColumn())
 	var n Node = this.owner().deserializeSingleNode(astNode, sourceFileTemplate)
-	if (astNode.hasType() && this.owner().colorPoolShard.isPresent()) {
+	if astNode.hasType() && this.owner().colorPoolShard.isPresent() {
 		n.setColor(this.owner().colorPoolShard.get().getColor(astNode.getType()))
 	}
 	var properties int64 = astNode.getBooleanProperties()
-	if (properties > 0) {
+	if properties > 0 {
 		n.deserializeProperties(this.outer_.filterOutCastProp(properties), sourceFileTemplate.getIsInClosureUnawareSubtree())
 	}
 	n.setJSDocInfo(JSDocSerializer_deserializeJsdoc(astNode.getJsdoc(), this.outer_.stringPool))
 	n.setLinenoCharno(currentLine, currentColumn)
 	this.previousLine = currentLine
 	this.previousColumn = currentColumn
-	if (contextStack != nil) {
+	if contextStack != nil {
 		SequencedCollection_addLastT_[*FeatureCollector_FeatureContext](contextStack.asCollT(), this.featureCollector.visitSingleNode(contextStack, n))
 	}
 	if Node_hasBitSet(properties, NodeProperty_CLOSURE_UNAWARE_SHADOW.getNumber()) {
@@ -469,7 +469,7 @@ func (this *ScriptNodeDeserializer_Runner) visit(astNode *AstNode, contextStack 
 		return n
 	}
 	var children int32 = astNode.getChildCount()
-	for i := int32(0); (i < children); i++ {
+	for i := int32(0); i < children; i++ {
 		var child *AstNode = astNode.getChild(i)
 		var deserializedChild Node = this.visit(child, contextStack, sourceFileTemplate)
 		n.addChildToBack(deserializedChild)
@@ -478,4 +478,3 @@ func (this *ScriptNodeDeserializer_Runner) visit(astNode *AstNode, contextStack 
 	SequencedCollection_removeLastT_[*FeatureCollector_FeatureContext](contextStack.asCollT())
 	return n
 }
-

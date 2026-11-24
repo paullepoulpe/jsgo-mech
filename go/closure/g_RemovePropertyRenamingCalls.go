@@ -55,10 +55,9 @@ func (this *RemovePropertyRenamingCalls_RemoveCompilerPropertyRenamingCallback) 
 
 func (this *RemovePropertyRenamingCalls_RemoveCompilerPropertyRenamingCallback) replacePropertyRenamingCall(callNode Node) {
 	var propName Node = NodeUtil_getArgumentForCallOrNew(callNode, 0)
-	if (propName != 0) {
+	if propName != 0 {
 		callNode.replaceWith(propName.detach())
 		this.outer_.compiler_.reportChangeToEnclosingScope(propName)
 		return
 	}
 }
-

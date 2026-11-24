@@ -25,4 +25,3 @@ func new_VariableStatementTree(location *SourceRange, declarations *VariableDecl
 	this.init_VariableStatementTree(location, declarations)
 	return this
 }
-

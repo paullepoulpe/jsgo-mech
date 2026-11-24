@@ -4,9 +4,9 @@ package closure
 
 type PerformanceTrackerCodeSizeEstimator struct {
 	CodeConsumer
-	output ListT[[]int8]
-	size_ int32
-	lastChar uint16
+	output      ListT[[]int8]
+	size_       int32
+	lastChar    uint16
 	trackGzSize bool
 }
 
@@ -48,7 +48,7 @@ func PerformanceTrackerCodeSizeEstimator_estimate(jsRoot Node, trackGzSize bool)
 
 func (this *PerformanceTrackerCodeSizeEstimator) append_impl(str string) {
 	var len_ int32 = String_length(str)
-	if (len_ > 0) {
+	if len_ > 0 {
 		this.size_ += len_
 		this.lastChar = String_charAt(str, (len_ - 1))
 		if this.trackGzSize {
@@ -68,14 +68,14 @@ func (this *PerformanceTrackerCodeSizeEstimator) getCodeSize() int32 {
 func (this *PerformanceTrackerCodeSizeEstimator) getZippedCodeSize() int32 {
 	if this.trackGzSize {
 		var length int32 = 0
-		it_1 := eachOf_(this.output)
+		it_1 := jeachOf_(this.output)
 		for it_1.next() {
 			var chunk []int8 = it_1.v
 			length += int32(len(chunk))
 		}
 		var bytes []int8 = make([]int8, length)
 		var offset int32 = 0
-		it_3 := eachOf_(this.output)
+		it_3 := jeachOf_(this.output)
 		for it_3.next() {
 			var chunk []int8 = it_3.v
 			System_arraycopy(chunk, 0, bytes, offset, int32(len(chunk)))
@@ -87,4 +87,3 @@ func (this *PerformanceTrackerCodeSizeEstimator) getZippedCodeSize() int32 {
 	}
 	panic("unreachable")
 }
-

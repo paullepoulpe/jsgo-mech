@@ -13,4 +13,3 @@ type ReverseAbstractInterpreter_fn struct {
 func (this *ReverseAbstractInterpreter_fn) getPreciserScopeKnowingConditionOutcome(p0 Node, p1 FlowScope, p2 *Outcome_rhino) FlowScope {
 	return this.f(p0, p1, p2)
 }
-

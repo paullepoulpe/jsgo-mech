@@ -3,11 +3,11 @@
 package closure
 
 type Binding struct {
-	metadata_ *ModuleMetadataMap_ModuleMetadata
+	metadata_          *ModuleMetadataMap_ModuleMetadata
 	originatingExport_ *Export
-	createdBy_ *Binding_CreatedBy
-	closureNamespace_ Optional[string]
-	sourceNode_ Node
+	createdBy_         *Binding_CreatedBy
+	closureNamespace_  Optional[string]
+	sourceNode_        Node
 	isModuleNamespace_ bool
 }
 
@@ -111,7 +111,7 @@ func (this *Binding) hashCode() int32 {
 }
 
 func (this *Binding) toString() string {
-	return "Binding[" + "metadata=" + tostr_(this.metadata_) + ", sourceNode=" + tostrH_(this.sourceNode_) + ", originatingExport=" + tostr_(this.originatingExport_) + ", isModuleNamespace=" + boolstr_(this.isModuleNamespace_) + ", closureNamespace=" + objstr_(this.closureNamespace_.box_()) + ", createdBy=" + tostr_(this.createdBy_) + "]"
+	return "Binding[" + "metadata=" + jtostr_(this.metadata_) + ", sourceNode=" + tostrH_(this.sourceNode_) + ", originatingExport=" + jtostr_(this.originatingExport_) + ", isModuleNamespace=" + boolstr_(this.isModuleNamespace_) + ", closureNamespace=" + objstr_(this.closureNamespace_.box_()) + ", createdBy=" + jtostr_(this.createdBy_) + "]"
 }
 
 type Binding_CreatedBy struct {
@@ -176,4 +176,3 @@ func Binding_CreatedBy_clinit() {
 	registerEnum_("com.google.javascript.jscomp.modules.Binding.CreatedBy", enumValues_(Binding_CreatedBy_values_))
 
 }
-

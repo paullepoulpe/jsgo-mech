@@ -5,18 +5,18 @@ import "testing"
 // A typed list is an Iterable of its elements itself; for erased code and as an Object it is
 // its erased view.
 func TestLgTypedListIsIterable(t *testing.T) {
-	l := newTList_(tc_string)
+	l := jnewTList_(jtc_string)
 	l.add("a")
 	l.add("b")
 	it := l.asIterable()
-	if (*TList[string])(nil).asIterable() != nil {
+	if (*JTList[string])(nil).asIterable() != nil {
 		t.Fatal("null list as an Iterable is not nil")
 	}
 	if lgBox_(it) != any(l.asList()) || Iterable_un_(it) != Iterable(l.asList()) {
 		t.Fatal("the typed list goes to erased code as its view")
 	}
 	got := ""
-	for e := eachOf_(it); e.next(); {
+	for e := jeachOf_(it); e.next(); {
 		got += e.v
 	}
 	for i := it.iterator_t(); i.hasNext(); {
@@ -29,12 +29,12 @@ func TestLgTypedListIsIterable(t *testing.T) {
 		t.Fatal(got)
 	}
 	// the erased view is native: no wrapper
-	if iterableAs_(tc_string, Iterable(l.asList())) != IterableT[string](&l.view) {
+	if iterableAs_(jtc_string, Iterable(l.asList())) != IterableT[string](&l.view) {
 		t.Fatal("the view of a typed list was wrapped")
 	}
 	// the loop sees what the body appends, as the erased loop over an ArrayList does
 	n := 0
-	for e := eachOf_(it); e.next(); n++ {
+	for e := jeachOf_(it); e.next(); n++ {
 		if n == 0 {
 			l.add("c")
 		}
@@ -50,7 +50,7 @@ func TestLgWrappedErased(t *testing.T) {
 	al := new_ArrayList_0()
 	al.add("x")
 	al.add("y")
-	w := iterableAs_(tc_string, Iterable(al))
+	w := iterableAs_(jtc_string, Iterable(al))
 	if _, ok := w.(*iterableAs[string]); !ok {
 		t.Fatal("an ArrayList is no native Iterable of strings")
 	}
@@ -58,7 +58,7 @@ func TestLgWrappedErased(t *testing.T) {
 		t.Fatal("the wrapper reached erased code")
 	}
 	got := ""
-	for e := eachOf_(w); e.next(); {
+	for e := jeachOf_(w); e.next(); {
 		got += e.v
 	}
 	i := w.iterator_t()
@@ -71,7 +71,7 @@ func TestLgWrappedErased(t *testing.T) {
 	if Iterator_un_(i) == Iterator(i) {
 		t.Fatal("the iterator wrapper reached erased code")
 	}
-	if iterableAs_(tc_string, nil) != nil || iteratorAs_(tc_string, nil) != nil {
+	if iterableAs_(jtc_string, nil) != nil || iteratorAs_(jtc_string, nil) != nil {
 		t.Fatal("null stays null")
 	}
 	func() {
@@ -84,8 +84,8 @@ func TestLgWrappedErased(t *testing.T) {
 	}()
 	// an element of another type fails when it is read, not before
 	al.add(int32(1))
-	w2 := iterableAs_(tc_string, Iterable(al))
-	e := eachOf_(w2)
+	w2 := iterableAs_(jtc_string, Iterable(al))
+	e := jeachOf_(w2)
 	e.next()
 	e.next()
 	func() {
@@ -103,19 +103,19 @@ func TestLgWrappedErased(t *testing.T) {
 }
 
 func TestLgTypedSetAndImmutable(t *testing.T) {
-	s := newTSet_(tc_string)
+	s := jnewTSet_(jtc_string)
 	s.add("k1")
 	s.add("k2")
 	got := ""
-	for e := eachOf_(s.asIterable()); e.next(); {
+	for e := jeachOf_(s.asIterable()); e.next(); {
 		got += e.v
 	}
 	if got != "k1k2" || lgBox_(s.asIterable()) != any(s.asSet()) {
 		t.Fatal("typed set as an Iterable", got)
 	}
-	im := immutableListOf_(tc_string, "p", "q")
+	im := jimmutableListOf_(jtc_string, "p", "q")
 	// the erased twin of an immutable typed list is the typed list again
-	if iterableAs_(tc_string, Iterable(im.asImm())) != IterableT[string](im) {
+	if iterableAs_(jtc_string, Iterable(im.asImm())) != IterableT[string](im) {
 		t.Fatal("the twin of an immutable typed list was wrapped")
 	}
 }
@@ -123,21 +123,21 @@ func TestLgTypedSetAndImmutable(t *testing.T) {
 // keySet() and values() of the erased view of a typed map are native Iterables of the keys and
 // of the values: no wrapper, the elements as they are, removed mappings skipped.
 func TestLgTypedMapViews(t *testing.T) {
-	m := newTMap_(tc_string, tc_string)
+	m := jnewTMap_(jtc_string, jtc_string)
 	for _, k := range []string{"a", "b", "c", "d"} {
 		m.put(k, k+k)
 	}
 	m.remove("b")
 	ks, vs := Iterable(m.asMap().keySet()), Iterable(m.asMap().values())
-	kt, vt := iterableAs_(tc_string, ks), iterableAs_(tc_string, vs)
+	kt, vt := iterableAs_(jtc_string, ks), iterableAs_(jtc_string, vs)
 	if any(kt) != any(ks) || any(vt) != any(vs) {
 		t.Fatal("a view of a typed map was wrapped")
 	}
 	got := ""
-	for e := eachOf_(kt); e.next(); {
+	for e := jeachOf_(kt); e.next(); {
 		got += e.v
 	}
-	for e := eachOf_(vt); e.next(); {
+	for e := jeachOf_(vt); e.next(); {
 		got += e.v
 	}
 	for i := kt.iterator_t(); i.hasNext(); {
@@ -166,45 +166,45 @@ func TestLgTypedMapViews(t *testing.T) {
 // collection is wrapped, an erased immutable list gives the view of its typed list; erased code
 // gets the object it knows.
 func TestLgCollection(t *testing.T) {
-	l := newTList_(tc_string)
+	l := jnewTList_(jtc_string)
 	l.add("a")
 	c := l.asCollT()
-	if (*TList[string])(nil).asCollT() != nil || (*TSet[string])(nil).asCollT() != nil || (*TDeque[string])(nil).asCollT() != nil {
+	if (*JTList[string])(nil).asCollT() != nil || (*JTSet[string])(nil).asCollT() != nil || (*TDeque[string])(nil).asCollT() != nil {
 		t.Fatal("null as a Collection is not nil")
 	}
-	if Collection_un_(c) != Collection(l.asList()) || lgBox_(c) != any(l.asList()) || collectionAs_(tc_string, Collection(l.asList())) != c {
+	if Collection_un_(c) != Collection(l.asList()) || lgBox_(c) != any(l.asList()) || collectionAs_(jtc_string, Collection(l.asList())) != c {
 		t.Fatal("the typed list as a Collection is not its view")
 	}
 	c.add("b") // the erased method, through the view
 	if l.size() != 2 || c.iterator_t().next_t() != "a" {
 		t.Fatal(l.size())
 	}
-	d := newTDeque_(tc_string)
+	d := newTDeque_(jtc_string)
 	d.push("x")
 	if Collection_un_(d.asCollT()) != Collection(d.asDeque()) {
 		t.Fatal("the typed deque as a Collection is not its deque view")
 	}
 	// an immutable typed list: the view for typed code, the twin for erased code
-	il := immutableListOf_(tc_string, "p", "q")
+	il := jimmutableListOf_(jtc_string, "p", "q")
 	ic := il.asCollT()
-	if Collection_un_(ic) != Collection(il.asImm()) || collectionAs_(tc_string, Collection(il.asImm())) != ic {
+	if Collection_un_(ic) != Collection(il.asImm()) || collectionAs_(jtc_string, Collection(il.asImm())) != ic {
 		t.Fatal("the immutable typed list as a Collection")
 	}
 	got := ""
-	for e := eachOf_[string](ic); e.next(); {
+	for e := jeachOf_[string](ic); e.next(); {
 		got += e.v
 	}
 	// an erased collection: a wrapper that unboxes; erased code gets the collection back
 	al := new_ArrayList_0()
 	al.add(strobj_("m"))
-	w := collectionAs_(tc_string, Collection(al))
-	for e := eachOf_[string](w); e.next(); {
+	w := collectionAs_(jtc_string, Collection(al))
+	for e := jeachOf_[string](w); e.next(); {
 		got += e.v
 	}
 	if got != "pqm" || Collection_un_(w) != Collection(al) || w.size() != 1 {
 		t.Fatal(got)
 	}
-	if collectionAs_(tc_string, nil) != nil || Collection_un_(nil) != nil {
+	if collectionAs_(jtc_string, nil) != nil || Collection_un_(nil) != nil {
 		t.Fatal("null")
 	}
 }
@@ -212,7 +212,7 @@ func TestLgCollection(t *testing.T) {
 // valuesT of a typed map: the map's values at their type; of an immutable map too, where every
 // change throws; erased code gets the erased map's values().
 func TestLgValuesT(t *testing.T) {
-	m := newTMap_(tc_string, tc_string)
+	m := jnewTMap_(jtc_string, jtc_string)
 	m.put("a", "x")
 	m.put("b", "y")
 	v := m.valuesT()
@@ -221,12 +221,12 @@ func TestLgValuesT(t *testing.T) {
 	}
 	m.put("c", "z")
 	got := ""
-	for e := eachOf_[string](v); e.next(); {
+	for e := jeachOf_[string](v); e.next(); {
 		got += e.v
 	}
-	im := immutableMapOf1_(tc_string, tc_string, "k", "w")
+	im := immutableMapOf1_(jtc_string, jtc_string, "k", "w")
 	iv := im.valuesT()
-	for e := eachOf_[string](iv); e.next(); {
+	for e := jeachOf_[string](iv); e.next(); {
 		got += e.v
 	}
 	if got != "xyzw" || iv.size() != 1 || Collection_un_(iv) != im.asImm().values() {
@@ -248,37 +248,37 @@ func TestLgValuesT(t *testing.T) {
 				t.Fatal("valuesT of null did not throw")
 			}
 		}()
-		(*TMap[string, string])(nil).valuesT()
+		(*JTMap[string, string])(nil).valuesT()
 	}()
 }
 
 // Kind list: a typed list as a List is its view, with the elements at their type; an erased
 // list is wrapped; an erased immutable list gives the view of its typed list.
 func TestLgList(t *testing.T) {
-	l := newTList_(tc_string)
+	l := jnewTList_(jtc_string)
 	l.add("a")
 	l.add("b")
 	lt := l.asListT()
-	if (*TList[string])(nil).asListT() != nil || listAs_(tc_string, nil) != nil || List_un_(nil) != nil {
+	if (*JTList[string])(nil).asListT() != nil || listAs_(jtc_string, nil) != nil || List_un_(nil) != nil {
 		t.Fatal("null")
 	}
-	if List_un_(lt) != l.asList() || lgBox_(lt) != any(l.asList()) || listAs_(tc_string, l.asList()) != lt || CollectionT[string](lt) != l.asCollT() {
+	if List_un_(lt) != l.asList() || lgBox_(lt) != any(l.asList()) || listAs_(jtc_string, l.asList()) != lt || CollectionT[string](lt) != l.asCollT() {
 		t.Fatal("the typed list as a List is not its view")
 	}
 	if lt.get_t(1) != "b" || lt.size() != 2 {
 		t.Fatal(lt.get_t(1))
 	}
-	il := immutableListOf_(tc_string, "p", "q")
+	il := jimmutableListOf_(jtc_string, "p", "q")
 	it := il.asListT()
-	if List_un_(it) != List(il.asImm()) || listAs_(tc_string, List(il.asImm())) != it || it.get_t(0) != "p" {
+	if List_un_(it) != List(il.asImm()) || listAs_(jtc_string, List(il.asImm())) != it || it.get_t(0) != "p" {
 		t.Fatal("the immutable typed list as a List")
 	}
 	al := new_ArrayList_0()
 	al.add(strobj_("m"))
 	al.add(obj_(int32(1)))
-	w := listAs_(tc_string, List(al))
+	w := listAs_(jtc_string, List(al))
 	got := w.get_t(0)
-	for e := eachOf_[string](l.asListT()); e.next(); {
+	for e := jeachOf_[string](l.asListT()); e.next(); {
 		got += e.v
 	}
 	if got != "mab" || List_un_(w) != List(al) || lgBox_(w) != any(al) {
@@ -299,19 +299,19 @@ func TestLgList(t *testing.T) {
 // subList of the view of a typed list is a typed list on the same items, as the erased
 // ArrayList's is a list on the same boxes: set writes through, and nothing is boxed.
 func TestLgSubList(t *testing.T) {
-	l := newTList_(tc_string)
+	l := jnewTList_(jtc_string)
 	for _, x := range []string{"a", "b", "c", "d"} {
 		l.add(x)
 	}
-	s := listAs_(tc_string, l.asListT().subList(1, 3))
+	s := listAs_(jtc_string, l.asListT().subList(1, 3))
 	if _, wrapped := s.(*listAs[string]); wrapped || s.size() != 2 || s.get_t(0) != "b" || s.get_t(1) != "c" {
 		t.Fatal("subList of a typed list")
 	}
 	s.set(0, strobj_("B"))
-	if l.get(1) != "B" || tostr_(s) != "[B, c]" {
+	if l.get(1) != "B" || jtostr_(s) != "[B, c]" {
 		t.Fatal("set through the sublist", l.get(1))
 	}
-	im := immutableListOf_(tc_string, "p", "q", "r").asListT().subList(0, 2)
+	im := jimmutableListOf_(jtc_string, "p", "q", "r").asListT().subList(0, 2)
 	func() {
 		defer func() {
 			if recover() == nil {
@@ -329,13 +329,13 @@ func TestLgSubList(t *testing.T) {
 }
 
 func TestLgSet(t *testing.T) {
-	s := newTSet_(tc_string)
+	s := jnewTSet_(jtc_string)
 	s.add("a")
 	st := s.asSetT()
-	if (*TSet[string])(nil).asSetT() != nil {
+	if (*JTSet[string])(nil).asSetT() != nil {
 		t.Fatal("null as a Set is not nil")
 	}
-	if Set_un_(st) != s.asSet() || lgBox_(st) != any(s.asSet()) || setAs_(tc_string, s.asSet()) != st || CollectionT[string](st) != s.asCollT() {
+	if Set_un_(st) != s.asSet() || lgBox_(st) != any(s.asSet()) || setAs_(jtc_string, s.asSet()) != st || CollectionT[string](st) != s.asCollT() {
 		t.Fatal("the typed set as a Set is not its view")
 	}
 	st.add("b") // the erased method, through the view
@@ -344,27 +344,27 @@ func TestLgSet(t *testing.T) {
 		t.Fatal(s.size())
 	}
 	// an immutable typed set: the view for typed code, the twin for erased code, found from the twin
-	is := immutableSetOf_(tc_string, "p", "q", "p")
+	is := jimmutableSetOf_(jtc_string, "p", "q", "p")
 	it := is.asSetT()
-	if Set_un_(it) != Set(is.asImm()) || setAs_(tc_string, Set(is.asImm())) != it || collectionAs_(tc_string, Collection(is.asImm())) != CollectionT[string](it) {
+	if Set_un_(it) != Set(is.asImm()) || setAs_(jtc_string, Set(is.asImm())) != it || collectionAs_(jtc_string, Collection(is.asImm())) != CollectionT[string](it) {
 		t.Fatal("the immutable typed set as a Set")
 	}
-	if iterableAs_(tc_string, Iterable(is.asImm())) != IterableT[string](is) {
+	if iterableAs_(jtc_string, Iterable(is.asImm())) != IterableT[string](is) {
 		t.Fatal("the immutable typed set as an Iterable")
 	}
 	got := ""
-	for e := eachOf_[string](it); e.next(); {
+	for e := jeachOf_[string](it); e.next(); {
 		got += e.v
 	}
 	// an erased set: a wrapper that unboxes; erased code gets the set back
 	hs := new_LinkedHashSet()
 	hs.add("x")
 	hs.add("y")
-	w := setAs_(tc_string, Set(hs))
+	w := setAs_(jtc_string, Set(hs))
 	if Set_un_(w) != Set(hs) || lgBox_(w) != any(hs) || w.size() != 2 {
 		t.Fatal("a wrapped erased set")
 	}
-	for e := eachOf_[string](w); e.next(); {
+	for e := jeachOf_[string](w); e.next(); {
 		got += e.v
 	}
 	for i := w.iterator_t(); i.hasNext(); {
@@ -373,22 +373,22 @@ func TestLgSet(t *testing.T) {
 	if got != "pqxyxy" {
 		t.Fatal(got)
 	}
-	if setAs_(tc_string, nil) != nil {
+	if setAs_(jtc_string, nil) != nil {
 		t.Fatal("null")
 	}
 }
 
 func TestLgKeySetT(t *testing.T) {
-	m := newTMap_(tc_string, tc_string)
+	m := jnewTMap_(jtc_string, jtc_string)
 	m.put("a", "1")
 	m.put("b", "2")
 	ks := m.keySetT()
-	if Set_un_(ks) != m.asMap().keySet() || lgBox_(ks) != any(m.asMap().keySet()) || setAs_(tc_string, m.asMap().keySet()) != ks {
+	if Set_un_(ks) != m.asMap().keySet() || lgBox_(ks) != any(m.asMap().keySet()) || setAs_(jtc_string, m.asMap().keySet()) != ks {
 		t.Fatal("keySetT of a map that can change is not the erased view's key set")
 	}
 	m.put("c", "3")
 	got := ""
-	for e := eachOf_[string](ks); e.next(); {
+	for e := jeachOf_[string](ks); e.next(); {
 		got += e.v
 	}
 	it := ks.iterator_t()
@@ -398,7 +398,7 @@ func TestLgKeySetT(t *testing.T) {
 		t.Fatal(got, m.size())
 	}
 	// an immutable map: the typed view reads the map; erased code gets the twin's key set
-	im := immutableMapOf1_(tc_string, tc_string, "k", "w")
+	im := immutableMapOf1_(jtc_string, jtc_string, "k", "w")
 	iks := im.keySetT()
 	if iks.size() != 1 || iks.iterator_t().next_t() != "k" || !Set_un_(iks).contains("k") {
 		t.Fatal("keySetT of an immutable map")
@@ -414,13 +414,13 @@ func TestLgKeySetT(t *testing.T) {
 }
 
 func TestLgMap(t *testing.T) {
-	m := newTMap_(tc_string, tc_string)
+	m := jnewTMap_(jtc_string, jtc_string)
 	m.put("a", "1")
 	mt := m.asMapT()
-	if (*TMap[string, string])(nil).asMapT() != nil || mapAs_(tc_string, tc_string, nil) != nil {
+	if (*JTMap[string, string])(nil).asMapT() != nil || mapAs_(jtc_string, jtc_string, nil) != nil {
 		t.Fatal("null as a Map is not nil")
 	}
-	if Map_un_(mt) != m.asMap() || lgBox_(mt) != any(m.asMap()) || mapAs_(tc_string, tc_string, m.asMap()) != mt {
+	if Map_un_(mt) != m.asMap() || lgBox_(mt) != any(m.asMap()) || mapAs_(jtc_string, jtc_string, m.asMap()) != mt {
 		t.Fatal("the typed map as a Map is not its view")
 	}
 	mt.put("b", "2") // the erased method, through the view
@@ -431,7 +431,7 @@ func TestLgMap(t *testing.T) {
 		t.Fatal("the views of the typed Map are not the map's typed views")
 	}
 	got := ""
-	for e := eachOf_[Map_EntryT[string, string]](mt.entrySet_t()); e.next(); {
+	for e := jeachOf_[Map_EntryT[string, string]](mt.entrySet_t()); e.next(); {
 		got += e.v.getKey_t() + e.v.getValue_t()
 	}
 	it := mt.entrySet_t().iterator_t()
@@ -444,26 +444,26 @@ func TestLgMap(t *testing.T) {
 		t.Fatal("removing through the entry set")
 	}
 	// an immutable typed map: the view for typed code, the twin for erased code, found from the twin
-	im := immutableMapOf1_(tc_string, tc_string, "k", "w")
+	im := immutableMapOf1_(jtc_string, jtc_string, "k", "w")
 	imt := im.asMapT()
-	if Map_un_(imt) != Map(im.asImm()) || mapAs_(tc_string, tc_string, Map(im.asImm())) != imt || imt.get_t("k") != "w" {
+	if Map_un_(imt) != Map(im.asImm()) || mapAs_(jtc_string, jtc_string, Map(im.asImm())) != imt || imt.get_t("k") != "w" {
 		t.Fatal("the immutable typed map as a Map")
 	}
 	// an erased map: a wrapper that unboxes; erased code gets the map back
 	hm := new_LinkedHashMap()
 	hm.put("x", "1")
 	hm.put("y", "2")
-	w := mapAs_(tc_string, tc_string, Map(hm))
+	w := mapAs_(jtc_string, jtc_string, Map(hm))
 	if Map_un_(w) != Map(hm) || lgBox_(w) != any(hm) || w.size() != 2 || w.get_t("y") != "2" || w.get_t("q") != nullstr_ {
 		t.Fatal("a wrapped erased map")
 	}
-	for e := eachOf_[string](w.keySet_t()); e.next(); {
+	for e := jeachOf_[string](w.keySet_t()); e.next(); {
 		got += e.v
 	}
-	for e := eachOf_[string](w.values_t()); e.next(); {
+	for e := jeachOf_[string](w.values_t()); e.next(); {
 		got += e.v
 	}
-	for e := eachOf_[Map_EntryT[string, string]](w.entrySet_t()); e.next(); {
+	for e := jeachOf_[Map_EntryT[string, string]](w.entrySet_t()); e.next(); {
 		got += e.v.getKey_t() + e.v.getValue_t()
 		if lgBox_(e.v) == any(e.v) {
 			t.Fatal("a wrapped entry reaches erased code")
@@ -479,7 +479,7 @@ func TestLgMap(t *testing.T) {
 			t.Fatal("asEntryT")
 		}
 	}
-	if (*TEntry[string, string])(nil).asEntryT() != nil || map_EntryAs_(tc_string, tc_string, nil) != nil {
+	if (*TEntry[string, string])(nil).asEntryT() != nil || map_EntryAs_(jtc_string, jtc_string, nil) != nil {
 		t.Fatal("null as an entry is not nil")
 	}
 }
@@ -487,8 +487,8 @@ func TestLgMap(t *testing.T) {
 // Piece `cls`: the value of a place of an immutable class entering a typed declaration is the
 // typed collection whose view it is; a collection that is not immutable fails as the cast does.
 func TestLgCls(t *testing.T) {
-	il := immutableListOf_(tc_string, "p", "q")
-	if tlistOfT_(tc_string, il.asListT()) != il || tlistOfT_(tc_string, il.asCollT()) != il || tlistOfT_(tc_string, nil) != nil {
+	il := jimmutableListOf_(jtc_string, "p", "q")
+	if tlistOfT_(jtc_string, il.asListT()) != il || tlistOfT_(jtc_string, il.asCollT()) != il || tlistOfT_(jtc_string, nil) != nil {
 		t.Fatal("the typed list of its view")
 	}
 	if il.twin != immPending_ {
@@ -496,23 +496,23 @@ func TestLgCls(t *testing.T) {
 	}
 	// an erased immutable list in a wrapper: the typed list of that object, made once
 	el := ImmutableList_of_Object_Object(strobj_("a"), strobj_("b"))
-	w := listAs_(tc_string, List(el))
-	tl := tlistOfT_(tc_string, w)
-	if tl.get(1) != "b" || tlistOfT_(tc_string, w) != tl || tl.asImm() != el {
+	w := listAs_(jtc_string, List(el))
+	tl := tlistOfT_(jtc_string, w)
+	if tl.get(1) != "b" || tlistOfT_(jtc_string, w) != tl || tl.asImm() != el {
 		t.Fatal("the typed list of an erased immutable list")
 	}
-	is := immutableSetOf_(tc_string, "x")
-	if tsetOfT_(tc_string, is.asSetT()) != is || tsetOfT_(tc_string, nil) != nil {
+	is := jimmutableSetOf_(jtc_string, "x")
+	if tsetOfT_(jtc_string, is.asSetT()) != is || tsetOfT_(jtc_string, nil) != nil {
 		t.Fatal("the typed set of its view")
 	}
-	im := immutableMapOf1_(tc_string, tc_string, "k", "v")
-	if tmapOfT_(tc_string, tc_string, im.asMapT()) != im || tmapOfT_(tc_string, tc_string, nil) != nil {
+	im := immutableMapOf1_(jtc_string, jtc_string, "k", "v")
+	if tmapOfT_(jtc_string, jtc_string, im.asMapT()) != im || tmapOfT_(jtc_string, jtc_string, nil) != nil {
 		t.Fatal("the typed map of its view")
 	}
-	ml := newTList_(tc_string)
-	ms := newTSet_(tc_string)
-	mm := newTMap_(tc_string, tc_string)
-	for i, f := range []func(){func() { tlistOfT_(tc_string, ml.asListT()) }, func() { tsetOfT_(tc_string, ms.asSetT()) }, func() { tmapOfT_(tc_string, tc_string, mm.asMapT()) }} {
+	ml := jnewTList_(jtc_string)
+	ms := jnewTSet_(jtc_string)
+	mm := jnewTMap_(jtc_string, jtc_string)
+	for i, f := range []func(){func() { tlistOfT_(jtc_string, ml.asListT()) }, func() { tsetOfT_(jtc_string, ms.asSetT()) }, func() { tmapOfT_(jtc_string, jtc_string, mm.asMapT()) }} {
 		func() {
 			defer func() {
 				if recover() == nil {
@@ -531,8 +531,8 @@ func TestLgCls(t *testing.T) {
 func TestLgMapWrapperKept(t *testing.T) {
 	m := new_LinkedHashMap()
 	m.put(strobj_("a"), strobj_("x"))
-	w := mapAs_(tc_string, tc_string, Map(m))
-	if mapAs_(tc_string, tc_string, Map(m)) != w || Map_un_(w) != Map(m) || lgBox_(w) != any(m) {
+	w := mapAs_(jtc_string, jtc_string, Map(m))
+	if mapAs_(jtc_string, jtc_string, Map(m)) != w || Map_un_(w) != Map(m) || lgBox_(w) != any(m) {
 		t.Fatal("the wrapper of an erased map is not kept, or is not the map for erased code")
 	}
 	ks, vs := w.keySet_t(), w.values_t()
@@ -541,32 +541,32 @@ func TestLgMapWrapperKept(t *testing.T) {
 	}
 	m.put(strobj_("b"), strobj_("y"))
 	got := ""
-	for e := eachOf_[string](ks); e.next(); {
+	for e := jeachOf_[string](ks); e.next(); {
 		got += e.v
 	}
-	for e := eachOf_[string](vs); e.next(); {
+	for e := jeachOf_[string](vs); e.next(); {
 		got += e.v
 	}
 	if got != "abxy" || w.get_t(strobj_("b")) != "y" {
 		t.Fatal(got)
 	}
 	// another instantiation, and another map, get wrappers of their own
-	w2 := mapAs_(tc_string, tc_Object, Map(m))
+	w2 := mapAs_(jtc_string, tc_Object, Map(m))
 	if any(w2) == any(w) || w2.get_t(strobj_("a")) != any("x") {
 		t.Fatal("a wrapper of another instantiation")
 	}
 	m2 := new_LinkedHashMap_Map(Map(m))
-	if any(mapAs_(tc_string, tc_Object, Map(m2))) == any(w2) || Map_un_(mapAs_(tc_string, tc_Object, Map(m2))) != Map(m2) {
+	if any(mapAs_(jtc_string, tc_Object, Map(m2))) == any(w2) || Map_un_(mapAs_(jtc_string, tc_Object, Map(m2))) != Map(m2) {
 		t.Fatal("the wrapper of a copy is the original's")
 	}
 }
 
 // Piece `meth`: the methods that take an element at its type, on views and on wrappers.
 func TestLgMeth(t *testing.T) {
-	l := newTList_(tc_string)
+	l := jnewTList_(jtc_string)
 	lt := l.asListT()
 	al := new_ArrayList_0()
-	wl := listAs_(tc_string, List(al))
+	wl := listAs_(jtc_string, List(al))
 	for _, x := range []ListT[string]{lt, wl} {
 		if !x.add_t("a") || !CollectionT[string](x).add_t("b") || x.set_t(0, "c") != "a" || x.remove_t(1) != "b" || x.size() != 1 || x.get_t(0) != "c" {
 			t.Fatal("add_t / set_t / remove_t of a list")
@@ -575,20 +575,20 @@ func TestLgMeth(t *testing.T) {
 	if l.get(0) != "c" || str_(al.get(0)) != "c" {
 		t.Fatal("the typed methods did not write the list itself")
 	}
-	s := newTSet_(tc_string)
+	s := jnewTSet_(jtc_string)
 	hs := new_LinkedHashSet()
-	for _, x := range []SetT[string]{s.asSetT(), setAs_(tc_string, Set(hs))} {
+	for _, x := range []SetT[string]{s.asSetT(), setAs_(jtc_string, Set(hs))} {
 		if !x.add_t("a") || x.add_t("a") || x.size() != 1 {
 			t.Fatal("add_t of a set")
 		}
 	}
-	m := newTMap_(tc_string, tc_string)
+	m := jnewTMap_(jtc_string, jtc_string)
 	hm := new_LinkedHashMap()
-	for _, x := range []MapT[string, string]{m.asMapT(), mapAs_(tc_string, tc_string, Map(hm))} {
+	for _, x := range []MapT[string, string]{m.asMapT(), mapAs_(jtc_string, jtc_string, Map(hm))} {
 		if x.put_t("k", "v") != nullstr_ || x.put_t("k", "w") != "v" || x.get_t(strobj_("k")) != "w" {
 			t.Fatal("put_t")
 		}
-		for e := eachOf_[Map_EntryT[string, string]](x.entrySet_t()); e.next(); {
+		for e := jeachOf_[Map_EntryT[string, string]](x.entrySet_t()); e.next(); {
 			if e.v.setValue_t("z") != "w" || e.v.getValue_t() != "z" {
 				t.Fatal("setValue_t")
 			}
@@ -597,8 +597,8 @@ func TestLgMeth(t *testing.T) {
 			t.Fatal("remove_t of a map")
 		}
 	}
-	il := immutableListOf_(tc_string, "p")
-	im := immutableMapOf1_(tc_string, tc_string, "k", "v")
+	il := jimmutableListOf_(jtc_string, "p")
+	im := immutableMapOf1_(jtc_string, jtc_string, "k", "v")
 	for i, f := range []func(){func() { il.asListT().add_t("x") }, func() { il.asListT().set_t(0, "x") }, func() { il.asListT().remove_t(0) },
 		func() { im.asMapT().put_t("a", "b") }, func() { im.asMapT().remove_t(strobj_("k")) }, func() { m.keySetT().add_t("x") }, func() { m.valuesT().add_t("x") }} {
 		func() {

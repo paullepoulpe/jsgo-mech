@@ -39,7 +39,7 @@ func TestLgCmp(t *testing.T) {
 		t.Fatalf("compareNatural_: %d erased %d", r, erased)
 	}
 	typed, erased = 0, 0
-	tc := &tconv_[*cmpTest_]{box: func(v *cmpTest_) any { return v }, unbox: func(v any) *cmpTest_ { return v.(*cmpTest_) }}
+	tc := &jtconv_[*cmpTest_]{box: func(v *cmpTest_) any { return v }, unbox: func(v any) *cmpTest_ { return v.(*cmpTest_) }}
 	s := newTSortedSet_(tc)
 	for _, n := range []int32{3, 1, 2, 1} {
 		s.addSorted(mk(n))

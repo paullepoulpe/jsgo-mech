@@ -14,7 +14,7 @@ func (this *BlackHoleErrorManager) up_SortingErrorManager() *SortingErrorManager
 }
 
 func (this *BlackHoleErrorManager) init_BlackHoleErrorManager() {
-	this.SortingErrorManager.init_SortingErrorManager(tsetEmptyImm_(tce_SortingErrorManager_ErrorReportGenerator))
+	this.SortingErrorManager.init_SortingErrorManager(jtsetEmptyImm_(tce_SortingErrorManager_ErrorReportGenerator))
 }
 
 func new_BlackHoleErrorManager() *BlackHoleErrorManager {
@@ -23,4 +23,3 @@ func new_BlackHoleErrorManager() *BlackHoleErrorManager {
 	this.init_BlackHoleErrorManager()
 	return this
 }
-

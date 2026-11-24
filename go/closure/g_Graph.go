@@ -3,8 +3,8 @@
 package closure
 
 type Graph[N comparable, E comparable] struct {
-	self_ any
-	vt_Graph_ Graph_vt_[N, E]
+	self_               any
+	vt_Graph_           Graph_vt_[N, E]
 	nodeAnnotationStack *TDeque[*Graph_GraphAnnotationState]
 	edgeAnnotationStack *TDeque[*Graph_GraphAnnotationState]
 }
@@ -71,14 +71,14 @@ func (this *Graph[N, E]) hasNode(n N) bool {
 
 func (this *Graph[N, E]) getNodeOrFail(val N) GraphNode[N, E] {
 	var node GraphNode[N, E] = this.getNode_Object(val)
-	if (node == nil) {
+	if node == nil {
 		panic(new_IllegalArgumentException_String((objstr_(boxT_(val)) + " does not exist in graph")).self())
 	}
 	return node
 }
 
 func (this *Graph[N, E]) clearNodeAnnotations() {
-	it_1 := eachOf_(this.getNodes())
+	it_1 := jeachOf_(this.getNodes())
 	for it_1.next() {
 		var n GraphNode[N, E] = it_1.v
 		n.setAnnotation(nil)
@@ -94,8 +94,8 @@ func (this *Graph[N, E]) clearEdgeAnnotations() {
 }
 
 func (this *Graph[N, E]) pushNodeAnnotations() {
-	if (this.nodeAnnotationStack == nil) {
-		this.nodeAnnotationStack = newTDeque_(tc_p_Graph_GraphAnnotationState)
+	if this.nodeAnnotationStack == nil {
+		this.nodeAnnotationStack = newTDeque_(jtc_p_Graph_GraphAnnotationState)
 	}
 	Graph_pushAnnotations(this.nodeAnnotationStack, collectionAs_(tc_Annotatable, Collection_un_(this.getNodes())))
 }
@@ -106,8 +106,8 @@ func (this *Graph[N, E]) popNodeAnnotations() {
 }
 
 func (this *Graph[N, E]) pushEdgeAnnotations() {
-	if (this.edgeAnnotationStack == nil) {
-		this.edgeAnnotationStack = newTDeque_(tc_p_Graph_GraphAnnotationState)
+	if this.edgeAnnotationStack == nil {
+		this.edgeAnnotationStack = newTDeque_(jtc_p_Graph_GraphAnnotationState)
 	}
 	Graph_pushAnnotations(this.edgeAnnotationStack, collectionAs_(tc_Annotatable, Collection(this.getEdges())))
 }
@@ -119,7 +119,7 @@ func (this *Graph[N, E]) popEdgeAnnotations() {
 
 func Graph_pushAnnotations(stack *TDeque[*Graph_GraphAnnotationState], haveAnnotations CollectionT[Annotatable]) {
 	stack.push(new_Graph_GraphAnnotationState(haveAnnotations.size()))
-	it_1 := eachOf_(haveAnnotations)
+	it_1 := jeachOf_(haveAnnotations)
 	for it_1.next() {
 		var h Annotatable = it_1.v
 		stack.peek().add(new_Graph_AnnotationState(h, Annotatable_getAnnotation(h)))
@@ -192,7 +192,7 @@ func (this *Graph[N, E]) getNodeDegree(p0 N) int32 {
 }
 
 type Graph_AnnotationState struct {
-	first Annotatable
+	first  Annotatable
 	second Annotation_graph
 }
 
@@ -239,8 +239,8 @@ type Graph_GraphEdge[N comparable, E comparable] interface {
 }
 
 type Graph_SimpleSubGraph[N comparable, E comparable] struct {
-	graph *Graph[N, E]
-	nodes_ *TList[GraphNode[N, E]]
+	graph  *Graph[N, E]
+	nodes_ *JTList[GraphNode[N, E]]
 }
 
 func (this *Graph_SimpleSubGraph[N, E]) isa_Graph_SimpleSubGraph_() {}
@@ -251,7 +251,7 @@ func is_Graph_SimpleSubGraph(v any) bool {
 }
 
 func (this *Graph_SimpleSubGraph[N, E]) finit_Graph_SimpleSubGraph() {
-	this.nodes_ = newTList_(tc_GraphNode_N__E_[N, E]())
+	this.nodes_ = jnewTList_(tc_GraphNode_N__E_[N, E]())
 }
 
 func (this *Graph_SimpleSubGraph[N, E]) init_Graph_SimpleSubGraph(graph *Graph[N, E]) {
@@ -280,4 +280,3 @@ func (this *Graph_SimpleSubGraph[N, E]) isIndependentOf(value N) bool {
 func (this *Graph_SimpleSubGraph[N, E]) addNode(value N) {
 	this.nodes_.add(this.graph.getNodeOrFail(value))
 }
-

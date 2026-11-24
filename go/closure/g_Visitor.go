@@ -25,7 +25,7 @@ type Visitor interface {
 }
 
 type Visitor_WithDefaultCase[T comparable] struct {
-	self_ any
+	self_                       any
 	vt_Visitor_WithDefaultCase_ Visitor_WithDefaultCase_vt_[T]
 }
 
@@ -46,7 +46,9 @@ func is_Visitor_WithDefaultCase(v any) bool {
 	return ok
 }
 
-func (this *Visitor_WithDefaultCase[T]) as_Visitor_WithDefaultCase() *Visitor_WithDefaultCase[T] { return this }
+func (this *Visitor_WithDefaultCase[T]) as_Visitor_WithDefaultCase() *Visitor_WithDefaultCase[T] {
+	return this
+}
 
 func (this *Visitor_WithDefaultCase[T]) as_Visitor_WithDefaultCase_() any { return this }
 
@@ -171,4 +173,3 @@ func (this *Visitor_WithDefaultCase[T]) caseTemplatizedType(p0 *TemplatizedType)
 func (this *Visitor_WithDefaultCase[T]) caseTemplateType(p0 *TemplateType) any {
 	return this.vt_Visitor_WithDefaultCase_.caseTemplateType_impl(p0)
 }
-

@@ -13,4 +13,3 @@ type CompilerPass_fn struct {
 func (this *CompilerPass_fn) process_2(p0 Node, p1 Node) {
 	this.f(p0, p1)
 }
-

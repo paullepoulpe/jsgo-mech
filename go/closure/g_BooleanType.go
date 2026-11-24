@@ -37,10 +37,10 @@ func (this *BooleanType) getTypeClass_impl() *JSTypeClass {
 
 func (this *BooleanType) testForEquality_impl(that *JSType) *Tri {
 	var result *Tri = this.ValueType.testForEquality_impl(that)
-	if (result != nil) {
+	if result != nil {
 		return result
 	}
-	if (((that.isUnknownType() || that.isSubtypeOf(this.getNativeType(JSTypeNative_NUMBER_STRING_BOOLEAN))) || that.isSubtypeOf(this.getNativeType(JSTypeNative_BIGINT_TYPE))) || that.isObject()) {
+	if ((that.isUnknownType() || that.isSubtypeOf(this.getNativeType(JSTypeNative_NUMBER_STRING_BOOLEAN))) || that.isSubtypeOf(this.getNativeType(JSTypeNative_BIGINT_TYPE))) || that.isObject() {
 		return Tri_UNKNOWN
 	}
 	return Tri_FALSE
@@ -77,4 +77,3 @@ func (this *BooleanType) getPossibleToBooleanOutcomes_impl() *BooleanLiteralSet 
 func (this *BooleanType) visitUntyped_impl(visitor Visitor) any {
 	return visitor.caseBooleanType()
 }
-

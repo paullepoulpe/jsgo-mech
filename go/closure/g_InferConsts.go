@@ -19,13 +19,13 @@ func new_InferConsts(compiler *AbstractCompiler) *InferConsts {
 func (this *InferConsts) process_2(externs Node, js Node) {
 	var collector *ReferenceCollector = new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator(this.compiler_, ReferenceCollector_DO_NOTHING_BEHAVIOR, ScopeCreator(new_SyntacticScopeCreator_AbstractCompiler(this.compiler_)))
 	collector.process(js)
-	it_1 := eachOf_(collector.getAllSymbols())
+	it_1 := jeachOf_(collector.getAllSymbols())
 	for it_1.next() {
 		var v *Var = it_1.v
 		this.considerVar(v, collector.getReferences_Var(v))
 	}
 	var globalExternsScope *Scope = new_SyntacticScopeCreator_AbstractCompiler(this.compiler_).createScope(externs, nil)
-	it_3 := eachOf_(globalExternsScope.getAllSymbols_rIterableOf_Var())
+	it_3 := jeachOf_(globalExternsScope.getAllSymbols_rIterableOf_Var())
 	for it_3.next() {
 		var v *Var = it_3.v
 		this.considerVar(v, nil)
@@ -38,9 +38,9 @@ func (this *InferConsts) considerVar(v *Var, refCollection *ReferenceCollection)
 	}
 	var nameNode Node = v.getNameNode()
 	var docInfo *JSDocInfo = v.getJSDocInfo()
-	if ((docInfo != nil) && docInfo.isConstant()) {
+	if (docInfo != nil) && docInfo.isConstant() {
 		nameNode.setDeclaredConstantVar(true)
-	} else if ((nameNode != 0) && nameNode.getParent().isConst()) {
+	} else if (nameNode != 0) && nameNode.getParent().isConst() {
 		nameNode.setDeclaredConstantVar(true)
 	}
 	if InferConsts_isInferredConst(v, refCollection) {
@@ -50,7 +50,7 @@ func (this *InferConsts) considerVar(v *Var, refCollection *ReferenceCollection)
 
 func InferConsts_isInferredConst(v *Var, refCollection *ReferenceCollection) bool {
 	var nameNode Node = v.getNameNode()
-	if (((nameNode == 0) || (refCollection == nil)) || !refCollection.isAssignedOnceInLifetime()) {
+	if ((nameNode == 0) || (refCollection == nil)) || !refCollection.isAssignedOnceInLifetime() {
 		return false
 	}
 	if v.isImplicitGoogNamespace() {
@@ -68,9 +68,8 @@ func InferConsts_isInferredConst(v *Var, refCollection *ReferenceCollection) boo
 		case Token_rhino_VAR:
 			return (refCollection.firstReferenceIsAssigningDeclaration() && refCollection.isWellDefined())
 		default:
-			panic(new_IllegalStateException_String(("Unrecognized declaration type " + tostr_(declarationType))).self())
+			panic(new_IllegalStateException_String(("Unrecognized declaration type " + jtostr_(declarationType))).self())
 		}
 		panic("unreachable")
 	}()
 }
-

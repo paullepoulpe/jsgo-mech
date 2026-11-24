@@ -11,4 +11,3 @@ type UnionFind[E comparable] interface {
 	allEquivalenceClasses() ListT[SetT[E]]
 	findAll(E) SetT[E]
 }
-

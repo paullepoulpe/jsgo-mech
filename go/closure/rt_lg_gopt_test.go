@@ -14,7 +14,7 @@ func TestLgGOptional(t *testing.T) {
 		t.Fatal("orNull / fromNullable")
 	}
 	var null GOptional[string]
-	if !null.null_() || a.null_() || null.box_() != nil {
+	if !null.jnull_() || a.jnull_() || null.box_() != nil {
 		t.Fatal("null")
 	}
 	if a.toString() != Optional_base_of("a").toString() || none.toString() != Optional_base_absent().toString() || a.hashCode() != Optional_base_of("a").hashCode() || none.hashCode() != Optional_base_absent().hashCode() {
@@ -31,7 +31,7 @@ func TestLgGOptional(t *testing.T) {
 	if n.get() != int32(1) || none.transform(func(s string) any { return s }).isPresent() {
 		t.Fatal("transform")
 	}
-	if o := optGOptionalOf_[string](a.box_()); o.get() != "a" || !optGOptionalOf_[string](nil).null_() || !isGOptional_(a.box_()) || isGOptional_(Optional_of[string]("a").box_()) {
+	if o := optGOptionalOf_[string](a.box_()); o.get() != "a" || !optGOptionalOf_[string](nil).jnull_() || !isGOptional_(a.box_()) || isGOptional_(Optional_of[string]("a").box_()) {
 		t.Fatal("optGOptionalOf_ / isGOptional_")
 	}
 	panics := func(f func()) (p bool) {

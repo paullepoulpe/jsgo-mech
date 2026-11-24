@@ -4,14 +4,14 @@ package closure
 
 type LinterMain struct {
 	resolutionMode *ModuleLoader_ResolutionMode
-	files ListT[string]
-	fix_ bool
+	files          ListT[string]
+	fix_           bool
 }
 
 func (this *LinterMain) finit_LinterMain() {
 	this.fix_ = false
 	this.resolutionMode = ModuleLoader_ResolutionMode_BROWSER
-	this.files = newTList_(tc_string).asListT()
+	this.files = jnewTList_(jtc_string).asListT()
 }
 
 func (this *LinterMain) init_LinterMain() {
@@ -52,7 +52,7 @@ func (this *LinterMain) run(args []string) *Outcome_base[any] {
 	}))
 	parser.parseArgument(args).get()
 	var linter *Linter = Linter_builder().withModuleResolutionMode(this.resolutionMode).build()
-	it_1 := eachOf_(this.files)
+	it_1 := jeachOf_(this.files)
 	for it_1.next() {
 		var filename string = it_1.v
 		if this.fix_ {
@@ -66,4 +66,3 @@ func (this *LinterMain) run(args []string) *Outcome_base[any] {
 	}
 	return Outcome_base_ok_0()
 }
-

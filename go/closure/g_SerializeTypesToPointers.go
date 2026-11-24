@@ -3,11 +3,11 @@
 package closure
 
 type SerializeTypesToPointers struct {
-	compiler_ *AbstractCompiler
-	jstypeReconserializer *JSTypeReconserializer
+	compiler_                 *AbstractCompiler
+	jstypeReconserializer     *JSTypeReconserializer
 	propertiesReferencedInAst SetT[string]
-	typePointersByJstype *LinkedIdentityHashMap[*JSType, any]
-	typePool *TypePool
+	typePointersByJstype      *LinkedIdentityHashMap[*JSType, any]
+	typePool                  *TypePool
 }
 
 func (this *SerializeTypesToPointers) finit_SerializeTypesToPointers() {
@@ -30,7 +30,7 @@ func new_SerializeTypesToPointers(compiler *AbstractCompiler, jstypeReconseriali
 
 func SerializeTypesToPointers_create(compiler *AbstractCompiler, stringPoolBuilder *StringPool_Builder, serializationOptions *SerializationOptions) *SerializeTypesToPointers {
 	var invalidatingTypes *InvalidatingTypes = new_InvalidatingTypes_Builder(compiler.getTypeRegistry()).addAllTypeMismatches(compiler.getTypeMismatches()).build()
-	var propertiesReferencedInAst SetT[string] = newTSet_(tc_string).asSetT()
+	var propertiesReferencedInAst SetT[string] = jnewTSet_(jtc_string).asSetT()
 	var jsTypeReconserializer *JSTypeReconserializer = JSTypeReconserializer_create(compiler.getTypeRegistry(), invalidatingTypes, stringPoolBuilder, Predicate[string](func(p0 string) bool { return Collection_contains_s(Collection(Set_un_(propertiesReferencedInAst)), p0) }), serializationOptions)
 	return new_SerializeTypesToPointers(compiler, jsTypeReconserializer, propertiesReferencedInAst)
 }
@@ -39,7 +39,7 @@ func (this *SerializeTypesToPointers) gatherTypesOnAst(root Node) {
 	Preconditions_checkState_boolean_Object((this.typePool == nil), "Cannot call process() twice")
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(new_SerializeTypesToPointers_PropertySearchCallback(this)))
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(new_SerializeTypesToPointers_TypeSearchCallback(this)))
-	it_1 := eachOf_(this.compiler_.getTypeMismatches())
+	it_1 := jeachOf_(this.compiler_.getTypeMismatches())
 	for it_1.next() {
 		var mismatch *TypeMismatch = it_1.v
 		this.jstypeReconserializer.serializeType(mismatch.found())
@@ -79,7 +79,7 @@ func (this *SerializeTypesToPointers) logSerializationDebugInfo(serializer *JSTy
 
 func (this *SerializeTypesToPointers) logTypeMismatches(typeMismatches IterableT[*TypeMismatch], serializer *JSTypeReconserializer, typePool *TypePool) SetT[*SerializeTypesToPointers_TypeMismatchJson] {
 	var result ImmutableSortedSet_BuilderOf[*SerializeTypesToPointers_TypeMismatchJson] = ImmutableSortedSet_naturalOrder()
-	it_1 := eachOf_(typeMismatches)
+	it_1 := jeachOf_(typeMismatches)
 	for it_1.next() {
 		var mismatch *TypeMismatch = it_1.v
 		result.add(obj_(SerializeTypesToPointers_TypeMismatchJson_create(mismatch, serializer, typePool)))
@@ -92,7 +92,7 @@ func SerializeTypesToPointers_typeMismatchesToJson(typeMismatches SetT[*Serializ
 	writer.setHtmlSafe(true)
 	writer.setSerializeNulls(false)
 	writer.beginArray()
-	it_1 := eachOf_(typeMismatches)
+	it_1 := jeachOf_(typeMismatches)
 	for it_1.next() {
 		var typeMismatch *SerializeTypesToPointers_TypeMismatchJson = it_1.v
 		typeMismatch.writeJson(writer)
@@ -156,11 +156,11 @@ func (this *SerializeTypesToPointers_TypeSearchCallback) visit(t *NodeTraversal,
 		return
 	}
 	var type_ *JSType = n.getJSType()
-	if (type_ != nil) {
+	if type_ != nil {
 		this.outer_.typePointersByJstype.computeIfAbsent(type_, Function[*JSType, any](func(p0 *JSType) any { return any(int32(this.outer_.jstypeReconserializer.serializeType(p0))) }))
 	}
 	var shadow Node = n.getClosureUnawareShadow()
-	if (shadow != 0) {
+	if shadow != 0 {
 		NodeTraversal_traverse(this.outer_.compiler_, shadow.getFirstFirstChild().getFirstChild(), NodeTraversal_Callback(new_SerializeTypesToPointers_TypeSearchCallback(this.outer_)))
 	}
 }
@@ -181,13 +181,13 @@ func new_SerializeTypesToPointers_StreamObjectUuidsJson(allSerializedTypes MapT[
 
 func (this *SerializeTypesToPointers_StreamObjectUuidsJson) writeJson(jsonWriter *SimpleJsonWriter) {
 	jsonWriter.beginObject()
-	it_1 := eachOf_(this.allSerializedTypes.entrySet_t())
+	it_1 := jeachOf_(this.allSerializedTypes.entrySet_t())
 	for it_1.next() {
 		var entry Map_EntryT[string, ListT[*JSType]] = it_1.v
 		jsonWriter.name(entry.getKey_t())
 		jsonWriter.beginArray()
-		var jstypes *TList[string] = newTList_(tc_string)
-		it_3 := eachOf_(entry.getValue_t())
+		var jstypes *JTList[string] = jnewTList_(jtc_string)
+		it_3 := jeachOf_(entry.getValue_t())
 		for it_3.next() {
 			var jstype *JSType = it_3.v
 			jstypes.add(jstype.toString())
@@ -204,8 +204,8 @@ func (this *SerializeTypesToPointers_StreamObjectUuidsJson) writeJson(jsonWriter
 }
 
 type SerializeTypesToPointers_TypeMismatchJson struct {
-	location_ string
-	foundColorId string
+	location_       string
+	foundColorId    string
 	requiredColorId string
 }
 
@@ -260,7 +260,7 @@ func SerializeTypesToPointers_TypeMismatchJson_typePointerToId(poolOffset int32,
 		return ColorId_fromBytesByteString(typeProto.getObject().getUuid())
 	case TypeProto_KindCase_KIND_NOT_SET:
 	}
-	panic(new_AssertionError_Object(strobj_(("Unrecognized TypeProto " + tostr_(typeProto)))).self())
+	panic(new_AssertionError_Object(strobj_(("Unrecognized TypeProto " + jtostr_(typeProto)))).self())
 }
 
 func (this *SerializeTypesToPointers_TypeMismatchJson) compareTo_t(x *SerializeTypesToPointers_TypeMismatchJson) int32 {
@@ -270,4 +270,3 @@ func (this *SerializeTypesToPointers_TypeMismatchJson) compareTo_t(x *SerializeT
 func (this *SerializeTypesToPointers_TypeMismatchJson) compareTo(p0 any) int32 {
 	return this.compareTo_t(cast_[*SerializeTypesToPointers_TypeMismatchJson](p0))
 }
-

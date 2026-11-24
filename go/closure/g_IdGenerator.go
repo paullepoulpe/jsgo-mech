@@ -37,4 +37,3 @@ func (this *IdGenerator) getCurrentId() int32 {
 func (this *IdGenerator) setCurrentId(id int32) {
 	this.currentId = id
 }
-

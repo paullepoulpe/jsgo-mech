@@ -37,7 +37,7 @@ func new_ClosureCodingConvention_CodingConvention(wrapped CodingConvention) *Clo
 
 func (this *ClosureCodingConvention) applySubclassRelationship_impl(parent *NominalTypeBuilder, child *NominalTypeBuilder, type_ *CodingConvention_SubclassType) {
 	this.CodingConventions_Proxy.applySubclassRelationship_impl(parent, child, type_)
-	if (type_ == CodingConvention_SubclassType_INHERITS) {
+	if type_ == CodingConvention_SubclassType_INHERITS {
 		var childCtor *FunctionType = child.constructor()
 		child.declareConstructorProperty("superClass_", parent.prototypeOrInstance().up_JSType(), childCtor.getSource())
 		var qmarkCtor *FunctionType = childCtor.forgetParameterAndReturnTypes()
@@ -47,18 +47,18 @@ func (this *ClosureCodingConvention) applySubclassRelationship_impl(parent *Nomi
 
 func (this *ClosureCodingConvention) getClassesDefinedByCall_impl(callNode Node) *CodingConvention_SubclassRelationship {
 	var relationship *CodingConvention_SubclassRelationship = this.CodingConventions_Proxy.getClassesDefinedByCall_impl(callNode)
-	if (relationship != nil) {
+	if relationship != nil {
 		return relationship
 	}
 	var callName Node = callNode.getFirstChild()
 	var type_ *CodingConvention_SubclassType = ClosureCodingConvention_typeofClassDefiningName(callName)
-	if (type_ != nil) {
-		if (callNode.getChildCount() < 3) {
+	if type_ != nil {
+		if callNode.getChildCount() < 3 {
 			return nil
 		}
 		var subclass Node = callName.getNext()
 		var superclass Node = subclass.getNext()
-		if (type_ == CodingConvention_SubclassType_MIXIN) {
+		if type_ == CodingConvention_SubclassType_MIXIN {
 			if ClosureCodingConvention_endsWithPrototype(superclass) {
 				superclass = superclass.getFirstChild()
 			}
@@ -66,7 +66,7 @@ func (this *ClosureCodingConvention) getClassesDefinedByCall_impl(callNode Node)
 				subclass = subclass.getFirstChild()
 			}
 		}
-		if (((subclass != 0) && subclass.isUnscopedQualifiedName()) && superclass.isUnscopedQualifiedName()) {
+		if ((subclass != 0) && subclass.isUnscopedQualifiedName()) && superclass.isUnscopedQualifiedName() {
 			return new_CodingConvention_SubclassRelationship(type_, subclass, superclass)
 		}
 	}
@@ -80,14 +80,14 @@ func ClosureCodingConvention_typeofClassDefiningName(callName Node) *CodingConve
 	} else if callName.isName() {
 		var name string = callName.getString()
 		var dollarIndex int32 = String_lastIndexOf(name, 36)
-		if (dollarIndex != -1) {
+		if dollarIndex != -1 {
 			methodName = Optional_of[string](String_substring_int(name, (dollarIndex + 1)))
 		}
 	}
 	if methodName.isPresent() {
-		if (methodName.get() == "inherits") {
+		if methodName.get() == "inherits" {
 			return CodingConvention_SubclassType_INHERITS
-		} else if (methodName.get() == "mixin") {
+		} else if methodName.get() == "mixin" {
 			return CodingConvention_SubclassType_MIXIN
 		}
 	}
@@ -123,9 +123,9 @@ func ClosureCodingConvention_extractClassNameIfGoog(node Node, parent Node, func
 	var className Optional[string] = Optional_empty[string]()
 	if NodeUtil_isExprCall(parent) {
 		var callee Node = node.getFirstChild()
-		if (((callee != 0) && callee.isGetProp()) && callee.matchesQualifiedName(functionName)) {
+		if ((callee != 0) && callee.isGetProp()) && callee.matchesQualifiedName(functionName) {
 			var target Node = callee.getNext()
-			if ((target != 0) && target.isStringLit()) {
+			if (target != 0) && target.isStringLit() {
 				className = Optional_of[string](target.getString())
 			}
 		}
@@ -141,12 +141,12 @@ func (this *ClosureCodingConvention) getExportSymbolFunction_impl() string {
 	return "goog.exportSymbol"
 }
 
-func (this *ClosureCodingConvention) identifyTypeDeclarationCall_impl(n Node) *TList[string] {
+func (this *ClosureCodingConvention) identifyTypeDeclarationCall_impl(n Node) *JTList[string] {
 	var callName Node = n.getFirstChild()
-	if (ClosureCodingConvention_GOOG_FORWARDDECLARE.matches(callName) && n.hasTwoChildren()) {
+	if ClosureCodingConvention_GOOG_FORWARDDECLARE.matches(callName) && n.hasTwoChildren() {
 		var typeDeclaration Node = n.getSecondChild()
 		if typeDeclaration.isStringLit() {
-			return immutableListOf_[string](tc_string, typeDeclaration.getString())
+			return jimmutableListOf_[string](jtc_string, typeDeclaration.getString())
 		}
 	}
 	return this.CodingConventions_Proxy.identifyTypeDeclarationCall_impl(n)
@@ -158,7 +158,7 @@ func (this *ClosureCodingConvention) getAbstractMethodName_impl() string {
 
 func (this *ClosureCodingConvention) getSingletonGetterClassName_impl(callNode Node) string {
 	var callArg Node = callNode.getFirstChild()
-	if (callNode.hasTwoChildren() && (ClosureCodingConvention_GOOG_ADDSINGLETONGETTER.matches(callArg) || ClosureCodingConvention_GOOG_ADDSINGLETONGETTER_MANGLED.matches(callArg))) {
+	if callNode.hasTwoChildren() && (ClosureCodingConvention_GOOG_ADDSINGLETONGETTER.matches(callArg) || ClosureCodingConvention_GOOG_ADDSINGLETONGETTER_MANGLED.matches(callArg)) {
 		return callArg.getNext().getQualifiedName()
 	}
 	return this.CodingConventions_Proxy.getSingletonGetterClassName_impl(callNode)
@@ -176,7 +176,7 @@ func (this *ClosureCodingConvention) isPropertyTestFunction_impl(call Node) bool
 	if target.isGetProp() {
 		var src Node = target.getFirstChild()
 		var prop string = target.getString()
-		if ((src.isName() && (src.getString() == "goog")) && ((prop == "isArrayLike") || (prop == "isObject"))) {
+		if (src.isName() && (src.getString() == "goog")) && ((prop == "isArrayLike") || (prop == "isObject")) {
 			return true
 		}
 	}
@@ -197,11 +197,11 @@ func (this *ClosureCodingConvention) isFunctionCallThatAlwaysThrows_impl(n Node)
 func (this *ClosureCodingConvention) getObjectLiteralCast_impl(callNode Node) *CodingConvention_ObjectLiteralCast {
 	Preconditions_checkArgument_boolean_String_Object_H(callNode.isCall(), "Expected call node but found %s", callNode)
 	var proxyCast *CodingConvention_ObjectLiteralCast = this.CodingConventions_Proxy.getObjectLiteralCast_impl(callNode)
-	if (proxyCast != nil) {
+	if proxyCast != nil {
 		return proxyCast
 	}
 	var callName Node = callNode.getFirstChild()
-	if (!(ClosureCodingConvention_GOOG_REFLECT_OBJECT.matches(callName) || ClosureCodingConvention_JSCOMP_REFLECTOBJECT.matches(callName)) || !callNode.hasXChildren(3)) {
+	if !(ClosureCodingConvention_GOOG_REFLECT_OBJECT.matches(callName) || ClosureCodingConvention_JSCOMP_REFLECTOBJECT.matches(callName)) || !callNode.hasXChildren(3) {
 		return nil
 	}
 	var typeNode Node = callName.getNext()
@@ -217,7 +217,7 @@ func (this *ClosureCodingConvention) getObjectLiteralCast_impl(callNode Node) *C
 	})), typeNode.getNext(), nil)
 }
 
-func (this *ClosureCodingConvention) getAssertionFunctions_rImmutableSet() *TSet[*CodingConvention_AssertionFunctionSpec] {
+func (this *ClosureCodingConvention) getAssertionFunctions_rImmutableSet() *JTSet[*CodingConvention_AssertionFunctionSpec] {
 	return tsetImm_(tce_p_CodingConvention_AssertionFunctionSpec, ImmutableSet_builder().addAll(Iterable(Collection_un_(this.CodingConventions_Proxy.getAssertionFunctions_impl()))).add_ObjectArr([]any{obj_(CodingConvention_AssertionFunctionSpec_forTruthy().setFunctionName("goog.asserts.assert").build()), obj_(ClosureCodingConvention_createGoogAssertOnReturn("Array")), obj_(ClosureCodingConvention_createGoogAssertOnReturn("Boolean")), obj_(ClosureCodingConvention_createGoogAssertOnReturn("Element")), obj_(ClosureCodingConvention_createGoogAssertOnReturn("Function")), obj_(ClosureCodingConvention_createGoogAssertOnReturn("Instanceof")), obj_(ClosureCodingConvention_createGoogAssertOnReturn("Number")), obj_(ClosureCodingConvention_createGoogAssertOnReturn("Object")), obj_(ClosureCodingConvention_createGoogAssertOnReturn("String"))}).build())
 }
 
@@ -231,18 +231,18 @@ func (this *ClosureCodingConvention) describeFunctionBind_impl(n Node, checkType
 	}
 	var callTarget Node = n.getFirstChild()
 	if callTarget.isQualifiedName() {
-		if (ClosureCodingConvention_GOOG_BIND.matches(callTarget) || callTarget.matchesName("goog$bind")) {
+		if ClosureCodingConvention_GOOG_BIND.matches(callTarget) || callTarget.matchesName("goog$bind") {
 			var fn Node = callTarget.getNext()
-			if (fn == 0) {
+			if fn == 0 {
 				return nil
 			}
 			var thisValue Node = ClosureCodingConvention_safeNext(fn)
 			var parameters Node = ClosureCodingConvention_safeNext(thisValue)
 			return new_CodingConvention_Bind(fn, thisValue, parameters)
 		}
-		if (ClosureCodingConvention_GOOG_PARTIAL.matches(callTarget) || callTarget.matchesName("goog$partial")) {
+		if ClosureCodingConvention_GOOG_PARTIAL.matches(callTarget) || callTarget.matchesName("goog$partial") {
 			var fn Node = callTarget.getNext()
-			if (fn == 0) {
+			if fn == 0 {
 				return nil
 			}
 			var thisValue Node = 0
@@ -260,7 +260,7 @@ func (this *ClosureCodingConvention) describeCachingCall_impl(node Node) *Coding
 	var callTarget Node = node.getFirstChild()
 	if this.matchesCacheMethodName(callTarget) {
 		var paramCount int32 = (node.getChildCount() - 1)
-		if ((3 <= paramCount) && (paramCount <= 4)) {
+		if (3 <= paramCount) && (paramCount <= 4) {
 			var cacheObj Node = callTarget.getNext()
 			var keyNode Node = cacheObj.getNext()
 			var valueFn Node = keyNode.getNext()
@@ -281,7 +281,7 @@ func (this *ClosureCodingConvention) matchesCacheMethodName(target Node) bool {
 }
 
 func ClosureCodingConvention_safeNext(n Node) Node {
-	if (n != 0) {
+	if n != 0 {
 		return n.getNext()
 	}
 	return 0
@@ -292,6 +292,7 @@ func (this *ClosureCodingConvention) getAssertionFunctions_impl() CollectionT[*C
 }
 
 const ClosureCodingConvention_serialVersionUID int64 = 1
+
 var ClosureCodingConvention_OBJECTLIT_EXPECTED *DiagnosticType
 var ClosureCodingConvention_GOOG_FORWARDDECLARE *QualifiedName
 var ClosureCodingConvention_GOOG_ADDSINGLETONGETTER *QualifiedName
@@ -324,4 +325,3 @@ func ClosureCodingConvention_clinit() {
 	ClosureCodingConvention_googCacheReflect = IR_getprop_Node_String_StringArr(IR_name("goog"), "reflect", []string{"cache"})
 
 }
-

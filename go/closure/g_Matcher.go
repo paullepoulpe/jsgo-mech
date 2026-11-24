@@ -13,4 +13,3 @@ type Matcher_fn struct {
 func (this *Matcher_fn) matches(p0 Node, p1 *NodeMetadata) bool {
 	return this.f(p0, p1)
 }
-

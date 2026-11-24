@@ -18,4 +18,3 @@ func new_JSCompObjects() *JSCompObjects {
 func JSCompObjects_identical(a any, b any) bool {
 	return (a == b)
 }
-

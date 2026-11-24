@@ -15,20 +15,20 @@ func new_ProfilingReport() *ProfilingReport {
 	return this
 }
 
-func ProfilingReport_createTabSeparatedProfilingReport(instrumentationMapping MapT[string, *InstrumentationPoint], allInstrumentationReports *TList[MapT[string, any]]) string {
-	var profiles *TList[*ReportProfile] = newTList_(tc_p_ReportProfile)
+func ProfilingReport_createTabSeparatedProfilingReport(instrumentationMapping MapT[string, *InstrumentationPoint], allInstrumentationReports *JTList[MapT[string, any]]) string {
+	var profiles *JTList[*ReportProfile] = jnewTList_(tc_p_ReportProfile)
 	it_1 := allInstrumentationReports.each()
 	for it_1.next() {
 		var report MapT[string, any] = it_1.v
 		profiles.add(ReportDecoder_decodeReport(instrumentationMapping, report))
 	}
-	var metricsBuilder *TMapBuilder[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics] = newTMapBuilder_(tce_p_InstrumentationPoint, tc_p_ProfilingReport_InstrumentationPointMetrics)
-	it_3 := eachOf_(instrumentationMapping.values_t())
+	var metricsBuilder *TMapBuilder[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics] = newTMapBuilder_(tce_p_InstrumentationPoint, jtc_p_ProfilingReport_InstrumentationPointMetrics)
+	it_3 := jeachOf_(instrumentationMapping.values_t())
 	for it_3.next() {
 		var point *InstrumentationPoint = it_3.v
 		metricsBuilder.put(point, new_ProfilingReport_InstrumentationPointMetrics())
 	}
-	var metrics *TMap[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics] = metricsBuilder.buildOrThrow()
+	var metrics *JTMap[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics] = metricsBuilder.buildOrThrow()
 	it_5 := profiles.each()
 	for it_5.next() {
 		var profile *ReportProfile = it_5.v
@@ -44,7 +44,7 @@ func ProfilingReport_createTabSeparatedProfilingReport(instrumentationMapping Ma
 			}
 		}
 	}
-	var result *TList[Map_EntryT[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics]] = tlistFrom_(tc_Map_EntryT_p_InstrumentationPoint__p_ProfilingReport_InstrumentationPointMetrics_, Collection(Set_un_(metrics.entrySetT())))
+	var result *JTList[Map_EntryT[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics]] = jtlistFrom_(tc_Map_EntryT_p_InstrumentationPoint__p_ProfilingReport_InstrumentationPointMetrics_, Collection(Set_un_(metrics.entrySetT())))
 	List_sortT_[Map_EntryT[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics]](result.asListT(), Comparator_comparing[Map_EntryT[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics], string](Function[Map_EntryT[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics], string](func(point Map_EntryT[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics]) string {
 		return point.getKey_t().getFileName()
 	})).thenComparingLong(ToLongFunction[Map_EntryT[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics]](func(point Map_EntryT[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics]) int64 {
@@ -54,25 +54,25 @@ func ProfilingReport_createTabSeparatedProfilingReport(instrumentationMapping Ma
 	})).thenComparingInt(ToIntFunction[Map_EntryT[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics]](func(point Map_EntryT[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics]) int32 {
 		return point.getKey_t().getType().getNumber()
 	})))
-	var output *TList[ListT[string]] = newTList_(tc_ListT_string_)
-	output.add(immutableListOf_[string](tc_string, "File", "Function name", "Line", "Type", "Total executed", "Reports occurred").asListT())
+	var output *JTList[ListT[string]] = jnewTList_(tc_ListT_string_)
+	output.add(jimmutableListOf_[string](jtc_string, "File", "Function name", "Line", "Type", "Total executed", "Reports occurred").asListT())
 	it_11 := result.each()
 	for it_11.next() {
 		var entry Map_EntryT[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics] = it_11.v
-		output.add(immutableListOf_[string](tc_string, entry.getKey_t().getFileName(), entry.getKey_t().getFunctionName(), String_valueOf(entry.getKey_t().getLineNumber()), entry.getKey_t().getType().name(), String_valueOf_long(entry.getValue_t().totalTimesExecuted), String_valueOf(entry.getValue_t().numberOfReports)).asListT())
+		output.add(jimmutableListOf_[string](jtc_string, entry.getKey_t().getFileName(), entry.getKey_t().getFunctionName(), String_valueOf(entry.getKey_t().getLineNumber()), entry.getKey_t().getType().name(), String_valueOf_long(entry.getValue_t().totalTimesExecuted), String_valueOf(entry.getValue_t().numberOfReports)).asListT())
 	}
-	var rows *TList[string] = newTList_(tc_string)
+	var rows *JTList[string] = jnewTList_(jtc_string)
 	it_13 := output.each()
 	for it_13.next() {
 		var row ListT[string] = it_13.v
-		rows.add(String_join_s("\t", Iterable(List_un_(row))))
+		rows.add(JString_join_s("\t", Iterable(List_un_(row))))
 	}
-	return String_join_s("\n", Iterable(rows.asList()))
+	return JString_join_s("\n", Iterable(rows.asList()))
 }
 
 type ProfilingReport_InstrumentationPointMetrics struct {
 	totalTimesExecuted int64
-	numberOfReports int32
+	numberOfReports    int32
 }
 
 func (this *ProfilingReport_InstrumentationPointMetrics) finit_ProfilingReport_InstrumentationPointMetrics() {
@@ -89,4 +89,3 @@ func new_ProfilingReport_InstrumentationPointMetrics() *ProfilingReport_Instrume
 	this.init_ProfilingReport_InstrumentationPointMetrics()
 	return this
 }
-

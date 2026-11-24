@@ -3,7 +3,7 @@
 package closure
 
 type CachingTranspiler struct {
-	cache LoadingCacheT[*CachingTranspiler_Key, *TranspileResult]
+	cache        LoadingCacheT[*CachingTranspiler_Key, *TranspileResult]
 	runtimeField Supplier_base[string]
 }
 
@@ -76,7 +76,14 @@ func new_CachingTranspiler_Key(path string, code string) *CachingTranspiler_Key 
 func (this *CachingTranspiler_Key) equals(other any) bool {
 	var key *CachingTranspiler_Key
 	_ = key
-	return ((func() bool { v_ := other; if !is_[*CachingTranspiler_Key](v_) { return false }; key = cast_[*CachingTranspiler_Key](v_); return true }() && (key.path_ == this.path_)) && (key.code_ == this.code_))
+	return ((func() bool {
+		v_ := other
+		if !is_[*CachingTranspiler_Key](v_) {
+			return false
+		}
+		key = cast_[*CachingTranspiler_Key](v_)
+		return true
+	}() && (key.path_ == this.path_)) && (key.code_ == this.code_))
 }
 
 func (this *CachingTranspiler_Key) hashCode() int32 {
@@ -85,7 +92,7 @@ func (this *CachingTranspiler_Key) hashCode() int32 {
 
 type CachingTranspiler_1 struct {
 	CacheLoader
-	outer_ *CachingTranspiler
+	outer_       *CachingTranspiler
 	cap_delegate Transpiler_transpile
 }
 
@@ -114,4 +121,3 @@ func (this *CachingTranspiler_1) load(key_ any) any {
 	_ = key
 	return obj_(this.cap_delegate.transpile(key.path_, key.code_))
 }
-

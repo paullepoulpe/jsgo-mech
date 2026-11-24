@@ -3,9 +3,9 @@
 package closure
 
 type DiagnosticType struct {
-	key_ string
+	key_        string
 	formatField string
-	level_ *CheckLevel
+	level_      *CheckLevel
 }
 
 func (this *DiagnosticType) zero_DiagnosticType() {
@@ -49,7 +49,14 @@ func (this *DiagnosticType) format(arguments []string) string {
 func (this *DiagnosticType) equals(type_ any) bool {
 	var diagnosticType *DiagnosticType
 	_ = diagnosticType
-	return (func() bool { v_ := type_; if !is_[*DiagnosticType](v_) { return false }; diagnosticType = cast_[*DiagnosticType](v_); return true }() && (diagnosticType.key_ == this.key_))
+	return (func() bool {
+		v_ := type_
+		if !is_[*DiagnosticType](v_) {
+			return false
+		}
+		diagnosticType = cast_[*DiagnosticType](v_)
+		return true
+	}() && (diagnosticType.key_ == this.key_))
 }
 
 func (this *DiagnosticType) hashCode() int32 {
@@ -69,4 +76,3 @@ func (this *DiagnosticType) toString() string {
 }
 
 const DiagnosticType_serialVersionUID int64 = 1
-

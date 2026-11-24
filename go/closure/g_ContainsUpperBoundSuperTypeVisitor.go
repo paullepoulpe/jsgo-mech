@@ -5,7 +5,7 @@ package closure
 type ContainsUpperBoundSuperTypeVisitor struct {
 	Visitor_WithDefaultCase[*ContainsUpperBoundSuperTypeVisitor_Result]
 	target *JSType
-	seen *LinkedIdentityHashSet[*JSType]
+	seen   *LinkedIdentityHashSet[*JSType]
 }
 
 func (this *ContainsUpperBoundSuperTypeVisitor) up_Visitor_WithDefaultCase() *Visitor_WithDefaultCase[*ContainsUpperBoundSuperTypeVisitor_Result] {
@@ -34,10 +34,15 @@ func new_ContainsUpperBoundSuperTypeVisitor(target *JSType) *ContainsUpperBoundS
 }
 
 func (this *ContainsUpperBoundSuperTypeVisitor) caseDefault_impl(type_ *JSType) *ContainsUpperBoundSuperTypeVisitor_Result {
-	if (this.target == nil) {
+	if this.target == nil {
 		return ContainsUpperBoundSuperTypeVisitor_Result_ABSENT
 	}
-	return func() *ContainsUpperBoundSuperTypeVisitor_Result { if (type_ == this.target) { return ContainsUpperBoundSuperTypeVisitor_Result_PRESENT }; return ContainsUpperBoundSuperTypeVisitor_Result_ABSENT }()
+	return func() *ContainsUpperBoundSuperTypeVisitor_Result {
+		if type_ == this.target {
+			return ContainsUpperBoundSuperTypeVisitor_Result_PRESENT
+		}
+		return ContainsUpperBoundSuperTypeVisitor_Result_ABSENT
+	}()
 }
 
 func (this *ContainsUpperBoundSuperTypeVisitor) caseTemplateType_impl(type_ *TemplateType) any {
@@ -53,14 +58,14 @@ func (this *ContainsUpperBoundSuperTypeVisitor) caseTemplatizedType_impl(type_ *
 }
 
 func (this *ContainsUpperBoundSuperTypeVisitor) caseUnionType_impl(type_ *UnionType) any {
-	if (type_.up_JSType() == this.target) {
+	if type_.up_JSType() == this.target {
 		return obj_(ContainsUpperBoundSuperTypeVisitor_Result_PRESENT)
 	}
 	it_1 := type_.getAlternates().each()
 	for it_1.next() {
 		var alt *JSType = it_1.v
 		var foundInAlt *ContainsUpperBoundSuperTypeVisitor_Result = cast_[*ContainsUpperBoundSuperTypeVisitor_Result](alt.visit(Visitor(this)))
-		if (foundInAlt != ContainsUpperBoundSuperTypeVisitor_Result_ABSENT) {
+		if foundInAlt != ContainsUpperBoundSuperTypeVisitor_Result_ABSENT {
 			return obj_(foundInAlt)
 		}
 	}
@@ -68,7 +73,7 @@ func (this *ContainsUpperBoundSuperTypeVisitor) caseUnionType_impl(type_ *UnionT
 }
 
 func (this *ContainsUpperBoundSuperTypeVisitor) caseForwardingType(type_ *JSType, reference *JSType) *ContainsUpperBoundSuperTypeVisitor_Result {
-	if (type_ == this.target) {
+	if type_ == this.target {
 		return ContainsUpperBoundSuperTypeVisitor_Result_PRESENT
 	} else if this.seen.contains(type_) {
 		return ContainsUpperBoundSuperTypeVisitor_Result_CYCLE
@@ -133,4 +138,3 @@ func ContainsUpperBoundSuperTypeVisitor_Result_clinit() {
 	registerEnum_("com.google.javascript.rhino.jstype.ContainsUpperBoundSuperTypeVisitor.Result", enumValues_(ContainsUpperBoundSuperTypeVisitor_Result_values_))
 
 }
-

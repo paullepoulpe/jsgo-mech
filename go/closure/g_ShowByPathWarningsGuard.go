@@ -29,8 +29,8 @@ func (this *ShowByPathWarningsGuard) init_ShowByPathWarningsGuard_StringArr_Show
 	this.WarningsGuard.init_WarningsGuard()
 	Preconditions_checkArgument((paths != nil))
 	Preconditions_checkArgument((showType != nil))
-	var pathList *TList[string] = immutableListCopyOfArr_(tc_string, paths)
-	if (showType == ShowByPathWarningsGuard_ShowType_INCLUDE) {
+	var pathList *JTList[string] = jimmutableListCopyOfArr_(jtc_string, paths)
+	if showType == ShowByPathWarningsGuard_ShowType_INCLUDE {
 		this.warningsGuard = ByPathWarningsGuard_exceptPath(pathList, CheckLevel_OFF)
 	} else {
 		this.warningsGuard = ByPathWarningsGuard_forPath(pathList, CheckLevel_OFF)
@@ -114,4 +114,3 @@ func ShowByPathWarningsGuard_ShowType_clinit() {
 	registerEnum_("com.google.javascript.jscomp.ShowByPathWarningsGuard.ShowType", enumValues_(ShowByPathWarningsGuard_ShowType_values_))
 
 }
-

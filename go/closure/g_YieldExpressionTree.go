@@ -4,7 +4,7 @@ package closure
 
 type YieldExpressionTree struct {
 	ParseTree
-	expression *ParseTree
+	expression  *ParseTree
 	isYieldAll_ bool
 }
 
@@ -27,4 +27,3 @@ func new_YieldExpressionTree(location *SourceRange, isYieldAll bool, expression 
 	this.init_YieldExpressionTree(location, isYieldAll, expression)
 	return this
 }
-

@@ -27,26 +27,26 @@ func (this GOptional[T]) nn_() {
 	}
 }
 
-// null_ is `this == null`.
-func (this GOptional[T]) null_() bool { return !this.set }
+// jnull_ is `this == null`.
+func (this GOptional[T]) jnull_() bool { return !this.set }
 
 func GOptional_absent[T any]() GOptional[T] { return GOptional[T]{set: true} }
 
 func GOptional_of[T any](v T) GOptional[T] {
-	if isnull_(v) {
+	if jisnull_(v) {
 		panic(new_NullPointerException_0().self())
 	}
 	return GOptional[T]{v, true, true}
 }
 
 func GOptional_fromNullable[T any](v T) GOptional[T] {
-	if isnull_(v) {
+	if jisnull_(v) {
 		return GOptional[T]{set: true}
 	}
 	return GOptional[T]{v, true, true}
 }
 
-// goptional_ is any instantiation of GOptional (not java.util.Optional's optional_: the two
+// goptional_ is any instantiation of GOptional (not java.util.Optional's joptional_: the two
 // classes' objects are never equal).
 type goptional_ interface {
 	gcontent_() any
@@ -84,7 +84,7 @@ func optGOptionalOf_[T any](v any) GOptional[T] {
 	}
 	o := v.(goptional_)
 	if c := o.gcontent_(); c != nil {
-		return GOptional[T]{unboxT_[T](c), true, true}
+		return GOptional[T]{junboxT_[T](c), true, true}
 	}
 	return GOptional[T]{set: o.gisSet_()}
 }
@@ -94,7 +94,7 @@ func optGOptionalAs_[T, S any](o GOptional[S]) GOptional[T] {
 	if !o.present {
 		return GOptional[T]{set: o.set}
 	}
-	return GOptional[T]{unboxT_[T](boxT_(o.value)), true, true}
+	return GOptional[T]{junboxT_[T](boxT_(o.value)), true, true}
 }
 
 // isGOptional_ is `v instanceof com.google.common.base.Optional`.
@@ -117,7 +117,7 @@ func (this GOptional[T]) isPresent() bool { this.nn_(); return this.present }
 // or is Optional.or(T) (Optional_base.or).
 func (this GOptional[T]) or(def T) T {
 	this.nn_()
-	if isnull_(def) {
+	if jisnull_(def) {
 		nullFail_("use Optional.orNull() instead of Optional.or(null)")
 	}
 	if this.present {
@@ -130,7 +130,7 @@ func (this GOptional[T]) or(def T) T {
 func (this GOptional[T]) orNull() T {
 	this.nn_()
 	if !this.present {
-		return null_[T]()
+		return jnull_[T]()
 	}
 	return this.value
 }

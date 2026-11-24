@@ -3,7 +3,7 @@
 package closure
 
 type OptimizeReturns struct {
-	compiler_ *AbstractCompiler
+	compiler_    *AbstractCompiler
 	decisionsLog *LogFile
 }
 
@@ -29,8 +29,8 @@ func (this *OptimizeReturns) process_3(externs Node, root Node, definitions *Opt
 		var logFile *LogFile = this.compiler_.createOrReopenIndexedLog(Object_getClass(this), "decisions.log", []string{})
 		defer closeResource_(logFile.self())
 		this.decisionsLog = logFile
-		var toOptimize *TList[ListT[Node]] = newTList_(tc_ListT_Node_)
-		it_2 := eachOf_(definitions.getNameReferences())
+		var toOptimize *JTList[ListT[Node]] = jnewTList_(tc_ListT_Node_)
+		it_2 := jeachOf_(definitions.getNameReferences())
 		for it_2.next() {
 			var entry Map_EntryT[string, ListT[Node]] = it_2.v
 			var key string = entry.getKey_t()
@@ -40,7 +40,7 @@ func (this *OptimizeReturns) process_3(externs Node, root Node, definitions *Opt
 				toOptimize.add(refs)
 			}
 		}
-		it_4 := eachOf_(definitions.getPropReferences())
+		it_4 := jeachOf_(definitions.getPropReferences())
 		for it_4.next() {
 			var entry Map_EntryT[string, ListT[Node]] = it_4.v
 			var key string = entry.getKey_t()
@@ -53,7 +53,7 @@ func (this *OptimizeReturns) process_3(externs Node, root Node, definitions *Opt
 		it_6 := toOptimize.each()
 		for it_6.next() {
 			var refs ListT[Node] = it_6.v
-			it_8 := eachOf_(OptimizeCalls_ReferenceMap_getFunctionNodes(refs).values())
+			it_8 := jeachOf_(OptimizeCalls_ReferenceMap_getFunctionNodes(refs).values())
 			for it_8.next() {
 				var fn Node = it_8.v
 				this.rewriteReturns(fn)
@@ -70,10 +70,10 @@ func (this *OptimizeReturns) isCandidate(name string, refs ListT[Node]) bool {
 	}
 	var seenCandidateDefiniton bool = false
 	var seenUse bool = false
-	it_1 := eachOf_(refs)
+	it_1 := jeachOf_(refs)
 	for it_1.next() {
 		var n Node = it_1.v
-		if (OptimizeCalls_ReferenceMap_isCallTarget(n) || OptimizeCalls_ReferenceMap_isOptChainCallTarget(n)) {
+		if OptimizeCalls_ReferenceMap_isCallTarget(n) || OptimizeCalls_ReferenceMap_isOptChainCallTarget(n) {
 			var callNode Node = OptimizeCalls_ReferenceMap_getCallOrNewNodeForTarget(n)
 			if NodeUtil_isExpressionResultUsed(callNode) {
 				if this.decisionsLog.isLogging() {
@@ -106,14 +106,14 @@ func (this *OptimizeReturns) isCandidate(name string, refs ListT[Node]) bool {
 
 func (this *OptimizeReturns) isCandidateDefinition(n Node) bool {
 	var parent Node = n.getParent()
-	if (parent.isFunction() && NodeUtil_isFunctionDeclaration(parent)) {
+	if parent.isFunction() && NodeUtil_isFunctionDeclaration(parent) {
 		return true
 	} else if OptimizeCalls_ReferenceMap_isSimpleAssignmentTarget(n) {
 		if OptimizeReturns_isCandidateFunction(parent.getLastChild()) {
 			return true
 		}
 	} else if n.isName() {
-		if (n.hasChildren() && OptimizeReturns_isCandidateFunction(n.getFirstChild())) {
+		if n.hasChildren() && OptimizeReturns_isCandidateFunction(n.getFirstChild()) {
 			return true
 		}
 	} else if this.isClassMemberDefinition(n) {
@@ -147,7 +147,13 @@ func OptimizeReturns_isCandidateFunction(n Node) bool {
 func (this *OptimizeReturns) rewriteReturns(fnNode Node) {
 	Preconditions_checkState(fnNode.isFunction())
 	var body Node = fnNode.getLastChild()
-	NodeUtil_visitPostOrder_Node_Visitor_Predicate(body, NodeUtil_Visitor(new_OptimizeReturns_1(this, body)), func() Predicate_base[Node] { v_ := new_NodeUtil_MatchShallowStatement(); if v_ == nil { return nil }; return v_.apply }())
+	NodeUtil_visitPostOrder_Node_Visitor_Predicate(body, NodeUtil_Visitor(new_OptimizeReturns_1(this, body)), func() Predicate_base[Node] {
+		v_ := new_NodeUtil_MatchShallowStatement()
+		if v_ == nil {
+			return nil
+		}
+		return v_.apply
+	}())
 }
 
 func (this *OptimizeReturns) isRemovableValue(n Node) bool {
@@ -156,8 +162,8 @@ func (this *OptimizeReturns) isRemovableValue(n Node) bool {
 		case Token_rhino_TEMPLATELIT, Token_rhino_ARRAYLIT:
 			{
 				var child Node = n.getFirstChild()
-				for ; (child != 0); child = child.getNext() {
-					if (!child.isEmpty() && !this.isRemovableValue(child)) {
+				for ; child != 0; child = child.getNext() {
+					if !child.isEmpty() && !this.isRemovableValue(child) {
 						return false
 					}
 				}
@@ -175,7 +181,7 @@ func (this *OptimizeReturns) isRemovableValue(n Node) bool {
 }
 
 type OptimizeReturns_1 struct {
-	outer_ *OptimizeReturns
+	outer_   *OptimizeReturns
 	cap_body Node
 }
 
@@ -192,7 +198,7 @@ func new_OptimizeReturns_1(outer_ *OptimizeReturns, cap_body Node) *OptimizeRetu
 }
 
 func (this *OptimizeReturns_1) visit(n Node) {
-	if (n.isReturn() && n.hasOneChild()) {
+	if n.isReturn() && n.hasOneChild() {
 		var result Node = n.getFirstChild()
 		var keepValue bool = !this.outer_.isRemovableValue(result)
 		result.detach()
@@ -204,4 +210,3 @@ func (this *OptimizeReturns_1) visit(n Node) {
 		this.outer_.compiler_.reportChangeToEnclosingScope(this.cap_body)
 	}
 }
-

@@ -3,11 +3,11 @@
 package closure
 
 type FeatureSet struct {
-	features_ *TSet[*FeatureSet_Feature]
+	features_ *JTSet[*FeatureSet_Feature]
 }
 
 func (this *FeatureSet) init_FeatureSet(features SetT[*FeatureSet_Feature]) {
-	this.features_ = immutableSetCopyOf_(tc_p_FeatureSet_Feature, Collection(Set_un_(features)))
+	this.features_ = jimmutableSetCopyOf_(jtc_p_FeatureSet_Feature, Collection(Set_un_(features)))
 }
 
 func new_FeatureSet(features SetT[*FeatureSet_Feature]) *FeatureSet {
@@ -67,7 +67,7 @@ func (this *FeatureSet) versionForDebugging() string {
 }
 
 func (this *FeatureSet) without_2(featureToRemove *FeatureSet_Feature, moreFeaturesToRemove []*FeatureSet_Feature) *FeatureSet {
-	return new_FeatureSet(FeatureSet_difference(this.features_, tenumSetOfArr_(tc_p_FeatureSet_Feature, featureToRemove.up_Enum(), arrmap_(moreFeaturesToRemove, func(v_ *FeatureSet_Feature) *Enum { return v_.up_Enum() })).asSetT()))
+	return new_FeatureSet(FeatureSet_difference(this.features_, tenumSetOfArr_(jtc_p_FeatureSet_Feature, featureToRemove.up_Enum(), arrmap_(moreFeaturesToRemove, func(v_ *FeatureSet_Feature) *Enum { return v_.up_Enum() })).asSetT()))
 }
 
 func (this *FeatureSet) without(other *FeatureSet) *FeatureSet {
@@ -102,26 +102,31 @@ func (this *FeatureSet) contains(feature *FeatureSet_Feature) bool {
 }
 
 func FeatureSet_emptyEnumSet() SetT[*FeatureSet_Feature] {
-	return tenumSetNoneOf_(tc_p_FeatureSet_Feature, classOf_("com.google.javascript.jscomp.parsing.parser.FeatureSet.Feature")).asSetT()
+	return tenumSetNoneOf_(jtc_p_FeatureSet_Feature, classOf_("com.google.javascript.jscomp.parsing.parser.FeatureSet.Feature")).asSetT()
 }
 
-func FeatureSet_enumSetOf(set *TSet[*FeatureSet_Feature]) SetT[*FeatureSet_Feature] {
-	return func() SetT[*FeatureSet_Feature] { if set.isEmpty() { return FeatureSet_emptyEnumSet() }; return tenumSetCopyOf_(tc_p_FeatureSet_Feature, Collection(set.asSet())).asSetT() }()
+func FeatureSet_enumSetOf(set *JTSet[*FeatureSet_Feature]) SetT[*FeatureSet_Feature] {
+	return func() SetT[*FeatureSet_Feature] {
+		if set.isEmpty() {
+			return FeatureSet_emptyEnumSet()
+		}
+		return tenumSetCopyOf_(jtc_p_FeatureSet_Feature, Collection(set.asSet())).asSetT()
+	}()
 }
 
-func FeatureSet_add(features *TSet[*FeatureSet_Feature], feature *FeatureSet_Feature) SetT[*FeatureSet_Feature] {
+func FeatureSet_add(features *JTSet[*FeatureSet_Feature], feature *FeatureSet_Feature) SetT[*FeatureSet_Feature] {
 	var result SetT[*FeatureSet_Feature] = FeatureSet_enumSetOf(features)
 	result.add_t(feature)
 	return result
 }
 
-func FeatureSet_union(features *TSet[*FeatureSet_Feature], newFeatures SetT[*FeatureSet_Feature]) SetT[*FeatureSet_Feature] {
+func FeatureSet_union(features *JTSet[*FeatureSet_Feature], newFeatures SetT[*FeatureSet_Feature]) SetT[*FeatureSet_Feature] {
 	var result SetT[*FeatureSet_Feature] = FeatureSet_enumSetOf(features)
 	result.addAll(Collection(Set_un_(newFeatures)))
 	return result
 }
 
-func FeatureSet_difference(features *TSet[*FeatureSet_Feature], removedFeatures SetT[*FeatureSet_Feature]) SetT[*FeatureSet_Feature] {
+func FeatureSet_difference(features *JTSet[*FeatureSet_Feature], removedFeatures SetT[*FeatureSet_Feature]) SetT[*FeatureSet_Feature] {
 	var result SetT[*FeatureSet_Feature] = FeatureSet_enumSetOf(features)
 	result.removeAll(Collection(Set_un_(removedFeatures)))
 	return result
@@ -135,7 +140,7 @@ func (this *FeatureSet) with(feature *FeatureSet_Feature) *FeatureSet {
 }
 
 func (this *FeatureSet) withFeatureVarargs(newFeatures []*FeatureSet_Feature) *FeatureSet {
-	return new_FeatureSet(FeatureSet_union(this.features_, setAs_(tc_p_FeatureSet_Feature, ImmutableSet_as_Set(ImmutableSet_copyOf_ObjectArr(arrmap_(newFeatures, func(v_ *FeatureSet_Feature) any { return obj_(v_) }))))))
+	return new_FeatureSet(FeatureSet_union(this.features_, setAs_(jtc_p_FeatureSet_Feature, ImmutableSet_as_Set(ImmutableSet_copyOf_ObjectArr(arrmap_(newFeatures, func(v_ *FeatureSet_Feature) any { return obj_(v_) }))))))
 }
 
 func (this *FeatureSet) withSet(newFeatures SetT[*FeatureSet_Feature]) *FeatureSet {
@@ -150,14 +155,21 @@ func (this *FeatureSet) has(feature *FeatureSet_Feature) bool {
 	return this.features_.contains(feature)
 }
 
-func (this *FeatureSet) getFeatures() *TSet[*FeatureSet_Feature] {
+func (this *FeatureSet) getFeatures() *JTSet[*FeatureSet_Feature] {
 	return this.features_
 }
 
 func (this *FeatureSet) equals(other any) bool {
 	var featureSet *FeatureSet
 	_ = featureSet
-	return (func() bool { v_ := other; if !is_[*FeatureSet](v_) { return false }; featureSet = cast_[*FeatureSet](v_); return true }() && equalsR_(featureSet.features_.asImm(), this.features_.asSet()))
+	return (func() bool {
+		v_ := other
+		if !is_[*FeatureSet](v_) {
+			return false
+		}
+		featureSet = cast_[*FeatureSet](v_)
+		return true
+	}() && equalsR_(featureSet.features_.asImm(), this.features_.asSet()))
 }
 
 func (this *FeatureSet) hashCode() int32 {
@@ -333,11 +345,11 @@ func new_FeatureSet_LangVersion(name_ string, ordinal_ int32) *FeatureSet_LangVe
 }
 
 func (this *FeatureSet_LangVersion) features() SetT[*FeatureSet_Feature] {
-	var set SetT[*FeatureSet_Feature] = tenumSetNoneOf_(tc_p_FeatureSet_Feature, classOf_("com.google.javascript.jscomp.parsing.parser.FeatureSet.Feature")).asSetT()
+	var set SetT[*FeatureSet_Feature] = tenumSetNoneOf_(jtc_p_FeatureSet_Feature, classOf_("com.google.javascript.jscomp.parsing.parser.FeatureSet.Feature")).asSetT()
 	it_1 := foreach_(obj_(EnumSet_allOf(classOf_("com.google.javascript.jscomp.parsing.parser.FeatureSet.Feature"))))
 	for it_1.next() {
 		var feature *FeatureSet_Feature = cast_[*FeatureSet_Feature](it_1.v)
-		if (feature.version_ == this) {
+		if feature.version_ == this {
 			set.add_t(feature)
 		}
 	}
@@ -402,7 +414,7 @@ func FeatureSet_LangVersion_clinit() {
 type FeatureSet_Feature struct {
 	Enum
 	nameField string
-	version_ *FeatureSet_LangVersion
+	version_  *FeatureSet_LangVersion
 }
 
 func (this *FeatureSet_Feature) up_Enum() *Enum {
@@ -578,4 +590,3 @@ func FeatureSet_Feature_clinit() {
 	registerEnum_("com.google.javascript.jscomp.parsing.parser.FeatureSet.Feature", enumValues_(FeatureSet_Feature_values_))
 
 }
-

@@ -3,7 +3,7 @@
 package closure
 
 type ConvertTypesToColors struct {
-	compiler_ *AbstractCompiler
+	compiler_            *AbstractCompiler
 	serializationOptions *SerializationOptions
 }
 
@@ -48,17 +48,23 @@ type ConvertTypesToColors_RemoveTypes struct {
 	NodeTraversal_AbstractPostOrderCallback
 }
 
-func (this *ConvertTypesToColors_RemoveTypes) as_ConvertTypesToColors_RemoveTypes() *ConvertTypesToColors_RemoveTypes { return this }
+func (this *ConvertTypesToColors_RemoveTypes) as_ConvertTypesToColors_RemoveTypes() *ConvertTypesToColors_RemoveTypes {
+	return this
+}
 
 func to_ConvertTypesToColors_RemoveTypes(v any) *ConvertTypesToColors_RemoveTypes {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_ConvertTypesToColors_RemoveTypes() *ConvertTypesToColors_RemoveTypes }).as_ConvertTypesToColors_RemoveTypes()
+	return v.(interface {
+		as_ConvertTypesToColors_RemoveTypes() *ConvertTypesToColors_RemoveTypes
+	}).as_ConvertTypesToColors_RemoveTypes()
 }
 
 func is_ConvertTypesToColors_RemoveTypes(v any) bool {
-	_, ok := v.(interface{ as_ConvertTypesToColors_RemoveTypes() *ConvertTypesToColors_RemoveTypes })
+	_, ok := v.(interface {
+		as_ConvertTypesToColors_RemoveTypes() *ConvertTypesToColors_RemoveTypes
+	})
 	return ok
 }
 
@@ -93,14 +99,14 @@ func (this *ConvertTypesToColors_RemoveTypes) visit_impl(t *NodeTraversal, n Nod
 	n.setDeclaredTypeExpression(0)
 	n.setTypedefTypeProp(nil)
 	var jsdoc *JSDocInfo = n.getJSDocInfo()
-	if (jsdoc != nil) {
+	if jsdoc != nil {
 		n.setJSDocInfo(JSDocSerializer_convertJSDocInfoForOptimizations(jsdoc))
 	}
 }
 
 type ConvertTypesToColors_RemoveTypesAndApplyColors struct {
 	ConvertTypesToColors_RemoveTypes
-	colorPoolShard *ColorPool_ShardView
+	colorPoolShard       *ColorPool_ShardView
 	typePointersByJstype *LinkedIdentityHashMap[*JSType, any]
 }
 
@@ -135,14 +141,13 @@ func (this *ConvertTypesToColors_RemoveTypesAndApplyColors) visit_impl(t *NodeTr
 	var oldType *JSType = n.getJSType()
 	var oldTypeBeforeCast *JSType = n.getJSTypeBeforeCast()
 	this.ConvertTypesToColors_RemoveTypes.visit_impl(t, n, parent)
-	if (oldType != nil) {
+	if oldType != nil {
 		var pointer any = this.typePointersByJstype.get(oldType)
-		if (pointer != nil) {
+		if pointer != nil {
 			n.setColor(this.colorPoolShard.getColor(unbox_[int32](pointer)))
 		}
 	}
-	if (oldTypeBeforeCast != nil) {
+	if oldTypeBeforeCast != nil {
 		n.setColorFromTypeCast()
 	}
 }
-

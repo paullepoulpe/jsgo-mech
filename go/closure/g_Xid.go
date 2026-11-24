@@ -41,7 +41,7 @@ func Xid_toString(i int32) string {
 	buf[len_] = String_charAt(Xid_START_CHARS, int32((l % int64(Xid_START_RADIX))))
 	len_++
 	i = int32((l / int64(Xid_START_RADIX)))
-	for (i > 0) {
+	for i > 0 {
 		buf[len_] = String_charAt(Xid_CHARS, (i % Xid_RADIX))
 		len_++
 		i /= Xid_RADIX
@@ -51,6 +51,7 @@ func Xid_toString(i int32) string {
 
 const Xid_START_CHARS string = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 const Xid_CHARS string = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
 var Xid_START_RADIX int32
 var Xid_RADIX int32
 
@@ -77,4 +78,3 @@ type Xid_HashFunction_fn struct {
 func (this *Xid_HashFunction_fn) hashCode(p0 string) int32 {
 	return this.f(p0)
 }
-

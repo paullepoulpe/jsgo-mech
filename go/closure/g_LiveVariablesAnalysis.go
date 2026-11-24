@@ -4,12 +4,12 @@ package closure
 
 type LiveVariablesAnalysis struct {
 	DataFlowAnalysis[Node, *LiveVariablesAnalysis_LiveVariableLattice]
-	jsScope *Scope
-	jsScopeChild *Scope
-	escaped *TSet[*Var]
-	scopeVariables *TMap[string, any]
-	orderedVars *TList[*Var]
-	allVarsInFn *TMap[string, *Var]
+	jsScope        *Scope
+	jsScopeChild   *Scope
+	escaped        *JTSet[*Var]
+	scopeVariables *JTMap[string, any]
+	orderedVars    *JTList[*Var]
+	allVarsInFn    *JTMap[string, *Var]
 }
 
 func (this *LiveVariablesAnalysis) up_DataFlowAnalysis() *DataFlowAnalysis[Node, *LiveVariablesAnalysis_LiveVariableLattice] {
@@ -24,8 +24,8 @@ func (this *LiveVariablesAnalysis) init_LiveVariablesAnalysis(cfg *ControlFlowGr
 	Preconditions_checkState_boolean_Object(jsScope.isFunctionScope(), jsScope)
 	this.jsScope = jsScope
 	this.jsScopeChild = jsScopeChild
-	this.escaped = newTSet_(tce_p_Var)
-	this.scopeVariables = newTMap_(tc_string, tc_Integer)
+	this.escaped = jnewTSet_(tce_p_Var)
+	this.scopeVariables = jnewTMap_(jtc_string, tc_Integer)
 	this.orderedVars = allVarsDeclaredInFunction.getAllVariablesInOrder()
 	this.allVarsInFn = allVarsDeclaredInFunction.getAllVariables()
 	DataFlowAnalysis_computeEscaped(jsScope, this.escaped, compiler, scopeCreator, this.allVarsInFn)
@@ -50,15 +50,15 @@ func (this *LiveVariablesAnalysis) addScopeVariables() {
 	}
 }
 
-func (this *LiveVariablesAnalysis) getEscapedLocals() *TSet[*Var] {
+func (this *LiveVariablesAnalysis) getEscapedLocals() *JTSet[*Var] {
 	return this.escaped
 }
 
-func (this *LiveVariablesAnalysis) getAllVariables() *TMap[string, *Var] {
+func (this *LiveVariablesAnalysis) getAllVariables() *JTMap[string, *Var] {
 	return this.allVarsInFn
 }
 
-func (this *LiveVariablesAnalysis) getAllVariablesInOrder() *TList[*Var] {
+func (this *LiveVariablesAnalysis) getAllVariablesInOrder() *JTList[*Var] {
 	return this.orderedVars
 }
 
@@ -79,7 +79,12 @@ func (this *LiveVariablesAnalysis) createInitialEstimateLattice_impl() *LiveVari
 }
 
 func (this *LiveVariablesAnalysis) createFlowJoiner_impl() DataFlowAnalysis_FlowJoiner[*LiveVariablesAnalysis_LiveVariableLattice] {
-	return func() DataFlowAnalysis_FlowJoiner[*LiveVariablesAnalysis_LiveVariableLattice] { if v := new_LiveVariablesAnalysis_LiveVariableJoinOp(this); v != nil { return v }; return nil }()
+	return func() DataFlowAnalysis_FlowJoiner[*LiveVariablesAnalysis_LiveVariableLattice] {
+		if v := new_LiveVariablesAnalysis_LiveVariableJoinOp(this); v != nil {
+			return v
+		}
+		return nil
+	}()
 }
 
 func (this *LiveVariablesAnalysis) flowThrough_impl(node Node, input *LiveVariablesAnalysis_LiveVariableLattice) *LiveVariablesAnalysis_LiveVariableLattice {
@@ -87,7 +92,7 @@ func (this *LiveVariablesAnalysis) flowThrough_impl(node Node, input *LiveVariab
 	var kill *BitSet = new_BitSet_int(input.liveSet.size())
 	var conditional bool = false
 	var edgeList ListT[*LinkedDirectedGraph_LinkedDiGraphEdge[Node, *ControlFlowGraph_Branch]] = this.getCfg().getOutEdges_Object_rListOf_LinkedDiGraphEdge(node)
-	it_1 := eachOf_(edgeList)
+	it_1 := jeachOf_(edgeList)
 	for it_1.next() {
 		var edge DiGraph_DiGraphEdge[Node, *ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphEdge[Node, *ControlFlowGraph_Branch]](it_1.v.self())
 		if equalsR_(ControlFlowGraph_Branch_ON_EX, obj_(edge.getValue())) {
@@ -118,7 +123,7 @@ func (this *LiveVariablesAnalysis) computeGenKill(n Node, gen *BitSet, kill *Bit
 	case Token_rhino_LET, Token_rhino_CONST, Token_rhino_VAR:
 		{
 			var c Node = n.getFirstChild()
-			for ; (c != 0); c = c.getNext() {
+			for ; c != 0; c = c.getNext() {
 				if c.isName() {
 					if c.hasChildren() {
 						this.computeGenKill(c.getFirstChild(), gen, kill, conditional)
@@ -147,7 +152,7 @@ func (this *LiveVariablesAnalysis) computeGenKill(n Node, gen *BitSet, kill *Bit
 		this.computeGenKill(n.getFirstChild(), gen, kill, conditional)
 		{
 			var c Node = n.getSecondChild()
-			for ; (c != 0); c = c.getNext() {
+			for ; c != 0; c = c.getNext() {
 				this.computeGenKill(c, gen, kill, true)
 			}
 		}
@@ -158,14 +163,14 @@ func (this *LiveVariablesAnalysis) computeGenKill(n Node, gen *BitSet, kill *Bit
 		this.computeGenKill(n.getLastChild(), gen, kill, true)
 		return
 	case Token_rhino_NAME:
-		if (n.getString() == "arguments") {
+		if n.getString() == "arguments" {
 			this.markAllParametersEscaped()
 		} else if !NodeUtil_isLhsByDestructuring(n) {
 			this.addToSetIfLocal(n, gen)
 		}
 		return
 	default:
-		if (NodeUtil_isAssignmentOp(n) && n.getFirstChild().isName()) {
+		if NodeUtil_isAssignmentOp(n) && n.getFirstChild().isName() {
 			var lhs Node = n.getFirstChild()
 			if !conditional {
 				this.addToSetIfLocal(lhs, kill)
@@ -174,7 +179,7 @@ func (this *LiveVariablesAnalysis) computeGenKill(n Node, gen *BitSet, kill *Bit
 				this.addToSetIfLocal(lhs, gen)
 			}
 			this.computeGenKill(lhs.getNext(), gen, kill, conditional)
-		} else if (n.isAssign() && n.getFirstChild().isDestructuringPattern()) {
+		} else if n.isAssign() && n.getFirstChild().isDestructuringPattern() {
 			if !conditional {
 				NodeUtil_visitLhsNodesInNode(n, Consumer[Node](func(child Node) {
 					if child.isName() {
@@ -187,7 +192,7 @@ func (this *LiveVariablesAnalysis) computeGenKill(n Node, gen *BitSet, kill *Bit
 		} else {
 			{
 				var c Node = n.getFirstChild()
-				for ; (c != 0); c = c.getNext() {
+				for ; c != 0; c = c.getNext() {
 					this.computeGenKill(c, gen, kill, conditional)
 				}
 			}
@@ -200,14 +205,14 @@ func (this *LiveVariablesAnalysis) addToSetIfLocal(node Node, set *BitSet) {
 	Preconditions_checkState_boolean_Object_H(node.isName(), node)
 	var name string = node.getString()
 	var var_ *Var = this.allVarsInFn.get(name)
-	if (var_ == nil) {
+	if var_ == nil {
 		return
 	}
 	var local bool
 	var localScope *Scope = var_.getScope_rAbstractScope_rScope()
 	if localScope.isFunctionBlockScope() {
 		local = LiveVariablesAnalysis_isDeclaredInFunctionBlockOrParameter(localScope, name)
-	} else if ((localScope == this.jsScope) && (this.jsScopeChild != nil)) {
+	} else if (localScope == this.jsScope) && (this.jsScopeChild != nil) {
 		local = LiveVariablesAnalysis_isDeclaredInFunctionBlockOrParameter(this.jsScopeChild, name)
 	} else {
 		local = localScope.hasOwnSlot(name)
@@ -229,7 +234,7 @@ func (this *LiveVariablesAnalysis) markAllParametersEscaped() {
 	var paramList Node = NodeUtil_getFunctionParameters(this.jsScope.getRootNode())
 	{
 		var param Node = paramList.getFirstChild()
-		for ; (param != 0); param = param.getNext() {
+		for ; param != 0; param = param.getNext() {
 			if param.isName() {
 				this.escaped.add(this.jsScope.getVar_String_rVar(param.getString()))
 			}
@@ -290,7 +295,14 @@ func (this *LiveVariablesAnalysis_LiveVariableLattice) equals(other any) bool {
 	Preconditions_checkNotNull(other)
 	var liveVariableLattice *LiveVariablesAnalysis_LiveVariableLattice
 	_ = liveVariableLattice
-	return (func() bool { v_ := other; if !is_[*LiveVariablesAnalysis_LiveVariableLattice](v_) { return false }; liveVariableLattice = cast_[*LiveVariablesAnalysis_LiveVariableLattice](v_); return true }() && equalsRR_(this.liveSet, liveVariableLattice.liveSet))
+	return (func() bool {
+		v_ := other
+		if !is_[*LiveVariablesAnalysis_LiveVariableLattice](v_) {
+			return false
+		}
+		liveVariableLattice = cast_[*LiveVariablesAnalysis_LiveVariableLattice](v_)
+		return true
+	}() && equalsRR_(this.liveSet, liveVariableLattice.liveSet))
 }
 
 func (this *LiveVariablesAnalysis_LiveVariableLattice) isLive(index int32) bool {
@@ -308,4 +320,3 @@ func (this *LiveVariablesAnalysis_LiveVariableLattice) nextSetBit(fromIndex int3
 func (this *LiveVariablesAnalysis_LiveVariableLattice) hashCode() int32 {
 	return hashR_(this.liveSet)
 }
-

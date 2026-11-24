@@ -20,6 +20,7 @@ func LocaleDataPasses_isGoogDotLocaleReference(n Node) bool {
 }
 
 const LocaleDataPasses_GOOG_LOCALE_REPLACEMENT string = "__JSC_LOCALE__"
+
 var LocaleDataPasses_QNAME_FOR_GOOG_LOCALE Node
 
 var LocaleDataPasses_clinit_done bool
@@ -55,7 +56,7 @@ func (this *LocaleDataPasses_ProtectGoogLocale) process_2(externs Node, root Nod
 
 type LocaleDataPasses_ProtectCurrentLocale struct {
 	NodeTraversal_AbstractPostOrderCallback
-	compiler_ *AbstractCompiler
+	compiler_   *AbstractCompiler
 	astFactory_ *AstFactory
 }
 
@@ -81,7 +82,12 @@ func new_LocaleDataPasses_ProtectCurrentLocale(compiler *AbstractCompiler) *Loca
 
 func (this *LocaleDataPasses_ProtectCurrentLocale) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	if LocaleDataPasses_isGoogDotLocaleReference(n) {
-		var nodeToReplace Node = func() Node { if NodeUtil_isLhsOfAssign(n) { return n.getNext() }; return n }()
+		var nodeToReplace Node = func() Node {
+			if NodeUtil_isLhsOfAssign(n) {
+				return n.getNext()
+			}
+			return n
+		}()
 		var replacement Node = this.astFactory_.createName(LocaleDataPasses_GOOG_LOCALE_REPLACEMENT, AstFactory_type_Node(nodeToReplace))
 		replacement.putBooleanProp(Node_IS_CONSTANT_NAME, true)
 		nodeToReplace.replaceWith(replacement)
@@ -91,9 +97,9 @@ func (this *LocaleDataPasses_ProtectCurrentLocale) visit_impl(t *NodeTraversal, 
 
 type LocaleDataPasses_LocaleSubstitutions struct {
 	NodeTraversal_AbstractPostOrderCallback
-	compiler_ *AbstractCompiler
-	astFactory_ *AstFactory
-	locale string
+	compiler_      *AbstractCompiler
+	astFactory_    *AstFactory
+	locale         string
 	qnameForLocale Node
 }
 
@@ -141,4 +147,3 @@ func (this *LocaleDataPasses_LocaleSubstitutions) visit_impl(t *NodeTraversal, n
 }
 
 const LocaleDataPasses_LocaleSubstitutions_DEFAULT_LOCALE string = "en"
-

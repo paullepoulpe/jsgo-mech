@@ -4,7 +4,7 @@ package closure
 
 type ErrorPass struct {
 	compiler_ *AbstractCompiler
-	error_ *JSError
+	error_    *JSError
 }
 
 func (this *ErrorPass) init_ErrorPass(compiler *AbstractCompiler, error_ *JSError) {
@@ -25,4 +25,3 @@ func ErrorPass_createFromDiagnosticType(compiler *AbstractCompiler, error_ *Diag
 func (this *ErrorPass) process_2(externs Node, root Node) {
 	this.compiler_.report(this.error_)
 }
-

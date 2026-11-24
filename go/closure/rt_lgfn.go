@@ -124,7 +124,7 @@ func (f *filterIterT_[T]) next_t() T {
 		panic(new_NoSuchElementException_0().self())
 	}
 	v := f.nx
-	f.nx, f.ready = null_[T](), false
+	f.nx, f.ready = jnull_[T](), false
 	return v
 }
 
@@ -156,10 +156,10 @@ func Iterables_transformT_[F, T any](p0 IterableT[F], p1 Function_base[F, T]) It
 
 // MoreObjects_firstNonNullT_ is MoreObjects.firstNonNull (MoreObjects_firstNonNull).
 func MoreObjects_firstNonNullT_[T any](a T, b T) T {
-	if !isnull_(a) {
+	if !jisnull_(a) {
 		return a
 	}
-	if !isnull_(b) {
+	if !jisnull_(b) {
 		return b
 	}
 	panic(new_NullPointerException_String("Both parameters are null").self())
@@ -224,11 +224,11 @@ func Map_replaceAllT_[K, V any](m MapT[K, V], f BiFunction[K, V, V]) {
 
 // Map_computeIfAbsentT_ is Map.computeIfAbsent (Map_computeIfAbsent).
 func Map_computeIfAbsentT_[K, V any](m MapT[K, V], k K, f Function[K, V]) V {
-	if old := m.get_t(boxT_(k)); !isnull_(old) {
+	if old := m.get_t(boxT_(k)); !jisnull_(old) {
 		return old
 	}
 	v := f(k)
-	if !isnull_(v) {
+	if !jisnull_(v) {
 		m.put_t(k, v)
 	}
 	return v
@@ -236,7 +236,7 @@ func Map_computeIfAbsentT_[K, V any](m MapT[K, V], k K, f Function[K, V]) V {
 
 // Map_getOrDefaultT_ is Map.getOrDefault (Map_getOrDefault).
 func Map_getOrDefaultT_[K, V any](m MapT[K, V], k any, def V) V {
-	if v := m.get_t(k); !isnull_(v) || m.containsKey(k) {
+	if v := m.get_t(k); !jisnull_(v) || m.containsKey(k) {
 		return v
 	}
 	return def
@@ -245,21 +245,21 @@ func Map_getOrDefaultT_[K, V any](m MapT[K, V], k any, def V) V {
 // Map_get_sT_ is Map.get with a String key on a map whose keys are Strings (Map_get_s): the
 // typed map's own lookup, else the erased helper's and the cast of erased code.
 func Map_get_sT_[V any](m MapT[string, V], k string) V {
-	if v, ok := m.(*tmapView_[string, V]); ok && k != nullstr_ {
+	if v, ok := m.(*jtmapView_[string, V]); ok && k != nullstr_ {
 		return v.m.get(k)
 	}
-	return unboxT_[V](Map_get_s(Map_un_(m), k))
+	return junboxT_[V](Map_get_s(Map_un_(m), k))
 }
 
 // Map_getOrDefault_sT_ is Map.getOrDefault with a String key on a map whose keys are Strings
 // (Map_getOrDefault_s).
 func Map_getOrDefault_sT_[V any](m MapT[string, V], k string, def V) V {
-	if v, ok := m.(*tmapView_[string, V]); ok && k != nullstr_ {
+	if v, ok := m.(*jtmapView_[string, V]); ok && k != nullstr_ {
 		return v.m.getOrDefault(k, def)
 	}
 	u := Map_un_(m)
 	if v := Map_get_s(u, k); v != nil || Map_containsKey_s(u, k) {
-		return unboxT_[V](v)
+		return junboxT_[V](v)
 	}
 	return def
 }
@@ -269,7 +269,7 @@ func Map_getOrDefault_sT_[V any](m MapT[string, V], k string, def V) V {
 // newTSortedSetCT_ is newTSortedSetC_ with the comparator at the element type: the set compares
 // its keys with it as they are (tsortCmp_); erased code that asks for the comparator gets it at
 // Object.
-func newTSortedSetCT_[K comparable](c *tconv_[K], cmp Comparator[K]) *TSet[K] {
+func newTSortedSetCT_[K comparable](c *jtconv_[K], cmp Comparator[K]) *JTSet[K] {
 	s := newTSortedSetC_(c, cmpErased_(c, cmp))
 	if cmp != nil {
 		s.eq.cmpT = (func(K, K) int32)(cmp)
@@ -278,7 +278,7 @@ func newTSortedSetCT_[K comparable](c *tconv_[K], cmp Comparator[K]) *TSet[K] {
 }
 
 // newTSortedMapCT_ is newTSortedMapC_ with the comparator at the key type.
-func newTSortedMapCT_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], cmp Comparator[K]) *TMap[K, V] {
+func newTSortedMapCT_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V], cmp Comparator[K]) *JTMap[K, V] {
 	m := newTSortedMapC_(kc, vc, cmpErased_(kc, cmp))
 	if cmp != nil {
 		m.eq.cmpT = (func(K, K) int32)(cmp)
@@ -287,7 +287,7 @@ func newTSortedMapCT_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], cmp Com
 }
 
 // cmpErased_ is comparator cmp of keys of type K as erased code calls it (null stays null).
-func cmpErased_[K any](c *tconv_[K], cmp Comparator[K]) Comparator_e {
+func cmpErased_[K any](c *jtconv_[K], cmp Comparator[K]) Comparator_e {
 	if cmp == nil {
 		return nil
 	}
@@ -295,11 +295,11 @@ func cmpErased_[K any](c *tconv_[K], cmp Comparator[K]) Comparator_e {
 }
 
 // splitToListST_ is splitToListT_ of a String (no box).
-func splitToListST_(c *tconv_[string], sp *Splitter, s string) *TList[string] {
+func splitToListST_(c *jtconv_[string], sp *Splitter, s string) *JTList[string] {
 	if s == nullstr_ {
 		return splitToListT_(c, sp, nil)
 	}
-	l := &TList[string]{c: c, items: sp.splitStrs_(s), twin: unmodMark_}
+	l := &JTList[string]{c: c, items: sp.splitStrs_(s), twin: unmodMark_}
 	l.view.l = l
 	return l
 }
@@ -311,10 +311,10 @@ func Collections_sortT_[T any](l ListT[T]) { List_sortT_(l, nil) }
 func Map_mergeT_[K, V any](m MapT[K, V], k K, v V, f BiFunction[V, V, V]) V {
 	old := m.get_t(boxT_(k))
 	nv := v
-	if !isnull_(old) {
+	if !jisnull_(old) {
 		nv = f(old, v)
 	}
-	if isnull_(nv) {
+	if jisnull_(nv) {
 		m.remove_t(boxT_(k))
 	} else {
 		m.put_t(k, nv)

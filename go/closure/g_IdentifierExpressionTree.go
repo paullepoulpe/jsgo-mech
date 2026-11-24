@@ -25,4 +25,3 @@ func new_IdentifierExpressionTree(location *SourceRange, identifierToken *Identi
 	this.init_IdentifierExpressionTree(location, identifierToken)
 	return this
 }
-
