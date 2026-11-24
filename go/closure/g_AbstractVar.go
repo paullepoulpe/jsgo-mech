@@ -11,6 +11,12 @@ type AbstractVar struct {
 	index_                        int32
 }
 
+// AbstractVar_as is implemented by AbstractVar and the classes that extend it: a cast to AbstractVar asserts to it
+// (post-flip).
+type AbstractVar_as interface {
+	as_AbstractVar() *AbstractVar
+}
+
 func (this *AbstractVar) as_AbstractVar() *AbstractVar { return this }
 
 func to_AbstractVar(v any) *AbstractVar {
@@ -22,12 +28,7 @@ func to_AbstractVar(v any) *AbstractVar {
 	case nil:
 		return nil
 	}
-	return v.(interface{ as_AbstractVar() *AbstractVar }).as_AbstractVar()
-}
-
-func is_AbstractVar(v any) bool {
-	_, ok := v.(interface{ as_AbstractVar() *AbstractVar })
-	return ok
+	return v.(AbstractVar_as).as_AbstractVar()
 }
 
 func (this *AbstractVar) self() any {

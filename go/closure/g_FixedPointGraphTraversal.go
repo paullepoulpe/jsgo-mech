@@ -9,11 +9,6 @@ type FixedPointGraphTraversal[N comparable, E comparable] struct {
 
 func (this *FixedPointGraphTraversal[N, E]) isa_FixedPointGraphTraversal_() {}
 
-func is_FixedPointGraphTraversal(v any) bool {
-	_, ok := v.(interface{ isa_FixedPointGraphTraversal_() })
-	return ok
-}
-
 func (this *FixedPointGraphTraversal[N, E]) init_FixedPointGraphTraversal(callback FixedPointGraphTraversal_EdgeCallback[N, E], traversalDirection FixedPointGraphTraversal_TraversalDirection) {
 	this.callback = callback
 	this.traversalDirection = traversalDirection
