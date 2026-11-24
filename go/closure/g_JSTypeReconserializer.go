@@ -4,10 +4,10 @@ package closure
 
 type JSTypeReconserializer struct {
 	registry                    *JSTypeRegistry
-	serializationMode           *SerializationOptions
-	invalidatingTypes           *InvalidatingTypes
+	serializationMode           SerializationOptions
+	invalidatingTypes           InvalidatingTypes
 	stringPoolBuilder           *StringPool_Builder
-	hasher                      *JSTypeColorIdHasher
+	hasher                      JSTypeColorIdHasher
 	shouldPropagatePropertyName Predicate[string]
 	unknownRecord               *JSTypeReconserializer_SeenTypeRecord
 	topFunctionRecord           *JSTypeReconserializer_SeenTypeRecord
@@ -24,7 +24,7 @@ func (this *JSTypeReconserializer) finit_JSTypeReconserializer() {
 	this.state = JSTypeReconserializer_State_COLLECTING_TYPES
 }
 
-func (this *JSTypeReconserializer) init_JSTypeReconserializer(registry *JSTypeRegistry, invalidatingTypes *InvalidatingTypes, stringPoolBuilder *StringPool_Builder, shouldPropagatePropertyName Predicate[string], serializationMode *SerializationOptions) {
+func (this *JSTypeReconserializer) init_JSTypeReconserializer(registry *JSTypeRegistry, invalidatingTypes InvalidatingTypes, stringPoolBuilder *StringPool_Builder, shouldPropagatePropertyName Predicate[string], serializationMode SerializationOptions) {
 	this.finit_JSTypeReconserializer()
 	this.registry = registry
 	this.hasher = new_JSTypeColorIdHasher(registry)
@@ -37,13 +37,13 @@ func (this *JSTypeReconserializer) init_JSTypeReconserializer(registry *JSTypeRe
 	this.topFunctionRecord = this.seenTypeRecords.Get(StandardColors_TOP_FUNCTION.getId())
 }
 
-func new_JSTypeReconserializer(registry *JSTypeRegistry, invalidatingTypes *InvalidatingTypes, stringPoolBuilder *StringPool_Builder, shouldPropagatePropertyName Predicate[string], serializationMode *SerializationOptions) *JSTypeReconserializer {
+func new_JSTypeReconserializer(registry *JSTypeRegistry, invalidatingTypes InvalidatingTypes, stringPoolBuilder *StringPool_Builder, shouldPropagatePropertyName Predicate[string], serializationMode SerializationOptions) *JSTypeReconserializer {
 	this := &JSTypeReconserializer{}
 	this.init_JSTypeReconserializer(registry, invalidatingTypes, stringPoolBuilder, shouldPropagatePropertyName, serializationMode)
 	return this
 }
 
-func JSTypeReconserializer_create(registry *JSTypeRegistry, invalidatingTypes *InvalidatingTypes, stringPoolBuilder *StringPool_Builder, shouldPropagatePropertyName Predicate[string], serializationMode *SerializationOptions) *JSTypeReconserializer {
+func JSTypeReconserializer_create(registry *JSTypeRegistry, invalidatingTypes InvalidatingTypes, stringPoolBuilder *StringPool_Builder, shouldPropagatePropertyName Predicate[string], serializationMode SerializationOptions) *JSTypeReconserializer {
 	var serializer *JSTypeReconserializer = new_JSTypeReconserializer(registry, invalidatingTypes, stringPoolBuilder, shouldPropagatePropertyName, serializationMode)
 	serializer.checkValidLinearTime()
 	return serializer

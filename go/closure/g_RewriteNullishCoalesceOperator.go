@@ -5,7 +5,7 @@ package closure
 type RewriteNullishCoalesceOperator struct {
 	compiler_        *AbstractCompiler
 	astFactory_      *AstFactory
-	uniqueIdSupplier *UniqueIdSupplier
+	uniqueIdSupplier UniqueIdSupplier
 }
 
 func (this *RewriteNullishCoalesceOperator) init_RewriteNullishCoalesceOperator(compiler *AbstractCompiler) {

@@ -15,13 +15,13 @@ func (this *ComputedPropertyMethodTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *ComputedPropertyMethodTree) init_ComputedPropertyMethodTree(location *SourceRange, property *ParseTree, method *ParseTree) {
+func (this *ComputedPropertyMethodTree) init_ComputedPropertyMethodTree(location SourceRange, property *ParseTree, method *ParseTree) {
 	this.ParseTree.init_ParseTree(ParseTreeType_COMPUTED_PROPERTY_METHOD, location)
 	this.property_ = property
 	this.method = method
 }
 
-func new_ComputedPropertyMethodTree(location *SourceRange, property *ParseTree, method *ParseTree) *ComputedPropertyMethodTree {
+func new_ComputedPropertyMethodTree(location SourceRange, property *ParseTree, method *ParseTree) *ComputedPropertyMethodTree {
 	this := &ComputedPropertyMethodTree{}
 	this.self_ = this
 	this.init_ComputedPropertyMethodTree(location, property, method)

@@ -16,14 +16,14 @@ func (this *NewExpressionTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *NewExpressionTree) init_NewExpressionTree(location *SourceRange, operand *ParseTree, arguments *ArgumentListTree, hasTrailingComma bool) {
+func (this *NewExpressionTree) init_NewExpressionTree(location SourceRange, operand *ParseTree, arguments *ArgumentListTree, hasTrailingComma bool) {
 	this.ParseTree.init_ParseTree(ParseTreeType_NEW_EXPRESSION, location)
 	this.operand = operand
 	this.arguments = arguments
 	this.hasTrailingComma_ = hasTrailingComma
 }
 
-func new_NewExpressionTree(location *SourceRange, operand *ParseTree, arguments *ArgumentListTree, hasTrailingComma bool) *NewExpressionTree {
+func new_NewExpressionTree(location SourceRange, operand *ParseTree, arguments *ArgumentListTree, hasTrailingComma bool) *NewExpressionTree {
 	this := &NewExpressionTree{}
 	this.self_ = this
 	this.init_NewExpressionTree(location, operand, arguments, hasTrailingComma)

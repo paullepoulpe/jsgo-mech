@@ -75,7 +75,7 @@ func ParserRunner_parse(sourceFile StaticSourceFile, sourceString string, config
 	var tree *ProgramTree = p.parseProgram()
 	var root Node = 0
 	var comments *TList[*Comment] = tlistEmptyImm_(tc_p_Comment)
-	var topLevelStatementRanges *TList[*SourceRange] = tlistEmptyImm_(tc_p_SourceRange)
+	var topLevelStatementRanges *TList[SourceRange] = tlistEmptyImm_(tc_SourceRange)
 	var features *FeatureSet = p.getFeatures()
 	if (tree != nil) && (!es6ErrorReporter.hadError() || keepGoing) {
 		var factory *IRFactory = IRFactory_transformTree(tree, sourceFile, config, errorReporter, file)
@@ -84,7 +84,7 @@ func ParserRunner_parse(sourceFile StaticSourceFile, sourceString string, config
 		root.setFeatureSet(features)
 		if config.jsDocParsingMode().shouldParseDescriptions() {
 			comments = p.getComments()
-			var builder *ImmutableList_Builder[*SourceRange] = immutableListBuilderN_(tc_p_SourceRange, tree.sourceElements.size())
+			var builder *ImmutableList_Builder[SourceRange] = immutableListBuilderN_(tc_SourceRange, tree.sourceElements.size())
 			for element := range tree.sourceElements.All() {
 				builder.add(element.location_)
 			}
@@ -180,14 +180,14 @@ func (this *ParserRunner_Es6ErrorReporter) reportWarning_impl(location *SourcePo
 
 type ParserRunner_ParseResult struct {
 	comments                *TList[*Comment]
-	topLevelStatementRanges *TList[*SourceRange]
+	topLevelStatementRanges *TList[SourceRange]
 	features_               *FeatureSet
 	sourceMapURL            string
 	ast                     Node
 }
 
 func (this *ParserRunner_ParseResult) init_ParserRunner_ParseResult_Node_List_FeatureSet_String(ast Node, comments *TList[*Comment], features *FeatureSet, sourceMapURL string) {
-	this.init_ParserRunner_ParseResult_Node_List_ImmutableList_FeatureSet_Optional(ast, comments, tlistEmptyImm_(tc_p_SourceRange), features, optstrOf_(sourceMapURL))
+	this.init_ParserRunner_ParseResult_Node_List_ImmutableList_FeatureSet_Optional(ast, comments, tlistEmptyImm_(tc_SourceRange), features, optstrOf_(sourceMapURL))
 }
 
 func new_ParserRunner_ParseResult_Node_List_FeatureSet_String(ast Node, comments *TList[*Comment], features *FeatureSet, sourceMapURL string) *ParserRunner_ParseResult {
@@ -196,7 +196,7 @@ func new_ParserRunner_ParseResult_Node_List_FeatureSet_String(ast Node, comments
 	return this
 }
 
-func (this *ParserRunner_ParseResult) init_ParserRunner_ParseResult_Node_List_ImmutableList_FeatureSet_Optional(ast Node, comments *TList[*Comment], topLevelStatementRanges *TList[*SourceRange], features *FeatureSet, sourceMapURL string) {
+func (this *ParserRunner_ParseResult) init_ParserRunner_ParseResult_Node_List_ImmutableList_FeatureSet_Optional(ast Node, comments *TList[*Comment], topLevelStatementRanges *TList[SourceRange], features *FeatureSet, sourceMapURL string) {
 	this.ast = ast
 	this.comments = comments
 	this.topLevelStatementRanges = topLevelStatementRanges
@@ -204,7 +204,7 @@ func (this *ParserRunner_ParseResult) init_ParserRunner_ParseResult_Node_List_Im
 	this.sourceMapURL = sourceMapURL
 }
 
-func new_ParserRunner_ParseResult_Node_List_ImmutableList_FeatureSet_Optional(ast Node, comments *TList[*Comment], topLevelStatementRanges *TList[*SourceRange], features *FeatureSet, sourceMapURL string) *ParserRunner_ParseResult {
+func new_ParserRunner_ParseResult_Node_List_ImmutableList_FeatureSet_Optional(ast Node, comments *TList[*Comment], topLevelStatementRanges *TList[SourceRange], features *FeatureSet, sourceMapURL string) *ParserRunner_ParseResult {
 	this := &ParserRunner_ParseResult{}
 	this.init_ParserRunner_ParseResult_Node_List_ImmutableList_FeatureSet_Optional(ast, comments, topLevelStatementRanges, features, sourceMapURL)
 	return this

@@ -25,12 +25,12 @@ func (this *StringLiteralToken) zero_StringLiteralToken() {
 	this.LiteralToken.zero_LiteralToken()
 }
 
-func (this *StringLiteralToken) init_StringLiteralToken(value string, location *SourceRange, hasUnescapedUnicodeLineOrParagraphSeparator bool) {
+func (this *StringLiteralToken) init_StringLiteralToken(value string, location SourceRange, hasUnescapedUnicodeLineOrParagraphSeparator bool) {
 	this.LiteralToken.init_LiteralToken(TokenType_STRING, value, location)
 	this.hasUnescapedUnicodeLineOrParagraphSeparatorField = hasUnescapedUnicodeLineOrParagraphSeparator
 }
 
-func new_StringLiteralToken(value string, location *SourceRange, hasUnescapedUnicodeLineOrParagraphSeparator bool) *StringLiteralToken {
+func new_StringLiteralToken(value string, location SourceRange, hasUnescapedUnicodeLineOrParagraphSeparator bool) *StringLiteralToken {
 	this := &StringLiteralToken{}
 	this.self_ = this
 	this.zero_StringLiteralToken()

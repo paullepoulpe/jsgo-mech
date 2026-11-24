@@ -16,25 +16,25 @@ func (this *UpdateExpressionTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *UpdateExpressionTree) init_UpdateExpressionTree(location *SourceRange, operator *Token_parser, operatorPosition UpdateExpressionTree_OperatorPosition, operand *ParseTree) {
+func (this *UpdateExpressionTree) init_UpdateExpressionTree(location SourceRange, operator *Token_parser, operatorPosition UpdateExpressionTree_OperatorPosition, operand *ParseTree) {
 	this.ParseTree.init_ParseTree(ParseTreeType_UPDATE_EXPRESSION, location)
 	this.operator = operator
 	this.operatorPosition = operatorPosition
 	this.operand = operand
 }
 
-func new_UpdateExpressionTree(location *SourceRange, operator *Token_parser, operatorPosition UpdateExpressionTree_OperatorPosition, operand *ParseTree) *UpdateExpressionTree {
+func new_UpdateExpressionTree(location SourceRange, operator *Token_parser, operatorPosition UpdateExpressionTree_OperatorPosition, operand *ParseTree) *UpdateExpressionTree {
 	this := &UpdateExpressionTree{}
 	this.self_ = this
 	this.init_UpdateExpressionTree(location, operator, operatorPosition, operand)
 	return this
 }
 
-func UpdateExpressionTree_prefix(location *SourceRange, operator *Token_parser, operand *ParseTree) *UpdateExpressionTree {
+func UpdateExpressionTree_prefix(location SourceRange, operator *Token_parser, operand *ParseTree) *UpdateExpressionTree {
 	return new_UpdateExpressionTree(location, operator, UpdateExpressionTree_OperatorPosition_PREFIX, operand)
 }
 
-func UpdateExpressionTree_postfix(location *SourceRange, operator *Token_parser, operand *ParseTree) *UpdateExpressionTree {
+func UpdateExpressionTree_postfix(location SourceRange, operator *Token_parser, operand *ParseTree) *UpdateExpressionTree {
 	return new_UpdateExpressionTree(location, operator, UpdateExpressionTree_OperatorPosition_POSTFIX, operand)
 }
 

@@ -5,29 +5,29 @@ package closure
 type SerializeTypedAstPass struct {
 	compiler_            *AbstractCompiler
 	consumer             Consumer[*TypedAst]
-	serializationOptions *SerializationOptions
+	serializationOptions SerializationOptions
 }
 
-func (this *SerializeTypedAstPass) init_SerializeTypedAstPass(compiler *AbstractCompiler, astConsumer Consumer[*TypedAst], serializationOptions *SerializationOptions) {
+func (this *SerializeTypedAstPass) init_SerializeTypedAstPass(compiler *AbstractCompiler, astConsumer Consumer[*TypedAst], serializationOptions SerializationOptions) {
 	this.compiler_ = compiler
 	this.consumer = astConsumer
 	this.serializationOptions = serializationOptions
 }
 
-func new_SerializeTypedAstPass(compiler *AbstractCompiler, astConsumer Consumer[*TypedAst], serializationOptions *SerializationOptions) *SerializeTypedAstPass {
+func new_SerializeTypedAstPass(compiler *AbstractCompiler, astConsumer Consumer[*TypedAst], serializationOptions SerializationOptions) *SerializeTypedAstPass {
 	this := &SerializeTypedAstPass{}
 	this.init_SerializeTypedAstPass(compiler, astConsumer, serializationOptions)
 	return this
 }
 
-func SerializeTypedAstPass_createFromConsumer(c *AbstractCompiler, out Consumer[[]int8], serializationOptions *SerializationOptions) *SerializeTypedAstPass {
+func SerializeTypedAstPass_createFromConsumer(c *AbstractCompiler, out Consumer[[]int8], serializationOptions SerializationOptions) *SerializeTypedAstPass {
 	var toBytes Consumer[*TypedAst] = Consumer[*TypedAst](func(ast *TypedAst) {
 		out.accept(TypedAst_List_newBuilder().addTypedAsts(ast).buildLastT_().toByteArray())
 	})
 	return new_SerializeTypedAstPass(c, toBytes, serializationOptions)
 }
 
-func SerializeTypedAstPass_createFromPath(compiler *AbstractCompiler, outputPath string, serializationOptions *SerializationOptions) *SerializeTypedAstPass {
+func SerializeTypedAstPass_createFromPath(compiler *AbstractCompiler, outputPath string, serializationOptions SerializationOptions) *SerializeTypedAstPass {
 	var toPath Consumer[*TypedAst] = Consumer[*TypedAst](func(ast *TypedAst) {
 		var written *Outcome_base[any] = Io_writeBytes(outputPath, Io_gzip(TypedAst_List_newBuilder().addTypedAsts(ast).buildLastT_().toByteArray()))
 		if written.isErr() {

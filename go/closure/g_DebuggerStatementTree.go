@@ -13,11 +13,11 @@ func (this *DebuggerStatementTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *DebuggerStatementTree) init_DebuggerStatementTree(location *SourceRange) {
+func (this *DebuggerStatementTree) init_DebuggerStatementTree(location SourceRange) {
 	this.ParseTree.init_ParseTree(ParseTreeType_DEBUGGER_STATEMENT, location)
 }
 
-func new_DebuggerStatementTree(location *SourceRange) *DebuggerStatementTree {
+func new_DebuggerStatementTree(location SourceRange) *DebuggerStatementTree {
 	this := &DebuggerStatementTree{}
 	this.self_ = this
 	this.init_DebuggerStatementTree(location)

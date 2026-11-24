@@ -14,12 +14,12 @@ func (this *BreakStatementTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *BreakStatementTree) init_BreakStatementTree(location *SourceRange, name *IdentifierToken) {
+func (this *BreakStatementTree) init_BreakStatementTree(location SourceRange, name *IdentifierToken) {
 	this.ParseTree.init_ParseTree(ParseTreeType_BREAK_STATEMENT, location)
 	this.name_ = name
 }
 
-func new_BreakStatementTree(location *SourceRange, name *IdentifierToken) *BreakStatementTree {
+func new_BreakStatementTree(location SourceRange, name *IdentifierToken) *BreakStatementTree {
 	this := &BreakStatementTree{}
 	this.self_ = this
 	this.init_BreakStatementTree(location, name)

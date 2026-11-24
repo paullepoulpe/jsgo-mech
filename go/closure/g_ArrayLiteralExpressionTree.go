@@ -15,13 +15,13 @@ func (this *ArrayLiteralExpressionTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *ArrayLiteralExpressionTree) init_ArrayLiteralExpressionTree(location *SourceRange, elements *TList[*ParseTree], hasTrailingComma bool) {
+func (this *ArrayLiteralExpressionTree) init_ArrayLiteralExpressionTree(location SourceRange, elements *TList[*ParseTree], hasTrailingComma bool) {
 	this.ParseTree.init_ParseTree(ParseTreeType_ARRAY_LITERAL_EXPRESSION, location)
 	this.elements_ = elements
 	this.hasTrailingComma_ = hasTrailingComma
 }
 
-func new_ArrayLiteralExpressionTree(location *SourceRange, elements *TList[*ParseTree], hasTrailingComma bool) *ArrayLiteralExpressionTree {
+func new_ArrayLiteralExpressionTree(location SourceRange, elements *TList[*ParseTree], hasTrailingComma bool) *ArrayLiteralExpressionTree {
 	this := &ArrayLiteralExpressionTree{}
 	this.self_ = this
 	this.init_ArrayLiteralExpressionTree(location, elements, hasTrailingComma)

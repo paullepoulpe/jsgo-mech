@@ -15,13 +15,13 @@ func (this *UnaryExpressionTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *UnaryExpressionTree) init_UnaryExpressionTree(location *SourceRange, operator *Token_parser, operand *ParseTree) {
+func (this *UnaryExpressionTree) init_UnaryExpressionTree(location SourceRange, operator *Token_parser, operand *ParseTree) {
 	this.ParseTree.init_ParseTree(ParseTreeType_UNARY_EXPRESSION, location)
 	this.operator = operator
 	this.operand = operand
 }
 
-func new_UnaryExpressionTree(location *SourceRange, operator *Token_parser, operand *ParseTree) *UnaryExpressionTree {
+func new_UnaryExpressionTree(location SourceRange, operator *Token_parser, operand *ParseTree) *UnaryExpressionTree {
 	this := &UnaryExpressionTree{}
 	this.self_ = this
 	this.init_UnaryExpressionTree(location, operator, operand)
