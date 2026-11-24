@@ -75,14 +75,14 @@ func (this *DepsGenerator) cleanUpDuplicatedFiles(depsFiles MapT[string, Depende
 
 func (this *DepsGenerator) removeMungedSymbols(depFiles MapT[string, DependencyInfo_], jsFiles MapT[string, DependencyInfo_]) *TMap[string, DependencyInfo_] {
 	var newJsFiles *TMap[string, DependencyInfo_] = newTMap_(tc_string, tc_DependencyInfo_)
-	var providesMap *TMap[string, DependencyInfo_] = newTMap_(tc_string, tc_DependencyInfo_)
+	var providesMap map[string]DependencyInfo_ = map[string]DependencyInfo_{}
 	this.addToProvideMap(depFiles.values_t(), providesMap, true)
 	this.addToProvideMap(jsFiles.values_t(), providesMap, false)
 	for dependencyInfo := range elemsT_(jsFiles.values_t()) {
 		var newRequires *TList[*DependencyInfo_Require] = newTList_(tc_p_DependencyInfo_Require)
 		for require := range elemsT_(dependencyInfo.getRequires()) {
 			if require.getType() == DependencyInfo_Require_Type_ES6_IMPORT {
-				var provider DependencyInfo_ = providesMap.Get(require.getSymbol())
+				var provider DependencyInfo_ = providesMap[require.getSymbol()]
 				if provider == nil {
 					this.reportMissingFile(dependencyInfo, require.getRawText())
 				} else {
@@ -111,13 +111,13 @@ func (this *DepsGenerator) removeMungedSymbols(depFiles MapT[string, DependencyI
 }
 
 func (this *DepsGenerator) validateDependencies(preparsedFileDependencies IterableT[DependencyInfo_], parsedFileDependencies IterableT[DependencyInfo_]) {
-	var providesMap *TMap[string, DependencyInfo_] = newTMap_(tc_string, tc_DependencyInfo_)
+	var providesMap map[string]DependencyInfo_ = map[string]DependencyInfo_{}
 	this.addToProvideMap(preparsedFileDependencies, providesMap, true)
 	this.addToProvideMap(parsedFileDependencies, providesMap, false)
 	for depInfo := range elemsT_(parsedFileDependencies) {
 		for require := range elemsT_(depInfo.getRequires()) {
 			var namespace string = require.getSymbol()
-			var provider DependencyInfo_ = providesMap.Get(namespace)
+			var provider DependencyInfo_ = providesMap[namespace]
 			if provider == nil {
 				this.reportUndefinedNamespace(namespace, depInfo)
 			} else if provider == depInfo {
@@ -168,21 +168,19 @@ func (this *DepsGenerator) reportNoDepsInDepsFile(filePath string) {
 	this.errorManager.report_2(CheckLevel_WARNING, JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_of[string](filePath), -1, -1, DepsGenerator_NO_DEPS_WARNING, []string{}))
 }
 
-func (this *DepsGenerator) addToProvideMap(depInfos IterableT[DependencyInfo_], providesMap *TMap[string, DependencyInfo_], isFromDepsFile bool) {
+func (this *DepsGenerator) addToProvideMap(depInfos IterableT[DependencyInfo_], providesMap map[string]DependencyInfo_, isFromDepsFile bool) {
 	for depInfo := range elemsT_(depInfos) {
-		var provides *TList[string] = tlistFrom_(tc_string, Collection(List_un_(depInfo.getProvides())))
+		var provides []string = sliceFrom_(tc_string, Collection(List_un_(depInfo.getProvides())))
 		if isFromDepsFile {
-			provides.add(this.loader.resolve(PathUtil_makeAbsolute_String_String(depInfo.getPathRelativeToClosureBase(), this.closurePathAbs)).toModuleName())
+			provides = append(provides, this.loader.resolve(PathUtil_makeAbsolute_String_String(depInfo.getPathRelativeToClosureBase(), this.closurePathAbs)).toModuleName())
 		} else {
 			if !depInfo.isEs6Module() {
-				provides.add(this.loader.resolve(depInfo.getName()).toModuleName())
+				provides = append(provides, this.loader.resolve(depInfo.getName()).toModuleName())
 			}
 		}
-		provides.add(depInfo.getPathRelativeToClosureBase())
-		it_3 := provides.each()
-		for it_3.next() {
-			var provide string = it_3.v
-			var prevValue DependencyInfo_ = providesMap.Put(provide, depInfo)
+		provides = append(provides, depInfo.getPathRelativeToClosureBase())
+		for _, provide := range provides {
+			var prevValue DependencyInfo_ = mapPut_(tc_DependencyInfo_, providesMap, provide, depInfo)
 			if prevValue != nil {
 				this.reportDuplicateProvide(provide, prevValue, depInfo)
 			}
@@ -318,15 +316,15 @@ func DepsGenerator_writeDepInfos(out *strBuilder_, depInfos CollectionT[Dependen
 	}
 }
 
-func DepsGenerator_createSourceFilesFromPaths(paths CollectionT[string]) *TList[*SourceFile_jscomp] {
-	var files *TList[*SourceFile_jscomp] = newTList_(tc_p_SourceFile_jscomp)
+func DepsGenerator_createSourceFilesFromPaths(paths CollectionT[string]) []*SourceFile_jscomp {
+	var files []*SourceFile_jscomp = []*SourceFile_jscomp{}
 	for path := range elemsT_(paths) {
-		files.add(SourceFile_jscomp_fromFile_String(path))
+		files = append(files, SourceFile_jscomp_fromFile_String(path))
 	}
 	return files
 }
 
-func DepsGenerator_createSourceFilesFromPathsStringVarargs(paths []string) *TList[*SourceFile_jscomp] {
+func DepsGenerator_createSourceFilesFromPathsStringVarargs(paths []string) []*SourceFile_jscomp {
 	return DepsGenerator_createSourceFilesFromPaths(collectionAs_(tc_string, Collection(Arrays_asList(arrmap_(paths, func(v_ string) any { return strobj_(v_) })))))
 }
 

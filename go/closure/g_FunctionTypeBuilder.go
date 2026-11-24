@@ -511,13 +511,13 @@ func (this *FunctionTypeBuilder) buildTemplateTypesFromJSDocInfo(info *JSDocInfo
 	if infoTypeKeys.IsEmpty() && infoTypeTransformations.IsEmpty() {
 		return tlistEmptyImm_(tc_p_TemplateType)
 	}
-	var unboundedTemplates *TList[*TemplateType] = newTList_(tc_p_TemplateType)
+	var unboundedTemplates *[]*TemplateType = &[]*TemplateType{}
 	it_1 := infoTypeKeys.each()
 	for it_1.next() {
 		var templateKey string = it_1.k
-		unboundedTemplates.add(this.typeRegistry.createTemplateType(templateKey))
+		*unboundedTemplates = append(*unboundedTemplates, this.typeRegistry.createTemplateType(templateKey))
 	}
-	this.templateScope = this.typeRegistry.createScopeWithTemplates(this.templateScope, unboundedTemplates.asIterable())
+	this.templateScope = this.typeRegistry.createScopeWithTemplates(this.templateScope, slicePtrViewT_(tc_p_TemplateType, unboundedTemplates))
 	var templates *ImmutableList_Builder[*TemplateType] = immutableListBuilder_(tc_p_TemplateType)
 	var templatesToBounds *TMap[*TemplateType, *JSType] = newTMap_(tch_p_TemplateType, tc_p_JSType)
 	it_3 := infoTypeKeys.eachEntry()

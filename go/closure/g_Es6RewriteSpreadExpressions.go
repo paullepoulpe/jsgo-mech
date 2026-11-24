@@ -63,11 +63,11 @@ func (this *Es6RewriteSpreadExpressions) visitArrayLitOrCallWithSpread(t *NodeTr
 	}
 }
 
-func (this *Es6RewriteSpreadExpressions) extractSpreadGroups(spreadParent Node) *TList[Node] {
+func (this *Es6RewriteSpreadExpressions) extractSpreadGroups(spreadParent Node) []Node {
 	if !((spreadParent.isCall() || spreadParent.isArrayLit()) || spreadParent.isNew()) {
 		panic(new_IllegalArgumentException_0())
 	}
-	var groups *TList[Node] = newTList_(tc_Node)
+	var groups []Node = []Node{}
 	var currGroup Node = 0
 	{
 		var currElement Node = spreadParent.removeFirstChild()
@@ -82,10 +82,10 @@ func (this *Es6RewriteSpreadExpressions) extractSpreadGroups(spreadParent Node) 
 					}
 				} else {
 					if currGroup != 0 {
-						groups.add(currGroup)
+						groups = append(groups, currGroup)
 						currGroup = 0
 					}
-					groups.add(this.astFactory_.createJscompArrayFromIterableCall(spreadExpression, this.namespace_))
+					groups = append(groups, this.astFactory_.createJscompArrayFromIterableCall(spreadExpression, this.namespace_))
 				}
 			} else {
 				if currGroup == 0 {
@@ -96,7 +96,7 @@ func (this *Es6RewriteSpreadExpressions) extractSpreadGroups(spreadParent Node) 
 		}
 	}
 	if currGroup != 0 {
-		groups.add(currGroup)
+		groups = append(groups, currGroup)
 	}
 	return groups
 }
@@ -105,19 +105,19 @@ func (this *Es6RewriteSpreadExpressions) visitArrayLitContainingSpread(spreadPar
 	if !spreadParent.isArrayLit() {
 		panic(new_IllegalArgumentException_0())
 	}
-	var groups *TList[Node] = this.extractSpreadGroups(spreadParent)
+	var groups []Node = this.extractSpreadGroups(spreadParent)
 	var baseArrayLit Node
-	if groups.get(0).isArrayLit() {
-		baseArrayLit = groups.removeAt(0)
+	if sliceAt_(groups, 0).isArrayLit() {
+		baseArrayLit = sliceRemoveAt_(&groups, 0)
 	} else {
 		baseArrayLit = this.astFactory_.createArraylit([]Node{})
 	}
 	var joinedGroups Node
-	if groups.isEmpty() {
+	if len(groups) == 0 {
 		joinedGroups = baseArrayLit
 	} else {
 		var concat Node = this.astFactory_.createGetProp(baseArrayLit, "concat", Es6RewriteSpreadExpressions_concatFnType)
-		joinedGroups = this.astFactory_.createCall(concat, AstFactory_type_Node(spreadParent), arrmap_(groups.asListT().toArray(arrmap_(make([]Node, 0), func(v_ Node) any { return v_.box_() })), func(v_ any) Node { return Node_of_(v_) }))
+		joinedGroups = this.astFactory_.createCall(concat, AstFactory_type_Node(spreadParent), arrmap_(sliceView_(tc_Node, groups).toArray(arrmap_(make([]Node, 0), func(v_ Node) any { return v_.box_() })), func(v_ any) Node { return Node_of_(v_) }))
 	}
 	joinedGroups.srcrefTreeIfMissing(spreadParent)
 	spreadParent.replaceWith(joinedGroups)
@@ -141,21 +141,21 @@ func (this *Es6RewriteSpreadExpressions) visitCallContainingSpread(t *NodeTraver
 	if spreadParent.hasOneChild() && this.isSpreadOfArguments(spreadParent.getOnlyChild()) {
 		joinedGroups = spreadParent.removeFirstChild().removeFirstChild()
 	} else {
-		var groups *TList[Node] = this.extractSpreadGroups(spreadParent)
-		if groups.isEmpty() {
+		var groups []Node = this.extractSpreadGroups(spreadParent)
+		if len(groups) == 0 {
 			panic(new_IllegalStateException_0())
 		}
-		if groups.size() == 1 {
-			joinedGroups = groups.removeAt(0)
+		if int32(len(groups)) == 1 {
+			joinedGroups = sliceRemoveAt_(&groups, 0)
 		} else {
 			var baseArrayLit Node = func() Node {
-				if groups.get(0).isArrayLit() {
-					return groups.removeAt(0)
+				if sliceAt_(groups, 0).isArrayLit() {
+					return sliceRemoveAt_(&groups, 0)
 				}
 				return this.astFactory_.createArraylit([]Node{})
 			}()
 			var concat Node = this.astFactory_.createGetProp(baseArrayLit, "concat", Es6RewriteSpreadExpressions_concatFnType)
-			joinedGroups = this.astFactory_.createCall(concat, Es6RewriteSpreadExpressions_arrayType, arrmap_(groups.asListT().toArray(arrmap_(make([]Node, 0), func(v_ Node) any { return v_.box_() })), func(v_ any) Node { return Node_of_(v_) }))
+			joinedGroups = this.astFactory_.createCall(concat, Es6RewriteSpreadExpressions_arrayType, arrmap_(sliceView_(tc_Node, groups).toArray(arrmap_(make([]Node, 0), func(v_ Node) any { return v_.box_() })), func(v_ any) Node { return Node_of_(v_) }))
 		}
 	}
 	var isFreeCall bool = spreadParent.getBooleanProp(Node_FREE_CALL)
@@ -192,19 +192,19 @@ func (this *Es6RewriteSpreadExpressions) visitNewWithSpread(spreadParent Node) {
 		panic(new_IllegalArgumentException_0())
 	}
 	var callee Node = spreadParent.removeFirstChild()
-	var groups *TList[Node] = this.extractSpreadGroups(spreadParent)
+	var groups []Node = this.extractSpreadGroups(spreadParent)
 	var baseArrayLit Node
-	if groups.get(0).isArrayLit() {
-		baseArrayLit = groups.removeAt(0)
+	if sliceAt_(groups, 0).isArrayLit() {
+		baseArrayLit = sliceRemoveAt_(&groups, 0)
 	} else {
 		baseArrayLit = this.astFactory_.createArraylit([]Node{})
 	}
 	baseArrayLit.addChildToFront(this.astFactory_.createNull())
 	var joinedGroups Node = func() Node {
-		if groups.isEmpty() {
+		if len(groups) == 0 {
 			return baseArrayLit
 		}
-		return this.astFactory_.createCall(this.astFactory_.createGetProp(baseArrayLit, "concat", Es6RewriteSpreadExpressions_concatFnType), Es6RewriteSpreadExpressions_arrayType, arrmap_(groups.asListT().toArray(arrmap_(make([]Node, 0), func(v_ Node) any { return v_.box_() })), func(v_ any) Node { return Node_of_(v_) }))
+		return this.astFactory_.createCall(this.astFactory_.createGetProp(baseArrayLit, "concat", Es6RewriteSpreadExpressions_concatFnType), Es6RewriteSpreadExpressions_arrayType, arrmap_(sliceView_(tc_Node, groups).toArray(arrmap_(make([]Node, 0), func(v_ Node) any { return v_.box_() })), func(v_ any) Node { return Node_of_(v_) }))
 	}()
 	if FeatureSet_ES3.containsFeatureSet(this.compiler_.getOptions().getOutputFeatureSet()) {
 		TranspilationUtil_cannotConvert(this.compiler_, spreadParent, "\"...\" passed to a constructor (consider using --language_out=ES5)")

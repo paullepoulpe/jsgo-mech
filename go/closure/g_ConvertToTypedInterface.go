@@ -411,16 +411,14 @@ func (this *ConvertToTypedInterface_SimplifyDeclarations) removeDuplicateDeclara
 
 func (this *ConvertToTypedInterface_SimplifyDeclarations) simplifyAll() {
 	this.removeDuplicateDeclarations()
-	var seenNames *TList[string] = tlistImm_(tc_string, ImmutableList_sortedCopyOf(func() Comparator[any] {
+	var seenNames []string = sliceImm_(tc_string, ImmutableList_sortedCopyOf(func() Comparator[any] {
 		f_ := ConvertToTypedInterface_SimplifyDeclarations_SHORT_TO_LONG
 		if f_ == nil {
 			return nil
 		}
 		return func(p0 any, p1 any) int32 { return f_(str_(p0), str_(p1)) }
 	}(), Iterable(Set_un_(this.currentFile.getDeclarations().keySet()))))
-	it_1 := seenNames.each()
-	for it_1.next() {
-		var name string = it_1.v
+	for _, name := range seenNames {
 		for decl := range elemsT_(this.currentFile.getDeclarations().get(name)) {
 			this.processDeclaration(name, decl)
 		}

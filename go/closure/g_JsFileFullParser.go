@@ -65,7 +65,7 @@ func JsFileFullParser_parse(code string, filename string, reporter func(bool, st
 }
 
 func JsFileFullParser_recordModuleMetadata(info *JsFileFullParser_FileInfo, module *ModuleMetadataMap_ModuleMetadata) {
-	info.importedModules.asSetT().addAll(Collection(Set_un_(module.es6ImportSpecifiers().elementSet())))
+	setAddAllFrom_(tc_string, info.importedModules, Collection(Set_un_(module.es6ImportSpecifiers().elementSet())))
 	if module.usesClosure() {
 		info.provides.addAll(func() IterableT[string] {
 			if v := module.googNamespaces(); v != nil {
@@ -85,8 +85,8 @@ func JsFileFullParser_recordModuleMetadata(info *JsFileFullParser_FileInfo, modu
 			}
 			return nil
 		}())
-		info.dynamicRequires.asSetT().addAll(Collection(Set_un_(module.dynamicallyRequiredGoogNamespaces().elementSet())))
-		info.readToggles_.asSetT().addAll(Collection(Set_un_(module.readToggles().elementSet())))
+		setAddAllFrom_(tc_string, info.dynamicRequires, Collection(Set_un_(module.dynamicallyRequiredGoogNamespaces().elementSet())))
+		setAddAllFrom_(tc_string, info.readToggles_, Collection(Set_un_(module.readToggles().elementSet())))
 		info.typeRequires.addAll(func() IterableT[string] {
 			if v := module.weaklyRequiredGoogNamespaces(); v != nil {
 				return v
@@ -104,9 +104,9 @@ func JsFileFullParser_recordModuleMetadata(info *JsFileFullParser_FileInfo, modu
 
 type JsFileFullParser_FileInfo struct {
 	moduleType_       JsFileFullParser_FileInfo_ModuleType
-	importedModules   *TSet[string]
-	dynamicRequires   *TSet[string]
-	readToggles_      *TSet[string]
+	importedModules   map[string]struct{}
+	dynamicRequires   map[string]struct{}
+	readToggles_      map[string]struct{}
 	provides          *SimpleMultiset[string]
 	requires          *SimpleMultiset[string]
 	typeRequires      *SimpleMultiset[string]
@@ -123,9 +123,9 @@ func (this *JsFileFullParser_FileInfo) finit_JsFileFullParser_FileInfo() {
 	this.testonly = false
 	this.moduleType_ = JsFileFullParser_FileInfo_ModuleType_UNKNOWN
 	this.isLegacyNamespace = false
-	this.importedModules = newTSet_(tc_string)
-	this.dynamicRequires = newTSet_(tc_string)
-	this.readToggles_ = newTSet_(tc_string)
+	this.importedModules = map[string]struct{}{}
+	this.dynamicRequires = map[string]struct{}{}
+	this.readToggles_ = map[string]struct{}{}
 	this.provides = SimpleMultiset_createSorted[string]()
 	this.requires = SimpleMultiset_createSorted[string]()
 	this.typeRequires = SimpleMultiset_createSorted[string]()

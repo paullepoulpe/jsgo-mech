@@ -8,7 +8,7 @@ type CreateSyntheticBlocks struct {
 	startMarkerName string
 	endMarkerName   string
 	markerStack     *TDeque[Node]
-	validMarkers    *TList[*CreateSyntheticBlocks_Marker]
+	validMarkers    *[]*CreateSyntheticBlocks_Marker
 }
 
 func (this *CreateSyntheticBlocks) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -25,7 +25,7 @@ func (this *CreateSyntheticBlocks) zero_CreateSyntheticBlocks() {
 
 func (this *CreateSyntheticBlocks) finit_CreateSyntheticBlocks() {
 	this.markerStack = newTDeque_(tc_Node)
-	this.validMarkers = newTList_(tc_p_CreateSyntheticBlocks_Marker)
+	this.validMarkers = &[]*CreateSyntheticBlocks_Marker{}
 }
 
 func (this *CreateSyntheticBlocks) init_CreateSyntheticBlocks(compiler *AbstractCompiler, startMarkerName string, endMarkerName string) {
@@ -51,9 +51,7 @@ func (this *CreateSyntheticBlocks) process_2(externs Node, root Node) {
 		var node Node = it_1.v
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(node, CreateSyntheticBlocks_UNMATCHED_START_MARKER, []string{this.startMarkerName}))
 	}
-	it_3 := this.validMarkers.each()
-	for it_3.next() {
-		var marker *CreateSyntheticBlocks_Marker = it_3.v
+	for marker := range sliceAll_(this.validMarkers) {
 		this.addBlocks(marker)
 	}
 }
@@ -151,7 +149,7 @@ func (this *CreateSyntheticBlocks) visit_impl(unused *NodeTraversal, n Node, par
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, CreateSyntheticBlocks_UNMATCHED_END_MARKER, []string{this.startMarkerName, this.endMarkerName}))
 		return
 	}
-	this.validMarkers.add(new_CreateSyntheticBlocks_Marker(startMarkerNode, endMarkerNode))
+	*this.validMarkers = append(*this.validMarkers, new_CreateSyntheticBlocks_Marker(startMarkerNode, endMarkerNode))
 }
 
 var CreateSyntheticBlocks_UNMATCHED_START_MARKER *DiagnosticType

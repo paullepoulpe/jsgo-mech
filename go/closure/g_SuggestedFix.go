@@ -40,8 +40,8 @@ func (this *SuggestedFix) getAlternatives() *TList[*SuggestedFix] {
 	return this.alternatives
 }
 
-func (this *SuggestedFix) getNonDefaultAlternatives() *TList[*SuggestedFix] {
-	return tlistImm_(tc_p_SuggestedFix, cast_[*ErasedImmutableList](this.alternatives.asImm().subList(1, this.alternatives.size())))
+func (this *SuggestedFix) getNonDefaultAlternatives() []*SuggestedFix {
+	return sliceImm_(tc_p_SuggestedFix, cast_[*ErasedImmutableList](this.alternatives.asImm().subList(1, this.alternatives.size())))
 }
 
 func (this *SuggestedFix) isNoOp() bool {
@@ -172,7 +172,7 @@ func (this *SuggestedFix_Builder) attachMatchedNodeInfo(node Node, compiler *Abs
 }
 
 func (this *SuggestedFix_Builder) addAlternative(alternative *SuggestedFix) *SuggestedFix_Builder {
-	if !alternative.getNonDefaultAlternatives().isEmpty() {
+	if len(alternative.getNonDefaultAlternatives()) != 0 {
 		panic(new_IllegalStateException_String(objstr_("Alternative SuggestedFix must have no alternatives of their own.")))
 	}
 	this.alternatives.add(alternative)

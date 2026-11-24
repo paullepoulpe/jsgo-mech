@@ -60,16 +60,16 @@ func ReportDecoder_parseMapping(mappingFileContent string) *Outcome_base[MapT[st
 	if typesAsStringList.isErr() {
 		return Outcome_base_err[MapT[string, *InstrumentationPoint]](typesAsStringList.error())
 	}
-	var types *TList[InstrumentationPoint_Type] = newTList_(tc_p_InstrumentationPoint_Type)
+	var types []InstrumentationPoint_Type = []InstrumentationPoint_Type{}
 	for typeAsString := range elemsT_(typesAsStringList.get()) {
-		types.add(InstrumentationPoint_Type_valueOf(typeAsString))
+		types = append(types, InstrumentationPoint_Type_valueOf(typeAsString))
 	}
 	for i := int32(3); i < linesOfFile.size(); i++ {
 		var lineItem string = linesOfFile.get(i)
 		var id string = cutBytes_(lineItem, 0, int32(strings.IndexByte(lineItem, ':')))
 		var encodedDetails string = lineItem[strings.IndexByte(lineItem, ':')+1:]
 		var encodedDetailsAsCharIt *ReportDecoder_StringCharIterator = new_ReportDecoder_StringCharIterator(encodedDetails)
-		var temp *InstrumentationPoint = cast_[*InstrumentationPoint](InstrumentationPoint_newBuilder().setFileName(localFileNames.get_t(Base64VLQ_decode(ReportDecoder_StringCharIterator_as_Base64VLQ_CharIterator(encodedDetailsAsCharIt)))).setFunctionName(functionNames.get_t(Base64VLQ_decode(ReportDecoder_StringCharIterator_as_Base64VLQ_CharIterator(encodedDetailsAsCharIt)))).setType(types.get(Base64VLQ_decode(ReportDecoder_StringCharIterator_as_Base64VLQ_CharIterator(encodedDetailsAsCharIt)))).setLineNumber(Base64VLQ_decode(ReportDecoder_StringCharIterator_as_Base64VLQ_CharIterator(encodedDetailsAsCharIt))).setColumnNumber(Base64VLQ_decode(ReportDecoder_StringCharIterator_as_Base64VLQ_CharIterator(encodedDetailsAsCharIt))).build())
+		var temp *InstrumentationPoint = cast_[*InstrumentationPoint](InstrumentationPoint_newBuilder().setFileName(localFileNames.get_t(Base64VLQ_decode(ReportDecoder_StringCharIterator_as_Base64VLQ_CharIterator(encodedDetailsAsCharIt)))).setFunctionName(functionNames.get_t(Base64VLQ_decode(ReportDecoder_StringCharIterator_as_Base64VLQ_CharIterator(encodedDetailsAsCharIt)))).setType(sliceAt_(types, Base64VLQ_decode(ReportDecoder_StringCharIterator_as_Base64VLQ_CharIterator(encodedDetailsAsCharIt)))).setLineNumber(Base64VLQ_decode(ReportDecoder_StringCharIterator_as_Base64VLQ_CharIterator(encodedDetailsAsCharIt))).setColumnNumber(Base64VLQ_decode(ReportDecoder_StringCharIterator_as_Base64VLQ_CharIterator(encodedDetailsAsCharIt))).build())
 		mapping.PutIfAbsent(id, temp)
 	}
 	return Outcome_base_ok_Object[MapT[string, *InstrumentationPoint]](mapping.asMapT())
@@ -110,16 +110,16 @@ func ReportDecoder_decodeReport(mapping MapT[string, *InstrumentationPoint], fre
 
 func ReportDecoder_createProfileOfStaticallyUsedCode(mapping *TMap[string, *InstrumentationPoint], fileContent string, instrumentationArrayName string) *ReportProfile {
 	var matcher *Matcher_re2j = Pattern_compile((sstr_(instrumentationArrayName) + "\\.push\\(['\"](" + sstr_(JavaRegex_DOT) + "*?)['\"]\\)")).matcher_s(fileContent)
-	var encodedPoints *TSet[string] = newTSet_(tc_string)
+	var encodedPoints map[string]struct{} = map[string]struct{}{}
 	for matcher.find() {
-		encodedPoints.Add(matcher.group(1))
+		encodedPoints[matcher.group(1)] = struct{}{}
 	}
 	var instrumentationPoints *TList[*InstrumentationPointStats] = newTList_(tc_p_InstrumentationPointStats)
 	it_2 := mapping.eachEntry()
 	for it_2.next() {
 		var entry *TEntry[string, *InstrumentationPoint] = it_2.entry()
 		instrumentationPoints.add(cast_[*InstrumentationPointStats](InstrumentationPointStats_newBuilder().setPoint(entry.getValue()).setTimesExecuted(0).setPointPresence(func() InstrumentationPointStats_Presence {
-			if encodedPoints.Has(entry.getKey()) {
+			if has_(encodedPoints, entry.getKey()) {
 				return InstrumentationPointStats_Presence_PRESENT
 			}
 			return InstrumentationPointStats_Presence_STATICALLY_REMOVED
@@ -128,12 +128,10 @@ func ReportDecoder_createProfileOfStaticallyUsedCode(mapping *TMap[string, *Inst
 	return ReportDecoder_createReportProfile(instrumentationPoints)
 }
 
-func ReportDecoder_mergeProfiles(profiles *TList[*ReportProfile]) *ReportProfile {
+func ReportDecoder_mergeProfiles(profiles []*ReportProfile) *ReportProfile {
 	var frequencies *TMap[*InstrumentationPoint, any] = newTMap_(tch_p_InstrumentationPoint, tc_Long)
 	var presences *TMap[*InstrumentationPoint, InstrumentationPointStats_Presence] = newTMap_(tch_p_InstrumentationPoint, tc_p_InstrumentationPointStats_Presence)
-	it_1 := profiles.each()
-	for it_1.next() {
-		var profile *ReportProfile = it_1.v
+	for _, profile := range profiles {
 		for fileProfile := range elemsAs_[*FileProfile](profile.getFileProfileList()) {
 			for pointStats := range elemsAs_[*InstrumentationPointStats](fileProfile.getInstrumentationPointsStatsList()) {
 				Map_compute(Map_un_(frequencies.asMapT()), obj_(pointStats.getPoint()), BiFunction[any, any, any](func(p_ any, existing any) any {

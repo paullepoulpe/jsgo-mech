@@ -5,7 +5,7 @@ package closure
 type BranchCoverageInstrumentationCallback struct {
 	NodeTraversal_AbstractCfgCallback
 	compiler_           *AbstractCompiler
-	instrumentationData *TMap[string, *FileInstrumentationData]
+	instrumentationData map[string]*FileInstrumentationData
 }
 
 func (this *BranchCoverageInstrumentationCallback) up_NodeTraversal_AbstractCfgCallback() *NodeTraversal_AbstractCfgCallback {
@@ -15,13 +15,13 @@ func (this *BranchCoverageInstrumentationCallback) up_NodeTraversal_AbstractCfgC
 	return &this.NodeTraversal_AbstractCfgCallback
 }
 
-func (this *BranchCoverageInstrumentationCallback) init_BranchCoverageInstrumentationCallback(compiler *AbstractCompiler, instrumentationData *TMap[string, *FileInstrumentationData]) {
+func (this *BranchCoverageInstrumentationCallback) init_BranchCoverageInstrumentationCallback(compiler *AbstractCompiler, instrumentationData map[string]*FileInstrumentationData) {
 	this.NodeTraversal_AbstractCfgCallback.init_NodeTraversal_AbstractCfgCallback()
 	this.compiler_ = compiler
 	this.instrumentationData = instrumentationData
 }
 
-func new_BranchCoverageInstrumentationCallback(compiler *AbstractCompiler, instrumentationData *TMap[string, *FileInstrumentationData]) *BranchCoverageInstrumentationCallback {
+func new_BranchCoverageInstrumentationCallback(compiler *AbstractCompiler, instrumentationData map[string]*FileInstrumentationData) *BranchCoverageInstrumentationCallback {
 	this := &BranchCoverageInstrumentationCallback{}
 	this.self_ = this
 	this.init_BranchCoverageInstrumentationCallback(compiler, instrumentationData)
@@ -40,7 +40,7 @@ func (this *BranchCoverageInstrumentationCallback) visit_impl(traversal *NodeTra
 	if node.isScript() {
 		if func() *FileInstrumentationData {
 			if fileName.isPresent() {
-				return this.instrumentationData.Get(fileName.get())
+				return this.instrumentationData[fileName.get()]
 			}
 			return nil
 		}() != nil {
@@ -54,7 +54,7 @@ func (this *BranchCoverageInstrumentationCallback) visit_impl(traversal *NodeTra
 			this.compiler_.reportChangeToEnclosingScope(node)
 			this.instrumentBranchCoverage(traversal, func() *FileInstrumentationData {
 				if fileName.isPresent() {
-					return this.instrumentationData.Get(fileName.get())
+					return this.instrumentationData[fileName.get()]
 				}
 				return nil
 			}())
@@ -76,24 +76,24 @@ func (this *BranchCoverageInstrumentationCallback) visit_impl(traversal *NodeTra
 		if !hasDefaultBlock {
 			this.addDefaultBlock(node)
 		}
-		this.instrumentationData.ComputeIfAbsent(fileName.orElse(nullstr_), Function[string, *FileInstrumentationData](func(k string) *FileInstrumentationData {
+		mapComputeIfAbsentT_(tc_p_FileInstrumentationData, this.instrumentationData, fileName.orElse(nullstr_), func(k string) *FileInstrumentationData {
 			return new_FileInstrumentationData(k, BranchCoverageInstrumentationCallback_createArrayName(traversal))
-		}))
+		})
 		this.processBranchInfo(node, func() *FileInstrumentationData {
 			if fileName.isPresent() {
-				return this.instrumentationData.Get(fileName.get())
+				return this.instrumentationData[fileName.get()]
 			}
 			return nil
 		}(), this.getChildrenBlocks(node))
 	} else if NodeUtil_isLoopStructure(node) {
-		var blocks *TList[Node] = this.getChildrenBlocks(node)
+		var blocks []Node = this.getChildrenBlocks(node)
 		var cfg *ControlFlowGraph[Node] = this.getControlFlowGraph(this.compiler_)
 		for el_3 := range elemsT_(cfg.getOutEdges_Object_rListOf_LinkedDiGraphEdge(node)) {
 			var outEdge DiGraph_DiGraphEdge[Node, ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphEdge[Node, ControlFlowGraph_Branch]](el_3.self())
 			if outEdge.getValue() == ControlFlowGraph_Branch_ON_FALSE {
 				var destination Node = outEdge.getDestination().getValue()
 				if (destination != 0) && destination.isBlock() {
-					blocks.add(destination)
+					blocks = append(blocks, destination)
 				} else {
 					var exitBlock Node = IR_block_0()
 					if (destination != 0) && destination.getParent().isBlock() {
@@ -101,29 +101,29 @@ func (this *BranchCoverageInstrumentationCallback) visit_impl(traversal *NodeTra
 					} else {
 						exitBlock.insertAfter(outEdge.getSource().getValue())
 					}
-					blocks.add(exitBlock)
+					blocks = append(blocks, exitBlock)
 				}
 			}
 		}
-		this.instrumentationData.ComputeIfAbsent(fileName.orElse(nullstr_), Function[string, *FileInstrumentationData](func(k string) *FileInstrumentationData {
+		mapComputeIfAbsentT_(tc_p_FileInstrumentationData, this.instrumentationData, fileName.orElse(nullstr_), func(k string) *FileInstrumentationData {
 			return new_FileInstrumentationData(k, BranchCoverageInstrumentationCallback_createArrayName(traversal))
-		}))
+		})
 		this.processBranchInfo(node, func() *FileInstrumentationData {
 			if fileName.isPresent() {
-				return this.instrumentationData.Get(fileName.get())
+				return this.instrumentationData[fileName.get()]
 			}
 			return nil
 		}(), blocks)
 	}
 }
 
-func (this *BranchCoverageInstrumentationCallback) getChildrenBlocks(node Node) *TList[Node] {
-	var blocks *TList[Node] = newTList_(tc_Node)
+func (this *BranchCoverageInstrumentationCallback) getChildrenBlocks(node Node) []Node {
+	var blocks []Node = []Node{}
 	{
 		var child Node = node.getFirstChild()
 		for ; child != 0; child = child.getNext() {
 			if child.isBlock() {
-				blocks.add(child)
+				blocks = append(blocks, child)
 			}
 		}
 	}
@@ -151,19 +151,17 @@ func (this *BranchCoverageInstrumentationCallback) newBranchInstrumentationNode(
 	var getElemNode Node = IR_getelem(IR_name(arrayName), IR_number(float64(idx)))
 	var exprNode Node = IR_exprResult(IR_assign(getElemNode, IR_trueNode()))
 	var fileName Optional[string] = traversal.getSourceName()
-	this.instrumentationData.ComputeIfAbsent(fileName.orElse(nullstr_), Function[string, *FileInstrumentationData](func(k string) *FileInstrumentationData {
+	mapComputeIfAbsentT_(tc_p_FileInstrumentationData, this.instrumentationData, fileName.orElse(nullstr_), func(k string) *FileInstrumentationData {
 		return new_FileInstrumentationData(k, arrayName)
-	}))
+	})
 	return exprNode.srcrefTreeIfMissing(node)
 }
 
-func (this *BranchCoverageInstrumentationCallback) processBranchInfo(branchNode Node, data *FileInstrumentationData, blocks *TList[Node]) {
+func (this *BranchCoverageInstrumentationCallback) processBranchInfo(branchNode Node, data *FileInstrumentationData, blocks []Node) {
 	var lineNumber int32 = branchNode.getLineno()
 	data.setBranchPresent(lineNumber)
 	var numBranches int32 = 0
-	it_1 := blocks.each()
-	for it_1.next() {
-		var child Node = it_1.v
+	for _, child := range blocks {
 		data.putBranchNode(lineNumber, (numBranches + 1), child)
 		numBranches++
 	}
@@ -180,7 +178,7 @@ func (this *BranchCoverageInstrumentationCallback) newHeaderNode(traversal *Node
 	var fileName Optional[string] = traversal.getSourceName()
 	var data *FileInstrumentationData = func() *FileInstrumentationData {
 		if fileName.isPresent() {
-			return this.instrumentationData.Get(fileName.get())
+			return this.instrumentationData[fileName.get()]
 		}
 		return nil
 	}()
@@ -188,13 +186,13 @@ func (this *BranchCoverageInstrumentationCallback) newHeaderNode(traversal *Node
 		panic(new_NullPointerException_0())
 	}
 	var objName string = CoverageInstrumentationPass_JS_INSTRUMENTATION_OBJECT_NAME
-	var nodes *TList[Node] = newTList_(tc_Node)
-	nodes.add(this.newArrayDeclarationNode(traversal))
-	nodes.add(IR_exprResult(IR_call(IR_getprop_Node_String(IR_getelem(IR_name(objName), IR_string("branchesTaken")), "push"), []Node{IR_name(BranchCoverageInstrumentationCallback_createArrayName(traversal))})))
-	nodes.add(IR_exprResult(IR_call(IR_getprop_Node_String(IR_getelem(IR_name(objName), IR_string("branchPresent")), "push"), []Node{IR_string(data.getBranchPresentAsHexString())})))
-	nodes.add(this.newBranchesInLineNode("JSCompiler_lcov_branchesInLine", data))
-	nodes.add(IR_exprResult(IR_call(IR_getprop_Node_String(IR_getelem(IR_name(objName), IR_string("branchesInLine")), "push"), []Node{IR_name("JSCompiler_lcov_branchesInLine")})))
-	nodes.add(IR_exprResult(IR_call(IR_getprop_Node_String(IR_getelem(IR_name(objName), IR_string("fileNames")), "push"), []Node{IR_string(fileName.get())})))
+	var nodes []Node = []Node{}
+	nodes = append(nodes, this.newArrayDeclarationNode(traversal))
+	nodes = append(nodes, IR_exprResult(IR_call(IR_getprop_Node_String(IR_getelem(IR_name(objName), IR_string("branchesTaken")), "push"), []Node{IR_name(BranchCoverageInstrumentationCallback_createArrayName(traversal))})))
+	nodes = append(nodes, IR_exprResult(IR_call(IR_getprop_Node_String(IR_getelem(IR_name(objName), IR_string("branchPresent")), "push"), []Node{IR_string(data.getBranchPresentAsHexString())})))
+	nodes = append(nodes, this.newBranchesInLineNode("JSCompiler_lcov_branchesInLine", data))
+	nodes = append(nodes, IR_exprResult(IR_call(IR_getprop_Node_String(IR_getelem(IR_name(objName), IR_string("branchesInLine")), "push"), []Node{IR_name("JSCompiler_lcov_branchesInLine")})))
+	nodes = append(nodes, IR_exprResult(IR_call(IR_getprop_Node_String(IR_getelem(IR_name(objName), IR_string("fileNames")), "push"), []Node{IR_string(fileName.get())})))
 	return IR_blockList(nodes).srcrefTreeIfMissing(srcref)
 }
 
@@ -203,15 +201,15 @@ func (this *BranchCoverageInstrumentationCallback) newArrayDeclarationNode(trave
 }
 
 func (this *BranchCoverageInstrumentationCallback) newBranchesInLineNode(name string, data *FileInstrumentationData) Node {
-	var assignments *TList[Node] = newTList_(tc_Node)
-	assignments.add(IR_var_Node_Node(IR_name(name), IR_arraylit([]Node{})))
+	var assignments []Node = []Node{}
+	assignments = append(assignments, IR_var_Node_Node(IR_name(name), IR_arraylit([]Node{})))
 	var lineWithBranch int32 = 0
 	for lineIdx := int32(1); lineIdx <= data.maxBranchPresentLine(); lineIdx++ {
 		var numBranches any = any(int32(data.getNumBranches(lineIdx)))
 		if (numBranches != nil) && (unbox_[int32](numBranches) > 0) {
 			var assignment Node = IR_exprResult(IR_assign(IR_getelem(IR_name(name), IR_number(float64(lineWithBranch))), IR_number(unbox_[float64](numBranches))))
 			lineWithBranch++
-			assignments.add(assignment.srcrefTreeIfMissing(assignment))
+			assignments = append(assignments, assignment.srcrefTreeIfMissing(assignment))
 		}
 	}
 	return IR_blockList(assignments)

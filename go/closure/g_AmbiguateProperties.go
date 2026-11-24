@@ -4,19 +4,19 @@ package closure
 
 type AmbiguateProperties struct {
 	compiler_                  *AbstractCompiler
-	stringNodesToRename        *TList[Node]
+	stringNodesToRename        *[]Node
 	reservedFirstCharacters    *TSet[any]
 	reservedNonFirstCharacters *TSet[any]
 	propertyMap                *TMap[string, *AmbiguateProperties_Property]
 	externedNames              *TSet[string]
 	quotedNames                *TSet[string]
 	colorRegistry              *ColorRegistry
-	renamingMap                *TMap[string, string]
+	renamingMap                map[string]string
 	graphNodeFactory           *ColorGraphNodeFactory
 }
 
 func (this *AmbiguateProperties) finit_AmbiguateProperties() {
-	this.stringNodesToRename = newTList_(tc_Node)
+	this.stringNodesToRename = &[]Node{}
 	this.propertyMap = newTMap_(tc_string, tc_p_AmbiguateProperties_Property)
 	this.quotedNames = newTSet_(tc_string)
 	this.renamingMap = nil
@@ -43,11 +43,11 @@ func new_AmbiguateProperties(compiler *AbstractCompiler, reservedFirstCharacters
 
 func AmbiguateProperties_makePassForTesting(compiler *AbstractCompiler, reservedFirstCharacters *TSet[any], reservedNonFirstCharacters *TSet[any], externProperties *TSet[string]) *AmbiguateProperties {
 	var ap *AmbiguateProperties = new_AmbiguateProperties(compiler, reservedFirstCharacters, reservedNonFirstCharacters, externProperties)
-	ap.renamingMap = newTMap_(tc_string, tc_string)
+	ap.renamingMap = map[string]string{}
 	return ap
 }
 
-func (this *AmbiguateProperties) getRenamingMap() *TMap[string, string] {
+func (this *AmbiguateProperties) getRenamingMap() map[string]string {
 	if this.renamingMap == nil {
 		panic(new_NullPointerException_0())
 	}
@@ -129,12 +129,10 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 		var node *AmbiguateProperties_PropertyGraphNode = it_11.v
 		node.getValue().newName = Optional_of[string](colorMap[hashR_(Annotatable_getAnnotation(AmbiguateProperties_PropertyGraphNode_as_Annotatable(node)))])
 		if this.renamingMap != nil {
-			this.renamingMap.Put(node.getValue().oldName, node.getValue().newName.orElse(nullstr_))
+			this.renamingMap[node.getValue().oldName] = node.getValue().newName.orElse(nullstr_)
 		}
 	}
-	it_13 := this.stringNodesToRename.each()
-	for it_13.next() {
-		var n Node = it_13.v
+	for n := range sliceAll_(this.stringNodesToRename) {
 		var oldName string = n.getString()
 		var p *AmbiguateProperties_Property = this.propertyMap.Get(oldName)
 		if (p != nil) && p.newName.isPresent() {
@@ -472,7 +470,7 @@ func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) processClass(c
 func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) maybeMarkCandidate(n Node, type_ *Color) {
 	var name string = n.getString()
 	if !this.outer_.externedNames.Has(name) {
-		this.outer_.stringNodesToRename.add(n)
+		*this.outer_.stringNodesToRename = append(*this.outer_.stringNodesToRename, n)
 		this.recordProperty(name, type_)
 	}
 }

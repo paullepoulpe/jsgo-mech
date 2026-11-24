@@ -413,8 +413,8 @@ func (this *ScriptNodeDeserializer_Runner) run() (ret_1 Node) {
 	}()
 	var astStream *CodedInputStream = this.owner().scriptBytes.newCodedInput()
 	astStream.setRecursionLimit(int32(2147483647))
-	var contextStack *TList[FeatureCollector_FeatureContext] = newTList_(tc_p_FeatureCollector_FeatureContext)
-	SequencedCollection_addLastT_[FeatureCollector_FeatureContext](contextStack.asCollT(), FeatureCollector_FeatureContext_NONE)
+	var contextStack *[]FeatureCollector_FeatureContext = &[]FeatureCollector_FeatureContext{}
+	*contextStack = append(*contextStack, FeatureCollector_FeatureContext_NONE)
 	var scriptNode Node = this.visit(AstNode_parseFrom(astStream, ExtensionRegistry_getEmptyRegistry().up_ExtensionRegistryLite()), contextStack, this.owner().createSourceInfoTemplate(this.owner().sourceFile))
 	scriptNode.setFeatureSet(this.featureCollector.allFeatures())
 	return scriptNode
@@ -424,7 +424,7 @@ func (this *ScriptNodeDeserializer_Runner) owner() *ScriptNodeDeserializer {
 	return this.outer_
 }
 
-func (this *ScriptNodeDeserializer_Runner) visit(astNode *AstNode, contextStack *TList[FeatureCollector_FeatureContext], sourceFileTemplate Node) Node {
+func (this *ScriptNodeDeserializer_Runner) visit(astNode *AstNode, contextStack *[]FeatureCollector_FeatureContext, sourceFileTemplate Node) Node {
 	if (sourceFileTemplate == 0) || (astNode.getSourceFile() != 0) {
 		sourceFileTemplate = this.owner().createSourceInfoTemplate(this.owner().filePool.get((astNode.getSourceFile() - 1)))
 	}
@@ -443,7 +443,7 @@ func (this *ScriptNodeDeserializer_Runner) visit(astNode *AstNode, contextStack 
 	this.previousLine = currentLine
 	this.previousColumn = currentColumn
 	if contextStack != nil {
-		SequencedCollection_addLastT_[FeatureCollector_FeatureContext](contextStack.asCollT(), this.featureCollector.visitSingleNode(contextStack, n))
+		*contextStack = append(*contextStack, this.featureCollector.visitSingleNode(contextStack, n))
 	}
 	if Node_hasBitSet(properties, NodeProperty_CLOSURE_UNAWARE_SHADOW.getNumber()) {
 		var serializedShadowChild *AstNode = astNode.getChild(0)
@@ -465,6 +465,6 @@ func (this *ScriptNodeDeserializer_Runner) visit(astNode *AstNode, contextStack 
 		n.addChildToBack(deserializedChild)
 		this.owner().setOriginalNameIfPresent(child, deserializedChild)
 	}
-	SequencedCollection_removeLastT_[FeatureCollector_FeatureContext](contextStack.asCollT())
+	SequencedCollection_removeLastT_[FeatureCollector_FeatureContext](slicePtrViewT_(tc_p_FeatureCollector_FeatureContext, contextStack))
 	return n
 }

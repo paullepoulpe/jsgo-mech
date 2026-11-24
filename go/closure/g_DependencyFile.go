@@ -3,12 +3,12 @@
 package closure
 
 type DependencyFile struct {
-	dependencies *TMap[string, DependencyInfo_]
+	dependencies map[string]DependencyInfo_
 	delegate     SourceFile_deps
 }
 
 func (this *DependencyFile) finit_DependencyFile() {
-	this.dependencies = newTMap_(tc_string, tc_DependencyInfo_)
+	this.dependencies = map[string]DependencyInfo_{}
 }
 
 func (this *DependencyFile) init_DependencyFile(delegate SourceFile_deps) {
@@ -35,17 +35,17 @@ func (this *DependencyFile) wasModified() bool {
 }
 
 func (this *DependencyFile) ensureUpToDate() {
-	if this.dependencies.IsEmpty() || this.wasModified() {
+	if len(this.dependencies) == 0 || this.wasModified() {
 		this.loadGraph()
 	}
 }
 
 func (this *DependencyFile) getDependencyInfo(symbol string) DependencyInfo_ {
-	return this.dependencies.Get(symbol)
+	return this.dependencies[symbol]
 }
 
 func (this *DependencyFile) loadGraph() {
-	this.dependencies.Clear()
+	clear(this.dependencies)
 	DependencyFile_logger.info("Loading dependency graph")
 	var errorManager ErrorManager = ErrorManager(new_LoggerErrorManager_Logger(DependencyFile_logger))
 	var parser *DepsFileRegexParser = new_DepsFileRegexParser_ErrorManager(errorManager)
@@ -57,16 +57,16 @@ func (this *DependencyFile) loadGraph() {
 	for it_1.next() {
 		var depInfo DependencyInfo_ = it_1.v
 		for provide := range elemsT_(depInfo.getProvides()) {
-			var existing DependencyInfo_ = this.dependencies.Get(provide)
+			var existing DependencyInfo_ = this.dependencies[provide]
 			if (existing != nil) && !equalsDyn_(existing, depInfo) {
 				panic(new_ServiceException(("Duplicate provide of " + sstr_(provide) + ". Was provided by " + sstr_(existing.getPathRelativeToClosureBase()) + " and " + sstr_(depInfo.getPathRelativeToClosureBase()))))
 			}
-			this.dependencies.Put(provide, depInfo)
+			this.dependencies[provide] = depInfo
 		}
 	}
 	var provides *TList[string] = newTList_(tc_string)
 	provides.add(DefaultDependencyResolver_CLOSURE_BASE_PROVIDE)
-	this.dependencies.Put(DefaultDependencyResolver_CLOSURE_BASE_PROVIDE, SimpleDependencyInfo_as_DependencyInfo_(SimpleDependencyInfo_builder(DefaultDependencyResolver_CLOSURE_BASE, Optional_of[string](DefaultDependencyResolver_CLOSURE_BASE)).setProvides(provides.asCollT()).build()))
+	this.dependencies[DefaultDependencyResolver_CLOSURE_BASE_PROVIDE] = SimpleDependencyInfo_as_DependencyInfo_(SimpleDependencyInfo_builder(DefaultDependencyResolver_CLOSURE_BASE, Optional_of[string](DefaultDependencyResolver_CLOSURE_BASE)).setProvides(provides.asCollT()).build())
 	errorManager.generateReport()
 	DependencyFile_logger.info("Dependencies loaded")
 }
