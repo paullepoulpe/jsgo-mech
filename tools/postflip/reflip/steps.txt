@@ -354,6 +354,7 @@ f3d7a555 run t arraycopy && f
 #= 16e33273 dropped: manual patch no longer applies (1 files; conflicts in g_ControlFlowAnalysis.go)
 #- 16e33273 patch 152-16e33273-manual.patch
 # 153. postflip (runtime): a typed map's iteration starts at its first live entry
+#=8 d8f40a65 regenerated (eighth flip): the test's getFirst of the set's erased view casts with a type assertion, any(s.asSet()).(SequencedCollection), where it called icast_SequencedCollection: piece seqcoll leaves no erased SequencedCollection cast in the program, so the translator no longer emits icast_SequencedCollection (g_0casts.go) and the tests did not build (tnames -undo at 2c5fe6be stopped). s.asSet() of the live set is non-nil there, where icast_ is the same assertion. 1 line
 d8f40a65 patch 153-d8f40a65-rt.patch
 # 154. postflip (manual): a node's property list head is a column of its own
 #= 4e065c50 dropped: manual patch no longer applies (1 files; conflicts in g_Node.go)
