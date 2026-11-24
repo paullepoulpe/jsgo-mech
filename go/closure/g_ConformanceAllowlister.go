@@ -40,14 +40,13 @@ func ConformanceAllowlister_getConformanceErrors(compiler *Compiler, externs Nod
 	var cleanedConfig *ConformanceConfig = cast_[*ConformanceConfig](ConformanceConfig_newBuilder().addRequirement(cleanedRequirement).build())
 	var oldErrorManager ErrorManager = compiler.getErrorManager()
 	var errors *TListBuilder[*JSError] = newTListBuilder_(jtc_p_JSError)
-	_ = func() (code_ int) {
+	func() {
 		defer func() {
 			compiler.setErrorManager(oldErrorManager)
 		}()
 		compiler.setErrorManager(ErrorManager(new_ConformanceAllowlister_1(errors, oldErrorManager)))
 		var check *CheckConformance = new_CheckConformance_AbstractCompiler_ImmutableList_ConformanceReportingMode(compiler.up_AbstractCompiler(), jimmutableListOf_[*ConformanceConfig](jtc_p_ConformanceConfig, cleanedConfig), 0)
 		check.process_2(externs, ast)
-		return 0
 	}()
 	return errors.build()
 }

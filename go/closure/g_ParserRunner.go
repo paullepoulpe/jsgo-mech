@@ -55,53 +55,45 @@ func ParserRunner_extractList(configProp string) *JTSet[string] {
 	return jimmutableSetCopyOf_(jtc_string, Splitter_on(',').trimResults().split_s(configProp))
 }
 
-func ParserRunner_parse(sourceFile StaticSourceFile, sourceString string, config *Config, errorReporter ErrorReporter_rhino) *ParserRunner_ParseResult {
+func ParserRunner_parse(sourceFile StaticSourceFile, sourceString string, config *Config, errorReporter ErrorReporter_rhino) (ret_1 *ParserRunner_ParseResult) {
 	var sourceName string = sourceFile.getName()
-	var ret_1 *ParserRunner_ParseResult
-	code_1 := func() (code_ int) {
-		defer func() {
-			if r_ := recover(); r_ != nil {
-				ex_ := catch_(r_)
-				if p2, ok := ex_.(Throwable_as); ok {
-					var t *Throwable = p2.as_Throwable()
-					panic(new_RuntimeException_String_Throwable(("Exception parsing \"" + sstr_(sourceName) + "\""), t))
-				}
-				panic(r_)
+	defer func() {
+		if r_ := recover(); r_ != nil {
+			ex_ := catch_(r_)
+			if p2, ok := ex_.(Throwable_as); ok {
+				var t *Throwable = p2.as_Throwable()
+				panic(new_RuntimeException_String_Throwable(("Exception parsing \"" + sstr_(sourceName) + "\""), t))
 			}
-		}()
-		var file *SourceFile_parser = new_SourceFile_parser(sourceName, sourceString)
-		var keepGoing bool = (config.runMode() == Config_RunMode_KEEP_GOING)
-		var es6ErrorReporter *ParserRunner_Es6ErrorReporter = new_ParserRunner_Es6ErrorReporter(errorReporter, keepGoing)
-		var es6config *Parser_Config = ParserRunner_newParserConfig(config)
-		var p *Parser = new_Parser(es6config, es6ErrorReporter.up_ErrorReporter_util(), file)
-		var tree *ProgramTree = p.parseProgram()
-		var root Node = 0
-		var comments *JTList[*Comment] = jtlistEmptyImm_(jtc_p_Comment)
-		var topLevelStatementRanges *JTList[*SourceRange] = jtlistEmptyImm_(jtc_p_SourceRange)
-		var features *FeatureSet = p.getFeatures()
-		if (tree != nil) && (!es6ErrorReporter.hadError() || keepGoing) {
-			var factory *IRFactory = IRFactory_transformTree(tree, sourceFile, config, errorReporter, file)
-			root = factory.getResultNode()
-			features = features.union(factory.getFeatures())
-			root.setFeatureSet(features)
-			if config.jsDocParsingMode().shouldParseDescriptions() {
-				comments = p.getComments()
-				var builder *TListBuilder[*SourceRange] = newTListBuilderN_(jtc_p_SourceRange, tree.sourceElements.size())
-				it_2 := tree.sourceElements.each()
-				for it_2.next() {
-					var element *ParseTree = it_2.v
-					builder.add(element.location_)
-				}
-				topLevelStatementRanges = builder.build()
-			}
+			panic(r_)
 		}
-		ret_1 = new_ParserRunner_ParseResult_Node_List_ImmutableList_FeatureSet_Optional(root, comments, topLevelStatementRanges, features, p.getSourceMapURL())
-		return 1
 	}()
-	if code_1 == 1 {
-		return ret_1
+	var file *SourceFile_parser = new_SourceFile_parser(sourceName, sourceString)
+	var keepGoing bool = (config.runMode() == Config_RunMode_KEEP_GOING)
+	var es6ErrorReporter *ParserRunner_Es6ErrorReporter = new_ParserRunner_Es6ErrorReporter(errorReporter, keepGoing)
+	var es6config *Parser_Config = ParserRunner_newParserConfig(config)
+	var p *Parser = new_Parser(es6config, es6ErrorReporter.up_ErrorReporter_util(), file)
+	var tree *ProgramTree = p.parseProgram()
+	var root Node = 0
+	var comments *JTList[*Comment] = jtlistEmptyImm_(jtc_p_Comment)
+	var topLevelStatementRanges *JTList[*SourceRange] = jtlistEmptyImm_(jtc_p_SourceRange)
+	var features *FeatureSet = p.getFeatures()
+	if (tree != nil) && (!es6ErrorReporter.hadError() || keepGoing) {
+		var factory *IRFactory = IRFactory_transformTree(tree, sourceFile, config, errorReporter, file)
+		root = factory.getResultNode()
+		features = features.union(factory.getFeatures())
+		root.setFeatureSet(features)
+		if config.jsDocParsingMode().shouldParseDescriptions() {
+			comments = p.getComments()
+			var builder *TListBuilder[*SourceRange] = newTListBuilderN_(jtc_p_SourceRange, tree.sourceElements.size())
+			it_2 := tree.sourceElements.each()
+			for it_2.next() {
+				var element *ParseTree = it_2.v
+				builder.add(element.location_)
+			}
+			topLevelStatementRanges = builder.build()
+		}
 	}
-	panic("unreachable")
+	return new_ParserRunner_ParseResult_Node_List_ImmutableList_FeatureSet_Optional(root, comments, topLevelStatementRanges, features, p.getSourceMapURL())
 }
 
 func ParserRunner_newParserConfig(config *Config) *Parser_Config {
