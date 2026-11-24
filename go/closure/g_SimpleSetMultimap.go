@@ -166,7 +166,7 @@ func (this *SimpleSetMultimap[K, V]) keySet() SetT[K] {
 }
 
 func (this *SimpleSetMultimap[K, V]) values() CollectionT[V] {
-	return collectionAs_(tcT_[V](), icast_Collection(obj_(new_SimpleSetMultimap_1[K, V](this))))
+	return collectionAs_(tcT_[V](), iup_Collection(new_SimpleSetMultimap_1[K, V](this)))
 }
 
 func (this *SimpleSetMultimap[K, V]) asMap() MapT[K, SetT[V]] {
@@ -311,7 +311,7 @@ func new_SimpleSetMultimap_1[K comparable, V comparable](outer_ *SimpleSetMultim
 func (this *SimpleSetMultimap_1[K, V]) iterator() Iterator {
 	return func() Iterator {
 		if this.outer_.entryOrder != nil {
-			return icast_Iterator(obj_(new_SimpleSetMultimap_1InsertionOrderedValuesIterator[K, V](this.outer_)))
+			return iup_Iterator(new_SimpleSetMultimap_1InsertionOrderedValuesIterator[K, V](this.outer_))
 		}
 		return Iterator_un_(iterableAs_(tcT_[V](), Iterables_unmodifiableIterable(Iterables_concat_Iterable(Iterable(Collection_un_(this.outer_.map__.values_t()))))).iterator_t())
 	}()
