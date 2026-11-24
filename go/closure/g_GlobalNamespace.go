@@ -1276,17 +1276,7 @@ func (this *GlobalNamespace_Name) checkNoExistingRefsForNode(node Node) {
 	if this.refsForNode == nil {
 		return
 	}
-	var ref *GlobalNamespace_Ref
-	_ = ref
-	if func() bool {
-		v_ := this.refsForNode
-		p, ok := v_.(*GlobalNamespace_Ref)
-		if !ok {
-			return false
-		}
-		ref = p
-		return true
-	}() {
+	if ref, ok := this.refsForNode.(*GlobalNamespace_Ref); ok {
 		if ref.node_ == node {
 			panic(new_IllegalStateException_String(Strings_lenientFormat("Ref already exists for node: %s", []any{this.refsForNode})))
 		}
@@ -1514,17 +1504,7 @@ func (this *GlobalNamespace_Name) getRefs() CollectionT[*GlobalNamespace_Ref] {
 	if this.refsForNode == nil {
 		return tsetEmptyImm_(tc_p_GlobalNamespace_Ref).asCollT()
 	}
-	var ref *GlobalNamespace_Ref
-	_ = ref
-	if func() bool {
-		v_ := this.refsForNode
-		p, ok := v_.(*GlobalNamespace_Ref)
-		if !ok {
-			return false
-		}
-		ref = p
-		return true
-	}() {
+	if ref, ok := this.refsForNode.(*GlobalNamespace_Ref); ok {
 		return immutableSetOf_[*GlobalNamespace_Ref](tc_p_GlobalNamespace_Ref, ref).asCollT()
 	}
 	return this.castRefsForNodeMap().values_t()
@@ -1537,17 +1517,7 @@ func (this *GlobalNamespace_Name) getRefForNode(node Node) *GlobalNamespace_Ref 
 	if this.refsForNode == nil {
 		return nil
 	}
-	var ref *GlobalNamespace_Ref
-	_ = ref
-	if func() bool {
-		v_ := this.refsForNode
-		p, ok := v_.(*GlobalNamespace_Ref)
-		if !ok {
-			return false
-		}
-		ref = p
-		return true
-	}() {
+	if ref, ok := this.refsForNode.(*GlobalNamespace_Ref); ok {
 		return func() *GlobalNamespace_Ref {
 			if ref.getNode() == node {
 				return ref
@@ -1562,17 +1532,7 @@ func (this *GlobalNamespace_Name) getFirstRef() *GlobalNamespace_Ref {
 	if this.refsForNode == nil {
 		panic(new_NullPointerException_String(objstr_("no first Ref to get")))
 	}
-	var ref *GlobalNamespace_Ref
-	_ = ref
-	if func() bool {
-		v_ := this.refsForNode
-		p, ok := v_.(*GlobalNamespace_Ref)
-		if !ok {
-			return false
-		}
-		ref = p
-		return true
-	}() {
+	if ref, ok := this.refsForNode.(*GlobalNamespace_Ref); ok {
 		return ref
 	}
 	return this.castRefsForNodeMap().values_t().iterator_t().next_t()
