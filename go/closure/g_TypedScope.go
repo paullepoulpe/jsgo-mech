@@ -283,7 +283,7 @@ func (this *TypedScope) undeclare(var_ *TypedVar) {
 	if var_.getScope_rAbstractScope_rTypedScope() != this {
 		panic(new_IllegalStateException_0().self())
 	}
-	if !this.vars.get(var_.getName()).equals(obj_(var_)) {
+	if !this.vars.get(var_.getName()).equals_ScopedName(var_.up_ScopedName()) {
 		panic(new_IllegalStateException_0().self())
 	}
 	this.undeclareInteral(var_)
