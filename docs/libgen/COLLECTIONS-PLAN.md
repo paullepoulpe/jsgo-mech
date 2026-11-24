@@ -15,7 +15,7 @@ branch, renumbered 7 by the merge of both into main-libgen-t12).
 **Section 9 records candidate T3** (branch `main-libgen-t3`: kind `goptional`, Guava's `Optional`
 as a value library class, and piece `seqcoll`, the `SequencedCollection` twins).
 **Section 10 records JAVAISMS6.md's candidate "T3"** (Object-parameter collection methods typed;
-branch `main-libgen-t4`: piece `objarg`).
+branch `main-libgen-t4`: piece `objarg`; its current form is 10.8).
 Scratch files of this stage: `/mnt/data/tmp/claude-1000/-home-ubuntu-work/9db246f3-01a3-48c8-9bf5-1c94d1ed78d6/scratchpad/b3/`
 (`tr.sh` translate + build, `trto.sh <dir>` translate into a scratch directory that has the
 runtime copied in -- the translator reads `rt_*.go` of its output directory, so a directory
@@ -2080,7 +2080,11 @@ the `J2GO_LIBGEN=2` report). Every heavy command ran under `flock /mnt/data/ubun
 | 4722cfc2 | the unconverted parameter of a method reference (`memoized::get`) is an argument at its type |
 | dc83d1bc | the twins test the view's own type (`*tmapView_[K, V]`); no typed methods on the views (10.5) |
 | 3e9cac5b | self-test: no `TreeMap<Dog>` read with an Animal (10.6); README on the twins' form |
-| (the commit after) | this section |
+| e6df9ca5 | this section (10.1 to 10.7: the first form) |
+| e7a2818c | twins only for Map / Set receivers of key types on a checked-in pair list (10.8) |
+| (the commit after) | 10.8 |
+
+**The branch's code is 10.8's form; 10.2 to 10.7 record the first one.**
 
 ### 10.2 The form
 
@@ -2322,3 +2326,120 @@ LinkedHashMap; the self-test passes in all three modes (st3.out).
   `SelfTest()` line, a block of its own), `tools/j2go/README.md` (the switch list and one
   paragraph). Everything else is in new files (`LibObj.java`, `rt_lgobj.go`, `rt_lgobj_test.go`,
   `selftest/lang/LibObj.java`).
+
+### 10.8 Revision: Map / Set receivers only, and a pair list (e7a2818c)
+
+**10.2 to 10.6 record the first form** (79 twin calls, +3.9 MB of binary); the branch's code is
+this form. Asked to bring the binary's growth near 0, I tried first what 10.5 named (choose the
+twin by the receiver's static type; find the view through a method with no type parameter in its
+signature, `tmap_() unsafe.Pointer`, and call the typed map's own lookup): +2.5 MB, .text +407 KB.
+The rest came from Map receivers whose key / value types no typed map has (they hold wrappers
+only, so the typed lookup could never be taken): calling the typed map's lookup at those types
+made Go compile the typed map for them (14 new `TMap` dictionaries with their views). Typed
+methods on the views instead (`find_k` / `remove_k`): +3.1 MB / +463 KB (Go keeps a method whose
+signature names K for every instantiation of the view). The floor, twins that only box in the
+runtime: +58 KB / +18 KB, but that only moves the box out of the census, so it was not taken.
+
+The form now (coordinator's decision):
+
+- **By the receiver's static type.** A Map receiver gets `Map_getK_` / `Map_containsKeyK_` /
+  `Map_removeK_`, a Set receiver (`Collection.contains / remove` on a `Set`) `Set_containsE_` /
+  `Set_removeE_`. Each finds the typed map's or set's view through `tmap_()` / `tset_()` and calls
+  its own `find` / `get` / `remove` (a sorted view embeds the view and has the method too); else
+  the erased method with `boxT_`; null as before. A List or Collection receiver (`List.indexOf /
+  lastIndexOf`, `contains` / `remove` on a List, a Deque, a Collection) has no typed lookup: the
+  call stays erased, box and all, at the call site (new refusal reason). The Collection and List
+  twins are gone.
+- **A checked-in name list, `tools/j2go/objarg-pairs.txt`** (18 pairs: `map Node, *TypedScope`,
+  `set *JSType`, ...; type parameters too, `map K, SetT[V]`, `set V`): the key / element types
+  for which the translation makes a typed map or set (recorded at `Ctx.tconvsOf`, which every
+  constructor and conversion to a typed collection goes through). A twin is called only for a
+  pair on it; any other pair keeps the erased call (new refusal reason). The self-test adds
+  `tools/j2go/selftest/objarg-pairs.txt` (7 pairs of `lang/*.java`) through
+  `J2GO_OBJARG_PAIRS` (paths separated by `:`).
+- **Stale list fails.** `LibObj.finish` (end of `Main`) compares the list with the pairs the calls
+  asked for that have a typed map or set: a pair on the list that is not one of them, one of them
+  not on the list, or a twin called for a pair not on the list fails the translation (exit 3,
+  `objarg: the pair list is stale: ...`; `tools/j2go/run.sh` fails with it, the self-test checks
+  its own translation's log). With another rule off (`J2GO_NOLIBGEN` / `J2GO_NOFNTYPES` set) it
+  only reports. `J2GO_OBJARG_PAIRS_OUT=<file>` writes the list as it should be; both lists were
+  generated that way. Tried (`stale.sh`): the list plus `map *Foo, *Bar` -> exit 3 ("on the list
+  with no typed map or set or no call [map *Foo, *Bar]"); the list without `map Node, *TypedScope`
+  -> exit 3 ("asked for, with a typed map or set, not on the list [map Node, *TypedScope]"); the
+  list as checked in -> exit 0, the same translation.
+
+**Counts** (`J2GO_LIBGEN=2`, `tx-t4_d-rep.log`): **51 twin calls** (`Map.get` 20, `Map.containsKey`
+10, `Map.remove` 6, `Set.contains` 12, `Set.remove` 3). Refused 80: a String the String-key
+helpers serve 29; **a List or Collection receiver 23** (`Collection.contains` 8, `Collection.remove`
+7, `List.indexOf` 7, `List.lastIndexOf` 1); the receiver is erased 12; **no typed map or set of
+these types 5** (`Map.get` 4, `Map.remove` 1); the element type is Object in Go 5; a method
+result of a type variable's type 3; a supertype 2; the result enters an Object 1. Not this piece
+854. Of the first form's 79: 23 + 5 are erased again, 79 - 28 = 51.
+
+**Census** (`cdiff.sh base out-t4_d`): boxing to any 1,531 -> 1,496 (**-35**), every other row
+unchanged; `obj_(` -20, `.box_()` -15, `boxT_(` -12, `.get_t(` -20, `.remove_t(` -6,
+`.containsKey(` -10, `.contains(` -12, `.remove_Object(` -3.
+
+**md5** (`pipe.sh t4_d`): `J2GO_NOLIBGEN=objarg` 627f428904cd1ab870a348b377934bfb (main's
+default); everything off 973b5b6d3e4f71ab1cc82872360f9759 (main's all-off); default
+870508e1a9a9e10603ea0ba173374b86.
+
+**Binary** (`m_t4_d`, gate binary of e7a2818c, against `m_t4_base` 122,878,234 bytes, .text
+23,269,376): 123,787,434 bytes (**+909 KB**), .text 23,435,217 (**+166 KB**). Not d3's +18 KB:
+the twins' own instantiations (311 symbols, 49 KB: the twins in generic classes are instantiated
+per instantiation of the class), their dictionaries (22 KB), `tmap_` / `tset_` on every view
+instantiation (628 small methods), and the typed maps' `find` / `get` / `remove` compiled at
+shapes that the program had not called them at (`TMap[*InputId, *CompilerInput]` and the
+`SimpleSetMultimap` maps of sets). A pair whose Go text names a class's type parameter (`map K,
+SetT[V]`) is checked by its text, so a typed map of another class with type parameters of the same
+names counts for it (not seen to happen; it would only cost size).
+
+**Timing** (CPU, flags3500 subset, 3 rounds alternating, `tm-t4d.log`, sha `72b57cd286c9` in all
+six runs): `m_t4_base` 162.61, 160.14, 162.30 (mean 161.68, min 160.14); `m_t4_d` 161.51, 161.31,
+162.48 (mean 161.77, min 161.31): +0.06% of the means, **neutral**.
+
+**Gate** (`$B/gate.sh libt4 t4_d` after commit and `tools/j2go/run.sh`; log's first line `tree:
+e7a2818ca piece objarg: twins only for Map / Set receivers of key types that have a typed   dirty:
+1`, the one entry `?? .cache`):
+
+```
+GATE OK t4_d
+tests before: 50
+selftest: PASS
+removed 0 declarations in 0 rounds
+ok  	jsgomech/closure	1.947s
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+runtime lines: 21263  test lines: 4761
+runtime lines of the default build: 21019  off-mode extras (build-tagged files): 244
+tests after: 50
+```
+
+Switches off, on e7a2818c (`offall.sh`, `tools/prune/verify.sh` with the switch; the default made
+again afterwards was 870508e1):
+
+```
+switches: J2GO_NOLIBGEN=objarg  translation: exit 0 627f428904cd1ab870a348b377934bfb
+switches: J2GO_NOFNTYPES=1 J2GO_NOLIBGEN=all  translation: exit 0 973b5b6d3e4f71ab1cc82872360f9759
+(each)
+selftest: PASS
+removed 0 declarations in 0 rounds
+ok  	jsgomech/closure	1.952s / 1.965s
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+runtime lines: 21263  test lines: 4761
+runtime lines of the default build: 21019  off-mode extras (build-tagged files): 244
+```
+
+Self-test (`lang/LibObj.java`, unchanged): `run.sh` now counts 25 twin calls and 28 erased calls
+in `typed()` and the methods it calls, and in `wide()` / `erased()` / `wild()` / `obj()` no twin
+and 13 erased calls. Go test `rt_lgobj_test.go`: the Map and Set twins against the erased methods
+on a typed map's / set's view, a typed map's key set and wrapped erased collections.
+
+Not done: no self-test case for "not comparable"; the stale check was tried by hand (above), not in
+the self-test; JAVAISMS6's 50 sites were not matched again (of the first form's coverage, the
+List / Collection receivers and the 5 pairs without a typed map or set are erased again).
