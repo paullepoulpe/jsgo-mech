@@ -35,9 +35,7 @@ func SimpleBiMap_create[K comparable, V comparable]() *SimpleBiMap[K, V] {
 
 func SimpleBiMap_copyOf[K comparable, V comparable](map_ MapT[K, V]) *SimpleBiMap[K, V] {
 	var copy_ *SimpleBiMap[K, V] = new_SimpleBiMap[K, V]()
-	it_1 := jeachOf_(map_.entrySet_t())
-	for it_1.next() {
-		var e Map_EntryT[K, V] = it_1.v
+	for e := range elemsT_(map_.entrySet_t()) {
 		copy_.put(e.getKey_t(), e.getValue_t())
 	}
 	return copy_

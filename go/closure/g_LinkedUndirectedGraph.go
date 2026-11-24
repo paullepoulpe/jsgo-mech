@@ -74,9 +74,7 @@ func (this *LinkedUndirectedGraph[N, E]) connect_impl(srcValue N, edgeValue E, d
 func (this *LinkedUndirectedGraph[N, E]) disconnect_impl(srcValue N, destValue N) {
 	var src *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E] = to_LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E](this.getNodeOrFail(srcValue))
 	var dest *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E] = to_LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E](this.getNodeOrFail(destValue))
-	it_1 := jeachOf_(this.getUndirectedGraphEdges(srcValue, destValue))
-	for it_1.next() {
-		var edge UndiGraph_UndiGraphEdge[N, E] = it_1.v
+	for edge := range elemsT_(this.getUndirectedGraphEdges(srcValue, destValue)) {
 		src.getNeighborEdges().remove_Object(edge)
 		dest.getNeighborEdges().remove_Object(edge)
 	}
@@ -108,9 +106,7 @@ func (this *LinkedUndirectedGraph[N, E]) getUndirectedGraphEdges_impl(n1 N, n2 N
 		return nil
 	}
 	var edges *JTList[UndiGraph_UndiGraphEdge[N, E]] = jnewTList_(tc_UndiGraph_UndiGraphEdge_N__E_[N, E]())
-	it_1 := jeachOf_(dNode1.getNeighborEdges())
-	for it_1.next() {
-		var outEdge UndiGraph_UndiGraphEdge[N, E] = it_1.v
+	for outEdge := range elemsT_(dNode1.getNeighborEdges()) {
 		if (outEdge.getNodeA() == dNode2) || (outEdge.getNodeB() == dNode2) {
 			edges.add(outEdge)
 		}
@@ -139,9 +135,7 @@ func (this *LinkedUndirectedGraph[N, E]) getEdges_impl() List {
 	it_1 := this.nodes_.eachValue()
 	for it_1.next() {
 		var node *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E] = it_1.v
-		it_3 := jeachOf_(node.getNeighborEdges())
-		for it_3.next() {
-			var edge UndiGraph_UndiGraphEdge[N, E] = it_3.v
+		for edge := range elemsT_(node.getNeighborEdges()) {
 			if edge.getNodeA() == node.self() {
 				result.add(Graph_GraphEdge[N, E](edge))
 			}
@@ -201,9 +195,7 @@ func (this *LinkedUndirectedGraph[N, E]) getGraphvizEdges() *JTList[GraphvizGrap
 	it_1 := this.nodes_.eachValue()
 	for it_1.next() {
 		var node *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E] = it_1.v
-		it_3 := jeachOf_(node.getNeighborEdges())
-		for it_3.next() {
-			var edge UndiGraph_UndiGraphEdge[N, E] = it_3.v
+		for edge := range elemsT_(node.getNeighborEdges()) {
 			if edge.getNodeA() == node.self() {
 				edgeList.add(icast_GraphvizGraph_GraphvizEdge(edge))
 			}

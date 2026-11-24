@@ -43,9 +43,7 @@ func (this *PassConfig) getPassGraph() GraphvizGraph {
 	var allPasses IterableT[*PassFactory] = iterableAs_(jtc_p_PassFactory, Iterables_concat(Iterable(this.getChecks().build().asList()), Iterable(this.getOptimizations().build().asList())))
 	var lastPass Optional[string] = Optional_empty[string]()
 	var loopStart Optional[string] = Optional_empty[string]()
-	it_1 := jeachOf_(allPasses)
-	for it_1.next() {
-		var pass *PassFactory = it_1.v
+	for pass := range elemsT_(allPasses) {
 		var passName string = pass.getName()
 		var i int32 = 1
 		for graph.hasNode(passName) {

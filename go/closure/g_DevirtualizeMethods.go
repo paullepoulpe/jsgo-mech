@@ -22,9 +22,7 @@ func (this *DevirtualizeMethods) process_3(externs Node, root Node, refMap *Opti
 		panic(new_IllegalStateException_String(objstr_("`process` should only be called once.")).self())
 	}
 	this.refMap = refMap
-	it_1 := jeachOf_(refMap.getPropReferences())
-	for it_1.next() {
-		var referenceGroup Map_EntryT[string, ListT[Node]] = it_1.v
+	for referenceGroup := range elemsT_(refMap.getPropReferences()) {
 		this.processReferenceList(referenceGroup.getKey_t(), referenceGroup.getValue_t())
 	}
 }
@@ -36,9 +34,7 @@ func (this *DevirtualizeMethods) processReferenceList(name string, sites ListT[N
 	}
 	var canonicalDefinitionSite Node = Iterables_getT_[Node](functionsBySite.keySet(), 0)
 	var callSitesBuilder *TListBuilder[Node] = newTListBuilder_(jtc_Node)
-	it_1 := jeachOf_(sites)
-	for it_1.next() {
-		var s Node = it_1.v
+	for s := range elemsT_(sites) {
 		if !functionsBySite.containsKey(s) {
 			callSitesBuilder.add(s)
 		}

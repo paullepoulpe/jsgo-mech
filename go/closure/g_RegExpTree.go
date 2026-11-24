@@ -1142,9 +1142,7 @@ func (this *RegExpTree_Alternation) simplify_impl(flags string) *RegExpTree {
 					var chars *CharRanges = CharRanges_EMPTY
 					var ieExplicits *CharRanges = CharRanges_EMPTY
 					var charAlternatives ListT[*RegExpTree] = listAs_(jtc_p_RegExpTree, alternatives.subList(i, end))
-					it_7 := jeachOf_(charAlternatives)
-					for it_7.next() {
-						var charAlternative *RegExpTree = it_7.v
+					for charAlternative := range elemsT_(charAlternatives) {
 						var text_9 *RegExpTree_Text
 						_ = text_9
 						if func() bool {

@@ -115,9 +115,7 @@ func JvmMetrics_writeMemoryMetrics(out *Output, verbose bool, pretty bool) {
 	}
 	if verbose {
 		var mpBeans ListT[MemoryPoolMXBean] = listAs_(tc_MemoryPoolMXBean, ManagementFactory_getMemoryPoolMXBeans())
-		it_1 := jeachOf_(mpBeans)
-		for it_1.next() {
-			var mpBean MemoryPoolMXBean = it_1.v
+		for mpBean := range elemsT_(mpBeans) {
 			var currentUsage *MemoryUsage = mpBean.getUsage()
 			var peakUsage *MemoryUsage = mpBean.getPeakUsage()
 			if pretty {
@@ -132,9 +130,7 @@ func JvmMetrics_writeMemoryMetrics(out *Output, verbose bool, pretty bool) {
 		var current int64 = 0
 		var peak int64 = 0
 		var mpBeans ListT[MemoryPoolMXBean] = listAs_(tc_MemoryPoolMXBean, ManagementFactory_getMemoryPoolMXBeans())
-		it_3 := jeachOf_(mpBeans)
-		for it_3.next() {
-			var mpBean MemoryPoolMXBean = it_3.v
+		for mpBean := range elemsT_(mpBeans) {
 			var currentUsage *MemoryUsage = mpBean.getUsage()
 			available += currentUsage.getMax()
 			current += currentUsage.getUsed()
@@ -157,17 +153,13 @@ func JvmMetrics_writeGarbageCollectionStats(out *Output, verbose bool, pretty bo
 	if verbose {
 		if pretty {
 			out.println("\nGarbage collection stats")
-			it_1 := jeachOf_(gcBeans)
-			for it_1.next() {
-				var gcBean GarbageCollectorMXBean = it_1.v
+			for gcBean := range elemsT_(gcBeans) {
 				out.println(("\tCollector " + sstr_(gcBean.getName())))
 				out.print(("\t\tcollection count   : " + istr_(int64(int64(gcBean.getCollectionCount()))) + "\n"))
 				out.print(("\t\tcollection time    : " + istr_(int64(int64(gcBean.getCollectionTime()))) + " ms\n"))
 			}
 		} else {
-			it_3 := jeachOf_(gcBeans)
-			for it_3.next() {
-				var gcBean GarbageCollectorMXBean = it_3.v
+			for gcBean := range elemsT_(gcBeans) {
 				var name string = JvmMetrics_normalizeName(gcBean.getName())
 				out.println(JvmMetrics_normalizeTabularColonPos(String_format(("gc-" + sstr_(name) + "-collection-count : %d"), []any{int64(gcBean.getCollectionCount())})))
 				out.println(JvmMetrics_normalizeTabularColonPos(String_format(("gc-" + sstr_(name) + "-collection-time-ms : %d"), []any{int64(gcBean.getCollectionTime())})))
@@ -177,9 +169,7 @@ func JvmMetrics_writeGarbageCollectionStats(out *Output, verbose bool, pretty bo
 		var collectionCount int64 = 0
 		var collectionTime int64 = 0
 		var collectorCount int32 = gcBeans.size()
-		it_5 := jeachOf_(gcBeans)
-		for it_5.next() {
-			var gcBean GarbageCollectorMXBean = it_5.v
+		for gcBean := range elemsT_(gcBeans) {
 			collectionCount += gcBean.getCollectionCount()
 			collectionTime += gcBean.getCollectionTime()
 		}

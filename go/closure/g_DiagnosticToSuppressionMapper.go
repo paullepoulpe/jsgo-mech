@@ -71,9 +71,7 @@ func DiagnosticToSuppressionMapper_printAsJson(diagnosticToSuppression MapT[stri
 	writer.setHtmlSafe(true)
 	writer.setSerializeNulls(false)
 	writer.beginObject()
-	it_1 := jeachOf_(diagnosticToSuppression.entrySet_t())
-	for it_1.next() {
-		var entry Map_EntryT[string, string] = it_1.v
+	for entry := range elemsT_(diagnosticToSuppression.entrySet_t()) {
 		writer.name(entry.getKey_t()).stringValue(Optional_ofNullable[string](entry.getValue_t()))
 	}
 	writer.endObject()
@@ -83,9 +81,7 @@ func DiagnosticToSuppressionMapper_printAsJson(diagnosticToSuppression MapT[stri
 func DiagnosticToSuppressionMapper_printAsMarkdown(diagnosticToSuppression MapT[string, string]) {
 	Output_stdout().println("| Error | Suppression tag |")
 	Output_stdout().println("|---|---|")
-	it_1 := jeachOf_(diagnosticToSuppression.entrySet_t())
-	for it_1.next() {
-		var e Map_EntryT[string, string] = it_1.v
+	for e := range elemsT_(diagnosticToSuppression.entrySet_t()) {
 		Output_stdout().println(String_format("|%s|%s|", []any{e.getKey(), e.getValue()}))
 	}
 }

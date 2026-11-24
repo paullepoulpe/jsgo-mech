@@ -69,9 +69,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) visitNameDeclaration(t *NodeTra
 	}
 	var hasImportantName bool = false
 	var isGlobalDeclaration bool = t.getScope().getVar_String_rVar(allLhsNodes.get_t(0).getString()).isGlobal()
-	it_1 := jeachOf_(allLhsNodes)
-	for it_1.next() {
-		var lhs Node = it_1.v
+	for lhs := range elemsT_(allLhsNodes) {
 		if !lhs.isName() {
 			panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected lhs node %s, expected NAME", []any{lhs.box_()})).self())
 		}
@@ -146,9 +144,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) rewriteNameDeclaration(t *NodeT
 		return
 	}
 	if !this.optimizeLocalAccess.shouldOptimize() || this.containsNonLocalOrInitializedVars(t, declaration, isGlobalDeclaration) {
-		it_2 := jeachOf_(allLhsNodes)
-		for it_2.next() {
-			var lhs Node = it_2.v
+		for lhs := range elemsT_(allLhsNodes) {
 			this.maybeAddPreDeclaration(t, lhs, isGlobalDeclaration)
 		}
 	}
@@ -391,9 +387,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) declareLocalAliasesAndWrappers(
 	}
 	var cleanupHelperName string = this.getCleanupHelperPropertyName()
 	var needsCleanupHelper bool = false
-	it_3 := jeachOf_(chunkGraph.getAllChunks())
-	for it_3.next() {
-		var chunk *JSChunk = it_3.v
+	for chunk := range elemsT_(chunkGraph.getAllChunks()) {
 		if this.declareLocalAliasesAndWrappersForChunk(chunk, wrapperAssignmentChunks, cleanupHelperName) {
 			needsCleanupHelper = true
 		}
@@ -471,9 +465,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) declareLocalAliasesAndWrappersF
 	if !Iterables_isEmpty(Iterable_un_(allLocalAliases)) {
 		var aliasesToKeep *JTList[string] = jnewTList_(jtc_string)
 		var aliasesToDelete *JTList[string] = jnewTList_(jtc_string)
-		it_3 := jeachOf_(allLocalAliases)
-		for it_3.next() {
-			var name string = it_3.v
+		for name := range elemsT_(allLocalAliases) {
 			if this.optimizeLocalAccess.shouldDeleteGlobalsOnLastAccess() && this.canDeleteFromGlobalNamespace(chunk, name) {
 				aliasesToDelete.add(name)
 			} else {
@@ -484,9 +476,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) declareLocalAliasesAndWrappersF
 		var outputFeatures *FeatureSet = this.compiler_.getOptions().getOutputFeatureSet()
 		if (outputFeatures.contains(FeatureSet_Feature_OBJECT_DESTRUCTURING) && outputFeatures.contains(FeatureSet_Feature_FOR_OF)) && outputFeatures.contains(FeatureSet_Feature_LET_DECLARATIONS) {
 			var objectPattern Node = IR_objectPattern([]Node{})
-			it_5 := jeachOf_(localAliases)
-			for it_5.next() {
-				var name string = it_5.v
+			for name := range elemsT_(localAliases) {
 				var stringKey Node = IR_stringKey_String_Node(name, IR_name(name))
 				stringKey.setShorthandProperty(true)
 				objectPattern.addChildToBack(stringKey)

@@ -54,9 +54,7 @@ func (this *GuardedCallback[T]) shouldTraverse(traversal *NodeTraversal, n Node,
 	} else {
 		this.contextStack.push(this.contextStack.peek().descend(this.compiler_, parent, n))
 		if ((parent != 0) && GuardedCallback_CAN_HAVE_GUARDS.contains(parent.getToken())) && this.registeredGuards.containsKey(parent) {
-			it_1 := jeachOf_(this.registeredGuards.removeAll(parent))
-			for it_1.next() {
-				var resource T = it_1.v
+			for resource := range elemsT_(this.registeredGuards.removeAll(parent)) {
 				this.guarded.add(resource)
 				this.installedGuards.put(parent, resource)
 			}

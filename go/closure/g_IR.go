@@ -763,9 +763,7 @@ func IR_arraylit(exprs []Node) Node {
 
 func IR_arraylitIterable(exprs IterableT[Node]) Node {
 	var arraylit Node = new_Node_Token(Token_rhino_ARRAYLIT)
-	it_1 := jeachOf_(exprs)
-	for it_1.next() {
-		var expr Node = it_1.v
+	for expr := range elemsT_(exprs) {
 		if !IR_mayBeExpressionOrEmpty(expr) && !expr.isSpread() {
 			panic(new_IllegalStateException_String(objstr_(expr.box_())).self())
 		}

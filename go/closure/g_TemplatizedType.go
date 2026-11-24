@@ -62,9 +62,7 @@ func (this *TemplatizedType) getTypeClass_impl() JSTypeClass {
 
 func (this *TemplatizedType) getCtorImplementedInterfaces_impl() IterableT[*ObjectType] {
 	var resolvedImplementedInterfaces *JTSet[*ObjectType] = jnewTSet_(tce_p_ObjectType)
-	it_1 := jeachOf_(this.getReferencedObjTypeInternal().getCtorImplementedInterfaces())
-	for it_1.next() {
-		var obj *ObjectType = it_1.v
+	for obj := range elemsT_(this.getReferencedObjTypeInternal().getCtorImplementedInterfaces()) {
 		resolvedImplementedInterfaces.add(to_JSType(obj.visit(TemplateTypeReplacer_as_Visitor(this.replacer))).toObjectType())
 	}
 	return resolvedImplementedInterfaces.asIterable()
@@ -72,9 +70,7 @@ func (this *TemplatizedType) getCtorImplementedInterfaces_impl() IterableT[*Obje
 
 func (this *TemplatizedType) getCtorExtendedInterfaces_impl() IterableT[*ObjectType] {
 	var resolvedExtendedInterfaces *JTSet[*ObjectType] = jnewTSet_(tce_p_ObjectType)
-	it_1 := jeachOf_(this.getReferencedObjTypeInternal().getCtorExtendedInterfaces())
-	for it_1.next() {
-		var obj *ObjectType = it_1.v
+	for obj := range elemsT_(this.getReferencedObjTypeInternal().getCtorExtendedInterfaces()) {
 		resolvedExtendedInterfaces.add(to_JSType(obj.visit(TemplateTypeReplacer_as_Visitor(this.replacer))).toObjectType())
 	}
 	return resolvedExtendedInterfaces.asIterable()
@@ -167,9 +163,7 @@ func (this *TemplatizedType) resolveInternal_impl(reporter ErrorReporter_rhino) 
 	this.ProxyObjectType.resolveInternal_impl(reporter)
 	var rebuild bool = (baseTypeBefore != this.getReferencedType().up_JSType())
 	var builder *TListBuilder[*JSType] = newTListBuilder_(jtc_p_JSType)
-	it_1 := jeachOf_(this.templateTypes)
-	for it_1.next() {
-		var type_ *JSType = it_1.v
+	for type_ := range elemsT_(this.templateTypes) {
 		var resolved *JSType = type_.resolve(reporter)
 		rebuild = bor_(rebuild, !(resolved == type_))
 		builder.add(resolved)

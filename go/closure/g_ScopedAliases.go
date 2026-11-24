@@ -61,9 +61,7 @@ func (this *ScopedAliases) process_2(externs Node, root Node) {
 				aliasWorkQueue = newQueue
 			}
 		}
-		it_4 := jeachOf_(traversal.getAliasDefinitionsToDelete())
-		for it_4.next() {
-			var aliasDefinition Node = it_4.v
+		for aliasDefinition := range elemsT_(traversal.getAliasDefinitionsToDelete()) {
 			this.compiler_.reportChangeToEnclosingScope(aliasDefinition)
 			if NodeUtil_isNameDeclaration(aliasDefinition.getParent()) && aliasDefinition.getParent().hasOneChild() {
 				aliasDefinition.getParent().detach()
@@ -540,9 +538,7 @@ func (this *ScopedAliases_Traversal) reportInvalidVariables(t *NodeTraversal) {
 	var scopeRoot Node = t.getScopeRoot()
 	var enclosingFunctionBody Node = t.getEnclosingFunction().getLastChild()
 	if (this.isGoogScopeFunctionBody(enclosingFunctionBody) && scopeRoot.isBlock()) && !scopeRoot.getParent().isFunction() {
-		it_1 := jeachOf_(t.getScope().getVarIterable_rIterableOf_Var())
-		for it_1.next() {
-			var v *Var = it_1.v
+		for v := range elemsT_(t.getScope().getVarIterable_rIterableOf_Var()) {
 			var parent Node = v.getNameNode().getParent()
 			if NodeUtil_isFunctionDeclaration(parent) {
 				this.report(v.getNode(), ScopedAliases_GOOG_SCOPE_INVALID_VARIABLE, []string{v.getName()})
@@ -557,9 +553,7 @@ func (this *ScopedAliases_Traversal) report(n Node, error_ *DiagnosticType, argu
 }
 
 func (this *ScopedAliases_Traversal) findAliases(scope *Scope) {
-	it_1 := jeachOf_(scope.getVarIterable_rIterableOf_Var())
-	for it_1.next() {
-		var v *Var = it_1.v
+	for v := range elemsT_(scope.getVarIterable_rIterableOf_Var()) {
 		var n Node = v.getNode()
 		var parent Node = n.getParent()
 		var isVar bool = (NodeUtil_isNameDeclaration(parent) && parent.getParent().isBlock())
@@ -780,9 +774,7 @@ func (this *ScopedAliases_Traversal) visit_impl(t *NodeTraversal, n Node, parent
 	}
 	var info *JSDocInfo = n.getJSDocInfo()
 	if (info != nil) && !this.injectedDecls.contains(n) {
-		it_2 := jeachOf_(info.getTypeNodes())
-		for it_2.next() {
-			var node Node = it_2.v
+		for node := range elemsT_(info.getTypeNodes()) {
 			this.fixTypeNode(node)
 		}
 	}

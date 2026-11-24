@@ -30,9 +30,7 @@ func (this *OptimizeReturns) process_3(externs Node, root Node, definitions *Opt
 		defer closeResource_(logFile.self())
 		this.decisionsLog = logFile
 		var toOptimize *JTList[ListT[Node]] = jnewTList_(tc_ListT_Node_)
-		it_2 := jeachOf_(definitions.getNameReferences())
-		for it_2.next() {
-			var entry Map_EntryT[string, ListT[Node]] = it_2.v
+		for entry := range elemsT_(definitions.getNameReferences()) {
 			var key string = entry.getKey_t()
 			var refs ListT[Node] = entry.getValue_t()
 			if this.isCandidate(key, refs) {
@@ -40,9 +38,7 @@ func (this *OptimizeReturns) process_3(externs Node, root Node, definitions *Opt
 				toOptimize.add(refs)
 			}
 		}
-		it_4 := jeachOf_(definitions.getPropReferences())
-		for it_4.next() {
-			var entry Map_EntryT[string, ListT[Node]] = it_4.v
+		for entry := range elemsT_(definitions.getPropReferences()) {
 			var key string = entry.getKey_t()
 			var refs ListT[Node] = entry.getValue_t()
 			if this.isCandidate(key, refs) {
@@ -53,9 +49,7 @@ func (this *OptimizeReturns) process_3(externs Node, root Node, definitions *Opt
 		it_6 := toOptimize.each()
 		for it_6.next() {
 			var refs ListT[Node] = it_6.v
-			it_8 := jeachOf_(OptimizeCalls_ReferenceMap_getFunctionNodes(refs).values())
-			for it_8.next() {
-				var fn Node = it_8.v
+			for fn := range elemsT_(OptimizeCalls_ReferenceMap_getFunctionNodes(refs).values()) {
 				this.rewriteReturns(fn)
 			}
 		}

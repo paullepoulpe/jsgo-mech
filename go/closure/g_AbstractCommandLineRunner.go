@@ -473,9 +473,7 @@ func (this *AbstractCommandLineRunner) createInputs_4(files *JTList[*AbstractCom
 				var newFiles ListT[*SourceFile_jscomp] = newFilesRes.get()
 				if this.rootRelativePathsMap.containsKey(filename) {
 					var rootFilename string = this.rootRelativePathsMap.get(filename)
-					it_2 := jeachOf_(newFiles)
-					for it_2.next() {
-						var zipEntry *SourceFile_jscomp = it_2.v
+					for zipEntry := range elemsT_(newFiles) {
 						var zipEntryName string = zipEntry.getName()
 						if !JString_contains_s(zipEntryName, filename) {
 							panic(new_IllegalStateException_0().self())
@@ -531,9 +529,7 @@ func (this *AbstractCommandLineRunner) createInputs_4(files *JTList[*AbstractCom
 		}
 	}
 	if jsonFiles != nil {
-		it_4 := jeachOf_(jsonFiles)
-		for it_4.next() {
-			var jsonFile *AbstractCommandLineRunner_JsonFileSpec = it_4.v
+		for jsonFile := range elemsT_(jsonFiles) {
 			inputs.add(SourceFile_jscomp_fromCode_String_String(jsonFile.getPath().get(), jsonFile.getSrc().orElseThrow()))
 		}
 	}
@@ -602,9 +598,7 @@ func (this *AbstractCommandLineRunner) createSourceInputs(jsChunkSpecs *JTList[*
 	if ijsErrors.isErr() {
 		return Outcome_base_err[ListT[*SourceFile_jscomp]](ijsErrors.error())
 	}
-	it_1 := jeachOf_(ijsErrors.get())
-	for it_1.next() {
-		var error_ *JSError = it_1.v
+	for error_ := range elemsT_(ijsErrors.get()) {
 		this.compiler_.report(error_)
 	}
 	var inputsRes *Outcome_base[ListT[*SourceFile_jscomp]]
@@ -704,9 +698,7 @@ func AbstractCommandLineRunner_createJsChunks(specs *JTList[*AbstractCommandLine
 			numJsFiles = numJsFilesLeft
 		}
 		var chunkFiles ListT[*CompilerInput] = listAs_(jtc_p_CompilerInput, inputs.subList((numJsFilesLeft-numJsFiles), numJsFilesLeft))
-		it_7 := jeachOf_(chunkFiles)
-		for it_7.next() {
-			var input *CompilerInput = it_7.v
+		for input := range elemsT_(chunkFiles) {
 			chunk.addCompilerInput(input)
 		}
 		numJsFilesLeft -= numJsFiles
@@ -727,9 +719,7 @@ func AbstractCommandLineRunner_parseChunkWrappers(specs *JTList[string], chunks 
 		panic(new_IllegalStateException_0().self())
 	}
 	var wrappers *JTMap[string, string] = jnewTMap_(jtc_string, jtc_string)
-	it_1 := jeachOf_(chunks)
-	for it_1.next() {
-		var c *JSChunk = it_1.v
+	for c := range elemsT_(chunks) {
 		wrappers.put(c.getName(), "")
 	}
 	it_3 := specs.each()
@@ -968,9 +958,7 @@ func (this *AbstractCommandLineRunner) doRun() *Outcome_base[any] {
 		var inputSourceMaps *TMapBuilder[string, *SourceMapInput] = newTMapBuilder_(jtc_string, jtc_p_SourceMapInput)
 		var inputPathByWebpackId *TMapBuilder[string, string] = newTMapBuilder_(jtc_string, jtc_string)
 		var foundJsonInputSourceMap bool = false
-		it_2 := jeachOf_(jsonFiles)
-		for it_2.next() {
-			var jsonFile *AbstractCommandLineRunner_JsonFileSpec = it_2.v
+		for jsonFile := range elemsT_(jsonFiles) {
 			if jsonFile.getSourceMap().isPresent() && (len(jsonFile.getSourceMap().get()) != 0) {
 				var sourceMapPath string = (sstr_(jsonFile.getPath().orElse("null")) + ".map")
 				var sourceMap *SourceFile_jscomp = SourceFile_jscomp_fromCode_String_String(sourceMapPath, jsonFile.getSourceMap().get())
@@ -1013,9 +1001,7 @@ func (this *AbstractCommandLineRunner) doRun() *Outcome_base[any] {
 				}
 			}
 			var inputs *TListBuilder[*CompilerInput] = newTListBuilder_(jtc_p_CompilerInput)
-			it_6 := jeachOf_(sources)
-			for it_6.next() {
-				var source *SourceFile_jscomp = it_6.v
+			for source := range elemsT_(sources) {
 				inputs.add(new_CompilerInput_SourceFile_boolean(source, false))
 			}
 			var chunksOutcome *Outcome_base[ListT[*JSChunk]] = AbstractCommandLineRunner_createJsChunks(jsChunkSpecs, inputs.build().asListT())
@@ -2043,9 +2029,7 @@ func (this *AbstractCommandLineRunner) printChunkGraphManifestOrBundleTo(graph *
 }
 
 func (this *AbstractCommandLineRunner) printManifestTo(chunk *JSChunk, out Appendable) {
-	it_1 := jeachOf_(chunk.getInputs())
-	for it_1.next() {
-		var input *CompilerInput = it_1.v
+	for input := range elemsT_(chunk.getInputs()) {
 		var name string = input.getName()
 		if AbstractCompiler_isFillFileName(name) {
 			continue

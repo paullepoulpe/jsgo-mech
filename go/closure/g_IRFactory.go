@@ -2637,9 +2637,8 @@ func (this *IRFactory_TransformDispatcher) processRegExpLiteral(literalTree *Lit
 }
 
 func (this *IRFactory_TransformDispatcher) validateRegExpFlags(tree *LiteralExpressionTree, flags string) {
-	it_1 := foreach_(obj_(Lists_charactersOf(flags)))
-	for it_1.next() {
-		var flag uint16 = unbox_[uint16](it_1.v)
+	for el_1 := range elems_(obj_(Lists_charactersOf(flags))) {
+		var flag uint16 = unbox_[uint16](el_1)
 		switch flag {
 		case 'g', 'i', 'm':
 		case 'u', 'y':

@@ -97,9 +97,7 @@ func (this *RenameProperties) process_2(externs Node, root Node) {
 		var parent Node = nodeEntry.getValue()
 		var firstArg Node = nodeEntry.getKey().getSecondChild()
 		var sb strBuilder_
-		it_5 := foreach_(RenameProperties_DOT_SPLITTER.split_s(firstArg.getString()))
-		for it_5.next() {
-			var oldName string = str_(it_5.v)
+		for oldName := range elemsBy_(RenameProperties_DOT_SPLITTER.split_s(firstArg.getString()), str_) {
 			var p *RenameProperties_Property = this.propertyMap.get(oldName)
 			var replacement string
 			if (p != nil) && p.newName.isPresent() {
@@ -138,9 +136,7 @@ func (this *RenameProperties) process_2(externs Node, root Node) {
 }
 
 func (this *RenameProperties) reusePropertyNames(reservedNames *JTSet[string], allProps CollectionT[*RenameProperties_Property]) {
-	it_1 := jeachOf_(allProps)
-	for it_1.next() {
-		var prop *RenameProperties_Property = it_1.v
+	for prop := range elemsT_(allProps) {
 		var prevName Optional[string] = this.prevUsedPropertyMap.lookupNewName(prop.oldName)
 		if !this.generatePseudoNames && prevName.isPresent() {
 			if reservedNames.contains(prevName.get()) {
@@ -244,9 +240,7 @@ func (this *RenameProperties_ProcessProperties) visit_impl(t *NodeTraversal, n N
 			this.countCallCandidates(t, n)
 			var stringArgument Node = n.getSecondChild()
 			if !this.outer_.propertyRenameEligibilityFilter.test(n) {
-				it_2 := foreach_(RenameProperties_DOT_SPLITTER.split_s(stringArgument.getString()))
-				for it_2.next() {
-					var name string = str_(it_2.v)
+				for name := range elemsBy_(RenameProperties_DOT_SPLITTER.split_s(stringArgument.getString()), str_) {
 					this.outer_.filteredOutNames.add(name)
 				}
 			}
@@ -305,9 +299,7 @@ func (this *RenameProperties_ProcessProperties) countCallCandidates(t *NodeTrave
 		t.report(callNode, RenameProperties_BAD_CALL, []string{fnName})
 		return
 	}
-	it_1 := foreach_(RenameProperties_DOT_SPLITTER.split_s(firstArg.getString()))
-	for it_1.next() {
-		var name string = str_(it_1.v)
+	for name := range elemsBy_(RenameProperties_DOT_SPLITTER.split_s(firstArg.getString()), str_) {
 		if !TokenStream_isJSIdentifier(name) {
 			t.report(callNode, RenameProperties_BAD_ARG, []string{fnName})
 			continue

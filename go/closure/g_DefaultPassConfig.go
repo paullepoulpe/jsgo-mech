@@ -304,9 +304,7 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 	this.clearTopTypedScopePass = PassFactory_builder().setName("clearTopTypedScopePass").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(compiler *AbstractCompiler) CompilerPass {
 		return &CompilerPass_fn{func(externs Node, root Node) {
 			compiler.setTopScope(nil)
-			it_1 := jeachOf_(compiler.getInputsInOrder())
-			for it_1.next() {
-				var compilerInput *CompilerInput = it_1.v
+			for compilerInput := range elemsT_(compiler.getInputsInOrder()) {
 				compilerInput.setTypedScope(nil)
 			}
 		}}
@@ -1726,9 +1724,7 @@ func new_DefaultPassConfig_13(cap_passes CollectionT[CompilerPass]) *DefaultPass
 }
 
 func (this *DefaultPassConfig_13) process_2(externs Node, root Node) {
-	it_1 := jeachOf_(this.cap_passes)
-	for it_1.next() {
-		var pass CompilerPass = it_1.v
+	for pass := range elemsT_(this.cap_passes) {
 		pass.process_2(externs, root)
 	}
 }

@@ -29,9 +29,7 @@ func new_Es6RenameTypeReferences(renameTable *SimpleTable[Node, string, string])
 func (this *Es6RenameTypeReferences) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	var info *JSDocInfo = n.getJSDocInfo()
 	if info != nil {
-		it_1 := jeachOf_(info.getTypeNodes())
-		for it_1.next() {
-			var root Node = it_1.v
+		for root := range elemsT_(info.getTypeNodes()) {
 			this.renameTypeNodeRecursive(t, root)
 		}
 	}

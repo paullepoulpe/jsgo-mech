@@ -417,9 +417,7 @@ func (this *PotentialDeclaration_NameDeclaration) breakDownDestructure_impl(comp
 	var prev Node = 0
 	var lhsNodes ListT[Node] = jnewTList_(jtc_Node).asListT()
 	NodeUtil_visitLhsNodesInNode(rootTarget.getParent(), Consumer[Node](func(p0 Node) { lhsNodes.add_t(p0) }))
-	it_1 := jeachOf_(lhsNodes)
-	for it_1.next() {
-		var n Node = it_1.v
+	for n := range elemsT_(lhsNodes) {
 		n.detach()
 		var temp Node = IR_var_Node(n)
 		if prev == 0 {

@@ -205,9 +205,7 @@ func (this *OptimizeCalls_ReferenceMap) getPropReferences() IterableT[Map_EntryT
 
 func OptimizeCalls_ReferenceMap_getFunctionNodes(definitionSites ListT[Node]) *SimpleListMultimap[Node, Node] {
 	var result *SimpleListMultimap[Node, Node] = SimpleListMultimap_create[Node, Node]()
-	it_1 := jeachOf_(definitionSites)
-	for it_1.next() {
-		var def Node = it_1.v
+	for def := range elemsT_(definitionSites) {
 		result.putAll(def, OptimizeCalls_ReferenceMap_definitionFunctionNodesFor(def).asIterable())
 	}
 	return result.immutableCopy()
