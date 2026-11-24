@@ -1,8 +1,9 @@
 # The eighth flip (2026-11-24): the seventh flip's list on main's translator with T3 (kind goptional, piece seqcoll), piece objarg and piece cmp
 
-STATUS: NOT DONE. The list replays unattended from the base to the same tree as the working replay; three intermediate
-gates gave four MATCH and runtime tests ok. The final gate of the last tree was stopped by the session for low memory
-(section 5) and has not been run again; no binary of the final tree exists, so the subset timing was not run.
+STATUS: DONE (gated, timed; section 8). The list replays unattended from the base to the same tree as the working replay;
+three intermediate gates and the final gate gave four MATCH and runtime tests ok. The final gate builds only with the Go
+compiler's backend run serially (-c=1, section 5): the package alone needs more than 18 GB with the default backend, on
+the seventh tree as well.
 
 What this is: main at f47fbe67 (main-libgen-t45 merged; docs/PLAN-STATUS.md "Translator after the seventh flip") flipped,
 and the seventh flip's final step list (steps.txt of main-r14-flip7 d76a852a: 273 commits) replayed on it, as the seventh
@@ -111,12 +112,29 @@ Intermediate, on worktree g8 at the replay8 commits with the subjects the sevent
     step 402   (64dc33c6)  $B/gate.sh g8 flip8-b-402: tests 81; ok 3.016s; 4 MATCH
     commit 248 (41d7c6f1)  $B/gate.sh g8 flip8-c-248: tests 88; ok 3.004s; 4 MATCH; runtime lines 25870, test lines 8422
 
-Final (the working replay's tip cbb1d976 = branch flip8-tree, worktree tree8): `$B/gate.sh tree8 flip8` was stopped by
-the session for low memory during the runtime tests' build (log $B/logs/gate-flip8.log ends after "removed 0
-declarations in 0 rounds"; tests before: 112). Earlier the runtime tests after step 556 (my own check, in replay8) were
-stopped the same way; that compile process alone was at 21.8 GB RSS (host 23 GB) after 7 minutes, and I killed it after
-the stop. The gates at steps <= 248 built and ran the tests. Not run again: no final gate line, no binary
-($B/bin/m_flip8 does not exist).
+Final (the working replay's tip cbb1d976 = branch flip8-tree, worktree tree8). Two runs of `$B/gate.sh tree8 flip8`
+(the agent's, and one more) were stopped by the session for low memory during the runtime tests' build: the compile
+process alone reached 21.5 GB on the idle 23 GB host. Measured afterwards in a memory-capped scope (systemd-run --user
+--scope -p MemoryMax=..., `go build -a ./closure`, peak RSS of the compile process via -toolexec):
+
+    tree7 (flip7-tree 7a9def2e), default backend: killed by the kernel OOM killer at the 10 GB and at the 18 GB cap
+    tree8 (flip8-tree cbb1d976), default backend: killed at the 10 GB and at the 18 GB cap
+    tree8, -gcflags=jsgomech/closure=-c=1:        built, compile peak 18,031,276 KB, 254.6 s
+
+So the size is not new in this flip (PLAN-STATUS open item "compile memory"); the seventh flip's gate built before the
+session began stopping processes under memory pressure. -c sets how many functions the compiler's backend compiles at
+once; it does not change the object code (the four comparisons below check the output in any case). env.sh unsets
+GOFLAGS, so the flag comes from a GOENV file, $B/goenv-c1 (the user go env plus
+GOFLAGS=-gcflags=jsgomech/closure=-c=1), and the gate ran in a 20 GB scope:
+
+    flock $B/heavy.lock systemd-run --user --scope -q -p MemoryMax=20G -p MemorySwapMax=0 \
+        env GOENV=$B/goenv-c1 $B/gate.sh tree8 flip8
+
+$B/logs/gate-flip8.log: tree cbb1d976 dirty: 1 (.cache); tests before 112, after 112; removed 0 declarations;
+ok jsgomech/closure 2.946s; checks: MATCH (952 inputs), bundle: MATCH (3), downlevel: MATCH (2094), advanced: MATCH
+(848); runtime lines 27106, test lines 10578; BUILT. The gate prints GATE FAILED for the selftest line only, as every
+post-flip tree (the selftest runs the translator on the renamed tree: "lstat closure/g_*.go: no such file").
+$B/bin/m_flip8: 149,064,989 bytes (m_flip7: 147,377,767).
 
 ## 6. Census: seventh (flip7-tree 7a9def2e) | eighth (flip8-tree cbb1d976)
 
@@ -179,13 +197,27 @@ step 556 (type check), then after the first complete pass (flip8-pass1) was rewo
 
 ## 8. Timing
 
-Not run: no binary of the final tree (section 5).
+Subset (proto/gast.py $B/gasub/flags3500.txt 3 f7=$B/bin/m_flip7 f8=$B/bin/m_flip8, interleaved, idle host;
+$B/logs/gast-f7-f8.log), output sha 72b57cd286c9 in all six runs:
+
+    f7  cpu 120.61 116.54 117.68  (median 117.68)  wall 106.52  99.33  99.75
+    f8  cpu 117.61 115.82 116.91  (median 116.91)  wall  99.87  98.41  99.48
+
+The eighth flip is not slower: CPU median -0.7%, within the spread of the runs.
+
+Full benchmark (tools/bench/run_googleapis_bench.py, idle host, back to back, each in a 20 GB systemd scope; inside it
+Go reports no memory limit and Java's heap is -Xmx20g as in every earlier run; logs $B/logs/ga-full-f8.log,
+ga-full-java7.log), same states and chunks (cae7acad) on both sides:
+
+    eighth flip     583.1 s  CHECKS 308.5  OPTIMIZATIONS 224.6  FINALIZATIONS 50.0
+    pre-flip Java   441.5 s  CHECKS 200.2  OPTIMIZATIONS 201.4  FINALIZATIONS 39.9   Java/Go 0.76
+
+(seventh flip's run: 575.7 against 429.5, 0.75.)
 
 ## Open items, not verified
 
-- The final gate (section 5) and with it the runtime tests of the final tree, the binary and the subset timing.
-- Why the test build of the trees from step 556 on needs that much memory (the seventh flip's final gate built them on
-  this host); not measured against the seventh tree.
+- Why compiling the closure package needs more than 18 GB with the default backend (seventh and eighth tree alike);
+  which functions dominate was not measured.
 - port402-8.py moves piece cmp's fast path into ttreeCmp_; whether the sorted collections' natural order through it is
   faster than through the bridge was not timed.
 - The objarg twins (51 calls) and 6 seqcoll twins stay in the final tree; no post-flip tool reads the objarg twins (the
