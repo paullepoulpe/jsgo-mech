@@ -30,17 +30,7 @@ func (this *ReplaceIdGenerators) init_ReplaceIdGenerators(compiler *AbstractComp
 			var gen *TEntry[string, RenamingMap] = it_1.entry()
 			var name string = gen.getKey()
 			var map_ RenamingMap = gen.getValue()
-			var renamingToken RenamingToken
-			_ = renamingToken
-			if func() bool {
-				v_ := any(map_)
-				p, ok := v_.(RenamingToken)
-				if !ok {
-					return false
-				}
-				renamingToken = p
-				return true
-			}() {
+			if renamingToken, ok := any(map_).(RenamingToken); ok {
 				switch renamingToken {
 				case RenamingToken_DISABLE:
 					this.nameGenerators[name] = nil

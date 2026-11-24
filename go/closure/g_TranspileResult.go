@@ -75,17 +75,8 @@ func (this *TranspileResult) wasTranspiled() bool {
 }
 
 func (this *TranspileResult) equals(other any) bool {
-	var transpileResult *TranspileResult
-	_ = transpileResult
-	return ((((func() bool {
-		v_ := other
-		p, ok := v_.(*TranspileResult)
-		if !ok {
-			return false
-		}
-		transpileResult = p
-		return true
-	}() && (transpileResult.pathField == this.pathField)) && (transpileResult.originalField == this.originalField)) && (transpileResult.transpiledField == this.transpiledField)) && (transpileResult.sourceMapField == this.sourceMapField))
+	transpileResult, ok := other.(*TranspileResult)
+	return ((((ok && (transpileResult.pathField == this.pathField)) && (transpileResult.originalField == this.originalField)) && (transpileResult.transpiledField == this.transpiledField)) && (transpileResult.sourceMapField == this.sourceMapField))
 }
 
 func (this *TranspileResult) hashCode() int32 {
