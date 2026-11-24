@@ -3,7 +3,8 @@
 package closure
 
 type ScopedName struct {
-	self_ ScopedName_I
+	self_     ScopedName_I
+	hashMemo_ int32 // hashCode, once computed, when it is not 0 (post-flip step hashmemo)
 }
 
 // ScopedName_I holds the methods the dispatchers of ScopedName's hierarchy call on the most derived
@@ -121,6 +122,16 @@ func (this *ScopedName) equals_ScopedName(scopedName *ScopedName) bool {
 }
 
 func (this *ScopedName) hashCode() int32 {
+	if h := this.hashMemo_; h != 0 {
+		return h
+	}
+	h := this.hashCodeOnce_()
+	this.hashMemo_ = h
+	return h
+}
+
+// hashCodeOnce_ computes hashCode: a function of data that is final in the object (post-flip step hashmemo).
+func (this *ScopedName) hashCodeOnce_() int32 {
 	var name string = this.getName()
 	var root Node = this.getScopeRoot()
 	var result int32 = 1

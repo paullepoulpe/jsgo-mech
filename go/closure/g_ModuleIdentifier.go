@@ -8,6 +8,7 @@ type ModuleIdentifier struct {
 	name_             string
 	closureNamespace_ string
 	moduleName_       string
+	hashMemo_         int32 // hashCode, once computed, when it is not 0 (post-flip step hashmemo)
 }
 
 func (this *ModuleIdentifier) zero_ModuleIdentifier() {
@@ -99,6 +100,16 @@ func (this *ModuleIdentifier) equals(p0 any) bool {
 }
 
 func (this *ModuleIdentifier) hashCode() int32 {
+	if h := this.hashMemo_; h != 0 {
+		return h
+	}
+	h := this.hashCodeOnce_()
+	this.hashMemo_ = h
+	return h
+}
+
+// hashCodeOnce_ computes hashCode: a function of data that is final in the object (post-flip step hashmemo).
+func (this *ModuleIdentifier) hashCodeOnce_() int32 {
 	var h int32
 	h = h*31 + strhash_(this.name_)
 	h = h*31 + strhash_(this.closureNamespace_)
