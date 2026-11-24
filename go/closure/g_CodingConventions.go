@@ -47,8 +47,8 @@ type CodingConventions_Proxy_I interface {
 	applySubclassRelationship_impl(*NominalTypeBuilder, *NominalTypeBuilder, CodingConvention_SubclassType)
 	describeCachingCall_impl(Node) *CodingConvention_Cache
 	describeFunctionBind_impl(Node, bool) *CodingConvention_Bind
-	extractClassNameIfProvide_impl(Node, Node) Optional[string]
-	extractClassNameIfRequire_impl(Node, Node) Optional[string]
+	extractClassNameIfProvide_impl(Node, Node) string
+	extractClassNameIfRequire_impl(Node, Node) string
 	extractIsModuleFile_impl(Node, Node) bool
 	getAbstractMethodName_impl() string
 	getAssertionFunctions_impl() CollectionT[*CodingConvention_AssertionFunctionSpec]
@@ -56,7 +56,7 @@ type CodingConventions_Proxy_I interface {
 	getExportPropertyFunction_impl() string
 	getExportSymbolFunction_impl() string
 	getObjectLiteralCast_impl(Node) *CodingConvention_ObjectLiteralCast
-	getPackageName_impl(StaticSourceFile) Optional[string]
+	getPackageName_impl(StaticSourceFile) string
 	getSingletonGetterClassName_impl(Node) string
 	identifyTypeDeclarationCall_impl(Node) *TList[string]
 	isClassFactoryCall_impl(Node) bool
@@ -68,7 +68,7 @@ type CodingConventions_Proxy_I interface {
 	isPropertyRenameFunction_impl(Node) bool
 	isPropertyTestFunction_impl(Node) bool
 	isSuperClassReference_impl(string) bool
-	isValidEnumKey_impl(Optional[string]) bool
+	isValidEnumKey_impl(string) bool
 	isVarArgsParameter_impl(Node) bool
 }
 
@@ -102,7 +102,7 @@ func (this *CodingConventions_Proxy) isConstantKey_impl(keyName string) bool {
 	return this.nextConvention.isConstantKey(keyName)
 }
 
-func (this *CodingConventions_Proxy) isValidEnumKey_impl(key Optional[string]) bool {
+func (this *CodingConventions_Proxy) isValidEnumKey_impl(key string) bool {
 	return this.nextConvention.isValidEnumKey(key)
 }
 
@@ -126,7 +126,7 @@ func (this *CodingConventions_Proxy) isExported(name string) bool {
 	return CodingConvention_isExported_default(this.self().(CodingConvention), name)
 }
 
-func (this *CodingConventions_Proxy) getPackageName_impl(source StaticSourceFile) Optional[string] {
+func (this *CodingConventions_Proxy) getPackageName_impl(source StaticSourceFile) string {
 	return this.nextConvention.getPackageName(source)
 }
 
@@ -146,11 +146,11 @@ func (this *CodingConventions_Proxy) extractIsModuleFile_impl(node Node, parent 
 	return this.nextConvention.extractIsModuleFile(node, parent)
 }
 
-func (this *CodingConventions_Proxy) extractClassNameIfProvide_impl(node Node, parent Node) Optional[string] {
+func (this *CodingConventions_Proxy) extractClassNameIfProvide_impl(node Node, parent Node) string {
 	return this.nextConvention.extractClassNameIfProvide(node, parent)
 }
 
-func (this *CodingConventions_Proxy) extractClassNameIfRequire_impl(node Node, parent Node) Optional[string] {
+func (this *CodingConventions_Proxy) extractClassNameIfRequire_impl(node Node, parent Node) string {
 	return this.nextConvention.extractClassNameIfRequire(node, parent)
 }
 
@@ -234,11 +234,11 @@ func (this *CodingConventions_Proxy) extractIsModuleFile(p0 Node, p1 Node) bool 
 	return this.self_.extractIsModuleFile_impl(p0, p1)
 }
 
-func (this *CodingConventions_Proxy) extractClassNameIfProvide(p0 Node, p1 Node) Optional[string] {
+func (this *CodingConventions_Proxy) extractClassNameIfProvide(p0 Node, p1 Node) string {
 	return this.self_.extractClassNameIfProvide_impl(p0, p1)
 }
 
-func (this *CodingConventions_Proxy) extractClassNameIfRequire(p0 Node, p1 Node) Optional[string] {
+func (this *CodingConventions_Proxy) extractClassNameIfRequire(p0 Node, p1 Node) string {
 	return this.self_.extractClassNameIfRequire_impl(p0, p1)
 }
 
@@ -294,7 +294,7 @@ func (this *CodingConventions_Proxy) isConstantKey(p0 string) bool {
 	return this.self_.isConstantKey_impl(p0)
 }
 
-func (this *CodingConventions_Proxy) isValidEnumKey(p0 Optional[string]) bool {
+func (this *CodingConventions_Proxy) isValidEnumKey(p0 string) bool {
 	return this.self_.isValidEnumKey_impl(p0)
 }
 
@@ -314,7 +314,7 @@ func (this *CodingConventions_Proxy) isClassFactoryCall(p0 Node) bool {
 	return this.self_.isClassFactoryCall_impl(p0)
 }
 
-func (this *CodingConventions_Proxy) getPackageName(p0 StaticSourceFile) Optional[string] {
+func (this *CodingConventions_Proxy) getPackageName(p0 StaticSourceFile) string {
 	return this.self_.getPackageName_impl(p0)
 }
 
@@ -343,8 +343,8 @@ func (this *CodingConventions_DefaultCodingConvention) isConstantKey(variableNam
 	return false
 }
 
-func (this *CodingConventions_DefaultCodingConvention) isValidEnumKey(key Optional[string]) bool {
-	return (key.isPresent() && (len(key.get()) != 0))
+func (this *CodingConventions_DefaultCodingConvention) isValidEnumKey(key string) bool {
+	return (key != nullstr_ && (len(optstrGet_(key)) != 0))
 }
 
 func (this *CodingConventions_DefaultCodingConvention) isOptionalParameter(parameter Node) bool {
@@ -363,14 +363,14 @@ func (this *CodingConventions_DefaultCodingConvention) isFunctionCallThatAlwaysT
 	return false
 }
 
-func (this *CodingConventions_DefaultCodingConvention) getPackageName(source StaticSourceFile) Optional[string] {
+func (this *CodingConventions_DefaultCodingConvention) getPackageName(source StaticSourceFile) string {
 	var name string = source.getName()
 	var lastSlash int32 = int32(strings.LastIndexByte(name, '/'))
-	return func() Optional[string] {
+	return func() string {
 		if lastSlash == -1 {
-			return Optional_of[string]("")
+			return ""
 		}
-		return Optional_of[string](name[:lastSlash])
+		return optstrOf_(name[:lastSlash])
 	}()
 }
 
@@ -407,12 +407,12 @@ func (this *CodingConventions_DefaultCodingConvention) extractIsModuleFile(node 
 	panic(new_UnsupportedOperationException_String(message))
 }
 
-func (this *CodingConventions_DefaultCodingConvention) extractClassNameIfProvide(node Node, parent Node) Optional[string] {
+func (this *CodingConventions_DefaultCodingConvention) extractClassNameIfProvide(node Node, parent Node) string {
 	var message string = "only implemented in ClosureCodingConvention"
 	panic(new_UnsupportedOperationException_String(message))
 }
 
-func (this *CodingConventions_DefaultCodingConvention) extractClassNameIfRequire(node Node, parent Node) Optional[string] {
+func (this *CodingConventions_DefaultCodingConvention) extractClassNameIfRequire(node Node, parent Node) string {
 	var message string = "only implemented in ClosureCodingConvention"
 	panic(new_UnsupportedOperationException_String(message))
 }

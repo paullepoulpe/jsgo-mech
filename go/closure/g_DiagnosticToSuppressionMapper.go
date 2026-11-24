@@ -70,7 +70,7 @@ func DiagnosticToSuppressionMapper_printAsJson(diagnosticToSuppression MapT[stri
 	writer.setSerializeNulls(false)
 	writer.beginObject()
 	for entry := range elemsT_(diagnosticToSuppression.entrySet_t()) {
-		writer.name(entry.getKey_t()).stringValue(Optional_ofNullable[string](entry.getValue_t()))
+		writer.name(entry.getKey_t()).stringValue(entry.getValue_t())
 	}
 	writer.endObject()
 	Output_stdout().println(writer.toString())

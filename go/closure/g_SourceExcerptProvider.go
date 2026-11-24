@@ -3,10 +3,10 @@
 package closure
 
 type SourceExcerptProvider interface {
-	getSourceLine(Optional[string], int32) Optional[string]
-	getSourceLines(Optional[string], int32, int32) Region
-	getSourceRegion(Optional[string], int32) Region
-	getSourceMapping_Optional_int_int(Optional[string], int32, int32) *Mapping_OriginalMapping
+	getSourceLine(string, int32) string
+	getSourceLines(string, int32, int32) Region
+	getSourceRegion(string, int32) Region
+	getSourceMapping_Optional_int_int(string, int32, int32) *Mapping_OriginalMapping
 }
 
 type SourceExcerptProvider_SourceExcerpt uint8
@@ -47,11 +47,11 @@ func (this SourceExcerptProvider_SourceExcerpt) as_SourceExcerptProvider_SourceE
 	return this
 }
 
-func (this SourceExcerptProvider_SourceExcerpt) get(source SourceExcerptProvider, sourceName Optional[string], lineNumber int32, formatter SourceExcerptProvider_ExcerptFormatter) Optional[string] {
+func (this SourceExcerptProvider_SourceExcerpt) get(source SourceExcerptProvider, sourceName string, lineNumber int32, formatter SourceExcerptProvider_ExcerptFormatter) string {
 	return this.get_5(source, sourceName, lineNumber, -1, formatter)
 }
 
-func (this SourceExcerptProvider_SourceExcerpt) get_5(p0 SourceExcerptProvider, p1 Optional[string], p2 int32, p3 int32, p4 SourceExcerptProvider_ExcerptFormatter) Optional[string] {
+func (this SourceExcerptProvider_SourceExcerpt) get_5(p0 SourceExcerptProvider, p1 string, p2 int32, p3 int32, p4 SourceExcerptProvider_ExcerptFormatter) string {
 	switch this {
 	case SourceExcerptProvider_SourceExcerpt_LINE:
 		return this.get_5_LINE(p0, p1, p2, p3, p4)
@@ -96,18 +96,18 @@ func SourceExcerptProvider_SourceExcerpt_clinit() {
 }
 
 type SourceExcerptProvider_ExcerptFormatter interface {
-	formatLine(Optional[string], int32) Optional[string]
-	formatRegion(Region) Optional[string]
+	formatLine(string, int32) string
+	formatRegion(Region) string
 }
 
-func (this SourceExcerptProvider_SourceExcerpt) get_5_LINE(source SourceExcerptProvider, sourceName Optional[string], lineNumber int32, unused int32, formatter SourceExcerptProvider_ExcerptFormatter) Optional[string] {
+func (this SourceExcerptProvider_SourceExcerpt) get_5_LINE(source SourceExcerptProvider, sourceName string, lineNumber int32, unused int32, formatter SourceExcerptProvider_ExcerptFormatter) string {
 	return formatter.formatLine(source.getSourceLine(sourceName, lineNumber), lineNumber)
 }
 
-func (this SourceExcerptProvider_SourceExcerpt) get_5_FULL(source SourceExcerptProvider, sourceName Optional[string], startLineNumber int32, length int32, formatter SourceExcerptProvider_ExcerptFormatter) Optional[string] {
+func (this SourceExcerptProvider_SourceExcerpt) get_5_FULL(source SourceExcerptProvider, sourceName string, startLineNumber int32, length int32, formatter SourceExcerptProvider_ExcerptFormatter) string {
 	return formatter.formatRegion(source.getSourceLines(sourceName, startLineNumber, length))
 }
 
-func (this SourceExcerptProvider_SourceExcerpt) get_5_REGION(source SourceExcerptProvider, sourceName Optional[string], lineNumber int32, length int32, formatter SourceExcerptProvider_ExcerptFormatter) Optional[string] {
+func (this SourceExcerptProvider_SourceExcerpt) get_5_REGION(source SourceExcerptProvider, sourceName string, lineNumber int32, length int32, formatter SourceExcerptProvider_ExcerptFormatter) string {
 	return formatter.formatRegion(source.getSourceRegion(sourceName, lineNumber))
 }

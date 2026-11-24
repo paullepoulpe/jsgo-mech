@@ -176,7 +176,7 @@ func (this *CheckSideEffects_StripProtection) visit_impl(t *NodeTraversal, n Nod
 			return
 		}
 		if target.getStringIs_(sidx_244a32434c5f505245534552564524) {
-			if !J2clSourceUtils_isJ2clSourceString(Optional_of[string](n.getSourceFileName()).filterFn_(func(s string) bool {
+			if !J2clSourceUtils_isJ2clSourceString(optstrFilter_(optstrOf_(n.getSourceFileName()), func(s string) bool {
 				return s != ""
 			})) {
 				panic(new_IllegalStateException_String(objstr_("Only allowed for J2CL code")))

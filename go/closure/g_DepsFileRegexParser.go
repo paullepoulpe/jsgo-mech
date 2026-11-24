@@ -85,7 +85,7 @@ func (this *DepsFileRegexParser) parseLine_impl(line string) *Outcome_base[any] 
 				return Outcome_base_err[any](providesOutcome.error())
 			}
 			var provides ListT[string] = providesOutcome.get()
-			var loadFlagsOutcome *Outcome_base[MapT[string, string]] = this.parseLoadFlags(Optional_ofNullable[string](this.depArgsMatch.group(4)))
+			var loadFlagsOutcome *Outcome_base[MapT[string, string]] = this.parseLoadFlags(this.depArgsMatch.group(4))
 			if loadFlagsOutcome.isErr() {
 				return Outcome_base_err[any](loadFlagsOutcome.error())
 			}
@@ -115,13 +115,13 @@ func DepsFileRegexParser_requiresParsedFromDeps(symbols ListT[string]) *TList[*D
 	return result.build()
 }
 
-func (this *DepsFileRegexParser) parseLoadFlags(loadFlags Optional[string]) *Outcome_base[MapT[string, string]] {
-	if loadFlags.isEmpty() || (loadFlags.get() == "false") {
+func (this *DepsFileRegexParser) parseLoadFlags(loadFlags string) *Outcome_base[MapT[string, string]] {
+	if loadFlags == nullstr_ || (optstrGet_(loadFlags) == "false") {
 		return Outcome_base_ok_Object[MapT[string, string]](tmapEmptyImm_(tc_string, tc_string).asMapT())
-	} else if loadFlags.get() == "true" {
+	} else if optstrGet_(loadFlags) == "true" {
 		return Outcome_base_ok_Object[MapT[string, string]](immutableMapOf1_[string, string](tc_string, tc_string, "module", "goog").asMapT())
 	} else {
-		return this.parseJsStringMap(loadFlags.get())
+		return this.parseJsStringMap(optstrGet_(loadFlags))
 	}
 }
 

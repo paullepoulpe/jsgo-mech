@@ -711,39 +711,39 @@ func (this *Scanner_parser) scanIdentifierOrKeyword(beginToken int32, ch uint16)
 		this.nextChar()
 		ch = this.peekChar()
 	}
-	var value Optional[string] = Optional_of[string](this.contentsU16.substring(valueStartIndex, this.index_))
-	if isPrivateIdentifier && (value.get() == "#") {
+	var value string = optstrOf_(this.contentsU16.substring(valueStartIndex, this.index_))
+	if isPrivateIdentifier && (optstrGet_(value) == "#") {
 		this.reportError_3(this.getPosition_1(beginToken), "Invalid usage of #")
 		return this.createToken(TokenType_ERROR, beginToken)
 	}
 	if containsUnicodeEscape {
 		value = Scanner_parser_processUnicodeEscapes(value)
-		if value.isEmpty() {
+		if value == nullstr_ {
 			this.reportError_3(this.getPosition_1(this.index_), "Invalid escape sequence")
 			return this.createToken(TokenType_ERROR, beginToken)
 		}
 	}
 	var valueU16 utf16_
-	var start uint16 = valueU16.of(value.get()).charAt(0)
+	var start uint16 = valueU16.of(optstrGet_(value)).charAt(0)
 	if isPrivateIdentifier {
-		start = valueU16.of(value.get()).charAt(1)
+		start = valueU16.of(optstrGet_(value)).charAt(1)
 	}
 	if !Identifiers_isIdentifierStart(start) {
 		this.reportError_3(this.getPosition_1(beginToken), "Character '%c' (U+%04X) is not a valid identifier start char", uint16(start), int32(int32(start)))
 		return this.createToken(TokenType_ERROR, beginToken)
 	}
-	var k Keywords = Keywords_getString(value.orElseThrow())
+	var k Keywords = Keywords_getString(optstrGet_(value))
 	if (k != 0) && !containsUnicodeEscape {
 		return new_Token_parser(Keywords_type___[k-1], this.getTokenRange(beginToken))
 	}
-	return new_IdentifierToken(this.getTokenRange(beginToken), value.get()).up_Token_parser()
+	return new_IdentifierToken(this.getTokenRange(beginToken), optstrGet_(value)).up_Token_parser()
 }
 
-func Scanner_parser_processUnicodeEscapes(value Optional[string]) Optional[string] {
+func Scanner_parser_processUnicodeEscapes(value string) string {
 	var valueU16 utf16_
-	for JString_contains_s(value.get(), "\\") {
-		var escapeStart int32 = valueU16.of(value.get()).indexOf(92)
-		var ret_2 Optional[string]
+	for JString_contains_s(optstrGet_(value), "\\") {
+		var escapeStart int32 = valueU16.of(optstrGet_(value)).indexOf(92)
+		var ret_2 string
 		code_2 := func() (code_ int) {
 			defer func() {
 				if r_ := recover(); r_ != nil {
@@ -751,49 +751,49 @@ func Scanner_parser_processUnicodeEscapes(value Optional[string]) Optional[strin
 					if is_NumberFormatException(ex_) || is_StringIndexOutOfBoundsException(ex_) {
 						var e *RuntimeException = to_RuntimeException(ex_)
 						_ = e
-						ret_2 = Optional_empty[string]()
+						ret_2 = nullstr_
 						code_ = 1
 						return
 					}
 					panic(r_)
 				}
 			}()
-			if valueU16.of(value.get()).charAt((escapeStart + 1)) != 'u' {
-				ret_2 = Optional_empty[string]()
+			if valueU16.of(optstrGet_(value)).charAt((escapeStart + 1)) != 'u' {
+				ret_2 = nullstr_
 				return 1
 			}
 			var hexDigits string
 			var escapeEnd int32
-			if valueU16.of(value.get()).charAt((escapeStart + 2)) != '{' {
+			if valueU16.of(optstrGet_(value)).charAt((escapeStart + 2)) != '{' {
 				escapeEnd = (escapeStart + 6)
-				if escapeEnd > valueU16.of(value.get()).length() {
-					ret_2 = Optional_empty[string]()
+				if escapeEnd > valueU16.of(optstrGet_(value)).length() {
+					ret_2 = nullstr_
 					return 1
 				}
-				hexDigits = valueU16.of(value.get()).substring((escapeStart + 2), escapeEnd)
+				hexDigits = valueU16.of(optstrGet_(value)).substring((escapeStart + 2), escapeEnd)
 			} else {
 				escapeEnd = (escapeStart + 3)
-				for Scanner_parser_isHexDigit(valueU16.of(value.get()).charAt(escapeEnd)) {
+				for Scanner_parser_isHexDigit(valueU16.of(optstrGet_(value)).charAt(escapeEnd)) {
 					escapeEnd++
 				}
-				if valueU16.of(value.get()).charAt(escapeEnd) != '}' {
-					ret_2 = Optional_empty[string]()
+				if valueU16.of(optstrGet_(value)).charAt(escapeEnd) != '}' {
+					ret_2 = nullstr_
 					return 1
 				}
-				hexDigits = valueU16.of(value.get()).substring((escapeStart + 3), escapeEnd)
+				hexDigits = valueU16.of(optstrGet_(value)).substring((escapeStart + 3), escapeEnd)
 				escapeEnd++
 			}
 			var codePoint int32 = Integer_parseInt(hexDigits, 16)
 			if codePoint > 65535 {
-				ret_2 = Optional_empty[string]()
+				ret_2 = nullstr_
 				return 1
 			}
 			var ch uint16 = uint16(codePoint)
 			if !Identifiers_isIdentifierPart(ch) {
-				ret_2 = Optional_empty[string]()
+				ret_2 = nullstr_
 				return 1
 			}
-			value = Optional_of[string]((sstr_(valueU16.of(value.get()).substring(0, escapeStart)) + chrstr_(ch) + sstr_(valueU16.of(value.get()).substring_int(escapeEnd))))
+			value = optstrOf_((sstr_(valueU16.of(optstrGet_(value)).substring(0, escapeStart)) + chrstr_(ch) + sstr_(valueU16.of(optstrGet_(value)).substring_int(escapeEnd))))
 			return 0
 		}()
 		if code_2 == 1 {
@@ -840,13 +840,13 @@ func (this *Scanner_parser) nextTemplateLiteralTokenShared(endType TokenType, mi
 		switch this.peekChar() {
 		case '`':
 			this.nextChar()
-			return new_TemplateLiteralToken(endType, value, skipTemplateCharactersResult.getErrorMessage().orElse(""), skipTemplateCharactersResult.getErrorLevel(), skipTemplateCharactersResult.getPosition(), this.getTokenRangeSourcePosition(startingPosition))
+			return new_TemplateLiteralToken(endType, value, optstrOr_(skipTemplateCharactersResult.getErrorMessage(), ""), skipTemplateCharactersResult.getErrorLevel(), skipTemplateCharactersResult.getPosition(), this.getTokenRangeSourcePosition(startingPosition))
 		case '$':
 			this.nextChar()
 			this.nextChar()
-			return new_TemplateLiteralToken(middleType, value, skipTemplateCharactersResult.getErrorMessage().orElse(""), skipTemplateCharactersResult.getErrorLevel(), skipTemplateCharactersResult.getPosition(), this.getTokenRangeSourcePosition(startingPosition))
+			return new_TemplateLiteralToken(middleType, value, optstrOr_(skipTemplateCharactersResult.getErrorMessage(), ""), skipTemplateCharactersResult.getErrorLevel(), skipTemplateCharactersResult.getPosition(), this.getTokenRangeSourcePosition(startingPosition))
 		default:
-			return new_TemplateLiteralToken(endType, value, skipTemplateCharactersResult.getErrorMessage().orElse(""), skipTemplateCharactersResult.getErrorLevel(), skipTemplateCharactersResult.getPosition(), this.getTokenRangeSourcePosition(startingPosition))
+			return new_TemplateLiteralToken(endType, value, optstrOr_(skipTemplateCharactersResult.getErrorMessage(), ""), skipTemplateCharactersResult.getErrorLevel(), skipTemplateCharactersResult.getPosition(), this.getTokenRangeSourcePosition(startingPosition))
 		}
 	}()
 }
@@ -868,7 +868,7 @@ func (this *Scanner_parser) skipStringLiteralChar() bool {
 }
 
 func (this *Scanner_parser) skipTemplateCharacters() *Scanner_SkipTemplateCharactersResult {
-	var result *Scanner_SkipTemplateCharactersResult = this.createSkipTemplateCharactersResult(Optional_empty[string](), 0)
+	var result *Scanner_SkipTemplateCharactersResult = this.createSkipTemplateCharactersResult(nullstr_, 0)
 	for !this.isAtEnd() {
 		switch this.peekChar() {
 		case '`':
@@ -906,45 +906,45 @@ func (this *Scanner_parser) skipTemplateLiteralEscapeSequence() *Scanner_SkipTem
 	switch next {
 	case '0':
 		if Scanner_parser_isDecimalDigit(this.peekChar()) {
-			return this.createSkipTemplateCharactersResult(Optional_of[string]("Invalid escape sequence"), TemplateLiteralToken_ErrorLevel_ERROR)
+			return this.createSkipTemplateCharactersResult("Invalid escape sequence", TemplateLiteralToken_ErrorLevel_ERROR)
 		}
 		return nil
 	case '1', '2', '3', '4', '5', '6', '7', '8', '9':
-		return this.createSkipTemplateCharactersResult(Optional_of[string]("Invalid escape sequence"), TemplateLiteralToken_ErrorLevel_ERROR)
+		return this.createSkipTemplateCharactersResult("Invalid escape sequence", TemplateLiteralToken_ErrorLevel_ERROR)
 	case 'x':
 		var doubleHexDigit bool = (this.skipHexDigit() && this.skipHexDigit())
 		if !doubleHexDigit {
-			return this.createSkipTemplateCharactersResult(Optional_of[string]("Hex digit expected"), TemplateLiteralToken_ErrorLevel_ERROR)
+			return this.createSkipTemplateCharactersResult("Hex digit expected", TemplateLiteralToken_ErrorLevel_ERROR)
 		}
 		return nil
 	case 'u':
 		if this.peek('{') {
 			this.nextChar()
 			if this.peek('}') {
-				return this.createSkipTemplateCharactersResult(Optional_of[string]("Empty unicode escape"), TemplateLiteralToken_ErrorLevel_ERROR)
+				return this.createSkipTemplateCharactersResult("Empty unicode escape", TemplateLiteralToken_ErrorLevel_ERROR)
 			}
 			var allHexDigits bool = true
 			for !(this.peek('}')) && allHexDigits {
 				allHexDigits = (allHexDigits && this.skipHexDigit())
 			}
 			if !allHexDigits {
-				return this.createSkipTemplateCharactersResult(Optional_of[string]("Hex digit expected"), TemplateLiteralToken_ErrorLevel_ERROR)
+				return this.createSkipTemplateCharactersResult("Hex digit expected", TemplateLiteralToken_ErrorLevel_ERROR)
 			}
 			this.nextChar()
 			return nil
 		} else {
 			var quadHexDigit bool = (((this.skipHexDigit() && this.skipHexDigit()) && this.skipHexDigit()) && this.skipHexDigit())
 			if !quadHexDigit {
-				return this.createSkipTemplateCharactersResult(Optional_of[string]("Hex digit expected"), TemplateLiteralToken_ErrorLevel_ERROR)
+				return this.createSkipTemplateCharactersResult("Hex digit expected", TemplateLiteralToken_ErrorLevel_ERROR)
 			}
 			return nil
 		}
 	case '\\', 'b', 'f', 'n', 'r', 't', 'v', '$', '`':
 		return nil
 	case '\'':
-		return this.createSkipTemplateCharactersResult(Optional_of[string](Strings_lenientFormat("Unnecessary escape: \"\\%s\" is equivalent to just \"%s\"", uint16(next), uint16(next))), TemplateLiteralToken_ErrorLevel_WARNING)
+		return this.createSkipTemplateCharactersResult(optstrOf_(Strings_lenientFormat("Unnecessary escape: \"\\%s\" is equivalent to just \"%s\"", uint16(next), uint16(next))), TemplateLiteralToken_ErrorLevel_WARNING)
 	default:
-		return this.createSkipTemplateCharactersResult(Optional_of[string](Strings_lenientFormat("Unnecessary escape: '\\%s' is equivalent to just '%s'", uint16(next), uint16(next))), TemplateLiteralToken_ErrorLevel_WARNING)
+		return this.createSkipTemplateCharactersResult(optstrOf_(Strings_lenientFormat("Unnecessary escape: '\\%s' is equivalent to just '%s'", uint16(next), uint16(next))), TemplateLiteralToken_ErrorLevel_WARNING)
 	}
 }
 
@@ -1205,7 +1205,7 @@ func (this *Scanner_parser) decTypeParameterLevel() {
 	this.typeParameterLevel--
 }
 
-func (this *Scanner_parser) createSkipTemplateCharactersResult(message Optional[string], errorLevel TemplateLiteralToken_ErrorLevel) *Scanner_SkipTemplateCharactersResult {
+func (this *Scanner_parser) createSkipTemplateCharactersResult(message string, errorLevel TemplateLiteralToken_ErrorLevel) *Scanner_SkipTemplateCharactersResult {
 	return new_Scanner_SkipTemplateCharactersResult(message, errorLevel, this.getPosition())
 }
 
@@ -1224,22 +1224,22 @@ func (this *Scanner_CommentRecorder_fn) recordComment(p0 Comment_Type, p1 *Sourc
 type Scanner_SkipTemplateCharactersResult struct {
 	position      *SourcePosition_util
 	errorLevel    TemplateLiteralToken_ErrorLevel
-	errorMessage_ Optional[string]
+	errorMessage_ string
 }
 
-func (this *Scanner_SkipTemplateCharactersResult) init_Scanner_SkipTemplateCharactersResult(message Optional[string], errorLevel TemplateLiteralToken_ErrorLevel, position *SourcePosition_util) {
+func (this *Scanner_SkipTemplateCharactersResult) init_Scanner_SkipTemplateCharactersResult(message string, errorLevel TemplateLiteralToken_ErrorLevel, position *SourcePosition_util) {
 	this.errorMessage_ = message
 	this.errorLevel = errorLevel
 	this.position = position
 }
 
-func new_Scanner_SkipTemplateCharactersResult(message Optional[string], errorLevel TemplateLiteralToken_ErrorLevel, position *SourcePosition_util) *Scanner_SkipTemplateCharactersResult {
+func new_Scanner_SkipTemplateCharactersResult(message string, errorLevel TemplateLiteralToken_ErrorLevel, position *SourcePosition_util) *Scanner_SkipTemplateCharactersResult {
 	this := &Scanner_SkipTemplateCharactersResult{}
 	this.init_Scanner_SkipTemplateCharactersResult(message, errorLevel, position)
 	return this
 }
 
-func (this *Scanner_SkipTemplateCharactersResult) getErrorMessage() Optional[string] {
+func (this *Scanner_SkipTemplateCharactersResult) getErrorMessage() string {
 	return this.errorMessage_
 }
 
@@ -1252,7 +1252,7 @@ func (this *Scanner_SkipTemplateCharactersResult) getPosition() *SourcePosition_
 }
 
 func (this *Scanner_SkipTemplateCharactersResult) hasMessage() bool {
-	return this.errorMessage_.isPresent()
+	return this.errorMessage_ != nullstr_
 }
 
 func (this *Scanner_SkipTemplateCharactersResult) hasError() bool {

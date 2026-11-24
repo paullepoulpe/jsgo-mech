@@ -3,13 +3,13 @@
 package closure
 
 type SourceMapSupplier interface {
-	getSourceMap(string) Optional[string]
+	getSourceMap(string) string
 }
 
 type SourceMapSupplier_fn struct {
-	f func(string) Optional[string]
+	f func(string) string
 }
 
-func (this *SourceMapSupplier_fn) getSourceMap(p0 string) Optional[string] {
+func (this *SourceMapSupplier_fn) getSourceMap(p0 string) string {
 	return this.f(p0)
 }

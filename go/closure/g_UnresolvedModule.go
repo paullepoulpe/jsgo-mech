@@ -13,9 +13,9 @@ type UnresolvedModule_I interface {
 	getExportedNames_impl(ModuleRequestResolver) *TSet[string]
 	metadata_impl() *ModuleMetadataMap_ModuleMetadata
 	reset_impl()
-	resolveExport_5_impl(ModuleRequestResolver, Optional[string], Optional[string], map[exportTraceKey_]struct{}, map[*UnresolvedModule]struct{}) *ResolveExportResult
-	resolveExport_impl(ModuleRequestResolver, Optional[string]) *ResolveExportResult
-	resolve_2_impl(ModuleRequestResolver, Optional[string]) *Module
+	resolveExport_5_impl(ModuleRequestResolver, string, string, map[exportTraceKey_]struct{}, map[*UnresolvedModule]struct{}) *ResolveExportResult
+	resolveExport_impl(ModuleRequestResolver, string) *ResolveExportResult
+	resolve_2_impl(ModuleRequestResolver, string) *Module
 }
 
 // UnresolvedModule_as is implemented by UnresolvedModule and the classes that extend it: a cast to UnresolvedModule asserts to it
@@ -45,11 +45,11 @@ func (this *UnresolvedModule) init_UnresolvedModule() {
 }
 
 func (this *UnresolvedModule) resolve(moduleRequestResolver ModuleRequestResolver) *Module {
-	return this.resolve_2(moduleRequestResolver, Optional_empty[string]())
+	return this.resolve_2(moduleRequestResolver, nullstr_)
 }
 
-func (this *UnresolvedModule) resolveExport_impl(moduleRequestResolver ModuleRequestResolver, exportName Optional[string]) *ResolveExportResult {
-	return this.resolveExport_5(moduleRequestResolver, Optional_empty[string](), exportName, map[exportTraceKey_]struct{}{}, map[*UnresolvedModule]struct{}{})
+func (this *UnresolvedModule) resolveExport_impl(moduleRequestResolver ModuleRequestResolver, exportName string) *ResolveExportResult {
+	return this.resolveExport_5(moduleRequestResolver, nullstr_, exportName, map[exportTraceKey_]struct{}{}, map[*UnresolvedModule]struct{}{})
 }
 
 func (this *UnresolvedModule) equals(other any) bool {
@@ -60,15 +60,15 @@ func (this *UnresolvedModule) hashCode() int32 {
 	return identityHash_(this.self())
 }
 
-func (this *UnresolvedModule) resolveExport(p0 ModuleRequestResolver, p1 Optional[string]) *ResolveExportResult {
+func (this *UnresolvedModule) resolveExport(p0 ModuleRequestResolver, p1 string) *ResolveExportResult {
 	return this.self_.resolveExport_impl(p0, p1)
 }
 
-func (this *UnresolvedModule) resolveExport_5(p0 ModuleRequestResolver, p1 Optional[string], p2 Optional[string], p3 map[exportTraceKey_]struct{}, p4 map[*UnresolvedModule]struct{}) *ResolveExportResult {
+func (this *UnresolvedModule) resolveExport_5(p0 ModuleRequestResolver, p1 string, p2 string, p3 map[exportTraceKey_]struct{}, p4 map[*UnresolvedModule]struct{}) *ResolveExportResult {
 	return this.self_.resolveExport_5_impl(p0, p1, p2, p3, p4)
 }
 
-func (this *UnresolvedModule) resolve_2(p0 ModuleRequestResolver, p1 Optional[string]) *Module {
+func (this *UnresolvedModule) resolve_2(p0 ModuleRequestResolver, p1 string) *Module {
 	return this.self_.resolve_2_impl(p0, p1)
 }
 

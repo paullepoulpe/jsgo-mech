@@ -36,13 +36,13 @@ func (this ClosurePrimitive) self() any {
 	return this
 }
 
-func ClosurePrimitive_fromStringId(id Optional[string]) ClosurePrimitive {
-	if id.isEmpty() {
+func ClosurePrimitive_fromStringId(id string) ClosurePrimitive {
+	if id == nullstr_ {
 		return 0
 	}
-	var primitive ClosurePrimitive = ClosurePrimitive_ID_TO_ENUM.Get(id.get())
+	var primitive ClosurePrimitive = ClosurePrimitive_ID_TO_ENUM.Get(optstrGet_(id))
 	if primitive == 0 {
-		panic(new_IllegalArgumentException_String(("String id " + sstr_(id.get()) + " does not match any ClosurePrimitive")))
+		panic(new_IllegalArgumentException_String(("String id " + sstr_(optstrGet_(id)) + " does not match any ClosurePrimitive")))
 	}
 	return primitive
 }

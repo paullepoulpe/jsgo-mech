@@ -71,12 +71,12 @@ func (this *J2clClinitPrunerPass) resolveReplacement(node Node) Node {
 	if node == 0 {
 		return 0
 	}
-	var clinitName Optional[string] = J2clClinitPrunerPass_getClinitMethodName(node)
+	var clinitName string = J2clClinitPrunerPass_getClinitMethodName(node)
 	return func() Node {
-		if clinitName.isPresent() && this.emptiedClinitMethods.Has(clinitName.get()) {
+		if clinitName != nullstr_ && this.emptiedClinitMethods.Has(optstrGet_(clinitName)) {
 			return this.resolveReplacement(func() Node {
-				if clinitName.isPresent() {
-					return this.emptiedClinitMethods.Get(clinitName.get())
+				if clinitName != nullstr_ {
+					return this.emptiedClinitMethods.Get(optstrGet_(clinitName))
 				}
 				return 0
 			}())
@@ -107,7 +107,7 @@ func (this *J2clClinitPrunerPass) cleanEmptyClinitReferences(clinitReferences *S
 				replacement = replacement.cloneTree()
 				reference.replaceWith(replacement)
 				this.compiler_.reportChangeToChangeScope(changedScope)
-				clinitReferences.put(J2clClinitPrunerPass_getClinitMethodName(replacement).orElse(nullstr_), replacement)
+				clinitReferences.put(J2clClinitPrunerPass_getClinitMethodName(replacement), replacement)
 			}
 			*newChangedScopes = append(*newChangedScopes, changedScope)
 		}
@@ -128,24 +128,24 @@ func J2clClinitPrunerPass_isClinitMethod(node Node) bool {
 	return (node.isFunction() && J2clClinitPrunerPass_isClinitMethodName(J2clClinitPrunerPass_getQualifiedNameOfFunction(node)))
 }
 
-func J2clClinitPrunerPass_getClinitMethodName(node Node) Optional[string] {
+func J2clClinitPrunerPass_getClinitMethodName(node Node) string {
 	if node.isCall() {
-		var fnName Optional[string] = NodeUtil_getBestLValueName(node.getFirstChild())
-		return func() Optional[string] {
+		var fnName string = NodeUtil_getBestLValueName(node.getFirstChild())
+		return func() string {
 			if J2clClinitPrunerPass_isClinitMethodName(fnName) {
 				return fnName
 			}
-			return Optional_empty[string]()
+			return nullstr_
 		}()
 	}
-	return Optional_empty[string]()
+	return nullstr_
 }
 
-func J2clClinitPrunerPass_isClinitMethodName(fnName Optional[string]) bool {
-	return (fnName.isPresent() && (strings.HasSuffix(fnName.get(), "$$0clinit") || strings.HasSuffix(fnName.get(), ".$clinit")))
+func J2clClinitPrunerPass_isClinitMethodName(fnName string) bool {
+	return (fnName != nullstr_ && (strings.HasSuffix(optstrGet_(fnName), "$$0clinit") || strings.HasSuffix(optstrGet_(fnName), ".$clinit")))
 }
 
-func J2clClinitPrunerPass_getQualifiedNameOfFunction(function Node) Optional[string] {
+func J2clClinitPrunerPass_getQualifiedNameOfFunction(function Node) string {
 	if !function.isFunction() {
 		panic(new_IllegalArgumentException_String(tostr_(function)))
 	}
@@ -194,7 +194,7 @@ func (this *J2clClinitPrunerPass_RedundantClinitPruner) shouldTraverse(t *NodeTr
 	if this.isNewControlBranch(parent) {
 		this.clinitsCalledAtBranch = new_J2clClinitPrunerPass_HierarchicalSet[string](this.clinitsCalledAtBranch)
 		if J2clClinitPrunerPass_isClinitMethod(parent) {
-			this.clinitsCalledAtBranch.add(J2clClinitPrunerPass_getQualifiedNameOfFunction(parent).orElse(nullstr_))
+			this.clinitsCalledAtBranch.add(J2clClinitPrunerPass_getQualifiedNameOfFunction(parent))
 		}
 	}
 	return true
@@ -211,11 +211,11 @@ func (this *J2clClinitPrunerPass_RedundantClinitPruner) visit(t *NodeTraversal, 
 }
 
 func (this *J2clClinitPrunerPass_RedundantClinitPruner) tryRemovingClinit(node Node) {
-	var clinitName Optional[string] = J2clClinitPrunerPass_getClinitMethodName(node)
-	if clinitName.isEmpty() {
+	var clinitName string = J2clClinitPrunerPass_getClinitMethodName(node)
+	if clinitName == nullstr_ {
 		return
 	}
-	if this.clinitsCalledAtBranch.add(clinitName.get()) {
+	if this.clinitsCalledAtBranch.add(optstrGet_(clinitName)) {
 		return
 	}
 	NodeUtil_deleteFunctionCall(node, this.outer_.compiler_)
@@ -253,8 +253,8 @@ func (this *J2clClinitPrunerPass_LookAheadRedundantClinitPruner) visit_impl(t *N
 	if !node.isExprResult() {
 		return
 	}
-	var clinitName Optional[string] = J2clClinitPrunerPass_getClinitMethodName(node.getFirstChild())
-	if clinitName.isEmpty() {
+	var clinitName string = J2clClinitPrunerPass_getClinitMethodName(node.getFirstChild())
+	if clinitName == nullstr_ {
 		return
 	}
 	var callOrNewNode Node = this.getCallOrNewNode(node.getNext())
@@ -262,7 +262,7 @@ func (this *J2clClinitPrunerPass_LookAheadRedundantClinitPruner) visit_impl(t *N
 		return
 	}
 	var enclosingFunction Node = NodeUtil_getEnclosingFunction(node)
-	if (enclosingFunction == 0) || optEquals_(Optional_of[string](callOrNewNode.getFirstChild().getString()), NodeUtil_getNearestFunctionName(enclosingFunction)) {
+	if (enclosingFunction == 0) || optstrOf_(callOrNewNode.getFirstChild().getString()) == NodeUtil_getNearestFunctionName(enclosingFunction) {
 		return
 	}
 	var var_ *Var = t.getScope().getVar_String_rVar(callOrNewNode.getFirstChild().getString())
@@ -270,7 +270,7 @@ func (this *J2clClinitPrunerPass_LookAheadRedundantClinitPruner) visit_impl(t *N
 		return
 	}
 	var staticFnNode Node = var_.getInitialValue()
-	if this.callsClinit(staticFnNode, clinitName.get()) && this.hasSafeArguments(t, callOrNewNode) {
+	if this.callsClinit(staticFnNode, optstrGet_(clinitName)) && this.hasSafeArguments(t, callOrNewNode) {
 		node.detach()
 		this.outer_.compiler_.reportChangeToEnclosingScope(parent)
 	}
@@ -320,7 +320,7 @@ func (this *J2clClinitPrunerPass_LookAheadRedundantClinitPruner) getCallOrNewNod
 
 func (this *J2clClinitPrunerPass_LookAheadRedundantClinitPruner) callsClinit(fnNode Node, clinitName string) bool {
 	var child Node = fnNode.getLastChild().getFirstChild()
-	return (((child != 0) && child.isExprResult()) && optEquals_(Optional_of[string](clinitName), J2clClinitPrunerPass_getClinitMethodName(child.getFirstChild())))
+	return (((child != 0) && child.isExprResult()) && optstrOf_(clinitName) == J2clClinitPrunerPass_getClinitMethodName(child.getFirstChild()))
 }
 
 type J2clClinitPrunerPass_EmptyClinitPruner struct {
@@ -355,8 +355,8 @@ func (this *J2clClinitPrunerPass_EmptyClinitPruner) visit_impl(t *NodeTraversal,
 }
 
 func (this *J2clClinitPrunerPass_EmptyClinitPruner) trySubstituteEmptyFunction(fnNode Node) {
-	var fnQualifiedName Optional[string] = J2clClinitPrunerPass_getQualifiedNameOfFunction(fnNode)
-	if fnQualifiedName.orElse("") == "" {
+	var fnQualifiedName string = J2clClinitPrunerPass_getQualifiedNameOfFunction(fnNode)
+	if optstrOr_(fnQualifiedName, "") == "" {
 		return
 	}
 	var body Node = fnNode.getLastChild()
@@ -364,19 +364,19 @@ func (this *J2clClinitPrunerPass_EmptyClinitPruner) trySubstituteEmptyFunction(f
 		return
 	}
 	var firstExpr Node = body.getFirstChild()
-	if !this.isAssignToEmptyFn(firstExpr, fnQualifiedName.get()) {
+	if !this.isAssignToEmptyFn(firstExpr, optstrGet_(fnQualifiedName)) {
 		return
 	}
 	var secondExpr Node = firstExpr.getNext()
 	var replaceReferencesWith Node
 	if secondExpr == 0 {
 		replaceReferencesWith = 0
-	} else if ((secondExpr.getNext() == 0) && secondExpr.isExprResult()) && J2clClinitPrunerPass_getClinitMethodName(secondExpr.getFirstChild()).isPresent() {
+	} else if ((secondExpr.getNext() == 0) && secondExpr.isExprResult()) && J2clClinitPrunerPass_getClinitMethodName(secondExpr.getFirstChild()) != nullstr_ {
 		replaceReferencesWith = secondExpr.getFirstChild()
 	} else {
 		return
 	}
-	this.outer_.emptiedClinitMethods.Put(fnQualifiedName.get(), replaceReferencesWith)
+	this.outer_.emptiedClinitMethods.Put(optstrGet_(fnQualifiedName), replaceReferencesWith)
 	NodeUtil_deleteNode(firstExpr, this.outer_.compiler_)
 }
 
@@ -392,7 +392,7 @@ func (this *J2clClinitPrunerPass_EmptyClinitPruner) isAssignToEmptyFn(node Node,
 		panic(new_IllegalStateException_String(tostr_(lhs)))
 	}
 	var rhs Node = node.getFirstChild().getLastChild()
-	return (NodeUtil_isEmptyFunctionExpression(rhs) && optEquals_(NodeUtil_getBestLValueName(lhs), Optional_of[string](enclosingFnName)))
+	return (NodeUtil_isEmptyFunctionExpression(rhs) && NodeUtil_getBestLValueName(lhs) == optstrOf_(enclosingFnName))
 }
 
 type J2clClinitPrunerPass_HierarchicalSet[T comparable] struct {
@@ -452,9 +452,9 @@ func new_J2clClinitPrunerPass_1(outer_ *J2clClinitPrunerPass, cap_clinitReferenc
 }
 
 func (this *J2clClinitPrunerPass_1) visit_impl(t *NodeTraversal, node Node, parent Node) {
-	var clinitName Optional[string] = J2clClinitPrunerPass_getClinitMethodName(node)
-	if clinitName.isPresent() {
-		this.cap_clinitReferences.put(clinitName.get(), node)
+	var clinitName string = J2clClinitPrunerPass_getClinitMethodName(node)
+	if clinitName != nullstr_ {
+		this.cap_clinitReferences.put(optstrGet_(clinitName), node)
 	}
 }
 

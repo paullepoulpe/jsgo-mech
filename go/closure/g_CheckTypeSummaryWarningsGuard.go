@@ -46,7 +46,7 @@ func (this *CheckTypeSummaryWarningsGuard) getPriority_impl() int32 {
 }
 
 func (this *CheckTypeSummaryWarningsGuard) inTypeSummary(error_ *JSError) bool {
-	return (error_.sourceName().isPresent() && strings.HasSuffix(error_.sourceName().get(), ".i.js"))
+	return (error_.sourceName() != nullstr_ && strings.HasSuffix(optstrGet_(error_.sourceName()), ".i.js"))
 }
 
 func (this *CheckTypeSummaryWarningsGuard) shouldDemoteIfTypeSummary(error_ *JSError) bool {

@@ -473,7 +473,7 @@ func (this *GatherModuleMetadata_Finder) addNamespace(module *GatherModuleMetada
 		}
 	}
 	var existingType ModuleMetadataMap_ModuleType = 0
-	var existingFileSource Optional[string] = Optional_empty[string]()
+	var existingFileSource string = nullstr_
 	if module.googNamespaces_.contains(namespace) {
 		existingType = module.metadataBuilder.moduleType()
 		existingFileSource = t.getSourceName()
@@ -481,7 +481,7 @@ func (this *GatherModuleMetadata_Finder) addNamespace(module *GatherModuleMetada
 		var existingModule *ModuleMetadataMap_ModuleMetadata = this.outer_.modulesByGoogNamespace.Get(namespace)
 		if existingModule != nil {
 			existingType = existingModule.moduleType()
-			existingFileSource = Optional_of[string](existingModule.rootNode().getSourceFileName()).filterFn_(func(s string) bool {
+			existingFileSource = optstrFilter_(optstrOf_(existingModule.rootNode().getSourceFileName()), func(s string) bool {
 				return s != ""
 			})
 		}
@@ -496,7 +496,7 @@ func (this *GatherModuleMetadata_Finder) addNamespace(module *GatherModuleMetada
 				}
 				return ClosurePrimitiveErrors_DUPLICATE_MODULE
 			}()
-			t.report(n, diagnostic, []string{namespace, existingFileSource.orElse("null")})
+			t.report(n, diagnostic, []string{namespace, optstrOr_(existingFileSource, "null")})
 			return
 		case ModuleMetadataMap_ModuleType_GOOG_PROVIDE:
 			var diagnostic *DiagnosticType = func() *DiagnosticType {
@@ -505,7 +505,7 @@ func (this *GatherModuleMetadata_Finder) addNamespace(module *GatherModuleMetada
 				}
 				return ClosurePrimitiveErrors_DUPLICATE_NAMESPACE_AND_MODULE
 			}()
-			t.report(n, diagnostic, []string{namespace, existingFileSource.orElse("null")})
+			t.report(n, diagnostic, []string{namespace, optstrOr_(existingFileSource, "null")})
 			return
 		case ModuleMetadataMap_ModuleType_COMMON_JS, ModuleMetadataMap_ModuleType_SCRIPT:
 		}

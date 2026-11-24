@@ -19,7 +19,7 @@ type IRFactory struct {
 	jsDocSourceKind            JsDocInfoParser_JsDocSourceKind
 	features_                  *FeatureSet
 	closureUnawareCodeRanges   RangeSetOf[*IRFactory_LineAndColumn]
-	sourceName_                Optional[string]
+	sourceName_                string
 	templateNode               Node
 	defaultTemplateNode        Node
 	closureUnawareTemplateNode Node
@@ -49,11 +49,11 @@ func (this *IRFactory) init_IRFactory(sourceFile StaticSourceFile, config *Confi
 	this.defaultTemplateNode = this.createTemplateNode()
 	this.templateNode = this.defaultTemplateNode
 	this.closureUnawareTemplateNode = this.createClosureUnawareTemplateNode()
-	this.sourceName_ = func() Optional[string] {
+	this.sourceName_ = func() string {
 		if sourceFile == nil {
-			return Optional_empty[string]()
+			return nullstr_
 		}
-		return Optional_of[string](sourceFile.getName())
+		return optstrOf_(sourceFile.getName())
 	}()
 	this.config = config
 	this.errorReporter = errorReporter
@@ -420,8 +420,8 @@ func (this *IRFactory) transformBlock(node *ParseTree) Node {
 }
 
 func (this *IRFactory) handlePossibleFileOverviewJsDoc(jsDocParser *JsDocInfoParser) bool {
-	if jsDocParser.getLicenseText().isPresent() {
-		this.licenseBuilder.Add(jsDocParser.getLicenseText().get())
+	if jsDocParser.getLicenseText() != nullstr_ {
+		this.licenseBuilder.Add(optstrGet_(jsDocParser.getLicenseText()))
 	}
 	var newFileoverview *JSDocInfo = jsDocParser.getFileOverviewJSDocInfo()
 	if newFileoverview == this.firstFileoverview {
@@ -812,7 +812,7 @@ func (this *IRFactory) createJsDocInfoParser_2(node *Comment, useLicensesOnlyCon
 		config = config.toBuilder().setJsDocParsingMode(Config_JsDocParsing_LICENSE_COMMENTS_ONLY).build()
 	}
 	var numOpeningChars int32 = 3
-	var jsdocParser *JsDocInfoParser = new_JsDocInfoParser(new_JsDocTokenStream_String_int_int(String_substring_int(comment, numOpeningChars), lineno, (charno+numOpeningChars)), Optional_of[string](comment), position, this.templateNode, config, this.jsDocSourceKind, this.errorReporter)
+	var jsdocParser *JsDocInfoParser = new_JsDocInfoParser(new_JsDocTokenStream_String_int_int(String_substring_int(comment, numOpeningChars), lineno, (charno+numOpeningChars)), optstrOf_(comment), position, this.templateNode, config, this.jsDocSourceKind, this.errorReporter)
 	jsdocParser.setFileOverviewJSDocInfo(this.firstFileoverview)
 	if (node.type__ == Comment_Type_IMPORTANT) && (len(node.value_) != 0) {
 		jsdocParser.parseImportantComment()
@@ -827,7 +827,7 @@ func (this *IRFactory) parseInlineTypeDoc(node *Comment) *JSDocInfo {
 	var lineno int32 = IRFactory_linenoSourcePosition(node.location_.start_)
 	var charno int32 = IRFactory_charno(node.location_.start_)
 	var numOpeningChars int32 = 3
-	var parser *JsDocInfoParser = new_JsDocInfoParser(new_JsDocTokenStream_String_int_int(String_substring_int(comment, numOpeningChars), lineno, (charno+numOpeningChars)), Optional_of[string](comment), node.location_.start_.offset, this.templateNode, this.config, this.jsDocSourceKind, this.errorReporter)
+	var parser *JsDocInfoParser = new_JsDocInfoParser(new_JsDocTokenStream_String_int_int(String_substring_int(comment, numOpeningChars), lineno, (charno+numOpeningChars)), optstrOf_(comment), node.location_.start_.offset, this.templateNode, this.config, this.jsDocSourceKind, this.errorReporter)
 	return parser.parseInlineTypeDoc()
 }
 
@@ -842,13 +842,13 @@ func (this *IRFactory) setLengthFrom(node Node, ref Node) {
 func (this *IRFactory) reportErrorIfYieldOrAwaitInDefaultValue(defaultValueNode Node) {
 	var yieldNode Node = IRFactory_findNodeTypeInExpression(defaultValueNode, Token_rhino_YIELD)
 	if yieldNode != 0 {
-		this.errorReporter.error("`yield` is illegal in parameter default value.", Optional_of[string](yieldNode.getSourceFileName()).filterFn_(func(s string) bool {
+		this.errorReporter.error("`yield` is illegal in parameter default value.", optstrFilter_(optstrOf_(yieldNode.getSourceFileName()), func(s string) bool {
 			return s != ""
 		}), yieldNode.getLineno(), yieldNode.getCharno())
 	}
 	var awaitNode Node = IRFactory_findNodeTypeInExpression(defaultValueNode, Token_rhino_AWAIT)
 	if awaitNode != 0 {
-		this.errorReporter.error("`await` is illegal in parameter default value.", Optional_of[string](awaitNode.getSourceFileName()).filterFn_(func(s string) bool {
+		this.errorReporter.error("`await` is illegal in parameter default value.", optstrFilter_(optstrOf_(awaitNode.getSourceFileName()), func(s string) bool {
 			return s != ""
 		}), awaitNode.getLineno(), awaitNode.getCharno())
 	}
@@ -1389,7 +1389,7 @@ func (this *IRFactory) maybeAddNonJsDocComment(node Node, start *SourcePosition_
 	return node
 }
 
-func (this *IRFactory) newTemplateLitStringNode(cooked Optional[string], raw string) Node {
+func (this *IRFactory) newTemplateLitStringNode(cooked string, raw string) Node {
 	return Node_newTemplateLitString_Optional_String(cooked, raw).clonePropsFrom(this.templateNode)
 }
 
@@ -1402,7 +1402,7 @@ func (this *IRFactory) newBigIntNode(value *BigInteger) Node {
 }
 
 func (this *IRFactory) error(rhinoNode Node, message string) {
-	this.errorReporter.error(message, Optional_of[string](rhinoNode.getSourceFileName()).filterFn_(func(s string) bool {
+	this.errorReporter.error(message, optstrFilter_(optstrOf_(rhinoNode.getSourceFileName()), func(s string) bool {
 		return s != ""
 	}), rhinoNode.getLineno(), rhinoNode.getCharno())
 }
@@ -2324,9 +2324,9 @@ func (this *IRFactory_TransformDispatcher) processTemplateLiteralToken(token *Te
 	}
 	var node Node
 	if token.hasError() {
-		node = this.outer_.newTemplateLitStringNode(Optional_empty[string](), token.value_)
+		node = this.outer_.newTemplateLitStringNode(nullstr_, token.value_)
 	} else {
-		node = this.outer_.newTemplateLitStringNode(Optional_of[string](this.outer_.normalizeString(token.up_LiteralToken(), true)), token.value_)
+		node = this.outer_.newTemplateLitStringNode(optstrOf_(this.outer_.normalizeString(token.up_LiteralToken(), true)), token.value_)
 	}
 	this.outer_.setSourceInfoToken(node, token.up_Token_parser())
 	return node

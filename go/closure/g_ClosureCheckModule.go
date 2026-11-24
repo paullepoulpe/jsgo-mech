@@ -81,7 +81,7 @@ func (this *ClosureCheckModule) visit_4_impl(t *NodeTraversal, n Node, currentMo
 	case tokOrd1_CALL:
 		var callee Node = n.getFirstChild()
 		if ClosureCheckModule_GOOG_MODULE_FIELD.matches(callee) {
-			if !optEquals_(Optional_of[string](this.currentModuleInfo.name_), ClosureCheckModule_extractFirstArgumentName(n)) {
+			if optstrOf_(this.currentModuleInfo.name_) != ClosureCheckModule_extractFirstArgumentName(n) {
 				t.report(n, ClosureCheckModule_MULTIPLE_MODULES_IN_FILE, []string{})
 			} else if !ClosureCheckModule_isFirstExpressionInGoogModule(parent) {
 				t.report(n, ClosureCheckModule_GOOG_MODULE_MISPLACED, []string{})
@@ -128,13 +128,13 @@ func (this *ClosureCheckModule) visit_4_impl(t *NodeTraversal, n Node, currentMo
 		} else {
 			if !parent.isGetProp() && n.isQualifiedName() {
 				var node Node = n
-				for this.checkImproperReferenceToImport(t, node, Optional_of[string](node.getQualifiedName()).filterFn_(func(s string) bool {
+				for this.checkImproperReferenceToImport(t, node, optstrFilter_(optstrOf_(node.getQualifiedName()), func(s string) bool {
 					return s != ""
-				}), func() Optional[string] {
+				}), func() string {
 					if node.getParent().isGetProp() {
-						return Optional_of[string](node.getParent().getString())
+						return optstrOf_(node.getParent().getString())
 					}
-					return Optional_empty[string]()
+					return nullstr_
 				}()) {
 					if node.isName() || !node.hasChildren() {
 						return
@@ -167,34 +167,34 @@ func ClosureCheckModule_isLocalVar(v *Var) bool {
 	return v.isLocal()
 }
 
-func (this *ClosureCheckModule) checkImproperReferenceToImport(t *NodeTraversal, n Node, qname Optional[string], nextQnamePart Optional[string]) bool {
-	if qname.isEmpty() {
+func (this *ClosureCheckModule) checkImproperReferenceToImport(t *NodeTraversal, n Node, qname string, nextQnamePart string) bool {
+	if qname == nullstr_ {
 		return true
 	}
-	var importLhs Node = this.currentModuleInfo.importsByLongRequiredName[qname.get()]
+	var importLhs Node = this.currentModuleInfo.importsByLongRequiredName[optstrGet_(qname)]
 	if importLhs == 0 {
 		return true
 	}
-	if !JString_contains_s(qname.get(), ".") && ClosureCheckModule_isLocalVar(t.getScope().getVar_String_rVar(qname.get())) {
+	if !JString_contains_s(optstrGet_(qname), ".") && ClosureCheckModule_isLocalVar(t.getScope().getVar_String_rVar(optstrGet_(qname))) {
 		return true
 	}
 	if importLhs.isName() {
-		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ClosureCheckModule_REFERENCE_TO_SHORT_IMPORT_BY_LONG_NAME_INCLUDING_SHORT_NAME, []string{qname.get(), importLhs.getString()}))
+		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ClosureCheckModule_REFERENCE_TO_SHORT_IMPORT_BY_LONG_NAME_INCLUDING_SHORT_NAME, []string{optstrGet_(qname), importLhs.getString()}))
 		return false
-	} else if importLhs.isDestructuringLhs() && nextQnamePart.isPresent() {
+	} else if importLhs.isDestructuringLhs() && nextQnamePart != nullstr_ {
 		var objPattern Node = importLhs.getFirstChild()
 		if objPattern.isObjectPattern() {
 			{
 				var strKey Node = objPattern.getFirstChild()
 				for ; strKey != 0; strKey = strKey.getNext() {
-					if ((strKey.isStringKey() && strKey.hasOneChild()) && strKey.getFirstChild().isName()) && (strKey.getString() == nextQnamePart.get()) {
+					if ((strKey.isStringKey() && strKey.hasOneChild()) && strKey.getFirstChild().isName()) && (strKey.getString() == optstrGet_(nextQnamePart)) {
 						var parent Node = n.getParent()
 						this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(func() Node {
 							if (parent != 0) && parent.isGetProp() {
 								return parent
 							}
 							return n
-						}(), ClosureCheckModule_REFERENCE_TO_SHORT_IMPORT_BY_LONG_NAME_INCLUDING_SHORT_NAME, []string{(sstr_(qname.get()) + "." + sstr_(nextQnamePart.get())), strKey.getFirstChild().getString()}))
+						}(), ClosureCheckModule_REFERENCE_TO_SHORT_IMPORT_BY_LONG_NAME_INCLUDING_SHORT_NAME, []string{(sstr_(optstrGet_(qname)) + "." + sstr_(optstrGet_(nextQnamePart))), strKey.getFirstChild().getString()}))
 						return false
 					}
 				}
@@ -204,7 +204,7 @@ func (this *ClosureCheckModule) checkImproperReferenceToImport(t *NodeTraversal,
 	if importLhs.isExprResult() && NodeUtil_isGoogForwardDeclareCall(importLhs.getOnlyChild()) {
 		return true
 	}
-	this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ClosureCheckModule_REFERENCE_TO_FULLY_QUALIFIED_IMPORT_NAME, []string{qname.get()}))
+	this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ClosureCheckModule_REFERENCE_TO_FULLY_QUALIFIED_IMPORT_NAME, []string{optstrGet_(qname)}))
 	return false
 }
 
@@ -245,12 +245,12 @@ func (this *ClosureCheckModule) checkModuleExport(t *NodeTraversal, n Node, pare
 	}
 }
 
-func ClosureCheckModule_extractFirstArgumentName(callNode Node) Optional[string] {
+func ClosureCheckModule_extractFirstArgumentName(callNode Node) string {
 	var firstArg Node = callNode.getSecondChild()
 	if (firstArg != 0) && firstArg.isStringLit() {
-		return Optional_of[string](firstArg.getString())
+		return optstrOf_(firstArg.getString())
 	}
-	return Optional_empty[string]()
+	return nullstr_
 }
 
 func (this *ClosureCheckModule) checkRequireCall(t *NodeTraversal, callNode Node, parent Node) {
@@ -262,8 +262,8 @@ func (this *ClosureCheckModule) checkRequireCall(t *NodeTraversal, callNode Node
 	}
 	switch parent.ns_().token {
 	case tokOrd1_EXPR_RESULT:
-		var key Optional[string] = ClosureCheckModule_extractFirstArgumentName(callNode)
-		mapPutIfAbsent_(tc_Node, this.currentModuleInfo.importsByLongRequiredName, key.orElse(nullstr_), parent)
+		var key string = ClosureCheckModule_extractFirstArgumentName(callNode)
+		mapPutIfAbsent_(tc_Node, this.currentModuleInfo.importsByLongRequiredName, key, parent)
 	case tokOrd1_NAME, tokOrd1_DESTRUCTURING_LHS:
 		this.checkShortGoogRequireCall(t, callNode, parent.getParent())
 	case tokOrd1_AWAIT:
@@ -295,7 +295,7 @@ func (this *ClosureCheckModule) checkShortGoogRequireCall(t *NodeTraversal, call
 	} else if lhs.isName() {
 		ClosureCheckModule_checkShortName(t, lhs, callNode.getLastChild().getString())
 	}
-	this.currentModuleInfo.importsByLongRequiredName[ClosureCheckModule_extractFirstArgumentName(callNode).orElse(nullstr_)] = lhs
+	this.currentModuleInfo.importsByLongRequiredName[ClosureCheckModule_extractFirstArgumentName(callNode)] = lhs
 	NodeUtil_visitLhsNodesInNode(declaration, Consumer[Node](func(nameNode Node) {
 		var name string = nameNode.getString()
 		if !setAdd_(this.currentModuleInfo.shortImportNames, name) {
@@ -496,13 +496,13 @@ func (this *ClosureCheckModule_1) visit(node Node) {
 		return
 	}
 	var qname string = node.getString()
-	var nextQnamePart Optional[string] = Optional_empty[string]()
-	for this.outer_.checkImproperReferenceToImport(this.cap_t, node, Optional_of[string](qname), nextQnamePart) {
+	var nextQnamePart string = nullstr_
+	for this.outer_.checkImproperReferenceToImport(this.cap_t, node, optstrOf_(qname), nextQnamePart) {
 		var lastDot int32 = int32(strings.LastIndexByte(qname, '.'))
 		if lastDot < 0 {
 			return
 		}
-		nextQnamePart = Optional_of[string](qname[(lastDot + 1):])
+		nextQnamePart = optstrOf_(qname[(lastDot + 1):])
 		qname = qname[:lastDot]
 	}
 }

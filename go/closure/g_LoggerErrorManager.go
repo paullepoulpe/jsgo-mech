@@ -49,9 +49,9 @@ func new_LoggerErrorManager_Logger(logger *Logger) *LoggerErrorManager {
 func (this *LoggerErrorManager) println_impl(level CheckLevel, error_ *JSError) {
 	switch level {
 	case CheckLevel_ERROR:
-		this.logger.severe(error_.format(level, this.formatter).orElseThrow())
+		this.logger.severe(optstrGet_(error_.format(level, this.formatter)))
 	case CheckLevel_WARNING:
-		this.logger.warning(error_.format(level, this.formatter).orElseThrow())
+		this.logger.warning(optstrGet_(error_.format(level, this.formatter)))
 	case CheckLevel_OFF:
 	}
 }

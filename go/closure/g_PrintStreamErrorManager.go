@@ -53,7 +53,7 @@ func new_PrintStreamErrorManager_Output(stream *Output) *PrintStreamErrorManager
 }
 
 func (this *PrintStreamErrorManager) println_impl(level CheckLevel, error_ *JSError) {
-	this.stream.println(error_.format(level, this.formatter).get())
+	this.stream.println(optstrGet_(error_.format(level, this.formatter)))
 }
 
 func (this *PrintStreamErrorManager) setSummaryDetailLevel(summaryDetailLevel int32) {

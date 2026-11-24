@@ -84,25 +84,25 @@ func (this *PolymerBehaviorExtractor) extractBehaviors(behaviorArray Node, modul
 	return behaviors.build()
 }
 
-func (this *PolymerBehaviorExtractor) resolveBehaviorName(name Optional[string], moduleMetadata *ModuleMetadataMap_ModuleMetadata) *PolymerBehaviorExtractor_ResolveBehaviorNameResult {
-	if name.isEmpty() {
+func (this *PolymerBehaviorExtractor) resolveBehaviorName(name string, moduleMetadata *ModuleMetadataMap_ModuleMetadata) *PolymerBehaviorExtractor_ResolveBehaviorNameResult {
+	if name == nullstr_ {
 		return PolymerBehaviorExtractor_FAILED_RESOLVE_RESULT
 	}
 	var memoized *PolymerBehaviorExtractor_ResolveBehaviorNameResult = func() *PolymerBehaviorExtractor_ResolveBehaviorNameResult {
 		if moduleMetadata != nil {
-			return this.resolveMemoized.get(name.get(), moduleMetadata)
+			return this.resolveMemoized.get(optstrGet_(name), moduleMetadata)
 		}
-		return this.globalResolveMemoized[name.get()]
+		return this.globalResolveMemoized[optstrGet_(name)]
 	}()
 	if memoized == nil {
-		memoized = this.resolveBehaviorNameInternal(name.get(), moduleMetadata)
+		memoized = this.resolveBehaviorNameInternal(optstrGet_(name), moduleMetadata)
 		if memoized == nil {
 			panic(new_NullPointerException_0())
 		}
 		if moduleMetadata != nil {
-			this.resolveMemoized.put(name.get(), moduleMetadata, memoized)
+			this.resolveMemoized.put(optstrGet_(name), moduleMetadata, memoized)
 		} else {
-			this.globalResolveMemoized[name.get()] = memoized
+			this.globalResolveMemoized[optstrGet_(name)] = memoized
 		}
 	}
 	return memoized
@@ -187,7 +187,7 @@ func (this *PolymerBehaviorExtractor) resolveReferenceToLegacyGoogModule(name st
 			}
 			return nameU16.substring_int(dot)
 		}()
-		var result *PolymerBehaviorExtractor_ResolveBehaviorNameResult = this.resolveBehaviorName(Optional_of[string]((sstr_(PolymerBehaviorExtractor_GOOG_MODULE_EXPORTS) + sstr_(rest))), metadata)
+		var result *PolymerBehaviorExtractor_ResolveBehaviorNameResult = this.resolveBehaviorName(optstrOf_((sstr_(PolymerBehaviorExtractor_GOOG_MODULE_EXPORTS) + sstr_(rest))), metadata)
 		return func() *PolymerBehaviorExtractor_ResolveBehaviorNameResult {
 			if eqR_(result, PolymerBehaviorExtractor_FAILED_RESOLVE_RESULT) {
 				return nil
@@ -210,12 +210,12 @@ func (this *PolymerBehaviorExtractor) resolveGoogModuleGet(moduleNamespace strin
 	if closureModule == nil {
 		return PolymerBehaviorExtractor_FAILED_RESOLVE_RESULT
 	} else if closureModule.isGoogProvide() {
-		return this.resolveBehaviorName(Optional_of[string](moduleNamespace), nil)
+		return this.resolveBehaviorName(optstrOf_(moduleNamespace), nil)
 	}
 	if !closureModule.isGoogModule() {
 		panic(new_IllegalStateException_String(objstr_(closureModule)))
 	}
-	return this.resolveBehaviorName(Optional_of[string](PolymerBehaviorExtractor_GOOG_MODULE_EXPORTS), closureModule)
+	return this.resolveBehaviorName(optstrOf_(PolymerBehaviorExtractor_GOOG_MODULE_EXPORTS), closureModule)
 }
 
 func (this *PolymerBehaviorExtractor) getNameIfModuleImport(name string, metadata *ModuleMetadataMap_ModuleMetadata) *PolymerBehaviorExtractor_ResolveBehaviorNameResult {
@@ -254,23 +254,23 @@ func (this *PolymerBehaviorExtractor) getNameIfModuleImport(name string, metadat
 	var importMetadata *ModuleMetadataMap_ModuleMetadata = b.originatingExport().moduleMetadata()
 	var originatingName string
 	if importMetadata.isEs6Module() {
-		originatingName = (sstr_(b.originatingExport().localName().orElse("null")) + sstr_(rest))
+		originatingName = (sstr_(optstrOr_(b.originatingExport().localName(), "null")) + sstr_(rest))
 	} else if importMetadata.isGoogModule() {
-		originatingName = (sstr_(PolymerBehaviorExtractor_GOOG_MODULE_EXPORTS) + "." + sstr_(b.originatingExport().exportName().orElse("null")) + sstr_(rest))
+		originatingName = (sstr_(PolymerBehaviorExtractor_GOOG_MODULE_EXPORTS) + "." + sstr_(optstrOr_(b.originatingExport().exportName(), "null")) + sstr_(rest))
 	} else {
 		if !importMetadata.isGoogProvide() {
 			panic(new_IllegalStateException_String(objstr_(importMetadata)))
 		}
-		originatingName = (sstr_(b.closureNamespace().orElse("null")) + "." + sstr_(b.originatingExport().exportName().orElse("null")) + sstr_(rest))
+		originatingName = (sstr_(optstrOr_(b.closureNamespace(), "null")) + "." + sstr_(optstrOr_(b.originatingExport().exportName(), "null")) + sstr_(rest))
 	}
-	return this.resolveBehaviorName(Optional_of[string](originatingName), importMetadata)
+	return this.resolveBehaviorName(optstrOf_(originatingName), importMetadata)
 }
 
 func (this *PolymerBehaviorExtractor) resolveModuleNamespaceBinding(b *Binding, rest string) *PolymerBehaviorExtractor_ResolveBehaviorNameResult {
 	if b.metadata().isGoogModule() {
-		return this.resolveBehaviorName(Optional_of[string]((sstr_(PolymerBehaviorExtractor_GOOG_MODULE_EXPORTS) + sstr_(rest))), b.metadata())
+		return this.resolveBehaviorName(optstrOf_((sstr_(PolymerBehaviorExtractor_GOOG_MODULE_EXPORTS) + sstr_(rest))), b.metadata())
 	} else if b.metadata().isGoogProvide() {
-		return this.resolveBehaviorName(Optional_of[string]((sstr_(b.closureNamespace().orElse("null")) + sstr_(rest))), b.metadata())
+		return this.resolveBehaviorName(optstrOf_((sstr_(optstrOr_(b.closureNamespace(), "null")) + sstr_(rest))), b.metadata())
 	}
 	if !b.metadata().isEs6Module() {
 		panic(new_IllegalStateException_0())
@@ -291,7 +291,7 @@ func (this *PolymerBehaviorExtractor) resolveModuleNamespaceBinding(b *Binding, 
 	if (exportBinding == nil) || !exportBinding.isCreatedByEsExport() {
 		return PolymerBehaviorExtractor_FAILED_RESOLVE_RESULT
 	}
-	return this.resolveBehaviorName(Optional_of[string]((sstr_(exportBinding.originatingExport().localName().orElse("null")) + sstr_(func() string {
+	return this.resolveBehaviorName(optstrOf_((sstr_(optstrOr_(exportBinding.originatingExport().localName(), "null")) + sstr_(func() string {
 		if dot == -1 {
 			return ""
 		}
@@ -317,26 +317,26 @@ func PolymerBehaviorExtractor_getBehaviorFunctionsToCopy(behaviorObjLit Node) *T
 	return functionsToCopy.build()
 }
 
-func PolymerBehaviorExtractor_getQualifiedNameThroughCast(node Node) Optional[string] {
+func PolymerBehaviorExtractor_getQualifiedNameThroughCast(node Node) string {
 	if node.isName() {
 		var name string = node.getString()
-		return func() Optional[string] {
+		return func() string {
 			if name == "" {
-				return Optional_empty[string]()
+				return nullstr_
 			}
-			return Optional_of[string](name)
+			return optstrOf_(name)
 		}()
 	} else if node.isGetProp() {
-		var left Optional[string] = PolymerBehaviorExtractor_getQualifiedNameThroughCast(node.getFirstChild())
-		if left.isEmpty() {
-			return Optional_empty[string]()
+		var left string = PolymerBehaviorExtractor_getQualifiedNameThroughCast(node.getFirstChild())
+		if left == nullstr_ {
+			return nullstr_
 		}
 		var right string = node.getString()
-		return Optional_of[string]((sstr_(left.get()) + "." + sstr_(right)))
+		return optstrOf_((sstr_(optstrGet_(left)) + "." + sstr_(right)))
 	} else if node.isCast() {
 		return PolymerBehaviorExtractor_getQualifiedNameThroughCast(node.getFirstChild())
 	}
-	return Optional_empty[string]()
+	return nullstr_
 }
 
 func PolymerBehaviorExtractor_getNonPropertyMembersToCopy(behaviorObjLit Node) *TList[*PolymerPass_MemberDefinition] {

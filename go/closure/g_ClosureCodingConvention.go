@@ -76,20 +76,20 @@ func (this *ClosureCodingConvention) getClassesDefinedByCall_impl(callNode Node)
 }
 
 func ClosureCodingConvention_typeofClassDefiningName(callName Node) CodingConvention_SubclassType {
-	var methodName Optional[string] = Optional_empty[string]()
+	var methodName string = nullstr_
 	if callName.isGetProp() {
-		methodName = Optional_of[string](callName.getString())
+		methodName = optstrOf_(callName.getString())
 	} else if callName.isName() {
 		var name string = callName.getString()
 		var dollarIndex int32 = int32(strings.LastIndexByte(name, '$'))
 		if dollarIndex != -1 {
-			methodName = Optional_of[string](name[dollarIndex+1:])
+			methodName = optstrOf_(name[dollarIndex+1:])
 		}
 	}
-	if methodName.isPresent() {
-		if methodName.get() == "inherits" {
+	if methodName != nullstr_ {
+		if optstrGet_(methodName) == "inherits" {
 			return CodingConvention_SubclassType_INHERITS
-		} else if methodName.get() == "mixin" {
+		} else if optstrGet_(methodName) == "mixin" {
 			return CodingConvention_SubclassType_MIXIN
 		}
 	}
@@ -105,30 +105,30 @@ func ClosureCodingConvention_endsWithPrototype(qualifiedName Node) bool {
 }
 
 func (this *ClosureCodingConvention) extractIsModuleFile_impl(node Node, parent Node) bool {
-	var namespace Optional[string] = ClosureCodingConvention_extractClassNameIfGoog(node, parent, "goog.module")
-	return namespace.isPresent()
+	var namespace string = ClosureCodingConvention_extractClassNameIfGoog(node, parent, "goog.module")
+	return namespace != nullstr_
 }
 
-func (this *ClosureCodingConvention) extractClassNameIfProvide_impl(node Node, parent Node) Optional[string] {
-	var namespace Optional[string] = ClosureCodingConvention_extractClassNameIfGoog(node, parent, "goog.provide")
-	if namespace.isEmpty() {
+func (this *ClosureCodingConvention) extractClassNameIfProvide_impl(node Node, parent Node) string {
+	var namespace string = ClosureCodingConvention_extractClassNameIfGoog(node, parent, "goog.provide")
+	if namespace == nullstr_ {
 		namespace = ClosureCodingConvention_extractClassNameIfGoog(node, parent, "goog.module")
 	}
 	return namespace
 }
 
-func (this *ClosureCodingConvention) extractClassNameIfRequire_impl(node Node, parent Node) Optional[string] {
+func (this *ClosureCodingConvention) extractClassNameIfRequire_impl(node Node, parent Node) string {
 	return ClosureCodingConvention_extractClassNameIfGoog(node, parent, "goog.require")
 }
 
-func ClosureCodingConvention_extractClassNameIfGoog(node Node, parent Node, functionName string) Optional[string] {
-	var className Optional[string] = Optional_empty[string]()
+func ClosureCodingConvention_extractClassNameIfGoog(node Node, parent Node, functionName string) string {
+	var className string = nullstr_
 	if NodeUtil_isExprCall(parent) {
 		var callee Node = node.getFirstChild()
 		if ((callee != 0) && callee.isGetProp()) && callee.matchesQualifiedName(functionName) {
 			var target Node = callee.getNext()
 			if (target != 0) && target.isStringLit() {
-				className = Optional_of[string](target.getString())
+				className = optstrOf_(target.getString())
 			}
 		}
 	}
@@ -216,9 +216,9 @@ func (this *ClosureCodingConvention) getObjectLiteralCast_impl(callNode Node) *C
 	}
 	var objectNode Node = typeNode.getNext()
 	if !objectNode.isObjectLit() {
-		return new_CodingConvention_ObjectLiteralCast(Optional_empty[string](), 0, ClosureCodingConvention_OBJECTLIT_EXPECTED)
+		return new_CodingConvention_ObjectLiteralCast(nullstr_, 0, ClosureCodingConvention_OBJECTLIT_EXPECTED)
 	}
-	return new_CodingConvention_ObjectLiteralCast(Optional_of[string](typeNode.getQualifiedName()).filterFn_(func(s string) bool {
+	return new_CodingConvention_ObjectLiteralCast(optstrFilter_(optstrOf_(typeNode.getQualifiedName()), func(s string) bool {
 		return s != ""
 	}), typeNode.getNext(), nil)
 }
@@ -366,7 +366,7 @@ func (this *ClosureCodingConvention) extractIsModuleFile(p0 Node, p1 Node) bool 
 }
 
 // extractClassNameIfProvide: an object that is exactly a ClosureCodingConvention calls its extractClassNameIfProvide_impl directly (post-flip); others dispatch.
-func (this *ClosureCodingConvention) extractClassNameIfProvide(p0 Node, p1 Node) Optional[string] {
+func (this *ClosureCodingConvention) extractClassNameIfProvide(p0 Node, p1 Node) string {
 	if p, _ := this.self_.(*ClosureCodingConvention); p == this {
 		return this.extractClassNameIfProvide_impl(p0, p1)
 	}
@@ -374,7 +374,7 @@ func (this *ClosureCodingConvention) extractClassNameIfProvide(p0 Node, p1 Node)
 }
 
 // extractClassNameIfRequire: an object that is exactly a ClosureCodingConvention calls its extractClassNameIfRequire_impl directly (post-flip); others dispatch.
-func (this *ClosureCodingConvention) extractClassNameIfRequire(p0 Node, p1 Node) Optional[string] {
+func (this *ClosureCodingConvention) extractClassNameIfRequire(p0 Node, p1 Node) string {
 	if p, _ := this.self_.(*ClosureCodingConvention); p == this {
 		return this.extractClassNameIfRequire_impl(p0, p1)
 	}

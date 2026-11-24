@@ -96,7 +96,7 @@ func (this *DisambiguateProperties) process_2(externs Node, root Node) {
 
 func (this *DisambiguateProperties) createInvalidationError(prop *PropertyClustering) *JSError {
 	var additionalContext string = ""
-	return JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_empty[string](), -1, -1, DisambiguateProperties_PROPERTY_INVALIDATION, []string{prop.getName(), additionalContext})
+	return JSError_make_Optional_int_int_DiagnosticType_StringArr(nullstr_, -1, -1, DisambiguateProperties_PROPERTY_INVALIDATION, []string{prop.getName(), additionalContext})
 }
 
 func DisambiguateProperties_buildRenamingIndex(props *TMap[string, *PropertyClustering], renamer *UseSiteRenamer) MapT[string, any] {
@@ -303,7 +303,7 @@ func (this *DisambiguateProperties_PropertyReferenceIndexJson) compareTo(p0 any)
 func (this *DisambiguateProperties_PropertyReferenceIndexJson) writeJson(writer *SimpleJsonWriter) {
 	writer.name(this.name_)
 	writer.beginObject()
-	writer.name("name").stringValue(Optional_of[string](this.name_))
+	writer.name("name").stringValue(optstrOf_(this.name_))
 	writer.name("refs").beginArray()
 	for ref := range elemsT_(this.refs) {
 		ref.writeJson(writer)
@@ -339,7 +339,7 @@ func (this *DisambiguateProperties_PropertyReferenceJson) writeJson(writer *Simp
 	writer.setHtmlSafe(true)
 	writer.setSerializeNulls(false)
 	writer.beginObject()
-	writer.name("location").stringValue(Optional_of[string](this.location_))
+	writer.name("location").stringValue(optstrOf_(this.location_))
 	writer.name("receiverIndex").longValue(int64(this.receiverIndex))
 	writer.endObject()
 	writer.setHtmlSafe(oldHtmlSafe)
