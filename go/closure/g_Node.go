@@ -1298,8 +1298,8 @@ func (this Node) toStringTree() string {
 }
 
 func (this Node) toStringTreeImpl() string {
-	var s *StringBuilder = new_StringBuilder()
-	this.appendStringTree(StringBuilder_as_Appendable(s))
+	var s strBuilder_
+	this.appendStringTree(appendable_(&s))
 	return s.toString()
 }
 
