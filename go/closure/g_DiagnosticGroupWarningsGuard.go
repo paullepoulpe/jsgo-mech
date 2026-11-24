@@ -56,9 +56,11 @@ func (this *DiagnosticGroupWarningsGuard) mustRunChecks_impl(otherGroup *Diagnos
 }
 
 func (this *DiagnosticGroupWarningsGuard) groupMatchesAny(types *TSet[*DiagnosticType]) bool {
-	it_1 := types.each()
-	for it_1.next() {
-		var type_ *DiagnosticType = it_1.v
+	for i_1 := types.first(); i_1 < len(types.keys); i_1++ {
+		if types.isDead(i_1) {
+			continue
+		}
+		var type_ *DiagnosticType = types.keys[i_1]
 		if this.group.matchesDiagnosticType(type_) {
 			return true
 		}
@@ -67,9 +69,11 @@ func (this *DiagnosticGroupWarningsGuard) groupMatchesAny(types *TSet[*Diagnosti
 }
 
 func (this *DiagnosticGroupWarningsGuard) groupMatchesAll(types *TSet[*DiagnosticType]) bool {
-	it_1 := types.each()
-	for it_1.next() {
-		var type_ *DiagnosticType = it_1.v
+	for i_1 := types.first(); i_1 < len(types.keys); i_1++ {
+		if types.isDead(i_1) {
+			continue
+		}
+		var type_ *DiagnosticType = types.keys[i_1]
 		if !this.group.matchesDiagnosticType(type_) {
 			return false
 		}

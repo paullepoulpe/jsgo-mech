@@ -132,9 +132,7 @@ func (this *LinkedUndirectedGraph[N, E]) getEdges_Object_Object_impl(n1 N, n2 N)
 
 func (this *LinkedUndirectedGraph[N, E]) getEdges_impl() List {
 	var result *TList[Graph_GraphEdge[N, E]] = newTList_(tc_Graph_GraphEdge_N__E_[N, E]())
-	it_1 := this.nodes_.each()
-	for it_1.next() {
-		var node *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E] = it_1.v
+	for node := range this.nodes_.Values() {
 		for edge := range elemsT_(node.getNeighborEdges()) {
 			if edge.getNodeA() == node.self() {
 				result.add(Graph_GraphEdge[N, E](edge))
@@ -192,9 +190,7 @@ func (this *LinkedUndirectedGraph[N, E]) isConnectedPredicate(n1 N, edgePredicat
 
 func (this *LinkedUndirectedGraph[N, E]) getGraphvizEdges() *TList[GraphvizGraph_GraphvizEdge] {
 	var edgeList *TList[GraphvizGraph_GraphvizEdge] = newTList_(tc_GraphvizGraph_GraphvizEdge)
-	it_1 := this.nodes_.each()
-	for it_1.next() {
-		var node *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E] = it_1.v
+	for node := range this.nodes_.Values() {
 		for edge := range elemsT_(node.getNeighborEdges()) {
 			if edge.getNodeA() == node.self() {
 				edgeList.add(icast_GraphvizGraph_GraphvizEdge(edge))
@@ -210,9 +206,7 @@ func (this *LinkedUndirectedGraph[N, E]) getName() string {
 
 func (this *LinkedUndirectedGraph[N, E]) getGraphvizNodes() []GraphvizGraph_GraphvizNode {
 	var nodeList []GraphvizGraph_GraphvizNode = make([]GraphvizGraph_GraphvizNode, 0, this.nodes_.Len())
-	it_1 := this.nodes_.each()
-	for it_1.next() {
-		var node *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E] = it_1.v
+	for node := range this.nodes_.Values() {
 		nodeList = append(nodeList, icast_GraphvizGraph_GraphvizNode(node.self()))
 	}
 	return nodeList
@@ -331,9 +325,7 @@ func (this *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E]) getLabel() st
 
 func (this *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E]) neighborList() ListT[GraphNode[N, E]] {
 	var result *TList[GraphNode[N, E]] = newTListN_(tc_GraphNode_N__E_[N, E](), this.neighborEdges.size())
-	it_1 := this.neighborEdges.each()
-	for it_1.next() {
-		var edge UndiGraph_UndiGraphEdge[N, E] = it_1.v
+	for edge := range this.neighborEdges.All() {
 		if edge.getNodeA() == this.self() {
 			result.add(edge.getNodeB())
 		} else {

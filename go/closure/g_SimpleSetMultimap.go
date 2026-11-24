@@ -106,9 +106,7 @@ func (this *SimpleSetMultimap[K, V]) putAll_2(key K, values IterableT[V]) {
 
 func SimpleSetMultimap_putAll_SimpleSetMultimap[K comparable, V comparable, K2 comparable, V2 comparable](this *SimpleSetMultimap[K, V], other *SimpleSetMultimap[K2, V2]) {
 	if other.entryOrder != nil {
-		it_1 := other.entryOrder.each()
-		for it_1.next() {
-			var e *SimpleSetMultimap_Entry[any, any] = it_1.v
+		for e := range other.entryOrder.All() {
 			this.put(junboxT_[K](e.key()), junboxT_[V](e.value()))
 		}
 	} else {

@@ -32,9 +32,9 @@ func (this *CanCastToVisitor) caseAllType(thatType *JSType) any {
 }
 
 func (this *CanCastToVisitor) canCastToUnion(thisType *JSType, unionType *UnionType) bool {
-	it_1 := unionType.getAlternates().each()
-	for it_1.next() {
-		var type_ *JSType = it_1.v
+	l_1 := unionType.getAlternates()
+	for i_1 := 0; i_1 < len(l_1.items); i_1++ {
+		var type_ *JSType = l_1.items[i_1]
 		if unbox_[bool](thisType.visit_2(RelationshipVisitor(this), type_)) {
 			return true
 		}
@@ -94,9 +94,9 @@ func (this *CanCastToVisitor) caseFunctionType(thisType *FunctionType, thatType 
 
 func (this *CanCastToVisitor) caseUnionType(thisType *UnionType, thatType *JSType) any {
 	var visited bool = false
-	it_1 := thisType.getAlternates().each()
-	for it_1.next() {
-		var type_ *JSType = it_1.v
+	l_1 := thisType.getAlternates()
+	for i_1 := 0; i_1 < len(l_1.items); i_1++ {
+		var type_ *JSType = l_1.items[i_1]
 		if type_.isVoidType() || type_.isNullType() {
 		} else {
 			visited = true

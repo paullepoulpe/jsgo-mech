@@ -153,9 +153,7 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 	}
 	if info.getParameterCount() > 0 {
 		multiline = true
-		it_9 := info.getParameterNames().each()
-		for it_9.next() {
-			var name string = it_9.v
+		for name := range info.getParameterNames().All() {
 			parts.add(("@param " + sstr_(this.buildParamType(info, name))))
 		}
 	}
@@ -282,9 +280,7 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 	if info.isLegacyNamedTsExport() {
 		parts.add("@legacyNamedTsExport")
 	}
-	it_17 := info.getTsTypes().each()
-	for it_17.next() {
-		var tsType string = it_17.v
+	for tsType := range info.getTsTypes().All() {
 		parts.add(("@tsType " + sstr_(tsType)))
 	}
 	if this.printDesc && info.getBlockDescription().isPresent() {

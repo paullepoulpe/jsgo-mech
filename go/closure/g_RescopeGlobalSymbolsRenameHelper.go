@@ -41,9 +41,7 @@ func RescopeGlobalSymbolsRenameHelper_collectUnwrappedLocalNamesInDefiningChunk(
 	}
 	var usedNames *TSet[string] = tsetCopy_(tc_string, namesStartingWithUnderscore)
 	var builder *ImmutableMap_Builder[string, string] = immutableMapBuilder_(tc_string, tc_string)
-	it_1 := symbolInfo.wrappedCrossChunkNames().each()
-	for it_1.next() {
-		var name string = it_1.v
+	for name := range symbolInfo.wrappedCrossChunkNames().All() {
 		if (!symbolInfo.crossChunkNamesWithWriteFromOtherChunk().Has(name) && !symbolInfo.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk().Has(name)) && symbolInfo.globalNamesWithReadInDefiningChunk().Has(name) {
 			var unwrappedName string = (sstr_(RescopeGlobalSymbolsRenameHelper_UNWRAPPED_LOCAL_NAME_PREFIX) + sstr_(name))
 			for (usedNames.Has(unwrappedName) || symbolInfo.externNames().Has(unwrappedName)) || (unwrappedName == symbolInfo.globalSymbolNamespace()) {

@@ -17,9 +17,7 @@ func new_ConformanceAllowlister() *ConformanceAllowlister {
 
 func ConformanceAllowlister_getViolatingPaths(compiler *Compiler, externs Node, ast Node, requirement *Requirement) *TSet[string] {
 	var result *ImmutableSet_Builder[string] = immutableSetBuilder_(tc_string)
-	it_1 := ConformanceAllowlister_getConformanceErrors(compiler, externs, ast, requirement).each()
-	for it_1.next() {
-		var error_ *JSError = it_1.v
+	for error_ := range ConformanceAllowlister_getConformanceErrors(compiler, externs, ast, requirement).All() {
 		result.add(error_.sourceName().get())
 	}
 	return result.build()
@@ -27,9 +25,7 @@ func ConformanceAllowlister_getViolatingPaths(compiler *Compiler, externs Node, 
 
 func ConformanceAllowlister_getViolatingNodes(compiler *Compiler, externs Node, ast Node, requirement *Requirement) *TSet[Node] {
 	var result *ImmutableSet_Builder[Node] = immutableSetBuilder_(tc_Node)
-	it_1 := ConformanceAllowlister_getConformanceErrors(compiler, externs, ast, requirement).each()
-	for it_1.next() {
-		var error_ *JSError = it_1.v
+	for error_ := range ConformanceAllowlister_getConformanceErrors(compiler, externs, ast, requirement).All() {
 		result.add(error_.node())
 	}
 	return result.build()

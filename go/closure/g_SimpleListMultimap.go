@@ -136,9 +136,7 @@ func (this *SimpleListMultimap[K, V]) untypedMap() MapOf[any, any] {
 
 func (this *SimpleListMultimap[K, V]) size() int32 {
 	var size int32 = 0
-	it_1 := this.map__.each()
-	for it_1.next() {
-		var values ListT[V] = it_1.v
+	for values := range this.map__.Values() {
 		size += values.size()
 	}
 	return size

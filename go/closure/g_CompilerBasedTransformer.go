@@ -37,9 +37,7 @@ func (this *CompilerBasedTransformer) transform(input *Source) *Source {
 	if !result.errors_.isEmpty() {
 		var formatter MessageFormatter = ErrorFormat_SOURCELESS.toFormatter(nil, false)
 		var message *strBuilder_ = (&strBuilder_{}).append(this.getTranformationName()).append(" failed.\n")
-		it_1 := result.errors_.each()
-		for it_1.next() {
-			var error_ *JSError = it_1.v
+		for error_ := range result.errors_.All() {
 			message.append(formatter.formatError(error_))
 		}
 		panic(new_IllegalStateException_String(message.toString()))

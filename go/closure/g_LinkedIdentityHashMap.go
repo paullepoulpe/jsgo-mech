@@ -70,9 +70,7 @@ func (this *LinkedIdentityHashMap[K, V]) merge(key K, value V, fn BiFunction[V, 
 }
 
 func (this *LinkedIdentityHashMap[K, V]) forEach(fn BiConsumer[K, V]) {
-	it_1 := this.iterationOrder.each()
-	for it_1.next() {
-		var entry *LinkedIdentityHashMap_Entry[K, V] = it_1.v
+	for entry := range this.iterationOrder.All() {
 		fn.accept(entry.key_, entry.value_)
 	}
 }

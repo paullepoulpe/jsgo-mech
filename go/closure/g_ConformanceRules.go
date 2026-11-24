@@ -264,9 +264,9 @@ func (this *ConformanceRules_AllowList) matches(path string) bool {
 		}()
 	}()
 	if this.prefixes != nil {
-		it_1 := this.prefixes.each()
-		for it_1.next() {
-			var prefix string = it_1.v
+		l_1 := this.prefixes
+		for i_1 := 0; i_1 < len(l_1.items); i_1++ {
+			var prefix string = l_1.items[i_1]
 			if path != "" && (strings.HasPrefix(path, prefix) || (tsPath.isPresent() && strings.HasPrefix(tsPath.get(), prefix))) {
 				return true
 			}
@@ -407,9 +407,9 @@ func (this *ConformanceRules_AbstractRule) findAllowListForPath(path string) *Co
 	if pathRegex.isPresent() {
 		path = pathRegex.get().matcher_s(path).replaceFirst("")
 	}
-	it_1 := this.allowlists.each()
-	for it_1.next() {
-		var allowlist *ConformanceRules_AllowList = it_1.v
+	l_1 := this.allowlists
+	for i_1 := 0; i_1 < len(l_1.items); i_1++ {
+		var allowlist *ConformanceRules_AllowList = l_1.items[i_1]
 		if allowlist.matches(path) {
 			return allowlist
 		}
@@ -1895,9 +1895,9 @@ func (this *ConformanceRules_RestrictedPropertyWrite) checkConformance_impl(t *N
 		var targetType *JSType = n.getFirstChild().getJSType()
 		if (rhsType != nil) && (targetType != nil) {
 			var targetNotNullType *JSType = nil
-			it_1 := this.restrictions.each()
-			for it_1.next() {
-				var r *ConformanceRules_RestrictedPropertyWrite_Restriction = it_1.v
+			l_1 := this.restrictions
+			for i_1 := 0; i_1 < len(l_1.items); i_1++ {
+				var r *ConformanceRules_RestrictedPropertyWrite_Restriction = l_1.items[i_1]
 				if n.getString() == r.property_ {
 					if !rhsType.isSubtypeOf(r.restrictedType) {
 						if ConformanceRules_ConformanceUtil_isLooseType(targetType) {
@@ -3028,9 +3028,12 @@ func (this *ConformanceRules_BannedEnhance) checkConformance_impl(t *NodeTravers
 	if (docInfo == nil) || !docInfo.hasEnhance() {
 		return ConformanceRules_ConformanceResult_CONFORMANCE
 	}
-	it_1 := this.bannedEnhancedNamespaces.each()
-	for it_1.next() {
-		var banned string = it_1.v
+	l_1 := this.bannedEnhancedNamespaces
+	for i_1 := l_1.first(); i_1 < len(l_1.keys); i_1++ {
+		if l_1.isDead(i_1) {
+			continue
+		}
+		var banned string = l_1.keys[i_1]
 		if docInfo.getEnhance() == banned {
 			return new_ConformanceRules_ConformanceResult_ConformanceLevel_String(ConformanceRules_ConformanceLevel_VIOLATION, ("The enhanced namespace \"" + sstr_(banned) + "\""))
 		}
@@ -3650,9 +3653,9 @@ func (this *ConformanceRules_BanElementSetAttribute) checkConformanceOnGetElemen
 		if keyType.isString() {
 			return ConformanceRules_ConformanceResult_VIOLATION
 		} else if keyType.isUnionType() {
-			it_1 := keyType.toMaybeUnionType().getAlternates().each()
-			for it_1.next() {
-				var alternate *JSType = it_1.v
+			l_1 := keyType.toMaybeUnionType().getAlternates()
+			for i_1 := 0; i_1 < len(l_1.items); i_1++ {
+				var alternate *JSType = l_1.items[i_1]
 				if alternate.isString() {
 					return ConformanceRules_ConformanceResult_VIOLATION
 				}
@@ -3784,9 +3787,9 @@ func (this *ConformanceRules_BanSettingAttributes) getBannedPropertyName(node No
 		return GOptional_absent[string]()
 	}
 	var propertyName string = target.getString()
-	it_1 := this.restrictions.each()
-	for it_1.next() {
-		var restricted *ConformanceRules_BanSettingAttributes_AttributeSettingRestriction = it_1.v
+	l_1 := this.restrictions
+	for i_1 := 0; i_1 < len(l_1.items); i_1++ {
+		var restricted *ConformanceRules_BanSettingAttributes_AttributeSettingRestriction = l_1.items[i_1]
 		if ((propertyName == restricted.property_) && (restricted.type__ != nil)) && type_.isSubtypeOf(restricted.type__) {
 			return GOptional_of[string](propertyName)
 		}

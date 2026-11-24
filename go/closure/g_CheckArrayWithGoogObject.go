@@ -55,9 +55,9 @@ func (this *CheckArrayWithGoogObject) containsArray(type_ *JSType) bool {
 	}
 	if type_.isUnionType() {
 		var arrayType *JSType = this.compiler_.getTypeRegistry().getNativeType(JSTypeNative_ARRAY_TYPE)
-		it_1 := type_.toMaybeUnionType().getAlternates().each()
-		for it_1.next() {
-			var alternate *JSType = it_1.v
+		l_1 := type_.toMaybeUnionType().getAlternates()
+		for i_1 := 0; i_1 < len(l_1.items); i_1++ {
+			var alternate *JSType = l_1.items[i_1]
 			if alternate.isSubtypeOf(arrayType) {
 				return true
 			}

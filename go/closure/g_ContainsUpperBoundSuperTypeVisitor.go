@@ -61,9 +61,9 @@ func (this *ContainsUpperBoundSuperTypeVisitor) caseUnionType_impl(type_ *UnionT
 	if type_.up_JSType() == this.target {
 		return obj_(ContainsUpperBoundSuperTypeVisitor_Result_PRESENT)
 	}
-	it_1 := type_.getAlternates().each()
-	for it_1.next() {
-		var alt *JSType = it_1.v
+	l_1 := type_.getAlternates()
+	for i_1 := 0; i_1 < len(l_1.items); i_1++ {
+		var alt *JSType = l_1.items[i_1]
 		var foundInAlt ContainsUpperBoundSuperTypeVisitor_Result = cast_[ContainsUpperBoundSuperTypeVisitor_Result](alt.visit(Visitor(this)))
 		if foundInAlt != ContainsUpperBoundSuperTypeVisitor_Result_ABSENT {
 			return obj_(foundInAlt)

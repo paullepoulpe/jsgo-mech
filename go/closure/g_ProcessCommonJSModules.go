@@ -606,9 +606,7 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) initializeModule() boo
 	}
 	var moduleName Optional[string] = ProcessCommonJSModules_getModuleName(ci)
 	var exportsToRemove []*ProcessCommonJSModules_ExportInfo = []*ProcessCommonJSModules_ExportInfo{}
-	it_1 := this.exports.each()
-	for it_1.next() {
-		var export *ProcessCommonJSModules_ExportInfo = it_1.v
+	for export := range this.exports.All() {
 		if NodeUtil_getEnclosingScript(export.node_) == 0 {
 			exportsToRemove = append(exportsToRemove, export)
 			continue
@@ -616,9 +614,7 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) initializeModule() boo
 		var qNameBase Node = this.outer_.getBaseQualifiedNameNode(export.node_)
 		if ((((export.node_ == qNameBase) && export.node_.getParent().isAssign()) && export.node_.getGrandparent().isExprResult()) && (export.node_.getPrevious() == 0)) && (export.node_.getNext() != 0) {
 			if export.node_.getNext().isGetProp() && export.node_.getNext().matchesQualifiedName((sstr_(ProcessCommonJSModules_MODULE) + "." + sstr_(ProcessCommonJSModules_EXPORTS))) {
-				it_3 := this.moduleExports.each()
-				for it_3.next() {
-					var moduleExport *ProcessCommonJSModules_ExportInfo = it_3.v
+				for moduleExport := range this.moduleExports.All() {
 					if moduleExport.node_ == export.node_.getNext() {
 						this.moduleExports.asListT().remove_Object(obj_(moduleExport))
 						break
@@ -645,9 +641,7 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) initializeModule() boo
 	this.exports.asListT().removeAll(Collection(sliceView_(tc_p_ProcessCommonJSModules_ExportInfo, exportsToRemove)))
 	sliceClear_(&exportsToRemove)
 	var exportsToReplace *TMap[*ProcessCommonJSModules_ExportInfo, *ProcessCommonJSModules_ExportInfo] = newTMap_(tc_p_ProcessCommonJSModules_ExportInfo, tc_p_ProcessCommonJSModules_ExportInfo)
-	it_5 := this.moduleExports.each()
-	for it_5.next() {
-		var export *ProcessCommonJSModules_ExportInfo = it_5.v
+	for export := range this.moduleExports.All() {
 		if NodeUtil_getEnclosingScript(export.node_) == 0 {
 			exportsToRemove = append(exportsToRemove, export)
 		} else if export.node_.isGetElem() {
@@ -659,17 +653,13 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) initializeModule() boo
 		}
 	}
 	this.moduleExports.asListT().removeAll(Collection(sliceView_(tc_p_ProcessCommonJSModules_ExportInfo, exportsToRemove)))
-	it_7 := exportsToReplace.each()
-	for it_7.next() {
-		var oldExport *ProcessCommonJSModules_ExportInfo = it_7.k
+	for oldExport := range exportsToReplace.Keys() {
 		var oldIndex int32 = this.moduleExports.asListT().indexOf(obj_(oldExport))
 		this.moduleExports.removeAt(oldIndex)
 		this.moduleExports.insert(oldIndex, exportsToReplace.Get(oldExport))
 	}
 	var directAssignments int32 = 0
-	it_9 := this.moduleExports.each()
-	for it_9.next() {
-		var export *ProcessCommonJSModules_ExportInfo = it_9.v
+	for export := range this.moduleExports.All() {
 		if NodeUtil_getEnclosingScript(export.node_) == 0 {
 			continue
 		}

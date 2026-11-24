@@ -189,13 +189,9 @@ func Color_createUnion(elements *TSet[*Color]) *Color {
 	var isConstructor bool = true
 	var isInvalidating bool = false
 	var propertiesKeepOriginalName bool = false
-	it_2 := elements.each()
-	for it_2.next() {
-		var element *Color = it_2.v
+	for element := range elements.All() {
 		if element.isUnion() {
-			it_4 := element.getUnionElements().each()
-			for it_4.next() {
-				var nestedElement *Color = it_4.v
+			for nestedElement := range element.getUnionElements().All() {
 				newElements.add(nestedElement)
 				ids.add(nestedElement.getId())
 			}
