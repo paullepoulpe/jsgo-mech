@@ -14,7 +14,7 @@ index a19a4ccaa..524f95f88 100644
  
  // ---- Joiner
 diff --git a/go/closure/rt_fn.go b/go/closure/rt_fn.go
-index efea87a1e..b07760c4a 100644
+index 649726014..9a704080b 100644
 --- a/go/closure/rt_fn.go
 +++ b/go/closure/rt_fn.go
 @@ -70,22 +70,6 @@ func Suppliers_memoize[T any](s Supplier_base[T]) Supplier_base[T] {
@@ -2760,10 +2760,10 @@ index 99b8d1ad5..000000000
 -}
 diff --git a/go/closure/rt_jtsorted.go b/go/closure/rt_jtsorted.go
 deleted file mode 100644
-index 37c60dd6e..000000000
+index 9611de168..000000000
 --- a/go/closure/rt_jtsorted.go
 +++ /dev/null
-@@ -1,297 +0,0 @@
+@@ -1,300 +0,0 @@
 -package closure
 -
 -import "sort"
@@ -2801,6 +2801,9 @@ index 37c60dd6e..000000000
 -		if q := any(&b).(*string); *p != nullstr_ && *q != nullstr_ {
 -			return String_compareTo(*p, *q)
 -		}
+-	}
+-	if r, ok := cmpTypedT_(a, b); ok {
+-		return r
 -	}
 -	return compareNatural_(c.box(a), c.box(b))
 -}
@@ -3681,11 +3684,29 @@ index 0ea7502d8..afe4fcd9c 100644
  		t.Fatal("the twin of an immutable list was made although only typed code read it")
  	}
  	// an erased immutable list in a wrapper: the typed list of that object, made once
+diff --git a/go/closure/rt_lgcmp_test.go b/go/closure/rt_lgcmp_test.go
+index 66e3492a0..998ff189f 100644
+--- a/go/closure/rt_lgcmp_test.go
++++ b/go/closure/rt_lgcmp_test.go
+@@ -42,11 +42,11 @@ func TestLgCmp(t *testing.T) {
+ 	tc := &tconv_[*cmpTest_]{box: func(v *cmpTest_) any { return v }, unbox: func(v any) *cmpTest_ { return v.(*cmpTest_) }}
+ 	s := newTSortedSet_(tc)
+ 	for _, n := range []int32{3, 1, 2, 1} {
+-		s.addSorted(mk(n))
++		s.Add(mk(n))
+ 	}
+ 	var got []int32
+ 	for i, k := range s.keys {
+-		if !s.dead(i) {
++		if !s.isDead(i) {
+ 			got = append(got, k.n)
+ 		}
+ 	}
 diff --git a/go/closure/rt_lgfn.go b/go/closure/rt_lgfn.go
-index de1a91a1f..eab6904d8 100644
+index 849cbd4e6..752b6ef1c 100644
 --- a/go/closure/rt_lgfn.go
 +++ b/go/closure/rt_lgfn.go
-@@ -242,7 +242,7 @@ func Map_getOrDefaultT_[K, V any](m MapT[K, V], k any, def V) V {
+@@ -245,7 +245,7 @@ func Map_getOrDefaultT_[K, V any](m MapT[K, V], k any, def V) V {
  // Map_get_sT_ is Map.get with a String key on a map whose keys are Strings (Map_get_s): the
  // typed map's own lookup, else the erased helper's and the cast of erased code.
  func Map_get_sT_[V any](m MapT[string, V], k string) V {
@@ -3694,7 +3715,7 @@ index de1a91a1f..eab6904d8 100644
  		return v.m.Get(k)
  	}
  	return junboxT_[V](Map_get_s(Map_un_(m), k))
-@@ -251,7 +251,7 @@ func Map_get_sT_[V any](m MapT[string, V], k string) V {
+@@ -254,7 +254,7 @@ func Map_get_sT_[V any](m MapT[string, V], k string) V {
  // Map_getOrDefault_sT_ is Map.getOrDefault with a String key on a map whose keys are Strings
  // (Map_getOrDefault_s).
  func Map_getOrDefault_sT_[V any](m MapT[string, V], k string, def V) V {
@@ -3703,7 +3724,7 @@ index de1a91a1f..eab6904d8 100644
  		return v.m.GetOr(k, def)
  	}
  	u := Map_un_(m)
-@@ -264,21 +264,22 @@ func Map_getOrDefault_sT_[V any](m MapT[string, V], k string, def V) V {
+@@ -267,21 +267,22 @@ func Map_getOrDefault_sT_[V any](m MapT[string, V], k string, def V) V {
  // ---- constructors with a comparator, and Splitter
  
  // newTSortedSetCT_ is newTSortedSetC_ with the comparator at the element type: the set compares
@@ -3730,7 +3751,7 @@ index de1a91a1f..eab6904d8 100644
  	}
  	return m
  }
-@@ -296,9 +297,7 @@ func splitToListST_(c *tconv_[string], sp *Splitter, s string) *TList[string] {
+@@ -299,9 +300,7 @@ func splitToListST_(c *tconv_[string], sp *Splitter, s string) *TList[string] {
  	if s == nullstr_ {
  		return splitToListT_(c, sp, nil)
  	}
@@ -3741,6 +3762,72 @@ index de1a91a1f..eab6904d8 100644
  }
  
  // Collections_sortT_ is Collections.sort(List) (Collections_sort).
+diff --git a/go/closure/rt_lgobj.go b/go/closure/rt_lgobj.go
+index a1905b33c..9ed3e619b 100644
+--- a/go/closure/rt_lgobj.go
++++ b/go/closure/rt_lgobj.go
+@@ -21,14 +21,14 @@ import "unsafe"
+ // keeps the twins to the K, V that have a typed map, so the twins compile no typed map that the
+ // translation does not have.)
+ 
+-func (v *jtmapView_[K, V]) tmap_() unsafe.Pointer { return unsafe.Pointer(v.m) }
+-func (v *jtsetView_[K]) tset_() unsafe.Pointer    { return unsafe.Pointer(v.s) }
++func (v *tmapView_[K, V]) tmap_() unsafe.Pointer { return unsafe.Pointer(v.m) }
++func (v *tsetView_[K]) tset_() unsafe.Pointer    { return unsafe.Pointer(v.s) }
+ 
+ // jtmapOf_ / jtsetOf_: the view of a typed map or set (also of a sorted one, which embeds it).
+ type jtmapOf_ interface{ tmap_() unsafe.Pointer }
+ type jtsetOf_ interface{ tset_() unsafe.Pointer }
+ 
+-// Map_getK_ is m.get(k) for a key of the map's key type (jtmapView_.get_t).
++// Map_getK_ is m.get(k) for a key of the map's key type (tmapView_.get_t).
+ func Map_getK_[K comparable, V any](m MapT[K, V], k K) V {
+ 	if p, ok := m.(jtmapOf_); ok {
+ 		if t := (*TMap[K, V])(p.tmap_()); k != t.kc.null {
+@@ -38,7 +38,7 @@ func Map_getK_[K comparable, V any](m MapT[K, V], k K) V {
+ 	return m.get_t(boxT_(k))
+ }
+ 
+-// Map_containsKeyK_ is m.containsKey(k) for a key of the map's key type (jtmapView_.containsKey).
++// Map_containsKeyK_ is m.containsKey(k) for a key of the map's key type (tmapView_.containsKey).
+ func Map_containsKeyK_[K comparable, V any](m MapT[K, V], k K) bool {
+ 	if p, ok := m.(jtmapOf_); ok {
+ 		if t := (*TMap[K, V])(p.tmap_()); k != t.kc.null {
+@@ -48,7 +48,7 @@ func Map_containsKeyK_[K comparable, V any](m MapT[K, V], k K) bool {
+ 	return m.containsKey(boxT_(k))
+ }
+ 
+-// Map_removeK_ is m.remove(k) for a key of the map's key type (jtmapView_.remove_t).
++// Map_removeK_ is m.remove(k) for a key of the map's key type (tmapView_.remove_t).
+ func Map_removeK_[K comparable, V any](m MapT[K, V], k K) V {
+ 	if p, ok := m.(jtmapOf_); ok {
+ 		if t := (*TMap[K, V])(p.tmap_()); k != t.kc.null {
+@@ -58,10 +58,10 @@ func Map_removeK_[K comparable, V any](m MapT[K, V], k K) V {
+ 	return m.remove_t(boxT_(k))
+ }
+ 
+-// Set_containsE_ is s.contains(x) for an element of the set's element type (jtsetView_.contains).
++// Set_containsE_ is s.contains(x) for an element of the set's element type (tsetView_.contains).
+ func Set_containsE_[T comparable](s SetT[T], x T) bool {
+ 	if p, ok := s.(jtsetOf_); ok {
+-		if t := (*TSet[T])(p.tset_()); x != t.c.null {
++		if t := (*TSet[T])(p.tset_()); x != t.kc.null {
+ 			return t.find(x) >= 0
+ 		}
+ 	}
+@@ -69,10 +69,10 @@ func Set_containsE_[T comparable](s SetT[T], x T) bool {
+ }
+ 
+ // Set_removeE_ is s.remove(x) (remove(Object)) for an element of the set's element type
+-// (jtsetView_.remove_Object).
++// (tsetView_.remove_Object).
+ func Set_removeE_[T comparable](s SetT[T], x T) bool {
+ 	if p, ok := s.(jtsetOf_); ok {
+-		if t := (*TSet[T])(p.tset_()); x != t.c.null {
++		if t := (*TSet[T])(p.tset_()); x != t.kc.null {
+ 			return t.Delete(x)
+ 		}
+ 	}
 diff --git a/go/closure/rt_tdeque.go b/go/closure/rt_tdeque.go
 new file mode 100644
 index 000000000..21de472dd
@@ -4909,6 +4996,24 @@ index 000000000..848573111
 +	_ NavigableSet = (*tsortedSetView_[string])(nil)
 +	_ NavigableMap = (*tsortedMapView_[string, int32])(nil)
 +)
+diff --git a/go/closure/rt_ttree.go b/go/closure/rt_ttree.go
+index 779c2bdbb..586c8dbde 100644
+--- a/go/closure/rt_ttree.go
++++ b/go/closure/rt_ttree.go
+@@ -24,7 +24,12 @@ func ttreeCmp_[K any](kc *tconv_[K], c Comparator_e) func(a, b K) int32 {
+ 	if _, ok := any(kc).(*tconv_[string]); ok {
+ 		return any(ttreeStrCmp_).(func(a, b K) int32)
+ 	}
+-	return func(a, b K) int32 { return compareNatural_(kc.box(a), kc.box(b)) }
++	return func(a, b K) int32 {
++		if r, ok := cmpTypedT_(a, b); ok {
++			return r
++		}
++		return compareNatural_(kc.box(a), kc.box(b))
++	}
+ }
+ 
+ // ttreeStrCmp_ is natural ordering of strings (a function, so a map or set made with it
 diff --git a/go/closure/rt_tunify_golden_test.go b/go/closure/rt_tunify_golden_test.go
 new file mode 100644
 index 000000000..43350c401
