@@ -64,10 +64,16 @@ func (this *RuntimeJsLibManager) getExternedFields() *JTList[RuntimeJsLibManager
 }
 
 func (this *RuntimeJsLibManager) createField(fieldName string) *RuntimeJsLibManager_InternalField {
-	Preconditions_checkArgument_boolean_Object(!String_isEmpty(fieldName), fieldName)
+	if String_isEmpty(fieldName) {
+		Preconditions_checkArgument_boolean_Object(false, fieldName)
+	}
 	var parts *JTList[string] = splitToListST_(jtc_string, Splitter_on('.'), fieldName)
-	Preconditions_checkArgument_boolean_String_Object((parts.size() >= 2), "Field name must start with $jscomp., found %s", fieldName)
-	Preconditions_checkArgument_boolean_String_Object((parts.get(0) == "$jscomp"), "Field name must start with $jscomp, found %s", fieldName)
+	if !(parts.size() >= 2) {
+		Preconditions_checkArgument_boolean_String_Object(false, "Field name must start with $jscomp., found %s", fieldName)
+	}
+	if !(parts.get(0) == "$jscomp") {
+		Preconditions_checkArgument_boolean_String_Object(false, "Field name must start with $jscomp, found %s", fieldName)
+	}
 	var propName string = parts.get(1)
 	var resource Optional[string] = Optional_ofNullable[string](RuntimeJsLibManager_FieldsTable_INSTANCE.get(propName))
 	if resource.isEmpty() {
@@ -102,7 +108,9 @@ func (this *RuntimeJsLibManager) injectLibForField(fieldName string) {
 	field.markInjected()
 	if this.mode_ == RuntimeJsLibManager_RuntimeLibraryMode_EXTERN_FIELD_NAMES {
 		var externRoot Node = this.nodeForCodeInsertion.get()
-		Preconditions_checkState_boolean_Object_H(externRoot.isFromExterns(), externRoot)
+		if !externRoot.isFromExterns() {
+			Preconditions_checkState_boolean_Object_H(false, externRoot)
+		}
 		var declaration Node = IR_var_Node(IR_name(field.qualifiedName()))
 		declaration.getFirstChild().putBooleanProp(Node_IS_CONSTANT_NAME, true)
 		externRoot.addChildToBack(declaration)
@@ -273,7 +281,9 @@ func RuntimeJsLibManager_FieldsTable_loadFields() *JTMap[string, string] {
 	for it_1.next() {
 		var line string = str_(it_1.v)
 		var tokens *JTList[string] = splitToListST_(jtc_string, Splitter_on(',').limit(2), line)
-		Preconditions_checkState_boolean_Object((tokens.size() == 2), tokens.asListT())
+		if ok_, a1_ := (tokens.size() == 2), tokens.asListT(); !ok_ {
+			Preconditions_checkState_boolean_Object(false, a1_)
+		}
 		var fieldName string = tokens.get(0)
 		var resourcePath string = tokens.get(1)
 		allFields.put(fieldName, resourcePath)
@@ -339,7 +349,9 @@ func (this *RuntimeJsLibManager_InternalField) assertInjected_rInternalField() *
 	switch this.outer_.mode_ {
 	case RuntimeJsLibManager_RuntimeLibraryMode_NO_OP, RuntimeJsLibManager_RuntimeLibraryMode_RECORD_ONLY:
 	case RuntimeJsLibManager_RuntimeLibraryMode_RECORD_AND_VALIDATE_FIELDS, RuntimeJsLibManager_RuntimeLibraryMode_INJECT, RuntimeJsLibManager_RuntimeLibraryMode_EXTERN_FIELD_NAMES:
-		Preconditions_checkState_boolean_String_Object(this.injected, "Field %s is not injected", this.uncompiledNameField)
+		if !this.injected {
+			Preconditions_checkState_boolean_String_Object(false, "Field %s is not injected", this.uncompiledNameField)
+		}
 	}
 	return this
 }

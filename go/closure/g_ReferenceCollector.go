@@ -129,7 +129,9 @@ func (this *ReferenceCollector) pushNewBlock(root Node) {
 
 func (this *ReferenceCollector) popLastBlock(root Node) {
 	var last *BasicBlock = SequencedCollection_removeLastT_[*BasicBlock](this.blockStack.asCollT())
-	Preconditions_checkState_boolean_Object_H((root == last.getRoot()), root)
+	if !(root == last.getRoot()) {
+		Preconditions_checkState_boolean_Object_H(false, root)
+	}
 }
 
 func ReferenceCollector_isBlockBoundary(n Node, parent Node) bool {

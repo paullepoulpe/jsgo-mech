@@ -309,11 +309,15 @@ func (this *AstValidator) validatePseudoExpression(n Node, allowedPseudoexpressi
 	var allowedTokensSet *JTSet[*Token_rhino] = tsetImm_(tc_p_Token_rhino, ImmutableSet_copyOf_ObjectArr(arrmap_(allowedPseudoexpressions, func(v_ *Token_rhino) any { return obj_(v_) })))
 	switch n.ns_().token {
 	case tokOrd1_EMPTY:
-		Preconditions_checkArgument_boolean_String_Object_H(allowedTokensSet.contains(Token_rhino_EMPTY), "Unexpected pseudoexpression %s", n)
+		if !allowedTokensSet.contains(Token_rhino_EMPTY) {
+			Preconditions_checkArgument_boolean_String_Object_H(false, "Unexpected pseudoexpression %s", n)
+		}
 		this.validateProperties(n)
 		this.validateChildless(n)
 	case tokOrd1_ITER_SPREAD:
-		Preconditions_checkArgument_boolean_String_Object_H(allowedTokensSet.contains(Token_rhino_ITER_SPREAD), "Unexpected pseudoexpression %s", n)
+		if !allowedTokensSet.contains(Token_rhino_ITER_SPREAD) {
+			Preconditions_checkArgument_boolean_String_Object_H(false, "Unexpected pseudoexpression %s", n)
+		}
 		this.validateProperties(n)
 		this.validateChildCount(n)
 		this.validateFeature(FeatureSet_Feature_SPREAD_EXPRESSIONS, n)
@@ -1538,7 +1542,9 @@ func (this *AstValidator) validateAssignmentOpTarget(lhs Node, contextType *Toke
 }
 
 func (this *AstValidator) validateGetElem(n Node) {
-	Preconditions_checkArgument_boolean_Object_H(n.isGetElem(), n)
+	if !n.isGetElem() {
+		Preconditions_checkArgument_boolean_Object_H(false, n)
+	}
 	this.validateProperties(n)
 	this.validateChildCount_2(n, 2)
 	this.validatePropertyReferenceTarget(n.getFirstChild())
@@ -1547,7 +1553,9 @@ func (this *AstValidator) validateGetElem(n Node) {
 
 func (this *AstValidator) validateOptChainGetElem(node Node) {
 	this.validateFeature(FeatureSet_Feature_OPTIONAL_CHAINING, node)
-	Preconditions_checkArgument_boolean_Object_H(node.isOptChainGetElem(), node)
+	if !node.isOptChainGetElem() {
+		Preconditions_checkArgument_boolean_Object_H(false, node)
+	}
 	this.validateProperties(node)
 	this.validateChildCount_2(node, 2)
 	this.validateExpression(node.getFirstChild())

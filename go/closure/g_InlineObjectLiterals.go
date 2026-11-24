@@ -156,7 +156,9 @@ func (this *InlineObjectLiterals_InliningBehavior) computeVarList(referenceInfo 
 		if ref.isLvalue() || ref.isInitializingDeclaration() {
 			var val Node = ref.getAssignedValue()
 			if val != 0 {
-				Preconditions_checkState_boolean_Object_H(val.isObjectLit(), val)
+				if !val.isObjectLit() {
+					Preconditions_checkState_boolean_Object_H(false, val)
+				}
 				{
 					var child Node = val.getFirstChild()
 					for ; child != 0; child = child.getNext() {
@@ -176,7 +178,9 @@ func (this *InlineObjectLiterals_InliningBehavior) computeVarList(referenceInfo 
 		} else if NodeUtil_isNameDeclaration(ref.getParent()) {
 		} else {
 			var getprop Node = ref.getParent()
-			Preconditions_checkState_boolean_Object_H(NodeUtil_isNormalOrOptChainGetProp(getprop), getprop)
+			if !NodeUtil_isNormalOrOptChainGetProp(getprop) {
+				Preconditions_checkState_boolean_Object_H(false, getprop)
+			}
 			var varname string = getprop.getString()
 			if varmap.containsKey(varname) {
 				continue
@@ -190,7 +194,9 @@ func (this *InlineObjectLiterals_InliningBehavior) computeVarList(referenceInfo 
 
 func (this *InlineObjectLiterals_InliningBehavior) fillInitialValues(init_ *Reference, initvals *JTMap[string, Node]) {
 	var object Node = init_.getAssignedValue()
-	Preconditions_checkState_boolean_Object_H(object.isObjectLit(), object)
+	if !object.isObjectLit() {
+		Preconditions_checkState_boolean_Object_H(false, object)
+	}
 	{
 		var key Node = object.getFirstChild()
 		for ; key != 0; key = key.getNext() {
@@ -203,7 +209,9 @@ func (this *InlineObjectLiterals_InliningBehavior) replaceAssignmentExpression(v
 	var nodes ListT[Node] = jnewTList_(jtc_Node).asListT()
 	var val Node = ref.getAssignedValue()
 	this.recordStaleVarReferencesInTree(val, v.getScope_rAbstractScope_rScope())
-	Preconditions_checkState_boolean_Object_H(val.isObjectLit(), val)
+	if !val.isObjectLit() {
+		Preconditions_checkState_boolean_Object_H(false, val)
+	}
 	var all *JTSet[string] = jtsetFrom_(jtc_string, Collection(Set_un_(varmap.keySetT())))
 	{
 		var key Node = val.getFirstChild()
@@ -269,7 +277,9 @@ func (this *InlineObjectLiterals_InliningBehavior) splitObject(v *Var, init_ *Re
 	} else {
 		vnode = v.getScope_rAbstractScope_rScope().getClosestHoistScope_rScope().getRootNode().getFirstChild()
 	}
-	Preconditions_checkState_boolean_Object_H(NodeUtil_isStatement(vnode), vnode)
+	if !NodeUtil_isStatement(vnode) {
+		Preconditions_checkState_boolean_Object_H(false, vnode)
+	}
 	if isBlockScoped && !varmap.isEmpty() {
 		var script Node = NodeUtil_getEnclosingScript(vnode)
 		if script != 0 {
@@ -314,7 +324,9 @@ func (this *InlineObjectLiterals_InliningBehavior) splitObject(v *Var, init_ *Re
 			ref.getParent().detach()
 		} else {
 			var getprop Node = ref.getParent()
-			Preconditions_checkState_boolean_Object_H(NodeUtil_isNormalOrOptChainGetProp(getprop), getprop)
+			if !NodeUtil_isNormalOrOptChainGetProp(getprop) {
+				Preconditions_checkState_boolean_Object_H(false, getprop)
+			}
 			var var_ string = getprop.getString()
 			Preconditions_checkState(varmap.containsKey(var_))
 			var replacement Node = IR_name(varmap.get(var_))

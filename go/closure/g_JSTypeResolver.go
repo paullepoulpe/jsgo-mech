@@ -43,7 +43,9 @@ func (this *JSTypeResolver) resolveIfClosed(captured *JSType, caller *JSTypeClas
 		return
 	}
 	var expected *JSType = SequencedCollection_removeLastT_[*JSType](this.captureStack.asCollT())
-	Preconditions_checkState_boolean_String_Object_Object((captured == expected), "Captured %s; Expected %s", captured, expected)
+	if !(captured == expected) {
+		Preconditions_checkState_boolean_String_Object_Object(false, "Captured %s; Expected %s", captured, expected)
+	}
 	switch this.state {
 	case JSTypeResolver_State_CLOSED, JSTypeResolver_State_CLOSING:
 		this.doResolve(captured)

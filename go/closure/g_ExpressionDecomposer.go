@@ -69,7 +69,9 @@ func (this *ExpressionDecomposer) exposeExpression(expression Node) bool {
 	this.rewriteAllContainingOptionalChains(expression)
 	var expressionRoot Node = ExpressionDecomposer_findExpressionRoot(expression)
 	Preconditions_checkNotNull_T(expressionRoot)
-	Preconditions_checkState_boolean_Object_H(NodeUtil_isStatement(expressionRoot), expressionRoot)
+	if !NodeUtil_isStatement(expressionRoot) {
+		Preconditions_checkState_boolean_Object_H(false, expressionRoot)
+	}
 	return this.exposeExpression_2(expressionRoot, expression)
 }
 
@@ -85,7 +87,9 @@ func (this *ExpressionDecomposer) exposeExpression_2(expressionRoot Node, subExp
 	var expressionToExpose Node = nodeWithNonconditionalParent
 	var expressionParent Node = expressionToExpose.getParent()
 	for expressionParent != expressionRoot {
-		Preconditions_checkState_boolean_Object_H((!ExpressionDecomposer_isConditionalOp(expressionParent) || expressionToExpose.isFirstChildOf(expressionParent)), expressionParent)
+		if !(!ExpressionDecomposer_isConditionalOp(expressionParent) || expressionToExpose.isFirstChildOf(expressionParent)) {
+			Preconditions_checkState_boolean_Object_H(false, expressionParent)
+		}
 		if expressionParent.isAssign() {
 			if this.isSafeAssign(expressionParent, state.sideEffects) {
 			} else if !expressionToExpose.isFirstChildOf(expressionParent) {
@@ -279,7 +283,9 @@ func (this *ExpressionDecomposer) isConstantNameNode(n Node) bool {
 }
 
 func (this *ExpressionDecomposer) extractExpression(expr Node, injectionPoint Node) Node {
-	Preconditions_checkState_boolean_Object_H(!NodeUtil_isLogicalAssignmentOp(expr), expr)
+	if NodeUtil_isLogicalAssignmentOp(expr) {
+		Preconditions_checkState_boolean_Object_H(false, expr)
+	}
 	var parent Node = expr.getParent()
 	var isLhsOfAssignOp bool = ((NodeUtil_isAssignmentOp(parent) && !parent.isAssign()) && expr.isFirstChildOf(parent))
 	var firstExtractedNode Node = 0
@@ -302,7 +308,9 @@ func (this *ExpressionDecomposer) extractExpression(expr Node, injectionPoint No
 	var replacementValueNode Node = IR_name(tempName).copyTypeFrom(expr).srcref(expr)
 	var tempNameValue Node
 	if isLhsOfAssignOp {
-		Preconditions_checkState_boolean_Object_H((expr.isName() || NodeUtil_isNormalGet(expr)), expr)
+		if !(expr.isName() || NodeUtil_isNormalGet(expr)) {
+			Preconditions_checkState_boolean_Object_H(false, expr)
+		}
 		var opNode Node = new_Node_Token(NodeUtil_getOpFromAssignmentOp(parent)).copyTypeFrom(parent).srcrefIfMissing(parent)
 		var rightOperand Node = parent.getLastChild()
 		parent.setToken(Token_rhino_ASSIGN)
@@ -343,9 +351,13 @@ func (this *ExpressionDecomposer) extractExpression(expr Node, injectionPoint No
 }
 
 func (this *ExpressionDecomposer) rewriteCallExpression(call Node, state *ExpressionDecomposer_DecompositionState) {
-	Preconditions_checkArgument_boolean_Object_H(call.isCall(), call)
+	if !call.isCall() {
+		Preconditions_checkArgument_boolean_Object_H(false, call)
+	}
 	var first Node = call.getFirstChild()
-	Preconditions_checkArgument_boolean_Object_H(NodeUtil_isNormalGet(first), first)
+	if !NodeUtil_isNormalGet(first) {
+		Preconditions_checkArgument_boolean_Object_H(false, first)
+	}
 	var fnCallType *JSType = nil
 	if this.astFactory_.isAddingTypes() {
 		var fnType *JSType = first.getJSType()
@@ -364,7 +376,9 @@ func (this *ExpressionDecomposer) rewriteCallExpression(call Node, state *Expres
 		return
 	}
 	var getExprNode Node = getVarNode.getFirstFirstChild()
-	Preconditions_checkArgument_boolean_Object_H(NodeUtil_isNormalGet(getExprNode), getExprNode)
+	if !NodeUtil_isNormalGet(getExprNode) {
+		Preconditions_checkArgument_boolean_Object_H(false, getExprNode)
+	}
 	var origThisValue Node = getExprNode.getFirstChild()
 	var receiverNode Node
 	if origThisValue.isThis() {
@@ -415,7 +429,9 @@ func ExpressionDecomposer_findInjectionPoint(subExpression Node) Node {
 		injectionPoint = parent
 		parent = injectionPoint.getParent()
 	}
-	Preconditions_checkState_boolean_Object_H(NodeUtil_isStatementBlock(parent), parent)
+	if !NodeUtil_isStatementBlock(parent) {
+		Preconditions_checkState_boolean_Object_H(false, parent)
+	}
 	return injectionPoint
 }
 

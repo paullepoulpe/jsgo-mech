@@ -2381,7 +2381,9 @@ func (this *AbstractCommandLineRunner_CommandLineConfig) setJsOutputFile(jsOutpu
 
 func (this *AbstractCommandLineRunner_CommandLineConfig) setContinueSavedCompilationFileName(fileName Optional[string], restoredCompilationStage int32) *AbstractCommandLineRunner_CommandLineConfig {
 	if fileName.isPresent() {
-		Preconditions_checkArgument_boolean_String_int(((restoredCompilationStage > 0) && (restoredCompilationStage < 3)), "invalid compilation stage: %s", restoredCompilationStage)
+		if !((restoredCompilationStage > 0) && (restoredCompilationStage < 3)) {
+			Preconditions_checkArgument_boolean_String_int(false, "invalid compilation stage: %s", restoredCompilationStage)
+		}
 		this.continueSavedCompilationFileName = fileName
 		this.restoredCompilationStage = restoredCompilationStage
 	}
@@ -2390,7 +2392,9 @@ func (this *AbstractCommandLineRunner_CommandLineConfig) setContinueSavedCompila
 
 func (this *AbstractCommandLineRunner_CommandLineConfig) shouldSaveAfterStage1() bool {
 	if this.saveCompilationStateToFilename.isPresent() && (this.saveAfterCompilationStage == 1) {
-		Preconditions_checkState_boolean_String_int((this.restoredCompilationStage < 0), "cannot perform stage 1 after restoring from stage %s", this.restoredCompilationStage)
+		if !(this.restoredCompilationStage < 0) {
+			Preconditions_checkState_boolean_String_int(false, "cannot perform stage 1 after restoring from stage %s", this.restoredCompilationStage)
+		}
 		Preconditions_checkState_boolean_Object(this.continueSavedCompilationFileName.isEmpty(), "cannot restore a saved compilation and also save after stage 1")
 		return true
 	} else {
@@ -2409,7 +2413,9 @@ func (this *AbstractCommandLineRunner_CommandLineConfig) shouldRestoreAndPerform
 
 func (this *AbstractCommandLineRunner_CommandLineConfig) shouldContinueCompilation() bool {
 	if this.continueSavedCompilationFileName.isPresent() {
-		Preconditions_checkState_boolean_String_int(((this.restoredCompilationStage > 0) && (this.restoredCompilationStage < 3)), "invalid restored compilation stage: %s", this.restoredCompilationStage)
+		if !((this.restoredCompilationStage > 0) && (this.restoredCompilationStage < 3)) {
+			Preconditions_checkState_boolean_String_int(false, "invalid restored compilation stage: %s", this.restoredCompilationStage)
+		}
 		return true
 	} else {
 		return false
@@ -2431,7 +2437,9 @@ func (this *AbstractCommandLineRunner_CommandLineConfig) shouldRestoreAndPerform
 
 func (this *AbstractCommandLineRunner_CommandLineConfig) shouldRestoreAndPerformStage3() bool {
 	if this.shouldContinueCompilation() && (this.restoredCompilationStage == 2) {
-		Preconditions_checkState_boolean_String_int((this.saveAfterCompilationStage < 0), "request to save after stage %s is invalid when restoring from stage 2", this.saveAfterCompilationStage)
+		if !(this.saveAfterCompilationStage < 0) {
+			Preconditions_checkState_boolean_String_int(false, "request to save after stage %s is invalid when restoring from stage 2", this.saveAfterCompilationStage)
+		}
 		return true
 	} else {
 		return false

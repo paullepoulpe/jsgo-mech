@@ -106,8 +106,12 @@ func (this *CompilerInput) clearAst() {
 }
 
 func (this *CompilerInput) initShadowAst(shadowScript Node) {
-	Preconditions_checkArgument_boolean_Object_H(shadowScript.isScript(), shadowScript)
-	Preconditions_checkState_boolean_Object_H(shadowScript.getIsInClosureUnawareSubtree(), shadowScript)
+	if !shadowScript.isScript() {
+		Preconditions_checkArgument_boolean_Object_H(false, shadowScript)
+	}
+	if !shadowScript.getIsInClosureUnawareSubtree() {
+		Preconditions_checkState_boolean_Object_H(false, shadowScript)
+	}
 	this.ast.root = shadowScript
 }
 

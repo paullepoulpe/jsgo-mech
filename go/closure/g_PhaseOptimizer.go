@@ -334,7 +334,9 @@ func new_PhaseOptimizer_Loop(outer_ *PhaseOptimizer) *PhaseOptimizer_Loop {
 
 func (this *PhaseOptimizer_Loop) addLoopedPass(factory *PassFactory) {
 	var name string = factory.getName()
-	Preconditions_checkArgument_boolean_String_Object(!this.myNames.contains(name), "Already a pass with name '%s' in this loop", name)
+	if this.myNames.contains(name) {
+		Preconditions_checkArgument_boolean_String_Object(false, "Already a pass with name '%s' in this loop", name)
+	}
 	this.myNames.add(name)
 	this.myPasses.add(new_PhaseOptimizer_NamedPass(this.outer_, factory))
 }

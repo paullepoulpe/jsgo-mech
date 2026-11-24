@@ -93,7 +93,9 @@ func (this *DevirtualizeMethods) isPrototypeOrStaticMethodDefinition(node Node) 
 			}
 			return false
 		case tokOrd1_STRING_KEY:
-			Preconditions_checkArgument_boolean_Object_H(parent.isObjectLit(), parent)
+			if !parent.isObjectLit() {
+				Preconditions_checkArgument_boolean_Object_H(false, parent)
+			}
 			return (DevirtualizeMethods_isPrototypeObjectLit(parent) && node.getFirstChild().isFunction())
 		default:
 			return false
@@ -103,7 +105,9 @@ func (this *DevirtualizeMethods) isPrototypeOrStaticMethodDefinition(node Node) 
 }
 
 func DevirtualizeMethods_isPrototypeObjectLit(objectLit Node) bool {
-	Preconditions_checkArgument_boolean_Object_H(objectLit.isObjectLit(), objectLit)
+	if !objectLit.isObjectLit() {
+		Preconditions_checkArgument_boolean_Object_H(false, objectLit)
+	}
 	var parent Node = objectLit.getParent()
 	return (objectLit.isSecondChildOf(parent) && NodeUtil_isPrototypeAssignment(parent.getFirstChild()))
 }
@@ -179,7 +183,9 @@ func (this *DevirtualizeMethods) isEligibleDefinitionSite(name string, definitio
 }
 
 func (this *DevirtualizeMethods) isEligibleDefinitionFunction(definitionFunction Node) bool {
-	Preconditions_checkArgument_boolean_Object_H(definitionFunction.isFunction(), definitionFunction)
+	if !definitionFunction.isFunction() {
+		Preconditions_checkArgument_boolean_Object_H(false, definitionFunction)
+	}
 	if definitionFunction.isArrowFunction() {
 		return false
 	}
@@ -225,7 +231,9 @@ func (this *DevirtualizeMethods) allDefinitionsEquivalent(definitions Collection
 		return true
 	}
 	var definition Node = Iterables_getT_[Node](definitions, 0)
-	Preconditions_checkArgument_boolean_Object_H(definition.isFunction(), definition)
+	if !definition.isFunction() {
+		Preconditions_checkArgument_boolean_Object_H(false, definition)
+	}
 	it_1 := jeachOf_(definitions)
 	for it_1.next() {
 		var d Node = it_1.v
@@ -237,9 +245,13 @@ func (this *DevirtualizeMethods) allDefinitionsEquivalent(definitions Collection
 }
 
 func (this *DevirtualizeMethods) rewriteCall(getprop Node, newMethodName string, isConstantName bool) {
-	Preconditions_checkArgument_boolean_Object_H(getprop.isGetProp(), getprop)
+	if !getprop.isGetProp() {
+		Preconditions_checkArgument_boolean_Object_H(false, getprop)
+	}
 	var call Node = getprop.getParent()
-	Preconditions_checkArgument_boolean_Object_H(call.isCall(), call)
+	if !call.isCall() {
+		Preconditions_checkArgument_boolean_Object_H(false, call)
+	}
 	var receiver Node = getprop.getFirstChild()
 	receiver.detach()
 	getprop.replaceWith(receiver)
@@ -340,7 +352,9 @@ func DevirtualizeMethods_isScopingOrBranchingConstruct(node Node) bool {
 }
 
 func DevirtualizeMethods_localNameIsDeclaredByClass(clazz Node) bool {
-	Preconditions_checkArgument_boolean_Object_H(clazz.isClass(), clazz)
+	if !clazz.isClass() {
+		Preconditions_checkArgument_boolean_Object_H(false, clazz)
+	}
 	if clazz.getFirstChild().isEmpty() {
 		return false
 	} else if NodeUtil_isStatement(clazz) {

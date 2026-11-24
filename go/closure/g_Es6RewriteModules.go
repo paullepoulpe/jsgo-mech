@@ -44,7 +44,9 @@ func new_Es6RewriteModules_AbstractCompiler_ModuleMetadataMap_ModuleMap_Preproce
 }
 
 func Es6RewriteModules_isEs6ModuleRoot(scriptNode Node) bool {
-	Preconditions_checkArgument_boolean_Object_H(scriptNode.isScript(), scriptNode)
+	if !scriptNode.isScript() {
+		Preconditions_checkArgument_boolean_Object_H(false, scriptNode)
+	}
 	if scriptNode.getBooleanProp(Node_GOOG_MODULE) {
 		return false
 	}
@@ -52,8 +54,12 @@ func Es6RewriteModules_isEs6ModuleRoot(scriptNode Node) bool {
 }
 
 func (this *Es6RewriteModules) process_2(externs Node, root Node) {
-	Preconditions_checkArgument_boolean_Object_H(externs.isRoot(), externs)
-	Preconditions_checkArgument_boolean_Object_H(root.isRoot(), root)
+	if !externs.isRoot() {
+		Preconditions_checkArgument_boolean_Object_H(false, externs)
+	}
+	if !root.isRoot() {
+		Preconditions_checkArgument_boolean_Object_H(false, root)
+	}
 	NodeTraversal_traverseRoots(this.compiler_, NodeTraversal_Callback(this), externs, root)
 	NodeUtil_removeFeatureFromAllScripts(root, FeatureSet_Feature_MODULES, this.compiler_)
 	GatherGetterAndSetterProperties_update(this.compiler_, externs, root)
@@ -105,7 +111,9 @@ func (this *Es6RewriteModules) maybeWarnExternModule(t *NodeTraversal, n Node, p
 }
 
 func (this *Es6RewriteModules) visitImport(t *NodeTraversal, importDecl Node, parent Node) {
-	Preconditions_checkArgument_boolean_Object_H(parent.isModuleBody(), parent)
+	if !parent.isModuleBody() {
+		Preconditions_checkArgument_boolean_Object_H(false, parent)
+	}
 	var importName string = importDecl.getLastChild().getString()
 	var isNamespaceImport bool = String_startsWith(importName, "goog:")
 	if isNamespaceImport {
@@ -146,7 +154,9 @@ func (this *Es6RewriteModules) visitImport(t *NodeTraversal, importDecl Node, pa
 }
 
 func (this *Es6RewriteModules) visitExport(t *NodeTraversal, export Node, parent Node) {
-	Preconditions_checkArgument_boolean_Object_H(parent.isModuleBody(), parent)
+	if !parent.isModuleBody() {
+		Preconditions_checkArgument_boolean_Object_H(false, parent)
+	}
 	if export.getBooleanProp(Node_EXPORT_DEFAULT) {
 		var child Node = export.getFirstChild()
 		var name string = ""
@@ -203,7 +213,9 @@ func (this *Es6RewriteModules) visitScript(t *NodeTraversal, script Node) {
 	ClosureRewriteModule_checkAndSetStrictModeDirective(t, script)
 	var thisModule *Module = this.moduleMap.getModule(t.getInput().getPath())
 	var qualifiedName *QualifiedName = ModuleRenaming_getGlobalName_ModuleMetadata_Optional(thisModule.metadata(), Optional_empty[string]())
-	Preconditions_checkState_boolean_String_Object(qualifiedName.isSimple(), "Unexpected qualified name %s", qualifiedName)
+	if !qualifiedName.isSimple() {
+		Preconditions_checkState_boolean_String_Object(false, "Unexpected qualified name %s", qualifiedName)
+	}
 	var moduleName string = qualifiedName.getRoot()
 	var moduleVar Node = this.createExportsObject(moduleName, t, script, moduleObjectType)
 	NodeTraversal_traverse(this.compiler_, script, NodeTraversal_Callback(new_Es6RewriteModules_RenameGlobalVars(this, thisModule)))
@@ -232,7 +244,9 @@ func (this *Es6RewriteModules) createExportsObject(moduleName string, t *NodeTra
 		var nodeForSourceInfo Node = binding.sourceNode()
 		var mutated bool = binding.isMutated()
 		var boundVariableQualifiedName *QualifiedName = ModuleRenaming_getGlobalName_Binding(binding)
-		Preconditions_checkState_boolean_String_Object(boundVariableQualifiedName.isSimple(), "unexpected qualified name: %s", boundVariableQualifiedName)
+		if !boundVariableQualifiedName.isSimple() {
+			Preconditions_checkState_boolean_String_Object(false, "unexpected qualified name: %s", boundVariableQualifiedName)
+		}
 		var boundVariableName string = boundVariableQualifiedName.getRoot()
 		var getProp Node = this.astFactory_.createGetPropWithoutColor(this.astFactory_.createName(moduleName, moduleObjectType), exportedName)
 		getProp.putBooleanProp(Node_MODULE_EXPORT, true)
@@ -379,7 +393,9 @@ func (this *Es6RewriteModules) visitRequireOrGet(t *NodeTraversal, requireCall N
 				{
 					var child Node = parent.getFirstFirstChild()
 					for ; child != 0; child = child.getNext() {
-						Preconditions_checkState_boolean_Object_H((child.isStringKey() && child.getFirstChild().isName()), child)
+						if !(child.isStringKey() && child.getFirstChild().isName()) {
+							Preconditions_checkState_boolean_Object_H(false, child)
+						}
 						var rep *ModuleRenaming_GlobalizedModuleName = this.getGlobalNameAndType(m, Optional_of[string](namespace), isFromFallbackMetadata).getprop(child.getString())
 						this.namesToInlineByAlias.put(child.getFirstChild().getString(), rep)
 					}
