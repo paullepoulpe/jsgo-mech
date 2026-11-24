@@ -77,7 +77,7 @@ if [[ -z ${J2GO_NOLIBGEN:-} && ${J2GO_NOFNTYPES:-} != 1 ]]; then
 fi
 if [[ -z ${J2GO_NOLIBGEN:-} ]]; then
   # Rule "typed library interfaces", piece `objarg` (lang/LibObj.java): typed() and the methods it calls have the typed twins
-  # of the collection methods that take an Object (50 calls), erased() and wide() / wild() / obj() none (an Object, a supertype,
+  # of the collection methods that take an Object (51 calls), erased() and wide() / wild() / obj() none (an Object, a supertype,
   # another interface, Object keys, a wildcard, a result that enters an Object, a field of a type variable's type: 13 erased calls).
   twin='\b(Map_getK_|Map_containsKeyK_|Map_removeK_|Collection_containsE_|Collection_removeE_|List_indexOfE_|List_lastIndexOfE_)\['
   erased='\.(get_t|get|containsKey|contains|remove_Object|indexOf|lastIndexOf)\('
@@ -86,7 +86,7 @@ if [[ -z ${J2GO_NOLIBGEN:-} ]]; then
   nt=$(fns 'maps|change|keys|colls|lists|sets|strs|Reg.T.. look|typed' | { grep -oE "$twin" || true; } | wc -l)
   nx=$(fns 'wide|erased|wild|obj' | { grep -oE "$twin" || true; } | wc -l)
   ne=$(fns 'wide|erased|wild|obj' | { grep -oE "$erased" || true; } | wc -l)
-  if [[ $nt != 50 || $nx != 0 || $ne != 13 ]]; then echo "selftest: FAIL (Object-parameter methods: $nt twins in typed(), $nx and $ne erased calls in erased())"; exit 1; fi
+  if [[ $nt != 51 || $nx != 0 || $ne != 13 ]]; then echo "selftest: FAIL (Object-parameter methods: $nt twins in typed(), $nx and $ne erased calls in erased())"; exit 1; fi
 fi
 if [[ ${J2GO_NOFNTYPES:-} != 1 ]]; then
   # Rule "function types": the translator must refuse every use in refused/Refused.java (14) and write nothing.

@@ -103,7 +103,9 @@ public class LibObj {
     Animal none = null;
     String r = m.get(a) + " " + m.get(d) + " " + m.get(none) + " " + m.containsKey(d) + m.containsKey(a) + m.containsKey(none);
     r += " " + m.get(new Dog("other")) + " " + m.get(CAT) + m.containsKey(REX);
-    return r;
+    // a method reference: its parameter is the key
+    java.util.function.Function<Animal, String> f = m::get;
+    return r + " " + f.apply(a) + f.apply(none);
   }
 
   static <X> String change(Map<Animal, String> m, Dog d, Animal a) {

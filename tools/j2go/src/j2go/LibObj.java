@@ -92,13 +92,15 @@ final class LibObj {
 
   /**
    * Null where argument a is, in Go, a value of its static type as it is (the code that the erased
-   * call boxed): null, a new object, `this`, a cast, a local variable or parameter, a field or the
+   * call boxed): null, a new object, `this`, a cast, a local variable or parameter (also the
+   * unconverted parameter of a method reference), a field or the
    * result of a method whose declared type names no type variable. Else why not: a field or result
    * of a type variable's type is erased in Go (`any`) and would be cast to the key type, where Java
    * casts nothing (the parameter is Object).
    */
   String argForm(ExprEmitter x, ExprEmitter.Arg a) {
-    if (a.tree == null) return "the argument has no tree";
+    // (a parameter of a method reference, `memoized::get`: as it is where the code is the parameter itself, unconverted)
+    if (a.tree == null) return a.code != null && a.code.matches("[A-Za-z_][A-Za-z0-9_]*") ? null : "the argument is a converted parameter of a method reference";
     if (a.type.getKind() == TypeKind.NULL) return null;
     ExpressionTree t = Base.strip(a.tree);
     switch (t.getKind()) {
