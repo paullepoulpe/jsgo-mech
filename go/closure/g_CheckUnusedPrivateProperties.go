@@ -124,7 +124,7 @@ func (this *CheckUnusedPrivateProperties) isCandidatePropertyDefinition(n Node) 
 		panic(new_IllegalStateException_String(tostr_(n)))
 	}
 	var target Node = n.getFirstChild()
-	return ((target.isThis() || has_(this.constructorsAndInterfaces, target.getQualifiedName())) || (target.isGetProp() && (target.getString() == "prototype")))
+	return ((target.isThis() || has_(this.constructorsAndInterfaces, target.getQualifiedName())) || (target.isGetProp() && (target.getStringIs_(sid_prototype))))
 }
 
 func CheckUnusedPrivateProperties_isPinningPropertyUse(n Node) bool {

@@ -29,7 +29,7 @@ func (this *ThisAndArgumentsReferenceUpdater) visit(t *NodeTraversal, n Node, pa
 			name.setOriginalName("this")
 		}
 		n.replaceWith(name)
-	} else if n.isName() && (n.getString() == "arguments") {
+	} else if n.isName() && (n.getStringIs_(sid_arguments)) {
 		this.context.setNeedsArgumentsVar()
 		var name Node = this.astFactory_.createName((sstr_(ThisAndArgumentsReferenceUpdater_ARGUMENTS_VAR) + "$" + sstr_(this.context.uniqueId)), AstFactory_type_Node(n)).srcref(n)
 		if this.compiler_.getOptions().preservesDetailedSourceInfo() {

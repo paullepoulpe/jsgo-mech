@@ -212,7 +212,7 @@ func (this *ImplicitNullabilityCheck_1) visit(node Node) {
 			{
 				var child Node = parent.getFirstChild()
 				for ; child != 0; child = child.getNext() {
-					if (child.isStringLit() && (child.getString() == "null")) || (child.ns_().token == tokOrd1_QMARK) {
+					if (child.isStringLit() && (child.getStringIs_(sid_null))) || (child.ns_().token == tokOrd1_QMARK) {
 						return
 					}
 				}

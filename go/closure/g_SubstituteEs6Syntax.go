@@ -43,7 +43,7 @@ func (this *SubstituteEs6Syntax) visit_impl(t *NodeTraversal, n Node, parent Nod
 			this.maybeSimplifyArrowFunctionBody(n, n.getLastChild())
 		}
 	case tokOrd1_STRING_KEY:
-		if n.getFirstChild().isName() && (n.getFirstChild().getString() == n.getString()) {
+		if n.getFirstChild().isName() && (n.getFirstChild().getStringId_() == n.getStringId_()) {
 			n.setShorthandProperty(true)
 			this.objectLiteralShorthandWasAdded = true
 		}

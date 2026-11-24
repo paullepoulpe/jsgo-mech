@@ -105,11 +105,11 @@ func (this *DeclaredGlobalExternsOnWindow) visit_impl(t *NodeTraversal, n Node, 
 		{
 			var c Node = n.getFirstChild()
 			for ; c != 0; c = c.getNext() {
-				if c.getString() == DeclaredGlobalExternsOnWindow_WINDOW_NAME {
+				if c.getStringIs_(sid_window) {
 					this.windowInExterns = true
 					continue
 				}
-				if !(c.getString() == "location") {
+				if !(c.getStringIs_(sid_location)) {
 					this.nodes_.Add(c)
 				}
 			}
