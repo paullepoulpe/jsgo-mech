@@ -3,14 +3,14 @@
 package closure
 
 type LinkedIdentityHashMap[K comparable, V comparable] struct {
-	innerMap       MapT[K, *LinkedIdentityHashMap_Entry[K, V]]
+	innerMap       *TMap[K, *LinkedIdentityHashMap_Entry[K, V]]
 	iterationOrder *TList[*LinkedIdentityHashMap_Entry[K, V]]
 }
 
 func (this *LinkedIdentityHashMap[K, V]) isa_LinkedIdentityHashMap_() {}
 
 func (this *LinkedIdentityHashMap[K, V]) finit_LinkedIdentityHashMap() {
-	this.innerMap = mapAs_(tcT_[K](), tc_p_LinkedIdentityHashMap_Entry_K__V_[K, V](), Map(new_IdentityHashMap()))
+	this.innerMap = newTMap_(tconvIdT_[K](), tconvT_[*LinkedIdentityHashMap_Entry[K, V]]())
 	this.iterationOrder = newTList_(tc_p_LinkedIdentityHashMap_Entry_K__V_[K, V]())
 }
 
@@ -25,7 +25,7 @@ func new_LinkedIdentityHashMap[K comparable, V comparable]() *LinkedIdentityHash
 }
 
 func (this *LinkedIdentityHashMap[K, V]) get(key K) V {
-	var entry *LinkedIdentityHashMap_Entry[K, V] = this.innerMap.get_t(boxT_(key))
+	var entry *LinkedIdentityHashMap_Entry[K, V] = this.innerMap.Get(key)
 	return func() V {
 		if entry == nil {
 			return jnull_[V]()
@@ -35,10 +35,10 @@ func (this *LinkedIdentityHashMap[K, V]) get(key K) V {
 }
 
 func (this *LinkedIdentityHashMap[K, V]) put(key K, value V) V {
-	var entry *LinkedIdentityHashMap_Entry[K, V] = this.innerMap.get_t(boxT_(key))
+	var entry *LinkedIdentityHashMap_Entry[K, V] = this.innerMap.Get(key)
 	if entry == nil {
 		entry = new_LinkedIdentityHashMap_Entry[K, V](key, value)
-		this.innerMap.put_t(key, entry)
+		this.innerMap.Put(key, entry)
 		this.iterationOrder.add(entry)
 		return jnull_[V]()
 	} else {
