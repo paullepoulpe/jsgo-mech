@@ -657,3 +657,24 @@ c44d5926 run t visit && f
 2cd604d6 run t gmaps && f
 # 454. postflip step (re-flip): ranges -loops re-run, loops from the head of the stacks of 451 are range loops
 52b78402 run t ranges -loops && f
+# 455. postflip step (re-flip): castfold re-run, 20 casts the operand's static type decides are folded
+3caf4058 run t castfold && f
+#: castfold: 20 folded (9 icast of a non-nil pointer, 6 upcasts of a constructor's result, 3 icast of an operand of the target type, 1 interface operand, 1 pointer boxed by any()); left 2,197 by castfold's reasons (as below)
+# 456. postflip step (re-flip): castfold -nilup, 451 upcasts of a pointer that may be nil keep nil without a cast (tool 0084ef60)
+c15b748c run t castfold -nilup && f
+#: castfold -nilup: 432 icast_I(obj_(p)) -> iup_I(p) (44 iup_ in g_0iup.go), 19 to_X upcasts -> p.up_X(); left 1,746: 307 + 181 downcasts (class pointer / interface value), 35 icast of self() of an extended class, 20 casts between Java interfaces, 1,146 operands of type any (func literal parameters 490, erased results 358, any parameters 162, locals 68, for-each elements 42, catches 12, fields 9, []any elements 5), 3 not pointers, 54 instanceof
+# 457. postflip step (re-flip): lamparams, 183 lambda parameters cast on entry take the cast's type, 8 adapters cast (tool 7e230b12)
+5ca2e382 run t lamparams && f
+#: lamparams: 183 parameters of 182 lambdas (105 `var v T = K(p)` first, 78 method references), 8 adapter types in g_0lamparams.go (175 lambdas Function_tfn_any_CompilerPass); left 396: 393 func literals that are not an adapter's function (tconv_ box/unbox, func-typed parameters), 2 unused, 1 used twice
+# 458. postflip (runtime, re-flip): compareNatural_ compares a value with an enum record by java.lang.Enum's compareTo
+0fd07836 patch 458-0fd07836-rt.patch
+#: runtime test TestCompareNaturalEnum (53 Test functions)
+# 459. postflip step (re-flip): enumcmp, the 204 per-enum compareTo forwarders go, 2 callers call Enum's (tool 3505d404, runtime 0fd07836)
+42867771 run t enumcmp && f
+#: enumcmp: 204 forwarders deleted, 2 calls x.enum_().compareTo; left none (11 compareTo(x any) of classes: their own Comparable)
+# 460. postflip step (re-flip): covret, 3 covariant returns split into the typed method and the bridge, 29 casts of their results are calls (tool 97994470)
+f68d5564 run t covret && f
+#: covret: 3 methods split (GlobalNamespace.Name.getDeclaration 20 casts, GlobalNamespace.getOwnSlot 6, JSDocInfo.clone 3); left 431 casts of results: 307 self() of an extended class (AbstractVar 156, AbstractScope 62, ...: the erased S and V of AbstractScope<S, V> / AbstractVar<S, V>), 59 the scope protocol (AbstractVar.getScope 32, getSlot / getOwnSlot 20, ...), 54 JSDocInfo's property bag (Property<T> erased), 11 others
+# 461. postflip step (re-flip): etaconv, 741 func literals that only pass their parameter on are the function they call (tool 11c88e09)
+c0e9eb59 run t etaconv && f
+#: etaconv: 741 literals (563 tconv_ box/unbox, 178 elsewhere); left 135 other calls, 76 signatures that differ, 62 parameters used otherwise, 10 not functions of the package, 2 promoted methods. census.py's cast/box rows move by spelling only (reflip/fnvals.py counts the function values)
