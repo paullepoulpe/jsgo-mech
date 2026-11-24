@@ -408,9 +408,9 @@ func (this *GlobalNamespace_SimpleAstChange) equals(p0 any) bool {
 
 func (this *GlobalNamespace_SimpleAstChange) hashCode() int32 {
 	var h int32
-	h = h*31 + hashH_(this.node_)
-	h = h*31 + hash_(this.chunk_)
-	h = h*31 + hash_(this.scope_)
+	h = h*31 + objhashId_(this.node_)
+	h = h*31 + objhashId_(this.chunk_)
+	h = h*31 + objhashId_(this.scope_)
 	return h
 }
 
@@ -460,8 +460,8 @@ func (this *GlobalNamespace_RefBasedAstChange) equals(p0 any) bool {
 
 func (this *GlobalNamespace_RefBasedAstChange) hashCode() int32 {
 	var h int32
-	h = h*31 + hash_(this.ref_)
-	h = h*31 + hashH_(this.node_)
+	h = h*31 + objhashId_(this.ref_)
+	h = h*31 + objhashId_(this.node_)
 	return h
 }
 
@@ -2397,7 +2397,7 @@ func (this *GlobalNamespace_ObjLitStringKeyAnalysis) equals(p0 any) bool {
 func (this *GlobalNamespace_ObjLitStringKeyAnalysis) hashCode() int32 {
 	var h int32
 	h = h*31 + Objects_hashCode(this.nameString_.box_())
-	h = h*31 + hash_(this.nameType_)
+	h = h*31 + objhashId_(this.nameType_)
 	return h
 }
 

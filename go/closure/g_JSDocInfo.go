@@ -1260,7 +1260,7 @@ func (this *JSDocInfo_TypeMapProperty) equalValues_impl(left_ any, right_ any) b
 	_ = right
 	var leftKeys SetT[string] = left.keySet_t()
 	var rightKeys SetT[string] = right.keySet_t()
-	if !Object_equals(lgBox_(leftKeys), lgBox_(rightKeys)) {
+	if !equalsDyn_(lgBox_(leftKeys), lgBox_(rightKeys)) {
 		return false
 	}
 	it_1 := jeachOf_(leftKeys)

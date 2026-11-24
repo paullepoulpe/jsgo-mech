@@ -338,9 +338,15 @@ type TypedAstDeserializer_DeserializedAst struct {
 }
 
 func (this *TypedAstDeserializer_DeserializedAst) init_TypedAstDeserializer_DeserializedAst(getFilesystem MapT[*SourceFile_jscomp, Supplier[Node]], getColorRegistry GOptional[*ColorRegistry], getExternProperties *JTSet[string], getRuntimeLibraries *JTSet[string]) {
-	Objects_requireNonNull_T(getFilesystem, "getFilesystem")
-	Objects_requireNonNull(getColorRegistry.box_(), "getColorRegistry")
-	Objects_requireNonNull_T(getRuntimeLibraries, "getRuntimeLibraries")
+	if getFilesystem == nil {
+		panic(new_NullPointerException_String("getFilesystem").self())
+	}
+	if getColorRegistry.box_() == nil {
+		panic(new_NullPointerException_String("getColorRegistry").self())
+	}
+	if getRuntimeLibraries == nil {
+		panic(new_NullPointerException_String("getRuntimeLibraries").self())
+	}
 	this.getFilesystem_ = getFilesystem
 	this.getColorRegistry_ = getColorRegistry
 	this.getExternProperties_ = getExternProperties
@@ -382,14 +388,14 @@ func (this *TypedAstDeserializer_DeserializedAst) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(lgBox_(this.getFilesystem_), lgBox_(o.getFilesystem_)) && Objects_equals(this.getColorRegistry_.box_(), o.getColorRegistry_.box_()) && Objects_equals(this.getExternProperties_.asSet(), o.getExternProperties_.asSet()) && Objects_equals(this.getRuntimeLibraries_.asSet(), o.getRuntimeLibraries_.asSet())
+	return true && objequalsDyn_(lgBox_(this.getFilesystem_), lgBox_(o.getFilesystem_)) && Objects_equals(this.getColorRegistry_.box_(), o.getColorRegistry_.box_()) && Objects_equals(this.getExternProperties_.asSet(), o.getExternProperties_.asSet()) && Objects_equals(this.getRuntimeLibraries_.asSet(), o.getRuntimeLibraries_.asSet())
 }
 
 func (this *TypedAstDeserializer_DeserializedAst) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(lgBox_(this.getFilesystem_))
+	h = h*31 + objhashDyn_(lgBox_(this.getFilesystem_))
 	h = h*31 + Objects_hashCode(this.getColorRegistry_.box_())
-	h = h*31 + Objects_hashCode(this.getExternProperties_.asSet())
-	h = h*31 + Objects_hashCode(this.getRuntimeLibraries_.asSet())
+	h = h*31 + objhashDyn_(this.getExternProperties_.asSet())
+	h = h*31 + objhashDyn_(this.getRuntimeLibraries_.asSet())
 	return h
 }

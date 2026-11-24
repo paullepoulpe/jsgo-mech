@@ -1371,8 +1371,8 @@ func (this *Es6NormalizeClasses_ResolvedPrivateMember) equals(p0 any) bool {
 
 func (this *Es6NormalizeClasses_ResolvedPrivateMember) hashCode() int32 {
 	var h int32
-	h = h*31 + hash_(this.classRecord_)
-	h = h*31 + hash_(this.privateMember_)
+	h = h*31 + objhashId_(this.classRecord_)
+	h = h*31 + objhashId_(this.privateMember_)
 	return h
 }
 
@@ -1758,7 +1758,7 @@ func (this *Es6NormalizeClasses_NormalizedNames) equals(p0 any) bool {
 
 func (this *Es6NormalizeClasses_NormalizedNames) hashCode() int32 {
 	var h int32
-	h = h*31 + hashH_(this.classNameNode_)
+	h = h*31 + objhashId_(this.classNameNode_)
 	h = h*31 + Objects_hashCode(this.superClassNode_.box_())
 	h = h*31 + boolhash_(this.shouldExtractClass_)
 	h = h*31 + boolhash_(this.shouldExtractExtends_)

@@ -116,15 +116,15 @@ func (this *RescopeGlobalSymbolsInfo) equals(p0 any) bool {
 func (this *RescopeGlobalSymbolsInfo) hashCode() int32 {
 	var h int32
 	h = h*31 + strhash_(this.globalSymbolNamespace_)
-	h = h*31 + Objects_hashCode(this.externNames_.asSet())
-	h = h*31 + Objects_hashCode(this.crossChunkNames_.asSet())
-	h = h*31 + Objects_hashCode(this.crossChunkNamesWithWriteFromOtherChunk_.asSet())
-	h = h*31 + Objects_hashCode(this.crossChunkNamesUsedInNonDependentChunk_.asSet())
-	h = h*31 + Objects_hashCode(this.globalNamesWithReadInDefiningChunk_.asSet())
-	h = h*31 + Objects_hashCode(this.globalNamesWithInnerScopeWriteInDefiningChunk_.asSet())
-	h = h*31 + Objects_hashCode(this.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_.asSet())
-	h = h*31 + Objects_hashCode(this.maybeReferencesThis_.asSet())
-	h = h*31 + Objects_hashCode(this.wrappedCrossChunkNames_.asSet())
+	h = h*31 + objhashDyn_(this.externNames_.asSet())
+	h = h*31 + objhashDyn_(this.crossChunkNames_.asSet())
+	h = h*31 + objhashDyn_(this.crossChunkNamesWithWriteFromOtherChunk_.asSet())
+	h = h*31 + objhashDyn_(this.crossChunkNamesUsedInNonDependentChunk_.asSet())
+	h = h*31 + objhashDyn_(this.globalNamesWithReadInDefiningChunk_.asSet())
+	h = h*31 + objhashDyn_(this.globalNamesWithInnerScopeWriteInDefiningChunk_.asSet())
+	h = h*31 + objhashDyn_(this.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_.asSet())
+	h = h*31 + objhashDyn_(this.maybeReferencesThis_.asSet())
+	h = h*31 + objhashDyn_(this.wrappedCrossChunkNames_.asSet())
 	return h
 }
 

@@ -14,13 +14,27 @@ type Config struct {
 }
 
 func (this *Config) init_Config(languageMode Config_LanguageMode, strictMode Config_StrictMode, jsDocParsingMode Config_JsDocParsing, runMode Config_RunMode, annotations *JTMap[string, Annotation_parsing], suppressionNames *JTSet[string], closurePrimitiveNames *JTSet[string], parseInlineSourceMaps bool) {
-	Objects_requireNonNull_T(languageMode, "languageMode")
-	Objects_requireNonNull_T(strictMode, "strictMode")
-	Objects_requireNonNull_T(jsDocParsingMode, "jsDocParsingMode")
-	Objects_requireNonNull_T(runMode, "runMode")
-	Objects_requireNonNull_T(annotations, "annotations")
-	Objects_requireNonNull_T(suppressionNames, "suppressionNames")
-	Objects_requireNonNull_T(closurePrimitiveNames, "closurePrimitiveNames")
+	if languageMode == 0 {
+		panic(new_NullPointerException_String("languageMode").self())
+	}
+	if strictMode == 0 {
+		panic(new_NullPointerException_String("strictMode").self())
+	}
+	if jsDocParsingMode == 0 {
+		panic(new_NullPointerException_String("jsDocParsingMode").self())
+	}
+	if runMode == 0 {
+		panic(new_NullPointerException_String("runMode").self())
+	}
+	if annotations == nil {
+		panic(new_NullPointerException_String("annotations").self())
+	}
+	if suppressionNames == nil {
+		panic(new_NullPointerException_String("suppressionNames").self())
+	}
+	if closurePrimitiveNames == nil {
+		panic(new_NullPointerException_String("closurePrimitiveNames").self())
+	}
 	this.languageMode_ = languageMode
 	this.strictMode_ = strictMode
 	this.jsDocParsingMode_ = jsDocParsingMode
@@ -108,13 +122,13 @@ func (this *Config) equals(p0 any) bool {
 
 func (this *Config) hashCode() int32 {
 	var h int32
-	h = h*31 + hash_(this.languageMode_)
-	h = h*31 + hash_(this.strictMode_)
-	h = h*31 + hash_(this.jsDocParsingMode_)
-	h = h*31 + hash_(this.runMode_)
-	h = h*31 + Objects_hashCode(this.annotations_.asMap())
-	h = h*31 + Objects_hashCode(this.suppressionNames_.asSet())
-	h = h*31 + Objects_hashCode(this.closurePrimitiveNames_.asSet())
+	h = h*31 + objhashId_(this.languageMode_)
+	h = h*31 + objhashId_(this.strictMode_)
+	h = h*31 + objhashId_(this.jsDocParsingMode_)
+	h = h*31 + objhashId_(this.runMode_)
+	h = h*31 + objhashDyn_(this.annotations_.asMap())
+	h = h*31 + objhashDyn_(this.suppressionNames_.asSet())
+	h = h*31 + objhashDyn_(this.closurePrimitiveNames_.asSet())
 	h = h*31 + boolhash_(this.parseInlineSourceMaps_)
 	return h
 }

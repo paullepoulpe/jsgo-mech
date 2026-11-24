@@ -113,7 +113,7 @@ func CheckRequiresSorted_parseImport(callNode Node) *CheckRequiresSorted_ImportS
 
 func (this *CheckRequiresSorted) checkCanonical(t *NodeTraversal) {
 	var canonicalImports *JTList[*CheckRequiresSorted_ImportStatement] = CheckRequiresSorted_canonicalizeImports(this.importsByNamespace)
-	if !Object_equals(lgBox_(this.originalImports.asListT()), canonicalImports.asList()) {
+	if !equalsDyn_(lgBox_(this.originalImports.asListT()), canonicalImports.asList()) {
 		this.needsFixField = true
 		this.replacement_ = Optional_of[string](JString_join_s("\n", Iterable_un_(Iterables_transformT_[*CheckRequiresSorted_ImportStatement, string](canonicalImports.asIterable(), Function_base[*CheckRequiresSorted_ImportStatement, string](func(p0 *CheckRequiresSorted_ImportStatement) string { return p0.format() })))))
 		if this.mode_ == CheckRequiresSorted_Mode_COLLECT_AND_REPORT {
@@ -490,8 +490,12 @@ func (this *CheckRequiresSorted_ImportStatement) zero_CheckRequiresSorted_Import
 }
 
 func (this *CheckRequiresSorted_ImportStatement) init_CheckRequiresSorted_ImportStatement(nodes *JTList[Node], primitive CheckRequiresSorted_ImportPrimitive, namespace string, alias Optional[string], destructures *JTList[*CheckRequiresSorted_DestructuringBinding]) {
-	Objects_requireNonNull_T(nodes, "nodes")
-	Objects_requireNonNull_T(primitive, "primitive")
+	if nodes == nil {
+		panic(new_NullPointerException_String("nodes").self())
+	}
+	if primitive == 0 {
+		panic(new_NullPointerException_String("primitive").self())
+	}
 	if !alias.isEmpty() && destructures != nil {
 		panic(new_IllegalArgumentException_String(objstr_("Import statement cannot be simultaneously aliasing and destructuring")).self())
 	}
@@ -627,11 +631,11 @@ func (this *CheckRequiresSorted_ImportStatement) equals(p0 any) bool {
 
 func (this *CheckRequiresSorted_ImportStatement) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(this.nodes_.asList())
-	h = h*31 + hash_(this.primitive_)
+	h = h*31 + objhashDyn_(this.nodes_.asList())
+	h = h*31 + objhashId_(this.primitive_)
 	h = h*31 + strhash_(this.namespace_)
 	h = h*31 + Objects_hashCode(this.alias_.box_())
-	h = h*31 + Objects_hashCode(this.destructures_.asList())
+	h = h*31 + objhashDyn_(this.destructures_.asList())
 	return h
 }
 

@@ -45,7 +45,7 @@ func (this *SourceMap) addMapping_3(node Node, outputStartPosition *FilePosition
 	if this.mapping != nil {
 		var sourceMapping *Mapping_OriginalMapping = this.mapping(sourceFileName, lineNo, charNo)
 		if sourceMapping == nil {
-		} else if equalsRR_(sourceMapping, Mapping_OriginalMapping_getDefaultInstance()) {
+		} else if equalsBy_(sourceMapping, obj_(Mapping_OriginalMapping_getDefaultInstance()), (*Mapping_OriginalMapping).equals) {
 			return
 		} else {
 			sourceFileName = Optional_ofNullable[string](sourceMapping.getOriginalFile())
@@ -360,7 +360,7 @@ func (this *SourceMap_PrefixLocationMapping) equals(other any) bool {
 }
 
 func (this *SourceMap_PrefixLocationMapping) hashCode() int32 {
-	return Objects_hash([]any{strobj_(this.prefix_), strobj_(this.replacement_)})
+	return hashOf_(objhashStr_(this.prefix_), objhashStr_(this.replacement_))
 }
 
 type SourceMap_Mapping struct {

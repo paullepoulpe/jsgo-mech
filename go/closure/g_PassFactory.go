@@ -17,17 +17,23 @@ func (this *PassFactory) zero_PassFactory() {
 func (this *PassFactory) init_PassFactory(getName string, getCondition Function[*CompilerOptions, any], getPreconditionCheck Function[*CompilerOptions, *PassFactory_PreconditionResult], isRunInFixedPointLoop bool, getInternalFactory Function[*AbstractCompiler, CompilerPass]) {
 	func() Function[*CompilerOptions, any] {
 		f_ := getCondition
-		Objects_requireNonNull(f_.box_(), "getCondition")
+		if f_.box_() == nil {
+			panic(new_NullPointerException_String("getCondition").self())
+		}
 		return f_
 	}()
 	func() Function[*CompilerOptions, *PassFactory_PreconditionResult] {
 		f_ := getPreconditionCheck
-		Objects_requireNonNull(f_.box_(), "getPreconditionCheck")
+		if f_.box_() == nil {
+			panic(new_NullPointerException_String("getPreconditionCheck").self())
+		}
 		return f_
 	}()
 	func() Function[*AbstractCompiler, CompilerPass] {
 		f_ := getInternalFactory
-		Objects_requireNonNull(f_.box_(), "getInternalFactory")
+		if f_.box_() == nil {
+			panic(new_NullPointerException_String("getInternalFactory").self())
+		}
 		return f_
 	}()
 	this.getName_ = getName

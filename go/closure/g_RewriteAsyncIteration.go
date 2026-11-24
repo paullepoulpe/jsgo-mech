@@ -83,12 +83,12 @@ func (this *RewriteAsyncIteration) visit(t *NodeTraversal, n Node, parent Node) 
 	var ctx *RewriteAsyncIteration_LexicalContext = SequencedCollection_getFirstT_[*RewriteAsyncIteration_LexicalContext](this.contextStack.asCollT())
 	switch n.ns_().token {
 	case tokOrd1_PARAM_LIST:
-		if !equalsRRH_(n, ctx.contextRoot) {
+		if !equalsId_(n, ctx.contextRoot) {
 			panic(new_IllegalStateException_String(objstr_(n.box_())).self())
 		}
 		this.contextStack.pop()
 	case tokOrd1_FUNCTION:
-		if !equalsRRH_(n, ctx.contextRoot) {
+		if !equalsId_(n, ctx.contextRoot) {
 			panic(new_IllegalStateException_0().self())
 		}
 		if n.isAsyncGeneratorFunction() {

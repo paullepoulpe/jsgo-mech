@@ -8,8 +8,12 @@ type DependencyOptions struct {
 }
 
 func (this *DependencyOptions) init_DependencyOptions(mode DependencyOptions_DependencyMode, entryPoints *JTList[*ModuleIdentifier]) {
-	Objects_requireNonNull_T(mode, "mode")
-	Objects_requireNonNull_T(entryPoints, "entryPoints")
+	if mode == 0 {
+		panic(new_NullPointerException_String("mode").self())
+	}
+	if entryPoints == nil {
+		panic(new_NullPointerException_String("entryPoints").self())
+	}
 	this.mode_ = mode
 	this.entryPoints_ = entryPoints
 }
@@ -155,8 +159,8 @@ func (this *DependencyOptions) equals(p0 any) bool {
 
 func (this *DependencyOptions) hashCode() int32 {
 	var h int32
-	h = h*31 + hash_(this.mode_)
-	h = h*31 + Objects_hashCode(this.entryPoints_.asList())
+	h = h*31 + objhashId_(this.mode_)
+	h = h*31 + objhashDyn_(this.entryPoints_.asList())
 	return h
 }
 

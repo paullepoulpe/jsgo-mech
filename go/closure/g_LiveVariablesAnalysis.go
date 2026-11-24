@@ -97,7 +97,7 @@ func (this *LiveVariablesAnalysis) flowThrough_impl(node Node, input *LiveVariab
 	it_1 := jeachOf_(edgeList)
 	for it_1.next() {
 		var edge DiGraph_DiGraphEdge[Node, ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphEdge[Node, ControlFlowGraph_Branch]](it_1.v.self())
-		if equalsR_(ControlFlowGraph_Branch_ON_EX, obj_(edge.getValue())) {
+		if ControlFlowGraph_Branch_ON_EX == edge.getValue() {
 			conditional = true
 		}
 	}
@@ -315,7 +315,7 @@ func (this *LiveVariablesAnalysis_LiveVariableLattice) equals(other any) bool {
 		}
 		liveVariableLattice = p
 		return true
-	}() && equalsRR_(this.liveSet, liveVariableLattice.liveSet))
+	}() && equalsBy_(this.liveSet, obj_(liveVariableLattice.liveSet), (*BitSet).equals))
 }
 
 func (this *LiveVariablesAnalysis_LiveVariableLattice) isLive(index int32) bool {
@@ -331,5 +331,5 @@ func (this *LiveVariablesAnalysis_LiveVariableLattice) nextSetBit(fromIndex int3
 }
 
 func (this *LiveVariablesAnalysis_LiveVariableLattice) hashCode() int32 {
-	return hashR_(this.liveSet)
+	return hashBy_(this.liveSet, (*BitSet).hashCode)
 }

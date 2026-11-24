@@ -21,8 +21,12 @@ func (this *JSError) zero_JSError() {
 }
 
 func (this *JSError) init_JSError(type_ *DiagnosticType, description string, sourceName Optional[string], lineno int32, charno int32, length int32, node Node, defaultLevel CheckLevel, requirement *Requirement) {
-	Objects_requireNonNull_T(type_, "type")
-	Objects_requireNonNull_T(defaultLevel, "defaultLevel")
+	if type_ == nil {
+		panic(new_NullPointerException_String("type").self())
+	}
+	if defaultLevel == 0 {
+		panic(new_NullPointerException_String("defaultLevel").self())
+	}
 	this.type__ = type_
 	this.description_ = description
 	this.sourceName_ = sourceName
@@ -191,20 +195,20 @@ func (this *JSError) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && equals_(this.type__, o.type__) && this.description_ == o.description_ && Objects_equals(this.sourceName_.box_(), o.sourceName_.box_()) && this.lineno_ == o.lineno_ && this.charno_ == o.charno_ && this.length_ == o.length_ && this.node_ == o.node_ && this.defaultLevel_ == o.defaultLevel_ && equals_(this.requirement_, o.requirement_)
+	return true && objequalsBy_(this.type__, obj_(o.type__), (*DiagnosticType).equals) && this.description_ == o.description_ && Objects_equals(this.sourceName_.box_(), o.sourceName_.box_()) && this.lineno_ == o.lineno_ && this.charno_ == o.charno_ && this.length_ == o.length_ && this.node_ == o.node_ && this.defaultLevel_ == o.defaultLevel_ && objequalsBy_(this.requirement_, obj_(o.requirement_), (*Requirement).equals)
 }
 
 func (this *JSError) hashCode() int32 {
 	var h int32
-	h = h*31 + hash_(this.type__)
+	h = h*31 + objhashBy_(this.type__, (*DiagnosticType).hashCode)
 	h = h*31 + strhash_(this.description_)
 	h = h*31 + Objects_hashCode(this.sourceName_.box_())
 	h = h*31 + this.lineno_
 	h = h*31 + this.charno_
 	h = h*31 + this.length_
-	h = h*31 + hashH_(this.node_)
-	h = h*31 + hash_(this.defaultLevel_)
-	h = h*31 + hash_(this.requirement_)
+	h = h*31 + objhashId_(this.node_)
+	h = h*31 + objhashId_(this.defaultLevel_)
+	h = h*31 + objhashBy_(this.requirement_, (*Requirement).hashCode)
 	return h
 }
 
