@@ -656,7 +656,7 @@ func (this *JSTypeRegistry) resolveViaClosureNamespace(reference string) *JSType
 			if namespace.isLegacy() {
 				return nil
 			} else {
-				return this.resolveViaPropertyGivenSlot(namespace.type_(), namespace.definitionNode(), jtlistImm_(jtc_string, cast_[*ImmutableList](lgBox_(unusedComponents.build().asListT())).reverse()))
+				return this.resolveViaPropertyGivenSlot(namespace.type_(), namespace.definitionNode(), jtlistImm_(jtc_string, lgBox_(unusedComponents.build().asListT()).(*ImmutableList).reverse()))
 			}
 		}
 		var lastDot int32 = String_lastIndexOf_String(prefix, ".")

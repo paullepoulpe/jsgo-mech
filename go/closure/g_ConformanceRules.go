@@ -474,7 +474,7 @@ func (this *ConformanceRules_AbstractRule) tsIsAllowlisted() bool {
 }
 
 func (this *ConformanceRules_AbstractRule) getPrecondition_impl() CheckConformance_Precondition {
-	return CheckConformance_Rule_getPrecondition_default(icast_CheckConformance_Rule(this.self()))
+	return CheckConformance_Rule_getPrecondition_default(this.self().(CheckConformance_Rule))
 }
 
 type ConformanceRules_NoOp struct {

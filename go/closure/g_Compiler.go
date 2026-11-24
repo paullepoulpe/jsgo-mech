@@ -1376,7 +1376,7 @@ func (this *Compiler) buildKnownSymbolTable() *SymbolTable {
 	}())
 	var refCollector *ReferenceCollector = new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator(this.up_AbstractCompiler(), ReferenceCollector_DO_NOTHING_BEHAVIOR, ScopeCreator(new_SyntacticScopeCreator_AbstractCompiler(this.up_AbstractCompiler())))
 	refCollector.process(this.getRoot())
-	SymbolTable_addSymbolsFrom[*Var, *Reference](symbolTable, cast_[StaticSymbolTable[*Var, *Reference]](obj_(refCollector)))
+	SymbolTable_addSymbolsFrom[*Var, *Reference](symbolTable, any(refCollector).(StaticSymbolTable[*Var, *Reference]))
 	var preprocessorSymbolTable *PreprocessorSymbolTable = this.ensureDefaultPassConfig().getPreprocessorSymbolTable()
 	if preprocessorSymbolTable != nil {
 		SymbolTable_addSymbolsFrom[*SimpleSlot, *PreprocessorSymbolTable_Reference](symbolTable, func() StaticSymbolTable[*SimpleSlot, *PreprocessorSymbolTable_Reference] {
@@ -2451,7 +2451,7 @@ func (this *Compiler) getSourceMapping_Optional_int_int_impl(sourceName Optional
 			this.resolvedSourceMap.relativePath = relativePath
 		}
 	}
-	return cast_[*Mapping_OriginalMapping](cast_[*Mapping_OriginalMapping_Builder](result.toBuilder()).setOriginalFile(relativePath).setColumnPosition((result.getColumnPosition() - 1)).build())
+	return cast_[*Mapping_OriginalMapping](result.toBuilder().(*Mapping_OriginalMapping_Builder).setOriginalFile(relativePath).setColumnPosition((result.getColumnPosition() - 1)).build())
 }
 
 func (this *Compiler) getSourceLine_impl(sourceName Optional[string], lineNumber int32) Optional[string] {

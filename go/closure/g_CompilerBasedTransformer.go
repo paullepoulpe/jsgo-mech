@@ -63,15 +63,15 @@ func (this *CompilerBasedTransformer) getTranformationName() string {
 }
 
 func (this *CompilerBasedTransformer) asFunction() Function[*Source, *Source] {
-	return Source_Transformer_asFunction_default(icast_Source_Transformer(this.self()))
+	return Source_Transformer_asFunction_default(this.self().(Source_Transformer))
 }
 
 func (this *CompilerBasedTransformer) andThen(p0 Source_Transformer) Source_Transformer {
-	return Source_Transformer_andThen_default(icast_Source_Transformer(this.self()), p0)
+	return Source_Transformer_andThen_default(this.self().(Source_Transformer), p0)
 }
 
 func (this *CompilerBasedTransformer) compose(p0 Source_Transformer) Source_Transformer {
-	return Source_Transformer_compose_default(icast_Source_Transformer(this.self()), p0)
+	return Source_Transformer_compose_default(this.self().(Source_Transformer), p0)
 }
 
 type CompilerBasedTransformer_CompilerSupplier struct {

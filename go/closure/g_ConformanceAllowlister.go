@@ -36,7 +36,7 @@ func ConformanceAllowlister_getViolatingNodes(compiler *Compiler, externs Node, 
 }
 
 func ConformanceAllowlister_getConformanceErrors(compiler *Compiler, externs Node, ast Node, requirement *Requirement) *JTList[*JSError] {
-	var cleanedRequirement *Requirement = cast_[*Requirement](cast_[*Requirement_Builder](requirement.toBuilder()).clearWhitelist().clearAllowlist().clearWhitelistRegexp().clearAllowlistRegexp().clearWhitelistEntry().clearAllowlistEntry().setSeverity(Requirement_Severity_ERROR).build())
+	var cleanedRequirement *Requirement = cast_[*Requirement](requirement.toBuilder().(*Requirement_Builder).clearWhitelist().clearAllowlist().clearWhitelistRegexp().clearAllowlistRegexp().clearWhitelistEntry().clearAllowlistEntry().setSeverity(Requirement_Severity_ERROR).build())
 	var cleanedConfig *ConformanceConfig = cast_[*ConformanceConfig](ConformanceConfig_newBuilder().addRequirement(cleanedRequirement).build())
 	var oldErrorManager ErrorManager = compiler.getErrorManager()
 	var errors *TListBuilder[*JSError] = newTListBuilder_(jtc_p_JSError)
