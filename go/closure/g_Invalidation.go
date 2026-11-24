@@ -103,7 +103,12 @@ func (this Invalidation_Reason) enum_() *Enum {
 
 func (this Invalidation_Reason) name() string { return this.enum_().name_ }
 
-func (this Invalidation_Reason) ordinal() int32 { return this.enum_().ordinal_ }
+func (this Invalidation_Reason) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
 
 func (this Invalidation_Reason) toString() string { return this.enum_().name_ }
 
