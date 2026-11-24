@@ -471,3 +471,19 @@ func new_Source_Lazy_2(cap_memoized Supplier_base[any]) *Source_Lazy_2 {
 func (this *Source_Lazy_2) get_impl() any {
 	return this.cap_memoized.get()
 }
+
+// get: an object that is exactly a Source_Lazy_1 calls its get_impl directly (post-flip); others dispatch.
+func (this *Source_Lazy_1) get() any {
+	if this.self_ == any(this) {
+		return this.get_impl()
+	}
+	return this.self_.(interface{ get_impl() any }).get_impl()
+}
+
+// get: an object that is exactly a Source_Lazy_2 calls its get_impl directly (post-flip); others dispatch.
+func (this *Source_Lazy_2) get() any {
+	if this.self_ == any(this) {
+		return this.get_impl()
+	}
+	return this.self_.(interface{ get_impl() any }).get_impl()
+}

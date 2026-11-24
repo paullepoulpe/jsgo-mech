@@ -98,3 +98,14 @@ func ConstCheck_clinit() {
 	ConstCheck_CONST_REASSIGNED_VALUE_ERROR = DiagnosticType_warning("JSC_CONSTANT_REASSIGNED_VALUE_ERROR", "constant {0} assigned a value more than once.\nOriginal definition at {1}")
 
 }
+
+// visit: an object that is exactly a ConstCheck calls its visit_impl directly (post-flip); others dispatch.
+func (this *ConstCheck) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}

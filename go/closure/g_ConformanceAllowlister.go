@@ -80,3 +80,13 @@ func (this *ConformanceAllowlister_1) shouldReportConformanceViolation_impl(requ
 	this.cap_errors.add(diagnostic)
 	return false
 }
+
+// shouldReportConformanceViolation: an object that is exactly a ConformanceAllowlister_1 calls its shouldReportConformanceViolation_impl directly (post-flip); others dispatch.
+func (this *ConformanceAllowlister_1) shouldReportConformanceViolation(p0 *Requirement, p1 GOptional[*RequirementScopeEntry], p2 *JSError, p3 *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior, p4 bool) bool {
+	if this.self_ == any(this) {
+		return this.shouldReportConformanceViolation_impl(p0, p1, p2, p3, p4)
+	}
+	return this.self_.(interface {
+		shouldReportConformanceViolation_impl(*Requirement, GOptional[*RequirementScopeEntry], *JSError, *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior, bool) bool
+	}).shouldReportConformanceViolation_impl(p0, p1, p2, p3, p4)
+}

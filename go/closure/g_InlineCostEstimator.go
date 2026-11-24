@@ -106,3 +106,46 @@ func (this *InlineCostEstimator_CompiledSizeEstimator) addIdentifier_impl(identi
 func (this *InlineCostEstimator_CompiledSizeEstimator) addConstant_impl(newcode string) {
 	this.add("0")
 }
+
+// continueProcessing: an object that is exactly a InlineCostEstimator_CompiledSizeEstimator calls its continueProcessing_impl directly (post-flip); others dispatch.
+func (this *InlineCostEstimator_CompiledSizeEstimator) continueProcessing() bool {
+	if this.self_ == any(this) {
+		return this.continueProcessing_impl()
+	}
+	return this.self_.(interface{ continueProcessing_impl() bool }).continueProcessing_impl()
+}
+
+// getLastChar: an object that is exactly a InlineCostEstimator_CompiledSizeEstimator calls its getLastChar_impl directly (post-flip); others dispatch.
+func (this *InlineCostEstimator_CompiledSizeEstimator) getLastChar() uint16 {
+	if this.self_ == any(this) {
+		return this.getLastChar_impl()
+	}
+	return this.self_.(interface{ getLastChar_impl() uint16 }).getLastChar_impl()
+}
+
+// append: an object that is exactly a InlineCostEstimator_CompiledSizeEstimator calls its append_impl directly (post-flip); others dispatch.
+func (this *InlineCostEstimator_CompiledSizeEstimator) append(p0 string) {
+	if this.self_ == any(this) {
+		this.append_impl(p0)
+		return
+	}
+	this.self_.(interface{ append_impl(string) }).append_impl(p0)
+}
+
+// addIdentifier: an object that is exactly a InlineCostEstimator_CompiledSizeEstimator calls its addIdentifier_impl directly (post-flip); others dispatch.
+func (this *InlineCostEstimator_CompiledSizeEstimator) addIdentifier(p0 string) {
+	if this.self_ == any(this) {
+		this.addIdentifier_impl(p0)
+		return
+	}
+	this.self_.(interface{ addIdentifier_impl(string) }).addIdentifier_impl(p0)
+}
+
+// addConstant: an object that is exactly a InlineCostEstimator_CompiledSizeEstimator calls its addConstant_impl directly (post-flip); others dispatch.
+func (this *InlineCostEstimator_CompiledSizeEstimator) addConstant(p0 string) {
+	if this.self_ == any(this) {
+		this.addConstant_impl(p0)
+		return
+	}
+	this.self_.(interface{ addConstant_impl(string) }).addConstant_impl(p0)
+}
