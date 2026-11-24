@@ -65,10 +65,14 @@ func boxT_[T any](v T) any {
 		return *p
 	}
 	x := any(v)
-	if x == nil || (*eface_)(unsafe.Pointer(&x)).data == nil {
+	e := (*eface_)(unsafe.Pointer(&x))
+	if x == nil || e.data == nil {
 		// null: a nil interface, or a nil pointer (whose self() a superclass would promote and
 		// dereference); a pointer-shaped value is the interface's data word itself
 		return nil
+	}
+	if e.typ == atomic.LoadPointer(&boxPlain_) {
+		return x
 	}
 	if s, ok := x.(interface{ self() any }); ok {
 		return s.self()
@@ -86,9 +90,19 @@ func boxT_[T any](v T) any {
 		if r.IsNil() {
 			return nil
 		}
+		return x
 	}
+	// A type without self() and box_() that is not a slice: every value of it that got here
+	// (not nil) is its own box.
+	atomic.StorePointer(&boxPlain_, e.typ)
 	return x
 }
+
+// boxPlain_ is the type that boxT_ last found to be its own box whatever the value (no self(),
+// no box_(), not a slice): a loop that boxes values of one such type asks the two interface
+// questions once. The answer depends on the type alone, so a stale or lost store only costs
+// the questions again.
+var boxPlain_ unsafe.Pointer
 
 // junboxT_ is an Object as a value of type parameter T, as the erased code's cast of it to T's Java
 // type: nil is Java null; a most derived object gives its view of the class T points to (to_X); a
