@@ -30,7 +30,7 @@ func new_AllowlistWarningsGuard_0() *AllowlistWarningsGuard {
 func (this *AllowlistWarningsGuard) init_AllowlistWarningsGuard_Set(allowlist *JTSet[string]) {
 	this.WarningsGuard.init_WarningsGuard()
 	if allowlist == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.allowlist = AllowlistWarningsGuard_normalizeAllowlist(allowlist)
 }
@@ -81,7 +81,7 @@ func AllowlistWarningsGuard_fromFile(file string) *AllowlistWarningsGuard {
 func AllowlistWarningsGuard_loadAllowlistedJsWarningsFile(file string) *JTSet[string] {
 	var text *Outcome_base[string] = TextFiles_read(file, Charsets_UTF_8)
 	if text.isErr() {
-		panic(new_RuntimeException_Throwable(text.error()).self())
+		panic(new_RuntimeException_Throwable(text.error()))
 	}
 	return AllowlistWarningsGuard_loadAllowlistedJsWarningsText(text.get())
 }

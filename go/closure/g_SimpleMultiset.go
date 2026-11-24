@@ -65,10 +65,10 @@ func (this *SimpleMultiset[E]) add(element E) bool {
 
 func (this *SimpleMultiset[E]) add_2(element E, occurrences int32) int32 {
 	if this.frozen {
-		panic(new_IllegalStateException_String(objstr_("immutable")).self())
+		panic(new_IllegalStateException_String(objstr_("immutable")))
 	}
 	if occurrences < 0 {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var oldCount int32 = this.count(element)
 	if occurrences > 0 {
@@ -86,10 +86,10 @@ func (this *SimpleMultiset[E]) addAll(elements IterableT[E]) {
 
 func (this *SimpleMultiset[E]) setCount(element E, expectedOldCount int32, newCount int32) bool {
 	if this.frozen {
-		panic(new_IllegalStateException_String(objstr_("immutable")).self())
+		panic(new_IllegalStateException_String(objstr_("immutable")))
 	}
 	if expectedOldCount < 0 || newCount < 0 {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	if this.count(element) != expectedOldCount {
 		return false

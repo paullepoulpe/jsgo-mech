@@ -326,7 +326,7 @@ func CheckRequiresSorted_ImportPrimitive_fromName(name Optional[string]) CheckRe
 			return primitive
 		}
 	}
-	panic(new_IllegalArgumentException_String(("Invalid primitive name " + sstr_(name.orElse("null")))).self())
+	panic(new_IllegalArgumentException_String(("Invalid primitive name " + sstr_(name.orElse("null")))))
 }
 
 func CheckRequiresSorted_ImportPrimitive_stronger(p1 CheckRequiresSorted_ImportPrimitive, p2 CheckRequiresSorted_ImportPrimitive) CheckRequiresSorted_ImportPrimitive {
@@ -394,7 +394,7 @@ func (this *CheckRequiresSorted_DestructuringBinding) zero_CheckRequiresSorted_D
 
 func (this *CheckRequiresSorted_DestructuringBinding) init_CheckRequiresSorted_DestructuringBinding(exportedName string, localName string, isShorthandProperty bool) {
 	if isShorthandProperty && exportedName != localName {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	this.exportedName_ = exportedName
 	this.localName_ = localName
@@ -479,13 +479,13 @@ func (this *CheckRequiresSorted_ImportStatement) zero_CheckRequiresSorted_Import
 
 func (this *CheckRequiresSorted_ImportStatement) init_CheckRequiresSorted_ImportStatement(nodes *JTList[Node], primitive CheckRequiresSorted_ImportPrimitive, namespace string, alias Optional[string], destructures *JTList[*CheckRequiresSorted_DestructuringBinding]) {
 	if nodes == nil {
-		panic(new_NullPointerException_String("nodes").self())
+		panic(new_NullPointerException_String("nodes"))
 	}
 	if primitive == 0 {
-		panic(new_NullPointerException_String("primitive").self())
+		panic(new_NullPointerException_String("primitive"))
 	}
 	if !alias.isEmpty() && destructures != nil {
-		panic(new_IllegalArgumentException_String(objstr_("Import statement cannot be simultaneously aliasing and destructuring")).self())
+		panic(new_IllegalArgumentException_String(objstr_("Import statement cannot be simultaneously aliasing and destructuring")))
 	}
 	this.nodes_ = nodes
 	this.primitive_ = primitive

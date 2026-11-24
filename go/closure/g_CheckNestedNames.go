@@ -29,7 +29,7 @@ func (this *CheckNestedNames) shouldTraverse(nodeTraversal *NodeTraversal, n Nod
 
 func (this *CheckNestedNames) visit(t *NodeTraversal, n Node, parent Node) {
 	if !t.inGlobalOrModuleScope() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	if !n.isGetProp() || !n.isQualifiedName() {
 		return
@@ -51,7 +51,7 @@ func (this *CheckNestedNames) visit(t *NodeTraversal, n Node, parent Node) {
 
 func CheckNestedNames_getTargetGetProp(n Node) Node {
 	if !n.isGetProp() {
-		panic(new_IllegalArgumentException_String(tostr_(n)).self())
+		panic(new_IllegalArgumentException_String(tostr_(n)))
 	}
 	if n.getFirstChild().isGetProp() {
 		return CheckNestedNames_getTargetGetProp(n.getFirstChild())
@@ -65,7 +65,7 @@ func CheckNestedNames_isDotPrototype(getProp Node) bool {
 
 func (this *CheckNestedNames) getNestedDeclarationKind(lhs Node, parent Node) CheckNestedNames_DeclarationKind {
 	if !lhs.isFirstChildOf(parent) {
-		panic(new_IllegalArgumentException_String(tostr_(lhs)).self())
+		panic(new_IllegalArgumentException_String(tostr_(lhs)))
 	}
 	if lhs.getTypedefTypeProp() != nil {
 		return CheckNestedNames_DeclarationKind_TYPEDEF

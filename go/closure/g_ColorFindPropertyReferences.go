@@ -95,7 +95,7 @@ func (this *ColorFindPropertyReferences) handleClass(t *NodeTraversal, classNode
 			}()
 		} else {
 			if !((m.isMemberFunctionDef() || m.isGetterDef()) || m.isSetterDef()) {
-				panic(new_IllegalStateException_String(tostr_(m)).self())
+				panic(new_IllegalStateException_String(tostr_(m)))
 			}
 			var classPrototypeType *JTSet[*Color] = classType.getPrototypes()
 			return func() *Color {
@@ -152,7 +152,7 @@ func (this *ColorFindPropertyReferences) handleObjectDefineProperties(t *NodeTra
 
 func (this *ColorFindPropertyReferences) traverseObjectlitLike(t *NodeTraversal, n Node, memberOwnerFn Function[Node, *Color]) {
 	if !((n.isObjectLit() || n.isObjectPattern()) || n.isClassMembers()) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	{
 		var child Node = n.getFirstChild()
@@ -167,7 +167,7 @@ func (this *ColorFindPropertyReferences) traverseObjectlitLike(t *NodeTraversal,
 				}
 				this.registerPropertyUse(t, child, memberOwnerFn.apply(child))
 			default:
-				panic(new_IllegalStateException_String(("Unexpected child of " + jtostr_(n.getToken()) + ": " + sstr_(child.toStringTree()))).self())
+				panic(new_IllegalStateException_String(("Unexpected child of " + jtostr_(n.getToken()) + ": " + sstr_(child.toStringTree()))))
 			}
 		}
 	}

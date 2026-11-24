@@ -6,7 +6,7 @@ type LogsGson struct {
 }
 
 func (this *LogsGson) init_LogsGson() {
-	panic(new_AssertionError_0().self())
+	panic(new_AssertionError_0())
 }
 
 func new_LogsGson() *LogsGson {
@@ -117,7 +117,7 @@ func LogsGson_write(out *SimpleJsonWriter, value any) {
 							}() {
 								out.stringValue(Optional_of[string](enumValue.name()))
 							} else {
-								panic(new_IllegalArgumentException_String(("Cannot log a " + sstr_(Object_getClass(value).getName()) + "; it must implement LogsGson.Able")).self())
+								panic(new_IllegalArgumentException_String(("Cannot log a " + sstr_(Object_getClass(value).getName()) + "; it must implement LogsGson.Able")))
 							}
 						}
 					}

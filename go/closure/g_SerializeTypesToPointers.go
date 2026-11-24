@@ -37,7 +37,7 @@ func SerializeTypesToPointers_create(compiler *AbstractCompiler, stringPoolBuild
 
 func (this *SerializeTypesToPointers) gatherTypesOnAst(root Node) {
 	if this.typePool != nil {
-		panic(new_IllegalStateException_String(objstr_("Cannot call process() twice")).self())
+		panic(new_IllegalStateException_String(objstr_("Cannot call process() twice")))
 	}
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(new_SerializeTypesToPointers_PropertySearchCallback(this)))
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(new_SerializeTypesToPointers_TypeSearchCallback(this)))
@@ -250,7 +250,7 @@ func SerializeTypesToPointers_TypeMismatchJson_typePointerToId(poolOffset int32,
 		return ColorId_fromBytesByteString(typeProto.getObject().getUuid())
 	case TypeProto_KindCase_KIND_NOT_SET:
 	}
-	panic(new_AssertionError_Object(strobj_(("Unrecognized TypeProto " + jtostr_(typeProto)))).self())
+	panic(new_AssertionError_Object(strobj_(("Unrecognized TypeProto " + jtostr_(typeProto)))))
 }
 
 func (this *SerializeTypesToPointers_TypeMismatchJson) compareTo_t(x *SerializeTypesToPointers_TypeMismatchJson) int32 {

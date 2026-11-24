@@ -258,7 +258,7 @@ func (this *TypeValidator) expectSwitchMatchesCase(n Node, switchType *JSType, c
 
 func (this *TypeValidator) expectIndexMatch(n Node, objType *JSType, indexType *JSType) {
 	if !(((n.isGetElem() || n.isOptChainGetElem()) || n.isComputedProp()) || n.isComputedFieldDef()) {
-		panic(new_IllegalStateException_String(tostr_(n)).self())
+		panic(new_IllegalStateException_String(tostr_(n)))
 	}
 	var indexNode Node = func() Node {
 		if n.isGetElem() {
@@ -427,7 +427,7 @@ func (this *TypeValidator) expectUndeclaredVariable(sourceName Optional[string],
 				n.setJSType(varType)
 			} else {
 				if !parent.isFunction() && !parent.isClass() {
-					panic(new_IllegalStateException_0().self())
+					panic(new_IllegalStateException_0())
 				}
 				parent.setJSType(varType)
 			}
@@ -524,7 +524,7 @@ func (this *TypeValidator) checkPropertyType(n Node, instance *JSType, parent *O
 
 func (this *TypeValidator) expectAbstractMethodsImplemented(n Node, ctorType *FunctionType) {
 	if !ctorType.isConstructor() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var abstractMethodSuperTypeMap *JTMap[Property_Key, *ObjectType] = jnewTMap_(tce_Property_Key, jtc_p_ObjectType)
 	var currSuperCtor *FunctionType = ctorType.getSuperClassConstructor()
@@ -646,7 +646,7 @@ func TypeValidator_formatFoundRequired(description string, found *JSType, requir
 func (this *TypeValidator) getJSType(n Node) *JSType {
 	nn_ := n.getJSType()
 	if nn_ == nil {
-		panic(new_NullPointerException_String(Strings_lenientFormat("%s has no JSType attached", []any{n.box_()})).self())
+		panic(new_NullPointerException_String(Strings_lenientFormat("%s has no JSType attached", []any{n.box_()})))
 	}
 	return nn_
 }

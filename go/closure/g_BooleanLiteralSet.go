@@ -53,7 +53,7 @@ func (this BooleanLiteralSet) fromOrdinal(ordinal int32) BooleanLiteralSet {
 		case 3:
 			return BooleanLiteralSet_BOTH
 		default:
-			panic(new_IllegalArgumentException_String(("Ordinal: " + istr_(int64(ordinal)))).self())
+			panic(new_IllegalArgumentException_String(("Ordinal: " + istr_(int64(ordinal)))))
 		}
 	}()
 }
@@ -78,7 +78,7 @@ func (this BooleanLiteralSet) contains(literalValue bool) bool {
 		case 3:
 			return true
 		default:
-			panic(new_IndexOutOfBoundsException_String(("Ordinal: " + istr_(int64(this.ordinal())))).self())
+			panic(new_IndexOutOfBoundsException_String(("Ordinal: " + istr_(int64(this.ordinal())))))
 		}
 	}()
 }

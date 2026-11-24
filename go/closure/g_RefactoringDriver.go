@@ -140,7 +140,7 @@ func (this *RefactoringDriver_Builder) addInputs(inputs IterableT[*SourceFile_js
 
 func (this *RefactoringDriver_Builder) withCompilerOptions(compilerOptions *CompilerOptions) *RefactoringDriver_Builder {
 	if compilerOptions == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.compilerOptions = compilerOptions
 	return this

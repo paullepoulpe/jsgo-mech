@@ -147,7 +147,7 @@ func new_GatherModuleMetadata_ModuleMetadataBuilder(outer_ *GatherModuleMetadata
 
 func (this *GatherModuleMetadata_ModuleMetadataBuilder) moduleType(type_ ModuleMetadataMap_ModuleType, t *NodeTraversal, n Node) {
 	if type_ == 0 {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if this.metadataBuilder.moduleType() == type_ {
 		return
@@ -241,7 +241,7 @@ func (this *GatherModuleMetadata_Finder) shouldTraverse(t *NodeTraversal, n Node
 
 func (this *GatherModuleMetadata_Finder) visitImportOrExport(t *NodeTraversal, importOrExport Node) {
 	if this.outer_.currentModule == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.outer_.currentModule.moduleType(ModuleMetadataMap_ModuleType_ES6_MODULE, t, importOrExport)
 	if importOrExport.isImport() || (importOrExport.hasTwoChildren() && importOrExport.getLastChild().isStringLit()) {
@@ -268,7 +268,7 @@ func (this *GatherModuleMetadata_Finder) enterModule(t *NodeTraversal, n Node, p
 
 func (this *GatherModuleMetadata_Finder) leaveModule() {
 	if this.outer_.currentModule == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	var module *ModuleMetadataMap_ModuleMetadata = this.outer_.currentModule.build()
 	if module.path() != nil {
@@ -509,6 +509,6 @@ func (this *GatherModuleMetadata_Finder) addNamespace(module *GatherModuleMetada
 			return
 		case ModuleMetadataMap_ModuleType_COMMON_JS, ModuleMetadataMap_ModuleType_SCRIPT:
 		}
-		panic(new_IllegalStateException_String(("Unexpected module type: " + jtostr_(existingType))).self())
+		panic(new_IllegalStateException_String(("Unexpected module type: " + jtostr_(existingType))))
 	}
 }

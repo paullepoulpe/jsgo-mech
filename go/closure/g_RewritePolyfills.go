@@ -76,7 +76,7 @@ func (this *RewritePolyfills) injectAll(librariesToInject IterableT[string], for
 	var lastNode Node = 0
 	for library := range elemsT_(librariesToInject) {
 		if library == "" {
-			panic(new_IllegalStateException_String(objstr_("unexpected empty library")).self())
+			panic(new_IllegalStateException_String(objstr_("unexpected empty library")))
 		}
 		lastNode = this.runtimeJsLibManager.ensureLibraryInjected(library, forceInjection)
 	}

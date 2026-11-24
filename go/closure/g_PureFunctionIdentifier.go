@@ -29,7 +29,7 @@ func (this *PureFunctionIdentifier) finit_PureFunctionIdentifier() {
 func (this *PureFunctionIdentifier) init_PureFunctionIdentifier(compiler *AbstractCompiler, assumeGettersArePure bool, validateArtificialPurity bool) {
 	this.finit_PureFunctionIdentifier()
 	if compiler == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	this.compiler_ = compiler
 	this.assumeGettersArePure_ = assumeGettersArePure
@@ -45,10 +45,10 @@ func new_PureFunctionIdentifier(compiler *AbstractCompiler, assumeGettersArePure
 
 func (this *PureFunctionIdentifier) process_3(externs Node, root Node, references *OptimizeCalls_ReferenceMap) {
 	if !this.compiler_.getLifeCycleStage().isNormalized() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if this.hasProcessed {
-		panic(new_IllegalStateException_String(objstr_("PureFunctionIdentifier::process may only be called once per instance.")).self())
+		panic(new_IllegalStateException_String(objstr_("PureFunctionIdentifier::process may only be called once per instance.")))
 	}
 	this.hasProcessed = true
 	this.populateDatastructuresForAnalysisTraversal(references)
@@ -111,7 +111,7 @@ func PureFunctionIdentifier_collectCallableLeavesInternal(expr Node, results *JT
 		{
 			var clazz Node = NodeUtil_getEnclosingClass(expr)
 			if clazz == 0 {
-				panic(new_NullPointerException_0().self())
+				panic(new_NullPointerException_0())
 			}
 			return PureFunctionIdentifier_collectCallableLeavesInternal(clazz.getSecondChild(), results, astAnalyzer)
 		}
@@ -172,7 +172,7 @@ func PureFunctionIdentifier_isDefinitelyRValue(rvalue Node) bool {
 
 func (this *PureFunctionIdentifier) getGoogCacheCallableExpression(cacheCall *CodingConvention_Cache) *JTList[Node] {
 	if cacheCall == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	var builder *TListBuilder[Node] = newTListBuilder_(jtc_Node).addAll(PureFunctionIdentifier_collectCallableLeaves(cacheCall.valueFn, this.astAnalyzer).asIterable())
 	if cacheCall.keyFn != 0 {
@@ -183,7 +183,7 @@ func (this *PureFunctionIdentifier) getGoogCacheCallableExpression(cacheCall *Co
 
 func (this *PureFunctionIdentifier) getSummariesForCallee(invocation Node) *JTList[*PureFunctionIdentifier_AmbiguatedFunctionSummary] {
 	if !NodeUtil_isInvocation(invocation) {
-		panic(new_IllegalArgumentException_String(tostr_(invocation)).self())
+		panic(new_IllegalArgumentException_String(tostr_(invocation)))
 	}
 	var cacheCall *CodingConvention_Cache = this.compiler_.getCodingConvention().describeCachingCall(invocation)
 	var callees *JTList[Node]
@@ -198,7 +198,7 @@ func (this *PureFunctionIdentifier) getSummariesForCallee(invocation Node) *JTLi
 		return jimmutableListOf_[*PureFunctionIdentifier_AmbiguatedFunctionSummary](jtc_p_PureFunctionIdentifier_AmbiguatedFunctionSummary, this.unknownFunctionSummary)
 	}
 	if callees.isEmpty() {
-		panic(new_IllegalStateException_String(objstr_("Unexpected empty callees for valid result")).self())
+		panic(new_IllegalStateException_String(objstr_("Unexpected empty callees for valid result")))
 	}
 	var results *TListBuilder[*PureFunctionIdentifier_AmbiguatedFunctionSummary] = newTListBuilder_(jtc_p_PureFunctionIdentifier_AmbiguatedFunctionSummary)
 	it_1 := callees.each()
@@ -206,11 +206,11 @@ func (this *PureFunctionIdentifier) getSummariesForCallee(invocation Node) *JTLi
 		var callee Node = it_1.v
 		if callee.isFunction() {
 			if !callee.isFunction() {
-				panic(new_IllegalStateException_String(tostr_(callee)).self())
+				panic(new_IllegalStateException_String(tostr_(callee)))
 			}
 			var summariesForFunction CollectionT[*PureFunctionIdentifier_AmbiguatedFunctionSummary] = this.summariesForAllNamesOfFunctionByNode.get(callee)
 			if summariesForFunction.isEmpty() {
-				panic(new_IllegalStateException_String(Strings_lenientFormat("Function missed during analysis: %s", []any{callee.box_()})).self())
+				panic(new_IllegalStateException_String(Strings_lenientFormat("Function missed during analysis: %s", []any{callee.box_()})))
 			}
 			results.addAll(summariesForFunction)
 		} else {
@@ -235,10 +235,10 @@ func (this *PureFunctionIdentifier) populateDatastructuresForAnalysisTraversal(r
 		referencesByName.putAll((sstr_(PureFunctionIdentifier_PROP_NAME_PREFIX) + sstr_(entry.getKey_t())), entry.getValue_t())
 	}
 	if referencesByName.containsKey("") {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if referencesByName.containsKey(PureFunctionIdentifier_PROP_NAME_PREFIX) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	for name := range elemsT_(referencesByName.keySet()) {
 		this.summariesByName.put(name, PureFunctionIdentifier_AmbiguatedFunctionSummary_createInGraph(this.reverseCallGraph.up_DiGraph(), name))
@@ -250,7 +250,7 @@ func (this *PureFunctionIdentifier) populateDatastructuresForAnalysisTraversal(r
 func (this *PureFunctionIdentifier) populateFunctionDefinitions(name string, references ListT[Node]) {
 	var summaryForName *PureFunctionIdentifier_AmbiguatedFunctionSummary = this.summariesByName.get(name)
 	if summaryForName == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	var invalid bool = false
 	var rvaluesAssignedToName *JTList[ListT[Node]] = jnewTList_(tc_ListT_Node_)
@@ -327,7 +327,7 @@ func (this *PureFunctionIdentifier) markPureFunctionCalls() {
 			for it_3.next() {
 				var calleeSummary *PureFunctionIdentifier_AmbiguatedFunctionSummary = it_3.v
 				if calleeSummary == nil {
-					panic(new_NullPointerException_0().self())
+					panic(new_NullPointerException_0())
 				}
 				if calleeSummary.mutatesGlobalState() {
 					flags.setMutatesGlobalState()
@@ -376,7 +376,7 @@ func PureFunctionIdentifier_getParamIndex(param *Var) int32 {
 		return param.getNameNode()
 	}()
 	if !node.getParent().isParamList() {
-		panic(new_IllegalStateException_String(tostr_(node)).self())
+		panic(new_IllegalStateException_String(tostr_(node)))
 	}
 	return node.getParent().getIndexOfChild(node)
 }
@@ -401,7 +401,7 @@ func PureFunctionIdentifier_nameForReference(nameRef Node) Optional[string] {
 		case tokOrd1_GETPROP, tokOrd1_OPTCHAIN_GETPROP:
 			return Optional_of[string]((sstr_(PureFunctionIdentifier_PROP_NAME_PREFIX) + sstr_(nameRef.getString())))
 		default:
-			panic(new_IllegalStateException_String(("Unexpected name reference: " + tostrH_(nameRef))).self())
+			panic(new_IllegalStateException_String(("Unexpected name reference: " + tostrH_(nameRef))))
 		}
 	}()
 }
@@ -477,10 +477,10 @@ func (this *PureFunctionIdentifier_ExternFunctionAnnotationAnalyzer) visit(trave
 
 func (this *PureFunctionIdentifier_ExternFunctionAnnotationAnalyzer) updateSideEffectsForExternFunction(externFunction Node, summary *PureFunctionIdentifier_AmbiguatedFunctionSummary) {
 	if !externFunction.isFunction() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	if !externFunction.isFromExterns() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var info *JSDocInfo = NodeUtil_getBestJSDocInfo(externFunction)
 	if info == nil {
@@ -538,7 +538,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) visit(traversal *NodeTr
 	}
 	for summary := range elemsT_(this.outer_.summariesForAllNamesOfFunctionByNode.get(root)) {
 		if summary == nil {
-			panic(new_NullPointerException_0().self())
+			panic(new_NullPointerException_0())
 		}
 		this.updateSideEffectsForNode(summary, traversal, node)
 	}
@@ -623,7 +623,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) updateSideEffectsForNod
 			break
 		}
 		if this.outer_.compiler_.getAstAnalyzer().nodeTypeMayHaveSideEffects(node) {
-			panic(new_IllegalArgumentException_String(("Unhandled side effect node type " + tostrH_(node))).self())
+			panic(new_IllegalArgumentException_String(("Unhandled side effect node type " + tostrH_(node))))
 		}
 	}
 }
@@ -651,7 +651,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) enterScope(t *NodeTrave
 	}
 	var function Node = t.getScopeRoot()
 	if !function.isFunction() {
-		panic(new_IllegalStateException_String(tostr_(function)).self())
+		panic(new_IllegalStateException_String(tostr_(function)))
 	}
 	var jsdoc *JSDocInfo = NodeUtil_getBestJSDocInfo(function)
 	var isArtificiallyPure bool = ((jsdoc != nil) && jsdoc.isNoSideEffects())
@@ -669,14 +669,14 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) exitScope(t *NodeTraver
 	}
 	var functionEntry *PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry = SequencedCollection_getLastT_[*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry](this.functionScopeStack.asCollT())
 	if ok_, a1_ := equalsId_(functionScope.getRootNode(), functionEntry.root), functionScope.getRootNode(); !ok_ {
-		panic(new_IllegalStateException_String(tostr_(a1_)).self())
+		panic(new_IllegalStateException_String(tostr_(a1_)))
 	}
 	if equalsId_(t.getScopeRoot(), functionEntry.root) {
 		SequencedCollection_removeLastT_[*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry](this.functionScopeStack.asCollT())
 	}
 	for sideEffectInfo := range elemsT_(this.outer_.summariesForAllNamesOfFunctionByNode.get(functionEntry.root)) {
 		if v_, a1_ := sideEffectInfo, functionEntry.root; v_ == nil {
-			panic(new_NullPointerException_String(Strings_lenientFormat("%s has no side effect info.", []any{a1_.box_()})).self())
+			panic(new_NullPointerException_String(Strings_lenientFormat("%s has no side effect info.", []any{a1_.box_()})))
 		}
 		if sideEffectInfo.mutatesGlobalState() {
 			continue
@@ -724,7 +724,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) visitLhsNode(encloserSu
 		}
 	} else {
 		if !lhs.isName() {
-			panic(new_IllegalStateException_String(tostr_(lhs)).self())
+			panic(new_IllegalStateException_String(tostr_(lhs)))
 		}
 		var var_ *Var = scope.getVar_String_rVar(lhs.getString())
 		if PureFunctionIdentifier_FunctionBodyAnalyzer_isVarDeclaredInSameContainerScope(var_, scope) {
@@ -817,7 +817,7 @@ type PureFunctionIdentifier_SideEffectPropagation struct {
 
 func (this *PureFunctionIdentifier_SideEffectPropagation) init_PureFunctionIdentifier_SideEffectPropagation(callerIsAlias bool, calleeThisEqualsCallerThis bool, propagateThrows bool, invocation Node, callScope *Scope, callerEntry *PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry, argumentsMatchParameters bool) {
 	if invocation != 0 && !NodeUtil_isInvocation(invocation) {
-		panic(new_IllegalArgumentException_String(tostr_(invocation)).self())
+		panic(new_IllegalArgumentException_String(tostr_(invocation)))
 	}
 	this.callerIsAlias = callerIsAlias
 	this.calleeThisEqualsCallerThis = calleeThisEqualsCallerThis
@@ -840,7 +840,7 @@ func PureFunctionIdentifier_SideEffectPropagation_forAlias() *PureFunctionIdenti
 
 func PureFunctionIdentifier_SideEffectPropagation_forInvocation(invocation Node, callScope *Scope, callerEntry *PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry, argumentsMatchParameters bool, propagateThrows bool) *PureFunctionIdentifier_SideEffectPropagation {
 	if !NodeUtil_isInvocation(invocation) {
-		panic(new_IllegalArgumentException_String(tostr_(invocation)).self())
+		panic(new_IllegalArgumentException_String(tostr_(invocation)))
 	}
 	return new_PureFunctionIdentifier_SideEffectPropagation(false, (PureFunctionIdentifier_SideEffectPropagation_calleeAndCallerShareThis(invocation) && !callerEntry.root.isArrowFunction()), propagateThrows, invocation, callScope, callerEntry, argumentsMatchParameters)
 }
@@ -1027,7 +1027,7 @@ func (this *PureFunctionIdentifier_AmbiguatedFunctionSummary) setMutatesArgument
 
 func (this *PureFunctionIdentifier_AmbiguatedFunctionSummary) setMutatesArgumentAt(paramIndex int32, debuggingReason Node) *PureFunctionIdentifier_AmbiguatedFunctionSummary {
 	if paramIndex < 0 {
-		panic(new_IllegalArgumentException_String(objstr_(int32(paramIndex))).self())
+		panic(new_IllegalArgumentException_String(objstr_(int32(paramIndex))))
 	}
 	this.maybeCollectImpureDebuggingReason(debuggingReason)
 	var paramBit int64 = func() int64 {

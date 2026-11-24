@@ -63,7 +63,7 @@ func (this *ColorSerializer) generateTypePool(getDisambiguationSupertypesFn Func
 		func() Function[*Color, SetT[string]] {
 			f_ := getMismatchSourceRefsFn
 			if f_ == nil {
-				panic(new_NullPointerException_0().self())
+				panic(new_NullPointerException_0())
 			}
 			return f_
 		}()

@@ -48,7 +48,7 @@ func ApplySuggestedFixes_applyAllSuggestedFixChoicesToCode(fixChoices IterableT[
 	}
 	var alternativeCount int32 = Iterables_getFirstT_[*SuggestedFix](fixChoices, nil).getAlternatives().size()
 	if !ApplySuggestedFixes_allHaveAlternativeCount(fixChoices, alternativeCount) {
-		panic(new_IllegalArgumentException_String(objstr_("All SuggestedFixAlternatives must offer an equal number of choices for this utility to make sense")).self())
+		panic(new_IllegalArgumentException_String(objstr_("All SuggestedFixAlternatives must offer an equal number of choices for this utility to make sense")))
 	}
 	var result *TListBuilder[MapT[string, string]] = newTListBuilder_(tc_MapT_string__string_)
 	for i := int32(0); i < alternativeCount; i++ {
@@ -86,7 +86,7 @@ func ApplySuggestedFixes_applySuggestedFixesToCode(fixes IterableT[*SuggestedFix
 	for entry := range elemsT_(map_.entrySet()) {
 		var filename string = entry.getKey_t()
 		if !filenameToCodeMap.containsKey(filename) {
-			panic(new_IllegalArgumentException_String(("filenameToCodeMap missing code for file: " + sstr_(filename))).self())
+			panic(new_IllegalArgumentException_String(("filenameToCodeMap missing code for file: " + sstr_(filename))))
 		}
 		var replacements SetT[*CodeReplacement] = entry.getValue_t()
 		var newCode string = ApplySuggestedFixes_applyCodeReplacements(replacements, filenameToCodeMap.get(filename))
@@ -98,7 +98,7 @@ func ApplySuggestedFixes_applySuggestedFixesToCode(fixes IterableT[*SuggestedFix
 func ApplySuggestedFixes_applyCodeReplacements(replacements CollectionT[*CodeReplacement], code string) string {
 	var sortedReplacements SetT[*CodeReplacement] = setAs_(tc_p_CodeReplacement, ImmutableSortedSet_as_Set(ImmutableSortedSet_copyOf(Collection_un_(replacements))))
 	if ok_, a1_ := !ApplySuggestedFixes_containsOverlaps(sortedReplacements), ApplySuggestedFixes_DOUBLE_LINE_JOINER.join(Iterable(Set_un_(sortedReplacements))); !ok_ {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Found overlap between code replacements:\n%s", []any{a1_})).self())
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Found overlap between code replacements:\n%s", []any{a1_})))
 	}
 	var sb *StringBuilder = new_StringBuilder()
 	var lastIndex int32 = 0

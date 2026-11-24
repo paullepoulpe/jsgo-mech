@@ -36,7 +36,7 @@ func AbstractCompiler_isFillFileName(fileName string) bool {
 }
 
 func (this *AbstractCompiler) initRuntimeLibraryTypedAsts_impl(colorPoolBuilder GOptional[*ColorPool_Builder]) {
-	panic(new_UnsupportedOperationException_String("Implementation in Compiler.java is not J2CL compatible.").self())
+	panic(new_UnsupportedOperationException_String("Implementation in Compiler.java is not J2CL compatible."))
 }
 
 func (this *AbstractCompiler) getIndex(type_ ClassOf[any]) any {

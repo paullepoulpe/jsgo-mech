@@ -233,7 +233,7 @@ func (this *LinkedUndirectedGraph[N, E]) getNodeCount_impl() int32 {
 func (this *LinkedUndirectedGraph[N, E]) getNodeDegree_impl(value N) int32 {
 	var uNode UndiGraph_UndiGraphNode[N, E] = this.getUndirectedGraphNode(value)
 	if uNode == nil {
-		panic(new_IllegalArgumentException_String((objstr_(boxT_(value)) + " not found in graph")).self())
+		panic(new_IllegalArgumentException_String((objstr_(boxT_(value)) + " not found in graph")))
 	}
 	return uNode.getNeighborEdges().size()
 }
@@ -306,11 +306,11 @@ func (this *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E]) getNeighborEd
 }
 
 func (this *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E]) getAnnotationUntyped_impl() Annotation_graph {
-	panic(new_UnsupportedOperationException_String("Graph initialized with node annotations turned off").self())
+	panic(new_UnsupportedOperationException_String("Graph initialized with node annotations turned off"))
 }
 
 func (this *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E]) setAnnotation_impl(data Annotation_graph) {
-	panic(new_UnsupportedOperationException_String("Graph initialized with node annotations turned off").self())
+	panic(new_UnsupportedOperationException_String("Graph initialized with node annotations turned off"))
 }
 
 func (this *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E]) getValue() N {
@@ -461,11 +461,11 @@ func (this *LinkedUndirectedGraph_LinkedUndirectedGraphEdge[N, E]) getNodeB() Gr
 }
 
 func (this *LinkedUndirectedGraph_LinkedUndirectedGraphEdge[N, E]) getAnnotationUntyped_impl() Annotation_graph {
-	panic(new_UnsupportedOperationException_String("Graph initialized with edge annotations turned off").self())
+	panic(new_UnsupportedOperationException_String("Graph initialized with edge annotations turned off"))
 }
 
 func (this *LinkedUndirectedGraph_LinkedUndirectedGraphEdge[N, E]) setAnnotation_impl(data Annotation_graph) {
-	panic(new_UnsupportedOperationException_String("Graph initialized with edge annotations turned off").self())
+	panic(new_UnsupportedOperationException_String("Graph initialized with edge annotations turned off"))
 }
 
 func (this *LinkedUndirectedGraph_LinkedUndirectedGraphEdge[N, E]) getColor() string {

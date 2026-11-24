@@ -404,17 +404,17 @@ func (this *CodingConventions_DefaultCodingConvention) isSuperClassReference(pro
 
 func (this *CodingConventions_DefaultCodingConvention) extractIsModuleFile(node Node, parent Node) bool {
 	var message string = "only implemented in ClosureCodingConvention"
-	panic(new_UnsupportedOperationException_String(message).self())
+	panic(new_UnsupportedOperationException_String(message))
 }
 
 func (this *CodingConventions_DefaultCodingConvention) extractClassNameIfProvide(node Node, parent Node) Optional[string] {
 	var message string = "only implemented in ClosureCodingConvention"
-	panic(new_UnsupportedOperationException_String(message).self())
+	panic(new_UnsupportedOperationException_String(message))
 }
 
 func (this *CodingConventions_DefaultCodingConvention) extractClassNameIfRequire(node Node, parent Node) Optional[string] {
 	var message string = "only implemented in ClosureCodingConvention"
-	panic(new_UnsupportedOperationException_String(message).self())
+	panic(new_UnsupportedOperationException_String(message))
 }
 
 func (this *CodingConventions_DefaultCodingConvention) getExportPropertyFunction() string {
