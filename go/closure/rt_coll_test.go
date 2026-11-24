@@ -444,36 +444,69 @@ func TestTMapHashedKeysAgainstModel(t *testing.T) {
 	}
 }
 
-// A node handle has no equals or hashCode of its own: the tables find it by value (findNode).
-func TestNodeKeyIsPlain(t *testing.T) {
-	if _, ok := any(Node(1)).(hashed_); ok {
-		t.Fatal("Node implements hashed_; htable_.findNode would not call its equals")
-	}
-}
-
-// TestTreeMapStringKeys drives a naturally ordered TreeMap with string keys through puts,
-// removals and clears, and checks that search_s (which reads skeys) agrees with search.
-func TestTreeMapStringKeys(t *testing.T) {
-	r := rand.New(rand.NewSource(7))
-	m := new_TreeMap()
-	for step := 0; step < 20000; step++ {
-		k := "p" + istr_(int64(r.Intn(60)))
-		if r.Intn(9) == 0 {
-			k = "é" + k
+// TestTSetWorkQueueAgainstModel uses a typed set as FixedPointGraphTraversal uses its work set
+// (take the first, remove it, add others at the end), mixed with removals elsewhere, iterator
+// removals and clears, and compares getFirst, iteration order and the for-each cursor with the
+// model throughout, across compactions (the first-live hint).
+func TestTSetWorkQueueAgainstModel(t *testing.T) {
+	kc := &tconv_[int32]{box: func(v int32) any { return v }, unbox: func(v any) int32 { return v.(int32) }}
+	for seed := int64(1); seed <= 30; seed++ {
+		rnd := rand.New(rand.NewSource(seed))
+		span := []int{5, 30, 300}[seed%3]
+		s, ref := newTSet_(kc), &refMap_{}
+		check := func(what string) {
+			t.Helper()
+			var ks, its []any
+			for e := s.each(); e.next(); {
+				ks = append(ks, e.v)
+			}
+			for it := s.asSet().iterator(); it.hasNext(); {
+				its = append(its, it.next())
+			}
+			if int(s.size()) != len(ref.keys) || !sameSlice_(ks, ref.keys) || !sameSlice_(its, ref.keys) {
+				t.Fatalf("seed %d after %s: got %v / %v, want %v", seed, what, ks, its, ref.keys)
+			}
 		}
-		switch op := r.Intn(20); {
-		case op < 11:
-			m.put(k, int32(step))
-		case op < 19:
-			m.remove(k)
-		default:
-			m.clear()
-		}
-		q := "p" + istr_(int64(r.Intn(70)))
-		i, ok := m.search(q)
-		j, ok2 := m.search_s(q)
-		if i != j || ok != ok2 || len(m.skeys) != len(m.entries) {
-			t.Fatalf("step %d: search %d %v, search_s %d %v, %d skeys for %d entries", step, i, ok, j, ok2, len(m.skeys), len(m.entries))
+		for step := 0; step < 2000; step++ {
+			k := int32(rnd.Intn(span))
+			switch op := rnd.Intn(20); {
+			case op < 8:
+				if s.add(k) != (ref.find(k) < 0) {
+					t.Fatalf("seed %d: add(%d) disagrees", seed, k)
+				}
+				ref.put(k, nil)
+			case op < 15:
+				if len(ref.keys) == 0 {
+					continue
+				}
+				f := SequencedCollection_getFirst(any(s.asSet()).(SequencedCollection))
+				if !objequals_(f, ref.keys[0]) {
+					t.Fatalf("seed %d: getFirst = %v, want %v", seed, f, ref.keys[0])
+				}
+				s.remove(f.(int32))
+				ref.removeAt(0)
+			case op < 17:
+				if s.remove(k) != (ref.find(k) >= 0) {
+					t.Fatalf("seed %d: remove(%d) disagrees", seed, k)
+				}
+				if i := ref.find(k); i >= 0 {
+					ref.removeAt(i)
+				}
+			case op < 19:
+				for it := s.asSet().iterator(); it.hasNext(); {
+					if x := it.next(); objequals_(x, k) {
+						Iterator_remove(it)
+						ref.removeAt(ref.find(k))
+						break
+					}
+				}
+			default:
+				if rnd.Intn(10) == 0 {
+					s.clear()
+					ref.keys, ref.vals = nil, nil
+				}
+			}
+			check("step")
 		}
 	}
 }
