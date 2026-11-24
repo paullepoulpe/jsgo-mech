@@ -2108,10 +2108,10 @@ var tc___int8 = &jtconv_[[]int8]{
 	unbox: func(v any) []int8 { return cast_[[]int8](v) },
 }
 
-var jtc_p_AbstractCommandLineRunner_FlagEntry = &jtconv_[*AbstractCommandLineRunner_FlagEntry]{
-	box: func(v *AbstractCommandLineRunner_FlagEntry) any { return obj_(v) },
-	unbox: func(v any) *AbstractCommandLineRunner_FlagEntry {
-		return cast_[*AbstractCommandLineRunner_FlagEntry](v)
+var jtc_p_AbstractCommandLineRunner_FlagEntry = &jtconv_[*AbstractCommandLineRunner_FlagEntry[any]]{
+	box: func(v *AbstractCommandLineRunner_FlagEntry[any]) any { return obj_(v) },
+	unbox: func(v any) *AbstractCommandLineRunner_FlagEntry[any] {
+		return cast_[*AbstractCommandLineRunner_FlagEntry[any]](v)
 	},
 }
 
@@ -3553,9 +3553,9 @@ var jtc_p_ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext = &jtconv_[*T
 	},
 }
 
-var tc_p_Timeline_Event = &jtconv_[*Timeline_Event]{
-	box:   func(v *Timeline_Event) any { return obj_(v) },
-	unbox: func(v any) *Timeline_Event { return cast_[*Timeline_Event](v) },
+var tc_p_Timeline_Event = &jtconv_[*Timeline_Event[any]]{
+	box:   func(v *Timeline_Event[any]) any { return obj_(v) },
+	unbox: func(v any) *Timeline_Event[any] { return cast_[*Timeline_Event[any]](v) },
 }
 
 var tc_p_TokenType = &jtconv_[TokenType]{
@@ -3896,9 +3896,9 @@ var tce_p_ScopedName = &jtconv_[*ScopedName]{
 	byEquals: true,
 }
 
-var tce_p_SimpleSetMultimap_Entry = &jtconv_[*SimpleSetMultimap_Entry]{
-	box:      func(v *SimpleSetMultimap_Entry) any { return obj_(v) },
-	unbox:    func(v any) *SimpleSetMultimap_Entry { return cast_[*SimpleSetMultimap_Entry](v) },
+var tce_p_SimpleSetMultimap_Entry = &jtconv_[*SimpleSetMultimap_Entry[any, any]]{
+	box:      func(v *SimpleSetMultimap_Entry[any, any]) any { return obj_(v) },
+	unbox:    func(v any) *SimpleSetMultimap_Entry[any, any] { return cast_[*SimpleSetMultimap_Entry[any, any]](v) },
 	byEquals: true,
 }
 
@@ -4367,7 +4367,7 @@ func init() {
 		(CustomPassExecutionTime)(0),
 		(*DToA)(nil),
 		(*DataFlowAnalysis_1)(nil),
-		(*DataFlowAnalysis_LinearFlowState)(nil),
+		(*DataFlowAnalysis_LinearFlowState[any])(nil),
 		(*DeadAssignmentsElimination)(nil),
 		(*DeadAssignmentsElimination_BailoutInformation)(nil),
 		(DeadAssignmentsElimination_VariableLiveness)(0),
@@ -5428,7 +5428,7 @@ func init() {
 		(*ThisExpressionTree)(nil),
 		(*ThreadSafeDelegatingErrorManager)(nil),
 		(*ThrowStatementTree)(nil),
-		(*Timeline_Event)(nil),
+		(*Timeline_Event[any])(nil),
 		(*TokenStream)(nil),
 		(TokenType)(0),
 		(*TokenUtil)(nil),
