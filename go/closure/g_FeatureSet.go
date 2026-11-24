@@ -361,10 +361,6 @@ func (this FeatureSet_LangVersion) toString() string {
 	return this.enum_().name_
 }
 
-func (this FeatureSet_LangVersion) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this FeatureSet_LangVersion) self() any {
 	if this == 0 {
 		return nil
@@ -507,10 +503,6 @@ func (this FeatureSet_Feature) ordinal() int32 {
 		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
 	}
 	return int32(this) - 1 // constants are ordinal+1
-}
-
-func (this FeatureSet_Feature) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
 }
 
 func (this FeatureSet_Feature) self() any {

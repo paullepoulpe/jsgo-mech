@@ -333,8 +333,6 @@ func (this ModuleLoader_PathEscaper) ordinal() int32 {
 
 func (this ModuleLoader_PathEscaper) toString() string { return this.enum_().name_ }
 
-func (this ModuleLoader_PathEscaper) compareTo(o any) int32 { return this.enum_().compareTo(o) }
-
 func (this ModuleLoader_PathEscaper) self() any {
 	if this == 0 {
 		return nil
@@ -412,8 +410,6 @@ func (this ModuleLoader_PathResolver) ordinal() int32 {
 }
 
 func (this ModuleLoader_PathResolver) toString() string { return this.enum_().name_ }
-
-func (this ModuleLoader_PathResolver) compareTo(o any) int32 { return this.enum_().compareTo(o) }
 
 func (this ModuleLoader_PathResolver) self() any {
 	if this == 0 {
@@ -509,10 +505,6 @@ func (this ModuleLoader_ResolutionMode) ordinal() int32 {
 
 func (this ModuleLoader_ResolutionMode) toString() string {
 	return this.enum_().name_
-}
-
-func (this ModuleLoader_ResolutionMode) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
 }
 
 func (this ModuleLoader_ResolutionMode) self() any {

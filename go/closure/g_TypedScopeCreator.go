@@ -436,10 +436,6 @@ func (this TypedScopeCreator_Stage) toString() string {
 	return this.enum_().name_
 }
 
-func (this TypedScopeCreator_Stage) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this TypedScopeCreator_Stage) self() any {
 	if this == 0 {
 		return nil

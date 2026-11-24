@@ -30,8 +30,6 @@ func (this ErrorFormat) ordinal() int32 {
 
 func (this ErrorFormat) toString() string { return this.enum_().name_ }
 
-func (this ErrorFormat) compareTo(o any) int32 { return this.enum_().compareTo(o) }
-
 func (this ErrorFormat) self() any {
 	if this == 0 {
 		return nil

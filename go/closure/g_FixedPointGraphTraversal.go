@@ -128,10 +128,6 @@ func (this FixedPointGraphTraversal_TraversalDirection) toString() string {
 	return this.enum_().name_
 }
 
-func (this FixedPointGraphTraversal_TraversalDirection) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this FixedPointGraphTraversal_TraversalDirection) self() any {
 	if this == 0 {
 		return nil
