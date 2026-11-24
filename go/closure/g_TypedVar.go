@@ -39,7 +39,7 @@ func (this *TypedVar) init_TypedVar(inferred bool, name string, nameNode Node, t
 	this.finit_TypedVar()
 	this.scope_ = scope
 	if nameNode != 0 {
-		if ok_, a1_ := TypedVar_NAME_NODE_TYPES.Has(nameNode.getToken()), nameNode.getToken(); !ok_ {
+		if ok_, a1_ := TypedVar_NAME_NODE_TYPES_has_(nameNode.getToken()), nameNode.getToken(); !ok_ {
 			panic(new_IllegalArgumentException_String(Strings_lenientFormat("Invalid name node token %s", a1_)))
 		}
 	}
@@ -165,7 +165,7 @@ func (this *TypedVar) declarationType_impl() Token_rhino {
 	{
 		var current Node = this.getNode()
 		for ; current != 0; current = current.getParent() {
-			if AbstractVar_DECLARATION_TYPES.Has(current.getToken()) {
+			if AbstractVar_DECLARATION_TYPES_has_(current.getToken()) {
 				return current.getToken()
 			}
 		}
