@@ -27,50 +27,50 @@ complete_:
 		case 2:
 			c = int32(String_charAt(s, 1))
 			if c == 102 {
-				if String_charAt(s, 0) == 'i' {
+				if byteAt_(s, 0) == 'i' {
 					id = true
 					break complete_
 				}
 			} else if c == 110 {
-				if String_charAt(s, 0) == 'i' {
+				if byteAt_(s, 0) == 'i' {
 					id = true
 					break complete_
 				}
 			} else if c == 111 {
-				if String_charAt(s, 0) == 'd' {
+				if byteAt_(s, 0) == 'd' {
 					id = true
 					break complete_
 				}
 			}
 			break partial_
 		case 3:
-			switch String_charAt(s, 0) {
+			switch byteAt_(s, 0) {
 			case 'f':
-				if (String_charAt(s, 2) == 'r') && (String_charAt(s, 1) == 'o') {
+				if (String_charAt(s, 2) == 'r') && (byteAt_(s, 1) == 'o') {
 					id = true
 					break complete_
 				}
 				break partial_
 			case 'i':
-				if (String_charAt(s, 2) == 't') && (String_charAt(s, 1) == 'n') {
+				if (String_charAt(s, 2) == 't') && (byteAt_(s, 1) == 'n') {
 					id = true
 					break complete_
 				}
 				break partial_
 			case 'n':
-				if (String_charAt(s, 2) == 'w') && (String_charAt(s, 1) == 'e') {
+				if (String_charAt(s, 2) == 'w') && (byteAt_(s, 1) == 'e') {
 					id = true
 					break complete_
 				}
 				break partial_
 			case 't':
-				if (String_charAt(s, 2) == 'y') && (String_charAt(s, 1) == 'r') {
+				if (String_charAt(s, 2) == 'y') && (byteAt_(s, 1) == 'r') {
 					id = true
 					break complete_
 				}
 				break partial_
 			case 'v':
-				if (String_charAt(s, 2) == 'r') && (String_charAt(s, 1) == 'a') {
+				if (String_charAt(s, 2) == 'r') && (byteAt_(s, 1) == 'a') {
 					id = true
 					break complete_
 				}
@@ -78,7 +78,7 @@ complete_:
 			}
 			break partial_
 		case 4:
-			switch String_charAt(s, 0) {
+			switch byteAt_(s, 0) {
 			case 'b':
 				X = Optional_of[string]("byte")
 				id = true
@@ -86,12 +86,12 @@ complete_:
 			case 'c':
 				c = int32(String_charAt(s, 3))
 				if c == 101 {
-					if (String_charAt(s, 2) == 's') && (String_charAt(s, 1) == 'a') {
+					if (String_charAt(s, 2) == 's') && (byteAt_(s, 1) == 'a') {
 						id = true
 						break complete_
 					}
 				} else if c == 114 {
-					if (String_charAt(s, 2) == 'a') && (String_charAt(s, 1) == 'h') {
+					if (String_charAt(s, 2) == 'a') && (byteAt_(s, 1) == 'h') {
 						id = true
 						break complete_
 					}
@@ -100,12 +100,12 @@ complete_:
 			case 'e':
 				c = int32(String_charAt(s, 3))
 				if c == 101 {
-					if (String_charAt(s, 2) == 's') && (String_charAt(s, 1) == 'l') {
+					if (String_charAt(s, 2) == 's') && (byteAt_(s, 1) == 'l') {
 						id = true
 						break complete_
 					}
 				} else if c == 109 {
-					if (String_charAt(s, 2) == 'u') && (String_charAt(s, 1) == 'n') {
+					if (String_charAt(s, 2) == 'u') && (byteAt_(s, 1) == 'n') {
 						id = true
 						break complete_
 					}
@@ -126,12 +126,12 @@ complete_:
 			case 't':
 				c = int32(String_charAt(s, 3))
 				if c == 101 {
-					if (String_charAt(s, 2) == 'u') && (String_charAt(s, 1) == 'r') {
+					if (String_charAt(s, 2) == 'u') && (byteAt_(s, 1) == 'r') {
 						id = true
 						break complete_
 					}
 				} else if c == 115 {
-					if (String_charAt(s, 2) == 'i') && (String_charAt(s, 1) == 'h') {
+					if (String_charAt(s, 2) == 'i') && (byteAt_(s, 1) == 'h') {
 						id = true
 						break complete_
 					}
@@ -278,7 +278,7 @@ complete_:
 			}
 			break partial_
 		case 8:
-			switch String_charAt(s, 0) {
+			switch byteAt_(s, 0) {
 			case 'a':
 				X = Optional_of[string]("abstract")
 				id = true

@@ -1464,19 +1464,19 @@ func ConformanceRules_ConformanceUtil_getClassFromDeclarationName(specName strin
 }
 
 func ConformanceRules_ConformanceUtil_removeTypeDecl(specName string) *Outcome_base[string] {
-	var index int32 = String_indexOf(specName, 58)
+	var index int32 = int32(strings.IndexByte(specName, ':'))
 	if index < 1 {
 		return Outcome_base_err[string](new_CheckConformance_InvalidRequirementSpec_String("value should be in the form NAME:TYPE").up_Throwable())
 	}
-	return Outcome_base_ok_Object[string](String_substring(specName, 0, index))
+	return Outcome_base_ok_Object[string](specName[:index])
 }
 
 func ConformanceRules_ConformanceUtil_getTypeFromValue(specName string) Optional[string] {
-	var index int32 = String_indexOf(specName, 58)
+	var index int32 = int32(strings.IndexByte(specName, ':'))
 	if index < 1 {
 		return Optional_empty[string]()
 	}
-	return Optional_of[string](String_substring_int(specName, (index + 1)))
+	return Optional_of[string](specName[(index + 1):])
 }
 
 func ConformanceRules_ConformanceUtil_isAnnotatedAsConst(jsdoc *JSDocInfo) bool {
@@ -1643,11 +1643,11 @@ func (this *ConformanceRules_RestrictedNameCall) checkConformance_impl(t *NodeTr
 }
 
 func ConformanceRules_RestrictedNameCall_getNameFromValue(specName string) Optional[string] {
-	var index int32 = String_indexOf(specName, 58)
+	var index int32 = int32(strings.IndexByte(specName, ':'))
 	if index < 1 {
 		return Optional_empty[string]()
 	}
-	return Optional_of[string](String_substring(specName, 0, index))
+	return Optional_of[string](specName[:index])
 }
 
 type ConformanceRules_RestrictedNameCall_Restriction struct {
