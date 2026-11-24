@@ -213,6 +213,10 @@ slowdown is not explained; it does not show in the final binary.
 
 ## Open
 
+- Translator bug (pre-existing, found by the self-test of piece cmp, main-libgen-t5): a class whose
+  compareTo also implements a generic program interface's compareTo(T) fails its cast when passed
+  as that interface, with piece cmp on or off. No such class is in the Java tree; the self-test
+  avoids that call. Not fixed.
 - The merged translator's (main-libgen-t12) first gate run failed at the j2go self-test with the
   tail of a Java stack trace (`... 2 more`); the self-test alone and the gate again both printed
   PASS. Cause not found; log $B/logs/gate-t12_a.first-failed.log. A gate that can fail
