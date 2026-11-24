@@ -213,6 +213,10 @@ slowdown is not explained; it does not show in the final binary.
 
 ## Open
 
+- Translator bug (pre-existing, found by piece objarg's self-test, main-libgen-t4): in the
+  erased translation (all switches off), a TreeMap<Dog> built with a Comparator<Animal> and read
+  with an Animal key panics; Java returns normally. Not located; the self-test uses a
+  LinkedHashMap there instead. No such call is known in the Java tree (not checked by search).
 - Translator bug (pre-existing, found by the self-test of piece cmp, main-libgen-t5): a class whose
   compareTo also implements a generic program interface's compareTo(T) fails its cast when passed
   as that interface, with piece cmp on or off. No such class is in the Java tree; the self-test
