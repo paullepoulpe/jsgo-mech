@@ -199,6 +199,33 @@ Subset, three rounds against the sixth flip's last binary (m_flip6i): CPU 116.63
 pre-flip Java 429.5 s (192.9 / 197.3 / 39.4). Java/Go 0.75. Go is level with the sixth flip
 (576.5 s); Java ran 16 s faster than on 2026-11-23, so the ratio moved with Java. Speed is not met.
 
+## The eighth flip (2026-11-24)
+
+Translator: main f47fbe67 (T3: kind goptional, piece seqcoll; pieces objarg and cmp), translation
+md5 fab9e90c. Flip: overlay main-r15-flip8, record tools/postflip/reflip/REFLIP8.md, gated tree
+flip8-tree cbb1d976. 273 commits, none dropped or added: 3 runtime patches regenerated (153, 402
+with port402-8.py, 556), 3 adapted with tool fixes 49-51 (native and tdeque read the seqcoll
+twins; tcmp and deadbridge accept cmp's compareTo_t). Unattended replay from the base gives the
+working tree exactly (go/ 76abaa9e). Steps that find less because the translator now does it are
+counted in REFLIP8 (implsplit 14 to 4 methods, castfold 1,453 to 1,411 casts left, ...).
+
+Census against the seventh flip: no row higher; Optional 75 to 41, boxing 885 to 845, class casts
+501 to 493, icast 167 to 163, unboxing 82 to 79. On the javaisms6 accounting: RULE T2 192 to 136,
+RULE T3 63 to 28, RULE T1 89 to 83, RULE T7 58 to 56; not split 383 to 388 (5 new boxing sites).
+
+Gate: the package no longer compiles on this host with the Go compiler's default backend (more
+than 18 GB in a capped scope, the seventh tree as well; the session stops the process under memory
+pressure). With -gcflags=jsgomech/closure=-c=1 (backend serial; object code unchanged) the package
+compiles at 18.0 GB, and the final gate gave ok, four MATCH, dirty 1 (REFLIP8 section 5 has the
+command: GOENV=$B/goenv-c1, 20 GB scope).
+
+Subset, three interleaved rounds against m_flip7: CPU median 117.68 to 116.91 s (-0.7%, within
+the spread). Full benchmark, idle host, back to back, each in a 20 GB scope (Go reports no memory
+limit inside it; Java's heap is -Xmx20g as always), same output (chunks cae7acad): eighth flip
+583.1 s (CHECKS 308.5, OPTIMIZATIONS 224.6, FINALIZATIONS 50.0); pre-flip Java 441.5 s (200.2 /
+201.4 / 39.9). Java/Go 0.76. Both sides ran 7-12 s slower than on the seventh flip's run, the
+ratio is level. Speed is not met.
+
 ## Translator after the seventh flip (2026-11-24, not yet flipped)
 
 T3 on main (ede15525; COLLECTIONS-PLAN.md section 9): kind goptional (Guava's Optional as the value
@@ -235,12 +262,10 @@ Subset CPU against main's binary, three rounds: 161.93 to 161.67 s (-0.2%, neutr
 
 ## Open
 
-- Compile memory: during the eighth flip (2026-11-24) one `go test ./closure` compile of the
-  post-flip package had 21.8 GB resident on this 23 GB host (observed with ps, one sample). The
-  session's low-memory guard killed another agent's waiting pipeline. Every gate and timing build
-  compiles this package; a few more rules that grow it may make the gate fail to compile here.
-  Not yet measured per tree (peak RSS of the compile of each flip's tree would say how fast it
-  grows).
+- Compile memory: the post-flip package needs more than 18 GB to compile with the default backend
+  (seventh and eighth tree, OOM-killed in a capped scope); with -c=1 the eighth tree's compile peaks
+  at 18.0 GB of the host's 23 GB. Gates now pass -c=1 (REFLIP8 section 5). Which functions dominate
+  was not measured; a few more rules that grow the package may not fit even serially.
 - Translator bug (pre-existing, found by piece objarg's self-test, main-libgen-t4): in the
   erased translation (all switches off), a TreeMap<Dog> built with a Comparator<Animal> and read
   with an Animal key panics; Java returns normally. Not located; the self-test uses a
@@ -253,7 +278,7 @@ Subset CPU against main's binary, three rounds: 161.93 to 161.67 s (-0.2%, neutr
   tail of a Java stack trace (`... 2 more`); the self-test alone and the gate again both printed
   PASS. Cause not found; log $B/logs/gate-t12_a.first-failed.log. A gate that can fail
   intermittently weakens every gate line in the records until it is explained.
-- Speed: not met in bounds (0.75 on the full benchmark, 2026-11-24). No in-bounds step so far has moved the
+- Speed: not met in bounds (0.76 on the full benchmark, eighth flip, 2026-11-24). No in-bounds step so far has moved the
   full benchmark by more than about 2%; CHECKS (0.71) is where Go is behind, and its cost is
   spread thin with the collector at 30%.
 - 3 manual patches (416, 419, 422).
