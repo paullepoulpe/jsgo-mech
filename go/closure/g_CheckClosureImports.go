@@ -377,7 +377,7 @@ func (this *CheckClosureImports_Checker) isValidDestructuringImport(destructurin
 func (this *CheckClosureImports_Checker) checkShortName(t *NodeTraversal, shortNameNode Node, namespace string) {
 	var shortName string = shortNameNode.getString()
 	var lastSegment string = String_substring_int(namespace, (String_lastIndexOf(namespace, 46) + 1))
-	if (shortName == lastSegment) || String_isEmpty(lastSegment) {
+	if (shortName == lastSegment) || lastSegment == "" {
 		return
 	}
 	if Ascii_isUpperCase(String_charAt(shortName, 0)) != Ascii_isUpperCase(String_charAt(lastSegment, 0)) {

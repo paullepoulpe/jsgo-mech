@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type Es6RewriteModulesToCommonJsModules struct {
 	compiler_ *AbstractCompiler
 }
@@ -37,7 +39,7 @@ func Es6RewriteModulesToCommonJsModules_normalizePath(path string) string {
 		if indexOfSlash > -1 {
 			path = String_substring_int(path, (indexOfSlash + 1))
 		}
-	} else if String_startsWith(path, "/") {
+	} else if strings.HasPrefix(path, "/") {
 		path = String_substring_int(path, 1)
 	}
 	return path
@@ -325,7 +327,7 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visitExportDefault(t *N
 	var name Optional[string] = Optional_empty[string]()
 	if child.isFunction() || child.isClass() {
 		name = Optional_of[string](NodeUtil_getName(child)).filter(Predicate[string](func(s string) bool {
-			return !String_isEmpty(s)
+			return s != ""
 		}))
 	}
 	if name.isPresent() {

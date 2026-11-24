@@ -159,7 +159,7 @@ func (this *ModuleMapCreator_ModuleRequestResolverImpl) resolve_3(moduleRequest 
 		return this.resolveForClosure(namespace)
 	}
 	var requestedPath *ModuleLoader_ModulePath = modulePath.resolveJsModule(moduleRequest, Optional_of[string](forLineInfo.getSourceFileName()).filter(Predicate[string](func(s string) bool {
-		return !String_isEmpty(s)
+		return s != ""
 	})), forLineInfo.getLineno(), forLineInfo.getCharno())
 	if requestedPath == nil {
 		requestedPath = modulePath.resolveModuleAsPath(moduleRequest)

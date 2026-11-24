@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type CmdLineParser struct {
 	options_      *JTList[*CmdLineParser_Option]
 	argumentField *CmdLineParser_Option
@@ -74,7 +76,7 @@ func (this *CmdLineParser) printUsage(out *StringBuilder, filter Predicate[*CmdL
 	for it_1.next() {
 		var option *CmdLineParser_Option = it_1.v
 		var curLen int32 = func() int32 {
-			if String_length(option.usageField) == 0 {
+			if len(option.usageField) == 0 {
 				return 0
 			}
 			return String_length(option.getNameAndMeta())
@@ -89,7 +91,7 @@ func (this *CmdLineParser) printUsage(out *StringBuilder, filter Predicate[*CmdL
 }
 
 func (this *CmdLineParser) printOption(out *StringBuilder, option *CmdLineParser_Option, len_ int32, filter Predicate[*CmdLineParser_Option]) {
-	if (String_length(option.usageField) == 0) || !filter.test(option) {
+	if (len(option.usageField) == 0) || !filter.test(option) {
 		return
 	}
 	var widthMetadata int32 = Math_min(len_, ((this.usageWidth - 4) / 2))
@@ -111,7 +113,7 @@ func (this *CmdLineParser) printOption(out *StringBuilder, option *CmdLineParser
 			return usages.get(i)
 		}()
 		var separator string = func() string {
-			if (String_length(nameAndMeta) > 0) && (i == 0) {
+			if (len(nameAndMeta) != 0) && (i == 0) {
 				return " : "
 			}
 			return "   "
@@ -163,8 +165,8 @@ func (this *CmdLineParser) parseArgument(args []string) *Outcome_base[any] {
 	var present *JTSet[*CmdLineParser_Option] = jnewTSet_(jtc_p_CmdLineParser_Option)
 	for cmdLine.hasMore() {
 		var arg string = cmdLine.getCurrentToken()
-		if String_startsWith(arg, "-") {
-			var isKeyValuePair bool = (JString_contains_s(arg, " ") || (String_indexOf(arg, 61) != -1))
+		if strings.HasPrefix(arg, "-") {
+			var isKeyValuePair bool = (JString_contains_s(arg, " ") || (strings.Contains(arg, "=")))
 			this.currentOption = func() *CmdLineParser_Option {
 				if isKeyValuePair {
 					return this.findOptionOfKeyValuePair(arg)
@@ -205,7 +207,7 @@ func (this *CmdLineParser) parseArgument(args []string) *Outcome_base[any] {
 func (this *CmdLineParser) expandAtFiles(args []string) *Outcome_base[[]string] {
 	var result *JTList[string] = jnewTList_(jtc_string)
 	for _, arg := range args {
-		if String_startsWith(arg, "@") {
+		if strings.HasPrefix(arg, "@") {
 			var file string = FilePaths_clean(String_substring_int(arg, 1))
 			if !Io_exists(file) {
 				return Outcome_base_err[[]string](new_CmdLineException_CmdLineParser_String(this, ("No such file: " + sstr_(file))).up_Throwable())
@@ -540,16 +542,16 @@ func (this *CmdLineParser_Option) map_(get Supplier[MapT[string, string]], set C
 			return Outcome_base_err[any](argumentOutcome.error())
 		}
 		var argument string = argumentOutcome.get()
-		var idx int32 = String_indexOf(argument, 61)
+		var idx int32 = int32(strings.IndexByte(argument, '='))
 		if idx == -1 {
 			return Outcome_base_err[any](new_CmdLineException_CmdLineParser_String(this.owner_, "An argument for setting a Map must contain a \"=\"").up_Throwable())
 		}
-		var mapKey string = String_substring(argument, 0, idx)
-		var mapValue Optional[string] = Optional_of[string](String_substring_int(argument, (idx + 1)))
-		if String_length(mapValue.get()) == 0 {
+		var mapKey string = argument[:idx]
+		var mapValue Optional[string] = Optional_of[string](argument[idx+1:])
+		if len(mapValue.get()) == 0 {
 			mapValue = Optional_empty[string]()
 		}
-		if String_length(mapKey) == 0 {
+		if len(mapKey) == 0 {
 			return Outcome_base_err[any](new_CmdLineException_CmdLineParser_String(this.owner_, "A key must be set.").up_Throwable())
 		}
 		map_.put_t(mapKey, mapValue.orElse(nullstr_))
@@ -563,7 +565,7 @@ func CmdLineParser_Option_parseEnum[E comparable](this *CmdLineParser_Option, va
 	if token.isErr() {
 		return Outcome_base_err[E](token.error())
 	}
-	var s string = String_replace_char_char(token.get(), '-', '_')
+	var s string = strings.ReplaceAll(token.get(), "-", "_")
 	for _, value := range values {
 		if String_equalsIgnoreCase(to_Enum(boxT_(value)).name(), s) {
 			return Outcome_base_ok_Object[E](value)
@@ -620,7 +622,7 @@ func (this *CmdLineParser_Option) toString() string {
 func (this *CmdLineParser_Option) getNameAndMeta() string {
 	var str string = this.toString()
 	if this.metaVariable.isPresent() {
-		if String_length(str) > 0 {
+		if len(str) != 0 {
 			str += " "
 		}
 		str += sstr_(this.metaVariable.get())
@@ -642,11 +644,11 @@ func (this *CmdLineParser_Option) printDefaultValue() Optional[string] {
 					}
 					return ','
 				}())
-				buf.append(String_valueOf_Object(v))
+				buf.append(objstr_(v))
 			}
 			buf.append_char(']')
 		} else {
-			buf.append(String_valueOf_Object(values.get(0)))
+			buf.append(objstr_(values.get(0)))
 		}
 		return Optional_of[string](buf.toString())
 	}

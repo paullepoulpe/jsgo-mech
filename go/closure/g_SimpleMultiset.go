@@ -191,7 +191,7 @@ func (this *SimpleMultiset[E]) toString() string {
 	it_1 := jeachOf_(this.counts.entrySet_t())
 	for it_1.next() {
 		var e Map_EntryT[E, any] = it_1.v
-		var element string = String_valueOf_Object(e.getKey())
+		var element string = objstr_(e.getKey())
 		parts.add(func() string {
 			if unbox_[int32](e.getValue_t()) == 1 {
 				return element

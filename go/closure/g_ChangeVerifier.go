@@ -54,7 +54,7 @@ func (this *ChangeVerifier) associateClones(n Node, snapshot Node) {
 
 func (this *ChangeVerifier) verifyScopeChangesHaveBeenRecorded(passName string, root Node) {
 	var passNameMsg string = func() string {
-		if String_isEmpty(passName) {
+		if passName == "" {
 			return ""
 		}
 		return (sstr_(passName) + ": ")
@@ -110,7 +110,7 @@ func (this *ChangeVerifier) verifyNodeChange(passNameMsg string, n Node, snapsho
 		}
 	} else {
 		if !result.equals_0() {
-			panic(new_IllegalStateException_String(String_format("\"%schanged scope not marked as changed: %s.\n%s\nAncestor nodes:\n%s\n", []any{strobj_(passNameMsg), strobj_(this.getNameForNode(n)), strobj_(result.errorMessage_.get()), strobj_(this.path(n, result.errorNode()))})).self())
+			panic(new_IllegalStateException_String(("\"" + sstr_(passNameMsg) + "changed scope not marked as changed: " + sstr_(this.getNameForNode(n)) + ".\n" + sstr_(result.errorMessage_.get()) + "\nAncestor nodes:\n" + sstr_(this.path(n, result.errorNode())) + "\n")).self())
 		}
 	}
 }

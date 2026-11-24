@@ -86,7 +86,7 @@ func CheckRequiresSorted_isValidImportCall(n Node) bool {
 
 func CheckRequiresSorted_parseImport(callNode Node) *CheckRequiresSorted_ImportStatement {
 	var primitive CheckRequiresSorted_ImportPrimitive = CheckRequiresSorted_ImportPrimitive_fromName(Optional_of[string](callNode.getFirstChild().getQualifiedName()).filter(Predicate[string](func(s string) bool {
-		return !String_isEmpty(s)
+		return s != ""
 	})))
 	var namespace string = callNode.getSecondChild().getString()
 	var parent Node = callNode.getParent()
@@ -577,7 +577,7 @@ func (this *CheckRequiresSorted_ImportStatement) format() string {
 	for it_1.next() {
 		var node Node = it_1.v
 		var comment string = node.getNonJSDocCommentString()
-		if !String_isEmpty(comment) {
+		if comment != "" {
 			sb.append(node.getNonJSDocCommentString()).append("\n")
 		}
 		var jsDoc *JSDocInfo = NodeUtil_getBestJSDocInfo(node)
