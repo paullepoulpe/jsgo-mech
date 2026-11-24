@@ -35,7 +35,7 @@ func TestEnumSetAgainstTreeSet(t *testing.T) {
 	vs, other := tenums_()
 	r := rand.New(rand.NewSource(3))
 	for round := 0; round < 200; round++ {
-		s, m := EnumSet_noneOf(classOf_("test.TEnum")), new_TreeSet_Comparator(ordinalCmp_())
+		s, m := EnumSet_noneOf(classOf_("test.TEnum")), &TreeSet{cmp: ordinalCmp_()}
 		for op := 0; op < 60; op++ {
 			v := any(vs[r.Intn(len(vs))])
 			switch r.Intn(4) {

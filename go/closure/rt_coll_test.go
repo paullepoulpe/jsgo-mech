@@ -392,7 +392,7 @@ func TestTMapHashedKeysAgainstModel(t *testing.T) {
 			for e := m.each(); e.next(); {
 				ks, vs = append(ks, obj_(e.k)), append(vs, e.v)
 			}
-			if int(m.size()) != len(ref.keys) || !sameSlice_(ks, ref.keys) || !sameSlice_(vs, ref.vals) {
+			if int(m.Len()) != len(ref.keys) || !sameSlice_(ks, ref.keys) || !sameSlice_(vs, ref.vals) {
 				t.Fatalf("seed %d after %s: got %v=%v, want %v=%v", seed, what, ks, vs, ref.keys, ref.vals)
 			}
 		}
@@ -401,7 +401,7 @@ func TestTMapHashedKeysAgainstModel(t *testing.T) {
 			switch op := rnd.Intn(20); {
 			case op < 9:
 				v := int32(step)
-				got := m.put(k, v)
+				got := m.Put(k, v)
 				want := ref.put(obj_(k), v)
 				if want == nil {
 					want = int32(0)
@@ -410,7 +410,7 @@ func TestTMapHashedKeysAgainstModel(t *testing.T) {
 					t.Fatalf("seed %d: put returned %v, want %v", seed, got, want)
 				}
 			case op < 13:
-				got := m.remove(k)
+				got := m.Delete(k)
 				want := int32(0)
 				if i := ref.find(obj_(k)); i >= 0 {
 					want = ref.vals[i].(int32)
@@ -429,13 +429,13 @@ func TestTMapHashedKeysAgainstModel(t *testing.T) {
 					}
 				}
 			case op < 19:
-				has := m.containsKey(k)
+				has := m.Has(k)
 				if want := ref.find(obj_(k)) >= 0; has != want || m.asMap().containsKey(obj_(k)) != want {
 					t.Fatalf("seed %d: containsKey(%v) = %v, want %v", seed, k, has, want)
 				}
 			default:
 				if rnd.Intn(8) == 0 {
-					m.clear()
+					m.Clear()
 					ref.keys, ref.vals = nil, nil
 				}
 			}
@@ -463,7 +463,7 @@ func TestTSetWorkQueueAgainstModel(t *testing.T) {
 			for it := s.asSet().iterator(); it.hasNext(); {
 				its = append(its, it.next())
 			}
-			if int(s.size()) != len(ref.keys) || !sameSlice_(ks, ref.keys) || !sameSlice_(its, ref.keys) {
+			if int(s.Len()) != len(ref.keys) || !sameSlice_(ks, ref.keys) || !sameSlice_(its, ref.keys) {
 				t.Fatalf("seed %d after %s: got %v / %v, want %v", seed, what, ks, its, ref.keys)
 			}
 		}
@@ -471,7 +471,7 @@ func TestTSetWorkQueueAgainstModel(t *testing.T) {
 			k := int32(rnd.Intn(span))
 			switch op := rnd.Intn(20); {
 			case op < 8:
-				if s.add(k) != (ref.find(k) < 0) {
+				if s.Add(k) != (ref.find(k) < 0) {
 					t.Fatalf("seed %d: add(%d) disagrees", seed, k)
 				}
 				ref.put(k, nil)
@@ -483,10 +483,10 @@ func TestTSetWorkQueueAgainstModel(t *testing.T) {
 				if !objequals_(f, ref.keys[0]) {
 					t.Fatalf("seed %d: getFirst = %v, want %v", seed, f, ref.keys[0])
 				}
-				s.remove(f.(int32))
+				s.Delete(f.(int32))
 				ref.removeAt(0)
 			case op < 17:
-				if s.remove(k) != (ref.find(k) >= 0) {
+				if s.Delete(k) != (ref.find(k) >= 0) {
 					t.Fatalf("seed %d: remove(%d) disagrees", seed, k)
 				}
 				if i := ref.find(k); i >= 0 {
@@ -502,7 +502,7 @@ func TestTSetWorkQueueAgainstModel(t *testing.T) {
 				}
 			default:
 				if rnd.Intn(10) == 0 {
-					s.clear()
+					s.Clear()
 					ref.keys, ref.vals = nil, nil
 				}
 			}

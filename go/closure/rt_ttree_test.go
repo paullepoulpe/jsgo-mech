@@ -33,7 +33,7 @@ func TestTTreeSetAgainstTreeSet(t *testing.T) {
 	}
 	for round := 0; round < 200; round++ {
 		s, ts := new_TreeSet(), newTTreeSet_(tcTreeStr_)
-		c, tc := new_TreeSet_Comparator(cmp), newTTreeSetC_(tcTreeItem_, cmp)
+		c, tc := &TreeSet{cmp: cmp}, newTTreeSetC_(tcTreeItem_, cmp)
 		for op := 0; op < 40; op++ {
 			k := string(rune('a' + r.Intn(10)))
 			it := items[r.Intn(len(items))]
