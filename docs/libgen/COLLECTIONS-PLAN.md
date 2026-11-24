@@ -2687,3 +2687,204 @@ assertion before boxing, which is the likely cost if the difference is real (not
   pointer; for other shapes the conversion does not escape) — not measured beyond 11.8.
 - Combinations of switches other than "piece off" and "everything off" were not translated; the
   earlier pieces' switches were not gated off again.
+
+## 12. Record of rule candidates R4 and R5 of JAVAISMS6.md: pieces `ownwild` and `nbox` (branch `main-libgen-t6`, worktree `/mnt/data/ubuntu/jm/wt/libt6`, 2026-11-24)
+
+On top of main 1f92c420 (translation unchanged from f47fbe67, md5 fab9e90c). R4: `SourcePosition<T>`
+and `AbstractCommandLineRunner.FlagEntry<T>` were erased (41 sites); R5: tri-state Boolean / Integer
+fields, their setters and the 38 command-line option closures `Consumer[any](func(v any) ...)` (56
+sites). Scratch: `/mnt/data/tmp/claude-1000/-home-ubuntu-work/9db246f3-01a3-48c8-9bf5-1c94d1ed78d6/scratchpad/t6/`
+(`hv.sh`: one heavy job = `flock heavy.lock systemd-run --user --scope -p MemoryMax=20G -p
+MemorySwapMax=0 env GOENV=$B/goenv-c1`, i.e. `GOFLAGS=-gcflags=jsgomech/closure=-c=1`, the closure
+package's backend serial, object code unchanged: every go build / test / gate and both timed binaries
+were built so; `both.sh <label> <piece>`: `run.sh` + `gate.sh` + `offall.sh`; `basetm.sh`: base
+binary + timing; `out-*`: translations, `*.census`: census output).
+
+### 12.1 Commits
+
+| commit | switch (`J2GO_NOLIBGEN=`) | what |
+|---|---|---|
+| 4a1df420 | `ownwild` | rule "typed generics": a `C<?>` in C's own code holding a C of the receiver's instantiation is `C<T>` (`GenScan.ownWild`, `tools/j2go/ownwild-equals.txt`, `selftest/lang/OwnWild.java`) |
+| f6fa4111 | `nbox` | rule "typed library interfaces": fields and parameters declared as a boxed primitive hold `Nbox[T]` (`LibNbox.java`, `rt_nbox.go`, `selftest/lang/TriBox.java`) |
+| (the commit after) | | this section |
+
+### 12.2 Piece `ownwild` (R4)
+
+Why the two classes were erased (`J2GO_GENERICS=2`, every reason): only a wildcard in their own code.
+`SourcePosition.isSamePositionAs(SourcePosition<?> that)` (SourcePosition.java:139) and in
+`FlagEntry.equals`, `FlagEntry<?> that = (FlagEntry<?>) o` (AbstractCommandLineRunner.java:3587-3589).
+jsgo has both generic: `internal/rhino/static_source_file.go:189` `SourcePosition[T comparable]`,
+whose `IsSamePositionAs(that *SourcePosition[T])` (:308) is this piece's parameter form, and
+`internal/cli/command_line_config_specs.go:184` `AbstractCommandLineRunner_FlagEntry[T
+abstractCommandLineRunner_flag]`, whose `Equals` (:195) asserts `o.(*AbstractCommandLineRunner_FlagEntry[T])`
+with ok, this piece's equals form.
+
+The rule is general for the parameter form and a name list for the equals form:
+
+- A parameter `C<?>` of an instance method of C that overrides nothing and that nothing overrides,
+  never assigned, never referenced with `::`, every call passing an argument whose view of C is the
+  receiver's view of C: refined to `C<T>` (mechanically checked; Java's typing of the body holds for
+  the subtype `C<T>`).
+- `if (o instanceof C) { C<?> that = (C<?>) o; ...` in C's `equals(Object)`: `that` is `C<T>`, the
+  cast is to it and the test is `is_[*C[T]](o)`. For an object of another instantiation Go answers
+  false where Java runs the block, which the translator cannot prove answers false: the method must
+  be listed in `tools/j2go/ownwild-equals.txt` with that argument (FlagEntry is instantiated with
+  the enums CheckLevel and JsSourceType, Enum.equals is identity, every flag is an enum constant, so
+  the block is false too), and every type argument written for C must be an enum, a type variable or
+  a wildcard (checked). A name list is the honest form here: the remaining argument (no null flag)
+  is about the program's values, not its types.
+
+```go
+func (this *AbstractCommandLineRunner_FlagEntry[T]) equals(o any) bool {
+	if is_[*AbstractCommandLineRunner_FlagEntry[T]](o) {
+		var that *AbstractCommandLineRunner_FlagEntry[T] = cast_[*AbstractCommandLineRunner_FlagEntry[T]](o)
+		return (equalsT_(that.flag_, this.flag_) && (that.value_ == this.value_))
+```
+
+Counts (`J2GO_LIBGEN=2` report of the default translation): typed 1 parameter
+(`SourcePosition.isSamePositionAs(that)`), 1 equals cast (`AbstractCommandLineRunner.FlagEntry.equals`);
+left 1: "a local outside equals(Object)" (`HamtPMap.checkInvariants(child)`). No other reason
+occurs in the tree; the self-test has one class per reason (`Over` overridden, `Mixed` a call of
+another instantiation, `Stat` static, `Asg` assigned, `Ref` `::`, `Unl` not listed, `Str` listed
+but a String instantiation, `NoGuard` no instanceof guard) and checks that `Pos` and `Entry` are Go
+generic types, the eight others erased, and one `is_[*OwnWild_Entry[T]](`. Both classes are now
+TYPED in the generics report: `AbstractCommandLineRunner_FlagEntry[T comparable]` (57 mentions with
+type arguments in `g_*.go`), `SourcePosition_rhino[T comparable]` (32).
+
+Found on the way: `GenScan.scan` checked a method parameter's declared type, not its refined one
+(`cx.vtype`); changed (identical when nothing is refined).
+
+### 12.3 Piece `nbox` (R5)
+
+java.util.Optional's Go type (`Optional[T]`, valueLibs) does not fit a nullable Boolean as it is:
+its Object form is the Optional itself where a Boolean's is the bool, and it has three states
+(null, empty, present). The piece uses Optional's mechanism (a value library class: zero value null,
+`== null` is `null_()`, Object is `box_()`, Ctx.coerce converts) for a new runtime type
+`Nbox[T]` (`rt_nbox.go`, 44 lines: the primitive and a flag; `nbox_`, `nboxOf_`, `get_` throwing
+NullPointerException for null, `null_`, `box_`; test `rt_nbox_test.go`) and a stand-in class
+`j2go.rt.Nbox<X>` that only the translator sees (`Main.withStubs`, only when the piece is on), so
+that the emitter's types say which variables hold one. Null and the value are told apart by the flag
+for every value (false and 0 are values), so no refusal is about telling them apart; the refusals are
+uses the conversions do not serve as Java does.
+
+Typed: a field or method parameter declared as a boxed primitive; a method parameter of a library
+function type with a boxed type argument (`Consumer<Boolean> set`, `Supplier<@Nullable Integer>
+get`) is the function type at `Nbox[T]`, and the lambdas given for it have `Nbox[T]` parameters.
+
+```go
+func (this *CmdLineParser_Option) bool(get Supplier[Nbox[bool]], set Consumer[Nbox[bool]]) {
+	...	return CmdLineParser_Option_asList(get.get().box_())
+	...	set.accept(nbox_[bool](true))
+this.parser.option("--print_tree")...bool(Supplier[Nbox[bool]](func() Nbox[bool] {
+		return nbox_[bool](this.printTree)
+	}), Consumer[Nbox[bool]](func(v Nbox[bool]) {
+		this.printTree = v.get_()
+	}))
+```
+
+Counts (`J2GO_LIBGEN=2` report of the default translation):
+
+| | count |
+|---|---:|
+| typed fields (`browserFeaturesetYear`, `parseInlineSourceMaps`, `polymerVersion`, `OptimizeCalls.Builder.considerExterns`, `JSType.templateCheckResult`, `SubtypeChecker.isUsingStructuralTyping`) | 6 |
+| typed parameters (`setBrowserFeaturesetYear`, `setPolymerVersion`, `JSTypeReconserializer.addSupertypeEdges`, `QualifiedName.join(Character)`, `Node.newNumberNode(Double)`) | 5 |
+| typed function parameters (`CmdLineParser.Option.flag/bool/integer`: get, set) | 6 |
+| typed lambda parameters (38 option setters of `CommandLineRunner.Flags`, 2 others in CommandLineRunner) | 40 |
+| left: a parameter of a method that overrides or is overridden (`appendTo(StringBuilder, Character)` x3, `apply(Integer exitCode)`) | 4 |
+| left: a field of a function type (not in the piece) | 4 |
+| left: a method called on it (`isReasonableDoubleValue`, `isSafeNumber`) | 2 |
+| left: a constructor parameter (function types: `PassFactory`, `ColorSerializer`) | 2 |
+| left: a function parameter passed on as a value (`enableTestMode`, `setExitCodeReceiver`) | 2 |
+| left: a function parameter given something else than a lambda (`PassFactory.Builder.setCondition`) | 1 |
+| left: a field of a record, an interface or a handle class (`Node.NUMBER_PAYLOAD_UNSET`) | 1 |
+| left: a parameter of an abstract method | 1 |
+| left: a string concatenation (`DotFormatter.formatNodeName`) | 1 |
+
+Locals declared as boxes are not in the piece. `g_CommandLineRunner.go`: `unbox_[` 37 -> 0;
+in all `g_*.go`: `Nbox[` 0 -> 96, `func(v Nbox[` 40. The self-test (`lang/TriBox.java`) checks 3 + 1
+typed fields, 5 left (method call, `++`, string concatenation, `==` of two boxes), 4 typed
+signatures, 5 lambdas, 3 function parameters left (`::`, passed on, not a lambda), and prints
+null / NullPointerException / values as Java does.
+
+### 12.4 Byte identity, census, binary (md5 of `cat go/closure/g_*.go`)
+
+| translation | md5 |
+|---|---|
+| `J2GO_NOLIBGEN=ownwild` at 4a1df420 | fab9e90cd1e8e5cdb9032035e9e6b295 (= main's default) |
+| `J2GO_NOLIBGEN=nbox` at f6fa4111 | 995f66540ef033f4ab7d56d2febd8914 (= 4a1df420's default) |
+| `J2GO_NOLIBGEN=ownwild,nbox` at f6fa4111 | fab9e90cd1e8e5cdb9032035e9e6b295 (= main's default) |
+| `J2GO_NOFNTYPES=1 J2GO_NOLIBGEN=all` (both commits) | 973b5b6d3e4f71ab1cc82872360f9759 |
+| default at 4a1df420 | 995f66540ef033f4ab7d56d2febd8914 |
+| default at f6fa4111 | 13f040cdd148ae568cc7faceb89d1484 |
+
+Census (`census.py` of pf5; main's default -> 4a1df420 -> f6fa4111): dynamic dispatch through self_
+523 -> 522 -> 522; class casts 1,114 -> 1,107 -> 1,107; instanceof 439 -> 440 -> 440 (the typed
+`is_[`); boxing to any 1,496 -> 1,484 -> 1,487 (`nbox` adds `.box_()` where a value meets Object);
+unboxing from any 142 -> 129 -> 129; equals/hashCode 443 -> 442 -> 442; fields/params declared any
+1,293 -> 1,287 -> 1,236. Other rows unchanged. Diff lines: 303 in 6 files (ownwild), 438 in 12 files
+(nbox).
+
+Binary (`go build ./cmd/mech`, GOENV goenv-c1): main's translation and runtime 123,934,349 bytes;
+4a1df420 123,933,082 (-1,267); f6fa4111 123,948,667 (+15,585; +14,318 against main). Runtime lines of
+the default build 20,982 -> 21,062 (main) -> 21,106 (`rt_nbox.go`); test lines 4,845 -> 4,877.
+
+### 12.5 Gate lines
+
+`bash tools/j2go/run.sh` of the commit, then `$B/gate.sh libt6 <label>` (logs
+`/mnt/data/ubuntu/jm/logs/gate-t6_ownwild.log`, `gate-t6_nbox.log`), both under `hv.sh`:
+
+```
+GATE OK t6_ownwild
+tree: 4a1df4200 rule "typed generics": piece ownwild: ...  dirty: 1
+selftest: PASS
+removed 0 declarations in 0 rounds
+ok  	jsgomech/closure	1.995s
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+runtime lines: 21306  test lines: 4845
+
+GATE OK t6_nbox
+tree: f6fa4111f rule "typed library interfaces": piece nbox: ...  dirty: 1
+selftest: PASS
+removed 0 declarations in 0 rounds
+ok  	jsgomech/closure	1.948s
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+runtime lines: 21350  test lines: 4877
+```
+
+(`dirty: 1` is the `.cache` link.) Switches off, each commit (`offall.sh`: translate with the switch,
+`tools/prune/verify.sh` with it): `J2GO_NOLIBGEN=ownwild` / `=nbox` and `J2GO_NOFNTYPES=1
+J2GO_NOLIBGEN=all`: selftest PASS, `ok`, the four MATCH lines as above in all four runs; the default
+made again afterwards was identical (995f6654, 13f040cd).
+
+### 12.6 Timing (CPU, googleapis 18% subset, `proto/gast.py gasub/flags3500.txt 3`)
+
+`base` = main's translation (fab9e90c) with main's runtime (`git archive main go`), built as
+`$B/bin/m_t6_base`; `new` = the gate binary of f6fa4111 (`$B/bin/m_t6_nbox`); both with GOENV
+goenv-c1 (`-c=1`), under the 20G scope. The translator is one step: both pieces together. Output
+sha 72b57cd286c9 in all six runs (log `tm-t6.log`).
+
+| binary | runs (CPU s) | mean | min |
+|---|---|---:|---:|
+| base | 161.50, 163.14, 162.37 | 162.34 | 161.50 |
+| new | 161.16, 163.29, 161.00 | 161.82 | 161.00 |
+
+-0.3% of the means and of the minima: neutral, within one binary's spread (1.6 s). Neither piece
+touches a hot path (command-line parsing, JSDoc markers, JSType's template check flag).
+
+### 12.7 Not done, unverified
+
+- No flip: the census of a flipped tree was not made; post-flip tools meeting `Nbox[` or the generic
+  `FlagEntry[T]` / `SourcePosition_rhino[T]` were not run.
+- The nbox self-test does not cover `Integer` compared with a primitive of another width, or boxes
+  other than Boolean / Integer (the tree's Character and Double parameters are covered only by the
+  gate).
+- Locals declared as boxes, fields of function types and constructor parameters are not typed.
+- `QualifiedName.join(Character)` and `Node.newNumberNode(Double)` are typed although not R5 sites;
+  their callers convert at the call (`nbox_`), not measured beyond 12.6.
+- No allocation profile.
