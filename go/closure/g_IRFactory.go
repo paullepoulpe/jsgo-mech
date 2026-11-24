@@ -899,7 +899,7 @@ func (this *IRFactory) normalizeRegex(token *LiteralToken) string {
 		cur = String_indexOf_int_int(value, 92, start)
 	}
 	Appendable_append_s_int_int(result, value, start, lastSlash)
-	return tostrR_(result)
+	return result.toString()
 }
 
 func (this *IRFactory) normalizeString(token *LiteralToken, templateLiteral bool) string {
@@ -1001,7 +1001,7 @@ func (this *IRFactory) normalizeString(token *LiteralToken, templateLiteral bool
 		}
 		return (String_length(value) - 1)
 	}())
-	return tostrR_(result)
+	return result.toString()
 }
 
 func (this *IRFactory) isSupportedForInputLanguageMode(feature FeatureSet_Feature) bool {
@@ -2017,7 +2017,7 @@ func (this *IRFactory_TransformDispatcher) addExtraTrailingComment(node Node, la
 	if blankLines == 0 {
 		numWhiteSpace = ((lastComment.getStartPosition().column_ - currentComment.getEndPosition().column_) - 1)
 	}
-	var comment *StringBuilder = new_StringBuilder().append(currentComment.getCommentString())
+	var comment *strBuilder_ = (&strBuilder_{}).append(currentComment.getCommentString())
 	for i := int32(0); i < numWhiteSpace; i++ {
 		comment.append(" ")
 	}
@@ -2025,7 +2025,7 @@ func (this *IRFactory_TransformDispatcher) addExtraTrailingComment(node Node, la
 		comment.append("\n")
 	}
 	comment.append(lastComment.getCommentString())
-	var allComments *NonJSDocComment = new_NonJSDocComment(currentComment.getStartPosition(), lastComment.getEndPosition(), tostrR_(comment))
+	var allComments *NonJSDocComment = new_NonJSDocComment(currentComment.getStartPosition(), lastComment.getEndPosition(), comment.toString())
 	allComments.setEndsAsLineComment(lastComment.isEndingAsLineComment())
 	allComments.setIsInline(true)
 	node.getLastChild().setTrailingNonJSDocComment(allComments)

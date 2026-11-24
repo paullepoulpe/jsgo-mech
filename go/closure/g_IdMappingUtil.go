@@ -16,19 +16,19 @@ func new_IdMappingUtil() *IdMappingUtil {
 }
 
 func IdMappingUtil_generateSerializedIdMappings(idGeneratorMaps *JTMap[string, MapT[string, string]]) string {
-	var sb *StringBuilder = new_StringBuilder()
+	var sb strBuilder_
 	it_1 := idGeneratorMaps.eachEntry()
 	for it_1.next() {
 		var replacements *TEntry[string, MapT[string, string]] = it_1.entry()
 		if !replacements.getValue().isEmpty() {
-			cast_[*StringBuilder](cast_[*StringBuilder](cast_[*StringBuilder](sb.append_char('[')).append(replacements.getKey()).append_char(']')).append_char(IdMappingUtil_NEW_LINE)).append_char(IdMappingUtil_NEW_LINE)
+			sb.append_char('[').append(replacements.getKey()).append_char(']').append_char(IdMappingUtil_NEW_LINE).append_char(IdMappingUtil_NEW_LINE)
 			for replacement := range elemsT_(replacements.getValue().entrySet_t()) {
-				cast_[*StringBuilder](sb.append(replacement.getKey_t()).append_char(':')).append(replacement.getValue_t()).append_char(IdMappingUtil_NEW_LINE)
+				sb.append(replacement.getKey_t()).append_char(':').append(replacement.getValue_t()).append_char(IdMappingUtil_NEW_LINE)
 			}
 			sb.append_char(IdMappingUtil_NEW_LINE)
 		}
 	}
-	return tostrR_(sb)
+	return sb.toString()
 }
 
 func IdMappingUtil_parseSectionOfBytes(idMappings []int8, sectionFilter string) *JTMap[string, string] {
