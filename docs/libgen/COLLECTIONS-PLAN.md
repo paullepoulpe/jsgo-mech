@@ -3367,9 +3367,11 @@ advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
 runtime lines: 21626  test lines: 4877
 ```
 
-(`dirty: 1` is the `.cache` link.) Switches off (`off.sh`, on 72fc20f7: translate with the switch,
-`tools/prune/verify.sh` with it): `J2GO_NOLIBGEN=rtm,fns2,seqstr` and `J2GO_NOFNTYPES=1
-J2GO_NOLIBGEN=all` each selftest PASS, `ok`, the four MATCH lines as above. The self-test counts
+(`dirty: 1` is the `.cache` link.) Switches off (`h5.sh`, on b69b2ad2 = fed280c9's code plus this
+section: translate fresh with the switch, `tools/prune/verify.sh` with it; first run on 72fc20f7
+with the same result): `J2GO_NOLIBGEN=rtm,fns2,seqstr` (md5 6a3d23dc) and `J2GO_NOFNTYPES=1
+J2GO_NOLIBGEN=all` (md5 973b5b6d) each selftest PASS, `ok` (2.017s, 1.967s), the four MATCH lines
+as above; the default translated again afterwards was d77b2172 with `dirty: 1` (`.cache`). The self-test counts
 `lang/Resid.java`: 20 twin calls in `rtm()`, 11 in `fns2()`, 5 in `seqstr()`, 2 in the static
 comparators, 2 `compare_s` in `Pair.compareTo`, none in `left()` and its 3 erased calls.
 
