@@ -2888,3 +2888,102 @@ touches a hot path (command-line parsing, JSDoc markers, JSType's template check
 - `QualifiedName.join(Character)` and `Node.newNumberNode(Double)` are typed although not R5 sites;
   their callers convert at the call (`nbox_`), not measured beyond 12.6.
 - No allocation profile.
+
+## 13. Record of rule T5 of JAVAISMS6.md: typed protobuf list accessors (branch `main-t5-resid`, worktree `/mnt/data/ubuntu/jm/wt/t5r`, 2026-11-24)
+
+On top of main 73e902a8. T5 (26 sites on the eighth flip's tree: for-each via iterator objects 11,
+unboxing 9, class casts 4, type assertions 2): the runtime's protobuf API (`tools/protogen`,
+`go/closure/rt_proto_gen.go`) gave `getFooList() List` and `toBuilder() MessageLite_Builder`, so every
+read of a repeated field cast its elements and every `toBuilder()` was asserted to the concrete builder.
+jsgo's generated messages have the typed forms: `GetValueList() []string`
+(`internal/jscomp/proto_conformance_requirement.go:328`), `GetRequirementList() []*Requirement`
+(`internal/jscomp/proto_conformance.go:80`), and a builder that is the message (`Clone() *Requirement`,
+`proto_conformance_requirement.go:269`). Scratch: `/mnt/data/tmp/claude-1000/-home-ubuntu-work/9db246f3-01a3-48c8-9bf5-1c94d1ed78d6/scratchpad/t5r/`
+(`hv.sh` one heavy job: the lock, a 20G scope, GOENV goenv-c1; `runsh.sh`, `t5cycle.sh`, `gatet5.sh`,
+`offt5.sh`, `basebin.sh`, `tm.sh`; `out-*` translations).
+
+### 13.1 The form (commit b3c6c76f)
+
+- **protogen, rule T5** (`PROTOGEN_NOT5=1` writes the file without it, byte-identical to main's): next to
+  each erased accessor it writes the typed one, so a translation with the translator's piece off still
+  compiles against the same file: `getFooList_t() ListT[*Foo]` for a repeated message field and
+  `getBarList_t() ListT[string]` for a repeated string field (on the message and on its builder, and in
+  the `FooOrBuilder` interface where protogen declares it), and `toBuilder_t() *Foo_Builder` on each
+  message. The list is a new typed list each call (`pbListT_` in `rt_proto.go`, 12 lines: a `TList[T]` of
+  the elements, as `list_` copies for a builder). Names are fixed (Java name + `_t`), matched against
+  `externals.tsv` (`markTyped`, which also checks the result the translator expects); the erased
+  overload naming skips them (`typedName`). 47 repeated message/string fields: 94 list accessors and 47
+  `toBuilder_t`.
+- **translator, piece `proto`** (`J2GO_NOLIBGEN=proto`; `LibProto.java`; needs kinds `list` and `iter`):
+  a call of a protoc-generated type's `get*List()` (no parameter, owner a subtype of
+  `MessageLiteOrBuilder` outside `com.google.protobuf`) whose result is `List<M>` (M a generated message)
+  or `ProtocolStringList` is the call of `getFooList_t()` at `List<M>` / `List<String>`; `Msg.toBuilder()`
+  is `toBuilder_t()` at javac's `Msg.Builder`. Everything after is the existing machinery: for-each runs
+  `eachOf_`, a typed place takes the list as it is, erased places get `List_un_`. A local of type
+  `ProtocolStringList` holding such a list, never assigned again, is refined to `List<String>`
+  (`GenScan.refine`; TypedAstDeserializer's `var runtimeLibraryList`). Left, in the `J2GO_LIBGEN`
+  report: 11 calls of lists of enums, numbers or bytes; OrBuilder / Builder lists are not touched.
+  Report of the default translation: 77 typed list accessor calls, 3 typed `toBuilder` calls.
+
+### 13.2 md5 (`cat go/closure/g_*.go`; `rt_proto_gen.go`)
+
+| translation | g_*.go | rt_proto_gen.go |
+|---|---|---|
+| main 73e902a8, default (measured first) | 13f040cdd148ae568cc7faceb89d1484 | ced5c8dab95c0fffc6a23dc75b74fdf2 (committed; protogen on main's translation reproduces it) |
+| b3c6c76f, `J2GO_NOLIBGEN=proto` / `PROTOGEN_NOT5=1` | 13f040cdd148ae568cc7faceb89d1484 (= main) | ced5c8dab95c0fffc6a23dc75b74fdf2 (= main), 0 warnings |
+| b3c6c76f, `J2GO_NOFNTYPES=1 J2GO_NOLIBGEN=all` / `PROTOGEN_NOT5=1` | 973b5b6d3e4f71ab1cc82872360f9759 (= main's all-off) | ced5c8dab95c0fffc6a23dc75b74fdf2 |
+| b3c6c76f, default (translate, protogen, translate again: identical) | e82e1b4c663bbcf708b17be721263576 | 0cc968f16c52812eae0d51158aefff79 (committed) |
+
+### 13.3 Gate, switches off
+
+`$B/gate.sh t5r t5r_proto` on the committed b3c6c76f (log `$B/logs/gate-t5r_proto.log`):
+
+```
+GATE OK t5r_proto
+tree: b3c6c76fa rule T5 "typed protobuf list accessors": ...  dirty: 1
+selftest: PASS
+ok  	jsgomech/closure	1.915s
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+runtime lines: 21362  test lines: 4877
+```
+
+(`dirty: 1` at the start is the `.cache` link; the status listing at the end of the log also shows three
+docs files of this branch created while the gate ran, not part of the build.) Off-switch runs
+(`offt5.sh`: translation with the switch, `tools/prune/verify.sh` with it, the committed typed
+`rt_proto_gen.go`): `J2GO_NOLIBGEN=proto` and `J2GO_NOFNTYPES=1 J2GO_NOLIBGEN=all` each selftest PASS,
+`ok`, four MATCH; the default made again afterwards was e82e1b4c.
+
+### 13.4 Census, binary, timing
+
+Census (`census.py` of pf5 on the translation, main -> b3c6c76f): for-each via iterator objects 763 ->
+733 (-30), interface casts 290 -> 289, class casts 1,107 -> 1,089 (-18), unboxing from any 129 -> 113
+(-16); no row higher. All 26 T5 sites of the accounting are gone from the translation (the four
+`toBuilder` casts / assertions, 11 for-each, 9 `str_` / casts of elements, the `ProtocolStringList`
+read).
+
+Binary (`go build ./cmd/mech`, GOENV goenv-c1): main's translation and runtime (`m_t5r_base`)
+124,009,755 bytes; b3c6c76f (`m_t5r_proto`) 124,524,435 (+514,680). Not broken down: the likely cause is that the typed accessors are written for
+every repeated message / string field, used or not (94 + 47 methods, each `pbListT_` instantiation its
+own code, and the OrBuilder interfaces keep them reachable); writing only the ones `externals.tsv`
+names would be the next step (not done, not measured).
+
+Timing (`proto/gast.py gasub/flags3500.txt 3 base=$B/bin/m_t5r_base new=$B/bin/m_t5r_proto`, both
+built with goenv-c1, under the lock and the 20G scope; output sha 72b57cd286c9 in all six runs):
+
+| binary | runs (CPU s) | mean | min |
+|---|---|---:|---:|
+| base | 163.69, 163.76, 165.52 | 164.32 | 163.69 |
+| new | 161.99, 164.06, 167.93 | 164.66 | 161.99 |
+
++0.2% of the means, -1.0% of the minima: neutral (within one binary's spread, up to 6 s here). The sites
+are cold (conformance configuration, the typed AST's runtime libraries, compiler state).
+
+### 13.5 Not done
+
+- No self-test program uses protobuf; the piece is covered by the gate only (the e2e inputs exercise
+  conformance and the typed-AST paths only as far as they do).
+- No flip: the census above is of the translation, not of a flipped tree.
+- The binary growth is not broken down (13.4).

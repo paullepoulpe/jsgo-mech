@@ -1,0 +1,407 @@
+T1	11	g_0casts.go:1719		T1.19 converting closure of a func-typed element (descriptor)	reason	closest line; pattern 0 -> 0
+T1	16	g_0casts.go:2045		T1.19 converting closure of a func-typed element (descriptor)	reason	closest line; pattern 1 -> 1
+R4	11	g_AbstractCommandLineRunner.go:144	AbstractCommandLineRunner_setWarningGuardOptions	R4.1 SourcePosition<T> / FlagEntry<T> erased type parameter	taken	closest line; pattern 1 -> 0
+R4	11	g_AbstractCommandLineRunner.go:148	AbstractCommandLineRunner_setWarningGuardOptions	R4.1 SourcePosition<T> / FlagEntry<T> erased type parameter	taken	closest line; pattern 1 -> 0
+R4	11	g_AbstractCommandLineRunner.go:438	AbstractCommandLineRunner.createInputs_4	R4.1 SourcePosition<T> / FlagEntry<T> erased type parameter	taken	closest line; pattern 1 -> 0
+R4	11	g_AbstractCommandLineRunner.go:466	AbstractCommandLineRunner.createInputs_4	R4.1 SourcePosition<T> / FlagEntry<T> erased type parameter	taken	closest line; pattern 1 -> 0
+R4	11	g_AbstractCommandLineRunner.go:517	AbstractCommandLineRunner.deduplicateIjsFiles	R4.1 SourcePosition<T> / FlagEntry<T> erased type parameter	taken	closest line; pattern 2 -> 0
+R4	11	g_AbstractCommandLineRunner.go:517	AbstractCommandLineRunner.deduplicateIjsFiles	R4.1 SourcePosition<T> / FlagEntry<T> erased type parameter	taken	closest line; pattern 2 -> 0
+R4	11	g_AbstractCommandLineRunner.go:526	AbstractCommandLineRunner.deduplicateIjsFiles	R4.1 SourcePosition<T> / FlagEntry<T> erased type parameter	taken	closest line; pattern 1 -> 0
+R4	15	g_AbstractCommandLineRunner.go:569	AbstractCommandLineRunner.createSourceInputs	R4.1 SourcePosition<T> / FlagEntry<T> erased type parameter	taken	closest line; pattern 1 -> 0
+R4	15	g_AbstractCommandLineRunner.go:596	AbstractCommandLineRunner.createExternInputs	R4.1 SourcePosition<T> / FlagEntry<T> erased type parameter	taken	same line; pattern 1 -> 0
+T2	2	g_ApplySuggestedFixes.go:101	ApplySuggestedFixes_applyCodeReplacements	T2.2 Guava sorted immutables: copyOf / copyOfSorted / of / builders	gap	file unchanged
+T2	2	g_AstValidator.go:311	AstValidator.validatePseudoExpression	T2.3 ImmutableX.of(..) / copyOf(array) varargs for a typed place	gap	file unchanged
+T1	15	g_BrowserWithTransformedPrefixesModuleResolver.go:35	BrowserWithTransformedPrefixesModuleResolver.init_BrowserWithTransformedPrefixesModuleResolver	T1.6 Comparator.comparing / thenComparing with a key typed any	gap	file unchanged
+T1	11	g_CachedTransformer.go:10	CachedTransformer.init_CachedTransformer_Transformer_CacheBuilder	T1.11 CacheLoader.from / CacheBuilder<Object, Object>	gap	file unchanged
+T1	15	g_CachedTransformer.go:10	CachedTransformer.init_CachedTransformer_Transformer_CacheBuilder	T1.11 CacheLoader.from / CacheBuilder<Object, Object>	gap	file unchanged
+T4	11	g_CachingTranspiler.go:101	CachingTranspiler_1.load	T4.3b CacheLoader.load of CachingTranspiler	gap	file unchanged
+T4	15	g_CachingTranspiler.go:103	CachingTranspiler_1.load	T4.3b CacheLoader.load of CachingTranspiler	gap	file unchanged
+T2	0	g_CheckAccessControls.go:16	CheckAccessControls.finit_CheckAccessControls	T2.8 EnumMap / IdentityHashMap / LinkedList made for a typed place	gap	file unchanged
+T1	15	g_CheckAccessControls.go:489	CheckAccessControls_canOverrideVisibility	T1.3 Enum.compareTo(E)	gap	file unchanged
+T2	15	g_CheckEs6ModuleFileStructure.go:63	CheckEs6ModuleFileStructure.checkOrder	T2.16a TreeSet.tailSet / Map.containsValue on a typed value	gap	file unchanged
+T4	11	g_CheckRequiresSorted.go:407	CheckRequiresSorted_DestructuringBinding.compareTo	T4.1 Comparable / Comparator bridges kept for erased callers	gap	file unchanged
+T4	11	g_CheckRequiresSorted.go:582	CheckRequiresSorted_ImportStatement.compareTo	T4.1 Comparable / Comparator bridges kept for erased callers	gap	file unchanged
+T1	15	g_CheckRequiresSorted.go:403	CheckRequiresSorted_DestructuringBinding.compareTo_t	T1.2 ComparisonChain.compare(Comparable, Comparable)	gap	file unchanged
+T1	15	g_CheckRequiresSorted.go:403	CheckRequiresSorted_DestructuringBinding.compareTo_t	T1.2 ComparisonChain.compare(Comparable, Comparable)	gap	file unchanged
+T1	15	g_CheckRequiresSorted.go:403	CheckRequiresSorted_DestructuringBinding.compareTo_t	T1.2 ComparisonChain.compare(Comparable, Comparable)	gap	file unchanged
+T1	15	g_CheckRequiresSorted.go:403	CheckRequiresSorted_DestructuringBinding.compareTo_t	T1.2 ComparisonChain.compare(Comparable, Comparable)	gap	file unchanged
+T2	2	g_CheckSuper.go:27	CheckSuper.process_2	T2.17 an Object parameter or an Object value: no typed place	reason	file unchanged
+T2	2	g_ClosureCodingConvention.go:227	ClosureCodingConvention.getAssertionFunctions_rImmutableSet	T2.4 builders whose chain Colls does not type	gap	file unchanged
+T2	2	g_ClosureRewriteModule.go:80	ClosureRewriteModule.process_2	T2.1 for-each over a fresh immutable copy or ImmutableList.of(..)	gap	file unchanged
+T2	15	g_ClosureRewriteModule.go:80	ClosureRewriteModule.process_2	T2.1 for-each over a fresh immutable copy or ImmutableList.of(..)	gap	file unchanged
+T2	15	g_ClosureRewriteModule.go:80	ClosureRewriteModule.process_2	T2.1 for-each over a fresh immutable copy or ImmutableList.of(..)	gap	file unchanged
+T2	16	g_ClosureRewriteModule.go:81	ClosureRewriteModule.process_2	T2.1 for-each over a fresh immutable copy or ImmutableList.of(..)	gap	file unchanged
+T1	11	g_CoalesceVariableNames.go:180	CoalesceVariableNames.computeVariableNamesInterferenceGraph	T1.5 Arrays.setAll / toArray of a typed array	gap	file unchanged
+T1	15	g_CoalesceVariableNames.go:177	CoalesceVariableNames.computeVariableNamesInterferenceGraph	T1.5 Arrays.setAll / toArray of a typed array	gap	file unchanged
+T4	11	g_CodeReplacement.go:53	CodeReplacement.compareTo	T4.1 Comparable / Comparator bridges kept for erased callers	gap	file unchanged
+T1	15	g_CodeReplacement.go:108	CodeReplacement_clinit	T1.6 Comparator.comparing / thenComparing with a key typed any	gap	file unchanged
+T1	15	g_CodeReplacement.go:108	CodeReplacement_clinit	T1.6 Comparator.comparing / thenComparing with a key typed any	gap	file unchanged
+T2	2	g_CodingConvention.go:457	CodingConvention_AssertionFunctionLookup_of	T2.5 ImmutableMap<Object, ..>: a key that is Object in Java	reason	file unchanged
+T2	11	g_CodingConvention.go:468	CodingConvention_AssertionFunctionLookup.lookupByCallee	T2.5 ImmutableMap<Object, ..>: a key that is Object in Java	reason	file unchanged
+T1	11	g_CodingConvention.go:474	CodingConvention_AssertionFunctionLookup.lookupByCallee	T1.18 Supplier<Object> / a map value that is Object in Java	reason	file unchanged
+T2	15	g_CodingConvention.go:459	CodingConvention_AssertionFunctionLookup_of	T2.5 ImmutableMap<Object, ..>: a key that is Object in Java	reason	file unchanged
+T2	15	g_CodingConvention.go:468	CodingConvention_AssertionFunctionLookup.lookupByCallee	T2.5 ImmutableMap<Object, ..>: a key that is Object in Java	reason	file unchanged
+T1	15	g_CommandLineRunner.go:569	CommandLineRunner_loadConformanceConfig	T1.12 a String given to a CharSequence parameter of a runtime function	gap	same line; pattern 1 -> 1
+R5	15	g_CommandLineRunner.go:837	CommandLineRunner_Flags.finit_CommandLineRunner_Flags	R5.1 nullable boxed flags and their setters	taken	same line; pattern 1 -> 0
+R5	15	g_CommandLineRunner.go:870	CommandLineRunner_Flags.finit_CommandLineRunner_Flags	R5.1 nullable boxed flags and their setters	taken	same line; pattern 1 -> 0
+R4	15	g_CommandLineRunner.go:999	CommandLineRunner_Flags.init_CommandLineRunner_Flags	R4.1 SourcePosition<T> / FlagEntry<T> erased type parameter	taken	closest line; pattern 1 -> 0
+R4	15	g_CommandLineRunner.go:1002	CommandLineRunner_Flags.init_CommandLineRunner_Flags	R4.1 SourcePosition<T> / FlagEntry<T> erased type parameter	taken	closest line; pattern 1 -> 0
+R4	15	g_CommandLineRunner.go:1120	CommandLineRunner_Flags.init_CommandLineRunner_Flags	R4.1 SourcePosition<T> / FlagEntry<T> erased type parameter	taken	closest line; pattern 1 -> 0
+R4	15	g_CommandLineRunner.go:1123	CommandLineRunner_Flags.init_CommandLineRunner_Flags	R4.1 SourcePosition<T> / FlagEntry<T> erased type parameter	taken	closest line; pattern 1 -> 0
+R4	15	g_CommandLineRunner.go:1126	CommandLineRunner_Flags.init_CommandLineRunner_Flags	R4.1 SourcePosition<T> / FlagEntry<T> erased type parameter	taken	closest line; pattern 1 -> 0
+R4	15	g_CommandLineRunner.go:1585	CommandLineRunner_Flags.getMixedJsSources	R4.1 SourcePosition<T> / FlagEntry<T> erased type parameter	taken	same line; pattern 1 -> 0
+T1	15	g_CommandLineRunner.go:1588	CommandLineRunner_Flags.getMixedJsSources	T1.13 Map.putIfAbsent / Map.replace / Collections.singletonList on typed values	gap	same line; pattern 1 -> 1
+R4	15	g_CommandLineRunner.go:1594	CommandLineRunner_Flags.getMixedJsSources	R4.1 SourcePosition<T> / FlagEntry<T> erased type parameter	taken	same line; pattern 1 -> 0
+R4	15	g_CommandLineRunner.go:1604	CommandLineRunner_Flags.getMixedJsSources	R4.1 SourcePosition<T> / FlagEntry<T> erased type parameter	taken	same line; pattern 1 -> 0
+T2	2	g_Compiler.go:490	Compiler.initBasedOnOptions	T2.2 Guava sorted immutables: copyOf / copyOfSorted / of / builders	gap	file unchanged
+T2	2	g_Compiler.go:1055	Compiler.getCurrentJsSource	T2.1 for-each over a fresh immutable copy or ImmutableList.of(..)	gap	file unchanged
+T2	2	g_Compiler.go:1737	Compiler.hoistNoCompileFiles	T2.1 for-each over a fresh immutable copy or ImmutableList.of(..)	gap	file unchanged
+T2	2	g_Compiler.go:3231	Compiler.resetAndIntitializeSourceMap	T2.2 Guava sorted immutables: copyOf / copyOfSorted / of / builders	gap	file unchanged
+T2	11	g_Compiler.go:1738	Compiler.hoistNoCompileFiles	T2.1 for-each over a fresh immutable copy or ImmutableList.of(..)	gap	file unchanged
+T3	15	g_Compiler.go:355	Compiler.getTypedAstDeserializer_impl	T3.2 Map.get / remove on a wrapped erased map	gap	file unchanged
+T2	15	g_Compiler.go:1055	Compiler.getCurrentJsSource	T2.1 for-each over a fresh immutable copy or ImmutableList.of(..)	gap	file unchanged
+T2	15	g_Compiler.go:1055	Compiler.getCurrentJsSource	T2.1 for-each over a fresh immutable copy or ImmutableList.of(..)	gap	file unchanged
+T3	15	g_Compiler.go:2129	Compiler.getIndexUntyped_impl	T3.2 Map.get / remove on a wrapped erased map	gap	file unchanged
+T1	15	g_Compiler.go:2406	Compiler.getSourceMapping_Optional_int_int_impl	T1.13 Map.putIfAbsent / Map.replace / Collections.singletonList on typed values	gap	file unchanged
+T3	15	g_Compiler.go:2631	Compiler.getSynthesizedExternsInput_impl	T3.3a List.add(int, E) on a typed list	gap	file unchanged
+T3	15	g_Compiler.go:2653	Compiler.getSynthesizedTypeSummaryInput_impl	T3.3a List.add(int, E) on a typed list	gap	file unchanged
+T2	16	g_Compiler.go:1056	Compiler.getCurrentJsSource	T2.1 for-each over a fresh immutable copy or ImmutableList.of(..)	gap	file unchanged
+T4	16	g_Compiler.go:3695	Compiler_1.add	T4.3c AbstractSet<String>.add of an anonymous class	gap	file unchanged
+T2	2	g_CompilerInput.go:157	CompilerInput.getKnownRequires	T2.18 a generic method's type variable	reason	file unchanged
+T2	2	g_CompilerInput.go:182	CompilerInput.getKnownProvides	T2.18 a generic method's type variable	reason	file unchanged
+T2	2	g_CompilerInput.go:323	CompilerInput_concat	T2.18 a generic method's type variable	reason	file unchanged
+T3	15	g_CompilerInput.go:191	CompilerInput.addOrderedRequire	T3.1 contains / indexOf / remove(Object) on a List or Collection	gap	file unchanged
+T3	15	g_CompilerInput.go:390	CompilerInput_DepsFinder.visitSubtree	T3.1 contains / indexOf / remove(Object) on a List or Collection	gap	file unchanged
+T2	2	g_CompilerOptions.go:2785	CompilerOptions_BrowserFeaturesetYear_clinit	T2.3 ImmutableX.of(..) / copyOf(array) varargs for a typed place	gap	same line; pattern 1 -> 1
+T3	15	g_CompilerOptions.go:854	CompilerOptions.setDefineToStringLiteral	T3.3b a map whose values are Object in Java	reason	closest line; pattern 1 -> 1
+T2	15	g_CompilerOptions.go:2785	CompilerOptions_BrowserFeaturesetYear_clinit	T2.3 ImmutableX.of(..) / copyOf(array) varargs for a typed place	gap	same line; pattern 10 -> 10
+T2	15	g_CompilerOptions.go:2785	CompilerOptions_BrowserFeaturesetYear_clinit	T2.3 ImmutableX.of(..) / copyOf(array) varargs for a typed place	gap	same line; pattern 10 -> 10
+T2	15	g_CompilerOptions.go:2785	CompilerOptions_BrowserFeaturesetYear_clinit	T2.3 ImmutableX.of(..) / copyOf(array) varargs for a typed place	gap	same line; pattern 10 -> 10
+T2	15	g_CompilerOptions.go:2785	CompilerOptions_BrowserFeaturesetYear_clinit	T2.3 ImmutableX.of(..) / copyOf(array) varargs for a typed place	gap	same line; pattern 10 -> 10
+T2	15	g_CompilerOptions.go:2785	CompilerOptions_BrowserFeaturesetYear_clinit	T2.3 ImmutableX.of(..) / copyOf(array) varargs for a typed place	gap	same line; pattern 10 -> 10
+T2	15	g_CompilerOptions.go:2785	CompilerOptions_BrowserFeaturesetYear_clinit	T2.3 ImmutableX.of(..) / copyOf(array) varargs for a typed place	gap	same line; pattern 10 -> 10
+T2	15	g_CompilerOptions.go:2785	CompilerOptions_BrowserFeaturesetYear_clinit	T2.3 ImmutableX.of(..) / copyOf(array) varargs for a typed place	gap	same line; pattern 10 -> 10
+T2	15	g_CompilerOptions.go:2785	CompilerOptions_BrowserFeaturesetYear_clinit	T2.3 ImmutableX.of(..) / copyOf(array) varargs for a typed place	gap	same line; pattern 10 -> 10
+T2	15	g_CompilerOptions.go:2785	CompilerOptions_BrowserFeaturesetYear_clinit	T2.3 ImmutableX.of(..) / copyOf(array) varargs for a typed place	gap	same line; pattern 10 -> 10
+T2	15	g_CompilerOptions.go:2785	CompilerOptions_BrowserFeaturesetYear_clinit	T2.3 ImmutableX.of(..) / copyOf(array) varargs for a typed place	gap	same line; pattern 10 -> 10
+T2	2	g_ConformanceRules.go:3253	ConformanceRules_BanCreateDom.initBanCreateDom	T2.4 builders whose chain Colls does not type	gap	file unchanged
+T2	11	g_ConformanceRules.go:3291	ConformanceRules_BanCreateDom.checkConformance_impl	T2.4 builders whose chain Colls does not type	gap	file unchanged
+T1	15	g_ConvertToTypedInterface.go:570	ConvertToTypedInterface_SimplifyDeclarations_clinit	T1.6 Comparator.comparing / thenComparing with a key typed any	gap	file unchanged
+T2	16	g_ConvertToTypedInterface.go:419	ConvertToTypedInterface_SimplifyDeclarations.simplifyAll	T2.19 typed comparator wrapped for ImmutableList.sortedCopyOf	gap	file unchanged
+T2	16	g_ConvertToTypedInterface.go:419	ConvertToTypedInterface_SimplifyDeclarations.simplifyAll	T2.19 typed comparator wrapped for ImmutableList.sortedCopyOf	gap	file unchanged
+T1	15	g_DToA.go:637	DToA_JS_dtoa	T1.1 BigInteger.compareTo	gap	file unchanged
+T1	15	g_DToA.go:650	DToA_JS_dtoa	T1.1 BigInteger.compareTo	gap	file unchanged
+T1	15	g_DToA.go:677	DToA_JS_dtoa	T1.1 BigInteger.compareTo	gap	file unchanged
+T1	15	g_DToA.go:683	DToA_JS_dtoa	T1.1 BigInteger.compareTo	gap	file unchanged
+T1	15	g_DToA.go:703	DToA_JS_dtoa	T1.1 BigInteger.compareTo	gap	file unchanged
+T1	15	g_DToA.go:763	DToA_JS_dtoa	T1.1 BigInteger.compareTo	gap	file unchanged
+T4	11	g_DefaultNameGenerator.go:238	DefaultNameGenerator_CharPriority.compareTo	T4.1 Comparable / Comparator bridges kept for erased callers	gap	file unchanged
+T4	15	g_DefaultNameGenerator.go:242	DefaultNameGenerator_CharPriority.clone	T4.3a clone bridges	gap	file unchanged
+T2	2	g_DefaultPassConfig.go:1445	DefaultPassConfig_3.process_2	T2.4 builders whose chain Colls does not type	gap	file unchanged
+T2	15	g_DefaultPassConfig.go:1451	DefaultPassConfig_3.process_2	T2.4 builders whose chain Colls does not type	gap	file unchanged
+T2	15	g_DiagnosticToSuppressionMapper.go:51	DiagnosticToSuppressionMapper.createSuppressionMap	T2.2 Guava sorted immutables: copyOf / copyOfSorted / of / builders	gap	file unchanged
+T2	15	g_DiagnosticToSuppressionMapper.go:51	DiagnosticToSuppressionMapper.createSuppressionMap	T2.2 Guava sorted immutables: copyOf / copyOfSorted / of / builders	gap	file unchanged
+T4	11	g_DiagnosticType.go:79	DiagnosticType.compareTo	T4.1 Comparable / Comparator bridges kept for erased callers	gap	file unchanged
+T2	2	g_DisambiguateProperties.go:69	DisambiguateProperties.process_2	T2.17 an Object parameter or an Object value: no typed place	reason	file unchanged
+T2	2	g_DisambiguateProperties.go:110	DisambiguateProperties_buildRenamingIndex	T2.2 Guava sorted immutables: copyOf / copyOfSorted / of / builders	gap	file unchanged
+T2	2	g_DisambiguateProperties.go:276	DisambiguateProperties_PropertyReferenceIndexJson.init_DisambiguateProperties_PropertyReferenceIndexJson	T2.2 Guava sorted immutables: copyOf / copyOfSorted / of / builders	gap	file unchanged
+T4	11	g_DisambiguateProperties.go:300	DisambiguateProperties_PropertyReferenceIndexJson.compareTo	T4.1 Comparable / Comparator bridges kept for erased callers	gap	file unchanged
+T4	11	g_DisambiguateProperties.go:354	DisambiguateProperties_PropertyReferenceJson.compareTo	T4.1 Comparable / Comparator bridges kept for erased callers	gap	file unchanged
+T4	11	g_DisambiguateProperties.go:429	DisambiguateProperties_TypeEdgeJson.compareTo	T4.1 Comparable / Comparator bridges kept for erased callers	gap	file unchanged
+T1	15	g_DisambiguateProperties.go:69	DisambiguateProperties.process_2	T1.18 Supplier<Object> / a map value that is Object in Java	reason	file unchanged
+T1	15	g_DisambiguateProperties.go:92	DisambiguateProperties.process_2	T1.18 Supplier<Object> / a map value that is Object in Java	reason	file unchanged
+T2	15	g_DisambiguateProperties.go:106	DisambiguateProperties_buildRenamingIndex	T2.2 Guava sorted immutables: copyOf / copyOfSorted / of / builders	gap	file unchanged
+T2	15	g_DisambiguateProperties.go:110	DisambiguateProperties_buildRenamingIndex	T2.2 Guava sorted immutables: copyOf / copyOfSorted / of / builders	gap	file unchanged
+T1	15	g_DisambiguateProperties.go:350	DisambiguateProperties_PropertyReferenceJson.compareTo_t	T1.2 ComparisonChain.compare(Comparable, Comparable)	gap	file unchanged
+T1	15	g_DisambiguateProperties.go:350	DisambiguateProperties_PropertyReferenceJson.compareTo_t	T1.2 ComparisonChain.compare(Comparable, Comparable)	gap	file unchanged
+T2	15	g_DisambiguateProperties.go:383	DisambiguateProperties_TypeNodeJson.init_DisambiguateProperties_TypeNodeJson	T2.2 Guava sorted immutables: copyOf / copyOfSorted / of / builders	gap	file unchanged
+T2	15	g_DisambiguateProperties.go:383	DisambiguateProperties_TypeNodeJson.init_DisambiguateProperties_TypeNodeJson	T2.2 Guava sorted immutables: copyOf / copyOfSorted / of / builders	gap	file unchanged
+T3	15	g_DisambiguateProperties.go:399	DisambiguateProperties_TypeNodeJson.toLogsGson	T3.3b a map whose values are Object in Java	reason	file unchanged
+T1	15	g_DotFormatter.go:90	DotFormatter_toDot_GraphvizGraph	T1.6 Comparator.comparing / thenComparing with a key typed any	gap	file unchanged
+T3	15	g_Es6ConvertSuperConstructorCalls.go:552	Es6ConvertSuperConstructorCalls_1.shouldTraverse	T3.1 contains / indexOf / remove(Object) on a List or Collection	gap	file unchanged
+T3	15	g_EsModuleProcessor.go:242	EsModuleProcessor_FindMutableExports.visit_impl	T3.1 contains / indexOf / remove(Object) on a List or Collection	gap	file unchanged
+T1	5	g_ExternExportsPass.go:526	ExternExportsPass_PropertyExport.getExportedPath_impl	T1.8 for-each over Lists.reverse	gap	file unchanged
+T1	15	g_ExternExportsPass.go:64	ExternExportsPass.process_2	T1.6 Comparator.comparing / thenComparing with a key typed any	gap	file unchanged
+T1	16	g_ExternExportsPass.go:529	ExternExportsPass_PropertyExport.getExportedPath_impl	T1.8 for-each over Lists.reverse	gap	file unchanged
+T3	15	g_FeatureCollector.go:195	FeatureCollector.maybeAddTopLevelAwait	T3.1 contains / indexOf / remove(Object) on a List or Collection	gap	file unchanged
+T2	2	g_FeatureSet.go:146	FeatureSet.withFeatureVarargs	T2.3 ImmutableX.of(..) / copyOf(array) varargs for a typed place	gap	file unchanged
+T3	15	g_FindModuleDependencies.go:43	FindModuleDependencies.process	T3.1 contains / indexOf / remove(Object) on a List or Collection	gap	file unchanged
+T2	15	g_FindModuleDependencies.go:49	FindModuleDependencies.process	T2.16a TreeSet.tailSet / Map.containsValue on a typed value	gap	file unchanged
+T2	11	g_FunctionType.go:977	FunctionType.getConstructorOnlyTemplateParameters	T2.13 subList / reverse / asList of an immutable typed list	gap	file unchanged
+T1	5	g_GatherModuleMetadata.go:43	GatherModuleMetadata_isValidModuleId	T1.9 for-each over Splitter.split	gap	file unchanged
+T1	16	g_GatherModuleMetadata.go:45	GatherModuleMetadata_isValidModuleId	T1.9 for-each over Splitter.split	gap	file unchanged
+T4	11	g_IRFactory.go:1485	IRFactory_LineAndColumn.compareTo	T4.1 Comparable / Comparator bridges kept for erased callers	gap	same line; pattern 1 -> 1
+T2	15	g_IRFactory.go:638	IRFactory.transform	T2.11 RangeSet<LineAndColumn> / Range.closed	gap	same line; pattern 2 -> 2
+T2	15	g_IRFactory.go:638	IRFactory.transform	T2.11 RangeSet<LineAndColumn> / Range.closed	gap	same line; pattern 2 -> 2
+T3	15	g_Invalidation.go:50	Invalidation.toLogsGson_impl	T3.3b a map whose values are Object in Java	reason	file unchanged
+T3	15	g_Invalidation.go:163	Invalidation_WithReceiverType.toLogsGson_impl	T3.3b a map whose values are Object in Java	reason	file unchanged
+T3	15	g_J2clConstantHoisterPass.go:67	J2clConstantHoisterPass.maybeHoistClassField	T3.1 contains / indexOf / remove(Object) on a List or Collection	gap	file unchanged
+T4	11	g_JSChunkGraph.go:613	JSChunkGraph_InverseDepthComparator.compare	T4.1 Comparable / Comparator bridges kept for erased callers	gap	file unchanged
+T4	11	g_JSChunkGraph.go:613	JSChunkGraph_InverseDepthComparator.compare	T4.1 Comparable / Comparator bridges kept for erased callers	gap	file unchanged
+T1	13	g_JSChunkGraph.go:160	JSChunkGraph.getAllInputs	T1.15 Iterables.concat of an Iterables.transform	gap	file unchanged
+T2	0	g_JSDocInfo.go:41	JSDocInfo.asMap	T2.7 TreeMap<Property<?>, Object> of JSDocInfo	reason	same line; pattern 1 -> 1
+T2	0	g_JSDocInfo.go:2082	JSDocInfo_Builder.finit_JSDocInfo_Builder	T2.7 TreeMap<Property<?>, Object> of JSDocInfo	reason	same line; pattern 1 -> 1
+T2	2	g_JSDocInfo.go:605	JSDocInfo.getSuppressionsAndTheirDescription	T2.15 ImmutableMap<ImmutableSet<String>, String> (a collection as a key)	reason	no such line in the translation
+T2	2	g_JSDocInfo.go:2378	JSDocInfo_Builder.recordSuppressions_2	T2.15 ImmutableMap<ImmutableSet<String>, String> (a collection as a key)	reason	same line; pattern 1 -> 1
+T2	10	g_JSDocInfo.go:593	JSDocInfo.getSuppressions	T2.15 ImmutableMap<ImmutableSet<String>, String> (a collection as a key)	reason	closest line; pattern 1 -> 1
+T2	11	g_JSDocInfo.go:15	JSDocInfo.init_JSDocInfo	T2.7 TreeMap<Property<?>, Object> of JSDocInfo	reason	same line; pattern 1 -> 1
+T2	11	g_JSDocInfo.go:67	JSDocInfo.toBuilder_1	T2.7 TreeMap<Property<?>, Object> of JSDocInfo	reason	same line; pattern 1 -> 1
+T2	11	g_JSDocInfo.go:590	JSDocInfo.getSuppressions	T2.15 ImmutableMap<ImmutableSet<String>, String> (a collection as a key)	reason	closest line; pattern 1 -> 1
+T4	11	g_JSDocInfo.go:984	JSDocInfo_Property.compareTo	T4.1b compareTo of JSDocInfo.Property (Comparable<Property<Object>>)	reason	same line; pattern 1 -> 1
+T4	15	g_JSDocInfo.go:808	JSDocInfo.clone	T4.3a clone bridges	gap	same line; pattern 1 -> 1
+R4	15	g_JSDocInfo.go:1925	JSDocInfo_TrimmedStringPosition.setItem_impl	R4.1 SourcePosition<T> / FlagEntry<T> erased type parameter	taken	same line; pattern 1 -> 0
+R4	15	g_JSDocInfo.go:2201	JSDocInfo_Builder.markAnnotation	R4.1 SourcePosition<T> / FlagEntry<T> erased type parameter	taken	same line; pattern 1 -> 0
+R4	15	g_JSDocInfo.go:2226	JSDocInfo_Builder.markText	R4.1 SourcePosition<T> / FlagEntry<T> erased type parameter	taken	same line; pattern 1 -> 0
+R4	15	g_JSDocInfo.go:2235	JSDocInfo_Builder.markTypeNode	R4.1 SourcePosition<T> / FlagEntry<T> erased type parameter	taken	same line; pattern 1 -> 0
+R4	15	g_JSDocInfo.go:2245	JSDocInfo_Builder.markName	R4.1 SourcePosition<T> / FlagEntry<T> erased type parameter	taken	same line; pattern 1 -> 0
+R4	15	g_JSDocInfo.go:2254	JSDocInfo_Builder.markName	R4.1 SourcePosition<T> / FlagEntry<T> erased type parameter	taken	same line; pattern 1 -> 0
+T2	15	g_JSDocInfo.go:2302	JSDocInfo_Builder.recordTemplateTypeName_2	T2.7 TreeMap<Property<?>, Object> of JSDocInfo	reason	closest line; pattern 1 -> 1
+T2	15	g_JSDocInfo.go:2386	JSDocInfo_Builder.recordSuppressions_2	T2.15 ImmutableMap<ImmutableSet<String>, String> (a collection as a key)	reason	same line; pattern 1 -> 1
+T2	15	g_JSDocInfo.go:2813	JSDocInfo_Builder.setType	T2.7 TreeMap<Property<?>, Object> of JSDocInfo	reason	same line; pattern 1 -> 1
+T2	15	g_JSDocInfo.go:2814	JSDocInfo_Builder.setType	T2.7 TreeMap<Property<?>, Object> of JSDocInfo	reason	same line; pattern 1 -> 1
+T2	15	g_JSDocInfo.go:2815	JSDocInfo_Builder.setType	T2.7 TreeMap<Property<?>, Object> of JSDocInfo	reason	same line; pattern 1 -> 1
+T1	15	g_JSDocInfo.go:2864	JSDocInfo_Builder.putPropEntry	T1.18 Supplier<Object> / a map value that is Object in Java	reason	same line; pattern 1 -> 1
+R4	16	g_JSDocInfo.go:1920	JSDocInfo_TrimmedStringPosition.setItem_impl	R4.1 SourcePosition<T> / FlagEntry<T> erased type parameter	taken	same line; pattern 1 -> 0 (line gone)
+R4	16	g_JSDocInfo.go:1959	JSDocInfo_NamePosition.isEquivalentTo_impl	R4.1 SourcePosition<T> / FlagEntry<T> erased type parameter	taken	closest line; pattern 2 -> 0
+R4	16	g_JSDocInfo.go:1959	JSDocInfo_NamePosition.isEquivalentTo_impl	R4.1 SourcePosition<T> / FlagEntry<T> erased type parameter	taken	closest line; pattern 2 -> 0
+R4	16	g_JSDocInfo.go:1962	JSDocInfo_NamePosition.isEquivalentTo_impl	R4.1 SourcePosition<T> / FlagEntry<T> erased type parameter	taken	same line; pattern 3 -> 0
+R4	16	g_JSDocInfo.go:1962	JSDocInfo_NamePosition.isEquivalentTo_impl	R4.1 SourcePosition<T> / FlagEntry<T> erased type parameter	taken	same line; pattern 3 -> 0
+R4	16	g_JSDocInfo.go:1962	JSDocInfo_NamePosition.isEquivalentTo_impl	R4.1 SourcePosition<T> / FlagEntry<T> erased type parameter	taken	same line; pattern 3 -> 0
+R4	16	g_JSDocInfo.go:2010	JSDocInfo_TypePosition.isEquivalentTo_impl	R4.1 SourcePosition<T> / FlagEntry<T> erased type parameter	taken	by hand: main g_JSDocInfo.go:1793 isEquivalentTo_impl(that *SourcePosition_rhino[Node]): getItem() is a Node
+R4	16	g_JSDocInfo.go:2010	JSDocInfo_TypePosition.isEquivalentTo_impl	R4.1 SourcePosition<T> / FlagEntry<T> erased type parameter	taken	by hand: main g_JSDocInfo.go:1793 isEquivalentTo_impl(that *SourcePosition_rhino[Node]): getItem() is a Node
+R4	16	g_JSDocInfo.go:2013	JSDocInfo_TypePosition.isEquivalentTo_impl	R4.1 SourcePosition<T> / FlagEntry<T> erased type parameter	taken	same line; pattern 3 -> 0
+R4	16	g_JSDocInfo.go:2013	JSDocInfo_TypePosition.isEquivalentTo_impl	R4.1 SourcePosition<T> / FlagEntry<T> erased type parameter	taken	same line; pattern 3 -> 0
+R4	16	g_JSDocInfo.go:2013	JSDocInfo_TypePosition.isEquivalentTo_impl	R4.1 SourcePosition<T> / FlagEntry<T> erased type parameter	taken	same line; pattern 3 -> 0
+T2	10	g_JSDocInfoPrinter.go:219	JSDocInfoPrinter.print	T2.15 ImmutableMap<ImmutableSet<String>, String> (a collection as a key)	reason	file unchanged
+T2	16	g_JSDocInfoPrinter.go:221	JSDocInfoPrinter.print	T2.15 ImmutableMap<ImmutableSet<String>, String> (a collection as a key)	reason	file unchanged
+T2	11	g_JSType.go:606	JSType.getTypeParameters	T2.13 subList / reverse / asList of an immutable typed list	gap	closest line; pattern 1 -> 1
+R5	15	g_JSType.go:591	JSType.hasAnyTemplateTypes	R5.1 nullable boxed flags and their setters	taken	same line; pattern 1 -> 0
+T2	16	g_JSTypeReconserializer.go:323	JSTypeReconserializer.getColorIdToJSTypeMapForDebugging	T2.1 for-each over a fresh immutable copy or ImmutableList.of(..)	gap	closest line; pattern 1 -> 1
+T2	2	g_JSTypeRegistry.go:410	JSTypeRegistry.initializeBuiltInTypes	T2.3 ImmutableX.of(..) / copyOf(array) varargs for a typed place	gap	file unchanged
+T2	13	g_JSTypeRegistry.go:649	JSTypeRegistry.resolveViaClosureNamespace	T2.13 subList / reverse / asList of an immutable typed list	gap	file unchanged
+T2	15	g_JSTypeRegistry.go:410	JSTypeRegistry.initializeBuiltInTypes	T2.3 ImmutableX.of(..) / copyOf(array) varargs for a typed place	gap	file unchanged
+T2	13	g_JsMessage.go:82	JsMessage.getGenderedMessageVariants	T2.13 subList / reverse / asList of an immutable typed list	gap	file unchanged
+T2	0	g_Keywords.go:291	Keywords_clinit	T2.8 EnumMap / IdentityHashMap / LinkedList made for a typed place	gap	file unchanged
+T1	11	g_LiveVariablesAnalysis.go:297	LiveVariablesAnalysis_LiveVariableLattice_createFromLattice	T1.4 Object.clone() of a BitSet	gap	file unchanged
+T1	15	g_LiveVariablesAnalysis.go:297	LiveVariablesAnalysis_LiveVariableLattice_createFromLattice	T1.4 Object.clone() of a BitSet	gap	file unchanged
+T2	2	g_LogsGson.go:36	LogsGson_write	T2.17 an Object parameter or an Object value: no typed place	reason	file unchanged
+T1	11	g_LowestCommonAncestorFinder.go:168	LowestCommonAncestorFinder_Color_clinit	T1.5 Arrays.setAll / toArray of a typed array	gap	file unchanged
+T1	15	g_LowestCommonAncestorFinder.go:166	LowestCommonAncestorFinder_Color_clinit	T1.5 Arrays.setAll / toArray of a typed array	gap	file unchanged
+T2	2	g_ModuleLoader.go:74	ModuleLoader.createRootPaths	T2.2 Guava sorted immutables: copyOf / copyOfSorted / of / builders	gap	file unchanged
+T2	13	g_ModuleLoader.go:90	ModuleLoader.createRootPaths	T2.2 Guava sorted immutables: copyOf / copyOfSorted / of / builders	gap	file unchanged
+T2	15	g_ModuleLoader.go:85	ModuleLoader.createRootPaths	T2.2 Guava sorted immutables: copyOf / copyOfSorted / of / builders	gap	file unchanged
+T2	15	g_ModuleLoader.go:87	ModuleLoader.createRootPaths	T2.2 Guava sorted immutables: copyOf / copyOfSorted / of / builders	gap	file unchanged
+T2	16	g_ModuleLoader.go:79	ModuleLoader.createRootPaths	T2.2 Guava sorted immutables: copyOf / copyOfSorted / of / builders	gap	file unchanged
+T2	16	g_ModuleLoader.go:79	ModuleLoader.createRootPaths	T2.2 Guava sorted immutables: copyOf / copyOfSorted / of / builders	gap	file unchanged
+T2	11	g_NamedType.go:207	NamedType.resolveInternal_impl	T2.13 subList / reverse / asList of an immutable typed list	gap	file unchanged
+T4	15	g_Node.go:3492	Node_SiblingNodeIterator.next	T4.2a Iterator<T> bridges (next returns Object)	gap	file unchanged
+T4	15	g_Node.go:3926	Node_AncestorIterable_1.next	T4.2a Iterator<T> bridges (next returns Object)	gap	file unchanged
+T4	15	g_NodeIterators.go:74	NodeIterators_FunctionlessLocalScope.next	T4.2a Iterator<T> bridges (next returns Object)	gap	file unchanged
+T4	15	g_NodeIterators.go:165	NodeIterators_LocalVarMotion.next	T4.2a Iterator<T> bridges (next returns Object)	gap	file unchanged
+T2	2	g_NodeModuleResolver.go:71	NodeModuleResolver_buildNodeModulesFoldersRegistry	T2.2 Guava sorted immutables: copyOf / copyOfSorted / of / builders	gap	file unchanged
+T4	15	g_NodeUtil.go:4751	NodeUtil_PreOrderIterator.computeNext	T4.2b computeNext of Guava AbstractIterator<T>	gap	file unchanged
+T4	15	g_NodeUtil.go:4986	NodeUtil_TemplateArgsIterable_1.computeNext	T4.2b computeNext of Guava AbstractIterator<T>	gap	file unchanged
+R5	15	g_OptimizeCalls.go:137	OptimizeCalls_Builder.setConsiderExterns	R5.1 nullable boxed flags and their setters	taken	same line; pattern 1 -> 0
+T1	11	g_OptimizeParameters.go:744	OptimizeParameters_UnusedParameterOptimizer.tryEliminateUnusedArgs	T1.4 Object.clone() of a BitSet	gap	file unchanged
+T1	11	g_OptimizeParameters.go:749	OptimizeParameters_UnusedParameterOptimizer.tryEliminateUnusedArgs	T1.4 Object.clone() of a BitSet	gap	file unchanged
+T1	15	g_OptimizeParameters.go:744	OptimizeParameters_UnusedParameterOptimizer.tryEliminateUnusedArgs	T1.4 Object.clone() of a BitSet	gap	file unchanged
+T1	15	g_OptimizeParameters.go:749	OptimizeParameters_UnusedParameterOptimizer.tryEliminateUnusedArgs	T1.4 Object.clone() of a BitSet	gap	file unchanged
+T3	15	g_PassListBuilder.go:89	PassListBuilder.contains	T3.1 contains / indexOf / remove(Object) on a List or Collection	gap	file unchanged
+T3	15	g_PassListBuilder.go:109	PassListBuilder.assertPassOrder	T3.1 contains / indexOf / remove(Object) on a List or Collection	gap	file unchanged
+T3	15	g_PassListBuilder.go:110	PassListBuilder.assertPassOrder	T3.1 contains / indexOf / remove(Object) on a List or Collection	gap	file unchanged
+T2	15	g_PathUtil.go:46	PathUtil_removeExtraneousSlashes	T2.12 CharMatcher / Splitter with a String argument	gap	file unchanged
+T2	15	g_PathUtil.go:50	PathUtil_removeExtraneousSlashes	T2.12 CharMatcher / Splitter with a String argument	gap	file unchanged
+T1	15	g_PeepholeFoldConstants.go:1038	PeepholeFoldConstants_tryAbstractRelationalComparison	T1.1 BigInteger.compareTo	gap	file unchanged
+T1	15	g_PeepholeFoldConstants.go:1052	PeepholeFoldConstants_tryAbstractRelationalComparison	T1.1 BigInteger.compareTo	gap	file unchanged
+T1	15	g_PeepholeFoldConstants.go:1060	PeepholeFoldConstants_tryAbstractRelationalComparison	T1.1 BigInteger.compareTo	gap	file unchanged
+T1	15	g_PeepholeFoldConstants.go:1096	PeepholeFoldConstants_bigintLessThanDouble	T1.1 BigInteger.compareTo	gap	file unchanged
+T1	15	g_PeepholeReplaceKnownMethods.go:515	PeepholeReplaceKnownMethods.tryFoldParseNumber	T1.12 a String given to a CharSequence parameter of a runtime function	gap	file unchanged
+T3	15	g_PolymerClassDefinition.go:257	PolymerClassDefinition_overwriteMembersIfPresent	T3.1 contains / indexOf / remove(Object) on a List or Collection	gap	file unchanged
+T2	15	g_PrebuildAst.go:28	PrebuildAst.prebuild	T2.16b an Object value nobody reads typed / an Iterable<?> dispatched by instanceof	reason	file unchanged
+T3	15	g_ProcessCommonJSModules.go:619	ProcessCommonJSModules_FindImportsAndExports.initializeModule	T3.1 contains / indexOf / remove(Object) on a List or Collection	gap	file unchanged
+T3	15	g_ProcessCommonJSModules.go:657	ProcessCommonJSModules_FindImportsAndExports.initializeModule	T3.1 contains / indexOf / remove(Object) on a List or Collection	gap	file unchanged
+T2	2	g_ProcessDefines.go:207	ProcessDefines.collectDefines	T2.4 builders whose chain Colls does not type	gap	file unchanged
+T1	5	g_ProductionInstrumentationReporter.go:47	ProductionInstrumentationReporter.getAllExecutionResults	T1.10 for-each over File.listFiles (Io_listFiles)	gap	file unchanged
+T1	16	g_ProductionInstrumentationReporter.go:49	ProductionInstrumentationReporter.getAllExecutionResults	T1.10 for-each over File.listFiles (Io_listFiles)	gap	file unchanged
+T2	2	g_PropertyMap.go:177	PropertyMap.getAllKeys	T2.2 Guava sorted immutables: copyOf / copyOfSorted / of / builders	gap	file unchanged
+T2	2	g_PureFunctionIdentifier.go:496	PureFunctionIdentifier_FunctionBodyAnalyzer.finit_PureFunctionIdentifier_FunctionBodyAnalyzer	T2.3 ImmutableX.of(..) / copyOf(array) varargs for a typed place	gap	file unchanged
+T3	15	g_RandomNameGenerator.go:147	RandomNameGenerator.generateSuffix	T3.4 Hasher.putUnencodedChars	gap	file unchanged
+T2	2	g_RefactoringDriver.go:91	RefactoringDriver_Builder.addExternsFromFile	T2.6 immutable copies into a typed place	gap	file unchanged
+T2	2	g_RefactoringDriver.go:117	RefactoringDriver_Builder.addInputsFromFile	T2.6 immutable copies into a typed place	gap	file unchanged
+T1	15	g_RefactoringDriver.go:96	RefactoringDriver_Builder.addExternsFromFile	T1.7 Lists.transform (a live view)	gap	file unchanged
+T1	15	g_RefactoringDriver.go:122	RefactoringDriver_Builder.addInputsFromFile	T1.7 Lists.transform (a live view)	gap	file unchanged
+T1	16	g_RefactoringDriver.go:96	RefactoringDriver_Builder.addExternsFromFile	T1.7 Lists.transform (a live view)	gap	file unchanged
+T1	16	g_RefactoringDriver.go:122	RefactoringDriver_Builder.addInputsFromFile	T1.7 Lists.transform (a live view)	gap	file unchanged
+T3	15	g_RenameVars.go:222	RenameVars.getLocalVarIndex	T3.1 contains / indexOf / remove(Object) on a List or Collection	gap	file unchanged
+T2	2	g_ReplaceStrings.go:282	ReplaceStrings.parseConfiguration	T2.3 ImmutableX.of(..) / copyOf(array) varargs for a typed place	gap	file unchanged
+T2	2	g_RequireAliasGenerator.go:11	RequireAliasGenerator.init_RequireAliasGenerator	T2.6 immutable copies into a typed place	gap	file unchanged
+T2	13	g_RequireAliasGenerator.go:11	RequireAliasGenerator.init_RequireAliasGenerator	T2.6 immutable copies into a typed place	gap	file unchanged
+T4	15	g_RequireAliasGenerator.go:115	RequireAliasGenerator_NameIterator.computeNext	T4.2b computeNext of Guava AbstractIterator<T>	gap	file unchanged
+T2	0	g_Scope.go:187	Scope.getOwnImplicitSlot	T2.8 EnumMap / IdentityHashMap / LinkedList made for a typed place	gap	file unchanged
+T2	2	g_ScopedAliases.go:449	ScopedAliases_Traversal.finit_ScopedAliases_Traversal	T2.3 ImmutableX.of(..) / copyOf(array) varargs for a typed place	gap	file unchanged
+T4	11	g_SerializeTypesToPointers.go:255	SerializeTypesToPointers_TypeMismatchJson.compareTo	T4.1 Comparable / Comparator bridges kept for erased callers	gap	file unchanged
+T2	15	g_SerializeTypesToPointers.go:79	SerializeTypesToPointers.logTypeMismatches	T2.2 Guava sorted immutables: copyOf / copyOfSorted / of / builders	gap	file unchanged
+T1	15	g_SerializeTypesToPointers.go:152	SerializeTypesToPointers_TypeSearchCallback.visit	T1.16 function results that are a boxed Integer	gap	file unchanged
+T1	15	g_SerializeTypesToPointers.go:251	SerializeTypesToPointers_TypeMismatchJson.compareTo_t	T1.2 ComparisonChain.compare(Comparable, Comparable)	gap	file unchanged
+T1	15	g_SerializeTypesToPointers.go:251	SerializeTypesToPointers_TypeMismatchJson.compareTo_t	T1.2 ComparisonChain.compare(Comparable, Comparable)	gap	file unchanged
+T1	15	g_SerializeTypesToPointers.go:251	SerializeTypesToPointers_TypeMismatchJson.compareTo_t	T1.2 ComparisonChain.compare(Comparable, Comparable)	gap	file unchanged
+T1	15	g_SerializeTypesToPointers.go:251	SerializeTypesToPointers_TypeMismatchJson.compareTo_t	T1.2 ComparisonChain.compare(Comparable, Comparable)	gap	file unchanged
+T1	15	g_SerializeTypesToPointers.go:251	SerializeTypesToPointers_TypeMismatchJson.compareTo_t	T1.2 ComparisonChain.compare(Comparable, Comparable)	gap	file unchanged
+T1	15	g_SerializeTypesToPointers.go:251	SerializeTypesToPointers_TypeMismatchJson.compareTo_t	T1.2 ComparisonChain.compare(Comparable, Comparable)	gap	file unchanged
+T1	15	g_SortingErrorManager.go:179	SortingErrorManager_LeveledJSErrorComparator.compare	T1.3 Enum.compareTo(E)	gap	file unchanged
+T2	2	g_Source.go:243	Source_Builder.addRuntime	T2.4 builders whose chain Colls does not type	gap	file unchanged
+T1	15	g_Source.go:230	Source_Builder.setCodeFromSupplier	T1.21 Supplier<String> given to Source.Builder (converting closure)	gap	file unchanged
+T4	15	g_Source.go:434	Source_Lazy_ofInstance	T4.3d Lazy<String> of Source (erased generic)	gap	file unchanged
+T4	16	g_Source.go:57	Source.code	T4.3d Lazy<String> of Source (erased generic)	gap	file unchanged
+T4	16	g_Source.go:61	Source.originalCode	T4.3d Lazy<String> of Source (erased generic)	gap	file unchanged
+T1	15	g_SourceMapJsonLexer.go:314	SourceMapJsonLexer_unescape	T1.12 a String given to a CharSequence parameter of a runtime function	gap	file unchanged
+T3	15	g_SourceMapObjectParser.go:86	SourceMapObjectParser_parse	T3.3b a map whose values are Object in Java	reason	file unchanged
+T3	15	g_SourceMapObjectParser.go:189	SourceMapObjectParser_parseFastInto	T3.3b a map whose values are Object in Java	reason	file unchanged
+R5	15	g_SubtypeChecker.go:61	SubtypeChecker.setUsingStructuralSubtyping	R5.1 nullable boxed flags and their setters	taken	same line; pattern 1 -> 0
+T2	11	g_SuggestedFix.go:44	SuggestedFix.getNonDefaultAlternatives	T2.13 subList / reverse / asList of an immutable typed list	gap	file unchanged
+T2	2	g_SymbolTable.go:531	SymbolTable.removeSymbol	T2.1 for-each over a fresh immutable copy or ImmutableList.of(..)	gap	closest line; pattern 1 -> 1
+T2	2	g_SymbolTable.go:903	SymbolTable.flattenGoogModuleExports	T2.1 for-each over a fresh immutable copy or ImmutableList.of(..)	gap	closest line; pattern 1 -> 1
+T2	2	g_SymbolTable.go:924	SymbolTable.mergeExternSymbolsDuplicatedOnWindow	T2.1 for-each over a fresh immutable copy or ImmutableList.of(..)	gap	closest line; pattern 1 -> 1
+T2	2	g_SymbolTable.go:946	SymbolTable.removeGeneratedSymbols	T2.1 for-each over a fresh immutable copy or ImmutableList.of(..)	gap	closest line; pattern 1 -> 1
+T2	11	g_SymbolTable.go:532	SymbolTable.removeSymbol	T2.1 for-each over a fresh immutable copy or ImmutableList.of(..)	gap	closest line; pattern 1 -> 1
+T2	11	g_SymbolTable.go:904	SymbolTable.flattenGoogModuleExports	T2.1 for-each over a fresh immutable copy or ImmutableList.of(..)	gap	closest line; pattern 1 -> 1
+T2	11	g_SymbolTable.go:925	SymbolTable.mergeExternSymbolsDuplicatedOnWindow	T2.1 for-each over a fresh immutable copy or ImmutableList.of(..)	gap	closest line; pattern 1 -> 1
+T2	11	g_SymbolTable.go:947	SymbolTable.removeGeneratedSymbols	T2.1 for-each over a fresh immutable copy or ImmutableList.of(..)	gap	closest line; pattern 1 -> 1
+T4	11	g_SymbolTable.go:1892	SymbolTable_6.compare	T4.1 Comparable / Comparator bridges kept for erased callers	gap	closest line; pattern 1 -> 1
+T4	11	g_SymbolTable.go:1892	SymbolTable_6.compare	T4.1 Comparable / Comparator bridges kept for erased callers	gap	closest line; pattern 1 -> 1
+T4	11	g_SymbolTable.go:1939	SymbolTable_7.compare	T4.1 Comparable / Comparator bridges kept for erased callers	gap	closest line; pattern 1 -> 1
+T4	11	g_SymbolTable.go:1939	SymbolTable_7.compare	T4.1 Comparable / Comparator bridges kept for erased callers	gap	closest line; pattern 1 -> 1
+T2	15	g_SymbolTable.go:1842	SymbolTable_5.compareT_	T2.9 Ordering<T> fields	gap	same line; pattern 2 -> 2
+T2	15	g_SymbolTable.go:1842	SymbolTable_5.compareT_	T2.9 Ordering<T> fields	gap	same line; pattern 2 -> 2
+T2	15	g_SymbolTable.go:1883	SymbolTable_6.compareT_	T2.9 Ordering<T> fields	gap	same line; pattern 2 -> 2
+T2	15	g_SymbolTable.go:1883	SymbolTable_6.compareT_	T2.9 Ordering<T> fields	gap	same line; pattern 2 -> 2
+T2	15	g_SymbolTable.go:1932	SymbolTable_7.compareT_	T2.9 Ordering<T> fields	gap	same line; pattern 2 -> 2
+T2	15	g_SymbolTable.go:1932	SymbolTable_7.compareT_	T2.9 Ordering<T> fields	gap	same line; pattern 2 -> 2
+T2	15	g_SymbolTable.go:1934	SymbolTable_7.compareT_	T2.9 Ordering<T> fields	gap	same line; pattern 2 -> 2
+T2	15	g_SymbolTable.go:1934	SymbolTable_7.compareT_	T2.9 Ordering<T> fields	gap	same line; pattern 2 -> 2
+R4	16	g_SymbolTable.go:704	SymbolTable.fillJSDocInfo	R4.1 SourcePosition<T> / FlagEntry<T> erased type parameter	taken	same line; pattern 1 -> 0
+R4	16	g_SymbolTable.go:711	SymbolTable.fillJSDocInfo	R4.1 SourcePosition<T> / FlagEntry<T> erased type parameter	taken	same line; pattern 1 -> 0
+T4	16	g_SymbolTable.go:1851	SymbolTable_5.compare	T4.1 Comparable / Comparator bridges kept for erased callers	gap	no such line in the translation
+T4	16	g_SymbolTable.go:1851	SymbolTable_5.compare	T4.1 Comparable / Comparator bridges kept for erased callers	gap	no such line in the translation
+T3	15	g_TemplateAstMatcher.go:384	TemplateAstMatcher_1.visit	T3.1 contains / indexOf / remove(Object) on a List or Collection	gap	file unchanged
+T3	15	g_TemplateAstMatcher.go:386	TemplateAstMatcher_1.visit	T3.1 contains / indexOf / remove(Object) on a List or Collection	gap	file unchanged
+T2	0	g_TemplateTypeReplacer.go:348	TemplateTypeReplacer.getVisitedObjectTypeOrNull	T2.8 EnumMap / IdentityHashMap / LinkedList made for a typed place	gap	file unchanged
+T2	11	g_Timeline.go:69	Timeline.addEvent	T2.14 Map<V, Event<V>> of a generic method (erased type variable)	reason	file unchanged
+T3	15	g_Timeline.go:79	Timeline.addEvent	T3.3c a generic method's type variable	reason	file unchanged
+T2	11	g_Tracer.go:249	Tracer_getThreadTrace	T2.10 ThreadLocal<T>	gap	file unchanged
+T2	15	g_Tracer.go:253	Tracer_getThreadTrace	T2.10 ThreadLocal<T>	gap	file unchanged
+T1	15	g_Tracer.go:631	Tracer_AtomicTracerStatMap.incrementBy	T1.13 Map.putIfAbsent / Map.replace / Collections.singletonList on typed values	gap	file unchanged
+T2	16	g_TypeStringBuilder.go:58	TypeStringBuilder.appendAll	T2.16b an Object value nobody reads typed / an Iterable<?> dispatched by instanceof	reason	file unchanged
+T2	2	g_TypeTransformation.go:101	TypeTransformation.addNewEntry	T2.18 a generic method's type variable	reason	file unchanged
+T1	11	g_TypeTransformation.go:271	TypeTransformation.evalTemplatizedType	T1.5 Arrays.setAll / toArray of a typed array	gap	file unchanged
+T2	15	g_TypeTransformation.go:101	TypeTransformation.addNewEntry	T2.18 a generic method's type variable	reason	file unchanged
+T1	15	g_TypedAstSerializer.go:511	TypedAstSerializer.createColorTypeSerializer	T1.16 function results that are a boxed Integer	gap	file unchanged
+T2	0	g_TypedScope.go:335	TypedScope.getOwnImplicitSlot	T2.8 EnumMap / IdentityHashMap / LinkedList made for a typed place	gap	file unchanged
+T2	2	g_TypedScopeCreator.go:96	TypedScopeCreator.getAllMemoizedScopes	T2.6 immutable copies into a typed place	gap	file unchanged
+T2	2	g_VariableMap.go:28	VariableMap.getOriginalNameToNewNameMap	T2.2 Guava sorted immutables: copyOf / copyOfSorted / of / builders	gap	file unchanged
+T2	2	g_VariableMap.go:53	VariableMap.toBytes	T2.2 Guava sorted immutables: copyOf / copyOfSorted / of / builders	gap	file unchanged
+T2	10	g_VariableMap.go:58	VariableMap.toBytes	T2.2 Guava sorted immutables: copyOf / copyOfSorted / of / builders	gap	file unchanged
+T2	10	g_VariableMap.go:58	VariableMap.toBytes	T2.2 Guava sorted immutables: copyOf / copyOfSorted / of / builders	gap	file unchanged
+T2	10	g_VariableMap.go:60	VariableMap.toBytes	T2.2 Guava sorted immutables: copyOf / copyOfSorted / of / builders	gap	file unchanged
+T2	16	g_VariableMap.go:61	VariableMap.toBytes	T2.2 Guava sorted immutables: copyOf / copyOfSorted / of / builders	gap	file unchanged
+T2	16	g_VariableMap.go:63	VariableMap.toBytes	T2.2 Guava sorted immutables: copyOf / copyOfSorted / of / builders	gap	file unchanged
+R5	100	g_AbstractCommandLineRunner.go:2541	AbstractCommandLineRunner_CommandLineConfig.setBrowserFeaturesetYear	R5.1 nullable boxed flags and their setters	taken	same line; pattern 1 -> 0
+T4	100	g_AbstractCommandLineRunner.go:3049	AbstractCommandLineRunner_SystemExitCodeReceiver.apply	T4.3f Function<Integer, Void>	reason	same line; pattern 2 -> 2
+T1	100	g_CachedTransformer.go:10	CachedTransformer.init_CachedTransformer_Transformer_CacheBuilder	T1.11 CacheLoader.from / CacheBuilder<Object, Object>	gap	file unchanged
+T4	100	g_CachingTranspiler.go:100	CachingTranspiler_1.load	T4.3b CacheLoader.load of CachingTranspiler	gap	file unchanged
+T4	100	g_CheckRequiresSorted.go:406	CheckRequiresSorted_DestructuringBinding.compareTo	T4.1 Comparable / Comparator bridges kept for erased callers	gap	file unchanged
+T4	100	g_CheckRequiresSorted.go:581	CheckRequiresSorted_ImportStatement.compareTo	T4.1 Comparable / Comparator bridges kept for erased callers	gap	file unchanged
+T4	100	g_CodeReplacement.go:52	CodeReplacement.compareTo	T4.1 Comparable / Comparator bridges kept for erased callers	gap	file unchanged
+T1	100	g_ColorGraphBuilder.go:105	ColorGraphBuilder.connectSourceToDest	T1.20 a Predicate over the edge type Object	reason	file unchanged
+R5	100	g_CommandLineRunner.go:702		R5.1 nullable boxed flags and their setters	taken	closest line; pattern 1 -> 0 (line gone)
+R5	100	g_CommandLineRunner.go:721		R5.1 nullable boxed flags and their setters	taken	closest line; pattern 1 -> 0 (line gone)
+R5	100	g_CommandLineRunner.go:733		R5.1 nullable boxed flags and their setters	taken	closest line; pattern 1 -> 0 (line gone)
+R5	100	g_CommandLineRunner.go:950	CommandLineRunner_Flags.init_CommandLineRunner_Flags	R5.1 nullable boxed flags and their setters	taken	same line; pattern 1 -> 0
+R5	100	g_CommandLineRunner.go:955	CommandLineRunner_Flags.init_CommandLineRunner_Flags	R5.1 nullable boxed flags and their setters	taken	same line; pattern 1 -> 0
+R5	100	g_CommandLineRunner.go:960	CommandLineRunner_Flags.init_CommandLineRunner_Flags	R5.1 nullable boxed flags and their setters	taken	same line; pattern 1 -> 0
+R5	100	g_CommandLineRunner.go:965	CommandLineRunner_Flags.init_CommandLineRunner_Flags	R5.1 nullable boxed flags and their setters	taken	same line; pattern 1 -> 0
+R5	100	g_CommandLineRunner.go:970	CommandLineRunner_Flags.init_CommandLineRunner_Flags	R5.1 nullable boxed flags and their setters	taken	same line; pattern 1 -> 0
+R5	100	g_CommandLineRunner.go:975	CommandLineRunner_Flags.init_CommandLineRunner_Flags	R5.1 nullable boxed flags and their setters	taken	same line; pattern 1 -> 0
+R5	100	g_CommandLineRunner.go:980	CommandLineRunner_Flags.init_CommandLineRunner_Flags	R5.1 nullable boxed flags and their setters	taken	same line; pattern 1 -> 0
+R5	100	g_CommandLineRunner.go:1041	CommandLineRunner_Flags.init_CommandLineRunner_Flags	R5.1 nullable boxed flags and their setters	taken	same line; pattern 1 -> 0
+R5	100	g_CommandLineRunner.go:1046	CommandLineRunner_Flags.init_CommandLineRunner_Flags	R5.1 nullable boxed flags and their setters	taken	same line; pattern 1 -> 0
+R5	100	g_CommandLineRunner.go:1056	CommandLineRunner_Flags.init_CommandLineRunner_Flags	R5.1 nullable boxed flags and their setters	taken	same line; pattern 1 -> 0
+R5	100	g_CommandLineRunner.go:1061	CommandLineRunner_Flags.init_CommandLineRunner_Flags	R5.1 nullable boxed flags and their setters	taken	same line; pattern 1 -> 0
+R5	100	g_CommandLineRunner.go:1111	CommandLineRunner_Flags.init_CommandLineRunner_Flags	R5.1 nullable boxed flags and their setters	taken	same line; pattern 1 -> 0
+R5	100	g_CommandLineRunner.go:1116	CommandLineRunner_Flags.init_CommandLineRunner_Flags	R5.1 nullable boxed flags and their setters	taken	same line; pattern 1 -> 0
+R5	100	g_CommandLineRunner.go:1145	CommandLineRunner_Flags.init_CommandLineRunner_Flags	R5.1 nullable boxed flags and their setters	taken	same line; pattern 1 -> 0
+R5	100	g_CommandLineRunner.go:1150	CommandLineRunner_Flags.init_CommandLineRunner_Flags	R5.1 nullable boxed flags and their setters	taken	same line; pattern 1 -> 0
+R5	100	g_CommandLineRunner.go:1160	CommandLineRunner_Flags.init_CommandLineRunner_Flags	R5.1 nullable boxed flags and their setters	taken	same line; pattern 1 -> 0
+R5	100	g_CommandLineRunner.go:1165	CommandLineRunner_Flags.init_CommandLineRunner_Flags	R5.1 nullable boxed flags and their setters	taken	same line; pattern 1 -> 0
+R5	100	g_CommandLineRunner.go:1170	CommandLineRunner_Flags.init_CommandLineRunner_Flags	R5.1 nullable boxed flags and their setters	taken	same line; pattern 1 -> 0
+R5	100	g_CommandLineRunner.go:1180	CommandLineRunner_Flags.init_CommandLineRunner_Flags	R5.1 nullable boxed flags and their setters	taken	same line; pattern 1 -> 0
+R5	100	g_CommandLineRunner.go:1190	CommandLineRunner_Flags.init_CommandLineRunner_Flags	R5.1 nullable boxed flags and their setters	taken	same line; pattern 1 -> 0
+R5	100	g_CommandLineRunner.go:1195	CommandLineRunner_Flags.init_CommandLineRunner_Flags	R5.1 nullable boxed flags and their setters	taken	same line; pattern 1 -> 0
+R5	100	g_CommandLineRunner.go:1198	CommandLineRunner_Flags.init_CommandLineRunner_Flags	R5.2 not a site: `any` inside a string	reason	closest line; pattern 1 -> 1
+R5	100	g_CommandLineRunner.go:1205	CommandLineRunner_Flags.init_CommandLineRunner_Flags	R5.1 nullable boxed flags and their setters	taken	same line; pattern 1 -> 0
+R5	100	g_CommandLineRunner.go:1215	CommandLineRunner_Flags.init_CommandLineRunner_Flags	R5.1 nullable boxed flags and their setters	taken	same line; pattern 1 -> 0
+R5	100	g_CommandLineRunner.go:1220	CommandLineRunner_Flags.init_CommandLineRunner_Flags	R5.1 nullable boxed flags and their setters	taken	same line; pattern 1 -> 0
+R5	100	g_CommandLineRunner.go:1225	CommandLineRunner_Flags.init_CommandLineRunner_Flags	R5.1 nullable boxed flags and their setters	taken	same line; pattern 1 -> 0
+R5	100	g_CommandLineRunner.go:1230	CommandLineRunner_Flags.init_CommandLineRunner_Flags	R5.1 nullable boxed flags and their setters	taken	same line; pattern 1 -> 0
+R5	100	g_CommandLineRunner.go:1240	CommandLineRunner_Flags.init_CommandLineRunner_Flags	R5.1 nullable boxed flags and their setters	taken	same line; pattern 1 -> 0
+R5	100	g_CommandLineRunner.go:1265	CommandLineRunner_Flags.init_CommandLineRunner_Flags	R5.1 nullable boxed flags and their setters	taken	same line; pattern 1 -> 0
+R5	100	g_CommandLineRunner.go:1330	CommandLineRunner_Flags.init_CommandLineRunner_Flags	R5.1 nullable boxed flags and their setters	taken	same line; pattern 1 -> 0
+R5	100	g_CommandLineRunner.go:1335	CommandLineRunner_Flags.init_CommandLineRunner_Flags	R5.1 nullable boxed flags and their setters	taken	same line; pattern 1 -> 0
+R5	100	g_CommandLineRunner.go:1355	CommandLineRunner_Flags.init_CommandLineRunner_Flags	R5.1 nullable boxed flags and their setters	taken	same line; pattern 1 -> 0
+R5	100	g_CommandLineRunner.go:1360	CommandLineRunner_Flags.init_CommandLineRunner_Flags	R5.1 nullable boxed flags and their setters	taken	same line; pattern 1 -> 0
+R5	100	g_CommandLineRunner.go:1365	CommandLineRunner_Flags.init_CommandLineRunner_Flags	R5.1 nullable boxed flags and their setters	taken	same line; pattern 1 -> 0
+R5	100	g_CommandLineRunner.go:1390	CommandLineRunner_Flags.init_CommandLineRunner_Flags	R5.1 nullable boxed flags and their setters	taken	same line; pattern 1 -> 0
+R5	100	g_CommandLineRunner.go:1395	CommandLineRunner_Flags.init_CommandLineRunner_Flags	R5.1 nullable boxed flags and their setters	taken	same line; pattern 1 -> 0
+R5	100	g_CommandLineRunner.go:1415	CommandLineRunner_Flags.init_CommandLineRunner_Flags	R5.1 nullable boxed flags and their setters	taken	same line; pattern 1 -> 0
+R5	100	g_CommandLineRunner.go:1425	CommandLineRunner_Flags.init_CommandLineRunner_Flags	R5.1 nullable boxed flags and their setters	taken	same line; pattern 1 -> 0
+R5	100	g_CommandLineRunner.go:1430	CommandLineRunner_Flags.init_CommandLineRunner_Flags	R5.1 nullable boxed flags and their setters	taken	same line; pattern 1 -> 0
+R5	100	g_CommandLineRunner.go:1650	CommandLineRunner_Flags_addMultiFlagValue	R5.1 nullable boxed flags and their setters	taken	closest line; pattern 1 -> 0
+T4	100	g_Compiler.go:3690	Compiler_1.contains	T4.3e a parameter Java declares Object	reason	file unchanged
+T4	100	g_Compiler.go:3694	Compiler_1.add	T4.3c AbstractSet<String>.add of an anonymous class	gap	file unchanged
+R5	100	g_CompilerOptions.go:1106	CompilerOptions.setPolymerVersion	R5.1 nullable boxed flags and their setters	taken	same line; pattern 1 -> 0
+T1	100	g_ConvertToTypedInterface.go:419	ConvertToTypedInterface_SimplifyDeclarations.simplifyAll	T1.14 converting closures of typed comparators given to Guava sorted makers	gap	file unchanged
+T1	100	g_ConvertToTypedInterface.go:419	ConvertToTypedInterface_SimplifyDeclarations.simplifyAll	T1.14 converting closures of typed comparators given to Guava sorted makers	gap	file unchanged
+T4	100	g_DefaultNameGenerator.go:237	DefaultNameGenerator_CharPriority.compareTo	T4.1 Comparable / Comparator bridges kept for erased callers	gap	file unchanged
+T4	100	g_DiagnosticType.go:78	DiagnosticType.compareTo	T4.1 Comparable / Comparator bridges kept for erased callers	gap	file unchanged
+T4	100	g_DisambiguateProperties.go:299	DisambiguateProperties_PropertyReferenceIndexJson.compareTo	T4.1 Comparable / Comparator bridges kept for erased callers	gap	file unchanged
+T4	100	g_DisambiguateProperties.go:353	DisambiguateProperties_PropertyReferenceJson.compareTo	T4.1 Comparable / Comparator bridges kept for erased callers	gap	file unchanged
+T4	100	g_DisambiguateProperties.go:428	DisambiguateProperties_TypeEdgeJson.compareTo	T4.1 Comparable / Comparator bridges kept for erased callers	gap	file unchanged
+T4	100	g_IRFactory.go:1484	IRFactory_LineAndColumn.compareTo	T4.1 Comparable / Comparator bridges kept for erased callers	gap	same line; pattern 1 -> 1
+T1	100	g_JSChunkGraph.go:160	JSChunkGraph.getAllInputs	T1.15 Iterables.concat of an Iterables.transform	gap	file unchanged
+T4	100	g_JSChunkGraph.go:612	JSChunkGraph_InverseDepthComparator.compare	T4.1 Comparable / Comparator bridges kept for erased callers	gap	file unchanged
+T4	100	g_JSChunkGraph.go:612	JSChunkGraph_InverseDepthComparator.compare	T4.1 Comparable / Comparator bridges kept for erased callers	gap	file unchanged
+T4	100	g_JSDocInfo.go:983	JSDocInfo_Property.compareTo	T4.1b compareTo of JSDocInfo.Property (Comparable<Property<Object>>)	reason	same line; pattern 1 -> 1
+R4	100	g_JSDocInfo.go:1919	JSDocInfo_TrimmedStringPosition.setItem_impl	R4.1 SourcePosition<T> / FlagEntry<T> erased type parameter	taken	same line; pattern 1 -> 0
+R4	100	g_JSDocInfo.go:2998	JSDocInfo_TrimmedStringPosition.setItem	R4.1 SourcePosition<T> / FlagEntry<T> erased type parameter	taken	closest line; pattern 1 -> 0
+R5	100	g_JSType.go:9		R5.1 nullable boxed flags and their setters	taken	by hand: main g_JSType.go:10 templateCheckResult Nbox[bool]
+T1	100	g_LinterMain.go:40	LinterMain.run	T1.17 option setters Consumer<Boolean> (nbox)	taken	same line; pattern 1 -> 0
+T1	100	g_MapDiagnosticToSuppression.go:42	MapDiagnosticToSuppression.printSuppressions	T1.17 option setters Consumer<Boolean> (nbox)	taken	same line; pattern 1 -> 0
+T1	100	g_ModuleLoader.go:79	ModuleLoader.createRootPaths	T1.14 converting closures of typed comparators given to Guava sorted makers	gap	file unchanged
+T1	100	g_ModuleLoader.go:79	ModuleLoader.createRootPaths	T1.14 converting closures of typed comparators given to Guava sorted makers	gap	file unchanged
+R5	100	g_OptimizeCalls.go:114		R5.1 nullable boxed flags and their setters	taken	same line; pattern 1 -> 0
+T1	100	g_RefactoringDriver.go:96	RefactoringDriver_Builder.addExternsFromFile	T1.7 Lists.transform (a live view)	gap	file unchanged
+T1	100	g_RefactoringDriver.go:122	RefactoringDriver_Builder.addInputsFromFile	T1.7 Lists.transform (a live view)	gap	file unchanged
+R5	100	g_ReportDecoder.go:137	ReportDecoder_mergeProfiles	R5.4 a boxed Long value of a typed map (computeIfAbsent's function)	gap	file unchanged
+T4	100	g_SerializeTypesToPointers.go:254	SerializeTypesToPointers_TypeMismatchJson.compareTo	T4.1 Comparable / Comparator bridges kept for erased callers	gap	file unchanged
+R5	100	g_Source.go:448		R5.3 Source.Lazy's captured instance	gap	file unchanged
+R5	100	g_Source.go:462	new_Source_Lazy_1	R5.3 Source.Lazy's captured instance	gap	file unchanged
+R4	100	g_SourcePosition_rhino.go:7		R4.1 SourcePosition<T> / FlagEntry<T> erased type parameter	taken	closest line; pattern 1 -> 0
+R4	100	g_SourcePosition_rhino.go:41	SourcePosition_rhino.setItem_impl	R4.1 SourcePosition<T> / FlagEntry<T> erased type parameter	taken	same line; pattern 1 -> 0
+R4	100	g_SourcePosition_rhino.go:81	SourcePosition_rhino.setItem	R4.1 SourcePosition<T> / FlagEntry<T> erased type parameter	taken	same line; pattern 1 -> 0
+T4	100	g_StandardUnionFind.go:195	StandardUnionFind_1.apply	T4.3e a parameter Java declares Object	reason	file unchanged
+T4	100	g_StandardUnionFind.go:237	StandardUnionFind_2.contains	T4.3e a parameter Java declares Object	reason	file unchanged
+R5	100	g_SubtypeChecker.go:9		R5.1 nullable boxed flags and their setters	taken	same line; pattern 1 -> 0 (line gone)
+T4	100	g_SymbolTable.go:1850	SymbolTable_5.compare	T4.1 Comparable / Comparator bridges kept for erased callers	gap	same line; pattern 2 -> 2
+T4	100	g_SymbolTable.go:1850	SymbolTable_5.compare	T4.1 Comparable / Comparator bridges kept for erased callers	gap	same line; pattern 2 -> 2
+T4	100	g_SymbolTable.go:1891	SymbolTable_6.compare	T4.1 Comparable / Comparator bridges kept for erased callers	gap	same line; pattern 2 -> 2
+T4	100	g_SymbolTable.go:1891	SymbolTable_6.compare	T4.1 Comparable / Comparator bridges kept for erased callers	gap	same line; pattern 2 -> 2
+T4	100	g_SymbolTable.go:1938	SymbolTable_7.compare	T4.1 Comparable / Comparator bridges kept for erased callers	gap	same line; pattern 2 -> 2
+T4	100	g_SymbolTable.go:1938	SymbolTable_7.compare	T4.1 Comparable / Comparator bridges kept for erased callers	gap	same line; pattern 2 -> 2
+T2	100	g_Timeline.go:68	Timeline.addEvent	T2.14 Map<V, Event<V>> of a generic method (erased type variable)	reason	file unchanged
+T1	100	g_TypeInferencePass.go:94	TypeInferencePass.inferScope	T1.16 function results that are a boxed Integer	gap	file unchanged
+T1	100	g_VariableMap.go:58	VariableMap.toBytes	T1.14 converting closures of typed comparators given to Guava sorted makers	gap	file unchanged
+T1	100	g_VariableMap.go:58	VariableMap.toBytes	T1.14 converting closures of typed comparators given to Guava sorted makers	gap	file unchanged
+T4	100	g_zstubs.go:94	AbstractMap.containsKey	T4.4 not a site: placeholder stubs of AbstractMap	reason	file unchanged
+T4	100	g_zstubs.go:98	AbstractMap.containsValue	T4.4 not a site: placeholder stubs of AbstractMap	reason	file unchanged
+T4	100	g_zstubs.go:118	AbstractMap.put	T4.4 not a site: placeholder stubs of AbstractMap	reason	file unchanged
+T4	100	g_zstubs.go:118	AbstractMap.put	T4.4 not a site: placeholder stubs of AbstractMap	reason	file unchanged
