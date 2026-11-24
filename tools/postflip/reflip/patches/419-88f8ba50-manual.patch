@@ -1,0 +1,26 @@
+diff --git a/go/closure/g_ControlFlowAnalysis.go b/go/closure/g_ControlFlowAnalysis.go
+index 19e856d6..e8fe24ed 100644
+--- a/go/closure/g_ControlFlowAnalysis.go
++++ b/go/closure/g_ControlFlowAnalysis.go
+@@ -812,11 +812,19 @@ func new_ControlFlowAnalysis_AstControlFlowGraph(entry Node, edgeAnnotations boo
+ 	return this
+ }
+ 
++// nodePriority_ is DiGraphNode::getPriority for the data-flow node comparators. The node is a
++// LinkedDiGraphNode, the only DiGraphNode class, so getPriority is called on it directly, and
++// the comparator has the function itself, not an adapter object that casts each node to the
++// DiGraphNode interface (post-flip manual step).
++func nodePriority_(p0 any) int32 {
++	return to_LinkedDirectedGraph_LinkedDiGraphNode[Node, ControlFlowGraph_Branch](p0).getPriority()
++}
++
+ func (this *ControlFlowAnalysis_AstControlFlowGraph) getOptionalNodeComparator_impl(isForward bool) ComparatorOf[DiGraph_DiGraphNode[Node]] {
+ 	return func() Comparator {
+ 		if isForward {
+-			return Comparator_comparingInt(&ToIntFunction_tfn_DiGraph_DiGraphNode_Node_{func(p0 DiGraph_DiGraphNode[Node]) int32 { return p0.getPriority() }})
++			return Comparator_comparingInt_f(nodePriority_)
+ 		}
+-		return Comparator_reversed(Comparator_comparingInt(&ToIntFunction_tfn_DiGraph_DiGraphNode_Node_{func(p0 DiGraph_DiGraphNode[Node]) int32 { return p0.getPriority() }}))
++		return Comparator_reversed(Comparator_comparingInt_f(nodePriority_))
+ 	}()
+ }
