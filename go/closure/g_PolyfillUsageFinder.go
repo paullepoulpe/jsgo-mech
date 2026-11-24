@@ -540,10 +540,10 @@ func new_PolyfillUsageFinder_Traverser(outer_ *PolyfillUsageFinder, compiler *Ab
 }
 
 func (this *PolyfillUsageFinder_Traverser) visitGuarded_impl(traversal *NodeTraversal, node Node, parent Node) {
-	switch node.getToken() {
-	case Token_rhino_NAME:
+	switch node.ns_().token {
+	case tokOrd1_NAME:
 		this.visitName(traversal, node)
-	case Token_rhino_GETPROP, Token_rhino_OPTCHAIN_GETPROP:
+	case tokOrd1_GETPROP, tokOrd1_OPTCHAIN_GETPROP:
 		this.visitGetPropChain(traversal, node)
 	default:
 	}

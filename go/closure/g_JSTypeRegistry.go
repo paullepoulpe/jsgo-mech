@@ -1260,10 +1260,10 @@ func (this *JSTypeRegistry) createTypeFromCommentNode(n Node) *JSType {
 
 func (this *JSTypeRegistry) createTypeFromCommentNode_3(n Node, sourceName Optional[string], scope StaticTypedScope) *JSType {
 	return func() *JSType {
-		switch n.getToken() {
-		case Token_rhino_LC:
+		switch n.ns_().token {
+		case tokOrd1_LC:
 			return this.createRecordTypeFromNodes(n.getFirstChild(), sourceName, scope)
-		case Token_rhino_BANG:
+		case tokOrd1_BANG:
 			var child *JSType = this.createTypeFromCommentNode_3(n.getFirstChild(), sourceName, scope)
 			var namedType *NamedType
 			_ = namedType
@@ -1278,19 +1278,19 @@ func (this *JSTypeRegistry) createTypeFromCommentNode_3(n Node, sourceName Optio
 				return namedType.getBangType()
 			}
 			return child.restrictByNotNullOrUndefined()
-		case Token_rhino_QMARK:
+		case tokOrd1_QMARK:
 			var firstChild Node = n.getFirstChild()
 			if firstChild == 0 {
 				return this.getNativeType(JSTypeNative_UNKNOWN_TYPE)
 			}
 			return this.createNullableType(this.createTypeFromCommentNode_3(firstChild, sourceName, scope))
-		case Token_rhino_EQUALS:
+		case tokOrd1_EQUALS:
 			return this.createOptionalType(this.createTypeFromCommentNode_3(n.getFirstChild(), sourceName, scope))
-		case Token_rhino_ITER_REST:
+		case tokOrd1_ITER_REST:
 			return this.createTypeFromCommentNode_3(n.getFirstChild(), sourceName, scope)
-		case Token_rhino_STAR:
+		case tokOrd1_STAR:
 			return this.getNativeType(JSTypeNative_ALL_TYPE)
-		case Token_rhino_PIPE:
+		case tokOrd1_PIPE:
 			var builder *TListBuilder[*JSType] = newTListBuilder_(jtc_p_JSType)
 			{
 				var child Node = n.getFirstChild()
@@ -1299,11 +1299,11 @@ func (this *JSTypeRegistry) createTypeFromCommentNode_3(n Node, sourceName Optio
 				}
 			}
 			return this.createUnionTypeList(builder.build())
-		case Token_rhino_EMPTY:
+		case tokOrd1_EMPTY:
 			return this.getNativeType(JSTypeNative_UNKNOWN_TYPE)
-		case Token_rhino_VOID:
+		case tokOrd1_VOID:
 			return this.getNativeType(JSTypeNative_VOID_TYPE)
-		case Token_rhino_TYPEOF:
+		case tokOrd1_TYPEOF:
 			var name string = n.getFirstChild().getString()
 			var qname *QualifiedName = QualifiedName_of(name)
 			var root string = qname.getRoot()
@@ -1318,7 +1318,7 @@ func (this *JSTypeRegistry) createTypeFromCommentNode_3(n Node, sourceName Optio
 				type_ = NamedType_builder(this, ("typeof " + sstr_(name))).setResolutionKind(NamedType_ResolutionKind_NONE).setReferencedType(scopeType).build().up_JSType()
 			}
 			return type_
-		case Token_rhino_STRINGLIT:
+		case tokOrd1_STRINGLIT:
 			var nominalType *JSType = this.getType_5(scope, n.getString(), sourceName, n.getLineno(), n.getCharno())
 			var templateArgs *JTList[*JSType] = this.parseTemplateArgs(nominalType, n, sourceName, scope)
 			if nominalType.isNamedType() && !nominalType.isResolved() {
@@ -1343,7 +1343,7 @@ func (this *JSTypeRegistry) createTypeFromCommentNode_3(n Node, sourceName Optio
 				return this.addNullabilityBasedOnParseContext(n, nominalType, StaticScope(scope))
 			}
 			return this.addNullabilityBasedOnParseContext(n, this.createTemplatizedTypeImmutableList(objectType, templateArgs).up_JSType(), StaticScope(scope))
-		case Token_rhino_FUNCTION:
+		case tokOrd1_FUNCTION:
 			var thisType *JSType = nil
 			var isConstructor bool = false
 			var current Node = n.getFirstChild()
@@ -1360,15 +1360,15 @@ func (this *JSTypeRegistry) createTypeFromCommentNode_3(n Node, sourceName Optio
 						this.reporter.warning(Msg_JSDOC_FUNCTION_NEWNOTOBJECT.format(), sourceName, contextNode.getLineno(), contextNode.getCharno())
 					}
 				}
-				isConstructor = (current.getToken() == Token_rhino_NEW)
+				isConstructor = (current.ns_().token == tokOrd1_NEW)
 				current = current.getNext()
 			}
 			var paramBuilder *FunctionParamBuilder = new_FunctionParamBuilder_JSTypeRegistry(this)
-			if current.getToken() == Token_rhino_PARAM_LIST {
+			if current.ns_().token == tokOrd1_PARAM_LIST {
 				{
 					var arg Node = current.getFirstChild()
 					for ; arg != 0; arg = arg.getNext() {
-						if arg.getToken() == Token_rhino_ITER_REST {
+						if arg.ns_().token == tokOrd1_ITER_REST {
 							if !arg.hasChildren() {
 								paramBuilder.addVarArgs(this.getNativeType(JSTypeNative_UNKNOWN_TYPE))
 							} else {
@@ -1376,7 +1376,7 @@ func (this *JSTypeRegistry) createTypeFromCommentNode_3(n Node, sourceName Optio
 							}
 						} else {
 							var type_ *JSType = this.createTypeFromCommentNode_3(arg, sourceName, scope)
-							if arg.getToken() == Token_rhino_EQUALS {
+							if arg.ns_().token == tokOrd1_EQUALS {
 								var addSuccess bool = paramBuilder.addOptionalParams([]*JSType{type_})
 								if !addSuccess {
 									this.reporter.warning(Msg_JSDOC_FUNCTION_VARARGS.format(), sourceName, arg.getLineno(), arg.getCharno())
@@ -1456,7 +1456,7 @@ func (this *JSTypeRegistry) createRecordTypeFromNodes(n Node, sourceName Optiona
 		for ; fieldTypeNode != 0; fieldTypeNode = fieldTypeNode.getNext() {
 			var fieldNameNode Node = fieldTypeNode
 			var hasType bool = false
-			if fieldTypeNode.getToken() == Token_rhino_COLON {
+			if fieldTypeNode.ns_().token == tokOrd1_COLON {
 				fieldNameNode = fieldTypeNode.getFirstChild()
 				hasType = true
 			}

@@ -68,8 +68,8 @@ func (this *ClosureCheckModule) visit_4_impl(t *NodeTraversal, n Node, currentMo
 	if jsDoc != nil {
 		this.checkJSDoc(t, jsDoc)
 	}
-	switch n.getToken() {
-	case Token_rhino_CALL:
+	switch n.ns_().token {
+	case tokOrd1_CALL:
 		var callee Node = n.getFirstChild()
 		if ClosureCheckModule_GOOG_MODULE_FIELD.matches(callee) {
 			if !Object_equals(Optional_of[string](this.currentModuleInfo.name_).box_(), ClosureCheckModule_extractFirstArgumentName(n).box_()) {
@@ -84,34 +84,34 @@ func (this *ClosureCheckModule) visit_4_impl(t *NodeTraversal, n Node, currentMo
 		} else if ClosureCheckModule_GOOG_MODULE_DECLARE_LEGACY_NAMESPACE.matches(callee) {
 			ClosureCheckModule_checkLegacyNamespaceCall(t, n, parent)
 		}
-	case Token_rhino_ASSIGN:
+	case tokOrd1_ASSIGN:
 		{
 			if ClosureCheckModule_isExportLhs(n.getFirstChild()) {
 				this.checkModuleExport(t, n, parent)
 			}
 			break
 		}
-	case Token_rhino_CLASS, Token_rhino_FUNCTION:
+	case tokOrd1_CLASS, tokOrd1_FUNCTION:
 		if !NodeUtil_isStatement(n) {
 			break
 		}
 		fallthrough
-	case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST:
+	case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST:
 		if (t.inModuleHoistScope() && (n.isClass() || (NodeUtil_getEnclosingClass(n) == 0))) && (NodeUtil_getEnclosingType(n, Token_rhino_OBJECTLIT) == 0) {
 			var jsdoc *JSDocInfo = NodeUtil_getBestJSDocInfo(n)
 			if (jsdoc != nil) && jsdoc.isExport() {
 				t.report(n, ClosureCheckModule_AT_EXPORT_IN_GOOG_MODULE, []string{})
 			}
 		}
-	case Token_rhino_THIS:
+	case tokOrd1_THIS:
 		if t.inModuleHoistScope() {
 			t.report(n, ClosureCheckModule_GOOG_MODULE_REFERENCES_THIS, []string{})
 		}
-	case Token_rhino_THROW:
+	case tokOrd1_THROW:
 		if t.inModuleHoistScope() {
 			t.report(n, ClosureCheckModule_GOOG_MODULE_USES_THROW, []string{})
 		}
-	case Token_rhino_NAME, Token_rhino_GETPROP:
+	case tokOrd1_NAME, tokOrd1_GETPROP:
 		if n.matchesQualifiedName(this.currentModuleInfo.name_) {
 			if n.isGetProp() {
 				t.report(n, ClosureCheckModule_REFERENCE_TO_MODULE_GLOBAL_NAME, []string{})
@@ -245,13 +245,13 @@ func ClosureCheckModule_extractFirstArgumentName(callNode Node) Optional[string]
 func (this *ClosureCheckModule) checkRequireCall(t *NodeTraversal, callNode Node, parent Node) {
 	Preconditions_checkState(callNode.isCall())
 	Preconditions_checkState(callNode.getLastChild().isStringLit())
-	switch parent.getToken() {
-	case Token_rhino_EXPR_RESULT:
+	switch parent.ns_().token {
+	case tokOrd1_EXPR_RESULT:
 		var key Optional[string] = ClosureCheckModule_extractFirstArgumentName(callNode)
 		this.currentModuleInfo.importsByLongRequiredName.putIfAbsent(key.orElse(nullstr_), parent)
-	case Token_rhino_NAME, Token_rhino_DESTRUCTURING_LHS:
+	case tokOrd1_NAME, tokOrd1_DESTRUCTURING_LHS:
 		this.checkShortGoogRequireCall(t, callNode, parent.getParent())
-	case Token_rhino_AWAIT:
+	case tokOrd1_AWAIT:
 		var grandParentToken *Token_rhino = parent.getParent().getToken()
 		if eqR_(grandParentToken, Token_rhino_DESTRUCTURING_LHS) || eqR_(grandParentToken, Token_rhino_NAME) {
 			this.checkShortGoogRequireCall(t, callNode, parent.getGrandparent())

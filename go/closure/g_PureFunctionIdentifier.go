@@ -98,16 +98,16 @@ func PureFunctionIdentifier_collectCallableLeaves(expr Node, astAnalyzer *AstAna
 }
 
 func PureFunctionIdentifier_collectCallableLeavesInternal(expr Node, results *JTList[Node], astAnalyzer *AstAnalyzer) bool {
-	switch expr.getToken() {
-	case Token_rhino_FUNCTION, Token_rhino_GETPROP, Token_rhino_OPTCHAIN_GETPROP, Token_rhino_NAME:
+	switch expr.ns_().token {
+	case tokOrd1_FUNCTION, tokOrd1_GETPROP, tokOrd1_OPTCHAIN_GETPROP, tokOrd1_NAME:
 		results.add(expr)
 		return true
-	case Token_rhino_SUPER:
+	case tokOrd1_SUPER:
 		{
 			var clazz Node = Preconditions_checkNotNull_T(NodeUtil_getEnclosingClass(expr))
 			return PureFunctionIdentifier_collectCallableLeavesInternal(clazz.getSecondChild(), results, astAnalyzer)
 		}
-	case Token_rhino_CLASS:
+	case tokOrd1_CLASS:
 		{
 			var members Node = expr.getLastChild()
 			if (members != 0) && members.isClassMembers() {
@@ -131,11 +131,11 @@ func PureFunctionIdentifier_collectCallableLeavesInternal(expr Node, results *JT
 				return PureFunctionIdentifier_collectCallableLeavesInternal(expr.getSecondChild(), results, astAnalyzer)
 			}
 		}
-	case Token_rhino_AND, Token_rhino_OR, Token_rhino_COALESCE:
+	case tokOrd1_AND, tokOrd1_OR, tokOrd1_COALESCE:
 		return (PureFunctionIdentifier_collectCallableLeavesInternal(expr.getFirstChild(), results, astAnalyzer) && PureFunctionIdentifier_collectCallableLeavesInternal(expr.getSecondChild(), results, astAnalyzer))
-	case Token_rhino_COMMA, Token_rhino_ASSIGN:
+	case tokOrd1_COMMA, tokOrd1_ASSIGN:
 		return PureFunctionIdentifier_collectCallableLeavesInternal(expr.getSecondChild(), results, astAnalyzer)
-	case Token_rhino_HOOK:
+	case tokOrd1_HOOK:
 		return (PureFunctionIdentifier_collectCallableLeavesInternal(expr.getSecondChild(), results, astAnalyzer) && PureFunctionIdentifier_collectCallableLeavesInternal(expr.getChildAtIndex(2), results, astAnalyzer))
 	default:
 		return false
@@ -146,16 +146,16 @@ func PureFunctionIdentifier_collectCallableLeavesInternal(expr Node, results *JT
 func PureFunctionIdentifier_isDefinitelyRValue(rvalue Node) bool {
 	var parent Node = rvalue.getParent()
 	return func() bool {
-		switch parent.getToken() {
-		case Token_rhino_AND, Token_rhino_ARRAYLIT, Token_rhino_CALL, Token_rhino_COALESCE, Token_rhino_COMMA, Token_rhino_EQ, Token_rhino_GETELEM, Token_rhino_GETPROP, Token_rhino_HOOK, Token_rhino_INSTANCEOF, Token_rhino_NEW, Token_rhino_NOT, Token_rhino_NAME, Token_rhino_OPTCHAIN_CALL, Token_rhino_OPTCHAIN_GETELEM, Token_rhino_OPTCHAIN_GETPROP, Token_rhino_OR, Token_rhino_RETURN, Token_rhino_SHEQ, Token_rhino_TAGGED_TEMPLATELIT, Token_rhino_TYPEOF, Token_rhino_YIELD:
+		switch parent.ns_().token {
+		case tokOrd1_AND, tokOrd1_ARRAYLIT, tokOrd1_CALL, tokOrd1_COALESCE, tokOrd1_COMMA, tokOrd1_EQ, tokOrd1_GETELEM, tokOrd1_GETPROP, tokOrd1_HOOK, tokOrd1_INSTANCEOF, tokOrd1_NEW, tokOrd1_NOT, tokOrd1_NAME, tokOrd1_OPTCHAIN_CALL, tokOrd1_OPTCHAIN_GETELEM, tokOrd1_OPTCHAIN_GETPROP, tokOrd1_OR, tokOrd1_RETURN, tokOrd1_SHEQ, tokOrd1_TAGGED_TEMPLATELIT, tokOrd1_TYPEOF, tokOrd1_YIELD:
 			return true
-		case Token_rhino_CASE, Token_rhino_IF, Token_rhino_SWITCH, Token_rhino_WHILE:
+		case tokOrd1_CASE, tokOrd1_IF, tokOrd1_SWITCH, tokOrd1_WHILE:
 			return rvalue.isFirstChildOf(parent)
-		case Token_rhino_EXPR_RESULT:
+		case tokOrd1_EXPR_RESULT:
 			return !rvalue.isFromExterns()
-		case Token_rhino_ASSIGN, Token_rhino_CLASS:
+		case tokOrd1_ASSIGN, tokOrd1_CLASS:
 			return rvalue.isSecondChildOf(parent)
-		case Token_rhino_STRING_KEY:
+		case tokOrd1_STRING_KEY:
 			return parent.getParent().isObjectLit()
 		default:
 			return false
@@ -378,10 +378,10 @@ func PureFunctionIdentifier_isCallOrTaggedTemplateLit(invocation Node) bool {
 
 func PureFunctionIdentifier_nameForReference(nameRef Node) Optional[string] {
 	return func() Optional[string] {
-		switch nameRef.getToken() {
-		case Token_rhino_NAME:
+		switch nameRef.ns_().token {
+		case tokOrd1_NAME:
 			return Optional_of[string](nameRef.getString())
-		case Token_rhino_GETPROP, Token_rhino_OPTCHAIN_GETPROP:
+		case tokOrd1_GETPROP, tokOrd1_OPTCHAIN_GETPROP:
 			return Optional_of[string]((sstr_(PureFunctionIdentifier_PROP_NAME_PREFIX) + sstr_(nameRef.getString())))
 		default:
 			panic(new_IllegalStateException_String(("Unexpected name reference: " + tostrH_(nameRef))).self())
@@ -530,8 +530,8 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) updateSideEffectsForNod
 	if encloserSummary.mutatesGlobalState() {
 		return
 	}
-	switch node.getToken() {
-	case Token_rhino_ASSIGN:
+	switch node.ns_().token {
+	case tokOrd1_ASSIGN:
 		var lhs Node = node.getFirstChild()
 		var rhsLocality Predicate[Node] = func() Predicate[Node] {
 			if lhs.isDestructuringPattern() {
@@ -542,30 +542,30 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) updateSideEffectsForNod
 		NodeUtil_visitLhsNodesInNode(node, Consumer[Node](func(lhsNode Node) {
 			this.visitLhsNode(encloserSummary, traversal.getScope(), lhsNode, rhsLocality)
 		}))
-	case Token_rhino_INC, Token_rhino_DEC, Token_rhino_DELPROP:
+	case tokOrd1_INC, tokOrd1_DEC, tokOrd1_DELPROP:
 		this.visitLhsNode(encloserSummary, traversal.getScope(), node.getOnlyChild(), PureFunctionIdentifier_RHS_IS_ALWAYS_LOCAL)
-	case Token_rhino_FOR_AWAIT_OF:
+	case tokOrd1_FOR_AWAIT_OF:
 		this.deprecatedSetSideEffectsForControlLoss(encloserSummary)
 		fallthrough
-	case Token_rhino_FOR_OF:
+	case tokOrd1_FOR_OF:
 		NodeUtil_visitLhsNodesInNode(node, Consumer[Node](func(lhsNode Node) {
 			this.visitLhsNode(encloserSummary, traversal.getScope(), lhsNode, PureFunctionIdentifier_RHS_IS_NEVER_LOCAL)
 		}))
 		this.checkIteratesImpureIterable(node, encloserSummary)
-	case Token_rhino_FOR_IN:
+	case tokOrd1_FOR_IN:
 		NodeUtil_visitLhsNodesInNode(node, Consumer[Node](func(lhsNode Node) {
 			this.visitLhsNode(encloserSummary, traversal.getScope(), lhsNode, PureFunctionIdentifier_RHS_IS_ALWAYS_LOCAL)
 		}))
-	case Token_rhino_OPTCHAIN_CALL, Token_rhino_CALL, Token_rhino_NEW, Token_rhino_TAGGED_TEMPLATELIT:
+	case tokOrd1_OPTCHAIN_CALL, tokOrd1_CALL, tokOrd1_NEW, tokOrd1_TAGGED_TEMPLATELIT:
 		this.visitCall(encloserSummary, traversal.getScope(), node)
-	case Token_rhino_DESTRUCTURING_LHS:
+	case tokOrd1_DESTRUCTURING_LHS:
 		if NodeUtil_isAnyFor(node.getParent()) {
 			break
 		}
 		NodeUtil_visitLhsNodesInNode(node.getParent(), Consumer[Node](func(lhsNode Node) {
 			this.visitLhsNode(encloserSummary, traversal.getScope(), lhsNode, PureFunctionIdentifier_RHS_IS_NEVER_LOCAL)
 		}))
-	case Token_rhino_NAME:
+	case tokOrd1_NAME:
 		if NodeUtil_isNameDeclaration(node.getParent()) {
 			var value Node = node.getFirstChild()
 			if (value != 0) && !NodeUtil_evaluatesToLocalValue(value) {
@@ -574,30 +574,30 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) updateSideEffectsForNod
 				SequencedCollection_getLastT_[*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry](this.functionScopeStack.asCollT()).skiplistedVars.add(var_)
 			}
 		}
-	case Token_rhino_THROW:
+	case tokOrd1_THROW:
 		this.recordThrowsBasedOnContext(encloserSummary)
-	case Token_rhino_YIELD:
+	case tokOrd1_YIELD:
 		this.checkIteratesImpureIterable(node, encloserSummary)
 		this.deprecatedSetSideEffectsForControlLoss(encloserSummary)
-	case Token_rhino_AWAIT:
+	case tokOrd1_AWAIT:
 		this.deprecatedSetSideEffectsForControlLoss(encloserSummary)
-	case Token_rhino_OBJECT_REST, Token_rhino_OBJECT_SPREAD:
+	case tokOrd1_OBJECT_REST, tokOrd1_OBJECT_SPREAD:
 		if !this.outer_.assumeGettersArePure_ {
 			encloserSummary.setMutatesGlobalStateAndAllOtherFlags(node)
 		}
-	case Token_rhino_ITER_REST, Token_rhino_ITER_SPREAD:
+	case tokOrd1_ITER_REST, tokOrd1_ITER_SPREAD:
 		this.checkIteratesImpureIterable(node, encloserSummary)
-	case Token_rhino_STRING_KEY:
+	case tokOrd1_STRING_KEY:
 		if node.getParent().isObjectPattern() {
 			if this.outer_.getPropertyKind(node.getString()).hasGetter() {
 				encloserSummary.setMutatesGlobalStateAndAllOtherFlags(node)
 			}
 		}
-	case Token_rhino_OPTCHAIN_GETPROP, Token_rhino_GETPROP:
+	case tokOrd1_OPTCHAIN_GETPROP, tokOrd1_GETPROP:
 		if this.outer_.getPropertyKind(node.getString()).hasGetterOrSetter() {
 			encloserSummary.setMutatesGlobalStateAndAllOtherFlags(node)
 		}
-	case Token_rhino_DYNAMIC_IMPORT:
+	case tokOrd1_DYNAMIC_IMPORT:
 		encloserSummary.setMutatesGlobalStateAndAllOtherFlags(node)
 	default:
 		if NodeUtil_isCompoundAssignmentOp(node) {

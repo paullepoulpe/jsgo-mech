@@ -70,10 +70,10 @@ func (this *MaybeReachingVariableUse) hasExceptionHandler(cfgNode Node) bool {
 }
 
 func (this *MaybeReachingVariableUse) computeMayUse(n Node, cfgNode Node, output *MaybeReachingVariableUse_ReachingUses, conditional bool) {
-	switch n.getToken() {
-	case Token_rhino_BLOCK, Token_rhino_ROOT, Token_rhino_FUNCTION:
+	switch n.ns_().token {
+	case tokOrd1_BLOCK, tokOrd1_ROOT, tokOrd1_FUNCTION:
 		return
-	case Token_rhino_NAME:
+	case tokOrd1_NAME:
 		if NodeUtil_isLhsByDestructuring(n) {
 			if !conditional {
 				this.removeFromUseIfLocal(n.getString(), output)
@@ -82,11 +82,11 @@ func (this *MaybeReachingVariableUse) computeMayUse(n Node, cfgNode Node, output
 			this.addToUseIfLocal(n.getString(), cfgNode, output)
 		}
 		return
-	case Token_rhino_WHILE, Token_rhino_DO, Token_rhino_IF, Token_rhino_FOR:
+	case tokOrd1_WHILE, tokOrd1_DO, tokOrd1_IF, tokOrd1_FOR:
 		var condExpr Node = NodeUtil_getConditionExpression(n)
 		this.computeMayUse(condExpr, cfgNode, output, conditional)
 		return
-	case Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF:
+	case tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF:
 		var lhs Node = n.getFirstChild()
 		var rhs Node = lhs.getNext()
 		if NodeUtil_isNameDeclaration(lhs) {
@@ -100,11 +100,11 @@ func (this *MaybeReachingVariableUse) computeMayUse(n Node, cfgNode Node, output
 		}
 		this.computeMayUse(rhs, cfgNode, output, conditional)
 		return
-	case Token_rhino_AND, Token_rhino_OR, Token_rhino_COALESCE, Token_rhino_OPTCHAIN_GETPROP, Token_rhino_OPTCHAIN_GETELEM:
+	case tokOrd1_AND, tokOrd1_OR, tokOrd1_COALESCE, tokOrd1_OPTCHAIN_GETPROP, tokOrd1_OPTCHAIN_GETELEM:
 		this.computeMayUse(n.getLastChild(), cfgNode, output, true)
 		this.computeMayUse(n.getFirstChild(), cfgNode, output, conditional)
 		return
-	case Token_rhino_OPTCHAIN_CALL:
+	case tokOrd1_OPTCHAIN_CALL:
 		{
 			var c Node = n.getLastChild()
 			for ; c != n.getFirstChild(); c = c.getPrevious() {
@@ -113,12 +113,12 @@ func (this *MaybeReachingVariableUse) computeMayUse(n Node, cfgNode Node, output
 		}
 		this.computeMayUse(n.getFirstChild(), cfgNode, output, conditional)
 		return
-	case Token_rhino_HOOK:
+	case tokOrd1_HOOK:
 		this.computeMayUse(n.getLastChild(), cfgNode, output, true)
 		this.computeMayUse(n.getSecondChild(), cfgNode, output, true)
 		this.computeMayUse(n.getFirstChild(), cfgNode, output, conditional)
 		return
-	case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST:
+	case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST:
 		var varName Node = n.getFirstChild()
 		Preconditions_checkState_boolean_String_Object_H(n.hasChildren(), "AST should be normalized (%s)", n)
 		if varName.isDestructuringLhs() {
@@ -131,7 +131,7 @@ func (this *MaybeReachingVariableUse) computeMayUse(n Node, cfgNode Node, output
 			}
 		}
 		return
-	case Token_rhino_DEFAULT_VALUE:
+	case tokOrd1_DEFAULT_VALUE:
 		if n.getFirstChild().isDestructuringPattern() {
 			this.computeMayUse(n.getFirstChild(), cfgNode, output, conditional)
 			this.computeMayUse(n.getSecondChild(), cfgNode, output, true)

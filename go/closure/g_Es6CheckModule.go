@@ -31,12 +31,12 @@ func (this *Es6CheckModule) process_2(externs Node, root Node) {
 }
 
 func (this *Es6CheckModule) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_THIS:
+	switch n.ns_().token {
+	case tokOrd1_THIS:
 		if t.inModuleHoistScope() {
 			t.report(n, Es6CheckModule_ES6_MODULE_REFERENCES_THIS, []string{})
 		}
-	case Token_rhino_GETPROP, Token_rhino_GETELEM:
+	case tokOrd1_GETPROP, tokOrd1_GETELEM:
 		if (NodeUtil_isLValue(n) && !NodeUtil_isDeclarationLValue(n)) && n.getFirstChild().isName() {
 			var var_ *Var = t.getScope().getVar_String_rVar(n.getFirstChild().getString())
 			if var_ != nil {
@@ -46,7 +46,7 @@ func (this *Es6CheckModule) visit_impl(t *NodeTraversal, n Node, parent Node) {
 				}
 			}
 		}
-	case Token_rhino_NAME:
+	case tokOrd1_NAME:
 		if NodeUtil_isLValue(n) && !NodeUtil_isDeclarationLValue(n) {
 			var var_ *Var = t.getScope().getVar_String_rVar(n.getString())
 			if var_ != nil {

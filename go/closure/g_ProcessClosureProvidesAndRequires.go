@@ -196,17 +196,17 @@ func (this *ProcessClosureProvidesAndRequires) handleCandidateProvideDefinition(
 		return
 	}
 	var name Optional[string] = func() Optional[string] {
-		switch n.getParent().getToken() {
-		case Token_rhino_LET, Token_rhino_CONST:
+		switch n.getParent().ns_().token {
+		case tokOrd1_LET, tokOrd1_CONST:
 			return func() Optional[string] {
 				if t.inGlobalScope() {
 					return Optional_of[string](n.getString())
 				}
 				return Optional_empty[string]()
 			}()
-		case Token_rhino_VAR:
+		case tokOrd1_VAR:
 			return Optional_of[string](n.getString())
-		case Token_rhino_EXPR_RESULT:
+		case tokOrd1_EXPR_RESULT:
 			return func() Optional[string] {
 				if n.isAssign() {
 					return Optional_of[string](n.getFirstChild().getQualifiedName()).filter(Predicate[string](func(s string) bool {
@@ -215,7 +215,7 @@ func (this *ProcessClosureProvidesAndRequires) handleCandidateProvideDefinition(
 				}
 				return Optional_empty[string]()
 			}()
-		case Token_rhino_CLASS, Token_rhino_FUNCTION:
+		case tokOrd1_CLASS, tokOrd1_FUNCTION:
 			return Optional_empty[string]()
 		default:
 			return Optional_empty[string]()
@@ -328,8 +328,8 @@ func (this *ProcessClosureProvidesAndRequires_CollectDefinitions) shouldTraverse
 }
 
 func (this *ProcessClosureProvidesAndRequires_CollectDefinitions) visit(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_CALL:
+	switch n.ns_().token {
+	case tokOrd1_CALL:
 		var left Node = n.getFirstChild()
 		if left.isGetProp() {
 			var name Node = left.getFirstChild()
@@ -337,9 +337,9 @@ func (this *ProcessClosureProvidesAndRequires_CollectDefinitions) visit(t *NodeT
 				this.outer_.visitGoogMethodCall(t, parent, n, left.getString())
 			}
 		}
-	case Token_rhino_ASSIGN, Token_rhino_NAME:
+	case tokOrd1_ASSIGN, tokOrd1_NAME:
 		this.outer_.handleCandidateProvideDefinition(t, n, parent)
-	case Token_rhino_EXPR_RESULT:
+	case tokOrd1_EXPR_RESULT:
 		this.outer_.handleStubDefinition(t, n)
 	default:
 	}

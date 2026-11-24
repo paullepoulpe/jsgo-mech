@@ -466,14 +466,14 @@ func (this *InlineFunctions_FindCandidateFunctions) findNamedFunctions(t *NodeTr
 	if !NodeUtil_isStatement(n) {
 		return
 	}
-	switch n.getToken() {
-	case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST:
+	switch n.ns_().token {
+	case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST:
 		Preconditions_checkState_boolean_Object_H(n.hasOneChild(), n)
 		var nameNode Node = n.getFirstChild()
 		if (nameNode.isName() && nameNode.hasChildren()) && nameNode.getFirstChild().isFunction() {
 			this.outer_.maybeAddFunction(InlineFunctions_Function(new_InlineFunctions_FunctionVar(this.outer_, n)), t.getChunk())
 		}
-	case Token_rhino_FUNCTION:
+	case tokOrd1_FUNCTION:
 		Preconditions_checkState((NodeUtil_isStatementBlock(parent) || parent.isLabel()))
 		if NodeUtil_isFunctionDeclaration(n) {
 			var fn InlineFunctions_Function = InlineFunctions_Function(new_InlineFunctions_NamedFunction(this.outer_, n))
@@ -484,8 +484,8 @@ func (this *InlineFunctions_FindCandidateFunctions) findNamedFunctions(t *NodeTr
 }
 
 func (this *InlineFunctions_FindCandidateFunctions) findFunctionExpressions(t *NodeTraversal, n Node) {
-	switch n.getToken() {
-	case Token_rhino_OPTCHAIN_CALL, Token_rhino_CALL:
+	switch n.ns_().token {
+	case tokOrd1_OPTCHAIN_CALL, tokOrd1_CALL:
 		var fnNode Node = 0
 		if n.getFirstChild().isFunction() {
 			fnNode = n.getFirstChild()
@@ -573,8 +573,8 @@ func new_InlineFunctions_CallVisitor(fns *JTMap[string, *InlineFunctions_Functio
 }
 
 func (this *InlineFunctions_CallVisitor) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_OPTCHAIN_CALL, Token_rhino_CALL:
+	switch n.ns_().token {
+	case tokOrd1_OPTCHAIN_CALL, tokOrd1_CALL:
 		var child Node = n.getFirstChild()
 		var name Optional[string] = Optional_empty[string]()
 		if child.isName() {
