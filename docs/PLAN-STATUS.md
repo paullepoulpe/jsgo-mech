@@ -199,6 +199,18 @@ Subset, three rounds against the sixth flip's last binary (m_flip6i): CPU 116.63
 pre-flip Java 429.5 s (192.9 / 197.3 / 39.4). Java/Go 0.75. Go is level with the sixth flip
 (576.5 s); Java ran 16 s faster than on 2026-11-23, so the ratio moved with Java. Speed is not met.
 
+## Translator after the seventh flip (2026-11-24, not yet flipped)
+
+T3 on main (ede15525; COLLECTIONS-PLAN.md section 9): kind goptional (Guava's Optional as the value
+struct GOptional[T], the rule java.util.Optional already uses; `or` overloads named by a name list;
+5 refusal reasons, none in the tree) and piece seqcoll (the 42 erased getFirst/getLast/removeLast/
+addLast calls on typed deques and lists call typed twins; 0 left). Translator output: Optional_base
+calls 34 to 0, class casts -39, interface casts -4, unboxing -4. Each switch off is byte-identical
+to the stage before; all off identical to main's. Gated on the committed merge (dirty 1 = .cache
+only): GATE OK, four MATCH. Subset CPU against main's binary: goptional alone +1.2% (all six runs
+slower; not profiled), seqcoll on top -0.8%, the two together +0.1% (neutral). The goptional-only
+slowdown is not explained; it does not show in the final binary.
+
 ## Open
 
 - The merged translator's (main-libgen-t12) first gate run failed at the j2go self-test with the
