@@ -138,7 +138,6 @@ func (this *ColorPool_ShardView) getId(untrimmedOffset int32) *ColorId {
 	} else {
 		return this.trimmedOffsetToId.get(TypePointers_trimOffset(untrimmedOffset))
 	}
-	panic("unreachable")
 }
 
 func (this *ColorPool_ShardView) updateStateAfterColorPoolIsBuilt(colorPool *ColorPool) {
@@ -304,7 +303,6 @@ func (this *ColorPool_Builder) lookupOrReconcileColor(id *ColorId) *Color {
 			default:
 				panic(new_AssertionError_Object(obj_(sample)).self())
 			}
-			panic("unreachable")
 		}()
 		if result == nil {
 			panic(new_IllegalStateException_String(objstr_(id)).self())
@@ -312,7 +310,6 @@ func (this *ColorPool_Builder) lookupOrReconcileColor(id *ColorId) *Color {
 		this.idToColor.put(id, result)
 		ret_1 = result
 		return 1
-		return 0
 	}()
 	if code_1 == 1 {
 		return ret_1

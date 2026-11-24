@@ -645,7 +645,6 @@ func TypeValidator_formatFoundRequired(description string, found *JSType, requir
 	} else {
 		return Platform_formatMessage(TypeValidator_FOUND_REQUIRED, []string{description, foundStr, requiredStr})
 	}
-	panic("unreachable")
 }
 
 func (this *TypeValidator) getJSType(n Node) *JSType {

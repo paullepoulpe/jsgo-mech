@@ -69,7 +69,6 @@ func (this *J2clUtilGetDefineRewriterPass) getDefineReplacement(firstExpr Node, 
 	} else {
 		return secondExpr
 	}
-	panic("unreachable")
 }
 
 func J2clUtilGetDefineRewriterPass_isUtilGetDefineCall(n Node) bool {

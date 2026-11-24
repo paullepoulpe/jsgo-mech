@@ -409,7 +409,6 @@ func (this *ScriptNodeDeserializer_Runner) run() Node {
 				if p, ok := ex_.(IOException_as); ok {
 					var ex *IOException = p.as_IOException()
 					panic(obj_(new_MalformedTypedAstException_Object_Throwable(obj_(this.owner().sourceFile), ex.up_Throwable())))
-					return
 				}
 				panic(r_)
 			}
@@ -422,7 +421,6 @@ func (this *ScriptNodeDeserializer_Runner) run() Node {
 		scriptNode.setFeatureSet(this.featureCollector.allFeatures())
 		ret_1 = scriptNode
 		return 1
-		return 0
 	}()
 	if code_1 == 1 {
 		return ret_1

@@ -27,7 +27,7 @@
 //     Objects.equals' null cases; two Optionals: optequals_(a, b), without boxing either;
 //   - hashCode: Objects_hashCode(A) is 0 for null, else the type's hashCode method, called
 //     directly (objhashBy_(a, (*C).hashCode), a.hashCode() for `this`), or the identity hash
-//     (objhashId_(a)) when the type has none; String.hashCode of a string (objhashStr_(s)); an
+//     (objhashId_(a)) when the type has none (objhashHandle_ for a handle, unboxed); String.hashCode of a string (objhashStr_(s)); an
 //     int is its own hash, a boolean 1231 or 1237. Object_hashCode(A) (a.hashCode()) throws on
 //     null: hashBy_, hashId_;
 //   - x.self() of a class with subclasses boxes the most derived object: when neither the
@@ -704,7 +704,8 @@ func equalsCall(c *ast.CallExpr, npe bool) string {
 		if !sameType {
 			// Against a value of another static type (of type any): the runtime compares the
 			// boxes, which is what obj_(a) == B does.
-			if ba.keepNull || ba.self || isStr || isBasic || bok {
+			if ba.keepNull || ba.self || isStr || isBasic || bok || handle(ta) {
+				// (A handle boxed by obj_ would allocate; its box_ does not.)
 				return ""
 			}
 			if !npe {
@@ -898,11 +899,18 @@ func hashGen(A ast.Expr, npe bool) (func() string, string) {
 		}
 		switch {
 		case ba.keepNull:
-			if handle(ta) {
+			if handle(ta) && rw.HasMethod(ta, "handle_") {
 				// A handle converted implicitly: the runtime hashes the handle, 0 too.
-				return func() string { return "identityHash_(" + rw.Render(a) + ")" }, "identity hash, handle"
+				return func() string { return "handleHash_(" + rw.Render(a) + ".handle_())" }, "identity hash, handle"
 			}
 			return nil, ""
+		case handle(ta) && rw.HasMethod(ta, "handle_"):
+			// The identity hash of a handle is the hash of its number (identityHash_), taken
+			// here without boxing the handle.
+			if npe && !sure(a) {
+				return func() string { return "hashHandle_(" + rw.Render(a) + ")" }, "identity hash, handle, receiver may be null"
+			}
+			return func() string { return "objhashHandle_(" + rw.Render(a) + ")" }, "identity hash, handle"
 		case npe && !sure(a):
 			return func() string { return "hashId_(" + rw.Render(a) + ")" }, "identity hash" + kind + ", receiver may be null"
 		}

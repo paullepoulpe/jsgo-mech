@@ -87,7 +87,6 @@ func (this *TypedCodeGenerator) getTypeAnnotation(node Node) string {
 			return ""
 		}
 	}
-	panic("unreachable")
 }
 
 func (this *TypedCodeGenerator) getFunctionAnnotation(fnNode Node) string {
@@ -200,7 +199,6 @@ func (this *TypedCodeGenerator) getClassAnnotation(classType *JSType) string {
 	} else {
 		return ("/**\n" + sstr_(jsdocContent) + " */\n")
 	}
-	panic("unreachable")
 }
 
 func (this *TypedCodeGenerator) appendTemplateAnnotations(sb *StringBuilder, typeParams CollectionT[*JSType]) {
@@ -245,7 +243,6 @@ func (this *TypedCodeGenerator) getParameterJSDocName(paramNode Node, paramIndex
 		}
 		return nameNode.getString()
 	}
-	panic("unreachable")
 }
 
 func (this *TypedCodeGenerator) formatTypeVar(var_ *JSType) string {

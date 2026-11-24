@@ -68,7 +68,6 @@ func (this *ClosureRequireProcessor) getAllRequiresInDeclaration() *JTList[*Clos
 		}
 		return this.getAllRequiresFromDestructuring(objectPattern, namespace)
 	}
-	panic("unreachable")
 }
 
 func (this *ClosureRequireProcessor) getAllRequiresFromDestructuring(objectPattern Node, namespace string) *JTList[*ClosureRequireProcessor_Require] {

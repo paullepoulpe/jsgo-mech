@@ -227,7 +227,6 @@ func (this *ReplaceStrings) buildReplacement(t *NodeTraversal, expr Node, prefix
 		prefix = IR_add(prefix, IR_string(this.placeholderToken))
 		return IR_add(prefix, expr.cloneTree())
 	}
-	panic("unreachable")
 }
 
 func (this *ReplaceStrings) parseConfigurationList(functionsToInspect *JTList[string]) {

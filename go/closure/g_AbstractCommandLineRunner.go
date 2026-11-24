@@ -883,7 +883,6 @@ func (this *AbstractCommandLineRunner) createDefaultOutput() *Outcome_base[Appen
 	} else {
 		return Outcome_base_ok_Object[Appendable](Output_as_Appendable(this.streamToLegacyOutputWriter(this.defaultJsOutput)))
 	}
-	panic("unreachable")
 }
 
 func AbstractCommandLineRunner_closeAppendable(output Appendable) *Outcome_base[any] {
@@ -1706,7 +1705,6 @@ func (this *AbstractCommandLineRunner) streamToLegacyOutputWriter(stream *Output
 	} else {
 		return stream.encodedAs(this.legacyOutputCharset.get())
 	}
-	panic("unreachable")
 }
 
 func (this *AbstractCommandLineRunner) outputSourceMap(options *CompilerOptions, associatedName string) *Outcome_base[any] {
@@ -2419,7 +2417,6 @@ func (this *AbstractCommandLineRunner_CommandLineConfig) shouldSaveAfterStage1()
 	} else {
 		return false
 	}
-	panic("unreachable")
 }
 
 func (this *AbstractCommandLineRunner_CommandLineConfig) getContinueSavedCompilationFileName() Optional[string] {
@@ -2439,7 +2436,6 @@ func (this *AbstractCommandLineRunner_CommandLineConfig) shouldContinueCompilati
 	} else {
 		return false
 	}
-	panic("unreachable")
 }
 
 func (this *AbstractCommandLineRunner_CommandLineConfig) shouldRestoreTypedAstsPerformStage2AndSave() bool {
@@ -2463,7 +2459,6 @@ func (this *AbstractCommandLineRunner_CommandLineConfig) shouldRestoreAndPerform
 	} else {
 		return false
 	}
-	panic("unreachable")
 }
 
 func (this *AbstractCommandLineRunner_CommandLineConfig) shouldDoLateLocalization() bool {
@@ -2854,7 +2849,6 @@ func AbstractCommandLineRunner_JsonFileSpec_readJson(object *SimpleJsonValue) *O
 			default:
 				return false
 			}
-			panic("unreachable")
 		}()
 		if !known {
 			continue

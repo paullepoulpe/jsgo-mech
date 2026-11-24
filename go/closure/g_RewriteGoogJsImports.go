@@ -391,7 +391,6 @@ func (this *RewriteGoogJsImports_FindReexports) shouldTraverse_impl(t *NodeTrave
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 

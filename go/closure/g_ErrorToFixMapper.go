@@ -36,7 +36,6 @@ func (this *ErrorToFixMapper) getFixesForJsError(error_ *JSError) *JTList[*Sugge
 		default:
 			return jtlistEmptyImm_(jtc_p_SuggestedFix).asListT()
 		}
-		panic("unreachable")
 	}())
 }
 
@@ -78,7 +77,6 @@ func (this *ErrorToFixMapper) getFixForJsError(error_ *JSError) *SuggestedFix {
 		default:
 			return nil
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -198,7 +196,6 @@ func (this *ErrorToFixMapper) getFixesForImplicitNullabilityErrors(error_ *JSErr
 		default:
 			panic(new_IllegalArgumentException_String(("Unexpected JSError Type: " + sstr_(error_.type_().key_))).self())
 		}
-		panic("unreachable")
 	}()
 }
 

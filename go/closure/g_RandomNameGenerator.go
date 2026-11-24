@@ -161,7 +161,6 @@ func (this *RandomNameGenerator) generateNextName() string {
 		}
 		return name
 	}
-	panic("unreachable")
 }
 
 var RandomNameGenerator_FIRST_CHAR *JTSet[any]

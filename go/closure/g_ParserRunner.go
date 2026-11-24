@@ -65,7 +65,6 @@ func ParserRunner_parse(sourceFile StaticSourceFile, sourceString string, config
 				if p2, ok := ex_.(Throwable_as); ok {
 					var t *Throwable = p2.as_Throwable()
 					panic(new_RuntimeException_String_Throwable(("Exception parsing \"" + sstr_(sourceName) + "\""), t).self())
-					return
 				}
 				panic(r_)
 			}
@@ -98,7 +97,6 @@ func ParserRunner_parse(sourceFile StaticSourceFile, sourceString string, config
 		}
 		ret_1 = new_ParserRunner_ParseResult_Node_List_ImmutableList_FeatureSet_Optional(root, comments, topLevelStatementRanges, features, p.getSourceMapURL())
 		return 1
-		return 0
 	}()
 	if code_1 == 1 {
 		return ret_1

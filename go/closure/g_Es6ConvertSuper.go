@@ -59,7 +59,6 @@ func (this *Es6ConvertSuper) visitSuper(node Node, parent Node) {
 			default:
 				return false
 			}
-			panic("unreachable")
 		}()
 	}))
 	if (enclosingMemberDef == 0) || enclosingMemberDef.getParent().isObjectLit() {
