@@ -14,6 +14,8 @@ the records of the stages before, kept as written).
 branch, renumbered 7 by the merge of both into main-libgen-t12).
 **Section 9 records candidate T3** (branch `main-libgen-t3`: kind `goptional`, Guava's `Optional`
 as a value library class, and piece `seqcoll`, the `SequencedCollection` twins).
+**Section 10 records JAVAISMS6.md's candidate "T3"** (Object-parameter collection methods typed;
+branch `main-libgen-t4`: piece `objarg`).
 Scratch files of this stage: `/mnt/data/tmp/claude-1000/-home-ubuntu-work/9db246f3-01a3-48c8-9bf5-1c94d1ed78d6/scratchpad/b3/`
 (`tr.sh` translate + build, `trto.sh <dir>` translate into a scratch directory that has the
 runtime copied in -- the translator reads `rt_*.go` of its output directory, so a directory
@@ -2056,3 +2058,267 @@ nothing.)
   type; a reference to a generic static crashes the translator); kind `goptional` fixes the first
   for Guava's class only and refuses the second; neither occurs in the tree for `java.util.Optional`
   (it compiles).
+
+## 10. Record of rule candidate "T3" of JAVAISMS6.md: piece `objarg` (branch `main-libgen-t4`, worktree `/mnt/data/ubuntu/jm/wt/libt4`, 2026-11-24)
+
+On top of main ede15525 (section 9). JAVAISMS6.md names this candidate T3; section 9's T3 is
+another one (kind `goptional`, piece `seqcoll`), so the branch is `main-libgen-t4`. One piece of
+rule "typed library interfaces", switch value `J2GO_NOLIBGEN=objarg`. Scratch files:
+`/mnt/data/tmp/claude-1000/-home-ubuntu-work/9db246f3-01a3-48c8-9bf5-1c94d1ed78d6/scratchpad/t4/`
+(`pipe.sh <label>`: under one hold of the lock, rebuild the translator, translate with the piece
+off, with everything off and with the report, then `tools/j2go/run.sh` and the gate; `cdiff.sh A
+B`: census rows and this piece's spellings; `tm.sh`: gast.py; `offall.sh`: verify.sh with the
+switches off; `basebin.sh`: main's translation with main's runtime, `mainbuild/`, as
+`$B/bin/m_t4_base`; `base/` main's default translation, `out-t4_a/` this one; `tx-t4_a-rep.log`
+the `J2GO_LIBGEN=2` report). Every heavy command ran under `flock /mnt/data/ubuntu/jm/heavy.lock`.
+
+### 10.1 Commits
+
+| commit | what |
+|---|---|
+| 369bee50 | piece `objarg`: `LibObj.java`, `rt_lgobj.go`, `rt_lgobj_test.go`, self-test `lang/LibObj.java` |
+| 4722cfc2 | the unconverted parameter of a method reference (`memoized::get`) is an argument at its type |
+| dc83d1bc | the twins test the view's own type (`*tmapView_[K, V]`); no typed methods on the views (10.5) |
+| 3e9cac5b | self-test: no `TreeMap<Dog>` read with an Animal (10.6); README on the twins' form |
+| (the commit after) | this section |
+
+### 10.2 The form
+
+Java declares `Map.get / containsKey / remove(Object)`, `Collection.contains / remove(Object)` and
+`List.indexOf / lastIndexOf(Object)` with an Object parameter, so the typed interfaces (rt_lg.go)
+have them erased: main called `m.get_t(n.box_())`, `c.contains(obj_(x))`, `l.indexOf(obj_(x))`
+on a typed receiver. The piece is the mechanism of piece `fns` (section 6) for these abstract
+methods: a name list (`LibObj.TYPED`, by `LibFns.key` of the root method) and typed twins in the
+runtime (`go/closure/rt_lgobj.go`, 60 lines, no build tag), chosen in `ExprEmitter.special` right
+after `LibFns.call`:
+
+| Java (root) | twin | receiver |
+|---|---|---|
+| `Map.get(Object)` | `Map_getK_[K, V](m, k) V` | `MapT[K, V]` |
+| `Map.containsKey(Object)` | `Map_containsKeyK_[K, V](m, k) bool` | `MapT[K, V]` |
+| `Map.remove(Object)` | `Map_removeK_[K, V](m, k) V` | `MapT[K, V]` |
+| `Collection.contains(Object)` | `Collection_containsE_[T](c, x) bool` | `CollectionT[T]` |
+| `Collection.remove(Object)` | `Collection_removeE_[T](c, x) bool` | `CollectionT[T]` |
+| `List.indexOf(Object)` | `List_indexOfE_[T](l, x) int32` | `ListT[T]` |
+| `List.lastIndexOf(Object)` | `List_lastIndexOfE_[T](l, x) int32` | `ListT[T]` |
+
+The receiver is a typed interface (`LibGen.typedView`), or a typed collection of rule "typed
+collections" whose own typed method does not serve the call (`Ctx.typedMethod` returns null: a
+`TList`'s contains / indexOf, a `TDeque`'s contains / remove), which enters as its view
+(`LibGen.fromTypedColl`: `.asCollT()`, `.asListT()`). A call that `Ctx.typedMethod` serves
+(`TMap.get` of a key, `TSet.contains` of an element: the existing "typed when the argument is a key
+by its static type", `Ctx.isElement`) is not this piece's (854 calls, reported as "not this piece").
+
+**Semantics.** Each twin does what the erased call does:
+
+- where the receiver's object is the view of a typed map or set (`*tmapView_[K, V]`,
+  `*tsetView_[T]`: a type assertion to the view's own type), it calls the typed map's or set's
+  own `get` / `find` / `remove`. That is the view's erased method (`get_t`, `containsKey`,
+  `remove_t`, `contains`, `remove_Object`) after it has taken the key out of its box (`tkeyOf_`:
+  `x.(K)`, else `kc.unbox`), on the same key: the same `find`, so the same `equals` / `hashCode` of
+  the same object for a map or set that compares by equals (`teq_`), `==` otherwise, and the same
+  `frozen_` panic of an immutable one;
+- any other object (a wrapper `mapAs` / `setAs` / `listAs`, a typed map's key set, a typed list,
+  a sorted, deque or enum-set view, an immutable twin) gets the erased method with the argument
+  boxed as the erased code boxes a value of its type: `boxT_` (strobj_ for a String, `box_()` for a
+  handle, the most derived object, `self()`, for a class, nil for null) - the box the erased call
+  made at the call site;
+- a null argument (`k == kc.null`) always takes the erased method with nil: what the erased call
+  passed (obj_ / strobj_ / box_ of null are nil);
+- `List.indexOf / lastIndexOf` have no typed lookup: Java compares by the argument's `equals`, and
+  the twin is the erased method with `boxT_(x)` (the box is made in the runtime, not at the call).
+
+The Map and Collection twins take a `comparable` key type (the assertion names the view's
+type, `TMap[K comparable, V]`); the translator refuses a key type Go cannot compare
+(`LibObj.comparable`). A nil receiver fails the assertion and calls the erased method on nil, as
+the erased call did.
+
+The argument is converted to the key type by the translator's own conversion (`Arg.as(K)`), as
+for any typed parameter (`put_t`'s key): a subclass argument is its view of the key's class
+(`d.up_Animal()`), whose `self()` is the object the erased call boxed. A twin call keeps the
+erased method on the erased interface (`noteMethod`, as the `_t` path does), so `g_zstubs.go` is
+the same as main's and the runtime's own calls of it compile in every translation.
+
+**Refusals** (the erased call stays, reported by `J2GO_LIBGEN=2` under "Object-parameter methods:
+calls left erased (why)"; the translation goes on):
+
+- the argument's static Java type does not fit: it is not the key / element type or a subtype
+  (`LibObj.fits`: `Types.isSubtype`, a primitive by its box): `Object`; a supertype; another class
+  or interface; the element's class at other type arguments (raw);
+- the argument's Go form is not a value of its type: a field or method result whose declared type
+  names a type variable (`any` in Go: `as(K)` would cast it, where Java passes the Object without a
+  checkcast; found in this tree's `SimpleSetMultimap` iterator, `this.last.key()`); a converted parameter of
+  a method reference;
+- the key / element type is `any` in Go (Object, an erased type variable) or a wildcard;
+- the receiver is erased (no typed view), or a typed collection that is not one of the owner;
+- a String that the String-key helpers serve unboxed (`ExprEmitter.stringKeyHelper`:
+  `Collection_contains_s`, `Map_containsKey_s`, `Map_remove_s`; `Map.get` of a String is piece
+  `fns`' `Map_get_sT_` first);
+- `get` / `remove` whose result enters an Object (`lgWantErased`, as `LibFns`: Java casts nothing
+  there);
+- (Map and Collection) a key type that Go cannot compare: a type parameter without the
+  `comparable` constraint (`Ctx.constraint`), a Go func type of rule "function types", a slice, a
+  map, a value struct (`Optional`). The tree has none.
+
+### 10.3 Counts (`J2GO_LIBGEN=2` report of the default translation, `tx-t4_a-rep.log`)
+
+Calls of the seven methods (owner a library interface, receiver typed or not):
+
+| | calls |
+|---|---:|
+| **typed: calls of the twin** | **79** |
+| ... `Map.get` 24, `Map.containsKey` 10, `Map.remove` 7, `Collection.contains` 20, `Collection.remove` 10, `List.indexOf` 7, `List.lastIndexOf` 1 | |
+| refused: a String the String-key helpers serve (`Collection.contains` 19, `Map.containsKey` 6, `Map.get` 2, `Map.remove` 2) | 29 |
+| refused: the receiver is erased (`Map.get` 6, `Map.remove` 4, `Map.containsKey` 2) | 12 |
+| refused: the element type is Object in Go (`Map.get` 2, `Collection.contains` 2, `Map.containsKey` 1) | 5 |
+| refused: the argument is the result of a method of a type variable's type (`Map.get`, `Map.remove`, `Collection.remove` 1 each) | 3 |
+| refused: the argument's static type is a supertype of the element type (`Collection.remove`) | 2 |
+| refused: the result enters an Object (`Map.get`) | 1 |
+| refused: the argument's static type is Object / another class or interface / other type arguments | 0 / 0 / 0 |
+| not this piece: the typed collection's own method (`Map.get` 392, `Collection.contains` 290, `Map.containsKey` 122, `Collection.remove` 28, `Map.remove` 22) | 854 |
+
+JAVAISMS6.md's row 15 has RULE T3 62 = 50 "Object parameter of a typed collection method" + 12
+"erased element argument of a collection method". The 50 are sites of the sixth flip's tree
+(tree6h, other line numbers); by file, every one of their 21 files has at least as many twin calls
+here as it has sites (50 of 50 by that count; not matched line by line). Of them, the one that
+needed the second commit: `TypedScopeCreator`'s `this.memoized::get` (a method reference). The 12
+"erased element argument" sites (`json.Put("reason", obj_(..))` of maps whose value type is Object,
+`externs.add_int_Object(0, obj_(input))`, `hasher.putUnencodedChars(obj_(&name))`) are values that
+enter a parameter of type Object or of an erased type: not methods with an Object parameter of a
+typed collection, not attempted.
+
+Spellings and census rows (`cdiff.sh base out-t4_a`, the translator's output `g_*.go`, main's
+default 627f4289 -> 6f59da7c; census.py of `pf5`): **boxing to any 1,531 -> 1,478 (-53)**, every
+other row unchanged. `obj_(` 697 -> 663, `.box_()` 322 -> 305, `boxT_(` 88 -> 73, `strobj_(` 350 ->
+348, `.self()` 1,273 -> 1,270, `.up_X()` 1,723 -> 1,725 (a subclass argument at the key's class);
+`.get_t(` 68 -> 44, `.remove_t(` 8 -> 1, `.containsKey(` 151 -> 141, `.contains(` 392 -> 372,
+`.remove_Object(` 13 -> 3, `.indexOf(` 8 -> 1, `.lastIndexOf(` 1 -> 0; `.asCollT()` 105 -> 114 /
+`.asListT()` 305 -> 296 (a typed list's `contains` takes the Collection twin). 79 lines of 34
+files differ (one call each); `g_zstubs.go` and `g_0casts.go` are identical.
+
+Self-test `selftest/lang/LibObj.java` (added to `run.sh`): receivers that are typed interfaces
+(parameters of methods with a type parameter, which rule "typed collections" leaves to the typed
+interfaces) given typed maps, sets, lists, deques, a key set, sorted (TreeMap / TreeSet with a
+comparator that takes null), immutable and erased-wrapped collections; keys of the element type, of
+a subtype, null (present and absent), keys equal by `equals` but other objects (`Key`), a key of a
+type parameter of a generic class (`Reg<T>`: `MapT[T, any]`), Strings in a list, a typed list's
+and deque's own view, a method reference `m::get`. `run.sh` counts 51 twin calls in `typed()` and
+the methods it calls and, in `wide()` / `erased()` / `wild()` / `obj()`, no twin and 13 erased
+calls (an Object, a supertype, another interface; Object keys; a wildcard; a result that enters an
+Object; a field of a type variable's type). Both print what Java prints. Go test
+`rt_lgobj_test.go`: each twin against the erased method with the boxed argument on a native view
+and on a wrapped erased collection, present / absent / null, and the changing methods on two equal
+collections that must end equal.
+
+### 10.4 Byte identity (md5 of `cat go/closure/g_*.go`, this branch's translator, `pipe.sh`)
+
+| translation | must equal | 4722cfc2, dc83d1bc, 3e9cac5b |
+|---|---|---|
+| `J2GO_NOLIBGEN=objarg` | main's default 627f428904cd1ab870a348b377934bfb | equal |
+| `J2GO_NOFNTYPES=1 J2GO_NOLIBGEN=all` | main's all-off 973b5b6d3e4f71ab1cc82872360f9759 | equal |
+| default (`tools/j2go/run.sh`) | | 6f59da7cc5054beddb5e4dc4e1cc4579 |
+
+(main's default 627f4289 was made by main's translator in this worktree before the first change.)
+
+### 10.5 Timing (CPU, googleapis 18% subset, `proto/gast.py gasub/flags3500.txt 3`) and the binary
+
+`m_t4_base` (main's translation 627f4289 with main's runtime, `mainbuild/` from `git archive
+main go`) against `m_t4_b` (gate binary of dc83d1bc; 3e9cac5b changes only the self-test and the
+README, the same translation and runtime), alternating, `--num_parallel_threads=1`, output sha
+`72b57cd286c9` in all six runs (`tm-t4.log`):
+
+| binary | runs (CPU s) | mean | min |
+|---|---|---:|---:|
+| m_t4_base | 162.57, 161.16, 162.12 | 161.95 | 161.16 |
+| m_t4_b | 163.20, 161.58, 161.94 | 162.24 | 161.58 |
+
++0.18% of the means, +0.26% of the minima: **neutral** (inside each binary's spread, 1.4 s). No
+allocation or CPU profile was taken.
+
+The binary grows: 122,878,234 -> 126,753,581 bytes (+3.9 MB; `.text` 23,269,376 -> 24,023,040,
++754 KB). Not the twins themselves (their instantiations are about 25 KB: `Map_getK_` 10.0 KB, `Map_containsKeyK_` 10.0 KB, `Collection_containsE_` 4.7 KB ...): the assertion
+`m.(*tmapView_[K, V])` / `c.(*tsetView_[T])` names the view type at the key types of the calls,
+and where the program had no typed map or set of those types Go instantiates the whole typed map
+or set for them (`tmapView_` 244 -> 249 instantiations, `tsetView_` 168 -> 193, with `TSet`,
+`tsortedSetView_`, the entry and key-set views: 7,385 new symbols, 722 KB). Those fast paths can
+never be taken (no such collection exists), but the linker cannot know. The first form (369bee50,
+methods `get_k` ... on the views, found by an assertion to an interface with a type parameter in
+it) was +2.0 MB (+423 KB text): Go keeps such a method for every instantiation of the view types.
+Not tried: giving the Collection twins the set test only when the receiver's Java type is a Set
+(the 25 new `tsetView_` instantiations are probably from `contains` on lists and collections; not
+checked), which might remove most of the growth.
+
+### 10.6 Gate lines
+
+Default translation of 3e9cac5b (`pipe.sh t4_c`: committed, then `tools/j2go/run.sh`, then
+`$B/gate.sh libt4 t4_c` under one hold of the lock; log `/mnt/data/ubuntu/jm/logs/gate-t4_c.log`,
+copy in the scratch directory). The log's first line:
+`tree: 3e9cac5b2 piece objarg: self-test without a Dog TreeMap read with an Animal; README on the  dirty: 1`
+(the one entry: `?? .cache`, the symlink to `/mnt/data/ubuntu/jm/cache-libt4`).
+
+```
+GATE OK t4_c
+tests before: 50
+selftest: PASS
+removed 0 declarations in 0 rounds
+ok  	jsgomech/closure	2.017s
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+runtime lines: 21243  test lines: 4778
+runtime lines of the default build: 20999  off-mode extras (build-tagged files): 244
+tests after: 50
+```
+
+Runtime of the default build: main 20,939 (section 9) -> 20,999 (+60, `rt_lgobj.go`); test lines
+4,671 -> 4,778 (`rt_lgobj_test.go`). The earlier commits were gated the same way: `GATE OK t4_a`
+(4722cfc2, the first form: runtime 21,055) and `GATE OK t4_b` (dc83d1bc), both `dirty: 1` and
+the same selftest / ok / four MATCH lines.
+
+Switches off, on 3e9cac5b (`offall.sh`: translate with the switch, `tools/prune/verify.sh` with
+it; logs `verify-*.log`; the default made again afterwards was 6f59da7c):
+
+```
+switches: J2GO_NOLIBGEN=objarg  translation: exit 0 627f428904cd1ab870a348b377934bfb
+switches: J2GO_NOFNTYPES=1 J2GO_NOLIBGEN=all  translation: exit 0 973b5b6d3e4f71ab1cc82872360f9759
+(each)
+selftest: PASS
+removed 0 declarations in 0 rounds
+ok  	jsgomech/closure	1.981s / 1.923s
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+runtime lines: 21243  test lines: 4778
+runtime lines of the default build: 20999  off-mode extras (build-tagged files): 244
+```
+
+The same run on dc83d1bc failed the self-test with everything off: the erased translation of
+`LibObj.wide`'s second call (a `TreeMap<Dog>` made with a `Comparator<Animal>`, read with an
+Animal) panicked with `interface conversion: interface {} is *closure.LibObj_Animal, not
+*closure.LibObj_Dog`, where Java compares two Animals. That translation is main's translator's
+(the all-off output of the tree is main's, 973b5b6d), so the gap is in the erased translation,
+not in this piece; where exactly it casts was not looked for. 3e9cac5b gives that call a
+LinkedHashMap; the self-test passes in all three modes (st3.out).
+
+### 10.7 Not done, unverified, overlaps
+
+- No flip: the counts are of the translator's output; JAVAISMS6's 50 sites were matched by file,
+  not line by line. Post-flip tools that look for `get_t(x.box_())` / `containsKey(obj_(` meet
+  the twins.
+- No allocation or CPU profile. The twins remove the box at the call (`Node.box_()`, `obj_`) and,
+  on a typed map's or set's view, the `x.(K)` / `kc.unbox` of the erased method; they add a
+  type assertion per call; the list twins box in the runtime as before. The binary is 3.9 MB
+  larger (10.5).
+- No self-test case for the refusal "the element type is not comparable in Go" (the tree has
+  none).
+- The 12 "erased element argument" sites of RULE T3 (values of type Object) are not attempted.
+- Combinations other than "this switch off" and "everything off" were not translated; the
+  earlier pieces' switches were not gated off again.
+- Overlap with the concurrent branch `main-libgen-t5` (typed Comparable), where both touch:
+  `ExprEmitter.special` (4 lines: `toObject` kept before `LibFns.call`, the `LibObj` call after
+  it), `Ctx.java` (the field `lo` after `lf`), `selftest/run.sh` (the class list, the
+  `SelfTest()` line, a block of its own), `tools/j2go/README.md` (the switch list and one
+  paragraph). Everything else is in new files (`LibObj.java`, `rt_lgobj.go`, `rt_lgobj_test.go`,
+  `selftest/lang/LibObj.java`).
