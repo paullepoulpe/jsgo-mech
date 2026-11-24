@@ -291,19 +291,19 @@ func (this GlobalNamespace_SourceKind) enum_() *Enum {
 }
 
 func (this GlobalNamespace_SourceKind) name() string {
-	return GlobalNamespace_SourceKind_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this GlobalNamespace_SourceKind) ordinal() int32 {
-	return GlobalNamespace_SourceKind_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this GlobalNamespace_SourceKind) toString() string {
-	return GlobalNamespace_SourceKind_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this GlobalNamespace_SourceKind) compareTo(o any) int32 {
-	return GlobalNamespace_SourceKind_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this GlobalNamespace_SourceKind) self() any {
@@ -1003,19 +1003,19 @@ func (this GlobalNamespace_Inlinability) enum_() *Enum {
 }
 
 func (this GlobalNamespace_Inlinability) name() string {
-	return GlobalNamespace_Inlinability_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this GlobalNamespace_Inlinability) ordinal() int32 {
-	return GlobalNamespace_Inlinability_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this GlobalNamespace_Inlinability) toString() string {
-	return GlobalNamespace_Inlinability_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this GlobalNamespace_Inlinability) compareTo(o any) int32 {
-	return GlobalNamespace_Inlinability_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this GlobalNamespace_Inlinability) self() any {
@@ -2126,19 +2126,19 @@ func (this GlobalNamespace_Ref_Type) enum_() *Enum {
 }
 
 func (this GlobalNamespace_Ref_Type) name() string {
-	return GlobalNamespace_Ref_Type_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this GlobalNamespace_Ref_Type) ordinal() int32 {
-	return GlobalNamespace_Ref_Type_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this GlobalNamespace_Ref_Type) toString() string {
-	return GlobalNamespace_Ref_Type_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this GlobalNamespace_Ref_Type) compareTo(o any) int32 {
-	return GlobalNamespace_Ref_Type_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this GlobalNamespace_Ref_Type) self() any {
@@ -2216,19 +2216,19 @@ func (this GlobalNamespace_NameProp) enum_() *Enum {
 }
 
 func (this GlobalNamespace_NameProp) name() string {
-	return GlobalNamespace_NameProp_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this GlobalNamespace_NameProp) ordinal() int32 {
-	return GlobalNamespace_NameProp_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this GlobalNamespace_NameProp) toString() string {
-	return GlobalNamespace_NameProp_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this GlobalNamespace_NameProp) compareTo(o any) int32 {
-	return GlobalNamespace_NameProp_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this GlobalNamespace_NameProp) self() any {

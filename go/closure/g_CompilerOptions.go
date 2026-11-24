@@ -2496,16 +2496,16 @@ func (this CompilerOptions_Reach) enum_() *Enum {
 	return &CompilerOptions_Reach_enum_[this-1]
 }
 
-func (this CompilerOptions_Reach) name() string { return CompilerOptions_Reach_enum_[this-1].name_ }
+func (this CompilerOptions_Reach) name() string { return this.enum_().name_ }
 
 func (this CompilerOptions_Reach) ordinal() int32 {
-	return CompilerOptions_Reach_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
-func (this CompilerOptions_Reach) toString() string { return CompilerOptions_Reach_enum_[this-1].name_ }
+func (this CompilerOptions_Reach) toString() string { return this.enum_().name_ }
 
 func (this CompilerOptions_Reach) compareTo(o any) int32 {
-	return CompilerOptions_Reach_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this CompilerOptions_Reach) self() any {
@@ -2571,19 +2571,19 @@ func (this CompilerOptions_PropertyCollapseLevel) enum_() *Enum {
 }
 
 func (this CompilerOptions_PropertyCollapseLevel) name() string {
-	return CompilerOptions_PropertyCollapseLevel_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CompilerOptions_PropertyCollapseLevel) ordinal() int32 {
-	return CompilerOptions_PropertyCollapseLevel_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this CompilerOptions_PropertyCollapseLevel) toString() string {
-	return CompilerOptions_PropertyCollapseLevel_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CompilerOptions_PropertyCollapseLevel) compareTo(o any) int32 {
-	return CompilerOptions_PropertyCollapseLevel_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this CompilerOptions_PropertyCollapseLevel) self() any {
@@ -2652,19 +2652,19 @@ func (this CompilerOptions_BrowserFeaturesetYear) enum_() *Enum {
 }
 
 func (this CompilerOptions_BrowserFeaturesetYear) name() string {
-	return CompilerOptions_BrowserFeaturesetYear_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CompilerOptions_BrowserFeaturesetYear) ordinal() int32 {
-	return CompilerOptions_BrowserFeaturesetYear_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this CompilerOptions_BrowserFeaturesetYear) toString() string {
-	return CompilerOptions_BrowserFeaturesetYear_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CompilerOptions_BrowserFeaturesetYear) compareTo(o any) int32 {
-	return CompilerOptions_BrowserFeaturesetYear_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this CompilerOptions_BrowserFeaturesetYear) self() any {
@@ -2789,19 +2789,19 @@ func (this CompilerOptions_IncrementalCheckMode) enum_() *Enum {
 }
 
 func (this CompilerOptions_IncrementalCheckMode) name() string {
-	return CompilerOptions_IncrementalCheckMode_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CompilerOptions_IncrementalCheckMode) ordinal() int32 {
-	return CompilerOptions_IncrementalCheckMode_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this CompilerOptions_IncrementalCheckMode) toString() string {
-	return CompilerOptions_IncrementalCheckMode_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CompilerOptions_IncrementalCheckMode) compareTo(o any) int32 {
-	return CompilerOptions_IncrementalCheckMode_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this CompilerOptions_IncrementalCheckMode) self() any {
@@ -2859,19 +2859,19 @@ func (this CompilerOptions_ExtractPrototypeMemberDeclarationsMode) enum_() *Enum
 }
 
 func (this CompilerOptions_ExtractPrototypeMemberDeclarationsMode) name() string {
-	return CompilerOptions_ExtractPrototypeMemberDeclarationsMode_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CompilerOptions_ExtractPrototypeMemberDeclarationsMode) ordinal() int32 {
-	return CompilerOptions_ExtractPrototypeMemberDeclarationsMode_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this CompilerOptions_ExtractPrototypeMemberDeclarationsMode) toString() string {
-	return CompilerOptions_ExtractPrototypeMemberDeclarationsMode_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CompilerOptions_ExtractPrototypeMemberDeclarationsMode) compareTo(o any) int32 {
-	return CompilerOptions_ExtractPrototypeMemberDeclarationsMode_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this CompilerOptions_ExtractPrototypeMemberDeclarationsMode) self() any {
@@ -2930,19 +2930,19 @@ func (this CompilerOptions_OutputJs) enum_() *Enum {
 }
 
 func (this CompilerOptions_OutputJs) name() string {
-	return CompilerOptions_OutputJs_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CompilerOptions_OutputJs) ordinal() int32 {
-	return CompilerOptions_OutputJs_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this CompilerOptions_OutputJs) toString() string {
-	return CompilerOptions_OutputJs_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CompilerOptions_OutputJs) compareTo(o any) int32 {
-	return CompilerOptions_OutputJs_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this CompilerOptions_OutputJs) self() any {
@@ -2999,19 +2999,19 @@ func (this CompilerOptions_ConformanceReportingMode) enum_() *Enum {
 }
 
 func (this CompilerOptions_ConformanceReportingMode) name() string {
-	return CompilerOptions_ConformanceReportingMode_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CompilerOptions_ConformanceReportingMode) ordinal() int32 {
-	return CompilerOptions_ConformanceReportingMode_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this CompilerOptions_ConformanceReportingMode) toString() string {
-	return CompilerOptions_ConformanceReportingMode_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CompilerOptions_ConformanceReportingMode) compareTo(o any) int32 {
-	return CompilerOptions_ConformanceReportingMode_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this CompilerOptions_ConformanceReportingMode) self() any {
@@ -3067,19 +3067,19 @@ func (this CompilerOptions_ExperimentalOutputFeatureSet) enum_() *Enum {
 }
 
 func (this CompilerOptions_ExperimentalOutputFeatureSet) name() string {
-	return CompilerOptions_ExperimentalOutputFeatureSet_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CompilerOptions_ExperimentalOutputFeatureSet) ordinal() int32 {
-	return CompilerOptions_ExperimentalOutputFeatureSet_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this CompilerOptions_ExperimentalOutputFeatureSet) toString() string {
-	return CompilerOptions_ExperimentalOutputFeatureSet_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CompilerOptions_ExperimentalOutputFeatureSet) compareTo(o any) int32 {
-	return CompilerOptions_ExperimentalOutputFeatureSet_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this CompilerOptions_ExperimentalOutputFeatureSet) self() any {
@@ -3137,19 +3137,19 @@ func (this CompilerOptions_Es6ModuleTranspilation) enum_() *Enum {
 }
 
 func (this CompilerOptions_Es6ModuleTranspilation) name() string {
-	return CompilerOptions_Es6ModuleTranspilation_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CompilerOptions_Es6ModuleTranspilation) ordinal() int32 {
-	return CompilerOptions_Es6ModuleTranspilation_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this CompilerOptions_Es6ModuleTranspilation) toString() string {
-	return CompilerOptions_Es6ModuleTranspilation_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CompilerOptions_Es6ModuleTranspilation) compareTo(o any) int32 {
-	return CompilerOptions_Es6ModuleTranspilation_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this CompilerOptions_Es6ModuleTranspilation) self() any {
@@ -3207,19 +3207,19 @@ func (this CompilerOptions_Es6SubclassTranspilation) enum_() *Enum {
 }
 
 func (this CompilerOptions_Es6SubclassTranspilation) name() string {
-	return CompilerOptions_Es6SubclassTranspilation_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CompilerOptions_Es6SubclassTranspilation) ordinal() int32 {
-	return CompilerOptions_Es6SubclassTranspilation_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this CompilerOptions_Es6SubclassTranspilation) toString() string {
-	return CompilerOptions_Es6SubclassTranspilation_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CompilerOptions_Es6SubclassTranspilation) compareTo(o any) int32 {
-	return CompilerOptions_Es6SubclassTranspilation_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this CompilerOptions_Es6SubclassTranspilation) self() any {
@@ -3277,19 +3277,19 @@ func (this CompilerOptions_InstrumentOption) enum_() *Enum {
 }
 
 func (this CompilerOptions_InstrumentOption) name() string {
-	return CompilerOptions_InstrumentOption_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CompilerOptions_InstrumentOption) ordinal() int32 {
-	return CompilerOptions_InstrumentOption_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this CompilerOptions_InstrumentOption) toString() string {
-	return CompilerOptions_InstrumentOption_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CompilerOptions_InstrumentOption) compareTo(o any) int32 {
-	return CompilerOptions_InstrumentOption_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this CompilerOptions_InstrumentOption) self() any {
@@ -3368,19 +3368,19 @@ func (this CompilerOptions_ChunkOutputType) enum_() *Enum {
 }
 
 func (this CompilerOptions_ChunkOutputType) name() string {
-	return CompilerOptions_ChunkOutputType_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CompilerOptions_ChunkOutputType) ordinal() int32 {
-	return CompilerOptions_ChunkOutputType_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this CompilerOptions_ChunkOutputType) toString() string {
-	return CompilerOptions_ChunkOutputType_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CompilerOptions_ChunkOutputType) compareTo(o any) int32 {
-	return CompilerOptions_ChunkOutputType_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this CompilerOptions_ChunkOutputType) self() any {
@@ -3440,19 +3440,19 @@ func (this CompilerOptions_OptimizeLocalAccess) enum_() *Enum {
 }
 
 func (this CompilerOptions_OptimizeLocalAccess) name() string {
-	return CompilerOptions_OptimizeLocalAccess_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CompilerOptions_OptimizeLocalAccess) ordinal() int32 {
-	return CompilerOptions_OptimizeLocalAccess_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this CompilerOptions_OptimizeLocalAccess) toString() string {
-	return CompilerOptions_OptimizeLocalAccess_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CompilerOptions_OptimizeLocalAccess) compareTo(o any) int32 {
-	return CompilerOptions_OptimizeLocalAccess_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this CompilerOptions_OptimizeLocalAccess) self() any {
@@ -3554,19 +3554,19 @@ func (this CompilerOptions_LanguageMode) enum_() *Enum {
 }
 
 func (this CompilerOptions_LanguageMode) name() string {
-	return CompilerOptions_LanguageMode_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CompilerOptions_LanguageMode) ordinal() int32 {
-	return CompilerOptions_LanguageMode_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this CompilerOptions_LanguageMode) toString() string {
-	return CompilerOptions_LanguageMode_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CompilerOptions_LanguageMode) compareTo(o any) int32 {
-	return CompilerOptions_LanguageMode_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this CompilerOptions_LanguageMode) self() any {
@@ -3724,18 +3724,18 @@ func (this CompilerOptions_DevMode) enum_() *Enum {
 	return &CompilerOptions_DevMode_enum_[this-1]
 }
 
-func (this CompilerOptions_DevMode) name() string { return CompilerOptions_DevMode_enum_[this-1].name_ }
+func (this CompilerOptions_DevMode) name() string { return this.enum_().name_ }
 
 func (this CompilerOptions_DevMode) ordinal() int32 {
-	return CompilerOptions_DevMode_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this CompilerOptions_DevMode) toString() string {
-	return CompilerOptions_DevMode_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CompilerOptions_DevMode) compareTo(o any) int32 {
-	return CompilerOptions_DevMode_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this CompilerOptions_DevMode) self() any {
@@ -3797,19 +3797,19 @@ func (this CompilerOptions_TracerMode) enum_() *Enum {
 }
 
 func (this CompilerOptions_TracerMode) name() string {
-	return CompilerOptions_TracerMode_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CompilerOptions_TracerMode) ordinal() int32 {
-	return CompilerOptions_TracerMode_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this CompilerOptions_TracerMode) toString() string {
-	return CompilerOptions_TracerMode_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CompilerOptions_TracerMode) compareTo(o any) int32 {
-	return CompilerOptions_TracerMode_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this CompilerOptions_TracerMode) self() any {
@@ -3878,19 +3878,19 @@ func (this CompilerOptions_TweakProcessing) enum_() *Enum {
 }
 
 func (this CompilerOptions_TweakProcessing) name() string {
-	return CompilerOptions_TweakProcessing_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CompilerOptions_TweakProcessing) ordinal() int32 {
-	return CompilerOptions_TweakProcessing_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this CompilerOptions_TweakProcessing) toString() string {
-	return CompilerOptions_TweakProcessing_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CompilerOptions_TweakProcessing) compareTo(o any) int32 {
-	return CompilerOptions_TweakProcessing_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this CompilerOptions_TweakProcessing) self() any {
@@ -3955,19 +3955,19 @@ func (this CompilerOptions_IsolationMode) enum_() *Enum {
 }
 
 func (this CompilerOptions_IsolationMode) name() string {
-	return CompilerOptions_IsolationMode_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CompilerOptions_IsolationMode) ordinal() int32 {
-	return CompilerOptions_IsolationMode_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this CompilerOptions_IsolationMode) toString() string {
-	return CompilerOptions_IsolationMode_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CompilerOptions_IsolationMode) compareTo(o any) int32 {
-	return CompilerOptions_IsolationMode_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this CompilerOptions_IsolationMode) self() any {
@@ -4028,19 +4028,19 @@ func (this CompilerOptions_SegmentOfCompilationToRun) enum_() *Enum {
 }
 
 func (this CompilerOptions_SegmentOfCompilationToRun) name() string {
-	return CompilerOptions_SegmentOfCompilationToRun_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CompilerOptions_SegmentOfCompilationToRun) ordinal() int32 {
-	return CompilerOptions_SegmentOfCompilationToRun_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this CompilerOptions_SegmentOfCompilationToRun) toString() string {
-	return CompilerOptions_SegmentOfCompilationToRun_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CompilerOptions_SegmentOfCompilationToRun) compareTo(o any) int32 {
-	return CompilerOptions_SegmentOfCompilationToRun_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this CompilerOptions_SegmentOfCompilationToRun) self() any {
@@ -4103,19 +4103,19 @@ func (this CompilerOptions_AliasStringsMode) enum_() *Enum {
 }
 
 func (this CompilerOptions_AliasStringsMode) name() string {
-	return CompilerOptions_AliasStringsMode_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CompilerOptions_AliasStringsMode) ordinal() int32 {
-	return CompilerOptions_AliasStringsMode_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this CompilerOptions_AliasStringsMode) toString() string {
-	return CompilerOptions_AliasStringsMode_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CompilerOptions_AliasStringsMode) compareTo(o any) int32 {
-	return CompilerOptions_AliasStringsMode_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this CompilerOptions_AliasStringsMode) self() any {
@@ -4173,19 +4173,19 @@ func (this CompilerOptions_Environment) enum_() *Enum {
 }
 
 func (this CompilerOptions_Environment) name() string {
-	return CompilerOptions_Environment_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CompilerOptions_Environment) ordinal() int32 {
-	return CompilerOptions_Environment_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this CompilerOptions_Environment) toString() string {
-	return CompilerOptions_Environment_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CompilerOptions_Environment) compareTo(o any) int32 {
-	return CompilerOptions_Environment_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this CompilerOptions_Environment) self() any {
@@ -4243,19 +4243,19 @@ func (this CompilerOptions_JsonStreamMode) enum_() *Enum {
 }
 
 func (this CompilerOptions_JsonStreamMode) name() string {
-	return CompilerOptions_JsonStreamMode_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CompilerOptions_JsonStreamMode) ordinal() int32 {
-	return CompilerOptions_JsonStreamMode_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this CompilerOptions_JsonStreamMode) toString() string {
-	return CompilerOptions_JsonStreamMode_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CompilerOptions_JsonStreamMode) compareTo(o any) int32 {
-	return CompilerOptions_JsonStreamMode_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this CompilerOptions_JsonStreamMode) self() any {
@@ -4313,19 +4313,19 @@ func (this CompilerOptions_J2clPassMode) enum_() *Enum {
 }
 
 func (this CompilerOptions_J2clPassMode) name() string {
-	return CompilerOptions_J2clPassMode_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CompilerOptions_J2clPassMode) ordinal() int32 {
-	return CompilerOptions_J2clPassMode_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this CompilerOptions_J2clPassMode) toString() string {
-	return CompilerOptions_J2clPassMode_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CompilerOptions_J2clPassMode) compareTo(o any) int32 {
-	return CompilerOptions_J2clPassMode_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this CompilerOptions_J2clPassMode) self() any {

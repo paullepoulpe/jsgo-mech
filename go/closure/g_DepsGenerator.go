@@ -414,19 +414,19 @@ func (this DepsGenerator_InclusionStrategy) enum_() *Enum {
 }
 
 func (this DepsGenerator_InclusionStrategy) name() string {
-	return DepsGenerator_InclusionStrategy_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this DepsGenerator_InclusionStrategy) ordinal() int32 {
-	return DepsGenerator_InclusionStrategy_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this DepsGenerator_InclusionStrategy) toString() string {
-	return DepsGenerator_InclusionStrategy_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this DepsGenerator_InclusionStrategy) compareTo(o any) int32 {
-	return DepsGenerator_InclusionStrategy_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this DepsGenerator_InclusionStrategy) self() any {

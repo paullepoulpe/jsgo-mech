@@ -425,18 +425,18 @@ func (this TypedScopeCreator_Stage) enum_() *Enum {
 	return &TypedScopeCreator_Stage_enum_[this-1]
 }
 
-func (this TypedScopeCreator_Stage) name() string { return TypedScopeCreator_Stage_enum_[this-1].name_ }
+func (this TypedScopeCreator_Stage) name() string { return this.enum_().name_ }
 
 func (this TypedScopeCreator_Stage) ordinal() int32 {
-	return TypedScopeCreator_Stage_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this TypedScopeCreator_Stage) toString() string {
-	return TypedScopeCreator_Stage_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this TypedScopeCreator_Stage) compareTo(o any) int32 {
-	return TypedScopeCreator_Stage_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this TypedScopeCreator_Stage) self() any {

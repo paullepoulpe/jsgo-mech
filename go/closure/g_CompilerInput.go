@@ -473,19 +473,19 @@ func (this CompilerInput_ModuleType) enum_() *Enum {
 }
 
 func (this CompilerInput_ModuleType) name() string {
-	return CompilerInput_ModuleType_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CompilerInput_ModuleType) ordinal() int32 {
-	return CompilerInput_ModuleType_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this CompilerInput_ModuleType) toString() string {
-	return CompilerInput_ModuleType_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this CompilerInput_ModuleType) compareTo(o any) int32 {
-	return CompilerInput_ModuleType_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this CompilerInput_ModuleType) self() any {

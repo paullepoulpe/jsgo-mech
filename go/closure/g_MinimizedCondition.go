@@ -124,19 +124,19 @@ func (this MinimizedCondition_MinimizationStyle) enum_() *Enum {
 }
 
 func (this MinimizedCondition_MinimizationStyle) name() string {
-	return MinimizedCondition_MinimizationStyle_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this MinimizedCondition_MinimizationStyle) ordinal() int32 {
-	return MinimizedCondition_MinimizationStyle_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this MinimizedCondition_MinimizationStyle) toString() string {
-	return MinimizedCondition_MinimizationStyle_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this MinimizedCondition_MinimizationStyle) compareTo(o any) int32 {
-	return MinimizedCondition_MinimizationStyle_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this MinimizedCondition_MinimizationStyle) self() any {
