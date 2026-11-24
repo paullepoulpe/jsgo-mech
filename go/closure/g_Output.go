@@ -5,7 +5,7 @@ package closure
 type Output struct {
 	sink     *Io_Sink
 	charset  string
-	pending  *StringBuilder
+	pending  *strBuilder_
 	buffered bool
 	started  bool
 }
@@ -15,7 +15,7 @@ func (this *Output) zero_Output() {
 }
 
 func (this *Output) finit_Output() {
-	this.pending = new_StringBuilder()
+	this.pending = &strBuilder_{}
 	this.started = false
 }
 
