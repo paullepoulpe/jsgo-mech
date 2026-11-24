@@ -569,7 +569,7 @@ func new_InlineVariables_InliningBehavior_AliasInlineRetryHandler(outer_ *Inline
 func (this *InlineVariables_InliningBehavior_AliasInlineRetryHandler) handleAliasedVarCompletion(aliasedVar *Var, aliasedVarAnalyis *InlineVariables_InlineVarAnalysis) {
 	var newAnalysis *InlineVariables_InlineVarAnalysis = this.expert.reanalyzeAfterAliasedVar(aliasedVar, aliasedVarAnalyis)
 	if newAnalysis.shouldWaitForAliasedVar() {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("expert for %s asked to wait a second time", []any{this.v})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("expert for %s asked to wait a second time", this.v)))
 	}
 	if newAnalysis.shouldInline() {
 		newAnalysis.performInline()

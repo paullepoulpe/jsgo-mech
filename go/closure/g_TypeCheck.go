@@ -711,7 +711,7 @@ func (this *TypeCheck) visitObjectOrClassLiteralKey(key Node, owner Node, ownerT
 				this.checkPropertyInheritanceOnClassMember(key, Property_Key(new_Property_SymbolKey(keyType.toMaybeKnownSymbolType())), classConstructorType)
 			} else {
 				if !owner.isObjectLit() {
-					panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected owner %s", []any{owner.box_()})))
+					panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected owner %s", owner.box_())))
 				}
 				var objectCastType *ObjectType = ObjectType_cast(ownerType.restrictByNotNullOrUndefined())
 				var expectedPropertyType *JSType = this.getPropertyTypeIfDeclared(objectCastType, Property_Key(new_Property_SymbolKey(keyType.toMaybeKnownSymbolType())))

@@ -355,7 +355,7 @@ func (this *Joiner) join(parts Iterable) string { return this.joinIter_(parts.it
 
 func (this *Joiner) join_ObjectArr(parts []any) string { return this.joinSlice_(parts) }
 
-func (this *Joiner) join_Object_Object_ObjectArr(a any, b any, rest []any) string {
+func (this *Joiner) join_Object_Object_ObjectArr(a any, b any, rest ...any) string {
 	if rest == nil {
 		panic(new_NullPointerException_0().self())
 	}

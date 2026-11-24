@@ -46,7 +46,7 @@ func (this *JSTypeResolver) resolveIfClosed(captured *JSType, caller JSTypeClass
 	}
 	var expected *JSType = to_JSType(SequencedCollection_removeLast(SequencedCollection(Deque_un_(this.captureStack.asDequeT()))))
 	if captured != expected {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Captured %s; Expected %s", []any{captured, expected})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Captured %s; Expected %s", captured, expected)))
 	}
 	switch this.state {
 	case JSTypeResolver_State_CLOSED, JSTypeResolver_State_CLOSING:

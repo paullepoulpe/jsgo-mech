@@ -89,7 +89,7 @@ func (this *Scope) declareImplicitGoogNamespaceIfAbsent(name string, definition 
 		panic(new_IllegalArgumentException_0())
 	}
 	if !this.isGlobal() {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Cannot declare implicit goog namespace in local scope %s", []any{this})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Cannot declare implicit goog namespace in local scope %s", this)))
 	}
 	var var_ *Var = this.getOwnSlot_String_rAbstractVar_rVar(name)
 	if var_ == nil {
@@ -147,7 +147,7 @@ func (this *Scope) undeclareInteral(var_ *Var) {
 
 func (this *Scope) declareInternal(name string, var_ *Var) {
 	if ok_, a1_ := (this.hasOwnSlot(name) || this.canDeclare(name)), var_.getNode(); !ok_ {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Illegal shadow: %s", []any{a1_.box_()})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Illegal shadow: %s", a1_.box_())))
 	}
 	var emptySentinel *TMap[string, *Var] = tmapEmptyImm_(tc_string, tc_p_Var)
 	if this.vars == emptySentinel {
@@ -298,7 +298,7 @@ func (this *Scope) checkChildScope(parent *Scope) {
 		panic(new_IllegalArgumentException_String(tostr_(this.rootNode_)))
 	}
 	if this.rootNode_ == parent.getRootNode() {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("rootNode should not be the parent's root node: %s", []any{this.rootNode_.box_()})))
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("rootNode should not be the parent's root node: %s", this.rootNode_.box_())))
 	}
 }
 

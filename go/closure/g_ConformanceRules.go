@@ -1357,7 +1357,7 @@ func (this *ConformanceRules_BannedStringRegex) checkConformance_impl(traversal 
 			}
 		} else {
 			if ok_, a1_ := ConformanceRules_isTaggedTemplateLitString(node), node.getRawString(); !ok_ {
-				panic(new_IllegalStateException_String(Strings_lenientFormat("Found untagged template literal with invalid (uncookable) escape sequence: %s", []any{a1_})))
+				panic(new_IllegalStateException_String(Strings_lenientFormat("Found untagged template literal with invalid (uncookable) escape sequence: %s", a1_)))
 			}
 			var rawString string = node.getRawString()
 			if this.stringPattern.matcher_s(rawString).matches() {
