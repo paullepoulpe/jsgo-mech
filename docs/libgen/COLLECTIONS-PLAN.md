@@ -2987,3 +2987,238 @@ are cold (conformance configuration, the typed AST's runtime libraries, compiler
   conformance and the typed-AST paths only as far as they do).
 - No flip: the census above is of the translation, not of a flipped tree.
 - The binary growth is not broken down (13.4).
+
+## 14. Record of rule candidates T7 and T6 of JAVAISMS6.md: pieces `hstatic` and `owniter` (branch `main-libgen-t7`, worktree `/mnt/data/ubuntu/jm/wt/libt7`, 2026-11-24)
+
+Begun on main 73e902a8 (default md5 13f040cd), rebased onto main 86bd1043 (section 13, rule T5,
+piece `proto`) before the commits were gated; every md5 below is of the rebased tree. T7: func
+types as type arguments (JAVAISMS6.md: 57 sites on tree6h; the eighth flip's accounting,
+`$B/runs/jism-flip8/verdicts.tsv`, has 56, 36 of them in `Node_clinit`). T6: typed for-each over a
+typed value boxed to Object (33 on tree6h; 30 census matches in 18 loops on the eighth flip). Scratch:
+`/mnt/data/tmp/claude-1000/-home-ubuntu-work/9db246f3-01a3-48c8-9bf5-1c94d1ed78d6/scratchpad/t7/`
+(`hv.sh`: one heavy job = `flock $B/heavy.lock systemd-run --user --scope -p MemoryMax=20G -p
+MemorySwapMax=0 env GOENV=$B/goenv-c1`; `both.sh <label> <piece> [<pieces>]`: `run.sh` + `gate.sh` +
+`offall.sh` (translate and `tools/prune/verify.sh` with the piece off and with everything off) +
+both pieces off; `mainmd5.sh`: main's translator (HEAD's sources only) default and all off;
+`basetm.sh`: base binary + timing; `out-*`: translations, `*.census`).
+
+### 14.1 Commits
+
+| commit | switch (`J2GO_NOLIBGEN=`) | what |
+|---|---|---|
+| 2a3737ae | `hstatic` | rule "typed collections": a static field of a handle class is decided as any other static field (`Colls.java`; `LibObj.COND`, `objarg-pairs.txt` line `@off hstatic`; `selftest/lang/HStatic.java`) |
+| 5f6fcf16 | `owniter` | rule "typed library interfaces": a for-each over a class with `iterator_t`, or over an EnumSet maker, runs on the typed cursor (`StmtEmitter.ownLoop`; `selftest/lang/OwnIter.java`) |
+| (the commit after) | | this section |
+
+### 14.2 Piece `hstatic` (T7)
+
+What the translator did with the 36 `Node_clinit` sites: `Node.PROP_MAP_FOR_EQUALITY`
+(`ImmutableMap<Prop, Function<Node, Object>>`, Node.java:2515) was erased by rule "typed collections"
+for one reason, "a field of a handle class" (`J2GO_COLLS=2`; the only declaration of the tree erased
+for it). That poison is for a handle's instance fields, which live in its chunks; a static field of a
+handle class is an ordinary Go variable (`var Node_PROP_MAP_FOR_EQUALITY`). With the piece, a static
+field of a handle class is decided as every other static field. Before and after:
+
+```go
+// main: an erased builder, each function converted to Function[any, any] and boxed, then a typed view
+Node_PROP_MAP_FOR_EQUALITY = mapAs_(tc_p_Node_Prop, tc_Function_Node__any_, ImmutableMap_as_Map(new_ImmutableMap_Builder().put(obj_(Node_Prop_ARROW_FN), func() Function[any, any] { f_ := Function[Node, any](func(p0 Node) any { return any(bool(p0.isArrowFunction())) }); if f_ == nil { return nil }; return func(p0 any) any { return f_(Node_of_(p0)) } }().box_()) ...
+var getter Function[Node, any] = Map_getK_[*Node_Prop, Function[Node, any]](Node_PROP_MAP_FOR_EQUALITY, prop)
+// hstatic: the typed builder of Function[Node, any] values, the typed map's own get
+Node_PROP_MAP_FOR_EQUALITY = newTMapBuilder_(tc_p_Node_Prop, tc_Function_Node__any_).put(Node_Prop_ARROW_FN, Function[Node, any](func(p0 Node) any { return any(bool(p0.isArrowFunction())) })) ...
+var getter Function[Node, any] = Node_PROP_MAP_FOR_EQUALITY.get(prop)
+```
+
+So each `get` in `Node.isEquivalentTo` gives the function itself; on main it gave the element
+conversion's closure around the converting closure around it (two extra calls and a box per call of
+the getter). Counts (`J2GO_LIBGEN=2`): 1 static field of a handle class typed, 0 left. The objarg pair
+`map *Node_Prop, Function[Node, any]` is asked for only with the piece off (the typed map's own `get`
+serves the call); the list marks it `@off hstatic`, read by `LibObj` (`COND`), so that both
+translations pass the stale-list check. Self-test `HStatic.java`: handle class `H` (listed in
+`selftest/handles.txt`) with `GETTERS` (the same builder chain: method references and a lambda) and
+`MAKERS` (`List<Supplier<H>>`) typed, `names` (`Arrays.asList`) left erased; `run.sh` counts 2 typed
+declarations, 1 typed builder, 0 `func() Function[any, any]` closures.
+
+`J2GO_FNTYPES=2` (closures converting between two instantiations; before = 73e902a8's translation):
+36 -> 21 (`Function[Node, any] -> Function[any, any]` 16 -> 1, the element conversion's), functions
+boxed 18 -> 3, unboxed 3 -> 3.
+
+**The 56 T7 sites of the eighth flip's accounting, one by one** (each a census line of
+`$B/wt/tree8/go/closure`):
+
+| sites | where | outcome |
+|---:|---|---|
+| 15 | `Node_clinit`: `return func(p0 any) any { return f_(Node_of_(p0)) }` (Object slot) | taken (the closure is not written) |
+| 15 | `Node_clinit`: the `Node_of_(p0)` in those closures (unboxing) | taken |
+| 6 | `Node_clinit`: `any(bool(p0.isArrowFunction()))` ... (boxing) | left: the lambda's own body; Java's `Function<Node, Object>` returns Object, so the Boolean is boxed in Java too |
+| 10 | `g_0casts.go`: box / unbox closures of the three element conversions of func types (`tc_Function_Node__any_`, `tc_Function_base_p_ClosureReverseAbstractInterpreter_TypeRestriction__p_JSType_`, `tc_Supplier_Node_`) | left: the conversion between a typed function and its erased box, which erased code that sees the element needs (an erased view of the collection; for `Supplier<Node>` the `ConcurrentHashMap` behind `TypedAstDeserializer.typedAstFilesystem`, kind `cmaps`, read through `mapAs_` at every put and remove). A Go function at `Supplier[Node]` cannot be called as `Supplier[any]` without a closure; boxing it at its own type would need a proof that no erased reader exists, not attempted |
+| 6 | `g_0casts.go`: `box: func(v any) any { return v }` of `tc_Boolean`, `tc_Character`, `tc_Double`, `tc_Integer`, `tc_Long`, `tc_Object` | not T7 sites: identity conversions of boxed types (classify6.py's regex for "converting closure in g_0casts.go" matches them) |
+| 4 | `g_SymbolTable.go:384, 618`: `f_(obj_(p0), obj_(p1))`, an `Ordering<SymbolScope>` / `Ordering<Symbol>` given where `Comparator<X>` is wanted | left: Guava `Ordering` is a runtime class that stays erased (`OrderingOf[X] = Ordering`, a T2 type not done) and the program's subclasses `SymbolTable$5..7` keep its erased `compare` (`FnTypes.erasedAt`), so the conversion is the erased method's |
+| **56** | | **taken 30; left 26 (6 Java's Object result, 10 element conversions, 4 Ordering, 6 not T7)** |
+
+jsgo, the same Java: `PROP_MAP_FOR_EQUALITY` is gone; `Node.isEquivalentTo` compares a bit mask of
+the same properties (`internal/rhino/node_equivalence_and_clone.go:324`, mask at :372-386) and the
+int properties by name (:327-333), a data-structure change that is out of bounds here. The
+restricters map is replaced by comparisons of interned name ids (`internal/jscomp/type_reverse_abstract_interpreter.go:48`, `:178`);
+the typed-AST file system is a typed Go map of entries (`internal/jscomp/serialization_typed_ast_deserializer.go:156`,
+no `ConcurrentHashMap`, no `Supplier`); the orderings are plain functions
+(`internal/jscomp/symbol_table.go:99-100`, `slices.SortFunc(scopes, t.lexicalScopeOrdering)` :685).
+The reasons for the 14 sites left hold against that: each of jsgo's forms replaces the structure
+(a map by a mask or by comparisons of names, a concurrent map by a Go map, a class by a func), which the project's
+rules exclude.
+
+### 14.3 Piece `owniter` (T6)
+
+A for-each loop whose expression has the static type of a class of the program that has the typed
+`Iterable` methods itself (`LibGen.nativeClass`: names `Iterable<X>` among its interfaces, no
+subclass, no handle; such a class already had `iterator_t()` and the bridge `iterator()`) is
+`eachOf_[X](x)`; a loop over a call of one of EnumSet's typed makers of kind `enumset` runs on the
+typed set the maker makes for a typed place:
+
+```go
+it_1 := foreach_(obj_(n.getAncestors()))                     // main
+	var parent Node = Node_of_(it_1.v)
+it_1 := eachOf_[Node](n.getAncestors())                       // owniter
+	var parent Node = it_1.v
+it_1 := foreach_(obj_(EnumSet_allOf(classOf_("...FeatureSet.Feature"))))                  // main
+	var feature *FeatureSet_Feature = cast_[*FeatureSet_Feature](it_1.v)
+it_1 := tenumSetAllOf_(tc_p_FeatureSet_Feature, classOf_("...FeatureSet.Feature")).each()  // owniter
+	var feature *FeatureSet_Feature = it_1.v
+```
+
+The erased loop called the class's `iterator()` bridge, which returns `iterator_t()`'s iterator
+(`Iterator_un_`), and its
+`next()` bridge, which boxes what `next_t()` gives; the typed cursor calls `iterator_t()` and
+`next_t()`: the same methods in the same order, without the box (for a `Node`, a handle, a box is an
+allocation) and the cast. An EnumSet's typed set holds the same constants in ordinal order.
+
+Counts (`J2GO_LIBGEN=2`, every loop listed by file and line in the report):
+
+| | loops |
+|---|---:|
+| typed: `Node.AncestorIterable` (ControlFlowAnalysis:892, ExpressionDecomposer:908, :1035, NodeUtil:2216, ReplaceCssNames:426, ReplaceIdGenerators:350) | 6 |
+| typed: `ReferenceCollection` (Denormalize:83, InlineAndCollapseProperties:416, :657, :673) | 4 |
+| typed: `SimpleMultiset<String>` (GatherModuleMetadata:295, ModuleMapCreator:223, :276) | 3 |
+| typed: EnumSet makers (`allOf`: CompilerOptions:3782, FeatureSet:202, Keywords:88, ProcessTweaks:166) | 4 |
+| left: `Iterable` through a library superclass (`Graph.GraphAnnotationState extends ArrayList<AnnotationState>`, Graph.java:342) | 1 |
+| left for the other reasons (through the program's superclass or interface, a subclass, a handle, an interface of the program, an EnumSet function without a typed maker, a variable-arity `EnumSet.of`) | 0 |
+
+These are the 18 loops of the eighth flip's 30 T6 census matches: 17 typed (29 matches), 1 left (1).
+`foreach_(obj_(` in `g_*.go`: 30 -> 13 (the 13 left: 9 erased Guava immutables made for the loop, ConformanceRules'
+`ImmutableList<String[]>`, JSDocInfo's `ImmutableSet<ImmutableSet<String>>`, `Lists.charactersOf`: not
+T6; and Graph's loop, left). One new element conversion,
+`tc_p_CompilerOptions_LanguageMode` (no typed collection of that enum existed). Self-test
+`OwnIter.java`: `Words`, `Countdown` (its own iterator class that changes the object, read once, as
+`AncestorIterable`), `Bag<E>` at two instantiations, a null `Words` (NullPointerException in both),
+five EnumSet makers; left: `Row extends ArrayList`, `Base` with a subclass, `SeqImpl implements Seq`,
+a loop over `Seq`, `EnumSet.of` with six arguments; `run.sh` counts 6 `eachOf_`, 5 typed-set cursors,
+5 `foreach_`.
+
+jsgo: `Node.AncestorIterable.All()` is a range-over-func of the same walk
+(`internal/rhino/node_children.go:547-575`), used as `for parent := range n.GetAncestors().All()`
+(`internal/jscomp/node_util_control_flow.go:220`); `ReferenceCollection.All()` is
+`slices.Values(c.references)` (`internal/jscomp/reference_collection.go:43`), looped in
+`internal/jscomp/aggressive_inline_aliases.go:304, 556, 574`; `SimpleMultiset` became `StringCounts`
+with `All()` (`internal/jscomp/modules_module_metadata_map.go:133`); `EnumSet.allOf` loops are ranges
+over a slice of the constants (`internal/jscomp/compiler_options_enums.go:595`; Keywords
+`internal/parser/keywords.go:141`), where this piece keeps the set Java makes. The one loop left:
+jsgo has no annotation stack at all (`CheckPathsBetweenNodes` keeps per-node state in arrays indexed
+by an epoch, `internal/graph/check_paths_between_nodes.go:138`), a data-structure change; the reason
+holds: `GraphAnnotationState` is an `ArrayList` subclass, its iterator is the runtime's erased
+one, and typing it would need a typed `ArrayList` class, which the rule does not have.
+
+### 14.4 Byte identity, census, binary (md5 of `cat go/closure/g_*.go`)
+
+| translation | md5 |
+|---|---|
+| main 86bd1043, default (`mainmd5.sh`: HEAD's translator sources alone) | e82e1b4c663bbcf708b17be721263576 |
+| `J2GO_NOLIBGEN=hstatic` at 2a3737ae | e82e1b4c663bbcf708b17be721263576 (= main's default) |
+| `J2GO_NOLIBGEN=owniter` at 5f6fcf16 | 788d9912cd0aad15a7c3619190511096 (= 2a3737ae's default) |
+| `J2GO_NOLIBGEN=hstatic,owniter` at 5f6fcf16 | e82e1b4c663bbcf708b17be721263576 (= main's default) |
+| `J2GO_NOFNTYPES=1 J2GO_NOLIBGEN=all` (main and both commits) | 973b5b6d3e4f71ab1cc82872360f9759 |
+| default at 2a3737ae | 788d9912cd0aad15a7c3619190511096 |
+| default at 5f6fcf16 | 6a3d23dc534351b290d367f8af3a44db |
+
+(Before the rebase, on 73e902a8: main's default 13f040cd, both pieces off 13f040cd, all off
+973b5b6d.)
+
+Census (`census.py` of pf5; main's default -> 2a3737ae -> 5f6fcf16): for-each via iterator objects
+733 -> 733 -> 720; class casts 1,089 -> 1,089 -> 1,082; boxing to any 1,487 -> 1,457 -> 1,441;
+unboxing from any 113 -> 98 -> 89; fields/params declared any 1,236 -> 1,221 -> 1,222 (+1: the
+`unbox func(v any)` of the new `tc_p_CompilerOptions_LanguageMode`); Guava immutables / builders
+49 -> 48 -> 48; typed constructors 1,155 -> 1,156 -> 1,156. Other rows unchanged. Diff lines: 26 in 1
+file (hstatic), 73 in 14 files (owniter).
+
+Binary (`go build ./cmd/mech`, GOENV goenv-c1): main's translation and runtime 124,589,891 bytes;
+2a3737ae 124,434,505 (-155,386); 5f6fcf16 124,735,555 (+301,050; +145,664 against main). The growth
+of the second step is not broken down (the symbol table, `go tool nm -size`, accounts for about 70 KB
+of it; generic instantiations `eachOf_[Node]`, `[*Reference]`, `[string]` and the new conversion are
+the only new code, the rest is unexplained). Runtime unchanged (21,118 lines of the default build).
+
+### 14.5 Gate lines
+
+`bash tools/j2go/run.sh` of the commit, then `$B/gate.sh libt7 <label>` (logs
+`/mnt/data/ubuntu/jm/logs/gate-t7_hstatic.log`, `gate-t7_owniter.log`), both under `hv.sh`:
+
+```
+GATE OK t7_hstatic
+tree: 2a3737ae6 rule "typed collections": piece hstatic: a static field of a handle class is dec  dirty: 1
+selftest: PASS
+removed 0 declarations in 0 rounds
+ok  	jsgomech/closure	1.956s
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+runtime lines: 21362  test lines: 4877
+
+GATE OK t7_owniter
+tree: 5f6fcf16c rule "typed library interfaces": piece owniter: a for-each over a class with ite  dirty: 1
+selftest: PASS
+removed 0 declarations in 0 rounds
+ok  	jsgomech/closure	1.968s
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+runtime lines: 21362  test lines: 4877
+```
+
+(`dirty: 1` is the `.cache` link.) Switches off, each commit (`offall.sh`): `J2GO_NOLIBGEN=hstatic` /
+`=owniter` and `J2GO_NOFNTYPES=1 J2GO_NOLIBGEN=all`: selftest PASS, `ok`, the four MATCH lines as
+above in all four runs; the default made again afterwards was identical (788d9912, 6a3d23dc).
+
+### 14.6 Timing (CPU, googleapis 18% subset, `proto/gast.py gasub/flags3500.txt 3`)
+
+`base` = main's translation (e82e1b4c) with main's runtime (`git archive main go` at 86bd1043),
+built as `$B/bin/m_t7_base`; `new` = the gate binary of 5f6fcf16 (`$B/bin/m_t7_owniter`); both with
+GOENV goenv-c1, under the 20G scope. The translator is one step: both pieces together. Output sha
+72b57cd286c9 in all six runs (log `tm-t7.log`; load 1.3-2.4 during the runs).
+
+| binary | runs (CPU s) | mean | min |
+|---|---|---:|---:|
+| base | 164.62, 162.60, 163.01 | 163.41 | 162.60 |
+| new | 163.15, 162.93, 164.22 | 163.43 | 162.93 |
+
++0.01% of the means, +0.2% of the minima: neutral. The typed loops are in passes the subset runs
+(ExpressionDecomposer, InlineAndCollapseProperties, ControlFlowAnalysis) but are not hot enough to
+show; `Node.isEquivalentTo` calls a getter only for a property in the key set that one of the two
+nodes has (Node.java:2441-2447); how often that happens in the subset was not measured.
+
+### 14.7 Not done, unverified
+
+- No flip: the census of a flipped tree was not made; the per-site table of 14.2 maps the eighth
+  flip's lines to the translation by reading, and the T6 "29 of 30 matches" assumes the flipped
+  tree's lines of the 17 loops go with them.
+- The 10 element-conversion closures and the 4 `Ordering` conversions of T7 are not taken (14.2).
+- `selftest/lang/OwnIter.java` found two translator limits unrelated to the pieces, not fixed: an
+  anonymous `Iterator<Integer>` whose `next()` returns a boxed `Integer` gets no `next()` bridge
+  (`next_t` and the erased `next` would have the same signature), so the class does not implement
+  `IteratorT[any]` and Go does not compile; and `"c" + n--` is "++/-- used as a value". The test uses
+  `Iterator<String>` and a separate `n--`. The tree has neither form. Also `immutableOf` would index
+  past the parameters for a variable-arity maker called with separate arguments (`EnumSet.of(a, b,
+  c, d, e, f)`); the piece leaves such a loop erased; the kind `enumset` place path was not checked
+  for it (the tree has none).
+- The `@off hstatic` mark is the first conditional line of `objarg-pairs.txt`; `J2GO_OBJARG_PAIRS_OUT`
+  writes it back as it is, which was read in the code, not run.
+- Combinations of switches other than "one piece off", "both off" and "everything off" were not
+  translated. No allocation profile.
