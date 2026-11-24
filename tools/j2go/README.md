@@ -455,17 +455,23 @@ type Map_EntryT[K any, V any] interface { Map_Entry; getKey_t() K; getValue_t() 
     its view (`d.asCollT()`, was `SequencedCollection(Deque_un_(d.asDequeT()))`), a `DequeT` /
     `ListT` as it is; the result needs no cast.
   - Piece `objarg` (`LibObj`, rule candidate T3 of docs/javaisms6): `Map.get` / `containsKey` /
-    `remove(Object)`, `Collection.contains` / `remove(Object)`, `List.indexOf` / `lastIndexOf`
-    on a typed receiver, with an argument whose static Java type is the key or element type (or
-    a subtype) and whose Go form is a value of that type (no field or result of a type
-    variable's type, which Go has as `any`), are typed twins (`Map_getK_[K, V](m, k)`,
-    `rt_lgobj.go`) that take the argument unboxed: the typed map's or set's own lookup where the
-    object is its view (`*tmapView_[K, V]`, `*tsetView_[T]`), else the erased method with
-    `boxT_(k)`; a null argument always takes the erased method. The Map and Collection twins need
-    a key type Go can compare (refused otherwise). An argument of a wider type (Object, a supertype, another
-    interface), a key type that is `any` in Go or a wildcard, a String that the String-key
-    helpers serve, a result that enters an Object keep the erased call (`J2GO_LIBGEN=2`:
-    "Object-parameter methods", by reason).
+    `remove(Object)` on a Map receiver and `contains` / `remove(Object)` on a Set receiver (a
+    typed interface, or a typed collection whose own methods do not serve the call), with an
+    argument whose static Java type is the key or element type (or a subtype) and whose Go form is
+    a value of that type (no field or result of a type variable's type, which Go has as `any`),
+    are typed twins (`Map_getK_[K, V](m, k)`, `Set_containsE_[T](s, x)`, `rt_lgobj.go`) that take
+    the argument unboxed: the typed map's or set's own lookup where the object is its view, else
+    the erased method with `boxT_(k)`; a null argument always takes the erased method. Only for
+    the key / element types on `tools/j2go/objarg-pairs.txt` (the self-test adds
+    `selftest/objarg-pairs.txt`; `J2GO_OBJARG_PAIRS` replaces the list): the types for which the
+    translation has a typed map or set, so the twins make Go compile no typed map that the
+    translation does not have. The translation fails (exit 3, "objarg: the pair list is stale")
+    when the list is not exactly the pairs that the calls ask for and that have a typed map or set
+    (only reported when another switch is off); `J2GO_OBJARG_PAIRS_OUT=<file>` writes the list it
+    should be. An argument of a wider type (Object, a supertype, another interface), a key type
+    that is `any` in Go, a wildcard or not comparable, a String that the String-key helpers serve,
+    a result that enters an Object, a List or Collection receiver (no typed lookup) and a pair not
+    on the list keep the erased call (`J2GO_LIBGEN=2`: "Object-parameter methods", by reason).
   - Kind `guava` (a kind of `LibGen.KINDS`): `PeekingIterator<X>` is `PeekingIteratorT[X]`
     (typed `next` and `peek`), `LoadingCache<K, V>` is `LoadingCacheT[K, V]` (typed `get` and
     `getUnchecked`). The runtime makes both erased (`Iterators.peekingIterator`,

@@ -6,6 +6,8 @@ set -euo pipefail
 cd "$(dirname "$0")/../../.."
 # the methods of the self-test programs whose unchecked casts rule "typed library interfaces" lets pass
 export J2GO_UNCHECKED_CASTS=tools/j2go/unchecked-casts.txt:tools/j2go/selftest/unchecked-casts.txt
+# piece `objarg`: the key / element types with a typed map or set (the tree's and lang/LibObj.java's)
+export J2GO_OBJARG_PAIRS=tools/j2go/objarg-pairs.txt:tools/j2go/selftest/objarg-pairs.txt
 t=.cache/j2go-selftest
 rm -rf "$t" && mkdir -p "$t/java" "$t/go/closure" "$t/go/cmd/t"
 # lang/Imm.java uses Guava (typed immutable collections).
@@ -16,7 +18,8 @@ cp go/go.mod "$t/go/" && cp go/closure/rt_*.go tools/j2go/selftest/rt_*.go "$t/g
 [[ -d go/closure/resources ]] && cp -r go/closure/resources "$t/go/closure/"
 { cat .cache/j2go/files.txt; ls tools/j2go/selftest/lang/*.java; } >"$t/files.txt"
 # Instrumented output, so that static initialization happens on first use as in Java.
-J2GO_HANDLES=tools/j2go/handles.txt:tools/j2go/selftest/handles.txt J2GO_INIT_GUARDS=1 java -Xss64m -Xmx8g --add-modules jdk.compiler -cp "${J2GO_CLASSES:-.cache/j2go}" j2go.Main ".cache/build/stock-libs.jar:.cache/build/main:$(ls .cache/deps/auto-value-annotations-*.jar)" "$t/go/closure" - @"$t/files.txt" 2>&1 | grep -v '^Picked up' || true
+J2GO_HANDLES=tools/j2go/handles.txt:tools/j2go/selftest/handles.txt J2GO_INIT_GUARDS=1 java -Xss64m -Xmx8g --add-modules jdk.compiler -cp "${J2GO_CLASSES:-.cache/j2go}" j2go.Main ".cache/build/stock-libs.jar:.cache/build/main:$(ls .cache/deps/auto-value-annotations-*.jar)" "$t/go/closure" - @"$t/files.txt" 2>&1 | grep -v '^Picked up' | tee "$t/j2go.log" || true
+if grep -q '^objarg: the pair list is stale:' "$t/j2go.log"; then echo "selftest: FAIL (objarg: the pair lists are stale)"; exit 1; fi
 cat >"$t/go/cmd/t/main.go" <<'EOF'
 package main
 
@@ -76,17 +79,20 @@ if [[ -z ${J2GO_NOLIBGEN:-} && ${J2GO_NOFNTYPES:-} != 1 ]]; then
   if [[ $nt != 39 || $nx != 0 || $ne != 4 ]]; then echo "selftest: FAIL (typed library functions: $nt twins in typed(), $nx and $ne erased calls in erased())"; exit 1; fi
 fi
 if [[ -z ${J2GO_NOLIBGEN:-} ]]; then
-  # Rule "typed library interfaces", piece `objarg` (lang/LibObj.java): typed() and the methods it calls have the typed twins
-  # of the collection methods that take an Object (51 calls), erased() and wide() / wild() / obj() none (an Object, a supertype,
-  # another interface, Object keys, a wildcard, a result that enters an Object, a field of a type variable's type: 13 erased calls).
-  twin='\b(Map_getK_|Map_containsKeyK_|Map_removeK_|Collection_containsE_|Collection_removeE_|List_indexOfE_|List_lastIndexOfE_)\['
+  # Rule "typed library interfaces", piece `objarg` (lang/LibObj.java): typed() and the methods it calls have 25 calls of
+  # the typed twins (Map and Set receivers of key types on the pair lists) and 28 erased calls (List / Collection
+  # receivers, pairs with no typed map or set, results that enter an Object); erased() and wide() / wild() / obj() no
+  # twin (an Object, a supertype, another interface, Object keys, a wildcard, a result that enters an Object, a field of a
+  # type variable's type: 13 erased calls).
+  twin='\b(Map_getK_|Map_containsKeyK_|Map_removeK_|Set_containsE_|Set_removeE_)\['
   erased='\.(get_t|get|containsKey|contains|remove_Object|indexOf|lastIndexOf)\('
   g="$t/go/closure/g_LibObj.go"
   fns() { awk -v re="$1" '$0 ~ "^func (\\(this \\*)?LibObj_(" re ")[[(]" {f=1} f {print} f && /^}/ {f=0}' "$g"; }
   nt=$(fns 'maps|change|keys|colls|lists|sets|strs|Reg.T.. look|typed' | { grep -oE "$twin" || true; } | wc -l)
+  ny=$(fns 'maps|change|keys|colls|lists|sets|strs|Reg.T.. look|typed' | { grep -oE "$erased" || true; } | wc -l)
   nx=$(fns 'wide|erased|wild|obj' | { grep -oE "$twin" || true; } | wc -l)
   ne=$(fns 'wide|erased|wild|obj' | { grep -oE "$erased" || true; } | wc -l)
-  if [[ $nt != 51 || $nx != 0 || $ne != 13 ]]; then echo "selftest: FAIL (Object-parameter methods: $nt twins in typed(), $nx and $ne erased calls in erased())"; exit 1; fi
+  if [[ $nt != 25 || $ny != 28 || $nx != 0 || $ne != 13 ]]; then echo "selftest: FAIL (Object-parameter methods: $nt twins and $ny erased calls in typed(), $nx and $ne in erased())"; exit 1; fi
 fi
 if [[ ${J2GO_NOFNTYPES:-} != 1 ]]; then
   # Rule "function types": the translator must refuse every use in refused/Refused.java (14) and write nothing.

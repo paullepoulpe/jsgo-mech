@@ -410,6 +410,8 @@ public final class Main {
     cx.externals.forEach((k, v) -> xb.append(k).append("\t").append(v).append("\n"));
     Files.writeString(out.resolve("externals.tsv"), xb.toString());
     Files.writeString(out.resolve("j2go-errors.txt"), String.join("\n", errors) + "\n");
+    // piece `objarg`: a stale pair list fails the translation (LibObj.finish)
+    if (cx.lo.finish()) System.exit(3);
     System.err.println("units=" + units.size() + " classes=" + cx.source.size() + " externals=" + cx.externals.size() + " unsupported=" + errors.size());
   }
 }

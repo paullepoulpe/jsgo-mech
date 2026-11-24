@@ -3,8 +3,8 @@ package closure
 import "testing"
 
 // Piece `objarg` (rt_lgobj.go): each twin gives what the erased method gives with the boxed
-// argument, on the view of a typed map or set (the typed lookup) and on any other collection (a
-// typed map's key set, a typed list, a wrapped erased collection: the erased method), for a key
+// argument, on the view of a typed map or set (the typed lookup) and on any other map or set (a
+// typed map's key set, a wrapped erased collection: the erased method), for a key
 // that is there, one that is not and null. The changing methods run on two equal collections,
 // one through the twins and one erased; both must end equal.
 func TestLgObjargMaps(t *testing.T) {
@@ -25,7 +25,7 @@ func TestLgObjargMaps(t *testing.T) {
 	}
 	for _, native := range []bool{true, false} {
 		tm, em := mk(native), mk(native)
-		if _, ok := tm.(*tmapView_[string, string]); ok != native {
+		if _, ok := tm.(tmapOf_); ok != native {
 			t.Fatal("the typed lookup is the view's only", native)
 		}
 		for _, k := range keys {
@@ -44,29 +44,22 @@ func TestLgObjargMaps(t *testing.T) {
 	}
 }
 
-func TestLgObjargCollections(t *testing.T) {
+func TestLgObjargSets(t *testing.T) {
 	elems := []string{"a", "z", nullstr_}
-	mk := func(kind int) CollectionT[string] {
+	mk := func(kind int) SetT[string] {
 		switch kind {
 		case 0:
 			s := newTSet_(tc_string)
 			s.add("a")
 			s.add(nullstr_)
 			s.add("b")
-			return s.asCollT()
+			return s.asSetT()
 		case 1:
 			m := newTMap_(tc_string, tc_string)
 			m.put("a", "A")
 			m.put(nullstr_, "N")
 			m.put("b", "B")
 			return m.keySetT()
-		case 2:
-			l := newTList_(tc_string)
-			l.add("a")
-			l.add(nullstr_)
-			l.add("b")
-			l.add("a")
-			return l.asCollT()
 		default:
 			e := new_LinkedHashSet()
 			e.add("a")
@@ -75,33 +68,23 @@ func TestLgObjargCollections(t *testing.T) {
 			return setAs_(tc_string, Set(e))
 		}
 	}
-	for kind := 0; kind < 4; kind++ {
-		tc, ec := mk(kind), mk(kind)
+	for kind := 0; kind < 3; kind++ {
+		ts, es := mk(kind), mk(kind)
+		if _, ok := ts.(tsetOf_); ok != (kind == 0) {
+			t.Fatal("the typed lookup is the typed set's view's only", kind)
+		}
 		for _, x := range elems {
-			if Collection_containsE_(tc, x) != ec.contains(strobj_(x)) {
+			if Set_containsE_(ts, x) != es.contains(strobj_(x)) {
 				t.Fatal("contains", kind, x)
 			}
 		}
 		for _, x := range append(elems, "a", nullstr_) {
-			if Collection_removeE_(tc, x) != ec.remove_Object(strobj_(x)) {
+			if Set_removeE_(ts, x) != es.remove_Object(strobj_(x)) {
 				t.Fatal("remove", kind, x)
 			}
 		}
-		if collToString_(Collection_un_(tc)) != collToString_(Collection_un_(ec)) {
-			t.Fatal("after remove", kind, collToString_(Collection_un_(tc)))
+		if collToString_(Set_un_(ts)) != collToString_(Set_un_(es)) {
+			t.Fatal("after remove", kind, collToString_(Set_un_(ts)))
 		}
-	}
-	l := newTList_(tc_string)
-	for _, x := range []string{"a", nullstr_, "b", "a", nullstr_} {
-		l.add(x)
-	}
-	lt := l.asListT()
-	for _, x := range elems {
-		if List_indexOfE_(lt, x) != lt.indexOf(strobj_(x)) || List_lastIndexOfE_(lt, x) != lt.lastIndexOf(strobj_(x)) {
-			t.Fatal("indexOf / lastIndexOf", x)
-		}
-	}
-	if List_indexOfE_(lt, "a") != 0 || List_lastIndexOfE_(lt, "a") != 3 || List_lastIndexOfE_(lt, nullstr_) != 4 || List_indexOfE_(lt, "z") != -1 {
-		t.Fatal("indexOf values")
 	}
 }

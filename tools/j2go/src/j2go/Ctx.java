@@ -844,6 +844,8 @@ final class Ctx {
 
   /** The conversions of the type arguments of typed collection type t, as the arguments of a runtime function: "tc_string, tc_p_Node". */
   String tconvsOf(TypeMirror t) {
+    // (piece `objarg`: the translation makes a typed collection of this type)
+    lo.made(goType(t));
     String tc = "";
     CollKind ck = typedColl(t);
     for (TypeMirror a : ((DeclaredType) t).getTypeArguments()) {
