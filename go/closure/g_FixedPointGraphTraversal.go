@@ -63,7 +63,7 @@ func (this *FixedPointGraphTraversal[N, E]) visitNode(node DiGraph_DiGraphNode[N
 	switch this.traversalDirection {
 	case FixedPointGraphTraversal_TraversalDirection_OUTWARDS:
 		var sourceValue N = node.getValue()
-		for edge := range elemsAs_[DiGraph_DiGraphEdge[N, E]](node.getOutEdges()) {
+		for edge := range elemsBy_(node.getOutEdges(), gcast_DiGraph_DiGraphEdge_N_E[N, E]) {
 			var destValue N = edge.getDestination().getValue()
 			if this.callback.traverseEdge(sourceValue, edge.getValue(), destValue) {
 				workSet.add_t(edge.getDestination())
@@ -72,7 +72,7 @@ func (this *FixedPointGraphTraversal[N, E]) visitNode(node DiGraph_DiGraphNode[N
 		return
 	case FixedPointGraphTraversal_TraversalDirection_INWARDS:
 		var revSourceValue N = node.getValue()
-		for edge := range elemsAs_[DiGraph_DiGraphEdge[N, E]](node.getInEdges()) {
+		for edge := range elemsBy_(node.getInEdges(), gcast_DiGraph_DiGraphEdge_N_E[N, E]) {
 			var revDestValue N = edge.getSource().getValue()
 			if this.callback.traverseEdge(revSourceValue, edge.getValue(), revDestValue) {
 				workSet.add_t(edge.getSource())
