@@ -189,14 +189,6 @@ func (this *SimpleSetMultimap[K, V]) isEmpty() bool {
 	return this.map__.isEmpty()
 }
 
-func (this *SimpleSetMultimap[K, V]) equals(o any) bool {
-	return (is_SimpleSetMultimap(o) && equalsDyn_(lgBox_(this.map__), o.(SimpleCollection).untypedMap()))
-}
-
-func (this *SimpleSetMultimap[K, V]) hashCode() int32 {
-	return hashDyn_(lgBox_(this.map__))
-}
-
 func (this *SimpleSetMultimap[K, V]) toString() string {
 	return Object_toString(lgBox_(this.map__))
 }

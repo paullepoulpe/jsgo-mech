@@ -110,27 +110,6 @@ func (this *Config) parseInlineSourceMaps() bool {
 	return this.parseInlineSourceMaps_
 }
 
-func (this *Config) equals(p0 any) bool {
-	o, ok := p0.(*Config)
-	if !ok || o == nil {
-		return false
-	}
-	return true && this.languageMode_ == o.languageMode_ && this.strictMode_ == o.strictMode_ && this.jsDocParsingMode_ == o.jsDocParsingMode_ && this.runMode_ == o.runMode_ && Objects_equals(this.annotations_.asMap(), o.annotations_.asMap()) && Objects_equals(this.suppressionNames_.asSet(), o.suppressionNames_.asSet()) && Objects_equals(this.closurePrimitiveNames_.asSet(), o.closurePrimitiveNames_.asSet()) && this.parseInlineSourceMaps_ == o.parseInlineSourceMaps_
-}
-
-func (this *Config) hashCode() int32 {
-	var h int32
-	h = h*31 + objhashId_(this.languageMode_)
-	h = h*31 + objhashId_(this.strictMode_)
-	h = h*31 + objhashId_(this.jsDocParsingMode_)
-	h = h*31 + objhashId_(this.runMode_)
-	h = h*31 + objhashDyn_(this.annotations_.asMap())
-	h = h*31 + objhashDyn_(this.suppressionNames_.asSet())
-	h = h*31 + objhashDyn_(this.closurePrimitiveNames_.asSet())
-	h = h*31 + boolhash_(this.parseInlineSourceMaps_)
-	return h
-}
-
 type Config_StrictMode uint8
 
 // Config_StrictMode_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.

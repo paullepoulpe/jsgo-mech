@@ -368,20 +368,3 @@ func (this *TypedAstDeserializer_DeserializedAst) getExternProperties() *TSet[st
 func (this *TypedAstDeserializer_DeserializedAst) getRuntimeLibraries() *TSet[string] {
 	return this.getRuntimeLibraries_
 }
-
-func (this *TypedAstDeserializer_DeserializedAst) equals(p0 any) bool {
-	o, ok := p0.(*TypedAstDeserializer_DeserializedAst)
-	if !ok || o == nil {
-		return false
-	}
-	return true && objequalsDyn_(lgBox_(this.getFilesystem_), lgBox_(o.getFilesystem_)) && Objects_equals(this.getColorRegistry_.box_(), o.getColorRegistry_.box_()) && Objects_equals(this.getExternProperties_.asSet(), o.getExternProperties_.asSet()) && Objects_equals(this.getRuntimeLibraries_.asSet(), o.getRuntimeLibraries_.asSet())
-}
-
-func (this *TypedAstDeserializer_DeserializedAst) hashCode() int32 {
-	var h int32
-	h = h*31 + objhashDyn_(lgBox_(this.getFilesystem_))
-	h = h*31 + Objects_hashCode(this.getColorRegistry_.box_())
-	h = h*31 + objhashDyn_(this.getExternProperties_.asSet())
-	h = h*31 + objhashDyn_(this.getRuntimeLibraries_.asSet())
-	return h
-}

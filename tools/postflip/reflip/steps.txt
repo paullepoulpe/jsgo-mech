@@ -605,3 +605,21 @@ a97d418c patch 423-a97d418c-manual.patch
 938295dd patch 427-938295dd-rt.patch
 # 428. postflip (manual, re-flip): HamtPMap hashes a key without boxing it
 65fbff8a patch 428-65fbff8a-manual.patch
+# 429. postflip (runtime, re-flip): a scope's variables can be looked up by the string id of a name
+b6e39a43 patch 429-b6e39a43-rt.patch
+# 430. postflip (manual, re-flip): AbstractScope.getVarById_, getVar for the name a node holds
+84bcaeda patch 430-84bcaeda-manual.patch
+# 431. postflip step (re-flip): comparisons and scope lookups by the id of a node's string
+26118a47 run t strids && f
+# 432. postflip step (re-flip): casts to an instantiated generic interface outside generic code call named cast functions
+28eb1868 run t icasts && f
+# 433. postflip (runtime, re-flip): unboxedPred_, unboxedCons_, an erased function given where a typed one of a handle is taken
+2bd6d6b2 patch 433-2bd6d6b2-rt.patch
+# 434. postflip step (re-flip): parameters always given the method of a typed lambda adapter take the typed function
+8571bed2 run t tfnargs && f
+# 435. postflip (manual, re-flip): InlineAndCollapseProperties makes a decision's message only for a log that records
+4e0d485a patch 435-4e0d485a-manual.patch
+# 436. postflip (manual, re-flip): a string stored in a node is interned once, by the node store
+3798ad00 patch 436-3798ad00-manual.patch
+# 437. postflip step (re-flip): tfnargs re-run, parameters that pass the function on take the typed function too
+fec23265 run t tfnargs && f
