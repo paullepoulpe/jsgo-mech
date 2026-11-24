@@ -3707,7 +3707,7 @@ func (this CompilerOptions_LanguageMode) toFeatureSet() *FeatureSet {
 		case CompilerOptions_LanguageMode_STABLE:
 			panic(new_UnsupportedOperationException_String("STABLE has different feature sets for language in and out. Use STABLE_IN or STABLE_OUT."))
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 }
 

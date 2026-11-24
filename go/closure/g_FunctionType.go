@@ -203,7 +203,7 @@ func (this *FunctionType) makesStructs() bool {
 			}
 			return false
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 }
 
@@ -227,7 +227,7 @@ func (this *FunctionType) makesDicts() bool {
 			}
 			return false
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 }
 
