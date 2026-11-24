@@ -3,6 +3,7 @@ package closure
 import (
 	"math/rand"
 	"testing"
+	"unsafe"
 )
 
 // The table of distinct values (htab_set_, htab_copy_): a field keeps reading the value stored
@@ -78,5 +79,163 @@ func TestHandleTableCounts(t *testing.T) {
 	htab_set_(&f, nil, false)
 	if htab_get_(c) != any(p) || htab_pin_(p) != c {
 		t.Fatal("a pinned value left the table")
+	}
+}
+
+// Values that keep their handle themselves (htabHolder_, post-flip htabself): the handles, the
+// counts and the reuse of freed entries are those of the table without slots, which the test
+// models (a map from interface words to a handle, the freed handles reused last freed first),
+// over random stores, copies and clears of a mix of values: objects with a slot, objects of a
+// class that embeds one (the promoted slot), the embedded part itself (the same address with
+// another type: the same slot, another value, which the map keeps), objects without a slot,
+// a holder whose slot holds a handle that is not its own (as a copied struct would), and
+// pinned values.
+type htabSlotObj_ struct {
+	i       int
+	htabId_ uint32
+}
+
+func (o *htabSlotObj_) htabSlot_() *uint32 { return &o.htabId_ }
+
+type htabSlotSub_ struct {
+	htabSlotObj_
+	j int
+}
+
+func TestHandleTableSlots(t *testing.T) {
+	type plain struct{ i int }
+	const slots = 64
+	var held [slots]uint32
+	var vals [slots]any
+	// the model: handles by interface words, counts, the free list
+	ids := map[any]uint32{}
+	refs := map[uint32]uint32{}
+	pinned := map[uint32]bool{}
+	free := append([]uint32(nil), htabFree_...)
+	next := htabTab_.n
+	ref := func(v any) uint32 {
+		id, ok := ids[v]
+		if !ok {
+			if n := len(free); n > 0 {
+				id, free = free[n-1], free[:n-1]
+			} else {
+				id, next = next, next+1
+			}
+			ids[v] = id
+		}
+		if !pinned[id] {
+			refs[id]++
+		}
+		return id
+	}
+	unref := func(c uint32) {
+		id := c >> 1
+		if pinned[id] {
+			return
+		}
+		if refs[id]--; refs[id] == 0 {
+			delete(refs, id)
+			for v, i := range ids {
+				if i == id {
+					delete(ids, v)
+				}
+			}
+			free = append(free, id)
+		}
+	}
+	set := func(i int, v any) {
+		old := held[i]
+		var want uint32
+		if v != nil {
+			want = ref(v) << 1
+		}
+		if old != 0 {
+			unref(old)
+		}
+		htab_set_(&held[i], v, false)
+		if held[i] != want {
+			t.Fatalf("slot %d: handle %d, the table without slots gives %d", i, held[i]>>1, want>>1)
+		}
+		vals[i] = v
+	}
+	rnd := rand.New(rand.NewSource(3))
+	var pool []any
+	for i := 0; i < 40; i++ {
+		switch i % 5 {
+		case 0, 1:
+			pool = append(pool, &htabSlotObj_{i: i})
+		case 2:
+			s := &htabSlotSub_{j: i}
+			pool = append(pool, s, &s.htabSlotObj_)
+		case 3:
+			pool = append(pool, &plain{i})
+		case 4:
+			pool = append(pool, &htabSlotObj_{i: i, htabId_: uint32(1 + rnd.Intn(int(htabTab_.n)+50))})
+		}
+	}
+	for step := 0; step < 50000; step++ {
+		i := rnd.Intn(slots)
+		switch k := rnd.Intn(20); {
+		case k < 12:
+			set(i, pool[rnd.Intn(len(pool))])
+		case k < 16:
+			j := rnd.Intn(slots)
+			if held[j] != 0 {
+				ref(vals[j])
+			}
+			if held[i] != 0 {
+				unref(held[i])
+			}
+			htab_copy_(&held[i], held[j])
+			vals[i] = vals[j]
+		case k < 19:
+			set(i, nil)
+		default:
+			if step%97 == 0 { // pin a value for ever
+				v := pool[rnd.Intn(len(pool))]
+				id := ref(v)
+				pinned[id] = true
+				delete(refs, id)
+				if c := htab_pin_(v); c != id<<1 {
+					t.Fatalf("step %d: pinned handle %d, the table without slots gives %d", step, c>>1, id)
+				}
+			}
+		}
+		for j, c := range held {
+			if got := htab_get_(c); got != vals[j] {
+				t.Fatalf("step %d: slot %d reads %v, not %v", step, j, got, vals[j])
+			}
+		}
+		if step%1000 == 0 || step == 49999 {
+			for id, n := range refs {
+				if p := htabTab_.ptr(id); p.refs != n {
+					t.Fatalf("step %d: entry %d counted %d, the table without slots %d", step, id, p.refs, n)
+				}
+			}
+			if len(free) != len(htabFree_) {
+				t.Fatalf("step %d: %d free entries, the table without slots %d", step, len(htabFree_), len(free))
+			}
+			for x := range free {
+				if free[x] != htabFree_[x] {
+					t.Fatalf("step %d: free list differs at %d", step, x)
+				}
+			}
+		}
+	}
+	if htabTab_.n != next {
+		t.Fatalf("%d entries made, the table without slots makes %d", htabTab_.n, next)
+	}
+	if htabHoldersInMap_ == 0 || htabInSlots_ == 0 {
+		t.Fatalf("not both ways taken: %d in slots, %d holders in the map", htabInSlots_, htabHoldersInMap_)
+	}
+	for i := range held {
+		set(i, nil)
+	}
+	for _, v := range pool {
+		if h, ok := v.(htabHolder_); ok && *h.htabSlot_() != 0 {
+			if p := htabTab_.ptr(*h.htabSlot_()); p.refs != 0 && p.refs != htabPinned_ && *(*eface_)(unsafe.Pointer(&p.v)) == *(*eface_)(unsafe.Pointer(&v)) {
+				t.Fatalf("a value no field holds keeps its entry")
+			}
+		}
 	}
 }

@@ -11,7 +11,11 @@ type JSType struct {
 	loosenTypecheckingDueToForwardReferencedSupertypeField bool
 	hashCodeInProgress                                     bool
 	inTemplatedCheckVisit                                  bool
+	htabId_                                                uint32 // its handle in the table of distinct values while a field holds it, 0 when none (rt_ids.go: the runtime's alone; post-flip htabself)
 }
+
+// htabSlot_ is where the table of distinct values keeps this object's handle (rt_ids.go, htabHolder_).
+func (this *JSType) htabSlot_() *uint32 { return &this.htabId_ }
 
 // JSType_I holds the methods the dispatchers of JSType's hierarchy call on the most derived
 // object (self_); every class of the hierarchy implements them (post-flip).

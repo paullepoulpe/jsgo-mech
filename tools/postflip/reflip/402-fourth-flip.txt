@@ -1,0 +1,140 @@
+Step 402 on the fourth flip: one typed collection family (unify + runtime)
+==========================================================================
+
+The lead line's step 402 (reflip-trial, e69c634a: `t unify && f` + 402-e69c634a-rt.patch) was
+made for a translator whose typed family was lists, maps, sets and deques. The translator of
+the fourth flip also types Guava's immutables and their builders (rt_jtimm.go: a *JTList[T]
+with a `twin`), sorted collections in the types of the hash ones (rt_jtsorted.go: a *JTSet[K]
+in a sorted mode), conversions of type parameters (tcT_, tceT_, generic tce_X[...]()), and
+names the map and set methods as Java does (containsKey, getOrDefault, remove, contains). The
+lead line's tool run on this tree does 5,944 rewrites and leaves a package that cannot build.
+This file says what the step is here.
+
+The step (as recorded)
+----------------------
+  tools:   4bf127e2  postflip tool (fourth flip): tools/postflip as of e69c634a + toolfix.sh,
+           unify extended (tools/postflip/unify/main.go; header lists every rewrite)
+  step:    a5732999  run   t unify && f
+           a5732999  patch 402-a5732999-rt.patch
+  steps.txt lines (in place of the lead line's two):
+           # 402. postflip step (fourth flip): one typed collection family (unify + runtime)
+           a5732999 run t unify && f
+           a5732999 patch 402-a5732999-rt.patch
+  The patch is everything of the step commit's go/ diff that the tool run does not write
+  (go/closure/rt_*.go; no g_*.go). Checked: on a worktree of 4bf127e2, `t unify && f` and then
+  `git apply` of the patch give the go/ tree of a5732999 byte for byte.
+  unify: 7294 rewrites; files changed: 439 (rerun: 0 rewrites). As the lead line's, the tool
+  writes with rw.Save: its result type-checks only with the runtime patch (the step's check is
+  the build).
+
+What unify rewrites beyond the lead line's
+------------------------------------------
+  name of the translator's family      becomes                      why it is the same thing
+  JTMap.containsKey / getOrDefault /    Has / GetOr / Delete         the methods the lead line renamed as
+    remove; JTSet.contains / remove     Has / Delete                 has, getOr, del: this translator's names
+  jtlistEmptyImm_, jtsetEmptyImm_,      tlistEmptyImm_, tsetEmptyImm_,  one empty collection per conversion,
+    jtmapEmptyImm_                      tmapEmptyImm_                whose twin is the runtime's ImmutableX.of()
+  jimmutableListOf_, ...CopyOf_,        immutableListOf_, ...CopyOf_,   the same checks in the same order (null:
+    ...CopyOfArr_                       ...CopyOfArr_                NullPointerException "at index i"), an
+                                                                     immutable argument is itself
+  jtlistImm_(c, ic)                     tlistImm_(c, ic)             the typed list of an erased ImmutableList,
+                                                                     made once and kept on it; nil for null
+  jimmutableSetOf_, jimmutableSetCopyOf_   immutableSetOf_, immutableSetCopyOf_   (after the patch's edits below)
+  jimmutableMapCopyOf_                  immutableMapCopyOf_
+  TListBuilder, TSetBuilder,            ImmutableList_Builder, ImmutableSet_Builder,   add, addAll, put, putAll,
+    TMapBuilder, newT*Builder_ (N)      ImmutableMap_Builder, immutable*Builder_ (N)  build... have the same names
+  byEquals: true (anywhere)             hash, eq through the box     as the lead line's, also inside the value
+                                                                     of a generic conversion function
+  tce_X[N ...](), tce_X_single_         tch_X[N ...](), tch_X_single_   the post-flip prefix of a conversion
+  tceT_                                 tchT_                           compared by equals
+
+What keeps its name and is provided by the runtime patch
+--------------------------------------------------------
+  as the lead line's patch (its hunks apply unchanged): rt_jtlist.go, rt_jtmap.go, rt_jtset.go
+  removed; rt_jtdeque.go is rt_tdeque.go (TDeque on TList); tlistCopy_, tmapCopy_, tsetCopy_,
+  newTMapN_, newTSetN_, putAllT, eachEntry / TEntry, iterator, asList_ / asSet_ / erasedMap_,
+  goName_ of the views.
+  new here:
+  - rt_jtimm.go and rt_jtsorted.go removed; the fields jtyped_ of the erased immutables
+    (rt_guava.go, rt_guava_map.go) and the panic value frozen_ (rt_lang.go) with them: the
+    post-flip family keeps the typed collection of a twin in typed_ and throws
+    UnsupportedOperationException itself.
+  - rt_tlist.go: tcT_, tchT_ (was tceT_: hash and eq unless the instantiation's == is Java's
+    equals), regGoEquals_, goEquals_; TList.unmod, a list that cannot change and is no
+    ImmutableList (the translator's unmodMark_: splitToListT_ in rt_base_text.go): asList is
+    its view, asImm throws ClassCastException, ImmutableList.copyOf copies it.
+  - rt_tsorted.go (new): the sorted mode of TMap / TSet (tmapExt_.sort): newTSortedSet_,
+    newTSortedSetC_, newTSortedMap_, asSorted, the views tsortedSetView_ / tsortedMapView_
+    (class names TreeSet / TreeMap, lookups that compare, descendingSet, tailSet). The post-flip
+    family's own sorted collections (rt_ttree.go, TTreeSet / TTreeMap) are other Go types, and a
+    declaration the translator typed holds a LinkedHashSet or a TreeSet in one type, so the mode
+    moved; it uses rt_ttree.go's comparison and search (ttreeCmp_, ttreeSearch_). Not moved,
+    because the generated code does not use them: tsortedSetFrom_, tsortedSetCopy_,
+    newTSortedMapC_, tsortedMapFrom_, tsortedMapCopy_, JTMap.asSorted.
+  - rt_timm.go: immutableListCopyOfT_, immutableSetCopyOfT_, immutableMapCopyOfT_ (copyOf of a
+    typed collection: an immutable one is itself), tsetImm_ and tmapImm_ (an erased immutable set
+    or map entering a typed declaration: tsetFrom_ / tmapFrom_ with the one empty collection,
+    ClassCastException for a list, and an ImmutableSortedSet / ImmutableSortedMap as a sorted
+    typed collection with its comparator whose twin it is), immutableMapOf1_, immutableMapOf3_,
+    immutableMapOf4_ (the arguments in Java's order; 2 and 5 are not used), keySetImm (one typed
+    key set, the twin's key set), classCastImm_.
+
+Where the post-flip family changed so that the translator's sites behave as before
+----------------------------------------------------------------------------------
+(each is what the translator's family and the erased runtime of this tree do; the differential
+test below fails without it)
+  - NullPointerException without a message (was "at index N"): ImmutableList_Builder.add / addAll,
+    ImmutableSet_Builder.add / addAll, immutableSetOf_, immutableSetCopyOf_ (Guava's checkNotNull;
+    rt_guava.go's builder and immSet_). immutableSetCopyOf_ of a typed set's view checks for null.
+  - tmapMake_: a duplicate key throws with immDup_'s message (Guava's: the last two entries, the
+    later first; was first and later entry); buildKeepingLast keeps a key's first position with
+    its last value, as immMap_ does (was the position of the last put: rt_timm_test.go expected
+    {b=2, a=3} where rt_guava_test.go expects the erased builder's {a=3, b=2}). The only
+    buildKeepingLast of a typed builder in the generated code is the translator's
+    (IdMappingUtil).
+  - UnsupportedOperationException from an immutable collection also where nothing would change:
+    TMap.PutIfAbsent, TMap.computeIfAbsent (the Function one), TSet.AddAll, and the lead patch's
+    putAllT and TEntry.setValue.
+  - tmapEmptyImm_ is one object per key and value conversion also when several key types share
+    a value conversion (it was replaced each time another key type asked).
+
+Tests
+-----
+  go/closure/rt_tunify_test.go: scenarios (lists, deques, sets and maps of strings and of
+  objects compared by equals, hash and sorted, immutables, builders, type-parameter conversions;
+  488 observations, 236 of them exceptions with class and message) written against a table of
+  functions per family. tools/postflip/unify/difftest/run.sh <before> <after> <dir> builds a
+  package with both families and compares them line by line (0 differences); with -golden it
+  records the translator family's trace as rt_tunify_golden_test.go, which TestUnifiedFamily
+  compares the one family with from then on. TestEmptyImmutableMapIdentity.
+
+Known differences (not changed; none on a path a valid Java program takes)
+---------------------------------------------------------------------------
+  - asImm() of a collection that is not immutable (a cast to ImmutableList that fails in Java):
+    the translator's family threw ClassCastException; the post-flip asImm makes a twin (except
+    for a TList.unmod, which throws). tlistImm_ of an erased ImmutableSet copies it (was
+    ClassCastException). Not made strict: the post-flip behaviour is kept.
+  - an erased immutable collection seen by typed code at two conversions: the translator's
+    family kept a typed object for each Go type (immAlt_) and matched by Go type; the post-flip
+    slot (typed_) keeps the typed object of the last conversion asked. The erased object is the
+    same one either way.
+  - a sorted set or map takes a removed entry out of its slices (as the erased TreeSet and
+    TTreeSet do); the translator's left a dead position until compaction. Seen only by a
+    for-each loop that removes other elements of the collection it walks (Java:
+    ConcurrentModificationException). Hash mode: when a table compacts, as in the lead line.
+  - Iterator.remove() before next() (Java: IllegalStateException) and through the typed
+    iterator() of an immutable set (the translator's removed the element; now
+    UnsupportedOperationException): as the post-flip iterators.
+  - the erased views' fast paths (get_s, contains_s, add_s, step_) are not kept, as in the
+    lead line; the Go type names of keySet() / values() / entrySet() views differ.
+  - null elements are recognised by immNull_ (the box is nil), the translator's by comparing
+    with the conversion's null; the same for strings and for conversions that box with obj_
+    or v.self() (obj_ gives nil for the zero value, the generated self() nil for a nil receiver:
+    read, not run; the test has strings and `any`).
+
+Not part of this step: the translator's runtime helpers that the flip renamed and that are no
+collections (jtostr_, junboxT_, jnull_, jisnull_, joptional_, jembeddedPtr_, jequalsT_,
+jcsStr_, JString_contains_s, JString_replace_s, JString_join_s, JPattern_matches_s) keep their
+names, as the first six do in the lead line. g_0names.go still has the name-table entries
+"JTList", "JTMap", "JTSet", "TListBuilder", "TMapBuilder", "TSetBuilder" (strings), and a
+comment of g_0casts.go names tceT_.

@@ -14,7 +14,11 @@ type Color struct {
 	propertiesKeepOriginalName bool
 	constructor_               bool
 	closureAssert              bool
+	htabId_                    uint32 // its handle in the table of distinct values while a field holds it, 0 when none (rt_ids.go: the runtime's alone; post-flip htabself)
 }
+
+// htabSlot_ is where the table of distinct values keeps this object's handle (rt_ids.go, htabHolder_).
+func (this *Color) htabSlot_() *uint32 { return &this.htabId_ }
 
 func (this *Color) init_Color(id *ColorId, prototypes *TSet[*Color], instanceColors *TSet[*Color], invalidating bool, propertiesKeepOriginalName bool, constructor bool, ownProperties *TSet[string], boxId *ColorId, closureAssert bool, unionElements *TSet[*Color]) {
 	if id == nil {

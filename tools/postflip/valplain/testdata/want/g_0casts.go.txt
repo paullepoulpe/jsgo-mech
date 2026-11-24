@@ -1,6 +1,0 @@
-package closure
-
-var tc_Pos = &tconv_[Pos]{
-	box:   func(v Pos) any { return v.ref_() },
-	unbox: func(v any) Pos { return *cast_[*Pos](v) },
-}

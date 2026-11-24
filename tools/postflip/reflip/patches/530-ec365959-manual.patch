@@ -1,5 +1,5 @@
 diff --git a/go/closure/g_Node.go b/go/closure/g_Node.go
-index a82e8cc8..a3604a70 100644
+index e7d83e38..f4cb610e 100644
 --- a/go/closure/g_Node.go
 +++ b/go/closure/g_Node.go
 @@ -93,6 +93,9 @@ func (this Node) propListHead_p_() *Node_props_ {
@@ -12,7 +12,7 @@ index a82e8cc8..a3604a70 100644
  	return htab_get_(this.cs_().jstypeOrColor)
  }
  
-@@ -2145,7 +2148,7 @@ func (this Node) getJSType() *JSType {
+@@ -2149,7 +2152,7 @@ func (this Node) getJSType() *JSType {
  			if !(this.cs_().jstypeOrColor&1 != 0) {
  				return false
  			}
@@ -22,8 +22,8 @@ index a82e8cc8..a3604a70 100644
  		}() {
  			return jSType
 @@ -2166,7 +2169,7 @@ func (this Node) setJSType(x *JSType) Node {
- 	if this.cs_().jstypeOrColor != 0 && this.cs_().jstypeOrColor&1 == 0 {
- 		panic(new_IllegalStateException_String(tostr_(this)))
+ 	if !((this.cs_().jstypeOrColor == 0) || (this.cs_().jstypeOrColor&1 != 0)) {
+ 		Preconditions_checkState_boolean_Object_H(false, this)
  	}
 -	this.jstypeOrColor_set_(x.self())
 +	this.jstypeOrColor_set_(obj_(x))

@@ -1,8 +1,0 @@
-  flags5447/CHECKS hjava2 wall=116.26 cpu=213.97 round=0 load=1.73 rss=6961M exit=0
-  flags5447/OPTIMIZATIONS hjava2 wall=109.07 cpu=183.61 round=0 load=1.80 rss=10999M exit=0
-  flags5447/FINALIZATIONS hjava2 wall=22.11 cpu=51.83 round=0 load=1.99 rss=3234M exit=0
-  flags5447 hjava2 wall=247.44 cpu=449.42 round=0 load=1.99 sha=2043969e874d
-  flags5447/CHECKS hrt492 wall=152.22 cpu=198.81 round=0 load=1.29 rss=9050M exit=0
-  flags5447/OPTIMIZATIONS hrt492 wall=112.03 cpu=126.72 round=0 load=1.18 rss=5257M exit=0
-  flags5447/FINALIZATIONS hrt492 wall=22.23 cpu=27.41 round=0 load=1.17 rss=1251M exit=0
-  flags5447 hrt492 wall=286.48 cpu=352.94 round=0 load=1.17 sha=2043969e874d

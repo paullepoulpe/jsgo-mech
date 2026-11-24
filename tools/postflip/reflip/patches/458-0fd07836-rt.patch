@@ -1,11 +1,12 @@
 diff --git a/go/closure/rt_cmp_test.go b/go/closure/rt_cmp_test.go
-index 4d50ecd3..957026c5 100644
---- a/go/closure/rt_cmp_test.go
+new file mode 100644
+index 000000000..e11a56db9
+--- /dev/null
 +++ b/go/closure/rt_cmp_test.go
-@@ -75,3 +75,29 @@ func TestComparatorCombinatorsKeepCallOrder(t *testing.T) {
- 		t.Errorf("thenComparing does not break ties with its second comparator")
- 	}
- }
+@@ -0,0 +1,29 @@
++package closure
++
++import "testing"
 +
 +// tcmpEnum_ is an enum type of the program's shape without its own compareTo (post-flip enumcmp
 +// deletes the forwarders): the natural order compares it by java.lang.Enum's compareTo.
@@ -33,7 +34,7 @@ index 4d50ecd3..957026c5 100644
 +	}
 +}
 diff --git a/go/closure/rt_coll.go b/go/closure/rt_coll.go
-index e2919a35..d3eda78b 100644
+index 82716d373..e60effba6 100644
 --- a/go/closure/rt_coll.go
 +++ b/go/closure/rt_coll.go
 @@ -1605,6 +1605,10 @@ func compareNatural_(a, b any) int32 {
