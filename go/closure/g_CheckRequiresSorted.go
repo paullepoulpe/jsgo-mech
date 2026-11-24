@@ -582,7 +582,7 @@ func (this *CheckRequiresSorted_ImportStatement) format() string {
 }
 
 func (this *CheckRequiresSorted_ImportStatement) compareTo_t(other *CheckRequiresSorted_ImportStatement) int32 {
-	return String_compareTo(this.formatWithoutDoc(), other.formatWithoutDoc())
+	return utf16Compare_(this.formatWithoutDoc(), other.formatWithoutDoc())
 }
 
 func (this *CheckRequiresSorted_ImportStatement) compareTo(p0 any) int32 {

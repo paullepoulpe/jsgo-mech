@@ -646,7 +646,7 @@ func (this *JsDocInfoParser) parseAnnotation(token JsDocToken, extendedTypes *JT
 			var throwsAnnotation string = ""
 			if !this.lookAheadForAnnotation() {
 				var throwsInfo *JsDocInfoParser_ExtractionInfo = this.extractMultilineTextualBlock(token)
-				throwsAnnotation = String_trim(throwsInfo.string_)
+				throwsAnnotation = strings.Trim(throwsInfo.string_, javaSpace_)
 				token = throwsInfo.token
 			}
 			if this.jsdocBuilder.isNoSideEffectsRecorded() {
@@ -973,7 +973,7 @@ func (this *JsDocInfoParser) parseTtlAst(ttlExtraction *JsDocInfoParser_Extracti
 	} else {
 		this.addTypeWarning_3(Msg_JSDOC_TEMPLATE_TYPETRANSFORMATION_MISSINGDELIMIIER, lineno, charno)
 	}
-	ttlExpression = String_trim(ttlExpression)
+	ttlExpression = strings.Trim(ttlExpression, javaSpace_)
 	if ttlExpression == "" {
 		this.addTypeWarning_3(Msg_JSDOC_TEMPLATE_TYPETRANSFORMATION_EXPRESSIONMISSING, lineno, charno)
 		return 0
@@ -1282,7 +1282,7 @@ func (this *JsDocInfoParser) extractSingleLineBlock() *JsDocInfoParser_Extractio
 	this.stream.update()
 	var lineno int32 = this.stream.getLineno()
 	var charno int32 = (this.stream.getCharno() + 1)
-	var line string = String_trim(this.getRemainingJSDocLine())
+	var line string = strings.Trim(this.getRemainingJSDocLine(), javaSpace_)
 	if len(line) != 0 {
 		this.jsdocBuilder.markText(line, lineno, charno, lineno, (charno + String_length(line)))
 	}
@@ -1323,7 +1323,7 @@ func (this *JsDocInfoParser) extractMultilineComment(token JsDocToken, option Js
 		startCharno = (this.stream.getCharno() + 1)
 		var line string = this.getRemainingJSDocLine()
 		if option != JsDocInfoParser_WhitespaceOption_PRESERVE {
-			line = String_trim(line)
+			line = strings.Trim(line, javaSpace_)
 		}
 		builder.append(line)
 		this.state = JsDocInfoParser_State_SEARCHING_ANNOTATION
@@ -1372,7 +1372,7 @@ L_1:
 			if ((token == JsDocToken_EOC) || (token == JsDocToken_EOF)) || ((token == JsDocToken_ANNOTATION) && !includeAnnotations) {
 				var multilineText string = builder.toString()
 				if option != JsDocInfoParser_WhitespaceOption_PRESERVE {
-					multilineText = String_trim(multilineText)
+					multilineText = strings.Trim(multilineText, javaSpace_)
 				}
 				if isMarker && multilineText != "" {
 					var endLineno int32 = this.stream.getLineno()

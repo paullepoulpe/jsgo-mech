@@ -18,7 +18,7 @@ func new_UniqueIdSupplier() *UniqueIdSupplier {
 
 func (this *UniqueIdSupplier) getUniqueId(input *CompilerInput) string {
 	var filePath string = input.getSourceFile().getName()
-	var fileHashCode int32 = String_hashCode(filePath)
+	var fileHashCode int32 = utf16Hash_(filePath)
 	var id int32 = this.counter.add_2(int32(fileHashCode), 1)
 	var fileHashString string = func() string {
 		if fileHashCode < 0 {

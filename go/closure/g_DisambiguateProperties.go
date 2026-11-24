@@ -325,7 +325,7 @@ func new_DisambiguateProperties_PropertyReferenceIndexJson(prop *PropertyCluster
 }
 
 func (this *DisambiguateProperties_PropertyReferenceIndexJson) compareTo_t(x *DisambiguateProperties_PropertyReferenceIndexJson) int32 {
-	return String_compareTo(this.name_, x.name_)
+	return utf16Compare_(this.name_, x.name_)
 }
 
 func (this *DisambiguateProperties_PropertyReferenceIndexJson) compareTo(p0 any) int32 {
