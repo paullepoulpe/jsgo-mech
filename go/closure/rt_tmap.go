@@ -50,12 +50,21 @@ func tmapFrom_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], from Map, imm 
 	if imm && isNil_(from) {
 		return nil
 	}
+	k := immKey_{from, [2]any{kc, vc}}
+	if imm {
+		if v, ok := immCache_[k]; ok {
+			return v.(*TMap[K, V])
+		}
+	}
 	m := newTMap_(kc, vc)
 	for it := from.entrySet().iterator(); it.hasNext(); {
 		e := it.next().(Map_Entry)
 		m.put(kc.unbox(e.getKey()), vc.unbox(e.getValue()))
 	}
 	m.imm = imm
+	if imm {
+		immCache_[k] = m
+	}
 	return m
 }
 
@@ -274,11 +283,20 @@ func tsetFrom_[K comparable](kc *tconv_[K], from Collection, imm bool) *TSet[K] 
 	if imm && isNil_(from) {
 		return nil
 	}
+	k := immKey_{from, kc}
+	if imm {
+		if v, ok := immCache_[k]; ok {
+			return v.(*TSet[K])
+		}
+	}
 	s := newTSet_(kc)
 	for _, x := range toSlice_(from) {
 		s.add(kc.unbox(x))
 	}
 	s.imm = imm
+	if imm {
+		immCache_[k] = s
+	}
 	return s
 }
 
