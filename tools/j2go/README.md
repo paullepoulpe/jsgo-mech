@@ -451,6 +451,19 @@ type Map_EntryT[K any, V any] interface { Map_Entry; getKey_t() K; getValue_t() 
     `getUnchecked`). The runtime makes both erased (`Iterators.peekingIterator`,
     `CacheBuilder.build`), so a value enters through `peekingIteratorAs_` / `loadingCacheAs_`,
     one wrapper per value.
+  - Kind `goptional` (`Ctx.gopt`; it needs rule "function types"): Guava's
+    `com.google.common.base.Optional<X>` is a value library class, as `java.util.Optional` is
+    (below): `GOptional[X]` (`rt_lg_gopt.go`), a generic struct whose zero value is null, its
+    content held as an `X`; `Optional.of` / `absent` / `fromNullable` are generic functions that
+    allocate nothing (`GOptional_of[X](x)`, was `Optional_base_of(obj_(x))`), and `get` /
+    `or` / `orNull` give an `X` (no cast). The erased class of the runtime (`*Optional_base`)
+    keeps its name and is what the translation without the kind names. The methods are those of
+    `LibGen.GOPT_METHODS`, which also gives each its Go name: `or` has three overloads of one
+    name and arity, `or(T)` is `or`, `or(Optional)` is `or_Optional` (whose parameter, a
+    wildcard, is `GOptional[any]`), whatever the program's uses of each (the rule for other
+    library overloads). A wildcard or erased type argument is `any` at that site, as for
+    `java.util.Optional`, and a member's type there has `Object` for it (`Ctx.atSite`), so the
+    result of `get` on an `Optional<? extends X>` is cast where it is used.
 
 Refused (`typed library interfaces: refused: File.java:line: ...`, nothing is written):
 
@@ -477,10 +490,18 @@ Refused (`typed library interfaces: refused: File.java:line: ...`, nothing is wr
   `Object`: `ArrayList.ensureCapacity`), called on a receiver of the class with type arguments,
   unless `LibGen.OWN` lists it (piece `cls`; the tree has none).
 
-`tools/j2go/selftest/refused/RefusedLib.java` has one use of each kind (10); the self-test
+- kind `goptional`: an unchecked cast to a Guava `Optional<X>` (the cast converts the content,
+  `optGOptionalOf_`, where Java's checks the class only); `==` / `!=` between a Guava Optional
+  and anything but `null` (a value has no identity); a call of, or a reference to, a method of
+  Guava's Optional that `LibGen.GOPT_METHODS` does not list (the third overload of `or`,
+  `or(Supplier)`, which the runtime has in neither form; `asSet`, `toJavaUtil` ...); a
+  reference to one of its statics (`Optional::fromNullable`: a Go generic function, which a
+  reference gives no type arguments). The tree has none.
+
+`tools/j2go/selftest/refused/RefusedLib.java` has one use of each kind (15); the self-test
 fails unless the translator refuses exactly those and writes nothing.
 
-Each kind and piece is a switch: `J2GO_NOLIBGEN=iter,coll,list,set,map,makers,views,place,cov,elems,wide,nncoll,readers,cls,meth,fns,sorted,enumset,cmaps,deque,guava`
+Each kind and piece is a switch: `J2GO_NOLIBGEN=iter,coll,list,set,map,makers,views,place,cov,elems,wide,nncoll,readers,cls,meth,fns,sorted,enumset,cmaps,deque,guava,goptional`
 (`all`: every one). A translation with any of them off is built with `-tags j2go_nolibgen`
 (`tools/prune/verify.sh` and the self-test do that when `J2GO_NOLIBGEN` is set): the erased
 factories that only such a translation names are in `go/closure/rt_lg_erased.go`, outside the

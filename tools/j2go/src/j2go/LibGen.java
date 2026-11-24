@@ -143,6 +143,30 @@ final class LibGen {
       Map.entry("java.util.EnumSet.of(java.lang.Enum,java.lang.Enum[])", new String[] {"tenumSetOfArr_", "set", "enumset"}),
       Map.entry("java.util.EnumSet.copyOf(java.util.Collection)", new String[] {"tenumSetCopyOf_", "set", "enumset"}));
 
+  /**
+   * Kind `goptional` (Ctx.gopt, Ctx.registerValueLibs): the methods of Guava's Optional that the
+   * runtime's typed GOptional has (rt_lg_gopt.go), by sigKey, with their Go names (a static: ""
+   * for its plain name, Ctx.staticMethodName). Optional has three overloads of `or` with one
+   * parameter; the erasure of the parameter tells them apart here, and the list gives each its Go
+   * name, so a call's name does not depend on how often the program uses each overload (the
+   * rule for other library overloads, Ctx.assignExternalNames). A call of any other method of
+   * Optional, a reference to one, is refused (check): the third overload of `or`, or(Supplier),
+   * among them (the runtime has it in neither form).
+   */
+  static final Map<String, String> GOPT_METHODS = Map.ofEntries(
+      Map.entry("com.google.common.base.Optional.absent()", ""),
+      Map.entry("com.google.common.base.Optional.of(java.lang.Object)", ""),
+      Map.entry("com.google.common.base.Optional.fromNullable(java.lang.Object)", ""),
+      Map.entry("com.google.common.base.Optional.get()", "get"),
+      Map.entry("com.google.common.base.Optional.isPresent()", "isPresent"),
+      Map.entry("com.google.common.base.Optional.or(java.lang.Object)", "or"),
+      Map.entry("com.google.common.base.Optional.or(com.google.common.base.Optional)", "or_Optional"),
+      Map.entry("com.google.common.base.Optional.orNull()", "orNull"),
+      Map.entry("com.google.common.base.Optional.transform(com.google.common.base.Function)", "transform"),
+      Map.entry("com.google.common.base.Optional.equals(java.lang.Object)", "equals"),
+      Map.entry("com.google.common.base.Optional.hashCode()", "hashCode"),
+      Map.entry("com.google.common.base.Optional.toString()", "toString"));
+
   /** The class whose places the makers of a kind of MAKERS_T2 serve: a collection made for such a place is no object of the class. */
   static final Map<String, String> MADE_T2 = Map.of("enumset", "java.util.EnumSet");
 
@@ -830,7 +854,44 @@ final class LibGen {
           // made for another place, which refuses an element that Java's would take)
           refuse(t, "unchecked cast in " + where() + " (not in tools/j2go/unchecked-casts.txt)");
         }
+        if (gopt(target) && from != null && !allUnbounded((DeclaredType) target) && from.getKind() != TypeKind.NULL && !cx.types.isSubtype(from, target) && !uncheckedOk.contains(where())) {
+          // kind `goptional`: the cast converts the content (optGOptionalOf_), where Java's checks the class only
+          refuse(t, "unchecked cast to a Guava Optional in " + where() + " (kind goptional; not in tools/j2go/unchecked-casts.txt)");
+        }
         return super.visitTypeCast(t, v);
+      }
+
+      /** Whether t is a use of Guava's Optional where it is a value library class (kind `goptional`). */
+      boolean gopt(TypeMirror t) {
+        return Ctx.gopt() && t != null && t.getKind() == TypeKind.DECLARED && Ctx.typeElement(t).getQualifiedName().contentEquals(Ctx.GOPT);
+      }
+
+      /** Kind `goptional`: a method of Guava's Optional that the runtime's GOptional lacks (GOPT_METHODS). */
+      void goptMethod(Tree at, Element m) {
+        if (m instanceof ExecutableElement me && gopt(me.getEnclosingElement().asType()) && !GOPT_METHODS.containsKey(sigKey(me))) {
+          refuse(at, "method " + sigKey(me) + " (the runtime's GOptional of kind goptional does not have it: LibGen.GOPT_METHODS)");
+        }
+      }
+
+      @Override
+      public Void visitMemberReference(MemberReferenceTree t, Void v) {
+        Element m = trees.getElement(getCurrentPath());
+        goptMethod(t, m);
+        // (a static of Optional is a Go generic function, which a reference has no type arguments for)
+        if (m instanceof ExecutableElement me && gopt(me.getEnclosingElement().asType()) && me.getModifiers().contains(Modifier.STATIC) && GOPT_METHODS.containsKey(sigKey(me))) {
+          refuse(t, "reference to the generic static " + sigKey(me) + " (kind goptional: GOptional's statics are Go generic functions)");
+        }
+        return super.visitMemberReference(t, v);
+      }
+
+      @Override
+      public Void visitBinary(BinaryTree t, Void v) {
+        if (t.getKind() == Tree.Kind.EQUAL_TO || t.getKind() == Tree.Kind.NOT_EQUAL_TO) {
+          TypeMirror l = trees.getTypeMirror(new TreePath(getCurrentPath(), t.getLeftOperand())), r = trees.getTypeMirror(new TreePath(getCurrentPath(), t.getRightOperand()));
+          boolean nl = l == null || l.getKind() == TypeKind.NULL, nr = r == null || r.getKind() == TypeKind.NULL;
+          if ((gopt(l) || gopt(r)) && !nl && !nr) refuse(t, "identity of a Guava Optional (kind goptional: a value, GOptional, has none)");
+        }
+        return super.visitBinary(t, v);
       }
 
       @Override
@@ -859,6 +920,7 @@ final class LibGen {
           }
         }
         madeParam(t);
+        goptMethod(t, trees.getElement(new TreePath(getCurrentPath(), t.getMethodSelect())));
         return super.visitMethodInvocation(t, v);
       }
 

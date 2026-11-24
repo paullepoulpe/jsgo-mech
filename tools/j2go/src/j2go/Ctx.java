@@ -179,6 +179,11 @@ final class Ctx {
     Map<Element, TypeMirror> m = new HashMap<>();
     List<? extends TypeParameterElement> ps = owner.getTypeParameters();
     for (int i = 0; i < ps.size(); i++) if (keptVars.contains(ps.get(i))) m.put(ps.get(i), v.getTypeArguments().get(i));
+    if (gopt() && owner.getQualifiedName().contentEquals(GOPT)) {
+      // (kind `goptional`: a type argument that is `any` in Go, a wildcard or an erased type
+      // variable, is Object in the member's type, as the GOptional[any] holds it)
+      for (var e : m.entrySet()) if (goTypeArg(e.getValue()).equals("any")) e.setValue(elems.getTypeElement("java.lang.Object").asType());
+    }
     return subst(t, m, 0);
   }
 
@@ -238,8 +243,20 @@ final class Ctx {
     return t != null && t.getKind() == TypeKind.DECLARED && valueLibs.contains(typeElement(t));
   }
 
+  /**
+   * Rule "typed library interfaces", kind `goptional` (J2GO_NOLIBGEN=goptional is the translation
+   * without it; it needs rule "function types"): Guava's Optional is a value library class too,
+   * the runtime's GOptional[T] (rt_lg_gopt.go), named so that the erased class of the runtime
+   * (Optional_base, which the translation without the kind names) stays as it is.
+   */
+  static final String GOPT = "com.google.common.base.Optional";
+
+  static boolean gopt() {
+    return LibGen.on("goptional") && FnTypes.ON;
+  }
+
   void registerValueLibs() {
-    for (String qn : List.of("java.util.Optional")) {
+    for (String qn : gopt() ? List.of("java.util.Optional", GOPT) : List.of("java.util.Optional")) {
       TypeElement te = elems.getTypeElement(qn);
       if (te == null) continue;
       valueLibs.add(te);
@@ -1515,6 +1532,8 @@ final class Ctx {
     if (n != null) return n;
     n = rawName(te);
     String pkg = elems.getPackageOf(te).getQualifiedName().toString();
+    // (kind `goptional`: the typed Guava Optional, registerValueLibs)
+    if (gopt() && te.getQualifiedName().contentEquals(GOPT)) n = "GOptional";
     // A library class keeps its simple name unless a translated class or a core JDK class has it;
     // the rule must not depend on which class is met first.
     boolean taken = classByName.containsKey(n);
@@ -2599,6 +2618,9 @@ final class Ctx {
 
   String externalMethodName(ExecutableElement m) {
     ExecutableElement r = root(m);
+    // (kind `goptional`: a method of Guava's Optional has the Go name of LibGen.GOPT_METHODS, whatever the uses of its overloads)
+    String g = gopt() && ownerOf(r).getQualifiedName().contentEquals(GOPT) ? LibGen.GOPT_METHODS.get(LibGen.sigKey(r)) : null;
+    if (g != null) return g;
     if (extNames == null) assignExternalNames();
     String n = extNames.get(r);
     return n != null ? n : safeMember(r.getSimpleName().toString());
