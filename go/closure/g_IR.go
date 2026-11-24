@@ -754,7 +754,7 @@ func IR_propdef(string_ Node, value Node) Node {
 }
 
 func IR_arraylit(exprs []Node) Node {
-	return IR_arraylitIterable(iterableAs_(tc_Node, Iterable(Arrays_asList(arrmap_(exprs, func(v_ Node) any { return v_.box_() })))))
+	return IR_arraylitIterable(iterableAs_(tc_Node, Iterable(Arrays_asList(arrmap_(exprs, (Node).box_)))))
 }
 
 func IR_arraylitIterable(exprs IterableT[Node]) Node {

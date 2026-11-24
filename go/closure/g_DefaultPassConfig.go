@@ -393,25 +393,17 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 	})).build()
 	this.disambiguateProperties_ = PassFactory_builder().setName(PassNames_DISAMBIGUATE_PROPERTIES).setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(compiler *AbstractCompiler) CompilerPass {
 		return CompilerPass(new_DisambiguateProperties(compiler, this.options_.getPropertiesThatMustDisambiguate()))
-	})).setPreconditionCheck(Function[*CompilerOptions, *PassFactory_PreconditionResult](func(p0 *CompilerOptions) *PassFactory_PreconditionResult {
-		return DefaultPassConfig_requirePropertiesAreStaticallyAnalyzable(p0)
-	})).build()
+	})).setPreconditionCheck(Function[*CompilerOptions, *PassFactory_PreconditionResult](DefaultPassConfig_requirePropertiesAreStaticallyAnalyzable)).build()
 	this.devirtualizeMethods = PassFactory_builder().setName(PassNames_DEVIRTUALIZE_METHODS).setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(compiler *AbstractCompiler) CompilerPass {
 		return OptimizeCalls_as_CompilerPass(OptimizeCalls_builder().setCompiler(compiler).setConsiderExterns(false).addPass(OptimizeCalls_CallGraphCompilerPass(new_DevirtualizeMethods(compiler))).build())
-	})).setPreconditionCheck(Function[*CompilerOptions, *PassFactory_PreconditionResult](func(p0 *CompilerOptions) *PassFactory_PreconditionResult {
-		return DefaultPassConfig_requirePropertiesAreStaticallyAnalyzable(p0)
-	})).build()
+	})).setPreconditionCheck(Function[*CompilerOptions, *PassFactory_PreconditionResult](DefaultPassConfig_requirePropertiesAreStaticallyAnalyzable)).build()
 	this.optimizeCalls = PassFactory_builder().setName(PassNames_OPTIMIZE_CALLS).setRunInFixedPointLoop(true).setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(compiler *AbstractCompiler) CompilerPass {
 		return OptimizeCalls_as_CompilerPass(OptimizeCalls_builder().setCompiler(compiler).setConsiderExterns(false).addPass(OptimizeCalls_CallGraphCompilerPass(new_OptimizeReturns(compiler))).addPass(OptimizeCalls_CallGraphCompilerPass(new_OptimizeParameters(compiler))).build())
-	})).setPreconditionCheck(Function[*CompilerOptions, *PassFactory_PreconditionResult](func(p0 *CompilerOptions) *PassFactory_PreconditionResult {
-		return DefaultPassConfig_requirePropertiesAreStaticallyAnalyzable(p0)
-	})).build()
+	})).setPreconditionCheck(Function[*CompilerOptions, *PassFactory_PreconditionResult](DefaultPassConfig_requirePropertiesAreStaticallyAnalyzable)).build()
 	this.optimizeConstructors = PassFactory_builder().setName("optimizeConstructors").setRunInFixedPointLoop(false).setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(compiler *AbstractCompiler) CompilerPass {
 		return OptimizeCalls_as_CompilerPass(OptimizeCalls_builder().setCompiler(compiler).setConsiderExterns(false).addPass(OptimizeCalls_CallGraphCompilerPass(new_OptimizeConstructors(compiler))).build())
 	})).build()
-	this.markPureFunctions = PassFactory_builder().setName("markPureFunctions").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(p0 *AbstractCompiler) CompilerPass { return CompilerPass(new_PureFunctionIdentifier_Driver(p0)) })).setPreconditionCheck(Function[*CompilerOptions, *PassFactory_PreconditionResult](func(p0 *CompilerOptions) *PassFactory_PreconditionResult {
-		return DefaultPassConfig_requirePropertiesAreStaticallyAnalyzable(p0)
-	})).build()
+	this.markPureFunctions = PassFactory_builder().setName("markPureFunctions").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(p0 *AbstractCompiler) CompilerPass { return CompilerPass(new_PureFunctionIdentifier_Driver(p0)) })).setPreconditionCheck(Function[*CompilerOptions, *PassFactory_PreconditionResult](DefaultPassConfig_requirePropertiesAreStaticallyAnalyzable)).build()
 	this.inlineVariables = PassFactory_builder().setName(PassNames_INLINE_VARIABLES).setRunInFixedPointLoop(true).setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(compiler *AbstractCompiler) CompilerPass {
 		var mode InlineVariables_Mode
 		if this.options_.shouldInlineVariables() {
@@ -426,15 +418,11 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 	this.inlineConstants = PassFactory_builder().setName("inlineConstants").setRunInFixedPointLoop(true).setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(compiler *AbstractCompiler) CompilerPass {
 		return CompilerPass(new_InlineVariables(compiler, InlineVariables_Mode_CONSTANTS_ONLY))
 	})).build()
-	this.inlineSimpleMethods = PassFactory_builder().setName("inlineSimpleMethods").setRunInFixedPointLoop(true).setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(p0 *AbstractCompiler) CompilerPass { return CompilerPass(new_InlineSimpleMethods(p0)) })).setPreconditionCheck(Function[*CompilerOptions, *PassFactory_PreconditionResult](func(p0 *CompilerOptions) *PassFactory_PreconditionResult {
-		return DefaultPassConfig_requirePropertiesAreStaticallyAnalyzable(p0)
-	})).build()
+	this.inlineSimpleMethods = PassFactory_builder().setName("inlineSimpleMethods").setRunInFixedPointLoop(true).setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(p0 *AbstractCompiler) CompilerPass { return CompilerPass(new_InlineSimpleMethods(p0)) })).setPreconditionCheck(Function[*CompilerOptions, *PassFactory_PreconditionResult](DefaultPassConfig_requirePropertiesAreStaticallyAnalyzable)).build()
 	this.deadAssignmentsElimination = PassFactory_builder().setName(PassNames_DEAD_ASSIGNMENT_ELIMINATION).setRunInFixedPointLoop(true).setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(p0 *AbstractCompiler) CompilerPass { return CompilerPass(new_DeadAssignmentsElimination(p0)) })).build()
 	this.deadPropertyAssignmentElimination = PassFactory_builder().setName("deadPropertyAssignmentElimination").setRunInFixedPointLoop(true).setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(p0 *AbstractCompiler) CompilerPass {
 		return CompilerPass(new_DeadPropertyAssignmentElimination(p0))
-	})).setPreconditionCheck(Function[*CompilerOptions, *PassFactory_PreconditionResult](func(p0 *CompilerOptions) *PassFactory_PreconditionResult {
-		return DefaultPassConfig_requirePropertiesAreStaticallyAnalyzable(p0)
-	})).build()
+	})).setPreconditionCheck(Function[*CompilerOptions, *PassFactory_PreconditionResult](DefaultPassConfig_requirePropertiesAreStaticallyAnalyzable)).build()
 	this.inlineFunctions = PassFactory_builder().setName(PassNames_INLINE_FUNCTIONS).setRunInFixedPointLoop(true).setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(compiler *AbstractCompiler) CompilerPass {
 		return CompilerPass(new_InlineFunctions(compiler, compiler.getUniqueNameIdSupplier(), this.options_.getInlineFunctionsLevel(), (this.options_.assumeStrictThis() || this.options_.expectStrictModeInput()), this.options_.getMaxFunctionSizeAfterInlining()))
 	})).build()
@@ -481,9 +469,7 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 			}
 		}()
 		return CompilerPass(new_ExtractPrototypeMemberDeclarations(compiler, pattern))
-	})).setPreconditionCheck(Function[*CompilerOptions, *PassFactory_PreconditionResult](func(p0 *CompilerOptions) *PassFactory_PreconditionResult {
-		return DefaultPassConfig_requirePropertiesAreStaticallyAnalyzable(p0)
-	})).build()
+	})).setPreconditionCheck(Function[*CompilerOptions, *PassFactory_PreconditionResult](DefaultPassConfig_requirePropertiesAreStaticallyAnalyzable)).build()
 	this.rewriteFunctionExpressions = PassFactory_builder().setName(PassNames_REWRITE_FUNCTION_EXPRESSIONS).setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(p0 *AbstractCompiler) CompilerPass { return CompilerPass(new_FunctionRewriter(p0)) })).build()
 	this.collapseAnonymousFunctions = PassFactory_builder().setName(PassNames_COLLAPSE_ANONYMOUS_FUNCTIONS).setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(p0 *AbstractCompiler) CompilerPass { return CompilerPass(new_CollapseAnonymousFunctions(p0)) })).build()
 	this.rewriteGlobalDeclarationsForTryCatchWrapping = PassFactory_builder().setName("rewriteGlobalDeclarationsForTryCatchWrapping").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(p0 *AbstractCompiler) CompilerPass {
@@ -494,9 +480,7 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 	})).build()
 	this.ambiguateProperties = PassFactory_builder().setName(PassNames_AMBIGUATE_PROPERTIES).setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(compiler *AbstractCompiler) CompilerPass {
 		return CompilerPass(new_AmbiguateProperties(compiler, this.options_.getPropertyReservedNamingFirstChars(), this.options_.getPropertyReservedNamingNonFirstChars(), compiler.getExternProperties()))
-	})).setPreconditionCheck(Function[*CompilerOptions, *PassFactory_PreconditionResult](func(p0 *CompilerOptions) *PassFactory_PreconditionResult {
-		return DefaultPassConfig_requirePropertiesAreStaticallyAnalyzable(p0)
-	})).build()
+	})).setPreconditionCheck(Function[*CompilerOptions, *PassFactory_PreconditionResult](DefaultPassConfig_requirePropertiesAreStaticallyAnalyzable)).build()
 	this.markUnnormalized = PassFactory_builder().setName("markUnnormalized").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(compiler *AbstractCompiler) CompilerPass {
 		return CompilerPass(new_DefaultPassConfig_10(this, compiler))
 	})).build()
@@ -507,18 +491,14 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 	this.denormalize = PassFactory_builder().setName("denormalize").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(compiler *AbstractCompiler) CompilerPass {
 		return CompilerPass(new_Denormalize(compiler, this.options_.getOutputFeatureSet()))
 	})).build()
-	this.invertContextualRenaming = PassFactory_builder().setName("invertContextualRenaming").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(p0 *AbstractCompiler) CompilerPass {
-		return MakeDeclaredNamesUnique_getContextualRenameInverter(p0)
-	})).build()
+	this.invertContextualRenaming = PassFactory_builder().setName("invertContextualRenaming").setInternalFactory(Function[*AbstractCompiler, CompilerPass](MakeDeclaredNamesUnique_getContextualRenameInverter)).build()
 	this.renameProperties = PassFactory_builder().setName("renameProperties").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(compiler *AbstractCompiler) CompilerPass {
 		if this.options_.getPropertyRenaming() != PropertyRenamingPolicy_ALL_UNQUOTED {
 			panic(new_IllegalStateException_0())
 		}
 		var prevPropertyMap *VariableMap = this.options_.getInputPropertyMap()
 		return CompilerPass(new_DefaultPassConfig_11(this, compiler, prevPropertyMap))
-	})).setPreconditionCheck(Function[*CompilerOptions, *PassFactory_PreconditionResult](func(p0 *CompilerOptions) *PassFactory_PreconditionResult {
-		return DefaultPassConfig_requirePropertiesAreStaticallyAnalyzable(p0)
-	})).build()
+	})).setPreconditionCheck(Function[*CompilerOptions, *PassFactory_PreconditionResult](DefaultPassConfig_requirePropertiesAreStaticallyAnalyzable)).build()
 	this.removePropertyRenamingCalls = PassFactory_builder().setName("removePropertyRenamingCalls").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(p0 *AbstractCompiler) CompilerPass { return CompilerPass(new_RemovePropertyRenamingCalls(p0)) })).build()
 	this.renameVars = PassFactory_builder().setName("renameVars").setInternalFactory(Function[*AbstractCompiler, CompilerPass](func(compiler *AbstractCompiler) CompilerPass {
 		var prevVariableMap *VariableMap = this.options_.getInputVariableMap()

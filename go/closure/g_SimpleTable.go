@@ -81,7 +81,7 @@ func (this *SimpleTable[R, C, V]) rowKeySet() SetT[R] {
 }
 
 func (this *SimpleTable[R, C, V]) values() IterableT[V] {
-	return iterableAs_(tcT_[V](), Iterables_unmodifiableIterable(Iterables_concat_Iterable(Iterable_un_(Iterables_transformT_[MapT[C, V], CollectionT[V]](this.rows.valuesT(), Function_base[MapT[C, V], CollectionT[V]](func(p0 MapT[C, V]) CollectionT[V] { return p0.values_t() }))))))
+	return iterableAs_(tcT_[V](), Iterables_unmodifiableIterable(Iterables_concat_Iterable(Iterable_un_(Iterables_transformT_[MapT[C, V], CollectionT[V]](this.rows.valuesT(), Function_base[MapT[C, V], CollectionT[V]]((MapT[C, V]).values_t))))))
 }
 
 func (this *SimpleTable[R, C, V]) isEmpty() bool {

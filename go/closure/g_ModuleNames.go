@@ -81,7 +81,7 @@ func ModuleNames_canonicalizePath(path string) string {
 	if absolutePath && (position == 1) {
 		return ModuleNames_MODULE_SLASH
 	}
-	return ModuleNames_MODULE_JOINER.join_ObjectArr(Arrays_copyOf_ObjectArr_int(arrmap_(buffer, func(v_ string) any { return strobj_(v_) }), position))
+	return ModuleNames_MODULE_JOINER.join_ObjectArr(Arrays_copyOf_ObjectArr_int(arrmap_(buffer, strobj_), position))
 }
 
 var ModuleNames_LEADING_DOT_SLASH_PATTERN *Pattern

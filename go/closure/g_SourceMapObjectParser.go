@@ -338,5 +338,5 @@ func SourceMapObjectParser_readStringArray(lexer *SourceMapJsonLexer) *Outcome_b
 	if ended.isErr() {
 		return Outcome_base_err[[]string](ended.error())
 	}
-	return Outcome_base_ok_Object[[]string](arrmap_(sliceView_(tc_string, list).toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) }))
+	return Outcome_base_ok_Object[[]string](arrmap_(sliceView_(tc_string, list).toArray(arrmap_(newstrarr_(0), strobj_)), str_))
 }

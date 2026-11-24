@@ -135,7 +135,7 @@ func (this *DominatorTree[N]) getAllSubtreeSizes() MapT[N, any] {
 
 func DominatorTree_toReversedArray[N comparable](list ListT[N]) []N {
 	var size int32 = list.size()
-	var reversed []N = arrmap_(make([]any, size), func(v_ any) N { return junboxT_[N](v_) })
+	var reversed []N = arrmap_(make([]any, size), junboxT_[N])
 	for i := int32(0); i < size; i++ {
 		reversed[i] = list.get_t(((size - 1) - i))
 	}

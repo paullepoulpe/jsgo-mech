@@ -30,7 +30,7 @@ func new_JSChunkGraph(chunks []*JSChunk, chunksByDepth ListT[ListT[*JSChunk]]) *
 }
 
 func JSChunkGraph_createFromArray(chunksInDepOrder []*JSChunk) *Outcome_base[*JSChunkGraph] {
-	return JSChunkGraph_create(listAs_(tc_p_JSChunk, Arrays_asList(arrmap_(chunksInDepOrder, func(v_ *JSChunk) any { return obj_(v_) }))))
+	return JSChunkGraph_create(listAs_(tc_p_JSChunk, Arrays_asList(arrmap_(chunksInDepOrder, obj_[*JSChunk]))))
 }
 
 func JSChunkGraph_create(chunksInDepOrder ListT[*JSChunk]) *Outcome_base[*JSChunkGraph] {
@@ -157,7 +157,7 @@ func (this *JSChunkGraph) initSubtreeSize() []int32 {
 }
 
 func (this *JSChunkGraph) getAllInputs() IterableT[*CompilerInput] {
-	return iterableAs_(tc_p_CompilerInput, Iterables_concat_Iterable(Iterables_transform(Iterable(Arrays_asList(arrmap_(this.chunks, func(v_ *JSChunk) any { return obj_(v_) }))), Function_base[any, any](func(p0 any) any { return lgBox_(p0.(*JSChunk).getInputs()) }))))
+	return iterableAs_(tc_p_CompilerInput, Iterables_concat_Iterable(Iterables_transform(Iterable(Arrays_asList(arrmap_(this.chunks, obj_[*JSChunk]))), Function_base[any, any](func(p0 any) any { return lgBox_(p0.(*JSChunk).getInputs()) }))))
 }
 
 func (this *JSChunkGraph) getInputCount() int32 {
@@ -169,7 +169,7 @@ func (this *JSChunkGraph) getInputCount() int32 {
 }
 
 func (this *JSChunkGraph) getAllChunks() IterableT[*JSChunk] {
-	return iterableAs_(tc_p_JSChunk, Iterable(Arrays_asList(arrmap_(this.chunks, func(v_ *JSChunk) any { return obj_(v_) }))))
+	return iterableAs_(tc_p_JSChunk, Iterable(Arrays_asList(arrmap_(this.chunks, obj_[*JSChunk]))))
 }
 
 func (this *JSChunkGraph) getIntegralChunkArrayForSerialization() []*JSChunk {
@@ -296,7 +296,7 @@ func (this *JSChunkGraph) getTransitiveDepsDeepestFirst(m *JSChunk) ListT[*JSChu
 }
 
 func (this *JSChunkGraph) getTransitiveDeps(m *JSChunk) SetT[*JSChunk] {
-	return this.dependencyMap.computeIfAbsent(m, Function[*JSChunk, SetT[*JSChunk]](func(p0 *JSChunk) SetT[*JSChunk] { return p0.getAllDependencies() }))
+	return this.dependencyMap.computeIfAbsent(m, Function[*JSChunk, SetT[*JSChunk]]((*JSChunk).getAllDependencies))
 }
 
 func JSChunkGraph_moveMarkedWeakSources(weakChunk *JSChunk, inputs IterableT[*CompilerInput]) {
