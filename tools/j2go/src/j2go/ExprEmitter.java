@@ -749,7 +749,7 @@ abstract class ExprEmitter extends Base {
   // ------------------------------------------------------------ operators
 
   TypeMirror promote(TypeMirror a, TypeMirror b) {
-    TypeMirror ua = cx.unboxed(a), ub = cx.unboxed(b);
+    TypeMirror ua = cx.unboxedN(a), ub = cx.unboxedN(b);
     if (ua == null || ub == null) return null;
     TypeKind x = ua.getKind(), y = ub.getKind();
     if (x == TypeKind.BOOLEAN || y == TypeKind.BOOLEAN) return prim(TypeKind.BOOLEAN);
@@ -760,7 +760,7 @@ abstract class ExprEmitter extends Base {
   }
 
   TypeMirror promote1(TypeMirror a) {
-    TypeMirror ua = cx.unboxed(a);
+    TypeMirror ua = cx.unboxedN(a);
     if (ua == null) return null;
     switch (ua.getKind()) {
       case BYTE, SHORT, CHAR, INT: return prim(TypeKind.INT);
@@ -2048,7 +2048,7 @@ abstract class ExprEmitter extends Base {
       String name = localName(pe);
       if (name.equals("_")) name = fresh("p");
       mc.names.put(pe, name);
-      TypeMirror pt = cx.erase(pe.asType());
+      TypeMirror pt = cx.erase(cx.vtype(pe));
       if (i > 0) sb.append(", ");
       String gp = cx.goType(params.get(i));
       if (cx.goType(pt).equals(gp)) {

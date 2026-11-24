@@ -106,6 +106,15 @@ public final class Main {
         }
       });
     }
+    // piece `nbox` (LibNbox): the stand-in class of a boxed primitive held as a value
+    if (LibNbox.on()) {
+      out.add(new SimpleJavaFileObject(java.net.URI.create("string:///j2go/rt/Nbox.java"), JavaFileObject.Kind.SOURCE) {
+        @Override
+        public CharSequence getCharContent(boolean ignoreEncodingErrors) {
+          return "package j2go.rt;\npublic final class Nbox<T> {}\n";
+        }
+      });
+    }
     return out;
   }
 
@@ -286,6 +295,8 @@ public final class Main {
     cx.registerValueLibs();
     cx.fn.register();
     cx.lg.register();
+    // piece `nbox` (after the function types and library interfaces are known)
+    if (LibNbox.on()) new LibNbox(cx, trees, gs).run(units);
     // (J2GO_UNCHECKED_CASTS: the lists of methods whose unchecked casts were read, separated by ':')
     String uc = System.getenv("J2GO_UNCHECKED_CASTS") != null ? System.getenv("J2GO_UNCHECKED_CASTS") : "tools/j2go/unchecked-casts.txt";
     for (String f : uc.split(":")) if (new java.io.File(f).exists()) cx.lg.readUncheckedOk(f);

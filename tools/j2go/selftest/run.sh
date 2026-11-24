@@ -14,7 +14,7 @@ t=.cache/j2go-selftest
 rm -rf "$t" && mkdir -p "$t/java" "$t/go/closure" "$t/go/cmd/t"
 # lang/Imm.java uses Guava (typed immutable collections).
 javac -nowarn -cp .cache/build/stock-libs.jar -d "$t/java" tools/j2go/selftest/lang/*.java
-for c in Lang Lang2 Handles Generics Generics2 Generics3 Colls Imm Unboxed Covariant CovariantIface Layout FnTypes LibGen LibFns GOpt LibObj Cmp OwnWild; do env -u JAVA_TOOL_OPTIONS java -Dstdout.encoding=UTF-8 -cp "$t/java:.cache/build/stock-libs.jar" lang.$c; done >"$t/expected.txt"
+for c in Lang Lang2 Handles Generics Generics2 Generics3 Colls Imm Unboxed Covariant CovariantIface Layout FnTypes LibGen LibFns GOpt LibObj Cmp OwnWild TriBox; do env -u JAVA_TOOL_OPTIONS java -Dstdout.encoding=UTF-8 -cp "$t/java:.cache/build/stock-libs.jar" lang.$c; done >"$t/expected.txt"
 # The test class is translated together with the whole tree, so that the runtime it needs is all there.
 cp go/go.mod "$t/go/" && cp go/closure/rt_*.go tools/j2go/selftest/rt_*.go "$t/go/closure/" && rm -f "$t"/go/closure/*_test.go
 [[ -d go/closure/resources ]] && cp -r go/closure/resources "$t/go/closure/"
@@ -48,7 +48,7 @@ import (
 	"unsafe"
 )
 
-func SelfTest() string { return Lang_run() + Lang2_run() + Handles_run() + Generics_run() + Generics2_run() + Generics3_run() + Colls_run() + Imm_run() + Unboxed_run() + Covariant_run() + CovariantIface_run() + Layout_run() + FnTypes_run() + LibGen_run() + LibFns_run() + GOpt_run() + LibObj_run() + Cmp_run() + OwnWild_run() }
+func SelfTest() string { return Lang_run() + Lang2_run() + Handles_run() + Generics_run() + Generics2_run() + Generics3_run() + Colls_run() + Imm_run() + Unboxed_run() + Covariant_run() + CovariantIface_run() + Layout_run() + FnTypes_run() + LibGen_run() + LibFns_run() + GOpt_run() + LibObj_run() + Cmp_run() + OwnWild_run() + TriBox_run() }
 
 // SelfTestSizes: the sizes of the structs of lang/Layout.java.
 func SelfTestSizes() string {
@@ -117,6 +117,20 @@ if [[ ! ,${J2GO_NOLIBGEN:-}, =~ ,(ownwild|all), ]]; then
   nx=$(grep -cE '^type OwnWild_(Over|Mixed|Stat|Asg|Ref|Unl|Str|NoGuard) struct' "$g" || true)
   ni=$(grep -cF 'is_[*OwnWild_Entry[T]](' "$g" || true)
   if [[ $ny != 2 || $nx != 8 || $ni != 1 ]]; then echo "selftest: FAIL (piece ownwild: $ny typed, $nx erased, $ni typed tests)"; exit 1; fi
+fi
+if [[ ! ,${J2GO_NOLIBGEN:-}, =~ ,(nbox|all), && ${J2GO_NOFNTYPES:-} != 1 ]]; then
+  # Piece `nbox` (lang/TriBox.java): the fields year, flag, seen and the static tri are Nbox[T] (3 + 1), the fields called,
+  # counter, shown, a1, a2 stay any (5: a method called on it, ++, a string concatenation, == of two boxes); setYear, setTri,
+  # opt, num take Nbox / function types at Nbox (4), with 5 lambdas func(v Nbox[..]); each, pass, opt2 keep Consumer[any]
+  # (a method reference, passed on as a value, not a lambda: 3).
+  g="$t/go/closure/g_TriBox.go"
+  nf=$(grep -cE '^	[a-z_0-9]+ +Nbox\[' "$g" || true)
+  ns=$(grep -cE '^var TriBox_[a-z]+ Nbox\[' "$g" || true)
+  nl=$(grep -cE '^	(called|counter|shown|a1|a2) +any$' "$g" || true)
+  nv=$(grep -cF 'func(v Nbox[' "$g" || true)
+  np=$(grep -cE '^func .*\((y|b|get|set) (Nbox|Supplier\[Nbox|Consumer\[Nbox)' "$g" || true)
+  nx=$(grep -cE '^func TriBox_(each|pass|opt2)\(c Consumer\[any\]\)' "$g" || true)
+  if [[ $nf != 3 || $ns != 1 || $nl != 5 || $nv != 5 || $np != 4 || $nx != 3 ]]; then echo "selftest: FAIL (piece nbox: $nf $ns fields typed, $nl left, $nv lambdas, $np signatures, $nx left)"; exit 1; fi
 fi
 if [[ ${J2GO_NOFNTYPES:-} != 1 ]]; then
   # Rule "function types": the translator must refuse every use in refused/Refused.java (14) and write nothing.

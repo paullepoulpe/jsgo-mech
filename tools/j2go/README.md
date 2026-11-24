@@ -518,6 +518,24 @@ type Map_EntryT[K any, V any] interface { Map_Entry; getKey_t() K; getValue_t() 
     `java.util.Optional`, and a member's type there has `Object` for it (`Ctx.atSite`), so the
     result of `get` on an `Optional<? extends X>` is cast where it is used.
 
+  - Piece `nbox` (`LibNbox`; rule candidate R5 of `docs/javaisms6/JAVAISMS6.md`): a field or a
+    method parameter declared as a boxed primitive (`Boolean`, `Integer`, ...: a value that may
+    be null, the tri-state flags) is `Nbox[T]` (`rt_nbox.go`: the primitive and a flag, zero
+    value null), and a method parameter of a library function type with a boxed type argument
+    (`Consumer<Boolean> set`) is the function type at `Nbox[T]`, with the lambdas given for it.
+    It is the value-library mechanism of `java.util.Optional` (`Ctx.valueLibs`: `== null` is
+    `null_()`, Object is `box_()`) for a stand-in class `j2go.rt.Nbox<X>` that only the
+    translator sees (`Main.withStubs`); Optional's own Go type does not fit (its Object form is
+    the Optional, a Boolean's is the bool; it has three states). Conversions (`Ctx.coerce`):
+    `nbox_(v)` from a primitive, `nboxOf_[T](o)` from an Object (nil is null), `n.get_()` to a
+    primitive (NullPointerException for null), `n.box_()` to an Object. Left, counted by reason
+    in the `J2GO_LIBGEN` report (`nbox: left ...`): a variable with a use the conversions do not
+    serve as Java does (a method called on it, `++` / `+=` of it, an assignment used as a value,
+    a string concatenation, `==` with anything but null or a primitive, other forms), a
+    parameter of a constructor or of a method that overrides, is overridden or is referenced
+    (`::`), a function parameter passed on as a value or given anything but a lambda, a field
+    of a record, an interface or a handle class. `selftest/lang/TriBox.java` counts them.
+
 Refused (`typed library interfaces: refused: File.java:line: ...`, nothing is written):
 
 - a raw use of one of the interfaces;
@@ -554,7 +572,7 @@ Refused (`typed library interfaces: refused: File.java:line: ...`, nothing is wr
 `tools/j2go/selftest/refused/RefusedLib.java` has one use of each kind (15); the self-test
 fails unless the translator refuses exactly those and writes nothing.
 
-Each kind and piece is a switch: `J2GO_NOLIBGEN=iter,coll,list,set,map,makers,views,place,cov,elems,wide,nncoll,readers,cls,meth,fns,sorted,enumset,cmaps,deque,guava,goptional,seqcoll,objarg,cmp,ownwild`
+Each kind and piece is a switch: `J2GO_NOLIBGEN=iter,coll,list,set,map,makers,views,place,cov,elems,wide,nncoll,readers,cls,meth,fns,sorted,enumset,cmaps,deque,guava,goptional,seqcoll,objarg,cmp,ownwild,nbox`
 (`all`: every one). A translation with any of them off is built with `-tags j2go_nolibgen`
 (`tools/prune/verify.sh` and the self-test do that when `J2GO_NOLIBGEN` is set): the erased
 factories that only such a translation names are in `go/closure/rt_lg_erased.go`, outside the

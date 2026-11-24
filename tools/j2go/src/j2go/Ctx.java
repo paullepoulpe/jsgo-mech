@@ -248,6 +248,17 @@ final class Ctx {
     return t != null && t.getKind() == TypeKind.DECLARED && valueLibs.contains(typeElement(t));
   }
 
+  /** Piece `nbox`: whether t is the stand-in Nbox<X> of a boxed primitive held as a value (LibNbox). */
+  boolean isNbox(TypeMirror t) {
+    return isValueLibType(t) && typeElement(t).getQualifiedName().contentEquals(LibNbox.STUB);
+  }
+
+  /** The primitive type t unboxes to, also for Nbox<X> (piece `nbox`), else null. */
+  TypeMirror unboxedN(TypeMirror t) {
+    if (isNbox(erase(t))) return unboxed(((DeclaredType) erase(t)).getTypeArguments().get(0));
+    return unboxed(t);
+  }
+
   /**
    * Rule "typed library interfaces", kind `goptional` (J2GO_NOLIBGEN=goptional is the translation
    * without it; it needs rule "function types"): Guava's Optional is a value library class too,
@@ -261,6 +272,13 @@ final class Ctx {
   }
 
   void registerValueLibs() {
+    // piece `nbox` (LibNbox): Nbox<X> is the runtime's Nbox[x] (rt_nbox.go), a value library class
+    TypeElement nb = LibNbox.on() ? elems.getTypeElement(LibNbox.STUB) : null;
+    if (nb != null) {
+      valueLibs.add(nb);
+      typedClasses.add(nb);
+      keptVars.addAll(nb.getTypeParameters());
+    }
     for (String qn : gopt() ? List.of("java.util.Optional", GOPT) : List.of("java.util.Optional")) {
       TypeElement te = elems.getTypeElement(qn);
       if (te == null) continue;
@@ -1641,6 +1659,7 @@ final class Ctx {
       case STR: return "string";
       case ARR: return "[]" + goType(((ArrayType) t).getComponentType());
       case CLS:
+        if (isNbox(t)) return "Nbox[" + goType(unboxed(((DeclaredType) t).getTypeArguments().get(0))) + "]";
         if (isValueLibType(t)) return className(typeElement(t)) + (typedDecl(t) ? typeArgsOf(t) : rawArgs(typeElement(t)));
         return typedDecl(t) ? "*" + className(typeElement(t)) + typeArgsOf(t) : ref(typeElement(t));
       case IFACE:
@@ -1798,6 +1817,17 @@ final class Ctx {
       // (from a place of the immutable class that holds the typed interface, LibGen.cls: the typed collection whose view the value is)
       if (lg.is(from)) return "t" + ck.name + "OfT_(" + tconvsOf(to) + ", " + code + ")";
       return "t" + ck.name + "Imm_(" + tconvsOf(to) + ", " + coerce(code, from, ic) + ")";
+    }
+    // piece `nbox` (LibNbox): a boxed primitive held as a value
+    if (isNbox(to)) {
+      TypeMirror p = unboxed(((DeclaredType) to).getTypeArguments().get(0));
+      if (kf == K.PRIM) return "nbox_[" + goType(p) + "](" + coerce(code, from, p) + ")";
+      return "nboxOf_[" + goType(p) + "](" + coerce(code, from, object) + ")";
+    }
+    if (isNbox(from)) {
+      TypeMirror b = ((DeclaredType) from).getTypeArguments().get(0);
+      if (kt == K.PRIM) return coerce(code + ".get_()", unboxed(b), to);
+      return coerce(code + ".box_()", b, to);
     }
     // A value library class: between two instantiations the content is converted; from an
     // object it is unboxed (nil is null, the zero value).
