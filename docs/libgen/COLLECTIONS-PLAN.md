@@ -2056,3 +2056,247 @@ nothing.)
   type; a reference to a generic static crashes the translator); kind `goptional` fixes the first
   for Guava's class only and refuses the second; neither occurs in the tree for `java.util.Optional`
   (it compiles).
+
+## 11. Record of rule candidate T4, Comparable half: piece `cmp` (branch `main-libgen-t5`, worktree `/mnt/data/ubuntu/jm/wt/libt5`, 2026-11-24)
+
+On top of main ede15525 (T3 merged, section 9). (Section 10 is left to the concurrent branch
+`main-libgen-t4`, typed `Map.get` / `contains` with Object parameters.) Task: the Comparable part
+of rule candidate T4 of `docs/javaisms6/JAVAISMS6.md` (63 sites of the sixth flip's tree): a typed
+`ComparableT[T]` with `compareTo_t(T)`, implemented by the classes that implement `Comparable<T>`
+and called by the runtime's typed natural orders instead of the erased `compareTo(any)`; then
+whether the post-flip tool `deadbridge` would delete the bridges. Scratch files:
+`/mnt/data/tmp/claude-1000/-home-ubuntu-work/9db246f3-01a3-48c8-9bf5-1c94d1ed78d6/scratchpad/t5/`
+(`pipe.sh <label>`: under one hold of the lock, rebuild the translator, translate with the piece
+off, with everything off, then the default, go build / test, self-test; `offall.sh`: verify.sh
+with the switches off; `basebin.sh`: main's translation with main's runtime as
+`$B/bin/m_t5_base`; `tm.sh`: gast.py; `out-a1/`, `out-a1-off/`: the default translation and the
+one with the piece off; `db/`: the deadbridge scratch package; `tm.out`, `offall.out`,
+`run-t5a.log`). Every heavy command ran under `flock /mnt/data/ubuntu/jm/heavy.lock`.
+
+### 11.1 Commits
+
+| commit | switch (`J2GO_NOLIBGEN=`) | what |
+|---|---|---|
+| 4368ec45 | `cmp` | classes implementing `Comparable<C>` of their own type have `compareTo_t` and the bridge (`LibCmp.java`, `rt_lgcmp.go`) |
+| (the commit after) | | this section |
+
+### 11.2 The form
+
+The mechanism is the one the rule already has for program classes implementing `Iterator<T>`
+natively (`next_t` and the bridge `next`, `Emitter.lgBridge`), for one more interface, decided by
+its own class (`LibCmp`, one field in `Ctx`, a few lines each in `Emitter.method` and
+`ExprEmitter`'s method call):
+
+```go
+func (this *DiagnosticType) compareTo_t(diagnosticType *DiagnosticType) int32 {
+	return String_compareTo(this.key_, diagnosticType.key_)
+}
+
+func (this *DiagnosticType) compareTo(p0 any) int32 {
+	return this.compareTo_t(cast_[*DiagnosticType](p0))
+}
+```
+
+(was one `compareTo(diagnosticType_ any)` whose first statements were the same cast). The bridge
+is javac's `compareTo(Object)`; the cast is the one the method did on entry, in the same place
+(before anything else), so every caller of the erased method sees the same behaviour.
+
+Runtime (`rt_lgcmp.go`, 26 lines, untagged): `type ComparableT[T any] interface { compareTo_t(T)
+int32 }` and `cmpTypedT_[T](a, b T) (int32, bool)`: when `a` is a non-null value whose type has
+`compareTo_t(T)`, it calls it; else (a null `a`, which `compareNatural_` reports itself; a `T`
+that is an interface or `any`; any other type) it answers false and the caller does what it did.
+Called, before the boxes are made for `compareNatural_`, by the typed natural orders: `naturalT_`
+(the typed sorts of piece `fns`: `Collections_sortT_`, `List_sortT_` without a comparator),
+`tsortCmp_` (the typed sorted sets and maps of rule "typed collections", natural ordering),
+`Comparator_naturalOrder[T]`, `Comparator_comparing[T, U]` (the key). For a class of the piece
+`compareNatural_(box(a), box(b))` called `a.compareTo(b)`, the bridge, whose cast of `b` (a `T`,
+boxed by `self()`, which is the object itself for a class without subclasses) is the identity: the
+same body runs on the same two objects. Erased code (`compareNatural_`, `sortSlice_`, the erased
+`TreeSet`, Guava's builders, `Ordering`, `ComparisonChain`) calls the bridge as before. A call
+`x.compareTo(y)` of the program on a receiver of such a class is `x.compareTo_t(y)` (argument at
+its type, no `obj_`).
+
+**Classes typed and left erased** (`LibCmp.reason`, counted in the `J2GO_LIBGEN` report of the
+default translation, `tx-a1.log`; the tree's translation, `libgen:` lines):
+
+| | classes |
+|---|---:|
+| typed: `Comparable<C>` of the class itself, no subclass, not a handle, `compareTo` implementing nothing else | **10** |
+| left erased: `Comparable` of another type than the class (a supertype or another instantiation): `JSDocInfo.Property<T> implements Comparable<Property<Object>>` | 1 |
+| left erased: raw `Comparable` | 0 |
+| left erased: `Comparable` through a superclass or an interface of the program | 0 |
+| left erased: the class has a subclass | 0 |
+| left erased: a handle class | 0 |
+| left erased: `compareTo` also implements another interface's method (which needs the erased form) | 0 |
+
+The 10: `DefaultNameGenerator.CharPriority`, `DiagnosticType`, `DisambiguateProperties.
+PropertyReferenceIndexJson / PropertyReferenceJson / TypeEdgeJson`, `SerializeTypesToPointers.
+TypeMismatchJson`, `CheckRequiresSorted.DestructuringBinding / ImportStatement`,
+`IRFactory.LineAndColumn` (a record), `CodeReplacement`: the same 10 classes whose `compareTo`
+bridges the seventh flip's tree has (11.5). A refusal here leaves the class as it was (the tree
+must translate); it is not a translation error. The tree has no class of the other five reasons;
+the self-test has one of each (11.4).
+
+**Call sites.** In the program: 0 (no `x.compareTo(y)` on a receiver of one of the 10 classes;
+the 29 `.compareTo(` calls of the Java tree are on Strings, BigIntegers, enums). In the runtime:
+the typed natural orders above, which the tree reaches for these classes at 3 places:
+`Collections_sortT_[*CheckRequiresSorted_DestructuringBinding]`,
+`Collections_sortT_[*CheckRequiresSorted_ImportStatement]`, and
+`SimpleSetMultimap_createSorted[*DiagnosticType, string]` (a typed sorted map, `tsortCmp_`).
+The others reach the bridge through erased code: `ImmutableSortedSet.naturalOrder()` builders (5
+places: the three DisambiguateProperties classes, TypeMismatchJson, CodeReplacement; builders not
+typed, 7.6), `ImmutableSortedSet.copyOf` of CodeReplacements (1), `Arrays.sort(Object[])` of
+CharPriority (2, erased: `Arrays_sort` has no twin), `TreeRangeSet` of LineAndColumn (1).
+
+### 11.3 Counts (the translator's output, `g_*.go`; main's default = this translation with the piece off)
+
+`J2GO_NOLIBGEN=cmp` against the default: 10 files differ, 80 diff lines; per class the method's
+two entry lines (`var x *C = cast_[*C](x_)`, `_ = x`) leave the method, and a 3-line bridge
+follows it. Spellings: `compareTo_t(` 0 -> 20 (10 declarations, 10 calls in the bridges),
+`) compareTo(` declarations 11 -> 11, `cast_[` 814 -> 814 (the cast moved into the bridge),
+`obj_(` 1,055 -> 1,055. **Census rows (`census.py` of `pf5`): no row changes** (both
+translations give the same census output). The rule removes no site of the translator's
+output: what it changes is which method the typed sorts run (11.2) and, for the flipped tree,
+that the classes have the typed method under the translator's name (`compareTo_t`, the
+`implsplit` step's being `compareToT_`).
+
+Runtime: default build 20,939 (section 9) -> 20,982 (+26 `rt_lgcmp.go`, +17 net (19 added, 2 removed) in `rt_fn.go`,
+`rt_lgfn.go`, `rt_tsorted.go`); test lines 4,671 -> 4,755 (`rt_lgcmp_test.go`: `TestLgCmp`,
+`cmpTypedT_`, null and `any` receivers, a typed sorted set; `rt_lgcmp_fn_test.go`, tag
+`!j2go_nofntypes`: `TestLgCmpFn`, `naturalT_`, `Comparator_naturalOrder`, `Comparator_comparing`;
+each test counts which of `compareTo_t` and the bridge ran).
+
+### 11.4 Self-test, refusals
+
+`selftest/lang/Cmp.java` (added to `run.sh`): `Ver` and generic `Box<T> implements
+Comparable<Box<T>>` (typed); `Raw implements Comparable` (raw), `Kid extends Parent implements
+Comparable<Parent>` (a supertype), `Base implements Comparable<Base>` with subclass `Derived`
+overriding `compareTo` (subclass; Derived: through a superclass), `NamedImpl implements Named`,
+`interface Named extends Comparable<Named>` (through an interface of the program), `Both
+implements Comparable<Both>, Ord<Both>` with `interface Ord<T> { int compareTo(T o); }` (also
+implements another method). It sorts with `Collections.sort`, `List.sort(null)`,
+`Comparator.naturalOrder()` and `.reversed()`, `Comparator.comparing`, a `TreeSet` and a
+`TreeMap`, `Arrays.sort(Object[])`, calls `compareTo` directly, through `Comparable` and raw
+`Comparable` (bridge, and its `ClassCastException`), and prints what Java prints with the piece
+on and off. `run.sh` (piece on) counts in the generated `g_Cmp.go`: 2 `compareTo_t`
+declarations, 2 bridges (`return this.compareTo_t(cast_[*Cmp_X](p0))`), 7 `compareTo`
+declarations in all (the two bridges, Base's dispatching stub and four erased methods; Derived's
+is `compareTo_impl`), 1 call of `compareTo_t` in `direct()`; it fails otherwise. So the six
+refused classes are checked to keep the erased method alone.
+
+Found while writing it, not this piece's subject and not changed: an object of `Both` given for
+`Ord<Both>` fails its cast in Go (with the piece on or off): the class's `compareTo` implements
+`Ord.compareTo` too, and the class has no Go method of the name Ord's group has
+(`compareTo_Object`). The tree has no such class; the self-test does not make that call.
+
+### 11.5 `deadbridge` (post-flip step 481/482), checked without a flip
+
+`deadbridge` deletes a bridge `m(any) { return this.mT_(casts) }` when no value of its class ever
+becomes an interface value (no conversion to an interface or `any`, no generic function given
+one, no use of its `tc_p_X` element conversion). Two runs of the tool as of the seventh flip
+(`$B/wt/flip7/tools/postflip/deadbridge`, built into the scratch directory, `-n -v`: report
+only, nothing written):
+
+- On the seventh flip's tree (`$B/wt/tree7/go/closure`, which has `implsplit`'s `compareToT_`
+  and bridges): **0 deleted**; left: the 10 `compareTo` bridges of 11.2 (9 "its element
+  conversion tc_p_ boxes its values for erased code", 1 `LineAndColumn` "a value given to a
+  generic function") and 4 `compare` bridges (`JSChunkGraph.InverseDepthComparator`: "a method of
+  it returns an interface"; `SymbolTable` 5, 6, 7: "assigned to an interface").
+- On this branch's translation (a copy of `go/closure` with the default `g_*.go` and the
+  default-build runtime, `compareTo_t` renamed `compareToT_` in the copy so that the tool's
+  pattern finds the bridges): **0 deleted**; left: the same 10, for the same reasons (9 `tc_p_`,
+  1 generic function).
+
+So **deadbridge would remove 0 bridges** after this piece. The reasons are not the callers the
+piece changes (the runtime's sorts) but the classes' values themselves: each class is an element
+of a typed collection whose `tc_p_` conversion boxes it for erased code, or is given to a generic
+function, and erased code does reach the bridge for 8 of the 10 (11.2: Guava's sorted builders,
+`Arrays.sort`, `TreeRangeSet`). The bridges are live in this tree, not only unproven dead. The
+`compare(any, any)` bridges are of classes extending Guava's `Ordering` (erased, a runtime class)
+or anonymous `Comparator`s assigned to erased places; the rule "function types" already types the
+classes implementing `Comparator` directly. Neither is changed here.
+
+### 11.6 Byte identity (md5 of `cat go/closure/g_*.go`)
+
+| translation | md5 | must equal |
+|---|---|---|
+| piece off (`J2GO_NOLIBGEN=cmp`) | 627f428904cd1ab870a348b377934bfb | main's default: equal |
+| everything off (`J2GO_NOFNTYPES=1 J2GO_NOLIBGEN=all`) | 973b5b6d3e4f71ab1cc82872360f9759 | main's all-off: equal |
+| default (`bash tools/j2go/run.sh` of the commit) | 12b2508cba35deb70850a939b75bcdd0 | (new) |
+
+### 11.7 Gate lines
+
+Commit 4368ec45, then `bash tools/j2go/run.sh` (exit 0, md5 12b2508c), then
+`$B/gate.sh libt5 t5_cmp` under the lock (log `/mnt/data/ubuntu/jm/logs/gate-t5_cmp.log`):
+
+```
+GATE OK t5_cmp
+tree: 4368ec455 rule "typed library interfaces": piece cmp: classes implementing Comparable<C> o  dirty: 1
+selftest: PASS
+removed 0 declarations in 0 rounds
+ok  	jsgomech/closure	2.011s
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+runtime lines: 21226  test lines: 4755
+runtime lines of the default build: 20982  off-mode extras (build-tagged files): 244
+```
+
+(`dirty: 1` is the untracked `.cache` link.) Switches off, on the committed code (`offall.sh`:
+translate with the switch, `tools/prune/verify.sh` with it; the default translation made again
+afterwards was identical, 12b2508c):
+
+```
+switches: J2GO_NOLIBGEN=cmp  translation: exit 0 627f428904cd1ab870a348b377934bfb
+switches: J2GO_NOFNTYPES=1 J2GO_NOLIBGEN=all  translation: exit 0 973b5b6d3e4f71ab1cc82872360f9759
+(each)
+selftest: PASS
+removed 0 declarations in 0 rounds
+ok  	jsgomech/closure	2.018s / 1.939s
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+runtime lines: 21226  test lines: 4755
+runtime lines of the default build: 20982  off-mode extras (build-tagged files): 244
+```
+
+### 11.8 Timing (CPU, googleapis 18% subset, `proto/gast.py gasub/flags3500.txt 3`)
+
+Three rounds, alternating order, CPU first; output sha `72b57cd286c9` in all six runs (log
+`tm-t5.log`, summary `tm.out`). `base` = main's translation (md5 627f4289) with main's runtime,
+built by `basebin.sh` as `$B/bin/m_t5_base`; `new` = the gate binary of 4368ec45, `$B/bin/m_t5_cmp`.
+
+| binary | runs (CPU s) | mean | min |
+|---|---|---:|---:|
+| base | 161.35, 159.64, 160.71 | 160.57 | 159.64 |
+| new | 162.07, 160.68, 162.53 | 161.76 | 160.68 |
+
++0.7% of the means, +0.65% of the minima, new slower in 2 of 3 rounds; within the spread of one
+binary in a session (1.7 s here, about 1.5 s in 7.4), so taken as **neutral, not shown faster**.
+The piece changes no code path of the subset that matters: the typed natural orders reach a class
+of the piece only in `CheckRequiresSorted` (a lint, off) and `AllowlistWarningsGuard` (not in the
+subset's flags, as far as read); every other typed natural comparison now makes one more type
+assertion before boxing, which is the likely cost if the difference is real (not profiled).
+
+### 11.9 Overlaps, not done, unverified
+
+- Overlap with `main-libgen-t4` (typed `Map.get` / `contains`, `LibObj.java`, `rt_lgobj.go`):
+  both add one field to `Ctx` after `lf` (adjacent lines: a textual conflict at a merge, both
+  kept), both edit `selftest/run.sh` (the class list and `SelfTest()` line, and a check block each)
+  and `tools/j2go/README.md` (a bullet each, the switch list); `ExprEmitter.java` is edited by both
+  in different methods. Everything else is in separate files (`LibCmp.java`, `rt_lgcmp*.go`,
+  `selftest/lang/Cmp.java`).
+- The rest of T4's 63 sites (classes implementing `Iterator<T>`, `Collection`, `CacheLoader`,
+  `Supplier`, `Function.apply`, the `Ordering` / anonymous `Comparator` `compare` bridges) is not
+  touched.
+- No flip: the census of a flipped tree was not made. `implsplit` would leave the 10 classes
+  alone (their `compareTo` no longer starts with its parameter's cast: "left, counted"); this
+  was read from the tool's comment, not run. Post-flip tools that look for `compareToT_` (`tcmp`,
+  `deadbridge`) meet `compareTo_t`.
+- No allocation or CPU profile. `cmpTypedT_` converts `a` to an interface for the type
+  assertion on every typed natural comparison that is not of two Strings (no allocation for a
+  pointer; for other shapes the conversion does not escape) — not measured beyond 11.8.
+- Combinations of switches other than "piece off" and "everything off" were not translated; the
+  earlier pieces' switches were not gated off again.
