@@ -27,13 +27,14 @@ func LogsGson_write(out *SimpleJsonWriter, value any) {
 	if value == nil {
 		out.nullValue()
 	} else {
-		if able, ok := value.(LogsGson_Able); ok {
+		switch able := value.(type) {
+		case LogsGson_Able:
 			out.rawValue(optstrOf_(LogsGson_toJson(able.toLogsGson())))
-		} else if (is_SimpleListMultimap(value) || is_SimpleSetMultimap(value)) || is_SimpleBiMap(value) {
+		case SimpleListMultimap_isa, SimpleSetMultimap_isa, SimpleBiMap_isa:
 			out.rawValue(optstrOf_(LogsGson_toJson(value.(SimpleCollection).untypedMap())))
-		} else if _, ok6 := value.(interface{ isa_SimpleMultiset_() }); ok6 {
+		case SimpleMultiset_isa:
 			out.rawValue(optstrOf_(LogsGson_toJson(obj_(ImmutableList_copyOf_Iterable(value.(Iterable))))))
-		} else {
+		default:
 			if map_, ok2 := value.(Map); ok2 {
 				out.beginObject()
 				for entry := range elemsBy_(map_.entrySet(), icast_Map_Entry) {
