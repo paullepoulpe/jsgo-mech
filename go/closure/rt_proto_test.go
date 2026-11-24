@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"unsafe"
 )
 
 func pbFixture_(t *testing.T, name string) []byte {
@@ -258,5 +259,61 @@ func TestProtoBuildShares(t *testing.T) {
 	}
 	if !l1.getTypedAsts(0).equals(ta) || !l3.getTypedAsts(1).equals(ta) {
 		t.Fatal("repeated field elements after build")
+	}
+}
+
+// TestProtoBuildLast: buildLastT_ (pbData_.buildLast_) turns the builder's allocation into the
+// message that buildT_ would have copied out of it: equal, with the same bytes and text, a
+// message to everything that asks (size, toBuilder), nested builders built, and independent of
+// a message built from the same builder before.
+func TestProtoBuildLast(t *testing.T) {
+	var inner *SubtypingEdge_Builder
+	mk := func() *TypePool_Builder {
+		tp := TypePool_newBuilder()
+		tp.addType(TypeProto_newBuilder().setUnion(UnionTypeProto_getDefaultInstance()).buildT_())
+		tp.addDisambiguationEdges(SubtypingEdge_newBuilder().setSubtype(1).setSupertype(2))
+		inner = tp.addDisambiguationEdgesBuilder().setSubtype(5)
+		tp.getDebugInfoBuilder().addMismatchBuilder().setSourceRef("a.js:1:2").addAllInvolvedColor(pbInts_(4, 5))
+		return tp
+	}
+	want := mk().buildT_()
+	b := mk()
+	got := b.buildLastT_()
+	if unsafe.Pointer(got) != unsafe.Pointer(b) {
+		t.Fatal("buildLastT_ made a new allocation")
+	}
+	if !got.equals(want) || !bytes.Equal(got.pbm_().bytes_(), want.pbm_().bytes_()) || got.pbm_().toString() != want.pbm_().toString() {
+		t.Fatalf("buildLastT_ differs from buildT_:\n got %s\nwant %s", got.pbm_().toString(), want.pbm_().toString())
+	}
+	if got.isBuilder_() || got.getSerializedSize() != want.getSerializedSize() || got.getSerializedSize() != int32(len(got.pbm_().bytes_())) {
+		t.Fatal("the result is not a message with its size")
+	}
+	if _, ok := got.pbData_.me_().(*TypePool); !ok {
+		t.Fatalf("the result is a %T to the runtime", got.pbData_.me_())
+	}
+	// The nested builder was built for the message: changing it afterwards changes nothing.
+	inner.setSubtype(99)
+	if !got.equals(want) || got.getDisambiguationEdges(1).getSubtype() != 5 {
+		t.Fatal("the message changed with a builder it was built from")
+	}
+	// A builder from the message builds an equal one, and changing it leaves the message.
+	nb := got.toBuilder().(*TypePool_Builder)
+	if !nb.buildT_().equals(want) {
+		t.Fatal("toBuilder of the result")
+	}
+	nb.addDisambiguationEdges(SubtypingEdge_newBuilder().setSubtype(7)).clearType()
+	if !got.equals(want) || nb.buildLastT_().getDisambiguationEdgesCount() != 3 {
+		t.Fatal("the message changed with its toBuilder")
+	}
+	// After an earlier build() the two messages share the repeated fields' slices and are equal.
+	b2 := mk()
+	m1 := b2.buildT_()
+	m2 := b2.buildLastT_()
+	if !m1.equals(want) || !m2.equals(want) || !bytes.Equal(m1.pbm_().bytes_(), m2.pbm_().bytes_()) {
+		t.Fatal("buildT_ then buildLastT_")
+	}
+	// A builder with nothing set is the default message.
+	if e := AstNode_newBuilder().buildLastT_(); !e.equals(AstNode_getDefaultInstance()) || len(e.pbm_().bytes_()) != 0 {
+		t.Fatal("empty builder")
 	}
 }
