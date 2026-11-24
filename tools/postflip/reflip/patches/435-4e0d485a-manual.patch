@@ -1,0 +1,38 @@
+diff --git a/go/closure/g_InlineAndCollapseProperties.go b/go/closure/g_InlineAndCollapseProperties.go
+index 150269e7..9ff00071 100644
+--- a/go/closure/g_InlineAndCollapseProperties.go
++++ b/go/closure/g_InlineAndCollapseProperties.go
+@@ -1074,18 +1074,33 @@ func (this *InlineAndCollapseProperties_CollapseProperties) flattenReferencesToC
+ }
+ 
+ func (this *InlineAndCollapseProperties_CollapseProperties) logDecisionForName_3(name *GlobalNamespace_Name, inlinability GlobalNamespace_Inlinability, message string) {
++	// (post-flip manual step) the message and its Supplier are made only for a log that
++	// records: a log that is off never asks for them, and a null log fails here as at log().
++	if !logsOn_(this.outer_.decisionsLog) {
++		return
++	}
+ 	this.logDecisionForNameSupplier(name, func() string {
+ 		return ("inlinability " + objstr_(obj_(inlinability)) + ": " + sstr_(message))
+ 	})
+ }
+ 
+ func (this *InlineAndCollapseProperties_CollapseProperties) logDecisionForName(name *GlobalNamespace_Name, message string) {
++	// (post-flip manual step) the message and its Supplier are made only for a log that
++	// records: a log that is off never asks for them, and a null log fails here as at log().
++	if !logsOn_(this.outer_.decisionsLog) {
++		return
++	}
+ 	this.outer_.decisionsLog.log(&Supplier_tfn_string{func() string {
+ 		return (sstr_(name.getFullName()) + ": " + sstr_(message))
+ 	}})
+ }
+ 
+ func (this *InlineAndCollapseProperties_CollapseProperties) logDecisionForNameSupplier(name *GlobalNamespace_Name, messageSupplier func() string) {
++	// (post-flip manual step) the message and its Supplier are made only for a log that
++	// records: a log that is off never asks for them, and a null log fails here as at log().
++	if !logsOn_(this.outer_.decisionsLog) {
++		return
++	}
+ 	this.outer_.decisionsLog.log(&Supplier_tfn_string{func() string {
+ 		return (sstr_(name.getFullName()) + ": " + sstr_(messageSupplier()))
+ 	}})
