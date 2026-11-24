@@ -237,6 +237,8 @@ final class Ctx {
 
   /** Rule "typed library interfaces", piece `objarg`: the typed twins of the collection methods that take an Object. */
   final LibObj lo = new LibObj(this);
+  /** Rule "typed library interfaces", piece `cmp`: classes implementing Comparable<C> with compareTo_t and the bridge. */
+  final LibCmp cmp = new LibCmp(this);
 
   boolean isValueLib(TypeElement te) {
     return te != null && valueLibs.contains(te);

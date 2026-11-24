@@ -144,11 +144,22 @@ func fnStr_[F any](f F) string {
 // ---- Comparator
 
 func Comparator_naturalOrder[T any]() Comparator[T] {
-	return func(a, b T) int32 { return compareNatural_(boxT_(a), boxT_(b)) }
+	return func(a, b T) int32 {
+		if r, ok := cmpTypedT_(a, b); ok {
+			return r
+		}
+		return compareNatural_(boxT_(a), boxT_(b))
+	}
 }
 
 func Comparator_comparing[T, U any](f Function[T, U]) Comparator[T] {
-	return func(a, b T) int32 { return compareNatural_(boxT_(f(a)), boxT_(f(b))) }
+	return func(a, b T) int32 {
+		ka, kb := f(a), f(b)
+		if r, ok := cmpTypedT_(ka, kb); ok {
+			return r
+		}
+		return compareNatural_(boxT_(ka), boxT_(kb))
+	}
 }
 
 func Comparator_comparing_Function_Comparator[T, U any](f Function[T, U], c Comparator[U]) Comparator[T] {

@@ -12,7 +12,7 @@ t=.cache/j2go-selftest
 rm -rf "$t" && mkdir -p "$t/java" "$t/go/closure" "$t/go/cmd/t"
 # lang/Imm.java uses Guava (typed immutable collections).
 javac -nowarn -cp .cache/build/stock-libs.jar -d "$t/java" tools/j2go/selftest/lang/*.java
-for c in Lang Lang2 Handles Generics Generics2 Generics3 Colls Imm Unboxed Covariant CovariantIface Layout FnTypes LibGen LibFns GOpt LibObj; do env -u JAVA_TOOL_OPTIONS java -Dstdout.encoding=UTF-8 -cp "$t/java:.cache/build/stock-libs.jar" lang.$c; done >"$t/expected.txt"
+for c in Lang Lang2 Handles Generics Generics2 Generics3 Colls Imm Unboxed Covariant CovariantIface Layout FnTypes LibGen LibFns GOpt LibObj Cmp; do env -u JAVA_TOOL_OPTIONS java -Dstdout.encoding=UTF-8 -cp "$t/java:.cache/build/stock-libs.jar" lang.$c; done >"$t/expected.txt"
 # The test class is translated together with the whole tree, so that the runtime it needs is all there.
 cp go/go.mod "$t/go/" && cp go/closure/rt_*.go tools/j2go/selftest/rt_*.go "$t/go/closure/" && rm -f "$t"/go/closure/*_test.go
 [[ -d go/closure/resources ]] && cp -r go/closure/resources "$t/go/closure/"
@@ -46,7 +46,7 @@ import (
 	"unsafe"
 )
 
-func SelfTest() string { return Lang_run() + Lang2_run() + Handles_run() + Generics_run() + Generics2_run() + Generics3_run() + Colls_run() + Imm_run() + Unboxed_run() + Covariant_run() + CovariantIface_run() + Layout_run() + FnTypes_run() + LibGen_run() + LibFns_run() + GOpt_run() + LibObj_run() }
+func SelfTest() string { return Lang_run() + Lang2_run() + Handles_run() + Generics_run() + Generics2_run() + Generics3_run() + Colls_run() + Imm_run() + Unboxed_run() + Covariant_run() + CovariantIface_run() + Layout_run() + FnTypes_run() + LibGen_run() + LibFns_run() + GOpt_run() + LibObj_run() + Cmp_run() }
 
 // SelfTestSizes: the sizes of the structs of lang/Layout.java.
 func SelfTestSizes() string {
@@ -93,6 +93,17 @@ if [[ -z ${J2GO_NOLIBGEN:-} ]]; then
   nx=$(fns 'wide|erased|wild|obj' | { grep -oE "$twin" || true; } | wc -l)
   ne=$(fns 'wide|erased|wild|obj' | { grep -oE "$erased" || true; } | wc -l)
   if [[ $nt != 25 || $ny != 28 || $nx != 0 || $ne != 13 ]]; then echo "selftest: FAIL (Object-parameter methods: $nt twins and $ny erased calls in typed(), $nx and $ne in erased())"; exit 1; fi
+if [[ ! ,${J2GO_NOLIBGEN:-}, =~ ,(cmp|all), ]]; then
+  # Rule "typed library interfaces", piece `cmp` (lang/Cmp.java): exactly the two classes that implement Comparable
+  # of their own type (Ver, Box) have compareTo_t and the bridge; the six others keep the erased compareTo alone
+  # (LibCmp's reasons; 7 compareTo methods: the two bridges, Base's dispatching stub and four, Derived has compareTo_impl);
+  # direct() calls compareTo_t (1 call).
+  g="$t/go/closure/g_Cmp.go"
+  nd=$(grep -cE '^func \(this \*Cmp_[A-Za-z]+(\[[^]]*\])?\) compareTo_t\(' "$g" || true)
+  nb=$(grep -cE '^	return this\.compareTo_t\(cast_\[\*Cmp_[A-Za-z]+(\[[^]]*\])?\]\(p0\)\)$' "$g" || true)
+  ne=$(grep -cE '^func \(this \*Cmp_[A-Za-z]+(\[[^]]*\])?\) compareTo\(' "$g" || true)
+  nc=$(awk '/^func Cmp_direct\(/,/^}/' "$g" | { grep -oE '\.compareTo_t\(' || true; } | wc -l)
+  if [[ $nd != 2 || $nb != 2 || $ne != 7 || $nc != 1 ]]; then echo "selftest: FAIL (piece cmp: $nd compareTo_t, $nb bridges, $ne compareTo, $nc direct calls)"; exit 1; fi
 fi
 if [[ ${J2GO_NOFNTYPES:-} != 1 ]]; then
   # Rule "function types": the translator must refuse every use in refused/Refused.java (14) and write nothing.

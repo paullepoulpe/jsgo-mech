@@ -200,6 +200,9 @@ func naturalT_[T any](a, b T) int32 {
 			return String_compareTo(*p, *q)
 		}
 	}
+	if r, ok := cmpTypedT_(a, b); ok {
+		return r
+	}
 	return compareNatural_(boxT_(a), boxT_(b))
 }
 
