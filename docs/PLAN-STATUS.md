@@ -178,9 +178,30 @@ split 547. Largest rules not yet written: T1 (generic static library functions, 
 (the 34 remaining library types, 228); both started as translator kinds (branches
 main-libgen-t1, main-libgen-t2).
 
+## The seventh flip (2026-11-24)
+
+Translator: rules T1 (piece fns: 17 Java library functions call typed generic twins in the
+runtime) and T2 (kinds sorted, enumset, cmaps, deque, guava) merged on main (main-libgen-t12,
+gated; all-off and fns+T2-off translations byte-identical to main's before). Each alone was
+CPU-neutral on the subset. Flip: overlay main-r14-flip7, record tools/postflip/reflip/REFLIP7.md,
+gated tree flip7-tree 7a9def2e. 273 commits, none dropped: 4 adapted (tool fixes 45-48), 2 runtime
+patches regenerated, 1 added (reflip7-enumnull-rt.patch: jisnull_ treats an integer enum's zero as
+null; without it all four e2e comparisons failed). Unattended replay from the base gives the gated
+tree exactly (go/ 1e42bf3d).
+
+Census against the sixth flip: no row higher; class casts 553 to 501, unboxing 131 to 82, boxing
+938 to 885, Object slots 448 to 390, icast 183 to 167. On the javaisms6 accounting: RULE T1 283 to
+89, RULE T2 228 to 192, not split 551 to 383.
+
+Subset, three rounds against the sixth flip's last binary (m_flip6i): CPU 116.63 to 115.76 s
+(-0.7%), CHECKS 61.77 to 60.77 s (-1.6%). Full benchmark, idle host, back to back, same output
+(chunks cae7acad): seventh flip 575.7 s (CHECKS 302.4, OPTIMIZATIONS 223.6, FINALIZATIONS 49.7);
+pre-flip Java 429.5 s (192.9 / 197.3 / 39.4). Java/Go 0.75. Go is level with the sixth flip
+(576.5 s); Java ran 16 s faster than on 2026-11-23, so the ratio moved with Java. Speed is not met.
+
 ## Open
 
-- Speed: not met in bounds (0.77 on the full benchmark, 2026-11-23). No in-bounds step so far has moved the
+- Speed: not met in bounds (0.75 on the full benchmark, 2026-11-24). No in-bounds step so far has moved the
   full benchmark by more than about 2%; CHECKS (0.71) is where Go is behind, and its cost is
   spread thin with the collector at 30%.
 - 3 manual patches (416, 419, 422).
