@@ -1,0 +1,31 @@
+diff --git a/go/closure/g_NodeTraversal.go b/go/closure/g_NodeTraversal.go
+index 8de7dfb3..8cbb9603 100644
+--- a/go/closure/g_NodeTraversal.go
++++ b/go/closure/g_NodeTraversal.go
+@@ -18,10 +18,15 @@ type NodeTraversal struct {
+ 	sourceName_                                    OptionalOf[string]
+ 	inputId                                        *InputId
+ 	compilerInput                                  *CompilerInput
++	// Room for the first scope-stack entries, and the scope creator made when the builder
++	// has none (post-flip manual step: a traversal is one allocation, not three; a deeper
++	// stack moves to an array of its own, as appending past capacity does).
++	scopes0_       [4]ntScope_
++	scopeCreator0_ SyntacticScopeCreator
+ }
+ 
+ func (this *NodeTraversal) finit_NodeTraversal() {
+-	this.scopes = make([]ntScope_, 0, 8)
++	this.scopes = this.scopes0_[:0]
+ 	this.sourceName_ = Optional_empty[string]()
+ }
+ 
+@@ -46,7 +51,8 @@ func (this *NodeTraversal) init_NodeTraversal(builder *NodeTraversal_Builder) {
+ 	}()
+ 	this.scopeCreator = func() ScopeCreator {
+ 		if builder.scopeCreator == nil {
+-			return icast_ScopeCreator(obj_(new_SyntacticScopeCreator_AbstractCompiler(this.compiler_)))
++			this.scopeCreator0_.init_SyntacticScopeCreator_AbstractCompiler(this.compiler_)
++			return &this.scopeCreator0_
+ 		}
+ 		return builder.scopeCreator
+ 	}()
