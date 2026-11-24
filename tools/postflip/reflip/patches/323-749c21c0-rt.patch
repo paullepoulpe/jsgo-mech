@@ -1,5 +1,5 @@
 diff --git a/go/closure/rt_base_more.go b/go/closure/rt_base_more.go
-index 0f25c9dc..54ed5043 100644
+index 8a88f184a..4caa8ebce 100644
 --- a/go/closure/rt_base_more.go
 +++ b/go/closure/rt_base_more.go
 @@ -117,6 +117,6 @@ func Collections_shuffle(l List, rnd *Random) {
@@ -11,10 +11,10 @@ index 0f25c9dc..54ed5043 100644
  	return ImmutableList_sortedCopyOf(nil, elements)
  }
 diff --git a/go/closure/rt_coll.go b/go/closure/rt_coll.go
-index b4efb672..e2919a35 100644
+index 7c9907490..d9edae629 100644
 --- a/go/closure/rt_coll.go
 +++ b/go/closure/rt_coll.go
-@@ -1872,7 +1872,7 @@ func Map_get_s(m any, k string) any {
+@@ -1700,7 +1700,7 @@ func Map_get_s(m any, k string) any {
  		if h := hashMapOf_(m); h != nil {
  			return h.get_s(k)
  		}
@@ -23,7 +23,7 @@ index b4efb672..e2919a35 100644
  			return im.get_s(k)
  		}
  		if x, ok := m.(interface{ get_s(string) any }); ok {
-@@ -1893,7 +1893,7 @@ func Map_containsKey_s(m any, k string) bool {
+@@ -1721,7 +1721,7 @@ func Map_containsKey_s(m any, k string) bool {
  		if h := hashMapOf_(m); h != nil {
  			return h.t.findStr(k) >= 0
  		}
@@ -32,21 +32,34 @@ index b4efb672..e2919a35 100644
  			return im.containsKey_s(k)
  		}
  		if x, ok := m.(interface{ containsKey_s(string) bool }); ok {
+diff --git a/go/closure/rt_conv_test.go b/go/closure/rt_conv_test.go
+index f3d82a276..05e18c2f9 100644
+--- a/go/closure/rt_conv_test.go
++++ b/go/closure/rt_conv_test.go
+@@ -13,7 +13,7 @@ func msgOf_(f func()) (s string) {
+ 
+ func TestConvCanon(t *testing.T) {
+ 	var jt *JSType
+-	var il *ImmutableList
++	var il *ErasedImmutableList
+ 	var n Node
+ 	for i, v := range []any{jt, il, nullstr_, n.box_(), nil} {
+ 		if canon_(v) != nil {
 diff --git a/go/closure/rt_guava.go b/go/closure/rt_guava.go
-index 7c102bda..becd0633 100644
+index d21096aae..312e89264 100644
 --- a/go/closure/rt_guava.go
 +++ b/go/closure/rt_guava.go
-@@ -67,7 +67,7 @@ func comparatorOf_(v any) Comparator {
+@@ -67,7 +67,7 @@ func comparatorOf_(v any) Comparator_e {
  		return x.cmp
  	case *ImmutableCollection:
  		return x.cmp
 -	case *ImmutableMap:
 +	case *ErasedImmutableMap:
  		return x.cmp
- 	case interface{ comparator() Comparator }:
+ 	case interface{ comparator() Comparator_e }:
  		return x.comparator()
-@@ -115,8 +115,8 @@ type ImmutableCollection struct {
- 	byOrd  []any     // immutable enum set: the element with ordinal i at i (nil where absent)
+@@ -118,8 +118,8 @@ type ImmutableCollection struct {
+ 	jtyped_ any
  }
  
 -type ImmutableList = ImmutableCollection
@@ -56,7 +69,7 @@ index 7c102bda..becd0633 100644
  type ImmutableSet_CachingAsList = ImmutableCollection
  type ImmutableSortedSet = ImmutableCollection
  type ImmutableMultiset = ImmutableCollection
-@@ -125,7 +125,7 @@ type ImmutableMultisetGwtSerializationDependencies = ImmutableCollection
+@@ -128,7 +128,7 @@ type ImmutableMultisetGwtSerializationDependencies = ImmutableCollection
  func (this *ImmutableCollection) up_ImmutableCollection() *ImmutableCollection { return this }
  
  // immList_ makes an ImmutableList that owns items.
@@ -65,7 +78,7 @@ index 7c102bda..becd0633 100644
  	if len(items) == 0 {
  		return emptyImmList_
  	}
-@@ -134,7 +134,7 @@ func immList_(items []any) *ImmutableList {
+@@ -137,7 +137,7 @@ func immList_(items []any) *ImmutableList {
  }
  
  // immSet_ makes an ImmutableSet of the distinct elements, in first-seen order.
@@ -74,7 +87,7 @@ index 7c102bda..becd0633 100644
  	if len(items) == 0 {
  		return emptyImmSet_
  	}
-@@ -314,7 +314,7 @@ func (this *ImmutableCollection) addAll(c Collection) bool    { throwUOE_(); ret
+@@ -322,7 +322,7 @@ func (this *ImmutableCollection) addAll(c Collection) bool    { throwUOE_(); ret
  func (this *ImmutableCollection) clear()                      { throwUOE_() }
  func (this *ImmutableCollection) removeAll(c Collection) bool { throwUOE_(); return false }
  func (this *ImmutableCollection) remove_Object(v any) bool    { throwUOE_(); return false }
@@ -83,7 +96,7 @@ index 7c102bda..becd0633 100644
  	if this.kind == icList_ {
  		return this
  	}
-@@ -376,7 +376,7 @@ func (this *ImmutableCollection) toString() string {
+@@ -384,7 +384,7 @@ func (this *ImmutableCollection) toString() string {
  
  // ---- ImmutableList
  
@@ -92,7 +105,7 @@ index 7c102bda..becd0633 100644
  	s := this.elems_()
  	if i < 0 || int(i) >= len(s) {
  		panic(new_IndexOutOfBoundsException_String("Index " + istr_(int64(i)) + " out of bounds for length " + istr_(int64(len(s)))).self())
-@@ -384,7 +384,7 @@ func (this *ImmutableList) get(i int32) any {
+@@ -392,7 +392,7 @@ func (this *ImmutableList) get(i int32) any {
  	return s[i]
  }
  
@@ -101,7 +114,7 @@ index 7c102bda..becd0633 100644
  	if v == nil {
  		return -1
  	}
-@@ -396,7 +396,7 @@ func (this *ImmutableList) indexOf(v any) int32 {
+@@ -404,7 +404,7 @@ func (this *ImmutableList) indexOf(v any) int32 {
  	return -1
  }
  
@@ -110,7 +123,7 @@ index 7c102bda..becd0633 100644
  	if v == nil {
  		return -1
  	}
-@@ -409,7 +409,7 @@ func (this *ImmutableList) lastIndexOf(v any) int32 {
+@@ -417,7 +417,7 @@ func (this *ImmutableList) lastIndexOf(v any) int32 {
  	return -1
  }
  
@@ -119,7 +132,7 @@ index 7c102bda..becd0633 100644
  	s := this.elems_()
  	if i < 0 || int(i) > len(s) {
  		panic(new_IndexOutOfBoundsException_String("index (" + istr_(int64(i)) + ") must not be greater than size (" + istr_(int64(len(s))) + ")").self())
-@@ -417,7 +417,7 @@ func (this *ImmutableList) listIterator(i int32) ListIterator {
+@@ -425,7 +425,7 @@ func (this *ImmutableList) listIterator(i int32) ListIterator {
  	return &sliceIter_{items: &s, i: int(i)}
  }
  
@@ -128,7 +141,7 @@ index 7c102bda..becd0633 100644
  	s := this.elems_()
  	out := make([]any, len(s))
  	for i, v := range s {
-@@ -426,7 +426,7 @@ func (this *ImmutableList) reverse() *ImmutableList {
+@@ -434,7 +434,7 @@ func (this *ImmutableList) reverse() *ImmutableList {
  	return &ImmutableCollection{kind: icList_, items: out}
  }
  
@@ -137,7 +150,7 @@ index 7c102bda..becd0633 100644
  	s := this.elems_()
  	if a < 0 || int(b) > len(s) || a > b {
  		panic(new_IndexOutOfBoundsException_String("fromIndex: " + istr_(int64(a)) + ", toIndex: " + istr_(int64(b)) + ", size: " + istr_(int64(len(s)))).self())
-@@ -437,74 +437,74 @@ func (this *ImmutableList) subList(a int32, b int32) List {
+@@ -445,38 +445,38 @@ func (this *ImmutableList) subList(a int32, b int32) List {
  	return &ImmutableCollection{kind: icList_, items: s[a:b:b]}
  }
  
@@ -164,46 +177,6 @@ index 7c102bda..becd0633 100644
  	return immList_([]any{p0, p1})
  }
  
--func ImmutableList_of_Object_Object_Object(p0 any, p1 any, p2 any) *ImmutableList {
-+func ImmutableList_of_Object_Object_Object(p0 any, p1 any, p2 any) *ErasedImmutableList {
- 	return immList_([]any{p0, p1, p2})
- }
- 
--func ImmutableList_of_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any) *ImmutableList {
-+func ImmutableList_of_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any) *ErasedImmutableList {
- 	return immList_([]any{p0, p1, p2, p3, p4})
- }
- 
--func ImmutableList_of_Object_Object_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any, p6 any) *ImmutableList {
-+func ImmutableList_of_Object_Object_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any, p6 any) *ErasedImmutableList {
- 	return immList_([]any{p0, p1, p2, p3, p4, p5, p6})
- }
- 
--func ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any, p6 any, p7 any) *ImmutableList {
-+func ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any, p6 any, p7 any) *ErasedImmutableList {
- 	return immList_([]any{p0, p1, p2, p3, p4, p5, p6, p7})
- }
- 
--func ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any, p6 any, p7 any, p8 any) *ImmutableList {
-+func ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any, p6 any, p7 any, p8 any) *ErasedImmutableList {
- 	return immList_([]any{p0, p1, p2, p3, p4, p5, p6, p7, p8})
- }
- 
--func ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any, p6 any, p7 any, p8 any, p9 any) *ImmutableList {
-+func ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any, p6 any, p7 any, p8 any, p9 any) *ErasedImmutableList {
- 	return immList_([]any{p0, p1, p2, p3, p4, p5, p6, p7, p8, p9})
- }
- 
--func ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any, p6 any, p7 any, p8 any, p9 any, p10 any) *ImmutableList {
-+func ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any, p6 any, p7 any, p8 any, p9 any, p10 any) *ErasedImmutableList {
- 	return immList_([]any{p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10})
- }
- 
--func ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_ObjectArr(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any, p6 any, p7 any, p8 any, p9 any, p10 any, p11 any, p12 []any) *ImmutableList {
-+func ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_ObjectArr(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any, p6 any, p7 any, p8 any, p9 any, p10 any, p11 any, p12 []any) *ErasedImmutableList {
- 	return immList_(append([]any{p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11}, p12...))
- }
- 
 -func ImmutableList_copyOf(p0 Collection) *ImmutableList {
 +func ImmutableList_copyOf(p0 Collection) *ErasedImmutableList {
  	if c, ok := p0.(*ImmutableCollection); ok {
@@ -220,17 +193,12 @@ index 7c102bda..becd0633 100644
  	return immList_(copySlice_(p0))
  }
  
--func ImmutableList_copyOf_ObjectArr(p0 []any) *ImmutableList {
-+func ImmutableList_copyOf_ObjectArr(p0 []any) *ErasedImmutableList {
- 	return immList_(append([]any(nil), p0...))
- }
- 
--func ImmutableList_sortedCopyOf(p0 Comparator, p1 Iterable) *ImmutableList {
-+func ImmutableList_sortedCopyOf(p0 Comparator, p1 Iterable) *ErasedImmutableList {
+-func ImmutableList_sortedCopyOf(p0 Comparator_e, p1 Iterable) *ImmutableList {
++func ImmutableList_sortedCopyOf(p0 Comparator_e, p1 Iterable) *ErasedImmutableList {
  	s := copySlice_(p1)
  	checkNoNulls_(s)
  	sortSlice_(s, p0)
-@@ -513,31 +513,31 @@ func ImmutableList_sortedCopyOf(p0 Comparator, p1 Iterable) *ImmutableList {
+@@ -485,19 +485,19 @@ func ImmutableList_sortedCopyOf(p0 Comparator_e, p1 Iterable) *ImmutableList {
  
  // ---- ImmutableSet
  
@@ -250,36 +218,12 @@ index 7c102bda..becd0633 100644
  	return immSet_([]any{p0, p1, p2})
  }
  
--func ImmutableSet_of_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any) *ImmutableSet {
-+func ImmutableSet_of_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any) *ErasedImmutableSet {
- 	return immSet_([]any{p0, p1, p2, p3})
- }
- 
--func ImmutableSet_of_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any) *ImmutableSet {
-+func ImmutableSet_of_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any) *ErasedImmutableSet {
- 	return immSet_([]any{p0, p1, p2, p3, p4})
- }
- 
--func ImmutableSet_of_Object_Object_Object_Object_Object_Object_ObjectArr(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any, p6 []any) *ImmutableSet {
-+func ImmutableSet_of_Object_Object_Object_Object_Object_Object_ObjectArr(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any, p6 []any) *ErasedImmutableSet {
- 	return immSet_(append([]any{p0, p1, p2, p3, p4, p5}, p6...))
- }
- 
 -func ImmutableSet_copyOf(p0 Collection) *ImmutableSet {
 +func ImmutableSet_copyOf(p0 Collection) *ErasedImmutableSet {
  	if c, ok := p0.(*ImmutableCollection); ok && c.kind == icSet_ {
  		return c
  	}
-@@ -547,7 +547,7 @@ func ImmutableSet_copyOf(p0 Collection) *ImmutableSet {
- 	return immSet_(copySlice_(p0))
- }
- 
--func ImmutableSet_copyOf_Iterable(p0 Iterable) *ImmutableSet {
-+func ImmutableSet_copyOf_Iterable(p0 Iterable) *ErasedImmutableSet {
- 	if c, ok := p0.(*ImmutableCollection); ok && c.kind == icSet_ {
- 		return c
- 	}
-@@ -559,13 +559,13 @@ func ImmutableSet_copyOf_Iterable(p0 Iterable) *ImmutableSet {
+@@ -509,13 +509,13 @@ func ImmutableSet_copyOf(p0 Collection) *ImmutableSet {
  
  // immEnumSet_ is Guava's copy of an EnumSet, an ImmutableEnumSet: the constants in ordinal order
  // (the EnumSet's iteration order), looked up by ordinal.
@@ -295,7 +239,7 @@ index 7c102bda..becd0633 100644
  	if len(set.items) == 0 {
  		return set // the shared empty set
  	}
-@@ -580,7 +580,7 @@ func withOrdinals_(set *ImmutableSet) *ImmutableSet {
+@@ -530,7 +530,7 @@ func withOrdinals_(set *ImmutableSet) *ImmutableSet {
  	return set
  }
  
@@ -304,8 +248,8 @@ index 7c102bda..becd0633 100644
  	return immSet_(append([]any(nil), p0...))
  }
  
-@@ -639,23 +639,23 @@ type ImmutableCollection_Builder struct {
- 	cmp   Comparator
+@@ -589,19 +589,19 @@ type ImmutableCollection_Builder struct {
+ 	cmp   Comparator_e
  }
  
 -type ImmutableList_Builder = ImmutableCollection_Builder
@@ -324,32 +268,17 @@ index 7c102bda..becd0633 100644
  	return &ImmutableCollection_Builder{kind: icSet_}
  }
 -func ImmutableList_builder() *ImmutableList_Builder { return new_ImmutableList_Builder() }
--func ImmutableList_builderWithExpectedSize(p0 int32) *ImmutableList_Builder {
+-func ImmutableSet_builder() *ImmutableSet_Builder   { return new_ImmutableSet_Builder() }
 +func ImmutableList_builder() *ErasedImmutableList_Builder { return new_ImmutableList_Builder() }
-+func ImmutableList_builderWithExpectedSize(p0 int32) *ErasedImmutableList_Builder {
- 	return &ImmutableCollection_Builder{kind: icList_, items: make([]any, 0, p0)}
- }
--func ImmutableSet_builder() *ImmutableSet_Builder { return new_ImmutableSet_Builder() }
--func ImmutableSet_builderWithExpectedSize(p0 int32) *ImmutableSet_Builder {
-+func ImmutableSet_builder() *ErasedImmutableSet_Builder { return new_ImmutableSet_Builder() }
-+func ImmutableSet_builderWithExpectedSize(p0 int32) *ErasedImmutableSet_Builder {
- 	return &ImmutableCollection_Builder{kind: icSet_, items: make([]any, 0, p0)}
- }
++func ImmutableSet_builder() *ErasedImmutableSet_Builder   { return new_ImmutableSet_Builder() }
  func ImmutableSortedSet_naturalOrder() *ImmutableSortedSet_Builder {
-@@ -709,7 +709,7 @@ func (this *ImmutableCollection_Builder) build() *ImmutableCollection {
- // java.util.stream.Collector has no methods the translated code calls, so the
- // Go interface is empty; these collectors expose the Java accessor methods.
- 
--func ImmutableList_of_Object_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any) *ImmutableList {
-+func ImmutableList_of_Object_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any) *ErasedImmutableList {
- 	return immList_([]any{p0, p1, p2, p3, p4, p5})
+ 	return &ImmutableCollection_Builder{kind: icSorted_}
  }
- 
 diff --git a/go/closure/rt_guava_map.go b/go/closure/rt_guava_map.go
-index 3c88fa90..5e71b43f 100644
+index 54abf28f0..1425c9777 100644
 --- a/go/closure/rt_guava_map.go
 +++ b/go/closure/rt_guava_map.go
-@@ -12,23 +12,23 @@ const (
+@@ -12,13 +12,13 @@ const (
  	imSorted_
  )
  
@@ -358,14 +287,15 @@ index 3c88fa90..5e71b43f 100644
  	kind     int8
  	keys     []any
  	vals     []any
- 	idx      *htable_   // key -> position (nil for sorted maps and until first lookup)
- 	cmp      Comparator // sorted map (nil: natural ordering)
+ 	idx      *htable_     // key -> position (nil for sorted maps and until first lookup)
+ 	cmp      Comparator_e // sorted map (nil: natural ordering)
 -	inv      *ImmutableMap
 +	inv      *ErasedImmutableMap
  	keySet_  *ImmutableCollection
  	typed_   immTyped_ // its typed copy (post-flip typed collections), made on first use
  	values_  *ImmutableCollection
- 	entries_ *ImmutableCollection
+@@ -26,10 +26,10 @@ type ImmutableMap struct {
+ 	jtyped_  any // the typed map (*JTMap[K, V]) that typed code sees this map as (see ImmutableCollection)
  }
  
 -type ImmutableBiMap = ImmutableMap
@@ -378,16 +308,16 @@ index 3c88fa90..5e71b43f 100644
  
  func dupKey_(k, v1, v2 any) {
  	throwIAE_("Multiple entries with same key: " + objstr_(k) + "=" + objstr_(v1) + " and " + objstr_(k) + "=" + objstr_(v2))
-@@ -36,7 +36,7 @@ func dupKey_(k, v1, v2 any) {
+@@ -50,7 +50,7 @@ func immDup_(keys, vals []any) {
  
  // immMap_ builds a map of the given kind from parallel key/value slices, which
  // it owns. Duplicate keys throw, or with keepLast keep the last entry.
--func immMap_(kind int8, keys, vals []any, cmp Comparator, keepLast bool) *ImmutableMap {
-+func immMap_(kind int8, keys, vals []any, cmp Comparator, keepLast bool) *ErasedImmutableMap {
+-func immMap_(kind int8, keys, vals []any, cmp Comparator_e, keepLast bool) *ImmutableMap {
++func immMap_(kind int8, keys, vals []any, cmp Comparator_e, keepLast bool) *ErasedImmutableMap {
  	if len(keys) == 0 && kind == emptyImmMap_.kind && cmp == nil {
  		return emptyImmMap_
  	}
-@@ -48,7 +48,7 @@ func immMap_(kind int8, keys, vals []any, cmp Comparator, keepLast bool) *Immuta
+@@ -62,7 +62,7 @@ func immMap_(kind int8, keys, vals []any, cmp Comparator_e, keepLast bool) *Immu
  			throwNPE_("null value in entry: " + objstr_(keys[i]) + "=null")
  		}
  	}
@@ -396,7 +326,7 @@ index 3c88fa90..5e71b43f 100644
  	if kind == imSorted_ {
  		c := cmpOrNatural_(cmp)
  		order := make([]int, len(keys))
-@@ -108,12 +108,12 @@ func immMap_(kind int8, keys, vals []any, cmp Comparator, keepLast bool) *Immuta
+@@ -110,12 +110,12 @@ func immMap_(kind int8, keys, vals []any, cmp Comparator_e, keepLast bool) *Immu
  			}
  			vt.add(v)
  		}
@@ -411,7 +341,7 @@ index 3c88fa90..5e71b43f 100644
  	if k == nil || len(this.keys) == 0 {
  		return -1
  	}
-@@ -140,7 +140,7 @@ func (this *ImmutableMap) find_(k any) int {
+@@ -142,7 +142,7 @@ func (this *ImmutableMap) find_(k any) int {
  	return this.index_().find(k)
  }
  
@@ -420,7 +350,7 @@ index 3c88fa90..5e71b43f 100644
  	if this.idx == nil {
  		t := &htable_{}
  		for _, x := range this.keys {
-@@ -151,17 +151,17 @@ func (this *ImmutableMap) index_() *htable_ {
+@@ -153,17 +153,17 @@ func (this *ImmutableMap) index_() *htable_ {
  	return this.idx
  }
  
@@ -442,7 +372,7 @@ index 3c88fa90..5e71b43f 100644
  	if len(this.keys) == 0 {
  		return nil
  	}
-@@ -174,7 +174,7 @@ func (this *ImmutableMap) get_s(k string) any {
+@@ -176,7 +176,7 @@ func (this *ImmutableMap) get_s(k string) any {
  	return nil
  }
  
@@ -451,7 +381,7 @@ index 3c88fa90..5e71b43f 100644
  	if len(this.keys) == 0 {
  		return false
  	}
-@@ -184,9 +184,9 @@ func (this *ImmutableMap) containsKey_s(k string) bool {
+@@ -186,9 +186,9 @@ func (this *ImmutableMap) containsKey_s(k string) bool {
  	return this.index_().findStr(k) >= 0
  }
  
@@ -463,7 +393,7 @@ index 3c88fa90..5e71b43f 100644
  	if v == nil {
  		return false
  	}
-@@ -201,7 +201,7 @@ func (this *ImmutableMap) containsValue(v any) bool {
+@@ -203,7 +203,7 @@ func (this *ImmutableMap) containsValue(v any) bool {
  	return false
  }
  
@@ -472,7 +402,7 @@ index 3c88fa90..5e71b43f 100644
  	if this.keySet_ == nil {
  		if this.kind == imSorted_ {
  			this.keySet_ = &ImmutableCollection{kind: icSorted_, items: this.keys, cmp: this.cmp}
-@@ -212,7 +212,7 @@ func (this *ImmutableMap) keySet() Set {
+@@ -214,7 +214,7 @@ func (this *ImmutableMap) keySet() Set {
  	return this.keySet_
  }
  
@@ -481,7 +411,7 @@ index 3c88fa90..5e71b43f 100644
  	if this.values_ == nil {
  		if this.inv != nil {
  			this.values_ = &ImmutableCollection{kind: icSet_, items: this.vals, idx: this.inv.index_()}
-@@ -223,7 +223,7 @@ func (this *ImmutableMap) values() Collection {
+@@ -225,7 +225,7 @@ func (this *ImmutableMap) values() Collection {
  	return this.values_
  }
  
@@ -490,7 +420,7 @@ index 3c88fa90..5e71b43f 100644
  	if this.entries_ == nil {
  		es := make([]any, len(this.keys))
  		for i, k := range this.keys {
-@@ -234,26 +234,26 @@ func (this *ImmutableMap) entrySet() Set {
+@@ -236,26 +236,26 @@ func (this *ImmutableMap) entrySet() Set {
  	return this.entries_
  }
  
@@ -516,7 +446,7 @@ index 3c88fa90..5e71b43f 100644
 -func (this *ImmutableMap) toString() string { return mapToString_(this) }
 +func (this *ErasedImmutableMap) toString() string { return mapToString_(this) }
  
- func (this *ImmutableSortedMap) comparator() Comparator { return cmpOrNatural_(this.cmp) }
+ func (this *ImmutableSortedMap) comparator() Comparator_e { return cmpOrNatural_(this.cmp) }
  
  // mapEntries_ copies a Map's entries to parallel slices.
  func mapKV_(m Map) (keys, vals []any) {
@@ -525,7 +455,7 @@ index 3c88fa90..5e71b43f 100644
  		return append([]any(nil), im.keys...), append([]any(nil), im.vals...)
  	}
  	if tv, ok := m.(interface{ boxedKV_() ([]any, []any) }); ok {
-@@ -267,7 +267,7 @@ func mapKV_(m Map) (keys, vals []any) {
+@@ -269,7 +269,7 @@ func mapKV_(m Map) (keys, vals []any) {
  	return keys, vals
  }
  
@@ -534,7 +464,7 @@ index 3c88fa90..5e71b43f 100644
  	keys := make([]any, 0, len(kv)/2)
  	vals := make([]any, 0, len(kv)/2)
  	for i := 0; i < len(kv); i += 2 {
-@@ -277,27 +277,27 @@ func immMapOf_(kv ...any) *ImmutableMap {
+@@ -279,23 +279,23 @@ func immMapOf_(kv ...any) *ImmutableMap {
  	return immMap_(imMap_, keys, vals, nil, false)
  }
  
@@ -554,11 +484,6 @@ index 3c88fa90..5e71b43f 100644
  	return immMapOf_(p0, p1, p2, p3, p4, p5)
  }
  
--func ImmutableMap_of_Object_Object_Object_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any, p6 any, p7 any) *ImmutableMap {
-+func ImmutableMap_of_Object_Object_Object_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any, p6 any, p7 any) *ErasedImmutableMap {
- 	return immMapOf_(p0, p1, p2, p3, p4, p5, p6, p7)
- }
- 
 -func ImmutableMap_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any, p6 any, p7 any, p8 any, p9 any, p10 any, p11 any, p12 any, p13 any, p14 any, p15 any, p16 any, p17 any, p18 any, p19 any) *ImmutableMap {
 +func ImmutableMap_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any, p6 any, p7 any, p8 any, p9 any, p10 any, p11 any, p12 any, p13 any, p14 any, p15 any, p16 any, p17 any, p18 any, p19 any) *ErasedImmutableMap {
  	return immMapOf_(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19)
@@ -571,7 +496,7 @@ index 3c88fa90..5e71b43f 100644
  		return im
  	}
  	keys, vals := mapKV_(p0)
-@@ -305,7 +305,7 @@ func ImmutableMap_copyOf(p0 Map) *ImmutableMap {
+@@ -303,7 +303,7 @@ func ImmutableMap_copyOf(p0 Map) *ImmutableMap {
  }
  
  func ImmutableSortedMap_copyOf(p0 Map) *ImmutableSortedMap {
@@ -580,7 +505,7 @@ index 3c88fa90..5e71b43f 100644
  		return im
  	}
  	keys, vals := mapKV_(p0)
-@@ -313,7 +313,7 @@ func ImmutableSortedMap_copyOf(p0 Map) *ImmutableSortedMap {
+@@ -311,7 +311,7 @@ func ImmutableSortedMap_copyOf(p0 Map) *ImmutableSortedMap {
  }
  
  // Maps.immutableEnumMap: iteration follows the enum constants' declaration order.
@@ -589,7 +514,7 @@ index 3c88fa90..5e71b43f 100644
  	keys, vals := mapKV_(p0)
  	order := make([]any, len(keys))
  	for i := range order {
-@@ -330,22 +330,22 @@ func Maps_immutableEnumMap(p0 Map) *ImmutableMap {
+@@ -328,22 +328,22 @@ func Maps_immutableEnumMap(p0 Map) *ImmutableMap {
  
  // ---- ImmutableMap.Builder
  
@@ -598,7 +523,7 @@ index 3c88fa90..5e71b43f 100644
  	kind int8
  	keys []any
  	vals []any
- 	cmp  Comparator
+ 	cmp  Comparator_e
  }
  
 -type ImmutableSortedMap_Builder = ImmutableMap_Builder
@@ -619,7 +544,7 @@ index 3c88fa90..5e71b43f 100644
  	if p0 == nil {
  		throwNPE_("null key in entry: null=" + objstr_(p1))
  	}
-@@ -357,7 +357,7 @@ func (this *ImmutableMap_Builder) put(p0 any, p1 any) *ImmutableMap_Builder {
+@@ -355,7 +355,7 @@ func (this *ImmutableMap_Builder) put(p0 any, p1 any) *ImmutableMap_Builder {
  	return this
  }
  
@@ -628,7 +553,7 @@ index 3c88fa90..5e71b43f 100644
  	keys, vals := mapKV_(p0)
  	for i := range keys {
  		this.put(keys[i], vals[i])
-@@ -365,13 +365,13 @@ func (this *ImmutableMap_Builder) putAll(p0 Map) *ImmutableMap_Builder {
+@@ -363,13 +363,13 @@ func (this *ImmutableMap_Builder) putAll(p0 Map) *ImmutableMap_Builder {
  	return this
  }
  
@@ -646,7 +571,7 @@ index 3c88fa90..5e71b43f 100644
  	if this.kind == imSorted_ {
  		// ImmutableSortedMap.Builder does not support buildKeepingLast.
  		throwUOE_()
-@@ -383,7 +383,7 @@ func (this *ImmutableMap_Builder) buildKeepingLast() *ImmutableMap {
+@@ -381,7 +381,7 @@ func (this *ImmutableMap_Builder) buildKeepingLast() *ImmutableMap {
  
  type ImmutableMultimap struct {
  	set  bool
@@ -657,7 +582,7 @@ index 3c88fa90..5e71b43f 100644
  	vals *ImmutableCollection
 diff --git a/go/closure/rt_guava_names.go b/go/closure/rt_guava_names.go
 new file mode 100644
-index 00000000..69f82c11
+index 000000000..69f82c112
 --- /dev/null
 +++ b/go/closure/rt_guava_names.go
 @@ -0,0 +1,12 @@
@@ -674,7 +599,7 @@ index 00000000..69f82c11
 +type ImmutableSet_Builder = ErasedImmutableSet_Builder
 +type ImmutableMap_Builder = ErasedImmutableMap_Builder
 diff --git a/go/closure/rt_guava_test.go b/go/closure/rt_guava_test.go
-index b4791c5e..d5c71b7f 100644
+index 50b914727..22eb05c39 100644
 --- a/go/closure/rt_guava_test.go
 +++ b/go/closure/rt_guava_test.go
 @@ -48,7 +48,7 @@ func TestGuavaImmutableMap(t *testing.T) {
@@ -687,10 +612,10 @@ index b4791c5e..d5c71b7f 100644
  	}
  	guavaEq_(t, m.entrySet().contains(&immEntry_{"a", int32(2)}), true)
 diff --git a/go/closure/rt_guava_util.go b/go/closure/rt_guava_util.go
-index 2364b9c9..9c271d24 100644
+index f27f7462e..47192678c 100644
 --- a/go/closure/rt_guava_util.go
 +++ b/go/closure/rt_guava_util.go
-@@ -276,7 +276,7 @@ func Iterables_getOnlyElement(p0 Iterable) any {
+@@ -271,7 +271,7 @@ func Iterables_getOnlyElement(p0 Iterable) any {
  
  // ---- Lists
  
@@ -699,7 +624,7 @@ index 2364b9c9..9c271d24 100644
  	cs := String_toCharArray(p0)
  	out := make([]any, len(cs))
  	for i, c := range cs {
-@@ -328,7 +328,7 @@ func (this *Sets_SetView) size() int32 {
+@@ -323,7 +323,7 @@ func (this *Sets_SetView) size() int32 {
  	return n
  }
  
@@ -708,7 +633,7 @@ index 2364b9c9..9c271d24 100644
  
  func Sets_union(p0 Set, p1 Set) *Sets_SetView {
  	v := newSetView_(
-@@ -362,7 +362,7 @@ func Sets_difference(p0 Set, p1 Set) *Sets_SetView {
+@@ -357,7 +357,7 @@ func Sets_difference(p0 Set, p1 Set) *Sets_SetView {
  }
  
  // Sets.immutableEnumSet: iterates in the constants' declaration order.
@@ -717,8 +642,145 @@ index 2364b9c9..9c271d24 100644
  	items := make([]any, 0, len(p1)+1)
  	items = append(items, p0.self())
  	for _, e := range p1 {
+diff --git a/go/closure/rt_jtimm.go b/go/closure/rt_jtimm.go
+index b1b072af3..ef610e3f9 100644
+--- a/go/closure/rt_jtimm.go
++++ b/go/closure/rt_jtimm.go
+@@ -34,8 +34,8 @@ var unmodMark_ = &ImmutableCollection{}
+ 
+ // timmMap_ is what an immutable typed map has beside its mappings.
+ type timmMap_ struct {
+-	twin *ImmutableMap // the map as erased code sees it, once that is needed
+-	keys any           // keySet() as typed code sees it (a *JTSet[K]), once that is needed
++	twin *ErasedImmutableMap // the map as erased code sees it, once that is needed
++	keys any                 // keySet() as typed code sees it (a *JTSet[K]), once that is needed
+ }
+ 
+ // immPendingMap_ is shared by the immutable typed maps that have neither yet.
+@@ -137,7 +137,7 @@ func jtlistImm_[T any](c *jtconv_[T], ic *ImmutableCollection) *JTList[T] {
+ 
+ func tlistImmNew_[T any](c *jtconv_[T], ic *ImmutableCollection) *JTList[T] {
+ 	if ic.kind != icList_ {
+-		classCastImm_("com.google.common.collect.ImmutableSet", "com.google.common.collect.ImmutableList")
++		classCastImm_("com.google.common.collect.ErasedImmutableSet", "com.google.common.collect.ErasedImmutableList")
+ 	}
+ 	if len(ic.items) == 0 {
+ 		return jtlistEmptyImm_(c)
+@@ -170,7 +170,7 @@ func (l *JTList[T]) asImm() *ImmutableCollection {
+ 		t.jtyped_ = l
+ 		l.twin = t
+ 	} else if l.twin == nil || l.twin == unmodMark_ {
+-		classCastImm_("java.util.ArrayList", "com.google.common.collect.ImmutableList")
++		classCastImm_("java.util.ArrayList", "com.google.common.collect.ErasedImmutableList")
+ 	}
+ 	return l.twin
+ }
+@@ -244,7 +244,7 @@ func tsetImm_[K comparable](c *jtconv_[K], ic *ImmutableCollection) *JTSet[K] {
+ 
+ func tsetImmNew_[K comparable](c *jtconv_[K], ic *ImmutableCollection) *JTSet[K] {
+ 	if ic.kind == icList_ {
+-		classCastImm_("com.google.common.collect.ImmutableList", "com.google.common.collect.ImmutableSet")
++		classCastImm_("com.google.common.collect.ErasedImmutableList", "com.google.common.collect.ErasedImmutableSet")
+ 	}
+ 	if ic == emptyImmSet_ {
+ 		return jtsetEmptyImm_(c)
+@@ -301,7 +301,7 @@ func (s *JTSet[K]) asImm() *ImmutableCollection {
+ 		t.jtyped_ = s
+ 		s.twin = t
+ 	} else if s.twin == nil || s.twin == sortedMark_ {
+-		classCastImm_("java.util."+s.view.goName_(), "com.google.common.collect.ImmutableSet")
++		classCastImm_("java.util."+s.view.goName_(), "com.google.common.collect.ErasedImmutableSet")
+ 	}
+ 	return s.twin
+ }
+@@ -400,7 +400,7 @@ func immutableMapOf5_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V], k1 K,
+ 
+ // tmapImm_ is an ImmutableMap that erased code made, entering a typed declaration (see
+ // jtlistImm_).
+-func tmapImm_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V], im *ImmutableMap) *JTMap[K, V] {
++func tmapImm_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V], im *ErasedImmutableMap) *JTMap[K, V] {
+ 	if im == nil {
+ 		return nil
+ 	}
+@@ -410,7 +410,7 @@ func tmapImm_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V], im *Immutable
+ 	return tmapImmNew_(kc, vc, im)
+ }
+ 
+-func tmapImmNew_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V], im *ImmutableMap) *JTMap[K, V] {
++func tmapImmNew_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V], im *ErasedImmutableMap) *JTMap[K, V] {
+ 	if im == emptyImmMap_ {
+ 		return jtmapEmptyImm_(kc, vc)
+ 	}
+@@ -437,17 +437,17 @@ func tmapImmNew_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V], im *Immuta
+ }
+ 
+ // asImm is an immutable map as erased code sees it: its twin, the runtime's ImmutableMap.
+-func (m *JTMap[K, V]) asImm() *ImmutableMap {
++func (m *JTMap[K, V]) asImm() *ErasedImmutableMap {
+ 	if m == nil {
+ 		return nil
+ 	}
+ 	if m.imm == nil || m.imm == sortedMapMark_ {
+-		classCastImm_("java.util."+m.view.goName_(), "com.google.common.collect.ImmutableMap")
++		classCastImm_("java.util."+m.view.goName_(), "com.google.common.collect.ErasedImmutableMap")
+ 	}
+ 	x := m.info()
+ 	if x.twin == nil {
+ 		// the twin's index is built on its first lookup (ImmutableMap.index_)
+-		t := &ImmutableMap{kind: imMap_, keys: jboxAll_(m.kc, m.keys), vals: jboxAll_(m.vc, m.vals)}
++		t := &ErasedImmutableMap{kind: imMap_, keys: jboxAll_(m.kc, m.keys), vals: jboxAll_(m.vc, m.vals)}
+ 		t.jtyped_ = m
+ 		if s, ok := x.keys.(*JTSet[K]); ok {
+ 			// its key set is the one that typed code has
+@@ -470,7 +470,7 @@ func (m *JTMap[K, V]) info() *timmMap_ {
+ // typed set, the same object as the key set that erased code gets from the map's twin.
+ func (m *JTMap[K, V]) keySetImm() *JTSet[K] {
+ 	if m.imm == nil || m.imm == sortedMapMark_ {
+-		classCastImm_("java.util."+m.view.goName_(), "com.google.common.collect.ImmutableMap")
++		classCastImm_("java.util."+m.view.goName_(), "com.google.common.collect.ErasedImmutableMap")
+ 	}
+ 	x := m.info()
+ 	if s, ok := x.keys.(*JTSet[K]); ok {
+@@ -612,7 +612,7 @@ func immutableMapCopyOfT_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V], m
+ // ImmutableMap (not a sorted one) is itself.
+ func jimmutableMapCopyOf_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V], from Map) *JTMap[K, V] {
+ 	switch x := from.(type) {
+-	case *ImmutableMap:
++	case *ErasedImmutableMap:
+ 		if x.kind != imSorted_ {
+ 			return tmapImm_(kc, vc, x)
+ 		}
+@@ -787,7 +787,7 @@ func (b *TMapBuilder[K, V]) putAll(from Map) *TMapBuilder[K, V] {
+ 	switch x := from.(type) {
+ 	case *jtmapView_[K, V]:
+ 		t = x.m
+-	case *ImmutableMap:
++	case *ErasedImmutableMap:
+ 		t, _ = x.jtyped_.(*JTMap[K, V])
+ 	}
+ 	if t != nil {
+diff --git a/go/closure/rt_lg.go b/go/closure/rt_lg.go
+index 19fc16f4a..9472e76a7 100644
+--- a/go/closure/rt_lg.go
++++ b/go/closure/rt_lg.go
+@@ -630,7 +630,7 @@ func mapAs_[K any, V any](kc *jtconv_[K], vc *jtconv_[V], v Map) MapT[K, V] {
+ 	if t, ok := v.(MapT[K, V]); ok {
+ 		return t
+ 	}
+-	if im, ok := v.(*ImmutableMap); ok {
++	if im, ok := v.(*ErasedImmutableMap); ok {
+ 		if m, ok := im.jtyped_.(asMapT_[K, V]); ok {
+ 			return m.asMapT()
+ 		}
+@@ -785,5 +785,5 @@ func tmapOfT_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V], x Map) *JTMap
+ 	if v, ok := x.(*jtmapView_[K, V]); ok && v.m.imm != nil && v.m.imm != sortedMapMark_ {
+ 		return v.m
+ 	}
+-	return tmapImm_(kc, vc, cast_[*ImmutableMap](lgBox_(x)))
++	return tmapImm_(kc, vc, cast_[*ErasedImmutableMap](lgBox_(x)))
+ }
 diff --git a/go/closure/rt_tlist.go b/go/closure/rt_tlist.go
-index 1dacdc6b..9bc46d4b 100644
+index 1dacdc6b4..9bc46d4b0 100644
 --- a/go/closure/rt_tlist.go
 +++ b/go/closure/rt_tlist.go
 @@ -69,7 +69,7 @@ func immSlot_(from any) *immTyped_ {

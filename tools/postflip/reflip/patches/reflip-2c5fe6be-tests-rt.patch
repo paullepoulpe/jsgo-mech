@@ -1,6 +1,19 @@
+diff --git a/go/closure/rt_enumset_test.go b/go/closure/rt_enumset_test.go
+index f533e9cce..c7161465a 100644
+--- a/go/closure/rt_enumset_test.go
++++ b/go/closure/rt_enumset_test.go
+@@ -35,7 +35,7 @@ func TestEnumSetAgainstTreeSet(t *testing.T) {
+ 	vs, other := tenums_()
+ 	r := rand.New(rand.NewSource(3))
+ 	for round := 0; round < 200; round++ {
+-		s, m := EnumSet_noneOf(classOf_("test.TEnum")), new_TreeSet_Comparator(ordinalCmp_())
++		s, m := EnumSet_noneOf(classOf_("test.TEnum")), &TreeSet{cmp: ordinalCmp_()}
+ 		for op := 0; op < 60; op++ {
+ 			v := any(vs[r.Intn(len(vs))])
+ 			switch r.Intn(4) {
 diff --git a/go/closure/rt_idmap_test.go b/go/closure/rt_idmap_test.go
 deleted file mode 100644
-index 720918d9..00000000
+index 720918d9f..000000000
 --- a/go/closure/rt_idmap_test.go
 +++ /dev/null
 @@ -1,78 +0,0 @@
@@ -83,7 +96,7 @@ index 720918d9..00000000
 -	}
 -}
 diff --git a/go/closure/rt_io_test.go b/go/closure/rt_io_test.go
-index 587fe642..02a3a2ee 100644
+index 587fe642f..02a3a2ee3 100644
 --- a/go/closure/rt_io_test.go
 +++ b/go/closure/rt_io_test.go
 @@ -334,7 +334,7 @@ func TestIoMisc(t *testing.T) {
@@ -95,3 +108,30 @@ index 587fe642..02a3a2ee 100644
  		},
  	})
  }
+diff --git a/go/closure/rt_tconv.go b/go/closure/rt_tconv.go
+new file mode 100644
+index 000000000..4eb1d7fb1
+--- /dev/null
++++ b/go/closure/rt_tconv.go
+@@ -0,0 +1,8 @@
++package closure
++
++// tc_string is the element conversion of the typed collections of strings (post-flip step 3
++// wrote it into g_zconv_lists.go with the first typed list of strings; on a translator whose
++// own typed family holds every such list until step 402 unifies the two families, no step
++// before that declares it, and the tests of the post-flip family name it). The text is the
++// one tools/postflip/colls writes; the collection steps use a conversion that is declared.
++var tc_string = &tconv_[string]{box: func(v string) any { return strobj_(v) }, unbox: func(v any) string { return str_(v) }, null: nullstr_}
+diff --git a/go/closure/rt_ttree_test.go b/go/closure/rt_ttree_test.go
+index 8a87a197e..a0c3b77e7 100644
+--- a/go/closure/rt_ttree_test.go
++++ b/go/closure/rt_ttree_test.go
+@@ -33,7 +33,7 @@ func TestTTreeSetAgainstTreeSet(t *testing.T) {
+ 	}
+ 	for round := 0; round < 200; round++ {
+ 		s, ts := new_TreeSet(), newTTreeSet_(tcTreeStr_)
+-		c, tc := new_TreeSet_Comparator(cmp), newTTreeSetC_(tcTreeItem_, cmp)
++		c, tc := &TreeSet{cmp: cmp}, newTTreeSetC_(tcTreeItem_, cmp)
+ 		for op := 0; op < 40; op++ {
+ 			k := string(rune('a' + r.Intn(10)))
+ 			it := items[r.Intn(len(items))]

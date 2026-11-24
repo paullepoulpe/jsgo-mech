@@ -1,5 +1,5 @@
 diff --git a/go/closure/rt_coll.go b/go/closure/rt_coll.go
-index d3eda78b..59773e9e 100644
+index 57f04dfa1..012351893 100644
 --- a/go/closure/rt_coll.go
 +++ b/go/closure/rt_coll.go
 @@ -8,6 +8,7 @@ package closure
@@ -9,8 +9,8 @@ index d3eda78b..59773e9e 100644
 +	"reflect"
  	"sort"
  	"strings"
- 	"unsafe"
-@@ -788,11 +789,16 @@ func (t *htable_) hashOf(k any) uint32 {
+ 	"sync/atomic"
+@@ -762,11 +763,16 @@ func (t *htable_) hashOf(k any) uint32 {
  }
  
  // primHash_ is the hash of a key compared by Go equality: a Node handle hashes as its value
@@ -30,7 +30,7 @@ index d3eda78b..59773e9e 100644
  
 diff --git a/go/closure/rt_ptrkey_test.go b/go/closure/rt_ptrkey_test.go
 new file mode 100644
-index 00000000..bf6ada27
+index 000000000..bf6ada276
 --- /dev/null
 +++ b/go/closure/rt_ptrkey_test.go
 @@ -0,0 +1,88 @@

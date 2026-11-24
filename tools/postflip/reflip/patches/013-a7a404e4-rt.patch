@@ -1,0 +1,111 @@
+diff --git a/go/closure/rt_coll.go b/go/closure/rt_coll.go
+index f3e5832eb..3f1e75062 100644
+--- a/go/closure/rt_coll.go
++++ b/go/closure/rt_coll.go
+@@ -589,6 +589,13 @@ func (this *ArrayDeque) descendingIterator() Iterator {
+ 
+ func SequencedCollection_addLast(c SequencedCollection, v any) { c.add(v) }
+ func SequencedCollection_getFirst(c SequencedCollection) any {
++	if t := hashSetOf_(c); t != nil { // a runtime hash set or key view: no iterator, start at the hint
++		i := t.firstLive()
++		if i < 0 {
++			panic(new_NoSuchElementException_0().self())
++		}
++		return t.keys[i]
++	}
+ 	it := c.iterator()
+ 	if !it.hasNext() {
+ 		panic(new_NoSuchElementException_0().self())
+@@ -680,7 +687,21 @@ type htable_ struct {
+ 	x        *hindex_ // nil until needed
+ 	live     int32
+ 	identity bool
+-	indexed  bool // x holds the index of all keys
++	indexed  bool  // x holds the index of all keys
++	head     int32 // every position below head is a removed entry (a hint for getFirst)
++}
++
++// firstLive returns the position of the first entry, or -1 if the table is empty. Entries are
++// only appended and a removed one never comes back, so the hint head stays right until keys is
++// rebuilt (compact, clear, empty), which resets it.
++func (t *htable_) firstLive() int {
++	for i := int(t.head); i < len(t.keys); i++ {
++		if t.keys[i] != dead_ {
++			t.head = int32(i)
++			return i
++		}
++	}
++	return -1
+ }
+ 
+ // hsmall_ is the number of entries (removed ones included) up to which a table is searched
+@@ -953,6 +974,7 @@ func (t *htable_) removeAt(i int) (moved bool) {
+ 	t.live--
+ 	if t.live == 0 {
+ 		// Empty: start again at position 0 (an index stays, empty, for the next entries).
++		t.head = 0
+ 		t.keys = t.keys[:0]
+ 		if t.vals != nil {
+ 			t.vals = t.vals[:0]
+@@ -978,6 +1000,7 @@ func (t *htable_) compact() {
+ 		ents = t.x.ents
+ 	}
+ 	t.keys = make([]any, 0, t.live)
++	t.head = 0
+ 	if vals != nil {
+ 		t.vals = make([]any, 0, t.live)
+ 	}
+@@ -1033,7 +1056,7 @@ func (t *htable_) clear() {
+ 			}
+ 		}
+ 	}
+-	t.keys, t.vals, t.x, t.live, t.indexed = nil, nil, nil, 0, false
++	t.keys, t.vals, t.x, t.live, t.indexed, t.head = nil, nil, nil, 0, false, 0
+ }
+ 
+ // entry returns the entry object of the mapping at position i.
+diff --git a/go/closure/rt_string.go b/go/closure/rt_string.go
+index 82a8d078c..28742dc59 100644
+--- a/go/closure/rt_string.go
++++ b/go/closure/rt_string.go
+@@ -61,6 +61,11 @@ type u16index_ struct {
+ 	n     int32   // length in UTF-16 units
+ 	every []int32 // byte offset of unit 64*k (never inside a 4-byte character's second half)
+ 	adj   []int8  // 1 if unit 64*k is the low half of the character at every[k]
++	// The last position located (a character start): the scanner reads a source text in order,
++	// so the next lookup is usually a few units further and starts here instead of at a
++	// checkpoint up to 63 units back.
++	memoU   int32
++	memoOff int
+ }
+ 
+ const indexStride_ = 64
+@@ -109,8 +114,9 @@ func locate_(s string, i int32) (off int, low bool) {
+ 		panic(new_StringIndexOutOfBoundsException_String("index " + istr_(int64(i))).self())
+ 	}
+ 	start, unit := 0, int32(0)
++	var c *u16index_
+ 	if len(s) >= 256 {
+-		c := indexOf_(s)
++		c = indexOf_(s)
+ 		if c.ascii {
+ 			return int(i), false
+ 		}
+@@ -124,11 +130,17 @@ func locate_(s string, i int32) (off int, low bool) {
+ 				return int(c.every[k]) + int(i-int32(k)*indexStride_), false
+ 			}
+ 			start, unit = int(c.every[k]), int32(k)*indexStride_-int32(c.adj[k])
++			if c.memoU > unit && c.memoU <= i {
++				start, unit = c.memoOff, c.memoU
++			}
+ 		}
+ 	}
+ 	for off = start; off < len(s); {
+ 		cp, size := decode_(s, off)
+ 		if unit == i {
++			if c != nil {
++				c.memoU, c.memoOff = unit, off
++			}
+ 			return off, false
+ 		}
+ 		if cp >= 0x10000 {
