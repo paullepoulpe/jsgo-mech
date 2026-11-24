@@ -4,7 +4,6 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.AbstractIterator;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
@@ -33,6 +32,14 @@ public class RtCls {
   @interface N {}
 
   static final StringBuilder out = new StringBuilder();
+
+  static List<String> list(String... xs) {
+    List<String> l = new ArrayList<>();
+    for (String x : xs) {
+      l.add(x);
+    }
+    return l;
+  }
 
   static void p(Object o) {
     out.append(o).append('\n');
@@ -148,7 +155,7 @@ public class RtCls {
                     if (key.path.equals("bad")) {
                       throw new IllegalStateException("bad key");
                     }
-                    return key.path.toUpperCase();
+                    return key.path + "!";
                   }
                 });
     sb.append(cache.getUnchecked(new Key("a"))).append(' ').append(cache.getUnchecked(new Key("a")));
@@ -219,11 +226,11 @@ public class RtCls {
     sb.append(r.names.compare(null, "a")).append(' ').append(r.names.compare("b", "a")).append(' ').append(r.names.compare(null, null));
     sb.append(' ').append(r.byLine.compare(new Pos(1, 2), new Pos(1, 1)));
     sb.append(' ').append(r.byLine.nullsFirst().compare(null, new Pos(1, 1)));
-    List<String> ws = new ArrayList<>(ImmutableList.of("ccc", "a", "bb", "dd"));
+    List<String> ws = list("ccc", "a", "bb", "dd");
     Collections.sort(ws, new ByLength().reverse());
     sb.append(' ').append(ws);
-    sb.append(' ').append(new ByLength().sortedCopy(ImmutableList.of("xyz", "", "pq")));
-    sb.append(' ').append(Ordering.natural().sortedCopy(ImmutableList.of("q", "c", "m")));
+    sb.append(' ').append(new ByLength().sortedCopy(list("xyz", "", "pq")));
+    sb.append(' ').append(Ordering.natural().sortedCopy(list("q", "c", "m")));
     TreeSet<Pos> sorted = new TreeSet<>(r.byLine);
     sorted.add(new Pos(2, 1));
     sorted.add(new Pos(1, 7));
@@ -359,9 +366,9 @@ public class RtCls {
   }
 
   static String nboxArgs() {
-    List<String> names = new ArrayList<>(ImmutableList.of("a.b.c", "x", "p.q", "m.n"));
+    List<String> names = list("a.b.c", "x", "p.q", "m.n");
     names.sort(SHORT_TO_LONG);
-    List<String> ws = new ArrayList<>(ImmutableList.of("ccc", "a", "bb"));
+    List<String> ws = list("ccc", "a", "bb");
     ws.sort(BY_WEIGHT);
     Pool p = new Pool(RtCls::dots);
     Pool q = new Pool(s -> nullable(s));
