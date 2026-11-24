@@ -420,9 +420,9 @@ func (this *ScopedAliases_AliasedTypeNode) applyAlias_impl(compiler *AbstractCom
 type ScopedAliases_Traversal struct {
 	NodeTraversal_AbstractPostOrderCallback
 	outer_                   *ScopedAliases
-	aliasDefinitionsToDelete *TList[Node]
+	aliasDefinitionsToDelete TList[Node]
 	scopeCalls               *[]Node
-	aliasUsages              *TList[*ScopedAliases_AliasUsage]
+	aliasUsages              TList[*ScopedAliases_AliasUsage]
 	aliases_                 map[string]*Var
 	injectedDecls            map[Node]struct{}
 	deletedAliasVars         map[varKey_]struct{}
@@ -440,9 +440,9 @@ func (this *ScopedAliases_Traversal) up_NodeTraversal_AbstractPostOrderCallback(
 }
 
 func (this *ScopedAliases_Traversal) finit_ScopedAliases_Traversal() {
-	this.aliasDefinitionsToDelete = newTList_(tc_Node)
+	initTList_(&this.aliasDefinitionsToDelete, tc_Node)
 	this.scopeCalls = &[]Node{}
-	this.aliasUsages = newTList_(tc_p_ScopedAliases_AliasUsage)
+	initTList_(&this.aliasUsages, tc_p_ScopedAliases_AliasUsage)
 	this.aliases_ = map[string]*Var{}
 	this.injectedDecls = map[Node]struct{}{}
 	this.deletedAliasVars = map[varKey_]struct{}{}
@@ -470,7 +470,7 @@ func (this *ScopedAliases_Traversal) getAliasDefinitionsToDelete() CollectionT[N
 }
 
 func (this *ScopedAliases_Traversal) getAliasUsages() *TList[*ScopedAliases_AliasUsage] {
-	return this.aliasUsages
+	return &this.aliasUsages
 }
 
 func (this *ScopedAliases_Traversal) getScopeCalls() *[]Node {

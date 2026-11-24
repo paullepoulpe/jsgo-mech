@@ -234,13 +234,13 @@ type Graph_GraphEdge[N comparable, E comparable] interface {
 
 type Graph_SimpleSubGraph[N comparable, E comparable] struct {
 	graph  *Graph[N, E]
-	nodes_ *TList[GraphNode[N, E]]
+	nodes_ TList[GraphNode[N, E]]
 }
 
 func (this *Graph_SimpleSubGraph[N, E]) isa_Graph_SimpleSubGraph_() {}
 
 func (this *Graph_SimpleSubGraph[N, E]) finit_Graph_SimpleSubGraph() {
-	this.nodes_ = newTList_(tc_GraphNode_N__E_[N, E]())
+	initTList_(&this.nodes_, tc_GraphNode_N__E_[N, E]())
 }
 
 func (this *Graph_SimpleSubGraph[N, E]) init_Graph_SimpleSubGraph(graph *Graph[N, E]) {
@@ -256,7 +256,7 @@ func new_Graph_SimpleSubGraph[N comparable, E comparable](graph *Graph[N, E]) *G
 
 func (this *Graph_SimpleSubGraph[N, E]) isIndependentOf(value N) bool {
 	var node GraphNode[N, E] = this.graph.getNode_Object(value)
-	l_1 := this.nodes_
+	l_1 := &this.nodes_
 	for i_1 := 0; i_1 < len(l_1.items); i_1++ {
 		var n GraphNode[N, E] = l_1.items[i_1]
 		if this.graph.getNeighborNodes(n.getValue()).contains(node) {

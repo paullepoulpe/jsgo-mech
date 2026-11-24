@@ -86,6 +86,16 @@ func newTMapN_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], n int32) *TMap
 	return &TMap[K, V]{kc: kc, vc: vc}
 }
 
+// initTMap_ and initTMapN_ make in place, at m, the map newTMap_ and newTMapN_ make (post-flip
+// inlinefld: a final map field kept by value).
+func initTMap_[K comparable, V any](m *TMap[K, V], kc *tconv_[K], vc *tconv_[V]) {
+	*m = TMap[K, V]{kc: kc, vc: vc}
+}
+
+func initTMapN_[K comparable, V any](m *TMap[K, V], kc *tconv_[K], vc *tconv_[V], n int32) {
+	*m = TMap[K, V]{kc: kc, vc: vc}
+}
+
 // tmapCopy_ is new LinkedHashMap<>(from) of another typed map of the same types (j2go).
 func tmapCopy_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], from *TMap[K, V]) *TMap[K, V] {
 	m := &TMap[K, V]{kc: kc, vc: vc}
@@ -637,6 +647,14 @@ func newTSet_[K comparable](kc *tconv_[K]) *TSet[K] {
 
 // newTSetN_ is new LinkedHashSet<>(n): the capacity is not used (j2go).
 func newTSetN_[K comparable](kc *tconv_[K], n int32) *TSet[K] { return newTSet_(kc) }
+
+// initTSet_ and initTSetN_ make in place, at s, the set newTSet_ and newTSetN_ make (post-flip
+// inlinefld: a final set field kept by value).
+func initTSet_[K comparable](s *TSet[K], kc *tconv_[K]) {
+	*s = TSet[K]{TMap: TMap[K, struct{}]{kc: kc, vc: tunit_}}
+}
+
+func initTSetN_[K comparable](s *TSet[K], kc *tconv_[K], n int32) { initTSet_(s, kc) }
 
 // tsetCopy_ is new LinkedHashSet<>(from) of another typed set of the same element type (j2go).
 func tsetCopy_[K comparable](kc *tconv_[K], from *TSet[K]) *TSet[K] {

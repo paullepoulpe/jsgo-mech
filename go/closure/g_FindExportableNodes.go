@@ -5,9 +5,9 @@ package closure
 type FindExportableNodes struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_         *AbstractCompiler
-	exports           *TMap[string, Node]
-	es6ClassExports   *TMap[Node, string]
-	localExports      *TSet[string]
+	exports           TMap[string, Node]
+	es6ClassExports   TMap[Node, string]
+	localExports      TSet[string]
 	allowLocalExports bool
 }
 
@@ -19,9 +19,9 @@ func (this *FindExportableNodes) up_NodeTraversal_AbstractPostOrderCallback() *N
 }
 
 func (this *FindExportableNodes) finit_FindExportableNodes() {
-	this.exports = newTMap_(tc_string, tc_Node)
-	this.es6ClassExports = newTMap_(tc_Node, tc_string)
-	this.localExports = newTSet_(tc_string)
+	initTMap_(&this.exports, tc_string, tc_Node)
+	initTMap_(&this.es6ClassExports, tc_Node, tc_string)
+	initTSet_(&this.localExports, tc_string)
 }
 
 func (this *FindExportableNodes) init_FindExportableNodes(compiler *AbstractCompiler, allowLocalExports bool) {
@@ -160,15 +160,15 @@ func (this *FindExportableNodes) visit_impl(t *NodeTraversal, n Node, parent Nod
 }
 
 func (this *FindExportableNodes) getExports() *TMap[string, Node] {
-	return this.exports
+	return &this.exports
 }
 
 func (this *FindExportableNodes) getLocalExports() *TSet[string] {
-	return this.localExports
+	return &this.localExports
 }
 
 func (this *FindExportableNodes) getEs6ClassExports() *TMap[Node, string] {
-	return this.es6ClassExports
+	return &this.es6ClassExports
 }
 
 var FindExportableNodes_NON_GLOBAL_ERROR *DiagnosticType

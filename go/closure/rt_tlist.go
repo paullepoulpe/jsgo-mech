@@ -50,6 +50,15 @@ func newTListN_[T any](c *tconv_[T], n int32) *TList[T] {
 	return &TList[T]{c: c, items: make([]T, 0, n)}
 }
 
+// initTList_ and initTListN_ make in place, at l, the list newTList_ and newTListN_ make (the
+// same fields, the same capacity): post-flip inlinefld keeps a final list field of a class by
+// value, so finit_ initializes it where it lives and its readers take its address.
+func initTList_[T any](l *TList[T], c *tconv_[T]) { *l = TList[T]{c: c} }
+
+func initTListN_[T any](l *TList[T], c *tconv_[T], n int32) {
+	*l = TList[T]{c: c, items: make([]T, 0, n)}
+}
+
 // tlistImm_ is an immutable list (ImmutableList.of, copyOf, build) as a typed list.
 func tlistImm_[T any](c *tconv_[T], from Collection) *TList[T] {
 	if isNil_(from) {

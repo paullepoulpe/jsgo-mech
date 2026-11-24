@@ -4,7 +4,7 @@ package closure
 
 type RecordTypeBuilder struct {
 	registry   *JSTypeRegistry
-	properties *TMap[string, *RecordTypeBuilder_RecordProperty]
+	properties TMap[string, *RecordTypeBuilder_RecordProperty]
 	isEmpty_   bool
 	isDeclared bool
 }
@@ -12,7 +12,7 @@ type RecordTypeBuilder struct {
 func (this *RecordTypeBuilder) finit_RecordTypeBuilder() {
 	this.isEmpty_ = true
 	this.isDeclared = true
-	this.properties = newTMap_(tc_string, tc_p_RecordTypeBuilder_RecordProperty)
+	initTMap_(&this.properties, tc_string, tc_p_RecordTypeBuilder_RecordProperty)
 }
 
 func (this *RecordTypeBuilder) init_RecordTypeBuilder(registry *JSTypeRegistry) {

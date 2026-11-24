@@ -3,11 +3,11 @@
 package closure
 
 type ReferenceCollection struct {
-	references *TList[*Reference]
+	references TList[*Reference]
 }
 
 func (this *ReferenceCollection) finit_ReferenceCollection() {
-	this.references = newTList_(tc_p_Reference)
+	initTList_(&this.references, tc_p_Reference)
 }
 
 func (this *ReferenceCollection) init_ReferenceCollection() {
@@ -55,7 +55,7 @@ func (this *ReferenceCollection) isWellDefined() bool {
 
 func (this *ReferenceCollection) isEscaped() bool {
 	var closureScope *Scope = nil
-	l_1 := this.references
+	l_1 := &this.references
 	for i_1 := 0; i_1 < len(l_1.items); i_1++ {
 		var ref *Reference = l_1.items[i_1]
 		var refClosureScope *Scope = ReferenceCollection_getEnclosingClosureScope(ref.getScope())
@@ -82,7 +82,7 @@ func ReferenceCollection_getEnclosingClosureScope(scope *Scope) *Scope {
 
 func (this *ReferenceCollection) isThisRebound() bool {
 	var hoistScope *Scope = nil
-	l_1 := this.references
+	l_1 := &this.references
 	for i_1 := 0; i_1 < len(l_1.items); i_1++ {
 		var ref *Reference = l_1.items[i_1]
 		var refHoistScope *Scope = ref.getScope().getClosestHoistScope_rScope()
@@ -176,7 +176,7 @@ func (this *ReferenceCollection) isAssignedOnceInLifetime() bool {
 }
 
 func (this *ReferenceCollection) isReferencedWeakly() bool {
-	l_1 := this.references
+	l_1 := &this.references
 	for i_1 := 0; i_1 < len(l_1.items); i_1++ {
 		var ref *Reference = l_1.items[i_1]
 		if NodeUtil_isGoogWeakUsageCall(ref.getParent()) {

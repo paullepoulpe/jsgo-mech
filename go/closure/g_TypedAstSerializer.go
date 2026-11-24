@@ -7,7 +7,7 @@ type TypedAstSerializer struct {
 	serializationMode  SerializationOptions
 	stringPool         *StringPool_Builder
 	subtreeSourceFiles *[]*SourceFile_jscomp
-	sourceFilePointers *TMap[*SourceFile_jscomp, any]
+	sourceFilePointers TMap[*SourceFile_jscomp, any]
 	typeSerializer     TypedAstSerializer_TypeSerializer
 	previousLine       int32
 	previousColumn     int32
@@ -16,7 +16,7 @@ type TypedAstSerializer struct {
 func (this *TypedAstSerializer) finit_TypedAstSerializer() {
 	this.stringPool = StringPool_builder()
 	this.subtreeSourceFiles = &[]*SourceFile_jscomp{}
-	this.sourceFilePointers = newTMap_(tc_p_SourceFile_jscomp, tc_Integer)
+	initTMap_(&this.sourceFilePointers, tc_p_SourceFile_jscomp, tc_Integer)
 	this.typeSerializer = nil
 }
 

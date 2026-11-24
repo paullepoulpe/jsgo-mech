@@ -339,11 +339,11 @@ func (this *MustBeReachingVariableDef_Definition) hashCode() int32 {
 }
 
 type MustBeReachingVariableDef_MustDef struct {
-	reachingDef *TMap[*Var, *MustBeReachingVariableDef_Definition]
+	reachingDef TMap[*Var, *MustBeReachingVariableDef_Definition]
 }
 
 func (this *MustBeReachingVariableDef_MustDef) finit_MustBeReachingVariableDef_MustDef() {
-	this.reachingDef = newTMap_(tch_p_Var, tc_p_MustBeReachingVariableDef_Definition)
+	initTMap_(&this.reachingDef, tch_p_Var, tc_p_MustBeReachingVariableDef_Definition)
 }
 
 func (this *MustBeReachingVariableDef_MustDef) init_MustBeReachingVariableDef_MustDef_0() {
@@ -391,7 +391,7 @@ type MustBeReachingVariableDef_MustDefJoin struct {
 
 func (this *MustBeReachingVariableDef_MustDefJoin) finit_MustBeReachingVariableDef_MustDefJoin() {
 	this.result = new_MustBeReachingVariableDef_MustDef_0()
-	this.resultMap = this.result.reachingDef
+	this.resultMap = &this.result.reachingDef
 }
 
 func (this *MustBeReachingVariableDef_MustDefJoin) init_MustBeReachingVariableDef_MustDefJoin() {

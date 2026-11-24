@@ -12,7 +12,7 @@ type IRFactory struct {
 	transformDispatcher        *IRFactory_TransformDispatcher
 	reservedKeywords           *TSet[string]
 	parsedComments             map[*Comment]struct{}
-	licenseBuilder             *TSet[string]
+	licenseBuilder             TSet[string]
 	firstFileoverview          *JSDocInfo
 	jsdocTracker               *IRFactory_CommentTracker
 	nonJsdocTracker            *IRFactory_CommentTracker
@@ -29,7 +29,7 @@ type IRFactory struct {
 
 func (this *IRFactory) finit_IRFactory() {
 	this.parsedComments = map[*Comment]struct{}{}
-	this.licenseBuilder = newTSet_(tc_string)
+	initTSet_(&this.licenseBuilder, tc_string)
 	this.firstFileoverview = nil
 	this.currentFileIsExterns = false
 	this.features_ = FeatureSet_BARE_MINIMUM

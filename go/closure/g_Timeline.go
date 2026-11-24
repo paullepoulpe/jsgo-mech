@@ -3,16 +3,16 @@
 package closure
 
 type Timeline[T comparable] struct {
-	eventsByTime  *TMap[*Timeline_Time, *Timeline_Event[any]]
-	eventsByValue *TMap[T, *Timeline_Event[any]]
+	eventsByTime  TMap[*Timeline_Time, *Timeline_Event[any]]
+	eventsByValue TMap[T, *Timeline_Event[any]]
 	headEvent     *Timeline_Event[any]
 }
 
 func (this *Timeline[T]) isa_Timeline_() {}
 
 func (this *Timeline[T]) finit_Timeline() {
-	this.eventsByTime = newTMap_(tch_p_Timeline_Time, tc_p_Timeline_Event)
-	this.eventsByValue = newTMap_(tchT_[T](), tc_p_Timeline_Event)
+	initTMap_(&this.eventsByTime, tch_p_Timeline_Time, tc_p_Timeline_Event)
+	initTMap_(&this.eventsByValue, tchT_[T](), tc_p_Timeline_Event)
 	this.headEvent = new_Timeline_Event[any](new_Timeline_Time("-beginning-"))
 }
 

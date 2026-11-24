@@ -372,8 +372,8 @@ type FunctionArgumentInjector_ReferencedAfterSideEffect struct {
 	outer_                                        *FunctionArgumentInjector
 	parameters                                    *TSet[string]
 	locals                                        *TSet[string]
-	parametersReferenced                          *TSet[string]
-	parametersWithNamesReferencedBeforeParameter_ *TSet[string]
+	parametersReferenced                          TSet[string]
+	parametersWithNamesReferencedBeforeParameter_ TSet[string]
 	loopsEntered                                  int32
 	sideEffectSeen                                bool
 	nameNodeHasBeenSeen                           bool
@@ -381,9 +381,9 @@ type FunctionArgumentInjector_ReferencedAfterSideEffect struct {
 
 func (this *FunctionArgumentInjector_ReferencedAfterSideEffect) finit_FunctionArgumentInjector_ReferencedAfterSideEffect() {
 	this.sideEffectSeen = false
-	this.parametersReferenced = newTSet_(tc_string)
+	initTSet_(&this.parametersReferenced, tc_string)
 	this.nameNodeHasBeenSeen = false
-	this.parametersWithNamesReferencedBeforeParameter_ = newTSet_(tc_string)
+	initTSet_(&this.parametersWithNamesReferencedBeforeParameter_, tc_string)
 	this.loopsEntered = 0
 }
 
@@ -401,11 +401,11 @@ func new_FunctionArgumentInjector_ReferencedAfterSideEffect(outer_ *FunctionArgu
 }
 
 func (this *FunctionArgumentInjector_ReferencedAfterSideEffect) getParametersReferencedAfterSideEffect() *TSet[string] {
-	return immutableSetCopyOfT_(tc_string, this.parametersReferenced)
+	return immutableSetCopyOfT_(tc_string, &this.parametersReferenced)
 }
 
 func (this *FunctionArgumentInjector_ReferencedAfterSideEffect) getParametersWithNamesReferencedBeforeParameter() *TSet[string] {
-	return immutableSetCopyOfT_(tc_string, this.parametersWithNamesReferencedBeforeParameter_)
+	return immutableSetCopyOfT_(tc_string, &this.parametersWithNamesReferencedBeforeParameter_)
 }
 
 func (this *FunctionArgumentInjector_ReferencedAfterSideEffect) apply(node Node) bool {

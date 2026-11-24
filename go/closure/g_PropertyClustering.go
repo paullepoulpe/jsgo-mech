@@ -4,7 +4,7 @@ package closure
 
 type PropertyClustering struct {
 	name_                  string
-	useSites               *TMap[Node, *ColorGraphNode]
+	useSites               TMap[Node, *ColorGraphNode]
 	clusters               *StandardUnionFind[*ColorGraphNode]
 	originalNameClusterRep *ColorGraphNode
 	lastInvalidation       *Invalidation
@@ -15,7 +15,7 @@ func (this *PropertyClustering) zero_PropertyClustering() {
 }
 
 func (this *PropertyClustering) finit_PropertyClustering() {
-	this.useSites = newTMap_(tc_Node, tc_p_ColorGraphNode)
+	initTMap_(&this.useSites, tc_Node, tc_p_ColorGraphNode)
 	this.clusters = new_StandardUnionFind_0[*ColorGraphNode]()
 }
 
@@ -36,7 +36,7 @@ func (this *PropertyClustering) getName() string {
 }
 
 func (this *PropertyClustering) getUseSites() *TMap[Node, *ColorGraphNode] {
-	return this.useSites
+	return &this.useSites
 }
 
 func (this *PropertyClustering) getClusters() *StandardUnionFind[*ColorGraphNode] {

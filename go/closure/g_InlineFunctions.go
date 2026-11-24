@@ -5,7 +5,7 @@ package closure
 import "strconv"
 
 type InlineFunctions struct {
-	fns                         *TMap[string, *InlineFunctions_FunctionState]
+	fns                         TMap[string, *InlineFunctions_FunctionState]
 	anonFns                     map[Node]string
 	compiler_                   *AbstractCompiler
 	injector                    *FunctionInjector
@@ -16,7 +16,7 @@ type InlineFunctions struct {
 }
 
 func (this *InlineFunctions) finit_InlineFunctions() {
-	this.fns = newTMap_(tc_string, tc_p_InlineFunctions_FunctionState)
+	initTMap_(&this.fns, tc_string, tc_p_InlineFunctions_FunctionState)
 	this.anonFns = map[Node]string{}
 }
 
@@ -59,7 +59,7 @@ func (this *InlineFunctions) process_2(externs Node, root Node) {
 	if this.fns.IsEmpty() {
 		return
 	}
-	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(new_InlineFunctions_FindCandidatesReferences(this, this.fns, this.anonFns)))
+	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(new_InlineFunctions_FindCandidatesReferences(this, &this.fns, this.anonFns)))
 	this.trimCandidatesNotMeetingMinimumRequirements()
 	if this.fns.IsEmpty() {
 		return
@@ -72,7 +72,7 @@ func (this *InlineFunctions) process_2(externs Node, root Node) {
 	}
 	this.resolveInlineConflicts()
 	this.decomposeExpressions()
-	NodeTraversal_traverse(this.compiler_, root, new_InlineFunctions_CallVisitor(this.fns, this.anonFns, new_InlineFunctions_Inline(this.injector).visitCallSite))
+	NodeTraversal_traverse(this.compiler_, root, new_InlineFunctions_CallVisitor(&this.fns, this.anonFns, new_InlineFunctions_Inline(this.injector).visitCallSite))
 	this.removeInlinedFunctions()
 }
 

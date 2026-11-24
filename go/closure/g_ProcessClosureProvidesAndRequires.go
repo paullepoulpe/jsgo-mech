@@ -7,21 +7,21 @@ import "strings"
 type ProcessClosureProvidesAndRequires struct {
 	compiler_                       *AbstractCompiler
 	chunkGraph                      *JSChunkGraph
-	providedNames                   *TMap[string, *ProcessClosureProvidesAndRequires_ProvidedName]
-	exportedVariables               *TSet[string]
+	providedNames                   TMap[string, *ProcessClosureProvidesAndRequires_ProvidedName]
+	exportedVariables               TSet[string]
 	requiresToBeRemoved             *[]Node
-	forwardDeclaresToRemove         *TSet[Node]
+	forwardDeclaresToRemove         TSet[Node]
 	astFactory_                     *AstFactory
 	preserveGoogProvidesAndRequires bool
 	hasRewritingOccurred            bool
 }
 
 func (this *ProcessClosureProvidesAndRequires) finit_ProcessClosureProvidesAndRequires() {
-	this.providedNames = newTMap_(tc_string, tc_p_ProcessClosureProvidesAndRequires_ProvidedName)
-	this.exportedVariables = newTSet_(tc_string)
+	initTMap_(&this.providedNames, tc_string, tc_p_ProcessClosureProvidesAndRequires_ProvidedName)
+	initTSet_(&this.exportedVariables, tc_string)
 	this.requiresToBeRemoved = &[]Node{}
 	this.hasRewritingOccurred = false
-	this.forwardDeclaresToRemove = newTSet_(tc_Node)
+	initTSet_(&this.forwardDeclaresToRemove, tc_Node)
 }
 
 func (this *ProcessClosureProvidesAndRequires) init_ProcessClosureProvidesAndRequires(compiler *AbstractCompiler, preserveGoogProvidesAndRequires bool) {
@@ -43,7 +43,7 @@ func (this *ProcessClosureProvidesAndRequires) process_2(externs Node, root Node
 }
 
 func (this *ProcessClosureProvidesAndRequires) getExportedVariableNames() *TSet[string] {
-	return this.exportedVariables
+	return &this.exportedVariables
 }
 
 func (this *ProcessClosureProvidesAndRequires) collectProvidedNames(externs Node, root Node) *TMap[string, *ProcessClosureProvidesAndRequires_ProvidedName] {
@@ -51,7 +51,7 @@ func (this *ProcessClosureProvidesAndRequires) collectProvidedNames(externs Node
 		this.providedNames.Put(ProcessClosureProvidesAndRequires_GOOG, new_ProcessClosureProvidesAndRequires_ProvidedNameBuilder(this).setNamespace(ProcessClosureProvidesAndRequires_GOOG).setNode(0).setChunk(nil).build())
 		NodeTraversal_traverseRoots(this.compiler_, NodeTraversal_Callback(new_ProcessClosureProvidesAndRequires_CollectDefinitions(this)), externs, root)
 	}
-	return this.providedNames
+	return &this.providedNames
 }
 
 func (this *ProcessClosureProvidesAndRequires) rewriteProvidesAndRequires(externs Node, root Node) {
@@ -61,7 +61,7 @@ func (this *ProcessClosureProvidesAndRequires) rewriteProvidesAndRequires(extern
 	this.hasRewritingOccurred = true
 	this.collectProvidedNames(externs, root)
 	for pn := range this.providedNames.Values() {
-		pn.replace(this.preserveGoogProvidesAndRequires, this.providedNames)
+		pn.replace(this.preserveGoogProvidesAndRequires, &this.providedNames)
 	}
 	for closureRequire := range sliceAll_(this.requiresToBeRemoved) {
 		this.compiler_.reportChangeToEnclosingScope(closureRequire)

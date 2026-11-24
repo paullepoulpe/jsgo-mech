@@ -5,7 +5,7 @@ package closure
 type CheckExtraRequires struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_        *AbstractCompiler
-	requires         *TMap[string, Node]
+	requires         TMap[string, Node]
 	usages           map[string]struct{}
 	requiresToRemove *TSet[string]
 }
@@ -18,7 +18,7 @@ func (this *CheckExtraRequires) up_NodeTraversal_AbstractPostOrderCallback() *No
 }
 
 func (this *CheckExtraRequires) finit_CheckExtraRequires() {
-	this.requires = newTMap_(tc_string, tc_Node)
+	initTMap_(&this.requires, tc_string, tc_Node)
 	this.usages = map[string]struct{}{}
 }
 

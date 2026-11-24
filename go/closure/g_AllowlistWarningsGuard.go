@@ -145,14 +145,14 @@ func AllowlistWarningsGuard_clinit() {
 
 type AllowlistWarningsGuard_AllowlistBuilder struct {
 	outer_          *AllowlistWarningsGuard
-	warnings_       *TSet[*JSError]
+	warnings_       TSet[*JSError]
 	productName     string
 	generatorTarget string
 	headerNote      string
 }
 
 func (this *AllowlistWarningsGuard_AllowlistBuilder) finit_AllowlistWarningsGuard_AllowlistBuilder() {
-	this.warnings_ = newTSet_(tch_p_JSError)
+	initTSet_(&this.warnings_, tch_p_JSError)
 	this.productName = nullstr_
 	this.generatorTarget = nullstr_
 	this.headerNote = nullstr_

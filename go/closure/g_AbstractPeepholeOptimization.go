@@ -6,7 +6,7 @@ type AbstractPeepholeOptimization struct {
 	self_       AbstractPeepholeOptimization_I
 	compiler_   *AbstractCompiler
 	astAnalyzer *AstAnalyzer
-	newFeatures *TSet[FeatureSet_Feature]
+	newFeatures TSet[FeatureSet_Feature]
 }
 
 // AbstractPeepholeOptimization_I holds the methods the dispatchers of AbstractPeepholeOptimization's hierarchy call on the most derived
@@ -41,7 +41,7 @@ func (this *AbstractPeepholeOptimization) self() any {
 }
 
 func (this *AbstractPeepholeOptimization) finit_AbstractPeepholeOptimization() {
-	this.newFeatures = newTSet_(tc_p_FeatureSet_Feature)
+	initTSet_(&this.newFeatures, tc_p_FeatureSet_Feature)
 }
 
 func (this *AbstractPeepholeOptimization) init_AbstractPeepholeOptimization() {
@@ -173,7 +173,7 @@ func (this *AbstractPeepholeOptimization) addFeatureToEnclosingScript(feature Fe
 }
 
 func (this *AbstractPeepholeOptimization) getNewFeatures() *TSet[FeatureSet_Feature] {
-	return immutableSetCopyOfT_(tc_p_FeatureSet_Feature, this.newFeatures)
+	return immutableSetCopyOfT_(tc_p_FeatureSet_Feature, &this.newFeatures)
 }
 
 func (this *AbstractPeepholeOptimization) clearNewFeatures() {

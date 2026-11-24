@@ -3,7 +3,7 @@
 package closure
 
 type VarCheck struct {
-	undefinedNamesFromExterns *TSet[string]
+	undefinedNamesFromExterns TSet[string]
 	compiler_                 *AbstractCompiler
 	dupHandler                *VarCheck_RedeclarationCheckHandler
 	validityCheck             bool
@@ -11,7 +11,7 @@ type VarCheck struct {
 }
 
 func (this *VarCheck) finit_VarCheck() {
-	this.undefinedNamesFromExterns = newTSet_(tc_string)
+	initTSet_(&this.undefinedNamesFromExterns, tc_string)
 }
 
 func (this *VarCheck) init_VarCheck_AbstractCompiler(compiler *AbstractCompiler) {

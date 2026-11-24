@@ -14,8 +14,8 @@ type ProcessDefines struct {
 	unknownDefinesToIgnore              *TSet[string]
 	knownDefineJsdocs                   map[*JSDocInfo]struct{}
 	knownGoogDefineCalls                map[Node]struct{}
-	defineByDefineName                  *TMap[string, *ProcessDefines_Define]
-	replacementValuesFromClosureDefines *TMap[string, Node]
+	defineByDefineName                  TMap[string, *ProcessDefines_Define]
+	replacementValuesFromClosureDefines TMap[string, Node]
 	validDefineValueExpressions         map[Node]struct{}
 	namespace_                          *GlobalNamespace
 	enableZonesDefineName               string
@@ -26,8 +26,8 @@ type ProcessDefines struct {
 func (this *ProcessDefines) finit_ProcessDefines() {
 	this.knownDefineJsdocs = map[*JSDocInfo]struct{}{}
 	this.knownGoogDefineCalls = map[Node]struct{}{}
-	this.defineByDefineName = newTMap_(tc_string, tc_p_ProcessDefines_Define)
-	this.replacementValuesFromClosureDefines = newTMap_(tc_string, tc_Node)
+	initTMap_(&this.defineByDefineName, tc_string, tc_p_ProcessDefines_Define)
+	initTMap_(&this.replacementValuesFromClosureDefines, tc_string, tc_Node)
 	this.validDefineValueExpressions = map[Node]struct{}{}
 	this.hasZoneInput = false
 }
@@ -42,7 +42,7 @@ func (this *ProcessDefines) init_ProcessDefines(builder *ProcessDefines_Builder)
 		}
 		return nil
 	}()
-	this.replacementValuesFromFlags = immutableMapCopyOfT_(tc_string, tc_Node, builder.replacementValues)
+	this.replacementValuesFromFlags = immutableMapCopyOfT_(tc_string, tc_Node, &builder.replacementValues)
 	this.namespaceSupplier = builder.namespaceSupplier
 	this.recognizeClosureDefines = builder.recognizeClosureDefines
 	this.enableZonesDefineName = builder.enableZonesDefineName
@@ -633,7 +633,7 @@ func ProcessDefines_Mode_clinit() {
 
 type ProcessDefines_Builder struct {
 	compiler_               *AbstractCompiler
-	replacementValues       *TMap[string, Node]
+	replacementValues       TMap[string, Node]
 	mode_                   ProcessDefines_Mode
 	namespaceSupplier       Supplier[*GlobalNamespace]
 	zoneInputPattern        *Pattern
@@ -643,7 +643,7 @@ type ProcessDefines_Builder struct {
 }
 
 func (this *ProcessDefines_Builder) finit_ProcessDefines_Builder() {
-	this.replacementValues = newTMap_(tc_string, tc_Node)
+	initTMap_(&this.replacementValues, tc_string, tc_Node)
 	this.recognizeClosureDefines = true
 	this.enableZonesDefineName = nullstr_
 	this.zoneInputPattern = nil

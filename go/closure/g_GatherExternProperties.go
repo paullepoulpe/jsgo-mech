@@ -6,12 +6,12 @@ import "strings"
 
 type GatherExternProperties struct {
 	compiler_        *AbstractCompiler
-	externProperties *TSet[string]
+	externProperties TSet[string]
 	mode_            GatherExternProperties_Mode
 }
 
 func (this *GatherExternProperties) finit_GatherExternProperties() {
-	this.externProperties = newTSet_(tc_string)
+	initTSet_(&this.externProperties, tc_string)
 }
 
 func (this *GatherExternProperties) init_GatherExternProperties(compiler *AbstractCompiler, mode GatherExternProperties_Mode) {
@@ -19,7 +19,7 @@ func (this *GatherExternProperties) init_GatherExternProperties(compiler *Abstra
 	this.compiler_ = compiler
 	this.mode_ = mode
 	if compiler.getExternProperties() != nil {
-		tsetAddSetT_(this.externProperties, compiler.getExternProperties())
+		tsetAddSetT_(&this.externProperties, compiler.getExternProperties())
 	}
 }
 
@@ -31,7 +31,7 @@ func new_GatherExternProperties(compiler *AbstractCompiler, mode GatherExternPro
 
 func (this *GatherExternProperties) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, externs, NodeTraversal_Callback(this))
-	this.compiler_.setExternProperties(immutableSetCopyOfT_(tc_string, this.externProperties))
+	this.compiler_.setExternProperties(immutableSetCopyOfT_(tc_string, &this.externProperties))
 }
 
 func (this *GatherExternProperties) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {

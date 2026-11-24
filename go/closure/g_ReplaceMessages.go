@@ -477,11 +477,11 @@ func (this *ReplaceMessages_MsgProtectionPass) processMessageFallback_impl(callN
 
 type ReplaceMessages_QuotedKeyObjectLitBuilder struct {
 	outer_            *ReplaceMessages
-	keyToValueNodeMap *TMap[string, Node]
+	keyToValueNodeMap TMap[string, Node]
 }
 
 func (this *ReplaceMessages_QuotedKeyObjectLitBuilder) finit_ReplaceMessages_QuotedKeyObjectLitBuilder() {
-	this.keyToValueNodeMap = newTMap_(tc_string, tc_Node)
+	initTMap_(&this.keyToValueNodeMap, tc_string, tc_Node)
 }
 
 func (this *ReplaceMessages_QuotedKeyObjectLitBuilder) init_ReplaceMessages_QuotedKeyObjectLitBuilder() {

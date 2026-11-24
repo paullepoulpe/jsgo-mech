@@ -5,8 +5,8 @@ package closure
 type SimpleJsonValue struct {
 	tag   SimpleJsonValue_Kind
 	text  string
-	items *TList[*SimpleJsonValue]
-	named *TMap[string, *SimpleJsonValue]
+	items TList[*SimpleJsonValue]
+	named TMap[string, *SimpleJsonValue]
 }
 
 func (this *SimpleJsonValue) zero_SimpleJsonValue() {
@@ -14,8 +14,8 @@ func (this *SimpleJsonValue) zero_SimpleJsonValue() {
 }
 
 func (this *SimpleJsonValue) finit_SimpleJsonValue() {
-	this.items = newTList_(tc_p_SimpleJsonValue)
-	this.named = newTMap_(tc_string, tc_p_SimpleJsonValue)
+	initTList_(&this.items, tc_p_SimpleJsonValue)
+	initTMap_(&this.named, tc_string, tc_p_SimpleJsonValue)
 }
 
 func (this *SimpleJsonValue) init_SimpleJsonValue(tag SimpleJsonValue_Kind, text string) {
@@ -65,11 +65,11 @@ func (this *SimpleJsonValue) kind() SimpleJsonValue_Kind {
 }
 
 func (this *SimpleJsonValue) members() *TMap[string, *SimpleJsonValue] {
-	return this.named
+	return &this.named
 }
 
 func (this *SimpleJsonValue) elements() *TList[*SimpleJsonValue] {
-	return this.items
+	return &this.items
 }
 
 func (this *SimpleJsonValue) get(name string) *SimpleJsonValue {

@@ -8,12 +8,12 @@ type PolyfillUsageFinder struct {
 	compiler_                  *AbstractCompiler
 	polyfills                  PolyfillUsageFinder_Polyfills
 	registry                   *ColorRegistry
-	hasInSupertypesListSeenSet *TSet[*Color]
+	hasInSupertypesListSeenSet TSet[*Color]
 	disambiguateProperties_    bool
 }
 
 func (this *PolyfillUsageFinder) finit_PolyfillUsageFinder() {
-	this.hasInSupertypesListSeenSet = newTSet_(tch_p_Color)
+	initTSet_(&this.hasInSupertypesListSeenSet, tch_p_Color)
 }
 
 func (this *PolyfillUsageFinder) init_PolyfillUsageFinder(compiler *AbstractCompiler, polyfills PolyfillUsageFinder_Polyfills, disambiguateProperties bool) {

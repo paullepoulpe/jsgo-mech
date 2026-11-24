@@ -53,7 +53,7 @@ func (this ProcessTweaks) stripAllCalls(tweakInfos *TMap[string, *ProcessTweaks_
 func (this ProcessTweaks) collectTweaks(root Node) *ProcessTweaks_CollectTweaksResult {
 	var pass *ProcessTweaks_CollectTweaks = new_ProcessTweaks_CollectTweaks(this)
 	NodeTraversal_traverse(this.compiler_, root, ProcessTweaks_CollectTweaks_as_NodeTraversal_Callback(pass))
-	var tweakInfos *TMap[string, *ProcessTweaks_TweakInfo] = pass.allTweaks
+	var tweakInfos *TMap[string, *ProcessTweaks_TweakInfo] = &pass.allTweaks
 	for tweakInfo := range tweakInfos.Values() {
 		tweakInfo.emitAllWarnings()
 	}
@@ -268,7 +268,7 @@ func new_ProcessTweaks_CollectTweaksResult(tweakInfos *TMap[string, *ProcessTwea
 type ProcessTweaks_CollectTweaks struct {
 	NodeTraversal_AbstractPostOrderCallback
 	outer_    ProcessTweaks
-	allTweaks *TMap[string, *ProcessTweaks_TweakInfo]
+	allTweaks TMap[string, *ProcessTweaks_TweakInfo]
 }
 
 func (this *ProcessTweaks_CollectTweaks) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -279,7 +279,7 @@ func (this *ProcessTweaks_CollectTweaks) up_NodeTraversal_AbstractPostOrderCallb
 }
 
 func (this *ProcessTweaks_CollectTweaks) finit_ProcessTweaks_CollectTweaks() {
-	this.allTweaks = newTMap_(tc_string, tc_p_ProcessTweaks_TweakInfo)
+	initTMap_(&this.allTweaks, tc_string, tc_p_ProcessTweaks_TweakInfo)
 }
 
 func (this *ProcessTweaks_CollectTweaks) init_ProcessTweaks_CollectTweaks() {

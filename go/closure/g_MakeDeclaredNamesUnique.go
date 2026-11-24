@@ -296,7 +296,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter) createUndeclaredVa
 type MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo struct {
 	outer_                   *MakeDeclaredNamesUnique_ContextualRenameInverter
 	referenceNodes           *[]Node
-	potentialShadowVariables *TSet[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo]
+	potentialShadowVariables TSet[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo]
 	currentName              string
 	preferredName            string
 }
@@ -308,7 +308,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo) zero_
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo) finit_MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo() {
 	this.referenceNodes = &[]Node{}
-	this.potentialShadowVariables = newTSet_(tch_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo)
+	initTSet_(&this.potentialShadowVariables, tch_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo)
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo) init_MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo(currentName string, preferredName string) {
@@ -413,11 +413,11 @@ type MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext struct {
 	parent                *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext
 	scope_                *Scope
 	declaredVariableInfos *TList[*MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo]
-	referencedVariables   *TSet[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo]
+	referencedVariables   TSet[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo]
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext) finit_MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext() {
-	this.referencedVariables = newTSet_(tch_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo)
+	initTSet_(&this.referencedVariables, tch_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo)
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext) init_MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext(scope *Scope, declaredVariableInfos *TList[*MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo], parent *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext) {

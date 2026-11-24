@@ -4,13 +4,13 @@ package closure
 
 type ColorGraphNode struct {
 	color_          *Color
-	associatedProps *TMap[*PropertyClustering, ColorGraphNode_PropAssociation]
+	associatedProps TMap[*PropertyClustering, ColorGraphNode_PropAssociation]
 	subtypeIndices  *BitSet
 	index_          int32
 }
 
 func (this *ColorGraphNode) finit_ColorGraphNode() {
-	this.associatedProps = newTMap_(tc_p_PropertyClustering, tc_p_ColorGraphNode_PropAssociation)
+	initTMap_(&this.associatedProps, tc_p_PropertyClustering, tc_p_ColorGraphNode_PropAssociation)
 	this.subtypeIndices = new_BitSet()
 }
 
@@ -62,7 +62,7 @@ func (this *ColorGraphNode) getIndex() int32 {
 }
 
 func (this *ColorGraphNode) getAssociatedProps() *TMap[*PropertyClustering, ColorGraphNode_PropAssociation] {
-	return this.associatedProps
+	return &this.associatedProps
 }
 
 func (this *ColorGraphNode) getSubtypeIndices() *BitSet {
