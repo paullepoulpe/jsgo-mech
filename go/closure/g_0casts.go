@@ -2,20 +2,6 @@
 
 package closure
 
-func icast_AnalyzePrototypeProperties_Property(v any) AnalyzePrototypeProperties_Property {
-	if v == nil {
-		return nil
-	}
-	return v.(AnalyzePrototypeProperties_Property)
-}
-
-func icast_AnalyzePrototypeProperties_PrototypeProperty(v any) AnalyzePrototypeProperties_PrototypeProperty {
-	if v == nil {
-		return nil
-	}
-	return v.(AnalyzePrototypeProperties_PrototypeProperty)
-}
-
 func icast_AnalyzePrototypeProperties_Symbol(v any) AnalyzePrototypeProperties_Symbol {
 	if v == nil {
 		return nil
@@ -205,13 +191,6 @@ func icast_ListenableFuture(v any) ListenableFuture {
 	return v.(ListenableFuture)
 }
 
-func icast_LogsGson_Able(v any) LogsGson_Able {
-	if v == nil {
-		return nil
-	}
-	return v.(LogsGson_Able)
-}
-
 func icast_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo(v any) MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo {
 	if v == nil {
 		return nil
@@ -252,13 +231,6 @@ func icast_NodeTraversal_Callback(v any) NodeTraversal_Callback {
 		return nil
 	}
 	return v.(NodeTraversal_Callback)
-}
-
-func icast_NodeTraversal_ScopedCallback(v any) NodeTraversal_ScopedCallback {
-	if v == nil {
-		return nil
-	}
-	return v.(NodeTraversal_ScopedCallback)
 }
 
 func icast_OptimizeCalls_CallGraphCompilerPass(v any) OptimizeCalls_CallGraphCompilerPass {
@@ -371,13 +343,6 @@ func icast_StaticSourceFile(v any) StaticSourceFile {
 		return nil
 	}
 	return v.(StaticSourceFile)
-}
-
-func icast_StaticTypedScope(v any) StaticTypedScope {
-	if v == nil {
-		return nil
-	}
-	return v.(StaticTypedScope)
 }
 
 func icast_StaticTypedSlot(v any) StaticTypedSlot {
