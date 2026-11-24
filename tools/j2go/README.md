@@ -454,6 +454,17 @@ type Map_EntryT[K any, V any] interface { Map_Entry; getKey_t() K; getValue_t() 
     `Collection` of the interface it extends (`LibFns.RECV_AT`): a typed deque or list enters as
     its view (`d.asCollT()`, was `SequencedCollection(Deque_un_(d.asDequeT()))`), a `DequeT` /
     `ListT` as it is; the result needs no cast.
+  - Piece `objarg` (`LibObj`, rule candidate T3 of docs/javaisms6): `Map.get` / `containsKey` /
+    `remove(Object)`, `Collection.contains` / `remove(Object)`, `List.indexOf` / `lastIndexOf`
+    on a typed receiver, with an argument whose static Java type is the key or element type (or
+    a subtype) and whose Go form is a value of that type (no field or result of a type
+    variable's type, which Go has as `any`), are typed twins (`Map_getK_[K, V](m, k)`,
+    `rt_lgobj.go`) that take the argument unboxed: the typed lookup where the object is the view
+    of a typed collection (`get_k` ...), else the erased method with `boxT_(k)`; a null argument
+    always takes the erased method. An argument of a wider type (Object, a supertype, another
+    interface), a key type that is `any` in Go or a wildcard, a String that the String-key
+    helpers serve, a result that enters an Object keep the erased call (`J2GO_LIBGEN=2`:
+    "Object-parameter methods", by reason).
   - Kind `guava` (a kind of `LibGen.KINDS`): `PeekingIterator<X>` is `PeekingIteratorT[X]`
     (typed `next` and `peek`), `LoadingCache<K, V>` is `LoadingCacheT[K, V]` (typed `get` and
     `getUnchecked`). The runtime makes both erased (`Iterators.peekingIterator`,
@@ -509,7 +520,7 @@ Refused (`typed library interfaces: refused: File.java:line: ...`, nothing is wr
 `tools/j2go/selftest/refused/RefusedLib.java` has one use of each kind (15); the self-test
 fails unless the translator refuses exactly those and writes nothing.
 
-Each kind and piece is a switch: `J2GO_NOLIBGEN=iter,coll,list,set,map,makers,views,place,cov,elems,wide,nncoll,readers,cls,meth,fns,sorted,enumset,cmaps,deque,guava,goptional,seqcoll`
+Each kind and piece is a switch: `J2GO_NOLIBGEN=iter,coll,list,set,map,makers,views,place,cov,elems,wide,nncoll,readers,cls,meth,fns,sorted,enumset,cmaps,deque,guava,goptional,seqcoll,objarg`
 (`all`: every one). A translation with any of them off is built with `-tags j2go_nolibgen`
 (`tools/prune/verify.sh` and the self-test do that when `J2GO_NOLIBGEN` is set): the erased
 factories that only such a translation names are in `go/closure/rt_lg_erased.go`, outside the

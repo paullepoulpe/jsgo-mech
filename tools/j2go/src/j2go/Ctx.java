@@ -235,6 +235,9 @@ final class Ctx {
   /** Rule "typed library interfaces", piece `fns`: the typed twins of library functions. */
   final LibFns lf = new LibFns(this);
 
+  /** Rule "typed library interfaces", piece `objarg`: the typed twins of the collection methods that take an Object. */
+  final LibObj lo = new LibObj(this);
+
   boolean isValueLib(TypeElement te) {
     return te != null && valueLibs.contains(te);
   }

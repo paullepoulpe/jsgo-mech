@@ -10,7 +10,7 @@ t=.cache/j2go-selftest
 rm -rf "$t" && mkdir -p "$t/java" "$t/go/closure" "$t/go/cmd/t"
 # lang/Imm.java uses Guava (typed immutable collections).
 javac -nowarn -cp .cache/build/stock-libs.jar -d "$t/java" tools/j2go/selftest/lang/*.java
-for c in Lang Lang2 Handles Generics Generics2 Generics3 Colls Imm Unboxed Covariant CovariantIface Layout FnTypes LibGen LibFns GOpt; do env -u JAVA_TOOL_OPTIONS java -Dstdout.encoding=UTF-8 -cp "$t/java:.cache/build/stock-libs.jar" lang.$c; done >"$t/expected.txt"
+for c in Lang Lang2 Handles Generics Generics2 Generics3 Colls Imm Unboxed Covariant CovariantIface Layout FnTypes LibGen LibFns GOpt LibObj; do env -u JAVA_TOOL_OPTIONS java -Dstdout.encoding=UTF-8 -cp "$t/java:.cache/build/stock-libs.jar" lang.$c; done >"$t/expected.txt"
 # The test class is translated together with the whole tree, so that the runtime it needs is all there.
 cp go/go.mod "$t/go/" && cp go/closure/rt_*.go tools/j2go/selftest/rt_*.go "$t/go/closure/" && rm -f "$t"/go/closure/*_test.go
 [[ -d go/closure/resources ]] && cp -r go/closure/resources "$t/go/closure/"
@@ -43,7 +43,7 @@ import (
 	"unsafe"
 )
 
-func SelfTest() string { return Lang_run() + Lang2_run() + Handles_run() + Generics_run() + Generics2_run() + Generics3_run() + Colls_run() + Imm_run() + Unboxed_run() + Covariant_run() + CovariantIface_run() + Layout_run() + FnTypes_run() + LibGen_run() + LibFns_run() + GOpt_run() }
+func SelfTest() string { return Lang_run() + Lang2_run() + Handles_run() + Generics_run() + Generics2_run() + Generics3_run() + Colls_run() + Imm_run() + Unboxed_run() + Covariant_run() + CovariantIface_run() + Layout_run() + FnTypes_run() + LibGen_run() + LibFns_run() + GOpt_run() + LibObj_run() }
 
 // SelfTestSizes: the sizes of the structs of lang/Layout.java.
 func SelfTestSizes() string {
@@ -74,6 +74,19 @@ if [[ -z ${J2GO_NOLIBGEN:-} && ${J2GO_NOFNTYPES:-} != 1 ]]; then
   nx=$(awk '/^func LibFns_erased\(/,/^}/' "$g" | { grep -oE "$twin" || true; } | wc -l)
   ne=$(awk '/^func LibFns_erased\(/,/^}/' "$g" | { grep -oE "$erased" || true; } | wc -l)
   if [[ $nt != 39 || $nx != 0 || $ne != 4 ]]; then echo "selftest: FAIL (typed library functions: $nt twins in typed(), $nx and $ne erased calls in erased())"; exit 1; fi
+fi
+if [[ -z ${J2GO_NOLIBGEN:-} ]]; then
+  # Rule "typed library interfaces", piece `objarg` (lang/LibObj.java): typed() and the methods it calls have the typed twins
+  # of the collection methods that take an Object (50 calls), erased() and wide() / wild() / obj() none (an Object, a supertype,
+  # another interface, Object keys, a wildcard, a result that enters an Object, a field of a type variable's type: 13 erased calls).
+  twin='\b(Map_getK_|Map_containsKeyK_|Map_removeK_|Collection_containsE_|Collection_removeE_|List_indexOfE_|List_lastIndexOfE_)\['
+  erased='\.(get_t|get|containsKey|contains|remove_Object|indexOf|lastIndexOf)\('
+  g="$t/go/closure/g_LibObj.go"
+  fns() { awk -v re="$1" '$0 ~ "^func (\\(this \\*)?LibObj_(" re ")[[(]" {f=1} f {print} f && /^}/ {f=0}' "$g"; }
+  nt=$(fns 'maps|change|keys|colls|lists|sets|strs|Reg.T.. look|typed' | { grep -oE "$twin" || true; } | wc -l)
+  nx=$(fns 'wide|erased|wild|obj' | { grep -oE "$twin" || true; } | wc -l)
+  ne=$(fns 'wide|erased|wild|obj' | { grep -oE "$erased" || true; } | wc -l)
+  if [[ $nt != 50 || $nx != 0 || $ne != 13 ]]; then echo "selftest: FAIL (Object-parameter methods: $nt twins in typed(), $nx and $ne erased calls in erased())"; exit 1; fi
 fi
 if [[ ${J2GO_NOFNTYPES:-} != 1 ]]; then
   # Rule "function types": the translator must refuse every use in refused/Refused.java (14) and write nothing.

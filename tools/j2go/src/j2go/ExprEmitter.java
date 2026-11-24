@@ -1806,8 +1806,12 @@ abstract class ExprEmitter extends Base {
 
   CallResult special(ExecutableElement e, Recv recv, List<Arg> as) {
     // rule "typed library interfaces", piece `fns`: the typed twin of a library function (LibFns)
+    boolean toObject = lfErased;
     CallResult lf = cx.lf.call(this, e, recv, as);
     if (lf != null) return lf;
+    // piece `objarg`: the typed twin of a collection method that takes an Object (LibObj)
+    CallResult lo = cx.lo.call(this, e, recv, as, toObject);
+    if (lo != null) return lo;
     as = lgReaders(e, as);
     TypeElement owner = cx.ownerOf(e);
     String qn = owner.getQualifiedName() + "#" + e.getSimpleName();
