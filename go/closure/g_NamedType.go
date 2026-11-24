@@ -206,7 +206,7 @@ func (this *NamedType) resolveInternal_impl(reporter ErrorReporter_rhino) *JSTyp
 		}
 		var numKeys int32 = result.getTemplateParamCount()
 		if numKeys < resolvedTypeArgs.size() {
-			resolvedTypeArgs = jtlistImm_(jtc_p_JSType, cast_[*ImmutableList](resolvedTypeArgs.asImm().subList(0, numKeys)))
+			resolvedTypeArgs = jtlistImm_(jtc_p_JSType, cast_[*ErasedImmutableList](resolvedTypeArgs.asImm().subList(0, numKeys)))
 		}
 		result = this.registry.createTemplatizedTypeImmutableList(resultAsObject, resolvedTypeArgs).up_JSType()
 		this.setReferencedType(result.resolve(reporter))

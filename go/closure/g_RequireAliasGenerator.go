@@ -8,7 +8,7 @@ type RequireAliasGenerator struct {
 }
 
 func (this *RequireAliasGenerator) init_RequireAliasGenerator(namespace string) {
-	this.parts = jtlistImm_(jtc_string, lgBox_(listAs_(jtc_string, ImmutableList_as_List(ImmutableList_copyOf_Iterable(RequireAliasGenerator_DOT_SPLITTER.split_s(namespace))))).(*ImmutableList).reverse())
+	this.parts = jtlistImm_(jtc_string, lgBox_(listAs_(jtc_string, ImmutableList_as_List(ImmutableList_copyOf_Iterable(RequireAliasGenerator_DOT_SPLITTER.split_s(namespace))))).(*ErasedImmutableList).reverse())
 	this.capitalize = Ascii_isUpperCase(String_charAt(this.parts.get(0), 0))
 }
 

@@ -610,7 +610,7 @@ func (this *JSType) getTemplateTypeMap_impl() *TemplateTypeMap {
 
 func (this *JSType) getTypeParameters() *JTList[*TemplateType] {
 	var map_ *TemplateTypeMap = this.getTemplateTypeMap()
-	return jtlistImm_(jtc_p_TemplateType, cast_[*ImmutableList](map_.getTemplateKeys().asImm().subList((map_.size()-this.getTemplateParamCount()), map_.size())))
+	return jtlistImm_(jtc_p_TemplateType, cast_[*ErasedImmutableList](map_.getTemplateKeys().asImm().subList((map_.size()-this.getTemplateParamCount()), map_.size())))
 }
 
 func (this *JSType) getTemplateParamCount_impl() int32 {
