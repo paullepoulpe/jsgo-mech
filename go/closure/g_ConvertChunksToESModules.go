@@ -229,7 +229,7 @@ func (this *ConvertChunksToESModules) visitCallAndTraverse(t *NodeTraversal, cal
 	return false
 }
 
-func (this *ConvertChunksToESModules) visitName(t *NodeTraversal, nameNode Node, importType *ConvertChunksToESModules_ImportType) bool {
+func (this *ConvertChunksToESModules) visitName(t *NodeTraversal, nameNode Node, importType ConvertChunksToESModules_ImportType) bool {
 	Preconditions_checkState(nameNode.isName())
 	var name string = nameNode.getString()
 	if String_isEmpty(name) {
@@ -286,44 +286,61 @@ func ConvertChunksToESModules_clinit() {
 
 }
 
-type ConvertChunksToESModules_ImportType struct {
-	Enum
+type ConvertChunksToESModules_ImportType uint8
+
+// ConvertChunksToESModules_ImportType_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var ConvertChunksToESModules_ImportType_enum_ = [2]Enum{
+	{self_: ConvertChunksToESModules_ImportType_STATIC, name_: "STATIC", ordinal_: 0},
+	{self_: ConvertChunksToESModules_ImportType_DYNAMIC, name_: "DYNAMIC", ordinal_: 1},
 }
 
-func (this *ConvertChunksToESModules_ImportType) up_Enum() *Enum {
-	if this == nil {
+func (this ConvertChunksToESModules_ImportType) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &ConvertChunksToESModules_ImportType_enum_[this-1]
 }
 
-func (this *ConvertChunksToESModules_ImportType) init_ConvertChunksToESModules_ImportType(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this ConvertChunksToESModules_ImportType) name() string {
+	return ConvertChunksToESModules_ImportType_enum_[this-1].name_
 }
 
-func new_ConvertChunksToESModules_ImportType(name_ string, ordinal_ int32) *ConvertChunksToESModules_ImportType {
-	this := &ConvertChunksToESModules_ImportType{}
-	this.self_ = this
-	this.init_ConvertChunksToESModules_ImportType(name_, ordinal_)
+func (this ConvertChunksToESModules_ImportType) ordinal() int32 {
+	return ConvertChunksToESModules_ImportType_enum_[this-1].ordinal_
+}
+
+func (this ConvertChunksToESModules_ImportType) toString() string {
+	return ConvertChunksToESModules_ImportType_enum_[this-1].name_
+}
+
+func (this ConvertChunksToESModules_ImportType) compareTo(o any) int32 {
+	return ConvertChunksToESModules_ImportType_enum_[this-1].compareTo(o)
+}
+
+func (this ConvertChunksToESModules_ImportType) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func ConvertChunksToESModules_ImportType_values() []*ConvertChunksToESModules_ImportType {
-	return append([]*ConvertChunksToESModules_ImportType(nil), ConvertChunksToESModules_ImportType_values_...)
+func ConvertChunksToESModules_ImportType_values() []ConvertChunksToESModules_ImportType {
+	return append([]ConvertChunksToESModules_ImportType(nil), ConvertChunksToESModules_ImportType_values_...)
 }
 
-func ConvertChunksToESModules_ImportType_valueOf(name string) *ConvertChunksToESModules_ImportType {
+func ConvertChunksToESModules_ImportType_valueOf(name string) ConvertChunksToESModules_ImportType {
 	for _, v := range ConvertChunksToESModules_ImportType_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("ImportType", name))
 }
 
-var ConvertChunksToESModules_ImportType_STATIC *ConvertChunksToESModules_ImportType
-var ConvertChunksToESModules_ImportType_DYNAMIC *ConvertChunksToESModules_ImportType
-var ConvertChunksToESModules_ImportType_values_ []*ConvertChunksToESModules_ImportType
+const ConvertChunksToESModules_ImportType_STATIC ConvertChunksToESModules_ImportType = 1
+const ConvertChunksToESModules_ImportType_DYNAMIC ConvertChunksToESModules_ImportType = 2
+
+var ConvertChunksToESModules_ImportType_values_ []ConvertChunksToESModules_ImportType
 
 var ConvertChunksToESModules_ImportType_clinit_done bool
 
@@ -332,9 +349,7 @@ func ConvertChunksToESModules_ImportType_clinit() {
 		return
 	}
 	ConvertChunksToESModules_ImportType_clinit_done = true
-	ConvertChunksToESModules_ImportType_STATIC = new_ConvertChunksToESModules_ImportType("STATIC", 0)
-	ConvertChunksToESModules_ImportType_DYNAMIC = new_ConvertChunksToESModules_ImportType("DYNAMIC", 1)
-	ConvertChunksToESModules_ImportType_values_ = []*ConvertChunksToESModules_ImportType{ConvertChunksToESModules_ImportType_STATIC, ConvertChunksToESModules_ImportType_DYNAMIC}
+	ConvertChunksToESModules_ImportType_values_ = []ConvertChunksToESModules_ImportType{ConvertChunksToESModules_ImportType_STATIC, ConvertChunksToESModules_ImportType_DYNAMIC}
 	registerEnum_("com.google.javascript.jscomp.ConvertChunksToESModules.ImportType", enumValues_(ConvertChunksToESModules_ImportType_values_))
 
 }

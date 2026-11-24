@@ -6,7 +6,7 @@ type JSTypeResolver struct {
 	registry        *JSTypeRegistry
 	captureStack    *TDeque[*JSType]
 	resolutionQueue *TDeque[*JSType]
-	state           *JSTypeResolver_State
+	state           JSTypeResolver_State
 }
 
 func (this *JSTypeResolver) finit_JSTypeResolver() {
@@ -38,7 +38,7 @@ func (this *JSTypeResolver) addUnresolved(captured *JSType) {
 	this.captureStack.add(captured)
 }
 
-func (this *JSTypeResolver) resolveIfClosed(captured *JSType, caller *JSTypeClass) {
+func (this *JSTypeResolver) resolveIfClosed(captured *JSType, caller JSTypeClass) {
 	if !caller.isTypeOf(captured) {
 		return
 	}
@@ -116,45 +116,57 @@ func (this *JSTypeResolver_Closer) close() {
 	this.outer_.resolveAll()
 }
 
-type JSTypeResolver_State struct {
-	Enum
+type JSTypeResolver_State uint8
+
+// JSTypeResolver_State_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var JSTypeResolver_State_enum_ = [3]Enum{
+	{self_: JSTypeResolver_State_CLOSED, name_: "CLOSED", ordinal_: 0},
+	{self_: JSTypeResolver_State_OPEN, name_: "OPEN", ordinal_: 1},
+	{self_: JSTypeResolver_State_CLOSING, name_: "CLOSING", ordinal_: 2},
 }
 
-func (this *JSTypeResolver_State) up_Enum() *Enum {
-	if this == nil {
+func (this JSTypeResolver_State) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &JSTypeResolver_State_enum_[this-1]
 }
 
-func (this *JSTypeResolver_State) init_JSTypeResolver_State(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this JSTypeResolver_State) name() string { return JSTypeResolver_State_enum_[this-1].name_ }
+
+func (this JSTypeResolver_State) ordinal() int32 { return JSTypeResolver_State_enum_[this-1].ordinal_ }
+
+func (this JSTypeResolver_State) toString() string { return JSTypeResolver_State_enum_[this-1].name_ }
+
+func (this JSTypeResolver_State) compareTo(o any) int32 {
+	return JSTypeResolver_State_enum_[this-1].compareTo(o)
 }
 
-func new_JSTypeResolver_State(name_ string, ordinal_ int32) *JSTypeResolver_State {
-	this := &JSTypeResolver_State{}
-	this.self_ = this
-	this.init_JSTypeResolver_State(name_, ordinal_)
+func (this JSTypeResolver_State) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func JSTypeResolver_State_values() []*JSTypeResolver_State {
-	return append([]*JSTypeResolver_State(nil), JSTypeResolver_State_values_...)
+func JSTypeResolver_State_values() []JSTypeResolver_State {
+	return append([]JSTypeResolver_State(nil), JSTypeResolver_State_values_...)
 }
 
-func JSTypeResolver_State_valueOf(name string) *JSTypeResolver_State {
+func JSTypeResolver_State_valueOf(name string) JSTypeResolver_State {
 	for _, v := range JSTypeResolver_State_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("State", name))
 }
 
-var JSTypeResolver_State_CLOSED *JSTypeResolver_State
-var JSTypeResolver_State_OPEN *JSTypeResolver_State
-var JSTypeResolver_State_CLOSING *JSTypeResolver_State
-var JSTypeResolver_State_values_ []*JSTypeResolver_State
+const JSTypeResolver_State_CLOSED JSTypeResolver_State = 1
+const JSTypeResolver_State_OPEN JSTypeResolver_State = 2
+const JSTypeResolver_State_CLOSING JSTypeResolver_State = 3
+
+var JSTypeResolver_State_values_ []JSTypeResolver_State
 
 var JSTypeResolver_State_clinit_done bool
 
@@ -163,10 +175,7 @@ func JSTypeResolver_State_clinit() {
 		return
 	}
 	JSTypeResolver_State_clinit_done = true
-	JSTypeResolver_State_CLOSED = new_JSTypeResolver_State("CLOSED", 0)
-	JSTypeResolver_State_OPEN = new_JSTypeResolver_State("OPEN", 1)
-	JSTypeResolver_State_CLOSING = new_JSTypeResolver_State("CLOSING", 2)
-	JSTypeResolver_State_values_ = []*JSTypeResolver_State{JSTypeResolver_State_CLOSED, JSTypeResolver_State_OPEN, JSTypeResolver_State_CLOSING}
+	JSTypeResolver_State_values_ = []JSTypeResolver_State{JSTypeResolver_State_CLOSED, JSTypeResolver_State_OPEN, JSTypeResolver_State_CLOSING}
 	registerEnum_("com.google.javascript.rhino.jstype.JSTypeResolver.State", enumValues_(JSTypeResolver_State_values_))
 
 }

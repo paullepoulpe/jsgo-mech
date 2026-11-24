@@ -84,11 +84,11 @@ func (this *AbstractCompiler) afterPass(p0 string) {
 	this.self_.(*Compiler).afterPass_impl(p0)
 }
 
-func (this *AbstractCompiler) getLifeCycleStage() *AbstractCompiler_LifeCycleStage {
+func (this *AbstractCompiler) getLifeCycleStage() AbstractCompiler_LifeCycleStage {
 	return this.self_.(*Compiler).getLifeCycleStage_impl()
 }
 
-func (this *AbstractCompiler) setLifeCycleStage(p0 *AbstractCompiler_LifeCycleStage) {
+func (this *AbstractCompiler) setLifeCycleStage(p0 AbstractCompiler_LifeCycleStage) {
 	this.self_.(*Compiler).setLifeCycleStage_impl(p0)
 }
 
@@ -144,7 +144,7 @@ func (this *AbstractCompiler) setAllowableFeatures(p0 *FeatureSet) {
 	this.self_.(*Compiler).setAllowableFeatures_impl(p0)
 }
 
-func (this *AbstractCompiler) markFeatureNotAllowed(p0 *FeatureSet_Feature) {
+func (this *AbstractCompiler) markFeatureNotAllowed(p0 FeatureSet_Feature) {
 	this.self_.(*Compiler).markFeatureNotAllowed_impl(p0)
 }
 
@@ -308,7 +308,7 @@ func (this *AbstractCompiler) getCodingConvention() CodingConvention {
 	return this.self_.(*Compiler).getCodingConvention_impl()
 }
 
-func (this *AbstractCompiler) getParserConfig(p0 *AbstractCompiler_ConfigContext) *Config {
+func (this *AbstractCompiler) getParserConfig(p0 AbstractCompiler_ConfigContext) *Config {
 	return this.self_.(*Compiler).getParserConfig_impl(p0)
 }
 
@@ -316,7 +316,7 @@ func (this *AbstractCompiler) report(p0 *JSError) {
 	this.self_.(*Compiler).report_impl(p0)
 }
 
-func (this *AbstractCompiler) getErrorLevel(p0 *JSError) *CheckLevel {
+func (this *AbstractCompiler) getErrorLevel(p0 *JSError) CheckLevel {
 	return this.self_.(*Compiler).getErrorLevel_impl(p0)
 }
 
@@ -500,7 +500,7 @@ func (this *AbstractCompiler) getModuleLoader() *ModuleLoader {
 	return this.self_.(*Compiler).getModuleLoader_impl()
 }
 
-func (this *AbstractCompiler) getModuleTypeByName(p0 Optional[string]) *CompilerInput_ModuleType {
+func (this *AbstractCompiler) getModuleTypeByName(p0 Optional[string]) CompilerInput_ModuleType {
 	return this.self_.(*Compiler).getModuleTypeByName_impl(p0)
 }
 
@@ -540,44 +540,61 @@ func AbstractCompiler_clinit() {
 
 }
 
-type AbstractCompiler_ConfigContext struct {
-	Enum
+type AbstractCompiler_ConfigContext uint8
+
+// AbstractCompiler_ConfigContext_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var AbstractCompiler_ConfigContext_enum_ = [2]Enum{
+	{self_: AbstractCompiler_ConfigContext_DEFAULT, name_: "DEFAULT", ordinal_: 0},
+	{self_: AbstractCompiler_ConfigContext_EXTERNS, name_: "EXTERNS", ordinal_: 1},
 }
 
-func (this *AbstractCompiler_ConfigContext) up_Enum() *Enum {
-	if this == nil {
+func (this AbstractCompiler_ConfigContext) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &AbstractCompiler_ConfigContext_enum_[this-1]
 }
 
-func (this *AbstractCompiler_ConfigContext) init_AbstractCompiler_ConfigContext(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this AbstractCompiler_ConfigContext) name() string {
+	return AbstractCompiler_ConfigContext_enum_[this-1].name_
 }
 
-func new_AbstractCompiler_ConfigContext(name_ string, ordinal_ int32) *AbstractCompiler_ConfigContext {
-	this := &AbstractCompiler_ConfigContext{}
-	this.self_ = this
-	this.init_AbstractCompiler_ConfigContext(name_, ordinal_)
+func (this AbstractCompiler_ConfigContext) ordinal() int32 {
+	return AbstractCompiler_ConfigContext_enum_[this-1].ordinal_
+}
+
+func (this AbstractCompiler_ConfigContext) toString() string {
+	return AbstractCompiler_ConfigContext_enum_[this-1].name_
+}
+
+func (this AbstractCompiler_ConfigContext) compareTo(o any) int32 {
+	return AbstractCompiler_ConfigContext_enum_[this-1].compareTo(o)
+}
+
+func (this AbstractCompiler_ConfigContext) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func AbstractCompiler_ConfigContext_values() []*AbstractCompiler_ConfigContext {
-	return append([]*AbstractCompiler_ConfigContext(nil), AbstractCompiler_ConfigContext_values_...)
+func AbstractCompiler_ConfigContext_values() []AbstractCompiler_ConfigContext {
+	return append([]AbstractCompiler_ConfigContext(nil), AbstractCompiler_ConfigContext_values_...)
 }
 
-func AbstractCompiler_ConfigContext_valueOf(name string) *AbstractCompiler_ConfigContext {
+func AbstractCompiler_ConfigContext_valueOf(name string) AbstractCompiler_ConfigContext {
 	for _, v := range AbstractCompiler_ConfigContext_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("ConfigContext", name))
 }
 
-var AbstractCompiler_ConfigContext_DEFAULT *AbstractCompiler_ConfigContext
-var AbstractCompiler_ConfigContext_EXTERNS *AbstractCompiler_ConfigContext
-var AbstractCompiler_ConfigContext_values_ []*AbstractCompiler_ConfigContext
+const AbstractCompiler_ConfigContext_DEFAULT AbstractCompiler_ConfigContext = 1
+const AbstractCompiler_ConfigContext_EXTERNS AbstractCompiler_ConfigContext = 2
+
+var AbstractCompiler_ConfigContext_values_ []AbstractCompiler_ConfigContext
 
 var AbstractCompiler_ConfigContext_clinit_done bool
 
@@ -586,69 +603,86 @@ func AbstractCompiler_ConfigContext_clinit() {
 		return
 	}
 	AbstractCompiler_ConfigContext_clinit_done = true
-	AbstractCompiler_ConfigContext_DEFAULT = new_AbstractCompiler_ConfigContext("DEFAULT", 0)
-	AbstractCompiler_ConfigContext_EXTERNS = new_AbstractCompiler_ConfigContext("EXTERNS", 1)
-	AbstractCompiler_ConfigContext_values_ = []*AbstractCompiler_ConfigContext{AbstractCompiler_ConfigContext_DEFAULT, AbstractCompiler_ConfigContext_EXTERNS}
+	AbstractCompiler_ConfigContext_values_ = []AbstractCompiler_ConfigContext{AbstractCompiler_ConfigContext_DEFAULT, AbstractCompiler_ConfigContext_EXTERNS}
 	registerEnum_("com.google.javascript.jscomp.AbstractCompiler.ConfigContext", enumValues_(AbstractCompiler_ConfigContext_values_))
 
 }
 
-type AbstractCompiler_LifeCycleStage struct {
-	Enum
+type AbstractCompiler_LifeCycleStage uint8
+
+// AbstractCompiler_LifeCycleStage_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var AbstractCompiler_LifeCycleStage_enum_ = [4]Enum{
+	{self_: AbstractCompiler_LifeCycleStage_RAW, name_: "RAW", ordinal_: 0},
+	{self_: AbstractCompiler_LifeCycleStage_COLORS_AND_SIMPLIFIED_JSDOC, name_: "COLORS_AND_SIMPLIFIED_JSDOC", ordinal_: 1},
+	{self_: AbstractCompiler_LifeCycleStage_NORMALIZED, name_: "NORMALIZED", ordinal_: 2},
+	{self_: AbstractCompiler_LifeCycleStage_NORMALIZED_OBFUSCATED, name_: "NORMALIZED_OBFUSCATED", ordinal_: 3},
 }
 
-func (this *AbstractCompiler_LifeCycleStage) up_Enum() *Enum {
-	if this == nil {
+func (this AbstractCompiler_LifeCycleStage) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &AbstractCompiler_LifeCycleStage_enum_[this-1]
 }
 
-func (this *AbstractCompiler_LifeCycleStage) init_AbstractCompiler_LifeCycleStage(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this AbstractCompiler_LifeCycleStage) name() string {
+	return AbstractCompiler_LifeCycleStage_enum_[this-1].name_
 }
 
-func new_AbstractCompiler_LifeCycleStage(name_ string, ordinal_ int32) *AbstractCompiler_LifeCycleStage {
-	this := &AbstractCompiler_LifeCycleStage{}
-	this.self_ = this
-	this.init_AbstractCompiler_LifeCycleStage(name_, ordinal_)
+func (this AbstractCompiler_LifeCycleStage) ordinal() int32 {
+	return AbstractCompiler_LifeCycleStage_enum_[this-1].ordinal_
+}
+
+func (this AbstractCompiler_LifeCycleStage) toString() string {
+	return AbstractCompiler_LifeCycleStage_enum_[this-1].name_
+}
+
+func (this AbstractCompiler_LifeCycleStage) compareTo(o any) int32 {
+	return AbstractCompiler_LifeCycleStage_enum_[this-1].compareTo(o)
+}
+
+func (this AbstractCompiler_LifeCycleStage) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func (this *AbstractCompiler_LifeCycleStage) isNormalized() bool {
+func (this AbstractCompiler_LifeCycleStage) isNormalized() bool {
 	return ((this == AbstractCompiler_LifeCycleStage_NORMALIZED) || (this == AbstractCompiler_LifeCycleStage_NORMALIZED_OBFUSCATED))
 }
 
-func (this *AbstractCompiler_LifeCycleStage) isNormalizedUnobfuscated() bool {
+func (this AbstractCompiler_LifeCycleStage) isNormalizedUnobfuscated() bool {
 	return (this == AbstractCompiler_LifeCycleStage_NORMALIZED)
 }
 
-func (this *AbstractCompiler_LifeCycleStage) isNormalizedObfuscated() bool {
+func (this AbstractCompiler_LifeCycleStage) isNormalizedObfuscated() bool {
 	return (this == AbstractCompiler_LifeCycleStage_NORMALIZED_OBFUSCATED)
 }
 
-func (this *AbstractCompiler_LifeCycleStage) hasColorAndSimplifiedJSDoc() bool {
+func (this AbstractCompiler_LifeCycleStage) hasColorAndSimplifiedJSDoc() bool {
 	return (this != AbstractCompiler_LifeCycleStage_RAW)
 }
 
-func AbstractCompiler_LifeCycleStage_values() []*AbstractCompiler_LifeCycleStage {
-	return append([]*AbstractCompiler_LifeCycleStage(nil), AbstractCompiler_LifeCycleStage_values_...)
+func AbstractCompiler_LifeCycleStage_values() []AbstractCompiler_LifeCycleStage {
+	return append([]AbstractCompiler_LifeCycleStage(nil), AbstractCompiler_LifeCycleStage_values_...)
 }
 
-func AbstractCompiler_LifeCycleStage_valueOf(name string) *AbstractCompiler_LifeCycleStage {
+func AbstractCompiler_LifeCycleStage_valueOf(name string) AbstractCompiler_LifeCycleStage {
 	for _, v := range AbstractCompiler_LifeCycleStage_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("LifeCycleStage", name))
 }
 
-var AbstractCompiler_LifeCycleStage_RAW *AbstractCompiler_LifeCycleStage
-var AbstractCompiler_LifeCycleStage_COLORS_AND_SIMPLIFIED_JSDOC *AbstractCompiler_LifeCycleStage
-var AbstractCompiler_LifeCycleStage_NORMALIZED *AbstractCompiler_LifeCycleStage
-var AbstractCompiler_LifeCycleStage_NORMALIZED_OBFUSCATED *AbstractCompiler_LifeCycleStage
-var AbstractCompiler_LifeCycleStage_values_ []*AbstractCompiler_LifeCycleStage
+const AbstractCompiler_LifeCycleStage_RAW AbstractCompiler_LifeCycleStage = 1
+const AbstractCompiler_LifeCycleStage_COLORS_AND_SIMPLIFIED_JSDOC AbstractCompiler_LifeCycleStage = 2
+const AbstractCompiler_LifeCycleStage_NORMALIZED AbstractCompiler_LifeCycleStage = 3
+const AbstractCompiler_LifeCycleStage_NORMALIZED_OBFUSCATED AbstractCompiler_LifeCycleStage = 4
+
+var AbstractCompiler_LifeCycleStage_values_ []AbstractCompiler_LifeCycleStage
 
 var AbstractCompiler_LifeCycleStage_clinit_done bool
 
@@ -657,11 +691,7 @@ func AbstractCompiler_LifeCycleStage_clinit() {
 		return
 	}
 	AbstractCompiler_LifeCycleStage_clinit_done = true
-	AbstractCompiler_LifeCycleStage_RAW = new_AbstractCompiler_LifeCycleStage("RAW", 0)
-	AbstractCompiler_LifeCycleStage_COLORS_AND_SIMPLIFIED_JSDOC = new_AbstractCompiler_LifeCycleStage("COLORS_AND_SIMPLIFIED_JSDOC", 1)
-	AbstractCompiler_LifeCycleStage_NORMALIZED = new_AbstractCompiler_LifeCycleStage("NORMALIZED", 2)
-	AbstractCompiler_LifeCycleStage_NORMALIZED_OBFUSCATED = new_AbstractCompiler_LifeCycleStage("NORMALIZED_OBFUSCATED", 3)
-	AbstractCompiler_LifeCycleStage_values_ = []*AbstractCompiler_LifeCycleStage{AbstractCompiler_LifeCycleStage_RAW, AbstractCompiler_LifeCycleStage_COLORS_AND_SIMPLIFIED_JSDOC, AbstractCompiler_LifeCycleStage_NORMALIZED, AbstractCompiler_LifeCycleStage_NORMALIZED_OBFUSCATED}
+	AbstractCompiler_LifeCycleStage_values_ = []AbstractCompiler_LifeCycleStage{AbstractCompiler_LifeCycleStage_RAW, AbstractCompiler_LifeCycleStage_COLORS_AND_SIMPLIFIED_JSDOC, AbstractCompiler_LifeCycleStage_NORMALIZED, AbstractCompiler_LifeCycleStage_NORMALIZED_OBFUSCATED}
 	registerEnum_("com.google.javascript.jscomp.AbstractCompiler.LifeCycleStage", enumValues_(AbstractCompiler_LifeCycleStage_values_))
 
 }

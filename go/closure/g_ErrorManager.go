@@ -4,7 +4,7 @@ package closure
 
 type ErrorManager interface {
 	ErrorHandler
-	report_2(*CheckLevel, *JSError)
+	report_2(CheckLevel, *JSError)
 	generateReport()
 	getErrorCount() int32
 	getWarningCount() int32

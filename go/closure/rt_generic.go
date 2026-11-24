@@ -23,7 +23,7 @@ func jnull_[T any]() T {
 }
 
 // jisnull_ is `v == null` for a value of a type parameter: the null string, a nil pointer, interface
-// or slice, the zero handle.
+// or slice, the zero handle, the zero of an integer enum.
 func jisnull_[T any](v T) bool {
 	switch p := any(&v).(type) {
 	case *string:
@@ -42,6 +42,12 @@ func jisnull_[T any](v T) bool {
 	switch r := reflect.ValueOf(x); r.Kind() {
 	case reflect.Pointer, reflect.Slice, reflect.Map, reflect.Func:
 		return r.IsNil()
+	case reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Int8, reflect.Int16, reflect.Int32:
+		// an integer enum (post-flip step enums): its zero is null, which its self() gives as nil,
+		// as the box of a null enum object was
+		if s, ok := x.(interface{ self() any }); ok {
+			return s.self() == nil
+		}
 	}
 	return false
 }

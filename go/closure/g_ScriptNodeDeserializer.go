@@ -50,13 +50,13 @@ func (this *ScriptNodeDeserializer) setOriginalNameIfPresent(astNode *AstNode, n
 	}
 }
 
-func (this *ScriptNodeDeserializer) stringNode(token *Token_rhino, n *AstNode, templateNode Node) Node {
+func (this *ScriptNodeDeserializer) stringNode(token Token_rhino, n *AstNode, templateNode Node) Node {
 	var str Node = Node_newString_Token_LazyInternedStringList_int(token, this.stringPool.getInternedStrings(), n.getStringValuePointer())
 	str.clonePropsFrom(templateNode)
 	return str
 }
 
-func (this *ScriptNodeDeserializer) newNodeFromTemplate(token *Token_rhino, templateNode Node) Node {
+func (this *ScriptNodeDeserializer) newNodeFromTemplate(token Token_rhino, templateNode Node) Node {
 	var n Node = templateNode.cloneTree()
 	n.setToken(token)
 	return n
@@ -416,8 +416,8 @@ func (this *ScriptNodeDeserializer_Runner) run() Node {
 		}()
 		var astStream *CodedInputStream = this.owner().scriptBytes.newCodedInput()
 		astStream.setRecursionLimit(int32(2147483647))
-		var contextStack *JTList[*FeatureCollector_FeatureContext] = jnewTList_(jtc_p_FeatureCollector_FeatureContext)
-		SequencedCollection_addLastT_[*FeatureCollector_FeatureContext](contextStack.asCollT(), FeatureCollector_FeatureContext_NONE)
+		var contextStack *JTList[FeatureCollector_FeatureContext] = jnewTList_(jtc_p_FeatureCollector_FeatureContext)
+		SequencedCollection_addLastT_[FeatureCollector_FeatureContext](contextStack.asCollT(), FeatureCollector_FeatureContext_NONE)
 		var scriptNode Node = this.visit(AstNode_parseFrom(astStream, ExtensionRegistry_getEmptyRegistry().up_ExtensionRegistryLite()), contextStack, this.owner().createSourceInfoTemplate(this.owner().sourceFile))
 		scriptNode.setFeatureSet(obj_(this.featureCollector.allFeatures()))
 		ret_1 = scriptNode
@@ -434,7 +434,7 @@ func (this *ScriptNodeDeserializer_Runner) owner() *ScriptNodeDeserializer {
 	return this.outer_
 }
 
-func (this *ScriptNodeDeserializer_Runner) visit(astNode *AstNode, contextStack *JTList[*FeatureCollector_FeatureContext], sourceFileTemplate Node) Node {
+func (this *ScriptNodeDeserializer_Runner) visit(astNode *AstNode, contextStack *JTList[FeatureCollector_FeatureContext], sourceFileTemplate Node) Node {
 	if (sourceFileTemplate == 0) || (astNode.getSourceFile() != 0) {
 		sourceFileTemplate = this.owner().createSourceInfoTemplate(this.owner().filePool.get((astNode.getSourceFile() - 1)))
 	}
@@ -453,7 +453,7 @@ func (this *ScriptNodeDeserializer_Runner) visit(astNode *AstNode, contextStack 
 	this.previousLine = currentLine
 	this.previousColumn = currentColumn
 	if contextStack != nil {
-		SequencedCollection_addLastT_[*FeatureCollector_FeatureContext](contextStack.asCollT(), this.featureCollector.visitSingleNode(contextStack, n))
+		SequencedCollection_addLastT_[FeatureCollector_FeatureContext](contextStack.asCollT(), this.featureCollector.visitSingleNode(contextStack, n))
 	}
 	if Node_hasBitSet(properties, NodeProperty_CLOSURE_UNAWARE_SHADOW.getNumber()) {
 		var serializedShadowChild *AstNode = astNode.getChild(0)
@@ -475,6 +475,6 @@ func (this *ScriptNodeDeserializer_Runner) visit(astNode *AstNode, contextStack 
 		n.addChildToBack(deserializedChild)
 		this.owner().setOriginalNameIfPresent(child, deserializedChild)
 	}
-	SequencedCollection_removeLastT_[*FeatureCollector_FeatureContext](contextStack.asCollT())
+	SequencedCollection_removeLastT_[FeatureCollector_FeatureContext](contextStack.asCollT())
 	return n
 }

@@ -45,7 +45,7 @@ func ConformanceAllowlister_getConformanceErrors(compiler *Compiler, externs Nod
 			compiler.setErrorManager(oldErrorManager)
 		}()
 		compiler.setErrorManager(ErrorManager(new_ConformanceAllowlister_1(errors, oldErrorManager)))
-		var check *CheckConformance = new_CheckConformance_AbstractCompiler_ImmutableList_ConformanceReportingMode(compiler.up_AbstractCompiler(), jimmutableListOf_[*ConformanceConfig](jtc_p_ConformanceConfig, cleanedConfig), nil)
+		var check *CheckConformance = new_CheckConformance_AbstractCompiler_ImmutableList_ConformanceReportingMode(compiler.up_AbstractCompiler(), jimmutableListOf_[*ConformanceConfig](jtc_p_ConformanceConfig, cleanedConfig), 0)
 		check.process_2(externs, ast)
 		return 0
 	}()

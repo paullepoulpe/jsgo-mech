@@ -10,7 +10,7 @@ type Es6RewriteClass struct {
 	jscompInherits               RuntimeJsLibManager_JsLibField
 }
 
-func (this *Es6RewriteClass) init_Es6RewriteClass(compiler *AbstractCompiler, es6SubclassTranspilation *CompilerOptions_Es6SubclassTranspilation) {
+func (this *Es6RewriteClass) init_Es6RewriteClass(compiler *AbstractCompiler, es6SubclassTranspilation CompilerOptions_Es6SubclassTranspilation) {
 	this.compiler_ = compiler
 	this.astFactory_ = compiler.createAstFactory()
 	this.transpilationNamespace = compiler.getTranspilationNamespace()
@@ -18,7 +18,7 @@ func (this *Es6RewriteClass) init_Es6RewriteClass(compiler *AbstractCompiler, es
 	this.jscompInherits = compiler.getRuntimeJsLibManager().getJsLibField("$jscomp.inherits")
 }
 
-func new_Es6RewriteClass(compiler *AbstractCompiler, es6SubclassTranspilation *CompilerOptions_Es6SubclassTranspilation) *Es6RewriteClass {
+func new_Es6RewriteClass(compiler *AbstractCompiler, es6SubclassTranspilation CompilerOptions_Es6SubclassTranspilation) *Es6RewriteClass {
 	this := &Es6RewriteClass{}
 	this.init_Es6RewriteClass(compiler, es6SubclassTranspilation)
 	return this
@@ -335,14 +335,14 @@ func Es6RewriteClass_clinit() {
 		return
 	}
 	Es6RewriteClass_clinit_done = true
-	Es6RewriteClass_features = FeatureSet_BARE_MINIMUM.withFeatureVarargs([]*FeatureSet_Feature{FeatureSet_Feature_CLASSES, FeatureSet_Feature_CLASS_GETTER_SETTER, FeatureSet_Feature_NEW_TARGET, FeatureSet_Feature_SUPER})
+	Es6RewriteClass_features = FeatureSet_BARE_MINIMUM.withFeatureVarargs([]FeatureSet_Feature{FeatureSet_Feature_CLASSES, FeatureSet_Feature_CLASS_GETTER_SETTER, FeatureSet_Feature_NEW_TARGET, FeatureSet_Feature_SUPER})
 	Es6RewriteClass_CONSTRUCTOR_PRIMITIVE_RETURN = DiagnosticType_error("JSC_CONSTRUCTOR_PRIMITIVE_RETURN", "Class constructors may only return an object or undefined")
 
 }
 
 type Es6RewriteClass_ClassProperty struct {
 	propertyKey_  string
-	kind_         *Es6RewriteClass_ClassProperty_PropertyKind
+	kind_         Es6RewriteClass_ClassProperty_PropertyKind
 	jsDocInfo_    *JSDocInfo
 	propertyType_ *Color
 }
@@ -351,7 +351,7 @@ func (this *Es6RewriteClass_ClassProperty) zero_Es6RewriteClass_ClassProperty() 
 	this.propertyKey_ = nullstr_
 }
 
-func (this *Es6RewriteClass_ClassProperty) init_Es6RewriteClass_ClassProperty(propertyKey string, kind *Es6RewriteClass_ClassProperty_PropertyKind, jsDocInfo *JSDocInfo, propertyType *Color) {
+func (this *Es6RewriteClass_ClassProperty) init_Es6RewriteClass_ClassProperty(propertyKey string, kind Es6RewriteClass_ClassProperty_PropertyKind, jsDocInfo *JSDocInfo, propertyType *Color) {
 	Objects_requireNonNull_T(kind, "kind")
 	Objects_requireNonNull_T(jsDocInfo, "jsDocInfo")
 	this.propertyKey_ = propertyKey
@@ -360,7 +360,7 @@ func (this *Es6RewriteClass_ClassProperty) init_Es6RewriteClass_ClassProperty(pr
 	this.propertyType_ = propertyType
 }
 
-func new_Es6RewriteClass_ClassProperty(propertyKey string, kind *Es6RewriteClass_ClassProperty_PropertyKind, jsDocInfo *JSDocInfo, propertyType *Color) *Es6RewriteClass_ClassProperty {
+func new_Es6RewriteClass_ClassProperty(propertyKey string, kind Es6RewriteClass_ClassProperty_PropertyKind, jsDocInfo *JSDocInfo, propertyType *Color) *Es6RewriteClass_ClassProperty {
 	this := &Es6RewriteClass_ClassProperty{}
 	this.zero_Es6RewriteClass_ClassProperty()
 	this.init_Es6RewriteClass_ClassProperty(propertyKey, kind, jsDocInfo, propertyType)
@@ -392,7 +392,7 @@ func (this *Es6RewriteClass_ClassProperty) propertyKey() string {
 	return this.propertyKey_
 }
 
-func (this *Es6RewriteClass_ClassProperty) kind() *Es6RewriteClass_ClassProperty_PropertyKind {
+func (this *Es6RewriteClass_ClassProperty) kind() Es6RewriteClass_ClassProperty_PropertyKind {
 	return this.kind_
 }
 
@@ -425,45 +425,63 @@ func (this *Es6RewriteClass_ClassProperty) toString() string {
 	return "ClassProperty[" + "propertyKey=" + sstr_(this.propertyKey_) + ", kind=" + jtostr_(this.kind_) + ", jsDocInfo=" + jtostr_(this.jsDocInfo_) + ", propertyType=" + jtostr_(this.propertyType_) + "]"
 }
 
-type Es6RewriteClass_ClassProperty_PropertyKind struct {
-	Enum
+type Es6RewriteClass_ClassProperty_PropertyKind uint8
+
+// Es6RewriteClass_ClassProperty_PropertyKind_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var Es6RewriteClass_ClassProperty_PropertyKind_enum_ = [3]Enum{
+	{self_: Es6RewriteClass_ClassProperty_PropertyKind_QUOTED_PROPERTY, name_: "QUOTED_PROPERTY", ordinal_: 0},
+	{self_: Es6RewriteClass_ClassProperty_PropertyKind_COMPUTED_PROPERTY, name_: "COMPUTED_PROPERTY", ordinal_: 1},
+	{self_: Es6RewriteClass_ClassProperty_PropertyKind_NORMAL_PROPERTY, name_: "NORMAL_PROPERTY", ordinal_: 2},
 }
 
-func (this *Es6RewriteClass_ClassProperty_PropertyKind) up_Enum() *Enum {
-	if this == nil {
+func (this Es6RewriteClass_ClassProperty_PropertyKind) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &Es6RewriteClass_ClassProperty_PropertyKind_enum_[this-1]
 }
 
-func (this *Es6RewriteClass_ClassProperty_PropertyKind) init_Es6RewriteClass_ClassProperty_PropertyKind(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this Es6RewriteClass_ClassProperty_PropertyKind) name() string {
+	return Es6RewriteClass_ClassProperty_PropertyKind_enum_[this-1].name_
 }
 
-func new_Es6RewriteClass_ClassProperty_PropertyKind(name_ string, ordinal_ int32) *Es6RewriteClass_ClassProperty_PropertyKind {
-	this := &Es6RewriteClass_ClassProperty_PropertyKind{}
-	this.self_ = this
-	this.init_Es6RewriteClass_ClassProperty_PropertyKind(name_, ordinal_)
+func (this Es6RewriteClass_ClassProperty_PropertyKind) ordinal() int32 {
+	return Es6RewriteClass_ClassProperty_PropertyKind_enum_[this-1].ordinal_
+}
+
+func (this Es6RewriteClass_ClassProperty_PropertyKind) toString() string {
+	return Es6RewriteClass_ClassProperty_PropertyKind_enum_[this-1].name_
+}
+
+func (this Es6RewriteClass_ClassProperty_PropertyKind) compareTo(o any) int32 {
+	return Es6RewriteClass_ClassProperty_PropertyKind_enum_[this-1].compareTo(o)
+}
+
+func (this Es6RewriteClass_ClassProperty_PropertyKind) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func Es6RewriteClass_ClassProperty_PropertyKind_values() []*Es6RewriteClass_ClassProperty_PropertyKind {
-	return append([]*Es6RewriteClass_ClassProperty_PropertyKind(nil), Es6RewriteClass_ClassProperty_PropertyKind_values_...)
+func Es6RewriteClass_ClassProperty_PropertyKind_values() []Es6RewriteClass_ClassProperty_PropertyKind {
+	return append([]Es6RewriteClass_ClassProperty_PropertyKind(nil), Es6RewriteClass_ClassProperty_PropertyKind_values_...)
 }
 
-func Es6RewriteClass_ClassProperty_PropertyKind_valueOf(name string) *Es6RewriteClass_ClassProperty_PropertyKind {
+func Es6RewriteClass_ClassProperty_PropertyKind_valueOf(name string) Es6RewriteClass_ClassProperty_PropertyKind {
 	for _, v := range Es6RewriteClass_ClassProperty_PropertyKind_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("PropertyKind", name))
 }
 
-var Es6RewriteClass_ClassProperty_PropertyKind_QUOTED_PROPERTY *Es6RewriteClass_ClassProperty_PropertyKind
-var Es6RewriteClass_ClassProperty_PropertyKind_COMPUTED_PROPERTY *Es6RewriteClass_ClassProperty_PropertyKind
-var Es6RewriteClass_ClassProperty_PropertyKind_NORMAL_PROPERTY *Es6RewriteClass_ClassProperty_PropertyKind
-var Es6RewriteClass_ClassProperty_PropertyKind_values_ []*Es6RewriteClass_ClassProperty_PropertyKind
+const Es6RewriteClass_ClassProperty_PropertyKind_QUOTED_PROPERTY Es6RewriteClass_ClassProperty_PropertyKind = 1
+const Es6RewriteClass_ClassProperty_PropertyKind_COMPUTED_PROPERTY Es6RewriteClass_ClassProperty_PropertyKind = 2
+const Es6RewriteClass_ClassProperty_PropertyKind_NORMAL_PROPERTY Es6RewriteClass_ClassProperty_PropertyKind = 3
+
+var Es6RewriteClass_ClassProperty_PropertyKind_values_ []Es6RewriteClass_ClassProperty_PropertyKind
 
 var Es6RewriteClass_ClassProperty_PropertyKind_clinit_done bool
 
@@ -472,16 +490,13 @@ func Es6RewriteClass_ClassProperty_PropertyKind_clinit() {
 		return
 	}
 	Es6RewriteClass_ClassProperty_PropertyKind_clinit_done = true
-	Es6RewriteClass_ClassProperty_PropertyKind_QUOTED_PROPERTY = new_Es6RewriteClass_ClassProperty_PropertyKind("QUOTED_PROPERTY", 0)
-	Es6RewriteClass_ClassProperty_PropertyKind_COMPUTED_PROPERTY = new_Es6RewriteClass_ClassProperty_PropertyKind("COMPUTED_PROPERTY", 1)
-	Es6RewriteClass_ClassProperty_PropertyKind_NORMAL_PROPERTY = new_Es6RewriteClass_ClassProperty_PropertyKind("NORMAL_PROPERTY", 2)
-	Es6RewriteClass_ClassProperty_PropertyKind_values_ = []*Es6RewriteClass_ClassProperty_PropertyKind{Es6RewriteClass_ClassProperty_PropertyKind_QUOTED_PROPERTY, Es6RewriteClass_ClassProperty_PropertyKind_COMPUTED_PROPERTY, Es6RewriteClass_ClassProperty_PropertyKind_NORMAL_PROPERTY}
+	Es6RewriteClass_ClassProperty_PropertyKind_values_ = []Es6RewriteClass_ClassProperty_PropertyKind{Es6RewriteClass_ClassProperty_PropertyKind_QUOTED_PROPERTY, Es6RewriteClass_ClassProperty_PropertyKind_COMPUTED_PROPERTY, Es6RewriteClass_ClassProperty_PropertyKind_NORMAL_PROPERTY}
 	registerEnum_("com.google.javascript.jscomp.Es6RewriteClass.ClassProperty.PropertyKind", enumValues_(Es6RewriteClass_ClassProperty_PropertyKind_values_))
 
 }
 
 type Es6RewriteClass_ClassProperty_Builder struct {
-	kindField         *Es6RewriteClass_ClassProperty_PropertyKind
+	kindField         Es6RewriteClass_ClassProperty_PropertyKind
 	jsDocInfoField    *JSDocInfo
 	propertyTypeField *Color
 	propertyKeyField  Optional[string]
@@ -506,8 +521,8 @@ func (this *Es6RewriteClass_ClassProperty_Builder) propertyKey(value string) *Es
 	return this
 }
 
-func (this *Es6RewriteClass_ClassProperty_Builder) kind(value *Es6RewriteClass_ClassProperty_PropertyKind) *Es6RewriteClass_ClassProperty_Builder {
-	if value == nil {
+func (this *Es6RewriteClass_ClassProperty_Builder) kind(value Es6RewriteClass_ClassProperty_PropertyKind) *Es6RewriteClass_ClassProperty_Builder {
+	if value == 0 {
 		panic(new_NullPointerException_String("Null kind").self())
 	}
 	this.kindField = value
@@ -528,12 +543,12 @@ func (this *Es6RewriteClass_ClassProperty_Builder) propertyType(type_ *Color) *E
 }
 
 func (this *Es6RewriteClass_ClassProperty_Builder) build() *Es6RewriteClass_ClassProperty {
-	if (this.propertyKeyField.isEmpty() || (this.kindField == nil)) || (this.jsDocInfoField == nil) {
+	if (this.propertyKeyField.isEmpty() || (this.kindField == 0)) || (this.jsDocInfoField == nil) {
 		var missing *StringBuilder = new_StringBuilder()
 		if this.propertyKeyField.isEmpty() {
 			missing.append(" propertyKey")
 		}
-		if this.kindField == nil {
+		if this.kindField == 0 {
 			missing.append(" kind")
 		}
 		if this.jsDocInfoField == nil {

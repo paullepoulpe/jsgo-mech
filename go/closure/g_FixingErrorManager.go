@@ -57,7 +57,7 @@ func (this *FixingErrorManager) setCompiler(compiler *AbstractCompiler) {
 	this.fixer = new_ErrorToFixMapper(compiler)
 }
 
-func (this *FixingErrorManager) report_2_impl(level *CheckLevel, error_ *JSError) {
+func (this *FixingErrorManager) report_2_impl(level CheckLevel, error_ *JSError) {
 	this.BasicErrorManager.report_2_impl(level, error_)
 	if !this.unfixableErrors.contains(error_.type_()) {
 		var fixes *JTList[*SuggestedFix] = this.fixer.getFixesForJsError(error_)
@@ -96,7 +96,7 @@ func (this *FixingErrorManager) getFixesForJsError(error_ *JSError) ListT[*Sugge
 	panic("unreachable")
 }
 
-func (this *FixingErrorManager) getFixes(fixTypes *FixingErrorManager_FixTypes) CollectionT[*SuggestedFix] {
+func (this *FixingErrorManager) getFixes(fixTypes FixingErrorManager_FixTypes) CollectionT[*SuggestedFix] {
 	var containsFixableShorthandModuleWarning bool = this.containsFixableShorthandModuleWarning()
 	var fixes CollectionT[*SuggestedFix] = jnewTList_(jtc_p_SuggestedFix).asCollT()
 	it_1 := this.getErrors().each()
@@ -138,48 +138,65 @@ func (this *FixingErrorManager) printSummary_impl() {
 
 }
 
-func (this *FixingErrorManager) println_impl(level *CheckLevel, error_ *JSError) {
+func (this *FixingErrorManager) println_impl(level CheckLevel, error_ *JSError) {
 
 }
 
-type FixingErrorManager_FixTypes struct {
-	Enum
+type FixingErrorManager_FixTypes uint8
+
+// FixingErrorManager_FixTypes_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var FixingErrorManager_FixTypes_enum_ = [2]Enum{
+	{self_: FixingErrorManager_FixTypes_ONE_FIX, name_: "ONE_FIX", ordinal_: 0},
+	{self_: FixingErrorManager_FixTypes_ONE_FIX_AND_MULTI_FIXES, name_: "ONE_FIX_AND_MULTI_FIXES", ordinal_: 1},
 }
 
-func (this *FixingErrorManager_FixTypes) up_Enum() *Enum {
-	if this == nil {
+func (this FixingErrorManager_FixTypes) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &FixingErrorManager_FixTypes_enum_[this-1]
 }
 
-func (this *FixingErrorManager_FixTypes) init_FixingErrorManager_FixTypes(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this FixingErrorManager_FixTypes) name() string {
+	return FixingErrorManager_FixTypes_enum_[this-1].name_
 }
 
-func new_FixingErrorManager_FixTypes(name_ string, ordinal_ int32) *FixingErrorManager_FixTypes {
-	this := &FixingErrorManager_FixTypes{}
-	this.self_ = this
-	this.init_FixingErrorManager_FixTypes(name_, ordinal_)
+func (this FixingErrorManager_FixTypes) ordinal() int32 {
+	return FixingErrorManager_FixTypes_enum_[this-1].ordinal_
+}
+
+func (this FixingErrorManager_FixTypes) toString() string {
+	return FixingErrorManager_FixTypes_enum_[this-1].name_
+}
+
+func (this FixingErrorManager_FixTypes) compareTo(o any) int32 {
+	return FixingErrorManager_FixTypes_enum_[this-1].compareTo(o)
+}
+
+func (this FixingErrorManager_FixTypes) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func FixingErrorManager_FixTypes_values() []*FixingErrorManager_FixTypes {
-	return append([]*FixingErrorManager_FixTypes(nil), FixingErrorManager_FixTypes_values_...)
+func FixingErrorManager_FixTypes_values() []FixingErrorManager_FixTypes {
+	return append([]FixingErrorManager_FixTypes(nil), FixingErrorManager_FixTypes_values_...)
 }
 
-func FixingErrorManager_FixTypes_valueOf(name string) *FixingErrorManager_FixTypes {
+func FixingErrorManager_FixTypes_valueOf(name string) FixingErrorManager_FixTypes {
 	for _, v := range FixingErrorManager_FixTypes_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("FixTypes", name))
 }
 
-var FixingErrorManager_FixTypes_ONE_FIX *FixingErrorManager_FixTypes
-var FixingErrorManager_FixTypes_ONE_FIX_AND_MULTI_FIXES *FixingErrorManager_FixTypes
-var FixingErrorManager_FixTypes_values_ []*FixingErrorManager_FixTypes
+const FixingErrorManager_FixTypes_ONE_FIX FixingErrorManager_FixTypes = 1
+const FixingErrorManager_FixTypes_ONE_FIX_AND_MULTI_FIXES FixingErrorManager_FixTypes = 2
+
+var FixingErrorManager_FixTypes_values_ []FixingErrorManager_FixTypes
 
 var FixingErrorManager_FixTypes_clinit_done bool
 
@@ -188,15 +205,13 @@ func FixingErrorManager_FixTypes_clinit() {
 		return
 	}
 	FixingErrorManager_FixTypes_clinit_done = true
-	FixingErrorManager_FixTypes_ONE_FIX = new_FixingErrorManager_FixTypes("ONE_FIX", 0)
-	FixingErrorManager_FixTypes_ONE_FIX_AND_MULTI_FIXES = new_FixingErrorManager_FixTypes("ONE_FIX_AND_MULTI_FIXES", 1)
-	FixingErrorManager_FixTypes_values_ = []*FixingErrorManager_FixTypes{FixingErrorManager_FixTypes_ONE_FIX, FixingErrorManager_FixTypes_ONE_FIX_AND_MULTI_FIXES}
+	FixingErrorManager_FixTypes_values_ = []FixingErrorManager_FixTypes{FixingErrorManager_FixTypes_ONE_FIX, FixingErrorManager_FixTypes_ONE_FIX_AND_MULTI_FIXES}
 	registerEnum_("com.google.javascript.refactoring.FixingErrorManager.FixTypes", enumValues_(FixingErrorManager_FixTypes_values_))
 
 }
 
 // report_2: an object that is exactly a FixingErrorManager calls its report_2_impl directly (post-flip); others dispatch.
-func (this *FixingErrorManager) report_2(p0 *CheckLevel, p1 *JSError) {
+func (this *FixingErrorManager) report_2(p0 CheckLevel, p1 *JSError) {
 	if this.self_ == any(this) {
 		this.report_2_impl(p0, p1)
 		return
@@ -214,7 +229,7 @@ func (this *FixingErrorManager) printSummary() {
 }
 
 // println: an object that is exactly a FixingErrorManager calls its println_impl directly (post-flip); others dispatch.
-func (this *FixingErrorManager) println(p0 *CheckLevel, p1 *JSError) {
+func (this *FixingErrorManager) println(p0 CheckLevel, p1 *JSError) {
 	if this.self_ == any(this) {
 		this.println_impl(p0, p1)
 		return

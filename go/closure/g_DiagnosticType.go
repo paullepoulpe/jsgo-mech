@@ -5,7 +5,7 @@ package closure
 type DiagnosticType struct {
 	key_        string
 	formatField string
-	level_      *CheckLevel
+	level_      CheckLevel
 }
 
 func (this *DiagnosticType) zero_DiagnosticType() {
@@ -13,13 +13,13 @@ func (this *DiagnosticType) zero_DiagnosticType() {
 	this.formatField = nullstr_
 }
 
-func (this *DiagnosticType) init_DiagnosticType(key string, level *CheckLevel, format string) {
+func (this *DiagnosticType) init_DiagnosticType(key string, level CheckLevel, format string) {
 	this.key_ = key
 	this.level_ = level
 	this.formatField = format
 }
 
-func new_DiagnosticType(key string, level *CheckLevel, format string) *DiagnosticType {
+func new_DiagnosticType(key string, level CheckLevel, format string) *DiagnosticType {
 	this := &DiagnosticType{}
 	this.zero_DiagnosticType()
 	this.init_DiagnosticType(key, level, format)
@@ -38,7 +38,7 @@ func DiagnosticType_disabled(name string, descriptionFormat string) *DiagnosticT
 	return DiagnosticType_make(name, CheckLevel_OFF, descriptionFormat)
 }
 
-func DiagnosticType_make(name string, level *CheckLevel, descriptionFormat string) *DiagnosticType {
+func DiagnosticType_make(name string, level CheckLevel, descriptionFormat string) *DiagnosticType {
 	return new_DiagnosticType(name, level, descriptionFormat)
 }
 

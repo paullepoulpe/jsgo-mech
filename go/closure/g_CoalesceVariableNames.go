@@ -194,7 +194,7 @@ func (this *CoalesceVariableNames) computeVariableNamesInterferenceGraph(cfg *Co
 	}
 	it_4 := jeachOf_(cfg.getNodes_rCollectionOf_DiGraphNode_rCollectionOf_LinkedDiGraphNode())
 	for it_4.next() {
-		var cfgNode DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch]](it_4.v.self())
+		var cfgNode DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]](it_4.v.self())
 		if cfg.isImplicitReturn(cfgNode) {
 			continue
 		}
@@ -236,7 +236,7 @@ func (this *CoalesceVariableNames) computeVariableNamesInterferenceGraph(cfg *Co
 }
 
 func (this *CoalesceVariableNames) isInMultipleLvalueDecl(v *Var) bool {
-	var declarationType *Token_rhino = v.declarationType()
+	var declarationType Token_rhino = v.declarationType()
 	return func() bool {
 		switch declarationType {
 		case Token_rhino_LET, Token_rhino_CONST, Token_rhino_VAR:
@@ -330,7 +330,7 @@ func (this *CoalesceVariableNames) isUninitializedLetNameInLoopBodyAndLive(nameN
 	Preconditions_checkState((this.liveness != nil))
 	var letNode Node = nameNode.getParent()
 	var cfg *ControlFlowGraph[Node] = this.liveness.getCfg()
-	var cfgNode DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphNode[Node, *ControlFlowGraph_Branch]](Preconditions_checkNotNull_T(cfg.getNode_Object_rDiGraphNode_rLinkedDiGraphNode(letNode)).self())
+	var cfgNode DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]](Preconditions_checkNotNull_T(cfg.getNode_Object_rDiGraphNode_rLinkedDiGraphNode(letNode)).self())
 	var state *DataFlowAnalysis_LinearFlowState = Preconditions_checkNotNull_T(cast_[*DataFlowAnalysis_LinearFlowState](Annotatable_getAnnotation(Annotatable(cfgNode))))
 	var varIndex int32 = this.liveness.getVarIndex(originalVar.getName())
 	return ((varIndex >= 0) && cast_[*LiveVariablesAnalysis_LiveVariableLattice](state.getOut()).isLive(varIndex))

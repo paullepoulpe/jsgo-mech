@@ -56,11 +56,11 @@ func RhinoErrorReporter_forOldRhino(internalReporter ErrorHandler) ErrorReporter
 }
 
 func (this *RhinoErrorReporter) warningAtLine(message string, sourceName Optional[string], line int32, lineOffset int32) {
-	this.internalReporter.report_2(nil, RhinoErrorReporter_makeError(message, sourceName, line, lineOffset, CheckLevel_WARNING))
+	this.internalReporter.report_2(0, RhinoErrorReporter_makeError(message, sourceName, line, lineOffset, CheckLevel_WARNING))
 }
 
 func (this *RhinoErrorReporter) errorAtLine(message string, sourceName Optional[string], line int32, lineOffset int32) {
-	this.internalReporter.report_2(nil, RhinoErrorReporter_makeError(message, sourceName, line, lineOffset, CheckLevel_ERROR))
+	this.internalReporter.report_2(0, RhinoErrorReporter_makeError(message, sourceName, line, lineOffset, CheckLevel_ERROR))
 }
 
 func RhinoErrorReporter_mapError(message string) *DiagnosticType {
@@ -74,7 +74,7 @@ func RhinoErrorReporter_mapError(message string) *DiagnosticType {
 	return nil
 }
 
-func RhinoErrorReporter_makeError(message string, sourceName Optional[string], line int32, lineOffset int32, defaultLevel *CheckLevel) *JSError {
+func RhinoErrorReporter_makeError(message string, sourceName Optional[string], line int32, lineOffset int32, defaultLevel CheckLevel) *JSError {
 	var type_ *DiagnosticType = RhinoErrorReporter_mapError(message)
 	var builder *JSError_Builder = JSError_builder(func() *DiagnosticType {
 		if type_ != nil {

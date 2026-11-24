@@ -18,7 +18,7 @@ func new_DiagnosticToSuppressionMapper(validSuppressions *JTSet[string], diagnos
 	return this
 }
 
-func (this *DiagnosticToSuppressionMapper) printSuppressions(output *DiagnosticToSuppressionMapper_OutputFormat) {
+func (this *DiagnosticToSuppressionMapper) printSuppressions(output DiagnosticToSuppressionMapper_OutputFormat) {
 	switch output {
 	case DiagnosticToSuppressionMapper_OutputFormat_JSON:
 		DiagnosticToSuppressionMapper_printAsJson(this.createSuppressionMap())
@@ -90,44 +90,61 @@ func DiagnosticToSuppressionMapper_printAsMarkdown(diagnosticToSuppression MapT[
 	}
 }
 
-type DiagnosticToSuppressionMapper_OutputFormat struct {
-	Enum
+type DiagnosticToSuppressionMapper_OutputFormat uint8
+
+// DiagnosticToSuppressionMapper_OutputFormat_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var DiagnosticToSuppressionMapper_OutputFormat_enum_ = [2]Enum{
+	{self_: DiagnosticToSuppressionMapper_OutputFormat_MD, name_: "MD", ordinal_: 0},
+	{self_: DiagnosticToSuppressionMapper_OutputFormat_JSON, name_: "JSON", ordinal_: 1},
 }
 
-func (this *DiagnosticToSuppressionMapper_OutputFormat) up_Enum() *Enum {
-	if this == nil {
+func (this DiagnosticToSuppressionMapper_OutputFormat) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &DiagnosticToSuppressionMapper_OutputFormat_enum_[this-1]
 }
 
-func (this *DiagnosticToSuppressionMapper_OutputFormat) init_DiagnosticToSuppressionMapper_OutputFormat(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this DiagnosticToSuppressionMapper_OutputFormat) name() string {
+	return DiagnosticToSuppressionMapper_OutputFormat_enum_[this-1].name_
 }
 
-func new_DiagnosticToSuppressionMapper_OutputFormat(name_ string, ordinal_ int32) *DiagnosticToSuppressionMapper_OutputFormat {
-	this := &DiagnosticToSuppressionMapper_OutputFormat{}
-	this.self_ = this
-	this.init_DiagnosticToSuppressionMapper_OutputFormat(name_, ordinal_)
+func (this DiagnosticToSuppressionMapper_OutputFormat) ordinal() int32 {
+	return DiagnosticToSuppressionMapper_OutputFormat_enum_[this-1].ordinal_
+}
+
+func (this DiagnosticToSuppressionMapper_OutputFormat) toString() string {
+	return DiagnosticToSuppressionMapper_OutputFormat_enum_[this-1].name_
+}
+
+func (this DiagnosticToSuppressionMapper_OutputFormat) compareTo(o any) int32 {
+	return DiagnosticToSuppressionMapper_OutputFormat_enum_[this-1].compareTo(o)
+}
+
+func (this DiagnosticToSuppressionMapper_OutputFormat) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func DiagnosticToSuppressionMapper_OutputFormat_values() []*DiagnosticToSuppressionMapper_OutputFormat {
-	return append([]*DiagnosticToSuppressionMapper_OutputFormat(nil), DiagnosticToSuppressionMapper_OutputFormat_values_...)
+func DiagnosticToSuppressionMapper_OutputFormat_values() []DiagnosticToSuppressionMapper_OutputFormat {
+	return append([]DiagnosticToSuppressionMapper_OutputFormat(nil), DiagnosticToSuppressionMapper_OutputFormat_values_...)
 }
 
-func DiagnosticToSuppressionMapper_OutputFormat_valueOf(name string) *DiagnosticToSuppressionMapper_OutputFormat {
+func DiagnosticToSuppressionMapper_OutputFormat_valueOf(name string) DiagnosticToSuppressionMapper_OutputFormat {
 	for _, v := range DiagnosticToSuppressionMapper_OutputFormat_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("OutputFormat", name))
 }
 
-var DiagnosticToSuppressionMapper_OutputFormat_MD *DiagnosticToSuppressionMapper_OutputFormat
-var DiagnosticToSuppressionMapper_OutputFormat_JSON *DiagnosticToSuppressionMapper_OutputFormat
-var DiagnosticToSuppressionMapper_OutputFormat_values_ []*DiagnosticToSuppressionMapper_OutputFormat
+const DiagnosticToSuppressionMapper_OutputFormat_MD DiagnosticToSuppressionMapper_OutputFormat = 1
+const DiagnosticToSuppressionMapper_OutputFormat_JSON DiagnosticToSuppressionMapper_OutputFormat = 2
+
+var DiagnosticToSuppressionMapper_OutputFormat_values_ []DiagnosticToSuppressionMapper_OutputFormat
 
 var DiagnosticToSuppressionMapper_OutputFormat_clinit_done bool
 
@@ -136,9 +153,7 @@ func DiagnosticToSuppressionMapper_OutputFormat_clinit() {
 		return
 	}
 	DiagnosticToSuppressionMapper_OutputFormat_clinit_done = true
-	DiagnosticToSuppressionMapper_OutputFormat_MD = new_DiagnosticToSuppressionMapper_OutputFormat("MD", 0)
-	DiagnosticToSuppressionMapper_OutputFormat_JSON = new_DiagnosticToSuppressionMapper_OutputFormat("JSON", 1)
-	DiagnosticToSuppressionMapper_OutputFormat_values_ = []*DiagnosticToSuppressionMapper_OutputFormat{DiagnosticToSuppressionMapper_OutputFormat_MD, DiagnosticToSuppressionMapper_OutputFormat_JSON}
+	DiagnosticToSuppressionMapper_OutputFormat_values_ = []DiagnosticToSuppressionMapper_OutputFormat{DiagnosticToSuppressionMapper_OutputFormat_MD, DiagnosticToSuppressionMapper_OutputFormat_JSON}
 	registerEnum_("com.google.javascript.jscomp.DiagnosticToSuppressionMapper.OutputFormat", enumValues_(DiagnosticToSuppressionMapper_OutputFormat_values_))
 
 }

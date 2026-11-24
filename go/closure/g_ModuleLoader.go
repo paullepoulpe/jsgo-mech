@@ -177,7 +177,7 @@ func ModuleLoader_clinit() {
 }
 
 // lambda_ModuleLoader_clinit_1_ is a lambda of ModuleLoader_clinit that captures nothing (post-flip step lambdas).
-var lambda_ModuleLoader_clinit_1_ = &ErrorHandler_fn{func(level *CheckLevel, error_ *JSError) {
+var lambda_ModuleLoader_clinit_1_ = &ErrorHandler_fn{func(level CheckLevel, error_ *JSError) {
 }}
 
 type ModuleLoader_Builder struct {
@@ -484,46 +484,65 @@ func (this *ModuleLoader_ModuleResolverFactory_fn) create(p0 SetT[string], p1 Li
 	return this.f(p0, p1, p2, p3)
 }
 
-type ModuleLoader_ResolutionMode struct {
-	Enum
+type ModuleLoader_ResolutionMode uint8
+
+// ModuleLoader_ResolutionMode_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var ModuleLoader_ResolutionMode_enum_ = [4]Enum{
+	{self_: ModuleLoader_ResolutionMode_BROWSER, name_: "BROWSER", ordinal_: 0},
+	{self_: ModuleLoader_ResolutionMode_BROWSER_WITH_TRANSFORMED_PREFIXES, name_: "BROWSER_WITH_TRANSFORMED_PREFIXES", ordinal_: 1},
+	{self_: ModuleLoader_ResolutionMode_NODE, name_: "NODE", ordinal_: 2},
+	{self_: ModuleLoader_ResolutionMode_WEBPACK, name_: "WEBPACK", ordinal_: 3},
 }
 
-func (this *ModuleLoader_ResolutionMode) up_Enum() *Enum {
-	if this == nil {
+func (this ModuleLoader_ResolutionMode) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &ModuleLoader_ResolutionMode_enum_[this-1]
 }
 
-func (this *ModuleLoader_ResolutionMode) init_ModuleLoader_ResolutionMode(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this ModuleLoader_ResolutionMode) name() string {
+	return ModuleLoader_ResolutionMode_enum_[this-1].name_
 }
 
-func new_ModuleLoader_ResolutionMode(name_ string, ordinal_ int32) *ModuleLoader_ResolutionMode {
-	this := &ModuleLoader_ResolutionMode{}
-	this.self_ = this
-	this.init_ModuleLoader_ResolutionMode(name_, ordinal_)
+func (this ModuleLoader_ResolutionMode) ordinal() int32 {
+	return ModuleLoader_ResolutionMode_enum_[this-1].ordinal_
+}
+
+func (this ModuleLoader_ResolutionMode) toString() string {
+	return ModuleLoader_ResolutionMode_enum_[this-1].name_
+}
+
+func (this ModuleLoader_ResolutionMode) compareTo(o any) int32 {
+	return ModuleLoader_ResolutionMode_enum_[this-1].compareTo(o)
+}
+
+func (this ModuleLoader_ResolutionMode) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func ModuleLoader_ResolutionMode_values() []*ModuleLoader_ResolutionMode {
-	return append([]*ModuleLoader_ResolutionMode(nil), ModuleLoader_ResolutionMode_values_...)
+func ModuleLoader_ResolutionMode_values() []ModuleLoader_ResolutionMode {
+	return append([]ModuleLoader_ResolutionMode(nil), ModuleLoader_ResolutionMode_values_...)
 }
 
-func ModuleLoader_ResolutionMode_valueOf(name string) *ModuleLoader_ResolutionMode {
+func ModuleLoader_ResolutionMode_valueOf(name string) ModuleLoader_ResolutionMode {
 	for _, v := range ModuleLoader_ResolutionMode_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("ResolutionMode", name))
 }
 
-var ModuleLoader_ResolutionMode_BROWSER *ModuleLoader_ResolutionMode
-var ModuleLoader_ResolutionMode_BROWSER_WITH_TRANSFORMED_PREFIXES *ModuleLoader_ResolutionMode
-var ModuleLoader_ResolutionMode_NODE *ModuleLoader_ResolutionMode
-var ModuleLoader_ResolutionMode_WEBPACK *ModuleLoader_ResolutionMode
-var ModuleLoader_ResolutionMode_values_ []*ModuleLoader_ResolutionMode
+const ModuleLoader_ResolutionMode_BROWSER ModuleLoader_ResolutionMode = 1
+const ModuleLoader_ResolutionMode_BROWSER_WITH_TRANSFORMED_PREFIXES ModuleLoader_ResolutionMode = 2
+const ModuleLoader_ResolutionMode_NODE ModuleLoader_ResolutionMode = 3
+const ModuleLoader_ResolutionMode_WEBPACK ModuleLoader_ResolutionMode = 4
+
+var ModuleLoader_ResolutionMode_values_ []ModuleLoader_ResolutionMode
 
 var ModuleLoader_ResolutionMode_clinit_done bool
 
@@ -532,11 +551,7 @@ func ModuleLoader_ResolutionMode_clinit() {
 		return
 	}
 	ModuleLoader_ResolutionMode_clinit_done = true
-	ModuleLoader_ResolutionMode_BROWSER = new_ModuleLoader_ResolutionMode("BROWSER", 0)
-	ModuleLoader_ResolutionMode_BROWSER_WITH_TRANSFORMED_PREFIXES = new_ModuleLoader_ResolutionMode("BROWSER_WITH_TRANSFORMED_PREFIXES", 1)
-	ModuleLoader_ResolutionMode_NODE = new_ModuleLoader_ResolutionMode("NODE", 2)
-	ModuleLoader_ResolutionMode_WEBPACK = new_ModuleLoader_ResolutionMode("WEBPACK", 3)
-	ModuleLoader_ResolutionMode_values_ = []*ModuleLoader_ResolutionMode{ModuleLoader_ResolutionMode_BROWSER, ModuleLoader_ResolutionMode_BROWSER_WITH_TRANSFORMED_PREFIXES, ModuleLoader_ResolutionMode_NODE, ModuleLoader_ResolutionMode_WEBPACK}
+	ModuleLoader_ResolutionMode_values_ = []ModuleLoader_ResolutionMode{ModuleLoader_ResolutionMode_BROWSER, ModuleLoader_ResolutionMode_BROWSER_WITH_TRANSFORMED_PREFIXES, ModuleLoader_ResolutionMode_NODE, ModuleLoader_ResolutionMode_WEBPACK}
 	registerEnum_("com.google.javascript.jscomp.deps.ModuleLoader.ResolutionMode", enumValues_(ModuleLoader_ResolutionMode_values_))
 
 }

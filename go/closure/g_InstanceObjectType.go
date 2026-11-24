@@ -45,7 +45,7 @@ func InstanceObjectType_builderForCtor(ctor *FunctionType) *InstanceObjectType_B
 	return cast_[*InstanceObjectType_Builder](cast_[*InstanceObjectType_Builder](cast_[*InstanceObjectType_Builder](cast_[*InstanceObjectType_Builder](cast_[*InstanceObjectType_Builder](cast_[*InstanceObjectType_Builder](new_InstanceObjectType_Builder(ctor.registry).setName(ctor.getReferenceName()).self()).setImplicitPrototype(nil).self()).setNative(ctor.isNativeObjectType()).self()).setAnonymous(ctor.isAnonymous()).self()).setTemplateTypeMap(ctor.getTemplateTypeMap()).self()).setTemplateParamCount(ctor.getTemplateParamCount()).self()).setConstructor(ctor)
 }
 
-func (this *InstanceObjectType) getTypeClass_impl() *JSTypeClass {
+func (this *InstanceObjectType) getTypeClass_impl() JSTypeClass {
 	return InstanceObjectType_TYPE_CLASS_FIELD
 }
 
@@ -175,7 +175,7 @@ func (this *InstanceObjectType) getCtorExtendedInterfaces_impl() IterableT[*Obje
 	return this.getCtorExtendedInterfaces_rImmutableList().asIterable()
 }
 
-var InstanceObjectType_TYPE_CLASS_FIELD *JSTypeClass
+var InstanceObjectType_TYPE_CLASS_FIELD JSTypeClass
 
 var InstanceObjectType_clinit_done bool
 
@@ -225,7 +225,7 @@ func (this *InstanceObjectType_Builder) build_impl() *PrototypeObjectType {
 }
 
 // getTypeClass: an object that is exactly a InstanceObjectType calls its getTypeClass_impl directly (post-flip); others dispatch.
-func (this *InstanceObjectType) getTypeClass() *JSTypeClass {
+func (this *InstanceObjectType) getTypeClass() JSTypeClass {
 	if this.self_ == any(this) {
 		return this.getTypeClass_impl()
 	}

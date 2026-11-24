@@ -56,7 +56,7 @@ func InferConsts_isInferredConst(v *Var, refCollection *ReferenceCollection) boo
 	if v.isImplicitGoogNamespace() {
 		return false
 	}
-	var declarationType *Token_rhino = v.declarationType()
+	var declarationType Token_rhino = v.declarationType()
 	return func() bool {
 		switch declarationType {
 		case Token_rhino_LET:

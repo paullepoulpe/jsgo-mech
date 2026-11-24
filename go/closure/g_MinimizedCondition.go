@@ -31,7 +31,7 @@ func MinimizedCondition_fromConditionNode(n Node) *MinimizedCondition {
 	}()
 }
 
-func (this *MinimizedCondition) getMinimized(style *MinimizedCondition_MinimizationStyle) *MinimizedCondition_MeasuredNode {
+func (this *MinimizedCondition) getMinimized(style MinimizedCondition_MinimizationStyle) *MinimizedCondition_MeasuredNode {
 	if ((style == MinimizedCondition_MinimizationStyle_PREFER_UNNEGATED) || this.positive.node_.isNot()) || (this.positive.length_ <= this.negative.length_) {
 		return this.positive
 	} else {
@@ -73,7 +73,7 @@ func MinimizedCondition_computeMinimizedCondition(n Node) *MinimizedCondition {
 			var negative *MinimizedCondition_MeasuredNode = MinimizedCondition_pickBest(subtree.negative.negate(), subtree.positive)
 			return new_MinimizedCondition(positive, negative)
 		case tokOrd1_AND, tokOrd1_OR:
-			var complementNode Node = new_Node_Token(func() *Token_rhino {
+			var complementNode Node = new_Node_Token(func() Token_rhino {
 				if n.isAnd() {
 					return Token_rhino_OR
 				}
@@ -108,44 +108,61 @@ func MinimizedCondition_computeMinimizedCondition(n Node) *MinimizedCondition {
 	}()
 }
 
-type MinimizedCondition_MinimizationStyle struct {
-	Enum
+type MinimizedCondition_MinimizationStyle uint8
+
+// MinimizedCondition_MinimizationStyle_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var MinimizedCondition_MinimizationStyle_enum_ = [2]Enum{
+	{self_: MinimizedCondition_MinimizationStyle_PREFER_UNNEGATED, name_: "PREFER_UNNEGATED", ordinal_: 0},
+	{self_: MinimizedCondition_MinimizationStyle_ALLOW_LEADING_NOT, name_: "ALLOW_LEADING_NOT", ordinal_: 1},
 }
 
-func (this *MinimizedCondition_MinimizationStyle) up_Enum() *Enum {
-	if this == nil {
+func (this MinimizedCondition_MinimizationStyle) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &MinimizedCondition_MinimizationStyle_enum_[this-1]
 }
 
-func (this *MinimizedCondition_MinimizationStyle) init_MinimizedCondition_MinimizationStyle(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this MinimizedCondition_MinimizationStyle) name() string {
+	return MinimizedCondition_MinimizationStyle_enum_[this-1].name_
 }
 
-func new_MinimizedCondition_MinimizationStyle(name_ string, ordinal_ int32) *MinimizedCondition_MinimizationStyle {
-	this := &MinimizedCondition_MinimizationStyle{}
-	this.self_ = this
-	this.init_MinimizedCondition_MinimizationStyle(name_, ordinal_)
+func (this MinimizedCondition_MinimizationStyle) ordinal() int32 {
+	return MinimizedCondition_MinimizationStyle_enum_[this-1].ordinal_
+}
+
+func (this MinimizedCondition_MinimizationStyle) toString() string {
+	return MinimizedCondition_MinimizationStyle_enum_[this-1].name_
+}
+
+func (this MinimizedCondition_MinimizationStyle) compareTo(o any) int32 {
+	return MinimizedCondition_MinimizationStyle_enum_[this-1].compareTo(o)
+}
+
+func (this MinimizedCondition_MinimizationStyle) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func MinimizedCondition_MinimizationStyle_values() []*MinimizedCondition_MinimizationStyle {
-	return append([]*MinimizedCondition_MinimizationStyle(nil), MinimizedCondition_MinimizationStyle_values_...)
+func MinimizedCondition_MinimizationStyle_values() []MinimizedCondition_MinimizationStyle {
+	return append([]MinimizedCondition_MinimizationStyle(nil), MinimizedCondition_MinimizationStyle_values_...)
 }
 
-func MinimizedCondition_MinimizationStyle_valueOf(name string) *MinimizedCondition_MinimizationStyle {
+func MinimizedCondition_MinimizationStyle_valueOf(name string) MinimizedCondition_MinimizationStyle {
 	for _, v := range MinimizedCondition_MinimizationStyle_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("MinimizationStyle", name))
 }
 
-var MinimizedCondition_MinimizationStyle_PREFER_UNNEGATED *MinimizedCondition_MinimizationStyle
-var MinimizedCondition_MinimizationStyle_ALLOW_LEADING_NOT *MinimizedCondition_MinimizationStyle
-var MinimizedCondition_MinimizationStyle_values_ []*MinimizedCondition_MinimizationStyle
+const MinimizedCondition_MinimizationStyle_PREFER_UNNEGATED MinimizedCondition_MinimizationStyle = 1
+const MinimizedCondition_MinimizationStyle_ALLOW_LEADING_NOT MinimizedCondition_MinimizationStyle = 2
+
+var MinimizedCondition_MinimizationStyle_values_ []MinimizedCondition_MinimizationStyle
 
 var MinimizedCondition_MinimizationStyle_clinit_done bool
 
@@ -154,9 +171,7 @@ func MinimizedCondition_MinimizationStyle_clinit() {
 		return
 	}
 	MinimizedCondition_MinimizationStyle_clinit_done = true
-	MinimizedCondition_MinimizationStyle_PREFER_UNNEGATED = new_MinimizedCondition_MinimizationStyle("PREFER_UNNEGATED", 0)
-	MinimizedCondition_MinimizationStyle_ALLOW_LEADING_NOT = new_MinimizedCondition_MinimizationStyle("ALLOW_LEADING_NOT", 1)
-	MinimizedCondition_MinimizationStyle_values_ = []*MinimizedCondition_MinimizationStyle{MinimizedCondition_MinimizationStyle_PREFER_UNNEGATED, MinimizedCondition_MinimizationStyle_ALLOW_LEADING_NOT}
+	MinimizedCondition_MinimizationStyle_values_ = []MinimizedCondition_MinimizationStyle{MinimizedCondition_MinimizationStyle_PREFER_UNNEGATED, MinimizedCondition_MinimizationStyle_ALLOW_LEADING_NOT}
 	registerEnum_("com.google.javascript.jscomp.MinimizedCondition.MinimizationStyle", enumValues_(MinimizedCondition_MinimizationStyle_values_))
 
 }
@@ -232,7 +247,7 @@ func MinimizedCondition_MeasuredNode_normalizeChildren(node Node, children []*Mi
 	panic("unreachable")
 }
 
-func (this *MinimizedCondition_MeasuredNode) updateToken(token *Token_rhino) *MinimizedCondition_MeasuredNode {
+func (this *MinimizedCondition_MeasuredNode) updateToken(token Token_rhino) *MinimizedCondition_MeasuredNode {
 	return new_MinimizedCondition_MeasuredNode(new_Node_Token(token).srcref(this.node_), MinimizedCondition_MeasuredNode_normalizeChildren(this.node_, this.children_), this.length_, true)
 }
 

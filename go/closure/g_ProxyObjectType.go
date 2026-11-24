@@ -74,11 +74,11 @@ func new_ProxyObjectType_JSTypeRegistry_JSType_TemplateTypeMap(registry *JSTypeR
 	return this
 }
 
-func (this *ProxyObjectType) getTypeClass_impl() *JSTypeClass {
+func (this *ProxyObjectType) getTypeClass_impl() JSTypeClass {
 	return ProxyObjectType_TYPE_CLASS
 }
 
-func (this *ProxyObjectType) getPropertyKind_2_impl(propertyName Property_Key, autobox bool) *JSType_HasPropertyKind {
+func (this *ProxyObjectType) getPropertyKind_2_impl(propertyName Property_Key, autobox bool) JSType_HasPropertyKind {
 	return this.referencedType.getPropertyKind_2(propertyName, autobox)
 }
 
@@ -252,7 +252,7 @@ func (this *ProxyObjectType) toMaybeKnownSymbolType_impl() *KnownSymbolType {
 	return this.referencedType.toMaybeKnownSymbolType()
 }
 
-func (this *ProxyObjectType) testForEquality_impl(that *JSType) *Tri {
+func (this *ProxyObjectType) testForEquality_impl(that *JSType) Tri {
 	return this.referencedType.testForEquality(that)
 }
 
@@ -397,7 +397,7 @@ func (this *ProxyObjectType) getTemplateTypeMap_impl() *TemplateTypeMap {
 	return this.referencedType.getTemplateTypeMap()
 }
 
-var ProxyObjectType_TYPE_CLASS *JSTypeClass
+var ProxyObjectType_TYPE_CLASS JSTypeClass
 
 var ProxyObjectType_clinit_done bool
 
@@ -411,7 +411,7 @@ func ProxyObjectType_clinit() {
 }
 
 // getTypeClass: an object that is exactly a ProxyObjectType calls its getTypeClass_impl directly (post-flip); others dispatch.
-func (this *ProxyObjectType) getTypeClass() *JSTypeClass {
+func (this *ProxyObjectType) getTypeClass() JSTypeClass {
 	if this.self_ == any(this) {
 		return this.getTypeClass_impl()
 	}
@@ -419,7 +419,7 @@ func (this *ProxyObjectType) getTypeClass() *JSTypeClass {
 }
 
 // getPropertyKind_2: an object that is exactly a ProxyObjectType calls its getPropertyKind_2_impl directly (post-flip); others dispatch.
-func (this *ProxyObjectType) getPropertyKind_2(p0 Property_Key, p1 bool) *JSType_HasPropertyKind {
+func (this *ProxyObjectType) getPropertyKind_2(p0 Property_Key, p1 bool) JSType_HasPropertyKind {
 	if this.self_ == any(this) {
 		return this.getPropertyKind_2_impl(p0, p1)
 	}
@@ -683,7 +683,7 @@ func (this *ProxyObjectType) toMaybeKnownSymbolType() *KnownSymbolType {
 }
 
 // testForEquality: an object that is exactly a ProxyObjectType calls its testForEquality_impl directly (post-flip); others dispatch.
-func (this *ProxyObjectType) testForEquality(p0 *JSType) *Tri {
+func (this *ProxyObjectType) testForEquality(p0 *JSType) Tri {
 	if this.self_ == any(this) {
 		return this.testForEquality_impl(p0)
 	}
