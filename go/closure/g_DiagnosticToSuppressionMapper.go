@@ -80,7 +80,7 @@ func DiagnosticToSuppressionMapper_printAsMarkdown(diagnosticToSuppression MapT[
 	Output_stdout().println("| Error | Suppression tag |")
 	Output_stdout().println("|---|---|")
 	for e := range elemsT_(diagnosticToSuppression.entrySet_t()) {
-		Output_stdout().println(String_format("|%s|%s|", []any{e.getKey(), e.getValue()}))
+		Output_stdout().println(String_format("|%s|%s|", e.getKey(), e.getValue()))
 	}
 }
 

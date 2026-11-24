@@ -297,7 +297,7 @@ func (this *TemplateTypeReplacer) caseTemplateType(type_ *TemplateType) any {
 	var visitedReplacement *JSType = to_JSType(replacement.visit(Visitor(this)))
 	Set_removeE_[*JSType](this.seenTypes, type_.up_JSType())
 	if visitedReplacement == this.keyType.up_JSType() {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Trying to replace key %s with the same value", []any{this.keyType})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Trying to replace key %s with the same value", this.keyType)))
 	}
 	return visitedReplacement.self()
 }

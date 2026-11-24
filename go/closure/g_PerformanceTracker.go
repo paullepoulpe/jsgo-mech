@@ -419,7 +419,7 @@ func (this *PerformanceTracker) outputTracerReport(output *Output) {
 		output.println(JSCompStrings_lines([]string{"", "Input AST Manifest:", "token,count"}))
 		var manifestLines []string = []string{}
 		for e := range elemsT_(this.astManifest.entrySet()) {
-			manifestLines = append(manifestLines, String_format("%s,%d", []any{e.getKey(), e.getValue()}))
+			manifestLines = append(manifestLines, String_format("%s,%d", e.getKey(), e.getValue()))
 		}
 		Collections_sortT_[string](slicePtrViewT_(tc_string, &manifestLines))
 		for _, line := range manifestLines {

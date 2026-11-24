@@ -2319,7 +2319,7 @@ func (this *AbstractCommandLineRunner_CommandLineConfig) setJsOutputFile(jsOutpu
 func (this *AbstractCommandLineRunner_CommandLineConfig) setContinueSavedCompilationFileName(fileName Optional[string], restoredCompilationStage int32) *AbstractCommandLineRunner_CommandLineConfig {
 	if fileName.isPresent() {
 		if restoredCompilationStage <= 0 || restoredCompilationStage >= 3 {
-			panic(new_IllegalArgumentException_String(Strings_lenientFormat("invalid compilation stage: %s", []any{restoredCompilationStage})))
+			panic(new_IllegalArgumentException_String(Strings_lenientFormat("invalid compilation stage: %s", restoredCompilationStage)))
 		}
 		this.continueSavedCompilationFileName = fileName
 		this.restoredCompilationStage = restoredCompilationStage
@@ -2330,7 +2330,7 @@ func (this *AbstractCommandLineRunner_CommandLineConfig) setContinueSavedCompila
 func (this *AbstractCommandLineRunner_CommandLineConfig) shouldSaveAfterStage1() bool {
 	if this.saveCompilationStateToFilename.isPresent() && (this.saveAfterCompilationStage == 1) {
 		if this.restoredCompilationStage >= 0 {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("cannot perform stage 1 after restoring from stage %s", []any{this.restoredCompilationStage})))
+			panic(new_IllegalStateException_String(Strings_lenientFormat("cannot perform stage 1 after restoring from stage %s", this.restoredCompilationStage)))
 		}
 		if !this.continueSavedCompilationFileName.isEmpty() {
 			panic(new_IllegalStateException_String(objstr_("cannot restore a saved compilation and also save after stage 1")))
@@ -2352,7 +2352,7 @@ func (this *AbstractCommandLineRunner_CommandLineConfig) shouldRestoreAndPerform
 func (this *AbstractCommandLineRunner_CommandLineConfig) shouldContinueCompilation() bool {
 	if this.continueSavedCompilationFileName.isPresent() {
 		if this.restoredCompilationStage <= 0 || this.restoredCompilationStage >= 3 {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("invalid restored compilation stage: %s", []any{this.restoredCompilationStage})))
+			panic(new_IllegalStateException_String(Strings_lenientFormat("invalid restored compilation stage: %s", this.restoredCompilationStage)))
 		}
 		return true
 	} else {
@@ -2375,7 +2375,7 @@ func (this *AbstractCommandLineRunner_CommandLineConfig) shouldRestoreAndPerform
 func (this *AbstractCommandLineRunner_CommandLineConfig) shouldRestoreAndPerformStage3() bool {
 	if this.shouldContinueCompilation() && (this.restoredCompilationStage == 2) {
 		if this.saveAfterCompilationStage >= 0 {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("request to save after stage %s is invalid when restoring from stage 2", []any{this.saveAfterCompilationStage})))
+			panic(new_IllegalStateException_String(Strings_lenientFormat("request to save after stage %s is invalid when restoring from stage 2", this.saveAfterCompilationStage)))
 		}
 		return true
 	} else {
