@@ -1681,7 +1681,7 @@ func tc_DiGraph_DiGraphNode_N__E_[N comparable, E comparable]() *tconv_[DiGraph_
 			box: func(v DiGraph_DiGraphNode[N, E]) any {
 				return v
 			},
-			unbox: func(v any) DiGraph_DiGraphNode[N, E] { return cast_[DiGraph_DiGraphNode[N, E]](v) },
+			unbox: func(v any) DiGraph_DiGraphNode[N, E] { return gcast_DiGraph_DiGraphNode_N_E[N, E](v) },
 		}
 	})
 }
@@ -1757,7 +1757,7 @@ func tc_GraphNode_N__E_[N comparable, E comparable]() *tconv_[GraphNode[N, E]] {
 			box: func(v GraphNode[N, E]) any {
 				return v
 			},
-			unbox: func(v any) GraphNode[N, E] { return cast_[GraphNode[N, E]](v) },
+			unbox: func(v any) GraphNode[N, E] { return gcast_GraphNode_N_E[N, E](v) },
 		}
 	})
 }
@@ -1777,7 +1777,7 @@ func tc_Graph_GraphEdge_N__E_[N comparable, E comparable]() *tconv_[Graph_GraphE
 			box: func(v Graph_GraphEdge[N, E]) any {
 				return v
 			},
-			unbox: func(v any) Graph_GraphEdge[N, E] { return cast_[Graph_GraphEdge[N, E]](v) },
+			unbox: func(v any) Graph_GraphEdge[N, E] { return gcast_Graph_GraphEdge_N_E[N, E](v) },
 		}
 	})
 }
@@ -2087,7 +2087,7 @@ func tc_UndiGraph_UndiGraphEdge_N__E_[N comparable, E comparable]() *tconv_[Undi
 			box: func(v UndiGraph_UndiGraphEdge[N, E]) any {
 				return v
 			},
-			unbox: func(v any) UndiGraph_UndiGraphEdge[N, E] { return cast_[UndiGraph_UndiGraphEdge[N, E]](v) },
+			unbox: func(v any) UndiGraph_UndiGraphEdge[N, E] { return gcast_UndiGraph_UndiGraphEdge_N_E[N, E](v) },
 		}
 	})
 }
@@ -2100,7 +2100,7 @@ func tc_UndiGraph_UndiGraphNode_N__E_[N comparable, E comparable]() *tconv_[Undi
 			box: func(v UndiGraph_UndiGraphNode[N, E]) any {
 				return v
 			},
-			unbox: func(v any) UndiGraph_UndiGraphNode[N, E] { return cast_[UndiGraph_UndiGraphNode[N, E]](v) },
+			unbox: func(v any) UndiGraph_UndiGraphNode[N, E] { return gcast_UndiGraph_UndiGraphNode_N_E[N, E](v) },
 		}
 	})
 }
@@ -3655,7 +3655,7 @@ func tch_DiGraph_DiGraphNode_N__E_[N comparable, E comparable]() *tconv_[DiGraph
 			box: func(v DiGraph_DiGraphNode[N, E]) any {
 				return v
 			},
-			unbox: func(v any) DiGraph_DiGraphNode[N, E] { return cast_[DiGraph_DiGraphNode[N, E]](v) },
+			unbox: func(v any) DiGraph_DiGraphNode[N, E] { return gcast_DiGraph_DiGraphNode_N_E[N, E](v) },
 			hash:  func(v DiGraph_DiGraphNode[N, E]) int32 { return objhash_(v) },
 			eq:    func(a, b DiGraph_DiGraphNode[N, E]) bool { return objequals_(a, b) },
 		}
@@ -5612,4 +5612,88 @@ func icast_GraphNode_Node_ControlFlowGraph_Branch(v any) GraphNode[Node, Control
 		return nil
 	}
 	return v.(GraphNode[Node, ControlFlowGraph_Branch])
+}
+
+// gcast_DiGraph_DiGraphEdge_N_E is cast_[DiGraph_DiGraphEdge[N, E]],
+// trying first the classes of its type parameters that implement it (post-flip step gcasts).
+func gcast_DiGraph_DiGraphEdge_N_E[N comparable, E comparable](v any) DiGraph_DiGraphEdge[N, E] {
+	switch p := v.(type) {
+	case *LinkedDirectedGraph_AnnotatedLinkedDiGraphEdge[N, E]:
+		return p
+	case *LinkedDirectedGraph_LinkedDiGraphEdge[N, E]:
+		return p
+	}
+	return cast_[DiGraph_DiGraphEdge[N, E]](v)
+}
+
+// gcast_DiGraph_DiGraphNode_N_E is cast_[DiGraph_DiGraphNode[N, E]],
+// trying first the classes of its type parameters that implement it (post-flip step gcasts).
+func gcast_DiGraph_DiGraphNode_N_E[N comparable, E comparable](v any) DiGraph_DiGraphNode[N, E] {
+	switch p := v.(type) {
+	case *LinkedDirectedGraph_AnnotatedLinkedDiGraphNode[N, E]:
+		return p
+	case *LinkedDirectedGraph_LinkedDiGraphNode[N, E]:
+		return p
+	}
+	return cast_[DiGraph_DiGraphNode[N, E]](v)
+}
+
+// gcast_GraphNode_N_E is cast_[GraphNode[N, E]],
+// trying first the classes of its type parameters that implement it (post-flip step gcasts).
+func gcast_GraphNode_N_E[N comparable, E comparable](v any) GraphNode[N, E] {
+	switch p := v.(type) {
+	case *LinkedDirectedGraph_AnnotatedLinkedDiGraphNode[N, E]:
+		return p
+	case *LinkedDirectedGraph_LinkedDiGraphNode[N, E]:
+		return p
+	case *LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphNode[N, E]:
+		return p
+	case *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E]:
+		return p
+	}
+	return cast_[GraphNode[N, E]](v)
+}
+
+// gcast_Graph_GraphEdge_N_E is cast_[Graph_GraphEdge[N, E]],
+// trying first the classes of its type parameters that implement it (post-flip step gcasts).
+func gcast_Graph_GraphEdge_N_E[N comparable, E comparable](v any) Graph_GraphEdge[N, E] {
+	switch p := v.(type) {
+	case *LinkedDirectedGraph_AnnotatedLinkedDiGraphEdge[N, E]:
+		return p
+	case *LinkedDirectedGraph_LinkedDiGraphEdge[N, E]:
+		return p
+	case *LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphEdge[N, E]:
+		return p
+	case *LinkedUndirectedGraph_LinkedUndirectedGraphEdge[N, E]:
+		return p
+	}
+	return cast_[Graph_GraphEdge[N, E]](v)
+}
+
+// gcast_UndiGraph_UndiGraphEdge_N_E is cast_[UndiGraph_UndiGraphEdge[N, E]],
+// trying first the classes of its type parameters that implement it (post-flip step gcasts).
+func gcast_UndiGraph_UndiGraphEdge_N_E[N comparable, E comparable](v any) UndiGraph_UndiGraphEdge[N, E] {
+	switch p := v.(type) {
+	case *LinkedDirectedGraph_AnnotatedLinkedDiGraphEdge[N, E]:
+		return p
+	case *LinkedDirectedGraph_LinkedDiGraphEdge[N, E]:
+		return p
+	case *LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphEdge[N, E]:
+		return p
+	case *LinkedUndirectedGraph_LinkedUndirectedGraphEdge[N, E]:
+		return p
+	}
+	return cast_[UndiGraph_UndiGraphEdge[N, E]](v)
+}
+
+// gcast_UndiGraph_UndiGraphNode_N_E is cast_[UndiGraph_UndiGraphNode[N, E]],
+// trying first the classes of its type parameters that implement it (post-flip step gcasts).
+func gcast_UndiGraph_UndiGraphNode_N_E[N comparable, E comparable](v any) UndiGraph_UndiGraphNode[N, E] {
+	switch p := v.(type) {
+	case *LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphNode[N, E]:
+		return p
+	case *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E]:
+		return p
+	}
+	return cast_[UndiGraph_UndiGraphNode[N, E]](v)
 }
