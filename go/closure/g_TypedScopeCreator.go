@@ -1489,7 +1489,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) createEnumTypeFromNodes(rVal
 		}
 	}
 	if enumType == nil {
-		enumType = cast_[*EnumType_Builder](EnumType_builder(this.outer_.typeRegistry).setName(this.getBestTypeName(lValue, name)).self()).setGoogModuleId(TypedScopeCreator_containingGoogModuleIdOf(this.currentScope).orElse("")).setSource(rValue).setElementType(info.getEnumParameterType().evaluate(TypedScope_as_StaticTypedScope(this.currentScope), this.outer_.typeRegistry)).build_rEnumType()
+		enumType = EnumType_builder(this.outer_.typeRegistry).setNameT_(this.getBestTypeName(lValue, name)).setGoogModuleId(TypedScopeCreator_containingGoogModuleIdOf(this.currentScope).orElse("")).setSource(rValue).setElementType(info.getEnumParameterType().evaluate(TypedScope_as_StaticTypedScope(this.currentScope), this.outer_.typeRegistry)).build_rEnumType()
 		if (rValue != 0) && rValue.isObjectLit() {
 			var key Node = rValue.getFirstChild()
 			for key != 0 {
