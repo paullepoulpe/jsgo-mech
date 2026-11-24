@@ -3512,10 +3512,6 @@ func (this IRFactory_TransformDispatcher_IdentifierType) toString() string {
 	return this.enum_().name_
 }
 
-func (this IRFactory_TransformDispatcher_IdentifierType) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this IRFactory_TransformDispatcher_IdentifierType) self() any {
 	if this == 0 {
 		return nil

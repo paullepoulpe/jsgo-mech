@@ -148,10 +148,6 @@ func (this CheckEs6ModuleFileStructure_OrderedStatement) ordinal() int32 {
 	return int32(this) - 1 // constants are ordinal+1
 }
 
-func (this CheckEs6ModuleFileStructure_OrderedStatement) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this CheckEs6ModuleFileStructure_OrderedStatement) self() any {
 	if this == 0 {
 		return nil

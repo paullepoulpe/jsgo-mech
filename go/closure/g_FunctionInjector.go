@@ -683,10 +683,6 @@ func (this FunctionInjector_InliningMode) toString() string {
 	return this.enum_().name_
 }
 
-func (this FunctionInjector_InliningMode) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this FunctionInjector_InliningMode) self() any {
 	if this == 0 {
 		return nil
@@ -809,8 +805,6 @@ func (this FunctionInjector_CallSiteType) ordinal() int32 {
 
 func (this FunctionInjector_CallSiteType) toString() string { return this.enum_().name_ }
 
-func (this FunctionInjector_CallSiteType) compareTo(o any) int32 { return this.enum_().compareTo(o) }
-
 func (this FunctionInjector_CallSiteType) self() any {
 	if this == 0 {
 		return nil
@@ -912,10 +906,6 @@ func (this FunctionInjector_CanInlineResult) ordinal() int32 {
 
 func (this FunctionInjector_CanInlineResult) toString() string {
 	return this.enum_().name_
-}
-
-func (this FunctionInjector_CanInlineResult) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
 }
 
 func (this FunctionInjector_CanInlineResult) self() any {

@@ -265,10 +265,6 @@ func (this FeatureCollector_FeatureContext) toString() string {
 	return this.enum_().name_
 }
 
-func (this FeatureCollector_FeatureContext) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this FeatureCollector_FeatureContext) self() any {
 	if this == 0 {
 		return nil

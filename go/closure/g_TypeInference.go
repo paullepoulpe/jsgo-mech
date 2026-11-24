@@ -2010,10 +2010,6 @@ func (this TypeInference_AssignmentType) toString() string {
 	return this.enum_().name_
 }
 
-func (this TypeInference_AssignmentType) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this TypeInference_AssignmentType) self() any {
 	if this == 0 {
 		return nil
@@ -2081,10 +2077,6 @@ func (this TypeInference_BigIntPresence) ordinal() int32 {
 
 func (this TypeInference_BigIntPresence) toString() string {
 	return this.enum_().name_
-}
-
-func (this TypeInference_BigIntPresence) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
 }
 
 func (this TypeInference_BigIntPresence) self() any {

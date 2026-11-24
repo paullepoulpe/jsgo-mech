@@ -612,10 +612,6 @@ func (this ConvertToTypedInterface_SimplifyDeclarations_TypingLevel) toString() 
 	return this.enum_().name_
 }
 
-func (this ConvertToTypedInterface_SimplifyDeclarations_TypingLevel) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this ConvertToTypedInterface_SimplifyDeclarations_TypingLevel) self() any {
 	if this == 0 {
 		return nil

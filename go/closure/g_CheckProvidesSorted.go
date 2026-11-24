@@ -142,10 +142,6 @@ func (this CheckProvidesSorted_Mode) toString() string {
 	return this.enum_().name_
 }
 
-func (this CheckProvidesSorted_Mode) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this CheckProvidesSorted_Mode) self() any {
 	if this == 0 {
 		return nil

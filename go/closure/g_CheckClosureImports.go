@@ -114,10 +114,6 @@ func (this CheckClosureImports_ClosureImport) ordinal() int32 {
 
 func (this CheckClosureImports_ClosureImport) toString() string { return this.enum_().name_ }
 
-func (this CheckClosureImports_ClosureImport) compareTo(o any) int32 {
-	return this.enum_().compareTo(o)
-}
-
 func (this CheckClosureImports_ClosureImport) self() any {
 	if this == 0 {
 		return nil
