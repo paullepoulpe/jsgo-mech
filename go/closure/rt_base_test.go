@@ -100,8 +100,8 @@ func baseBool_(b bool) string { return strconv.FormatBool(b) }
 
 func baseInt_(i int64) string { return strconv.FormatInt(i, 10) }
 
-func baseCaseFormat_(n string) *CaseFormat {
-	for _, c := range []*CaseFormat{CaseFormat_LOWER_HYPHEN, CaseFormat_LOWER_UNDERSCORE, CaseFormat_LOWER_CAMEL, CaseFormat_UPPER_CAMEL, CaseFormat_UPPER_UNDERSCORE} {
+func baseCaseFormat_(n string) CaseFormat {
+	for _, c := range []CaseFormat{CaseFormat_LOWER_HYPHEN, CaseFormat_LOWER_UNDERSCORE, CaseFormat_LOWER_CAMEL, CaseFormat_UPPER_CAMEL, CaseFormat_UPPER_UNDERSCORE} {
 		if c.name() == n {
 			return c
 		}

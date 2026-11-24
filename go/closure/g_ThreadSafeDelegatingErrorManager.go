@@ -12,7 +12,7 @@ type ThreadSafeDelegatingErrorManager struct {
 type ThreadSafeDelegatingErrorManager_I interface {
 	generateReport_impl()
 	report_2_impl(CheckLevel, *JSError)
-	shouldReportConformanceViolation_impl(*Requirement, GOptional[*RequirementScopeEntry], *JSError, *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior, bool) bool
+	shouldReportConformanceViolation_impl(*Requirement, GOptional[*RequirementScopeEntry], *JSError, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior, bool) bool
 }
 
 func (this *ThreadSafeDelegatingErrorManager) as_ThreadSafeDelegatingErrorManager() *ThreadSafeDelegatingErrorManager {
@@ -96,11 +96,11 @@ func (this *ThreadSafeDelegatingErrorManager) getTypedPercent() float64 {
 	return this.delegated.getTypedPercent()
 }
 
-func (this *ThreadSafeDelegatingErrorManager) shouldReportConformanceViolation_impl(requirement *Requirement, allowlistEntry GOptional[*RequirementScopeEntry], diagnostic *JSError, behavior *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior, isAllowlisted bool) bool {
+func (this *ThreadSafeDelegatingErrorManager) shouldReportConformanceViolation_impl(requirement *Requirement, allowlistEntry GOptional[*RequirementScopeEntry], diagnostic *JSError, behavior ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior, isAllowlisted bool) bool {
 	return this.delegated.shouldReportConformanceViolation(requirement, allowlistEntry, diagnostic, behavior, isAllowlisted)
 }
 
-func (this *ThreadSafeDelegatingErrorManager) shouldReportConformanceViolation(p0 *Requirement, p1 GOptional[*RequirementScopeEntry], p2 *JSError, p3 *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior, p4 bool) bool {
+func (this *ThreadSafeDelegatingErrorManager) shouldReportConformanceViolation(p0 *Requirement, p1 GOptional[*RequirementScopeEntry], p2 *JSError, p3 ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior, p4 bool) bool {
 	return this.self_.shouldReportConformanceViolation_impl(p0, p1, p2, p3, p4)
 }
 
