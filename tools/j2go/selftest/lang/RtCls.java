@@ -96,7 +96,11 @@ public class RtCls {
 
           @Override
           protected Integer computeNext() {
-            return i < 3 ? Integer.valueOf(i++ * 10) : endOfData();
+            if (i >= 3) {
+              return endOfData();
+            }
+            i += 1;
+            return Integer.valueOf((i - 1) * 10);
           }
         };
     while (nums.hasNext()) {

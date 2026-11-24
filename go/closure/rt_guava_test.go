@@ -125,8 +125,10 @@ func TestGuavaOrdering(t *testing.T) {
 	guavaStr_(t, up.reverse().sortedCopy(listOf_([]any{"ccc", "bb", "a", "aa"})), "[ccc, bb, aa, a]")
 	cmp := up.reverse()
 	guavaEq_(t, cmp.compare("a", "bb") > 0, true)
-	guavaEq_(t, to_Ordering(up.self()) == up, true)
-	guavaEq_(t, is_Ordering(any(sub)), true)
+	// (as to_Ordering / is_Ordering, which the translation declares only where it names the erased class)
+	guavaEq_(t, up.self().(interface{ as_Ordering() *Ordering }).as_Ordering() == up, true)
+	_, isOrdering := any(sub).(interface{ as_Ordering() *Ordering })
+	guavaEq_(t, isOrdering, true)
 
 	guavaEq_(t, ComparisonChain_start().compare("a", "a").compare_int_int(2, 1).compare("a", "b").result(), int32(1))
 	guavaEq_(t, ComparisonChain_start().compare("a", "b").compare_int_int(2, 1).result(), int32(-1))
@@ -142,7 +144,8 @@ func TestGuavaRangeSet(t *testing.T) {
 	guavaThrew_(t, "IllegalArgumentException", func() { Range_closed(int32(5), int32(3)) })
 	guavaEq_(t, r.equals(Range_closed(int32(3), int32(5))), true)
 
-	var rs RangeSet = cast_[RangeSet](obj_(TreeRangeSet_create()))
+	// (the TreeRangeSet itself: the RangeSet interface is declared by the translation only where it names it)
+	rs := TreeRangeSet_create()
 	guavaEq_(t, rs.isEmpty(), true)
 	rs.add(Range_closed(int32(10), int32(20)))
 	rs.add(Range_closed(int32(1), int32(3)))
