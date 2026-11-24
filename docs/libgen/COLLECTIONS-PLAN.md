@@ -3398,3 +3398,269 @@ except `Splitter.split` and `ComparisonChain` comparators.
   run them.
 - `verify.sh` with a single piece off was not run (only their md5s, on 72fc20f7).
 - No allocation profile; the binary growth is not broken down.
+## 16. Record of four RESIDUE8 rules: pieces `objlist`, `freshloop`, `mkext`, `gsorted` (branch `main-resid-b`, worktree `/mnt/data/ubuntu/jm/wt/resb`, 2026-11-24)
+
+Begun on main daf5b046, rebased onto main caf03d23 (section 15, pieces `rtm`, `fns2`, `seqstr`)
+before the gates; every md5 below is of the rebased tree. The four rules of
+`docs/javaisms6/RESIDUE8.md` taken here: "piece makers extended" (T2.3, T2.4, T2.6, T2.8, T3.2: 37
+sites), "typed Guava sorted makers and builders" (T2.2, T1.14, T2.19: 35), "typed for-each over a
+fresh copy or a reversed list" (T2.1, T1.8: 21) and "piece objarg's List / Collection twins again"
+(T3.1: 16). Sites are those of the eighth flip's accounting (`docs/javaisms6/residue8.tsv`); each
+was found again in main's translation (caf03d23) and checked in this branch's. Scratch:
+`/mnt/data/tmp/claude-1000/-home-ubuntu-work/9db246f3-01a3-48c8-9bf5-1c94d1ed78d6/scratchpad/resb/`
+(`hv.sh`: one heavy job = `flock $B/heavy.lock systemd-run --user --scope -p MemoryMax=20G -p
+MemorySwapMax=0 env GOENV=$B/goenv-c1`; `mainmd5.sh`: main's translator (`git show main:`) default and
+all off, `out-main/`; `dev2.sh` / `st1.sh`: the development translations and self-tests;
+`gatefull.sh <label>`: `run.sh` + `gate.sh` + binary size + the md5 of each switch setting + `verify.sh`
+with the four pieces off and with everything off + the default again; `basetm.sh`: main's binary and
+the timing; `cdiff.sh`: census rows of two translations; `out-*`: translations, `tx-*.log` the
+`J2GO_LIBGEN=2` reports).
+
+### 16.1 Commits
+
+| commit | switch (`J2GO_NOLIBGEN=`) | what |
+|---|---|---|
+| 14b17b55 | `objlist`, `freshloop`, `mkext`, `gsorted` | `LibObj.listTwin`, `StmtEmitter.freshLoop`, `ExprEmitter.mkextNew` / `mkextFreshArg` / `gsortedOf` (and small branches of `immutableOf` and `lgMade`), `LibGen.MADE_T2` / `GSORTED` / `t2KindOf`; runtime `rt_objlist.go`, `rt_freshloop.go`, `rt_mkext.go`, `rt_gsorted.go` (no build tag), 6 lines of `rt_timm.go` (`asImm` of a sorted set or map gives the sorted twin; `keySetImm` of a sorted map goes through it); `objarg-pairs.txt` lines `@on objlist` / `@on mkext` (new mark `@on`, `LibObj`); self-tests `lang/ObjList.java`, `FreshLoop.java`, `MkExt.java`, `GSorted.java` |
+| 00c3ce37 | | off-mode fixes found by `verify.sh` on 14b17b55 (16.5): `rt_gsorted_fn.go` under `!j2go_nofntypes`; self-test programs |
+| (the commit after) | | this section |
+
+One commit for the four pieces: they share `ExprEmitter.immutableOf` / `lgMade` and the pair list;
+each piece is its own switch and was translated off alone (16.4).
+
+### 16.2 The form
+
+- **`objlist`** (`LibObj.listTwin`, reached where piece `objarg` said "no typed lookup: a List or
+  Collection receiver"): `contains` / `remove(Object)` / `indexOf` / `lastIndexOf` with an argument of
+  the element type (objarg's own checks first: the argument's static type, its Go form, a result that
+  enters an Object), where Java's `x.equals(e)` is Go's `==` for the element type: a String, an enum,
+  or a class of the program in whose hierarchy (superclasses and subclasses) no class declares
+  `equals` (`LibObj.idEquals`; unlike `Ctx.goEquals`, `hashCode` alone does not count). The twin scans
+  the typed list with `==` (`TList_indexOfE_[T](l, x)` ...), where the erased call boxed the argument
+  and the view's `indexOf` boxed every element to call `objequals_` (for such a type `==`; for a
+  String its contents, as `==` of Go strings and the view's own `indexOfStr_`). The receiver is a
+  typed list (the list itself: no pair needed), a `ListT` (`List_*E_`: the scan where the object is a
+  typed list's view, `*tlistView_[T]`, else the erased method with `boxT_`) or a `CollectionT`
+  (`Collection_*E_`: also a typed set's own `find`, as `Set_containsE_`). The `ListT` /
+  `CollectionT` twins name the view at `T`, so they are called only for element types on the pair
+  list (`list T`, and `set T` for a Collection, each `@on objlist`: asked for only with the piece on;
+  `LibObj.COND` reads the mark, the stale check holds in every translation). A null argument takes the
+  erased method in every twin. This is not the floor form that 10.8 rejected (twins that only box in
+  the runtime): for the element types it takes, nothing is boxed.
+- **`freshloop`** (`StmtEmitter.freshLoop`, before `ownLoop` and `lgLoop`): a for-each over
+  `ImmutableList.of(..)`, `copyOf(..)` or `sortedCopyOf(c)` makes the typed list at the call's element
+  type (`newTyped`: `immutableListOf_`, `immutableListCopyOf_` ...; a copy of a typed `Iterable` of the
+  element type reads it through its typed cursor: `immutableListCopyOfIt_`,
+  `immutableListSortedCopyOfIt_`) and runs on its cursor (`each()`); a for-each over
+  `Lists.reverse(l)` where `l`'s declared type is an ImmutableList and its Go form a typed list runs on
+  `tlistRevEach_(l)` (backwards; an immutable list cannot change in the loop). The copy is made before
+  the loop as Java's; the sort is `sort.SliceStable` with the comparisons `sortSlice_` makes (natural
+  ordering: `tsortCmp_`).
+- **`mkext`**: for a place of a typed interface, `new EnumMap<>(K.class)` is `tenumMapNew_` (the typed
+  sorted map with `ordinalCmp_`, as the runtime's `EnumMap` is a `TreeMap` with it), `new
+  IdentityHashMap<>()` the typed map whose key conversion has no `byEquals` (keys compared by `==`, as
+  the runtime's `htable` with `identity`), `new ConcurrentHashMap<>()` the typed map (the runtime's is a
+  `LinkedHashMap`), `new LinkedList<>()` for a Deque / Queue place the typed deque (the runtime's
+  LinkedList is a slice with its head first, as `TDeque`); the four classes are in `LibGen.MADE_T2`
+  (a test for, a cast to, an own method of, a library parameter of one is refused; the tree has none).
+  `new C<>(ImmutableX.of(..))` makes the immutable typed and copies it (`tsetCopy_`, `tdequeCopyL_`);
+  `ImmutableSet.copyOf(E[])` is `immutableSetOf_(tc, a...)`; `ImmutableMap.of` with 6 to 10 entries
+  `immutableMapOf6_` ... `immutableMapOf10_` (`tmapMake_`: the null and duplicate checks of `immMap_`);
+  `ImmutableMap.of(k, v)` whose value is a subclass of a `? extends V` place's value type is made at the
+  place's type arguments (`immutableOf` converts each element to them).
+- **`gsorted`** (`ExprEmitter.gsortedOf`): `ImmutableSortedSet.copyOf(c)` (natural),
+  `copyOfSorted(s)` of a typed sorted set, `of()`, `ImmutableSortedMap.copyOf(m)` (natural),
+  `ImmutableList.sortedCopyOf(c)` and `sortedCopyOf(cmp, c)` with the comparator at the element type
+  (rule "function types"), for a place of the typed interface, and the `values()` / `keySet()` of a
+  fresh `ImmutableSortedMap.copyOf(m)` read by a for-each. The sorted set / map is the typed set / map
+  in its sorted mode with `twin` / `imm` pending; `TSet.asImm` / `TMap.asImm` make its twin an
+  ImmutableSortedSet / ImmutableSortedMap (`icSorted_` / `imSorted_` with the erased comparator), so
+  erased code that calls the class's own methods (`lgBox_(..).(*ImmutableSortedSet)`) sees the object
+  it saw before. Each maker checks and sorts as the runtime's erased maker (`immSorted_`, `immMap_` of
+  `imSorted_`, `ImmutableList_sortedCopyOf`): nulls first with the same messages, the same stable sort
+  with the same comparisons, the first of equal elements kept, a duplicate key's
+  IllegalArgumentException. As the erased `ImmutableSortedSet_copyOfSorted`, `copyOfSorted` of an
+  immutable sorted set is that set (Guava makes a new one; the self-test does not print the identity).
+
+Every refusal is counted in the `J2GO_LIBGEN=2` report by reason and by site (`objlist: calls left
+erased (...)`, `freshloop: loops left erased (...)`, `mkext: left erased (...)`, `gsorted: left
+erased (...)`), each with its file and line.
+
+The report of the tree's default translation (`runsh-b1.log`): objlist 8 twin calls (`TList_containsE_`
+2, `TList_indexOfE_` 3, `TList_removeE_` 2, `Collection_containsE_` 1), 15 left (a record 7, an
+interface 5, an equals of its own or of a superclass 2, a type variable 1); freshloop 9 typed loops
+(`copyOf` 5, `of` 2, `sortedCopyOf` 1, `Lists.reverse` 1), 1 left (`Lists.reverse` of a list that
+can change); mkext 16 typed `new` (ConcurrentHashMap 8, EnumMap 3, IdentityHashMap 2, LinkedList 1,
+`new C<>(Immutable.of(..))` 2), 1 `of(..)` at wider type arguments, 1 left (a ConcurrentHashMap with a
+constructor argument); the array copies and the 10-entry map are not counted by the report (16.3 has
+them); gsorted 8 typed makers (2 of them the `ImmutableSortedMap.copyOf` read by a loop).
+
+### 16.3 The sites, by RESIDUE8 category
+
+Each site of `residue8.tsv` of these categories was found in main's translation (caf03d23, `out-main/`)
+and in this one (`out-b1/`); "taken" means the construct of the site (the box, the cast, the wrapper,
+the erased maker, the converting closure) is gone from the line.
+
+**Rule "piece makers extended" (37 sites): taken 24, taken on main by section 15 2, left 11.**
+
+| category | sites | taken | left, and why |
+|---|---:|---:|---|
+| T2.3 `of(..)` / `copyOf(array)` for a typed place | 18 | 18 | - (AstValidator, ReplaceStrings, FeatureSet: `immutableSetOf_` of the array; `CompilerOptions.BrowserFeaturesetYear.YEAR_MAP`: `immutableMapOf10_`, 11 sites; JSTypeRegistry: `ImmutableMap.of("then", unknownType)` of an `UnknownType` at the `? extends JSType` place's types, 2; PureFunctionIdentifier `tdequeCopyL_`, ScopedAliases `tsetCopy_`) |
+| T2.4 builders whose chain Colls does not type | 7 | 0 | 7 not done: each needs an extension of `Colls`' builder proof (a builder given to `Optional.of`, filled by `addAll` of an erased value, built for an erased parameter); not a reason against jsgo (`internal/jscomp/closure_coding_convention.go:318`, `internal/bundle/source.go:129` use typed slices and sets) |
+| T2.6 immutable copies into a typed place | 5 | 0 (+2 on main) | RefactoringDriver (2): taken on main by section 15's `Lists.transform` twin (`Iterables_transformT_` over `immutableListCopyOf_`); RequireAliasGenerator (2): the copy is the receiver of `ImmutableList.reverse` (section 15's `ImmutableList_reverseT_` takes it through `listAs_`), and a maker typed by the receiver it enters is not built here (not done); TypedScopeCreator (1): the copy goes to `Lists.reverse`, which has no typed twin (a `LibFns` twin, section 15's topic; not done) |
+| T2.8 EnumMap / IdentityHashMap / LinkedList for a typed place | 5 | 5 | - (Keywords, Scope, TypedScope: `tenumMapNew_`; TemplateTypeReplacer: `newTMap_` with identity keys; CheckAccessControls: `newTDeque_`) |
+| T3.2 Map.get / remove on a wrapped erased map | 2 | 1 | Compiler `typedAstFilesystem.remove` (TypedAstDeserializer's `new ConcurrentHashMap` is typed; pair `map *SourceFile_jscomp, Supplier[Node] @on mkext`): taken, `Map_removeK_`. Left 1: `indexProvidersByType` is a `Map<Class<?>, IndexProvider<?>>`: its key is a library class with type arguments, which the typed family does not hold as a compared key (`Ctx.typedArg`), so `new LinkedHashMap<>()` stays erased behind `mapAs_`. jsgo did not port the index providers (no `IndexProvider` in `/home/ubuntu/work/jsgo`, searched); counted as a reason of the typed family, not checked against a jsgo form |
+
+**Rule "typed Guava sorted makers and builders" (35 sites): taken 11, counted reason 8, left (not done) 16.**
+
+| category | sites | taken | left, and why |
+|---|---:|---:|---|
+| T2.2 sorted immutables | 27 | 7 | taken: ApplySuggestedFixes (`tsortedSetCopyOfIt_`), Compiler x2 (the loops over `ImmutableSortedMap.copyOf(inputSourceMaps).values()`: `tsortedMapCopyOf_(..).eachValue()`; `inputSourceMaps` itself is now typed by `mkext`), DisambiguateProperties:352 (`ImmutableSortedSet.of()`: `tsetImm_(tc, emptyImmSorted_)`), NodeModuleResolver and PropertyMap.getAllKeys (`tsortedSetCopyOfSorted_`), VariableMap.getOriginalNameToNewNameMap (`tsortedMapCopyOf_`). Not done 14: the sorted builders (`ImmutableSortedSet.naturalOrder()`, `new ImmutableSortedSet.Builder<>(cmp)`, `ImmutableSortedMap.naturalOrder()`: DiagnosticToSuppressionMapper 2, DisambiguateProperties 2 + 3 (a copy put into an erased builder), ModuleLoader 6, SerializeTypesToPointers 1) need builder kinds for the sorted classes and `Colls`' chain proof for them. Counted reason 6: VariableMap.toBytes loops over `ImmutableSortedSet.copyOf(comparingByKey(), map.asMap().entrySet())`, entries of an erased `ImmutableBiMap` (the loop variable stays the erased entry, `StmtEmitter.forEach`; the typed family does not hold `Map.Entry` as a compared element); jsgo replaced the BiMap by hand-built key slices and maps and sorts the keys (`internal/jscomp/variable_map.go:198`), a structure change our bounds forbid |
+| T1.14 converting closures of typed comparators | 6 | 2 | taken: ConvertToTypedInterface (`immutableListSortedCopyOfCTIt_` with `SHORT_TO_LONG` at `Comparator[string]`, no closure). Not done 2: ModuleLoader's `new ImmutableSortedSet.Builder<>(BEST_MATCH_PATH_ORDERING)` (a sorted builder, above). Counted reason 2: VariableMap.toBytes (`comparingByKey()` over the erased entries, above) |
+| T2.19 typed comparator for `ImmutableList.sortedCopyOf` | 2 | 2 | - |
+
+**Rule "typed for-each over a fresh copy or a reversed list" (21 sites): taken 21.**
+
+| category | sites | taken | left |
+|---|---:|---:|---|
+| T2.1 | 19 | 19 | - (ClosureRewriteModule and Compiler.getCurrentJsSource: `immutableListOf_[Node](tc_Node, a, b).each()`, 8; Compiler.hoistNoCompileFiles and SymbolTable x4: `immutableListCopyOfIt_` of a typed Iterable, 10; JSTypeReconserializer: `immutableListSortedCopyOfIt_`, 1) |
+| T1.8 | 2 | 2 | - (ExternExportsPass: `tlistRevEach_(computePathPrefixes(..))`) |
+
+The report has one more loop left: OptimizeParameters:1292, `Lists.reverse(stmts)` of a `List<Node>`
+parameter (a list that can change; not a RESIDUE8 site).
+
+**Rule "objarg's List / Collection twins again" (16 sites): taken 8, counted reason 8.**
+
+| site | outcome |
+|---|---|
+| Es6ConvertSuperConstructorCalls, FeatureCollector (`contains`), ProcessCommonJSModules x2 (`indexOf`, `remove`), PolymerClassDefinition (`remove`), TemplateAstMatcher x2 (`indexOf` of a String) | taken: `TList_*E_` on the typed list |
+| J2clConstantHoisterPass (`Collection<Node>` whose object is a typed set) | taken: `Collection_containsE_` (pairs `list Node`, `set Node`, `@on objlist`) |
+| CompilerInput x2, FindModuleDependencies (`DependencyInfo.Require`), PassListBuilder x3 (`PassFactory`), EsModuleProcessor (`Export`) | counted reason 7: the element is a record; Java's `contains` / `indexOf` compares components (`Record.equals`), Go's `==` of the pointers would be identity. jsgo compares the values by hand: `*r == *require` (`internal/jscomp/compiler_input.go:302`), `factory.Equals(pass)` (`internal/jscomp/pass_list_builder.go:198`); a twin that calls the record's equals on each element would box what the erased call boxes (10.8's floor form) |
+| RenameVars (`Var`) | counted reason 1: `ScopedName.equals` (Var's superclass, `final`) compares name and scope root; jsgo scans with pointer identity (`internal/jscomp/rename_vars.go:681`, `slices.Index`), a hand judgment that one scope has one Var of a name, which the rule does not make |
+
+Outside these sites the report has 7 more List / Collection calls left by the same reasons (interfaces
+5: `GraphNode`, `CodeChangeHandler`, `UndiGraphEdge` x2, `Tracer.TracingStatistic`; FlagEntry's own
+equals 1; a type variable 1); objarg's "no typed lookup" reason is now only reported with the piece off.
+Also beyond the sites: `mkext` types 8 `new ConcurrentHashMap<>()` (Compiler x5, ClosureBundler, Tracer,
+TypedAstDeserializer; 1 with a constructor argument stays) and 2 `new IdentityHashMap<>()`
+(TemplateTypeReplacer, LinkedIdentityHashMap, whose pair `map K, *LinkedIdentityHashMap_Entry[K, V]`
+is on the list `@on mkext`).
+
+**All four rules, 109 sites: taken 64, taken on main by section 15 2, counted reason 17 (objlist 8,
+VariableMap.toBytes 8, the Class<?> key 1), not done 26 (builders 23, RequireAliasGenerator 2,
+TypedScopeCreator 1).**
+
+### 16.4 Byte identity (md5 of `cat go/closure/g_*.go`)
+
+| translation | md5 |
+|---|---|
+| main caf03d23, default (`mainmd5.sh`: main's translator sources alone, main's pair list) | d77b21723e4053a2b7b9d4f733f8aa6c |
+| main caf03d23, `J2GO_NOFNTYPES=1 J2GO_NOLIBGEN=all` | 973b5b6d3e4f71ab1cc82872360f9759 |
+| 14b17b55, `J2GO_NOLIBGEN=objlist,freshloop,mkext,gsorted` | d77b21723e4053a2b7b9d4f733f8aa6c (= main's default) |
+| 14b17b55, `J2GO_NOFNTYPES=1 J2GO_NOLIBGEN=all` | 973b5b6d3e4f71ab1cc82872360f9759 (= main's all-off) |
+| 14b17b55, `J2GO_NOLIBGEN=objlist` | 73397dbe42228d887afaeda1cf6a2b09 |
+| 14b17b55, `J2GO_NOLIBGEN=freshloop` | 9ff682d111987caace5f36bdebea8ec9 |
+| 14b17b55, `J2GO_NOLIBGEN=mkext` | 3a1e98392885c3a752f2faec82bcbf3b |
+| 14b17b55, `J2GO_NOLIBGEN=gsorted` | 994c10d13c7c6468cc8af86744bde28c |
+| 14b17b55, default (`run.sh`; the default translated again after the off runs: the same) | 9fd576c68f1f746e3b922158094e0671 |
+
+Every translation exited 0 (the pair list's stale check holds in each). 00c3ce37 changes no translator
+source (a runtime file split under a build tag and the self-test programs), so its translations are
+those of 14b17b55 (not translated again: see 16.8).
+
+### 16.5 Gate lines
+
+`gatefull.sh b1` on 14b17b55 (log `$B/logs/gate-b1.log`; `dirty: 1` is the `.cache` link, the only
+entry of `git status`):
+
+```
+GATE OK b1
+tree: 14b17b559 rule "typed library interfaces": pieces objlist, freshloop, mkext, gsorted (RESI  dirty: 1
+tests before: 53
+selftest: PASS
+removed 0 declarations in 0 rounds
+ok  	jsgomech/closure	1.961s
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+runtime lines: 22077  test lines: 4877
+runtime lines of the default build: 21833  off-mode extras (build-tagged files): 244
+tests after: 53
+```
+
+`verify.sh` with the switches, on 14b17b55, in the same run:
+
+- `J2GO_NOLIBGEN=objlist,freshloop,mkext,gsorted`: `ok jsgomech/closure 2.690s` and the four MATCH
+  lines above, but `selftest: FAIL`: `lang/GSorted.java` printed `keys.contains("zz")` of an
+  ImmutableSortedSet with a length comparator, which Java and the typed sorted set answer by the
+  comparator (true) and the erased runtime's ImmutableSortedSet by hash (false: a difference of the
+  erased runtime, not of the pieces). Fixed in the self-test (00c3ce37); before that fix the
+  development runs had also found `lang/FreshLoop.java` / `MkExt.java` calling factory shapes
+  (`ImmutableList.of` of 3, `ImmutableMap.of` of 6 entries) that the erased runtime does not have,
+  which a translation with the pieces off calls (fixed in the same commit).
+- `J2GO_NOFNTYPES=1 J2GO_NOLIBGEN=all`: the translation is 973b5b6d, but the build failed:
+  `rt_gsorted.go` named `Comparator[T]`, a Go func type only with rule "function types". Fixed in
+  00c3ce37 (`rt_gsorted_fn.go`, `//go:build !j2go_nofntypes`).
+
+On 00c3ce37 the self-test was run (development translator = the commit's sources) with the default
+switches: `selftest: PASS`. The rest of the matrix (pieces off, all off, each piece off) stopped
+when the disk of `/mnt/data` filled (1.2 GB free, `$B/gocache` 144 GB; `no space left on device` in
+the Go build of the second setting), and the gate and `verify.sh` of 00c3ce37 could not be run:
+see 16.8.
+
+### 16.6 Census, binary
+
+Census (`census.py` of pf5 on `g_*.go`; main caf03d23's translation -> 14b17b55's, the gate's
+`$B/runs/census_b1.txt`): Java collections (erased) constructors 42 -> 36; typed TList/TMap/TSet
+constructors 1,156 -> 1,166; Guava immutable collections / builders 46 -> 25; for-each via iterator
+objects 711 -> 710; class casts 1,070 -> 1,064; boxing to any 1,391 -> 1,355 (-36); unboxing from any
+78 -> 72; fields/params declared any 1,220 -> 1,217. No row higher. Diff: 164 lines in 36 files.
+
+Binary (`go build ./cmd/mech`, GOENV goenv-c1, built by `gate.sh`): main's default translation and
+runtime, the gate binary of section 15's fed280c9 (`$B/bin/m_resa_b`; caf03d23 changes only docs, so
+its translation d77b2172 and runtime are main's) 124,772,189 bytes; 14b17b55 (`$B/bin/m_b1`)
+125,175,883 (+403,694). Not broken down by piece; `go tool nm -size` of `m_b1`: piece `objlist`'s
+twins are 8 symbols, 1,778 bytes (the size question of 10.8: the TList twins take the typed list
+itself and the ListT / CollectionT twins are called only for element types that have a typed list or
+set, so no view is instantiated for them); `gsorted`'s makers 14 symbols, 16,672 bytes; `freshloop`'s
+2 symbols, 1,438 bytes; `mkext`'s own functions 670 bytes. The rest of the growth is not explained;
+the likely part is the typed maps `mkext` makes where the erased object was wrapped (8
+ConcurrentHashMaps, 2 IdentityHashMaps, 3 EnumMaps: their `TMap` instantiations and conversions).
+
+### 16.7 Timing
+
+`proto/gast.py gasub/flags3500.txt 3 base=$B/bin/m_resa_b new=$B/bin/m_b1` (`tm.sh`, log `tm-resb.log`),
+under the lock, the 20G scope and GOENV goenv-c1 (both binaries were built by `gate.sh` the same way;
+`m_resa_b` is main's default translation and runtime, 16.6; `m_b1` is 14b17b55's, whose default
+build compiles the same code as 00c3ce37's). The translator is one step: the four pieces together.
+Output sha 72b57cd286c9 in all six runs; load 1.2-1.9.
+
+| binary | runs (CPU s) | mean | min |
+|---|---|---:|---:|
+| base | 162.89, 162.96, 163.85 | 163.23 | 162.89 |
+| new | 161.61, 162.87, 161.03 | 161.84 | 161.03 |
+
+-0.9% of the means, -1.1% of the minima: neutral to slightly faster (one binary's spread here is up
+to 1.3 s). Sites that the subset runs: PropertyMap.getAllKeys (the cached key set is a typed sorted
+set, no wrapper), the SymbolTable and Compiler loops, the typed ConcurrentHashMaps of Compiler; not
+profiled.
+
+### 16.8 Not done, unverified
+
+- 26 of the 109 sites are not done (16.3): the builders (23: Colls' builder proof for `Optional.of`,
+  `addAll` of an erased value, a built set for an erased parameter, and builder kinds for the sorted
+  builders), RequireAliasGenerator (2: a copy typed by the receiver it enters), TypedScopeCreator (1:
+  `Lists.reverse` has no typed twin). These are not reasons that hold against jsgo.
+- 00c3ce37 (the commit handed in) has not been gated and `verify.sh` was not run on it with the
+  pieces off or everything off: the disk was full. What it changes: a runtime file split under a
+  build tag (the default build compiles the same code) and self-test programs. Its default self-test
+  passed.
+- No flip: the sites were checked in the translation, not in a flipped tree.
+- `verify.sh` with a single piece off was not run (their md5s only).
+- No runtime test (`rt_*_test.go`) for the new runtime; the self-test programs cover it.
+- `copyOfSorted` of an ImmutableSortedSet returns it in both runtime forms (Guava makes a new set);
+  `contains` of the erased ImmutableSortedSet does not use its comparator: both pre-existing, kept.
+- No allocation profile.
+- The branch is on main caf03d23. Main moved on to 518de405, which only adds `docs/PLAN-STATUS.md`;
+  the branch was already pushed, so it was not rebased again (that would need a force push). The
+  translator, the runtime and the md5s are those of 518de405's code.
