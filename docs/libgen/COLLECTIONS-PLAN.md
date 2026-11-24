@@ -3398,3 +3398,240 @@ except `Splitter.split` and `ComparisonChain` comparators.
   run them.
 - `verify.sh` with a single piece off was not run (only their md5s, on 72fc20f7).
 - No allocation profile; the binary growth is not broken down.
+
+## 17. Record of three RESIDUE8 rules: pieces `rtcls`, `annqual` + `ownwild2`, `nboxarg` (branch `main-resid-c`, worktree `/mnt/data/ubuntu/jm/wt/resc`, 2026-11-24)
+
+On main caf03d23 (section 15). The rules of `docs/javaisms6/RESIDUE8.md` taken here: "typed runtime
+classes" (T2.9-T2.11, T1.11, T4.3b, T4.2b, T4.3c: 23 sites), "`Source.Lazy<T>` typed" (T1.21, T4.3d,
+R5.3: 6) and "piece nbox for type arguments" (T1.16, R5.4: 4), plus the site section 15.3 left for the
+last of these (`ConvertToTypedInterface.SHORT_TO_LONG`). Sites are those of the eighth flip's
+accounting (`docs/javaisms6/residue8.tsv`); each was found again in main's translation and checked in
+this branch's. Another agent (branch `main-resid-b`) works on makers, Guava sorted makers, for-each
+over copies and objarg twins: Colls.java and LibObj.java are not touched here, and nothing of Ordering
+or TreeRangeSet that only feeds javac bridges or typed sorted builders (17.6). Scratch:
+`/mnt/data/tmp/claude-1000/-home-ubuntu-work/9db246f3-01a3-48c8-9bf5-1c94d1ed78d6/scratchpad/resc/`
+(`hv.sh` one heavy job: the lock, the 20G scope, GOENV goenv-c1; `runsh.sh <label> [VAR=val]`: `run.sh`
+with the `J2GO_LIBGEN=2` report, md5, copy to `out-<label>`; `chk.sh`: the two off-mode md5s and the
+default with a compile; `st.sh`: the self-test; `big.sh`: `run.sh` + `$B/gate.sh` + binary size, then
+`off.sh` (fresh translation and `verify.sh` with the pieces off, then everything off), then the timing;
+`base.sh`: main's md5s, binary and census).
+
+### 17.1 Commits
+
+| commit | switch (`J2GO_NOLIBGEN=`) | what |
+|---|---|---|
+| 69de3b6c | `rtcls`, `annqual`, `ownwild2`, `nboxarg` | `LibRt.java` (new), `GenScan` (`annotatedBase`, the expression form of `ownWild`), `LibNbox` / `LibFns` (`nboxarg`), small hooks in `Ctx` (class name, alias, coerce, `atSite`), `ExprEmitter` (generic statics of the classes, the own test), `FnTypes.viaLibrary`; runtime `rt_rtcls.go` (tag `!j2go_nofntypes`), `rt_nboxarg.go`, `CacheBuilder.build(any)`; self-test `lang/RtCls.java`; `ownwild-equals.txt` entry `Source.Lazy.equals` |
+| ddc7a07f, 44788c35 | | self-test program fixes (`++` as a value, library calls the runtime lacks); Guava runtime tests that named the translation's stubs of the erased Ordering / RangeSet use the runtime's own methods |
+| 1e930970 | `ownwild2` | the `instanceof` of a class with subclasses tests `as_C` of its instantiation (found by the self-test: `Source.Lazy`'s values are its anonymous subclasses) |
+| 4e2f7bb7, e2d2136f | | self-test counts with `nboxarg` on (TriBox, Resid); the equals list's stale check fails the translation at its end, as objarg's |
+| (the commit after) | | this section |
+
+### 17.2 The form
+
+- **`rtcls`** (`LibRt`; needs rule "function types"): a name list, `LibRt.NAMES`, of library classes
+  the runtime now has twice: the erased class (which every translation with the piece off names, as
+  before) and a generic struct `XT[..]` in `rt_rtcls.go`, written after the erased one method by method
+  (the same fields, the same steps, the values at their types; erased code that meets one calls the
+  erased methods, which box with `boxT_`). The translator treats each listed class as a typed
+  declaration (`Ctx.typedClasses`, its type parameters kept, `className` the `T` name, no `XOf` alias,
+  its static generic methods Go generic functions); everything else is the existing machinery of typed
+  generic classes. So a program class that extends one overrides at its type arguments, and the box /
+  cast at the override is gone:
+
+  ```go
+  type NodeUtil_PreOrderIterator struct { AbstractIteratorT[Node]; ... }
+  func (this *NodeUtil_PreOrderIterator) computeNext() Node {      // main: computeNext() any ... returnValue.box_()
+  func (this *CachingTranspiler_1) load(key *CachingTranspiler_Key) *TranspileResult {   // main: load(key_ any) any, cast_, obj_
+  func (this *SymbolTable_5) compare(a Node, b Node) int32 {        // main: compare(a_ any, b_ any), Node_of_ twice
+  	var result int32 = this.outer_.sourceNameOrdering.compare(a.getSourceFileName(), b.getSourceFileName())   // main: strobj_ twice
+  var Tracer_traces *ThreadLocalT[*Tracer_ThreadTrace]            // get() gives the ThreadTrace: no cast_, set(t) no obj_
+  this.closureUnawareCodeRanges.add(RangeT_closed[*IRFactory_LineAndColumn](start, end))   // main: Range_closed(obj_(..), obj_(..))
+  builder.build(CacheLoaderT_from[*Source, *Source](Function_base[*Source, *Source](func(p0 *Source) *Source { return delegate.transform(p0) })))
+  ```
+
+  The classes: `java.lang.ThreadLocal` (`get`, `set`, `remove`), Guava's `AbstractIterator`
+  (`computeNext` of the subclass at T, `endOfData`, `hasNext`, `next_t` and the erased `next`,
+  `peek`), `CacheLoader` (`load` of the subclass at K, V; `CacheLoader.from`; `CacheBuilder.build`
+  takes the erased loader or a typed one, which makes the typed view of the same erased cache: one map,
+  the same size bound and eviction, the loader called at its types), `Range` / `TreeRangeSet` /
+  `RangeSet` (the endpoints at their type, compared as `compareNatural_` compares them: the class's
+  `compareTo_t` of piece cmp through `cmpTypedT_`, else the boxes), `Ordering` (`compare` at T, as
+  rule "function types" has `Comparator.compare` for a class of the program: `FnTypes.viaLibrary`
+  counts a listed class as typed; `natural`, `nullsFirst`, `reverse`, `sortedCopy`). Two translator
+  rules for what Go cannot say: a method's own type variable bounded by the class's
+  (`<S extends T> Ordering<S> nullsFirst()`) is that type variable (`Ctx.atSite`), and where javac's
+  instantiation differs (`Ordering.natural().nullsFirst()`: `Ordering<Comparable>` given as an
+  `Ordering<String>`) the runtime's `OrderingT_as_` converts (itself when the Go types are the same,
+  else the ordering of the boxes, as the erased Ordering compared them); a listed class at Object given
+  to an erased runtime method (`CacheBuilder.build(CacheLoader<Object, Object>)`) is the object itself.
+  A typed TreeRangeSet given where a RangeSet is declared is converted as a class of the program to its
+  typed interface (nil stays nil). No program class is refused: the report counts the program's classes
+  that extend a listed class (AbstractIterator 4, Ordering 4, CacheLoader 1).
+- **`annqual`** (`GenScan.annotatedBase`): `Source.@Nullable Lazy<String>` is the tree
+  ParameterizedType(AnnotatedType(Source.Lazy), String), and javac gives the annotated base the raw type
+  `Source.Lazy`, which the scan of uses read as "used raw" (Source.java:126-127) and so erased `Lazy`'s
+  type parameter for the program. Like the name `Lazy` of `Lazy<String>` (an IdentifierTree, never
+  checked), the base of a parameterized type is no use of a value; the parameterized type is checked.
+- **`ownwild2`** (`GenScan.ownWild`, the list `tools/j2go/ownwild-equals.txt`): the second reason was
+  the captured type of `Lazy.equals`, `return other instanceof Lazy<?> && Objects.equals(get(), ((Lazy<?>)
+  other).get());` (Source.java:329), the expression form of what piece ownwild types for a local. A
+  listed `equals(Object o)` whose body is `return o instanceof C<?> && E;`, with casts `(C<?>) o` in E,
+  has them at `C<T>` and the test of C's instantiation, where the class's type argument lists written
+  with no wildcard or type variable are one (checked: `Lazy<String>` only) or every one is an enum (as
+  piece ownwild); the list entry says why every Lazy is a `Lazy<String>`. For a class with subclasses
+  (Lazy's values are its anonymous subclasses) the test is `is_[interface{ as_C() *C[T] }]`, which the
+  class declares and its subclasses promote. The list has a stale check now (both forms on): an entry
+  that names no `equals(Object)` casting to `C<?>` fails the translation at its end. With both pieces,
+  `Source.Lazy` is TYPED in the generics report (`Source_Lazy[T comparable]`).
+- **`nboxarg`** (`LibNbox`, `LibFns`; needs `nbox` and `fns2`): a boxed type argument of a library
+  function type held as piece nbox's `Nbox[T]` in two more places. `Comparator.comparing` whose key is
+  a boxed integral primitive is `Comparator_comparingN_[T, P](Function[T, Nbox[P]])`
+  (`rt_nboxarg.go`: the keys compared as `Integer.compareTo`, a null key through `compareNatural_` as
+  the erased twin): `SHORT_TO_LONG = Comparator_comparingN_[string, int32](..)`. And piece nbox's function
+  candidates extend to fields and constructor parameters, given a lambda, a method reference, or
+  another candidate of the same type (passed on, assigned): candidates passed on to one another are
+  decided together. `ColorSerializer(.., Function<String, Integer> stringPoolIndexFn, ..)` kept in a
+  field is `Function[string, Nbox[int32]]`, and `TypedAstSerializer`'s `stringPoolBuilder::put` is
+  given at it (`nbox_[int32](stringPoolBuilder.put(p0))`, was `any(int32(..))`). Left, by reason
+  (`J2GO_LIBGEN=2`): a field of a function type with an initializer (`exitCodeReceiver`, and through it
+  `enableTestMode`'s parameter), a field of a record / handle class (`PassFactory.getCondition`), a
+  field assigned something else (`PassFactory.Builder.condition`), a parameter given something else
+  (`setCondition`), passed on as a value (2).
+
+### 17.3 Sites per RESIDUE8 category (eighth flip's accounting)
+
+| rule | category | sites | taken | left, and why |
+|---|---|---:|---:|---|
+| rtcls | T2.9 Ordering<T> fields | 8 | 8 | |
+| rtcls | T2.10 ThreadLocal<T> | 2 | 2 | |
+| rtcls | T2.11 RangeSet / Range.closed | 2 | 2 | |
+| rtcls | T1.11 CacheLoader.from / CacheBuilder<Object, Object> | 3 | 3 | (the builder parameter stays `CacheBuilderOf[any, any]`, Java's `CacheBuilder<? super Source, ? super Source>`: an erased class whose type arguments only an alias records; the three sites are line 10's converting closure, `obj_` and `any`s) |
+| rtcls | T4.3b CacheLoader.load of CachingTranspiler | 3 | 3 | |
+| rtcls | T4.2b computeNext of AbstractIterator<T> | 3 | 3 | (and `ObjectType`'s anonymous AbstractIterator, not a site of the accounting) |
+| rtcls | T4.3c AbstractSet<String>.add of Compiler's anonymous class | 2 | 0 | 2: `Compiler.forwardDeclaredTypes` is a `Set<String>` that erased code reaches as a Set (`setAs_(tc_string, icast_Set(obj_(new_Compiler_1(this))))`: the typed wrapper calls the erased `add(Object)`); a typed `add(String)` needs a second Go name beside the erased `add(any)` that erased callers keep, which is a javac bridge pair (T4.1's kind), and `AbstractSet` is also `StandardUnionFind`'s at an erased E. Left to the bridges batch; `java.util.AbstractSet` is not on `LibRt.NAMES` (tried: the override stayed erased, the root is `Collection.add`). jsgo: `internal/jscomp/compiler.go:349`, a hand typed set |
+| annqual + ownwild2 | T1.21 Supplier<String> given to Source.Builder | 1 | 1 | |
+| annqual + ownwild2 | T4.3d Lazy<String> of Source | 3 | 3 | |
+| annqual + ownwild2 | R5.3 Source.Lazy's captured instance | 2 | 2 | |
+| nboxarg | T1.16 function results that are a boxed Integer | 3 | 1 | taken: `TypedAstSerializer.createColorTypeSerializer` (`ColorSerializer`'s function field). 2 left: `SerializeTypesToPointers.typePointersByJstype`, a `LinkedIdentityHashMap<JSType, Integer>` (a program generic class at a boxed type argument, `[*JSType, any]`, shared by a getter with `ConvertTypesToColors` and `TypedAstSerializer`): `Nbox[int32]` there needs every declaration of that instantiation refined together and `unboxT_` / `boxT_` of an Nbox in the class's generic code, a rule for program generic classes that this piece does not have; `TypeInferencePass.stepCountHistogram`, a `LinkedHashMap<Integer, SimpleMultiset<Token>>`: the typed collections hold a boxed key as `any` (`tc_Integer`), and an Nbox key needs element conversions and equality of the typed family for Nbox. jsgo typed both by hand declarations: `internal/jscomp/serialization_serialize_types_to_pointers.go:35` `map[rhino.JSType]int`, `internal/jscomp/type_inference_pass.go:41` `map[int]*[256]int` (also a data-structure change of the value). These are gaps of a rule not built, not reasons jsgo refutes |
+| nboxarg | R5.4 a boxed Long value of a typed map | 1 | 0 | 1: `ReportDecoder.mergeProfiles`, `Map<InstrumentationPoint, Long>` with `compute`: as the histogram above (a typed map's boxed value), and `Map.compute` has no typed twin. jsgo: not ported |
+| nboxarg | (15.3's) `ConvertToTypedInterface.SHORT_TO_LONG` | (1) | 1 | |
+| | **all** | **33 (+1)** | **28 (+1)** | **5** |
+
+Per rule: typed runtime classes 21 of 23, Source.Lazy 6 of 6, nbox for type arguments 1 of 4 (and
+`SHORT_TO_LONG`). Taken beyond the categories: `ObjectType`'s anonymous AbstractIterator, the compare of
+`JSChunkGraph.InverseDepthComparator`, `Ordering.sortedCopy` of three calls at their element type (no
+`listAs_` of the result), the converting closure of `new TreeSet<>(lexicalScopeOrdering)` and of
+`Collections.sort(types, getNaturalSymbolOrdering().reverse())`. One line worse:
+`ReplaceMessagesForChrome`'s `Ordering.natural().sortedCopy(..)`, whose `C` javac infers as the raw
+`Comparable` (`OrderingT_natural[any]`): the argument enters through `iterableAs_(tc_Comparable, ..)`
+and the result through `List_un_`, two wrappers where main called the erased Ordering.
+
+### 17.4 Byte identity, census, binary (md5 of `cat go/closure/g_*.go`)
+
+| translation | md5 |
+|---|---|
+| main caf03d23, default (measured in this worktree before any change) | d77b21723e4053a2b7b9d4f733f8aa6c |
+| main caf03d23, `J2GO_NOFNTYPES=1 J2GO_NOLIBGEN=all` | 973b5b6d3e4f71ab1cc82872360f9759 |
+| 69de3b6c (and its code before the commit, twice), `J2GO_NOLIBGEN=annqual,ownwild2,rtcls,nboxarg` | d77b21723e4053a2b7b9d4f733f8aa6c (= main) |
+| 69de3b6c, `J2GO_NOFNTYPES=1 J2GO_NOLIBGEN=all` | 973b5b6d3e4f71ab1cc82872360f9759 (= main's all-off) |
+| 69de3b6c, default | e42d76f51b8b0e832a01ac4f7f2b6144 |
+| 7961ea06 (1e930970's translator and on; the gate's commit), `J2GO_NOLIBGEN=annqual,ownwild2,rtcls,nboxarg` | d77b21723e4053a2b7b9d4f733f8aa6c (= main) |
+| 7961ea06, `J2GO_NOFNTYPES=1 J2GO_NOLIBGEN=all` | 973b5b6d3e4f71ab1cc82872360f9759 (= main's all-off) |
+| 7961ea06, default | 6b904c169d6e5bc0f0a1826fe30b2d10 (e42d76f5 but `g_Source.go`'s Lazy test, 17.1) |
+
+`rt_proto_gen.go` 0cc968f1 in every run (the committed one; protogen was not needed). The single-piece
+md5s were not measured. The runtime additions do not change any translation (the pieces-off md5 is
+main's with them in place); `CacheBuilder.build` takes `any` now, which main's translation passes a
+`*CacheLoader` to as before.
+
+Census (`census.py` of pf5 on the translation, main caf03d23 -> 7961ea06): dynamic dispatch through
+self_ 522 -> 521, anonymous interface assertions 887 -> 882, class casts 1,070 -> 1,056, instanceof
+440 -> 439, boxing to any 1,391 -> 1,367, unboxing from any 78 -> 74, fields/params declared any
+1,220 -> 1,205; no row higher.
+
+Binary (`go build ./cmd/mech`, GOENV goenv-c1): main (`m_resc_base`, built from this worktree's
+translation of caf03d23) 124,772,189 bytes; 7961ea06 (`m_resc_c7`, the gate's) 124,909,453
+(+137,264: the generic structs at each instantiation, not broken down). Runtime lines of the default
+build 21,807 (15.4: 21,382 for fed280c9, whose code caf03d23 has; +391 `rt_rtcls.go`, +25 `rt_nboxarg.go`, +9 `CacheBuilder.build`),
+off-mode extras 244.
+
+### 17.5 Gate lines
+
+`big.sh resc_c7` (= `run.sh` + `$B/gate.sh resc resc_c7`) on the committed 7961ea06 (the code of
+e2d2136f merged with main 518de405, 17.8), log `/mnt/data/ubuntu/jm/logs/gate-resc_c7.log`:
+
+```
+GATE OK resc_c7
+tree: 7961ea06f Merge main 518de405 (docs/PLAN-STATUS.md) into main-resid-c  dirty: 1
+selftest: PASS
+removed 0 declarations in 0 rounds
+ok  	jsgomech/closure	1.984s
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+runtime lines: 22051  test lines: 4880
+```
+
+(`dirty: 1` is the `.cache` link.) The gates of 69de3b6c .. e2d2136f failed in the self-test (17.1's
+fixes) or ran out of disk (17.8); the first one's `removed 2 declarations` was the pruner dropping the
+two Guava runtime tests that named the translation's stubs of the erased `Ordering` / `RangeSet`,
+which the default translation no longer names (ddc7a07f). Switches off (`off.sh` in the same job:
+translate fresh with the switches, `tools/prune/verify.sh` with them): `J2GO_NOLIBGEN=annqual,
+ownwild2,rtcls,nboxarg` (md5 d77b2172) selftest PASS, `ok` (1.942s), the four MATCH lines as above.
+`J2GO_NOFNTYPES=1 J2GO_NOLIBGEN=all` (md5 973b5b6d): selftest PASS, `ok` (1.986s), then the link of
+`cmd/mech` failed with "no space left on device" (17.8); run again, 17.5a. The default translated
+again afterwards was 6b904c16, `dirty: 1` (`.cache`).
+
+Self-test `lang/RtCls.java` (counted in `selftest/run.sh`): piece `rtcls` 4 overriding methods at
+their types (Countdown.computeNext, ByLength.compare, an anonymous Ordering's compare, an anonymous
+CacheLoader's load), 2 ThreadLocalT, 2 `TreeRangeSetT_create`, 5 `RangeT_closed`, 1
+`CacheLoaderT_from`; pieces `annqual` + `ownwild2`: `Lazy` (a field `RtCls.@N Lazy<String>`) a Go
+generic type with 1 test of its instantiation, `Two` (listed, two instantiations) and `Unl` (not
+listed) erased; piece `nboxarg`: 3 `Comparator_comparingN_[string, int32]`, 1 erased-key
+`Comparator_comparing[string, any]` (a Double key), Pool's function field at Nbox, Other's (given a
+variable) at `any`. With `nboxarg` on, TriBox's three left function parameters (a method reference,
+passed on, given what was passed on) are typed (6 lambdas, 0 left) and Resid's int-key comparing is
+the Nbox twin (2 erased calls in `left()`); `run.sh` expects these numbers when the piece is on.
+Everything prints what Java prints (cache eviction and the loader's exception, NoSuchElementException,
+Range's IllegalArgumentException, nulls first, NullPointerException of a null key).
+
+### 17.6 Timing (CPU, googleapis 18% subset, `proto/gast.py gasub/flags3500.txt 3`)
+
+`base` = main caf03d23's translation and runtime (`$B/bin/m_resc_base`), `new` = the gate binary of
+7961ea06 (`$B/bin/m_resc_c7`), both built with GOENV goenv-c1 under the lock and the 20G scope; the
+four pieces together (the translator is one step). Output sha 72b57cd286c9 in all six runs
+(`tm-resc_c7.log`).
+
+| binary | runs (CPU s) | mean | min |
+|---|---|---:|---:|
+| base | 162.68, 163.40, 165.17 | 163.75 | 162.68 |
+| new | 165.18, 164.44, 163.99 | 164.54 | 163.99 |
+
++0.5% of the means, +0.8% of the minima: neutral (within one binary's spread, 2.5 s here). The sites
+are cold except SymbolTable's orderings (only with a symbol table) and the AbstractIterators of
+NodeUtil (`preOrderIterable`, template arguments), which now box at `next()` only for erased readers.
+
+### 17.7 Left for the bridges batch, and for the Guava sorted makers
+
+- `IRFactory.LineAndColumn.compareTo(any)` (piece cmp's bridge): the typed TreeRangeSet calls
+  `compareTo_t` through `cmpTypedT_`, so the erased TreeRangeSet no longer reaches the bridge in the
+  default build; dropping it is a deadbridge-style proof (11.5), not done here.
+- Ordering: the program's Orderings have no erased `compare` any more (no bridge: rule "function
+  types"' form). Nothing feeds an Ordering to a Guava sorted maker or builder in the tree; the
+  comparator-taking makers and their converting closures (T1.14, T2.2) are branch `main-resid-b`'s.
+- `java.util.AbstractSet` (T4.3c above).
+
+### 17.8 Not done, unverified
+
+- No flip: the census is of the translation.
+- The branch was pushed before main moved (caf03d23 -> 518de405, a docs-only commit); main is merged
+  in (7961ea06) instead of a rebase, which would have needed a force-push. Every check of 17.4-17.6
+  ran on 7961ea06 or later.
+- The host's disk (`/mnt/data`) was full for most of the session (1-2 GB free, the shared go build
+  cache at 144 GB): several gate and self-test runs died with "no space left on device" and were
+  repeated; the first all-off verify.sh of 17.5 did too.
+- No Go unit tests for `rt_rtcls.go` / `rt_nboxarg.go` (the self-test compares them with Java; the
+  gate's e2e covers the tree's calls as far as its inputs run them).
+- The single-piece md5s and verify.sh with a single piece off were not run.
+- `ReplaceMessagesForChrome`'s `Ordering.natural().sortedCopy(..)` got two wrappers (17.3).
