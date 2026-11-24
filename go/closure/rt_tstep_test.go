@@ -139,3 +139,28 @@ func TestTypedListViewIsTheList(t *testing.T) {
 		t.Error("the view and the list differ")
 	}
 }
+
+// A typed map or set is its own erased view too: asMap and asSet make no object (nor the
+// map's side structure), and view and collection are one.
+func TestTypedMapViewIsTheMap(t *testing.T) {
+	m := newTMap_(tc_string, tc_string)
+	m.Put("a", "1")
+	s := newTSet_(tc_string)
+	s.Add("a")
+	var ms Map
+	var ss Set
+	if n := testing.AllocsPerRun(100, func() { ms = m.asMap(); ss = s.asSet() }); n != 0 {
+		t.Errorf("asMap and asSet allocate %v objects", n)
+	}
+	if m.x != nil || s.x != nil {
+		t.Error("a view made the map's side structure")
+	}
+	if m.asMap() != ms || s.asSet() != ss {
+		t.Error("two views of one collection")
+	}
+	ms.put(strobj_("b"), strobj_("2"))
+	ss.add(strobj_("b"))
+	if m.live != 2 || m.Get("b") != "2" || s.live != 2 || !ss.contains(strobj_("a")) || str_(ms.get(strobj_("a"))) != "1" {
+		t.Error("the views and the collections differ")
+	}
+}

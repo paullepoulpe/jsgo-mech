@@ -21,8 +21,8 @@ import "unsafe"
 // keeps the twins to the K, V that have a typed map, so the twins compile no typed map that the
 // translation does not have.)
 
-func (v *tmapView_[K, V]) tmap_() unsafe.Pointer { return unsafe.Pointer(v.m) }
-func (v *tsetView_[K]) tset_() unsafe.Pointer    { return unsafe.Pointer(v.s) }
+func (v *tmapView_[K, V]) tmap_() unsafe.Pointer { return unsafe.Pointer(v.tm()) }
+func (v *tsetView_[K]) tset_() unsafe.Pointer    { return unsafe.Pointer(v.ts()) }
 
 // jtmapOf_ / jtsetOf_: the view of a typed map or set (also of a sorted one, which embeds it).
 type jtmapOf_ interface{ tmap_() unsafe.Pointer }

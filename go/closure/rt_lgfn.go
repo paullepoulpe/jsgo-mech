@@ -246,7 +246,7 @@ func Map_getOrDefaultT_[K, V any](m MapT[K, V], k any, def V) V {
 // typed map's own lookup, else the erased helper's and the cast of erased code.
 func Map_get_sT_[V any](m MapT[string, V], k string) V {
 	if v, ok := m.(*tmapView_[string, V]); ok && k != nullstr_ {
-		return v.m.Get(k)
+		return v.tm().Get(k)
 	}
 	return junboxT_[V](Map_get_s(Map_un_(m), k))
 }
@@ -255,7 +255,7 @@ func Map_get_sT_[V any](m MapT[string, V], k string) V {
 // (Map_getOrDefault_s).
 func Map_getOrDefault_sT_[V any](m MapT[string, V], k string, def V) V {
 	if v, ok := m.(*tmapView_[string, V]); ok && k != nullstr_ {
-		return v.m.GetOr(k, def)
+		return v.tm().GetOr(k, def)
 	}
 	u := Map_un_(m)
 	if v := Map_get_s(u, k); v != nil || Map_containsKey_s(u, k) {

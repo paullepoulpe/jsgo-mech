@@ -38,7 +38,7 @@ func tmapOf_[K comparable, V any](v any) *TMap[K, V] {
 			return m
 		}
 	}
-	return v.(*tmapView_[K, V]).m
+	return v.(*tmapView_[K, V]).tm()
 }
 
 // tsetOf_ is the typed set whose view v is, or whose twin v is.
@@ -51,7 +51,7 @@ func tsetOf_[K comparable](v any) *TSet[K] {
 			return s
 		}
 	}
-	return v.(*tsetView_[K]).s
+	return v.(*tsetView_[K]).ts()
 }
 
 // tlistConv_ is the conversion of typed lists as elements of a typed container.
