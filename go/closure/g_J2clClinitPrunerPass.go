@@ -156,12 +156,12 @@ func J2clClinitPrunerPass_getQualifiedNameOfFunction(function Node) Optional[str
 type J2clClinitPrunerPass_RedundantClinitPruner struct {
 	outer_                *J2clClinitPrunerPass
 	roots                 *TSet[Node]
-	stateStack            *TDeque[*J2clClinitPrunerPass_HierarchicalSet[string]]
+	stateStack            *[]*J2clClinitPrunerPass_HierarchicalSet[string]
 	clinitsCalledAtBranch *J2clClinitPrunerPass_HierarchicalSet[string]
 }
 
 func (this *J2clClinitPrunerPass_RedundantClinitPruner) finit_J2clClinitPrunerPass_RedundantClinitPruner() {
-	this.stateStack = newTDeque_(tc_p_J2clClinitPrunerPass_HierarchicalSet_string_)
+	this.stateStack = &[]*J2clClinitPrunerPass_HierarchicalSet[string]{}
 	this.clinitsCalledAtBranch = new_J2clClinitPrunerPass_HierarchicalSet[string](nil)
 }
 
@@ -185,10 +185,10 @@ func new_J2clClinitPrunerPass_RedundantClinitPruner(outer_ *J2clClinitPrunerPass
 func (this *J2clClinitPrunerPass_RedundantClinitPruner) shouldTraverse(t *NodeTraversal, node Node, parent Node) bool {
 	if this.roots.Has(node) {
 		this.clinitsCalledAtBranch = new_J2clClinitPrunerPass_HierarchicalSet[string](nil)
-		this.stateStack.clear()
+		sliceClear_(this.stateStack)
 	}
 	if NodeUtil_isFunctionDeclaration(node) || node.isScript() {
-		this.stateStack.add(this.clinitsCalledAtBranch)
+		*this.stateStack = append(*this.stateStack, this.clinitsCalledAtBranch)
 		this.clinitsCalledAtBranch = new_J2clClinitPrunerPass_HierarchicalSet[string](nil)
 	}
 	if this.isNewControlBranch(parent) {
@@ -206,7 +206,7 @@ func (this *J2clClinitPrunerPass_RedundantClinitPruner) visit(t *NodeTraversal, 
 		this.clinitsCalledAtBranch = this.clinitsCalledAtBranch.parent
 	}
 	if NodeUtil_isFunctionDeclaration(node) || node.isScript() {
-		this.clinitsCalledAtBranch = cast_[*J2clClinitPrunerPass_HierarchicalSet[string]](SequencedCollection_removeLast(SequencedCollection(Deque_un_(this.stateStack.asDequeT()))))
+		this.clinitsCalledAtBranch = slicePop_(tc_p_J2clClinitPrunerPass_HierarchicalSet_string_, this.stateStack)
 	}
 }
 
