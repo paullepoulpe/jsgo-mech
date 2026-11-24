@@ -22,6 +22,7 @@ func (this *JsonErrorReportGenerator) generateReport(manager *SortingErrorManage
 	var jsonWriter *SimpleJsonWriter = new_SimpleJsonWriter()
 	{
 		jsonWriter.beginArray()
+		var sourceExcerptU16 utf16_
 		for message := range elemsT_(manager.getSortedDiagnostics()) {
 			var sourceName Optional[string] = message.error_.sourceName()
 			var lineNumber int32 = message.error_.getLineNumber()
@@ -58,9 +59,9 @@ func (this *JsonErrorReportGenerator) generateReport(manager *SortingErrorManage
 				var b strBuilder_
 				b.append(sourceExcerpt.get())
 				b.append("\n")
-				if (0 <= charno) && (charno <= String_length(sourceExcerpt.get())) {
+				if (0 <= charno) && (charno <= sourceExcerptU16.of(sourceExcerpt.get()).length()) {
 					for i := int32(0); i < charno; i++ {
-						var c uint16 = String_charAt(sourceExcerpt.get(), i)
+						var c uint16 = sourceExcerptU16.of(sourceExcerpt.get()).charAt(i)
 						if TokenUtil_isWhitespace(int32(c)) {
 							b.append_char(c)
 						} else {
@@ -70,7 +71,7 @@ func (this *JsonErrorReportGenerator) generateReport(manager *SortingErrorManage
 					if node == 0 {
 						b.append("^")
 					} else {
-						var length int32 = Math_max(1, Math_min(regionLength, (String_length(sourceExcerpt.get())-charno)))
+						var length int32 = Math_max(1, Math_min(regionLength, (sourceExcerptU16.of(sourceExcerpt.get()).length()-charno)))
 						for i := int32(0); i < length; i++ {
 							b.append("^")
 						}

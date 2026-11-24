@@ -224,13 +224,14 @@ func (this *AliasStrings_StringInfo) getVariableName(stringLiteral string) Optio
 
 func (this *AliasStrings_StringInfo) encodeStringAsIdentifier(prefix string, s string) string {
 	var maxLimit int32 = 20
-	var length int32 = String_length(s)
+	sU16 := utf16Of_(s)
+	var length int32 = sU16.length()
 	var limit int32 = Math_min(length, maxLimit)
 	var sb strBuilder_
 	sb.append(prefix)
 	var protectHex bool = false
 	for i := int32(0); i < limit; i++ {
-		var ch uint16 = String_charAt(s, i)
+		var ch uint16 = sU16.charAt(i)
 		if protectHex {
 			if ((int32(ch) >= 48) && (int32(ch) <= 57)) || ((int32(ch) >= 97) && (int32(ch) <= 102)) {
 				sb.append_char('_')
