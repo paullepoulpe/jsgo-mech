@@ -5,7 +5,6 @@
 #
 #   tools/postflip/replay-all.sh [-w DIR] [-base COMMIT] [-to COMMIT] [-noverify] [-trim] [-list]
 #                                [-steps FILE] [-overlay DIR] [-toolfix SCRIPT] [-check CMD]
-#                                [-verifyin RANGE]
 #
 #   -w DIR       the replay worktree (default ../<repo>-replay-w); made with `git worktree add`
 #                at the base commit when it does not exist. A rerun resumes after the last
@@ -24,10 +23,6 @@
 #                and before they run (a re-flip's fixes to the tools of every step). Idempotent.
 #   -check CMD   a command run at the worktree root after each commit's lines (a type check of
 #                go/closure, say); the replay stops when it fails.
-#   -verifyin RANGE  compare go/ only for the commits of the git range RANGE (a re-flip:
-#                `<new flip>..<tip>`, the steps made on the re-flip's own branch); the steps of
-#                the old history, replayed on the new flip's text, cannot match their commits and
-#                are not compared. Implies the comparison for those commits even with -noverify.
 #   -trim        after each step, delete the files over 8 MB from $GOCACHE (the steps that
 #                build go/closure leave about 300 MB each). Only with a GOCACHE of your own.
 #
@@ -65,7 +60,6 @@ trim=0
 overlay=
 toolfix=
 check=
-verifyin=
 while [[ $# -gt 0 ]]; do
   case $1 in
     -w) W=$2; shift 2 ;;
@@ -77,7 +71,6 @@ while [[ $# -gt 0 ]]; do
     -overlay) overlay=$(realpath "$2"); shift 2 ;;
     -toolfix) toolfix=$(realpath "$2"); shift 2 ;;
     -check) check=$2; shift 2 ;;
-    -verifyin) verifyin=$2; shift 2 ;;
     -list)
       awk '!/^#/ && NF {
              if ($2 == "run") run[$1] = 1
@@ -86,7 +79,7 @@ while [[ $# -gt 0 ]]; do
            END { for (k in c) n++; for (k in run) r++
                  printf "commits replayed: %d; with tool runs: %d; runtime patches: %d; manual patches: %d; residue patches: %d\n", n, r, rt, man, res }' "$steps"
       exit 0 ;;
-    *) echo "usage: $0 [-w DIR] [-base COMMIT] [-to COMMIT] [-noverify] [-trim] [-list] [-steps FILE] [-overlay DIR] [-toolfix SCRIPT] [-check CMD] [-verifyin RANGE]" >&2; exit 2 ;;
+    *) echo "usage: $0 [-w DIR] [-base COMMIT] [-to COMMIT] [-noverify] [-trim] [-list] [-steps FILE] [-overlay DIR] [-toolfix SCRIPT] [-check CMD]" >&2; exit 2 ;;
   esac
 done
 
@@ -96,11 +89,6 @@ git reset -q --hard
 git clean -q -fdx go tools/postflip
 last=$(git log -1 --format=%B | sed -n 's/^Replays: //p')
 log=$W/.replay.log
-declare -A inrange=()
-if [[ -n $verifyin ]]; then
-  for r in $(git rev-list "$verifyin"); do inrange[$r]=1; done
-fi
-nverified=0
 
 # The helpers of the run lines (a string, so that each command runs in a fresh shell).
 prelude='
@@ -140,13 +128,7 @@ finish() { # $1: the original commit whose lines are done
     echo "CHECK FAILED after $c ($(git log -1 --format=%s "$c")): $check (log: $log)" >&2; tail -8 "$log" >&2; exit 1
   fi
   git add -A -f go tools/postflip
-  local cmp=$verify full
-  if [[ -n $verifyin ]]; then
-    full=$(git rev-parse "$c^{commit}")
-    if [[ -n ${inrange[$full]:-} ]]; then cmp=1; else cmp=0; fi
-  fi
-  [[ $cmp == 1 ]] && nverified=$((nverified + 1))
-  if [[ $cmp == 1 ]] && ! git diff --cached --quiet "$c" -- go; then
+  if [[ $verify == 1 ]] && ! git diff --cached --quiet "$c" -- go; then
     echo "MISMATCH after replaying $c ($(git log -1 --format=%s "$c")):" >&2
     git diff --cached --stat "$c" -- go | tail -5 >&2
     echo "the worktree $W is left as the step wrote it; log: $log" >&2
@@ -155,7 +137,7 @@ finish() { # $1: the original commit whose lines are done
   git commit -q --allow-empty -m "replay: $(git log -1 --format=%s "$c")" -m "Replays: $c"
   n=$((n + 1))
   if [[ $trim == 1 && -n ${GOCACHE:-} ]]; then find "$GOCACHE" -type f -size +8M -delete 2>/dev/null || true; fi
-  echo "ok $c $([[ $cmp == 1 ]] && echo '(go/ identical)' || echo '(not compared)') $(git log -1 --format=%s "$c" | cut -c1-80)"
+  echo "ok $c $(git log -1 --format=%s "$c" | cut -c1-90)"
 }
 
 cur= ; n=0; skipping=0
@@ -190,4 +172,4 @@ while read -r c action arg; do
 done < "$steps"
 if [[ -n $cur && $skipping == 0 ]]; then finish "$cur"; fi
 if [[ $skipping == 1 && $cur != "$last" ]]; then echo "the worktree's last replayed commit $last is not in steps.txt" >&2; exit 1; fi
-echo "replayed $n commits ($nverified compared with their commit's go/); go/ tree: $(git rev-parse HEAD:go); go/closure tree: $(git rev-parse HEAD:go/closure)"
+echo "replayed $n commits; go/closure tree: $(git rev-parse HEAD:go/closure)"

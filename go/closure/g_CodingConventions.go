@@ -450,7 +450,7 @@ func (this *CodingConventions_DefaultCodingConvention) isPropertyTestFunction(ca
 	if target.isGetProp() {
 		var src Node = target.getFirstChild()
 		var prop string = target.getString()
-		if (src.isName() && (src.getString() == "Array")) && (prop == "isArray") {
+		if (src.isName() && (src.getStringIs_(sid_Array))) && (prop == "isArray") {
 			return true
 		}
 	}
@@ -489,7 +489,7 @@ func (this *CodingConventions_DefaultCodingConvention) describeFunctionBind(n No
 			return new_CodingConvention_Bind(fn, thisValue, parameters)
 		}
 	}
-	if callTarget.isGetProp() && (callTarget.getString() == "bind") {
+	if callTarget.isGetProp() && (callTarget.getStringIs_(sid_bind)) {
 		var maybeFn Node = callTarget.getFirstChild()
 		var maybeFnType *JSType = maybeFn.getJSType()
 		var fnType *FunctionType = nil

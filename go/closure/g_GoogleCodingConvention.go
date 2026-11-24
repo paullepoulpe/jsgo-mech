@@ -78,7 +78,7 @@ func (this *GoogleCodingConvention) isOptionalParameter_impl(parameter Node) boo
 }
 
 func (this *GoogleCodingConvention) isVarArgsParameter_impl(parameter Node) bool {
-	return (this.CodingConventions_Proxy.isVarArgsParameter_impl(parameter) || (parameter.isName() && (GoogleCodingConvention_VAR_ARGS_NAME == parameter.getString())))
+	return (this.CodingConventions_Proxy.isVarArgsParameter_impl(parameter) || (parameter.isName() && (parameter.getStringIs_(sid_var_args))))
 }
 
 func (this *GoogleCodingConvention) isExported_2_impl(name string, local bool) bool {

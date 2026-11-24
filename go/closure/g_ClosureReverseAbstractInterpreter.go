@@ -57,7 +57,7 @@ func (this *ClosureReverseAbstractInterpreter) getPreciserScopeKnowingConditionO
 		if callee.isGetProp() && param.isQualifiedName() {
 			var paramType *JSType = this.getTypeIfRefinable(param, blindScope)
 			var receiver Node = callee.getFirstChild()
-			if receiver.isName() && ("goog" == receiver.getString()) {
+			if receiver.isName() && (receiver.getStringIs_(sid_goog)) {
 				var restricter Function_base[*ClosureReverseAbstractInterpreter_TypeRestriction, *JSType] = this.restricters.Get(callee.getString())
 				if restricter != nil {
 					return this.restrictParameter(param, paramType, blindScope, restricter, outcome.isTruthy())

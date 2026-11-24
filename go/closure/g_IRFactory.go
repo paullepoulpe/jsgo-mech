@@ -347,7 +347,7 @@ func IRFactory_isContinueTarget(n Node) bool {
 }
 
 func IRFactory_labelsMatch(label Node, labelName Node) bool {
-	return (label.getFirstChild().getString() == labelName.getString())
+	return (label.getFirstChild().getStringId_() == labelName.getStringId_())
 }
 
 func (this *IRFactory) validateLabel(n Node) {
@@ -1795,7 +1795,7 @@ func (this *IRFactory_TransformDispatcher) parseDirectives(node Node) {
 			break
 		}
 		var directive Node = statement.getFirstChild()
-		if !directive.isStringLit() || !(directive.getString() == "use strict") {
+		if !directive.isStringLit() || !(directive.getStringIs_(sidx_75736520737472696374)) {
 			break
 		}
 		useStrict = true
@@ -1937,7 +1937,7 @@ func (this *IRFactory_TransformDispatcher) annotateCalls(n Node) {
 	}
 	if !this.isNormalOrOptChainGet(callee) {
 		n.putBooleanProp(Node_FREE_CALL, true)
-		if callee.isName() && (callee.getString() == "eval") {
+		if callee.isName() && (callee.getStringIs_(sid_eval)) {
 			callee.putBooleanProp(Node_DIRECT_EVAL, true)
 		} else if callee.isComma() && callee.getFirstChild().isNumber() {
 			var realCallee Node = callee.getSecondChild()

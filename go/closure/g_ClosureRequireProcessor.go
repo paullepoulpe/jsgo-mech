@@ -44,7 +44,7 @@ func ClosureRequireProcessor_getModuleDependencyTypeFromRhs(value Node) Binding_
 		return 0
 	}
 	var owner Node = callee.getFirstChild()
-	if !owner.isName() || !(owner.getString() == "goog") {
+	if !owner.isName() || !(owner.getStringIs_(sid_goog)) {
 		return 0
 	}
 	return ClosureRequireProcessor_GOOG_DEPENDENCY_CALLS.Get(callee.getString())
