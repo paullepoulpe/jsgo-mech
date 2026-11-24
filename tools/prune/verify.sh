@@ -8,7 +8,11 @@ bin=$root/.cache/prune
 mkdir -p "$bin"
 gobin=$(go env GOPATH)/bin
 cd "$root"
-bash tools/j2go/selftest/run.sh 2>&1 | tail -1
+# the whole self-test output is kept, so that a failure can be explained afterwards; the gate reads the last line
+selflog=$root/.cache/selftest-$(date +%Y%m%d-%H%M%S)-$$.log
+bash tools/j2go/selftest/run.sh > "$selflog" 2>&1
+tail -1 "$selflog"
+grep -q '^selftest: PASS' "$selflog" || echo "selftest log: $selflog"
 cd go
 python3 ../tools/prune/dropbroken.py --tests | tail -3
 "$gobin/goimports" -w closure/rt_*_test.go 2>/dev/null

@@ -201,6 +201,10 @@ pre-flip Java 429.5 s (192.9 / 197.3 / 39.4). Java/Go 0.75. Go is level with the
 
 ## Open
 
+- The merged translator's (main-libgen-t12) first gate run failed at the j2go self-test with the
+  tail of a Java stack trace (`... 2 more`); the self-test alone and the gate again both printed
+  PASS. Cause not found; log $B/logs/gate-t12_a.first-failed.log. A gate that can fail
+  intermittently weakens every gate line in the records until it is explained.
 - Speed: not met in bounds (0.75 on the full benchmark, 2026-11-24). No in-bounds step so far has moved the
   full benchmark by more than about 2%; CHECKS (0.71) is where Go is behind, and its cost is
   spread thin with the collector at 30%.
