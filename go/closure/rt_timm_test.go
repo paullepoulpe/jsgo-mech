@@ -195,7 +195,8 @@ func TestTypedRoundTrips(t *testing.T) {
 	guavaThrew_(t, "NullPointerException", func() { Splitter_on('.').splitToList_s(nullstr_) })
 	guavaThrew_(t, "IllegalArgumentException", func() { sliceSkip_([]string{"a"}, -1) })
 	guavaThrew_(t, "IllegalArgumentException", func() { Iterables_skip(Splitter_on('.').split_s("a"), -1) })
-	if n := testing.AllocsPerRun(100, func() { Splitter_on('.').splitStrs_("a.b.c.d") }); n > 5 {
+	// (the splitter itself, and the pieces' slice made once at its final size)
+	if n := testing.AllocsPerRun(100, func() { Splitter_on('.').splitStrs_("a.b.c.d") }); n > 2 {
 		t.Errorf("splitStrs_ allocates %v times for four pieces", n)
 	}
 	// immCopyArr_(c, a) is sliceImm_(c, ImmutableList.copyOf(a))
