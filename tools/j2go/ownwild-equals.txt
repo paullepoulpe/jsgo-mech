@@ -15,3 +15,11 @@
 # CommandLineRunner 1328, 1338, 1348) or addMultiFlagValue's `flag` (the constants above), so
 # no flag is null.
 AbstractCommandLineRunner.FlagEntry.equals
+
+# Piece `ownwild2` (the expression form: `return other instanceof Lazy<?> && Objects.equals(get(),
+# ((Lazy<?>) other).get());`). Source.Lazy is package-private and the program writes it at one
+# instantiation only, Lazy<String> (checked: every type argument list written for the class with
+# no wildcard or type variable is the same one); the type variables are those of its own static
+# makers ofInstance / memoize, whose calls are all typed Lazy<String> (Source.java 183-191). So
+# every Lazy is a Lazy<String>, and the test of Lazy<String> answers as Java's `instanceof Lazy<?>`.
+Source.Lazy.equals

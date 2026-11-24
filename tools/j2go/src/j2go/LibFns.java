@@ -166,6 +166,13 @@ final class LibFns {
     return LibGen.on("rtm");
   }
 
+  /** Piece `nboxarg` (needs pieces `nbox` and `fns2`): boxed type arguments of function types at Nbox (LibNbox). */
+  static boolean nboxArgOn() {
+    return LibGen.on("nboxarg") && LibNbox.on() && onF2();
+  }
+
+  static final Set<TypeKind> INTEGRAL = EnumSet.of(TypeKind.BYTE, TypeKind.SHORT, TypeKind.INT, TypeKind.LONG, TypeKind.CHAR);
+
   /** Whether library method e reads an Iterable argument once (READS_ONCE), with piece `fns2` on. */
   boolean readsOnce(ExecutableElement e) {
     if (!onF2() || cx.isSource(cx.ownerOf(e))) return false;
@@ -294,6 +301,19 @@ final class LibFns {
       }
       for (VariableElement pe : r.getParameters()) params.add(cx.erase(cx.subst(pe.asType(), m, 0)));
       ret = cx.erase(cx.subst(r.getReturnType(), m, 0));
+      if (mine && key.equals(COMPARING) && r.getTypeParameters().size() == 2) {
+        // piece `nboxarg`: a key that is a boxed integral primitive (Integer, Long, ...) is held as Nbox, the
+        // function given at Function<T, Nbox<X>> (LibNbox), the twin Comparator_comparingN_
+        TypeMirror u = m.get(r.getTypeParameters().get(1));
+        DeclaredType nf = nboxArgOn() ? cx.nboxFn(params.get(0)) : null;
+        TypeMirror pu = u == null ? null : cx.unboxed(u);
+        if (nf != null && pu != null && !u.getKind().isPrimitive() && INTEGRAL.contains(pu.getKind())) {
+          f = new Fn("Comparator_comparingN_[$0, " + cx.goType(pu) + "]", "", List.of("Function[$0, Nbox[" + cx.goType(pu) + "]]"), "Comparator[$0]");
+          params.set(0, nf);
+          ta.set(1, cx.goType(pu));
+          lg.note("nboxarg: Comparator.comparing with a boxed key at Nbox (typed)", key);
+        }
+      }
     } else {
       // the receiver at the typed interface of the method's owner (piece `seqcoll`: of the
       // interface the owner extends, RECV_AT)

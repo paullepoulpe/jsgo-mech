@@ -6,3 +6,7 @@ OwnWild.Entry.equals
 OwnWild.Str.equals
 # NoGuard: listed, but its cast is not guarded by instanceof (refused).
 OwnWild.NoGuard.equals
+# Piece `ownwild2` (the expression form, lang/RtCls.java). Lazy: written at String only (typed).
+RtCls.Lazy.equals
+# Two: listed, but written at String and Integer (refused: more than one instantiation).
+RtCls.Two.equals

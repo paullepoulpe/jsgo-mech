@@ -14,7 +14,7 @@ t=.cache/j2go-selftest
 rm -rf "$t" && mkdir -p "$t/java" "$t/go/closure" "$t/go/cmd/t"
 # lang/Imm.java uses Guava (typed immutable collections).
 javac -nowarn -cp .cache/build/stock-libs.jar -d "$t/java" tools/j2go/selftest/lang/*.java
-for c in Lang Lang2 Handles Generics Generics2 Generics3 Colls Imm Unboxed Covariant CovariantIface Layout FnTypes LibGen LibFns GOpt LibObj Cmp OwnWild TriBox OwnIter HStatic Resid; do env -u JAVA_TOOL_OPTIONS java -Dstdout.encoding=UTF-8 -cp "$t/java:.cache/build/stock-libs.jar" lang.$c; done >"$t/expected.txt"
+for c in Lang Lang2 Handles Generics Generics2 Generics3 Colls Imm Unboxed Covariant CovariantIface Layout FnTypes LibGen LibFns GOpt LibObj Cmp OwnWild TriBox OwnIter HStatic Resid RtCls; do env -u JAVA_TOOL_OPTIONS java -Dstdout.encoding=UTF-8 -cp "$t/java:.cache/build/stock-libs.jar" lang.$c; done >"$t/expected.txt"
 # The test class is translated together with the whole tree, so that the runtime it needs is all there.
 cp go/go.mod "$t/go/" && cp go/closure/rt_*.go tools/j2go/selftest/rt_*.go "$t/go/closure/" && rm -f "$t"/go/closure/*_test.go
 [[ -d go/closure/resources ]] && cp -r go/closure/resources "$t/go/closure/"
@@ -48,7 +48,7 @@ import (
 	"unsafe"
 )
 
-func SelfTest() string { return Lang_run() + Lang2_run() + Handles_run() + Generics_run() + Generics2_run() + Generics3_run() + Colls_run() + Imm_run() + Unboxed_run() + Covariant_run() + CovariantIface_run() + Layout_run() + FnTypes_run() + LibGen_run() + LibFns_run() + GOpt_run() + LibObj_run() + Cmp_run() + OwnWild_run() + TriBox_run() + OwnIter_run() + HStatic_run() + Resid_run() }
+func SelfTest() string { return Lang_run() + Lang2_run() + Handles_run() + Generics_run() + Generics2_run() + Generics3_run() + Colls_run() + Imm_run() + Unboxed_run() + Covariant_run() + CovariantIface_run() + Layout_run() + FnTypes_run() + LibGen_run() + LibFns_run() + GOpt_run() + LibObj_run() + Cmp_run() + OwnWild_run() + TriBox_run() + OwnIter_run() + HStatic_run() + Resid_run() + RtCls_run() }
 
 // SelfTestSizes: the sizes of the structs of lang/Layout.java.
 func SelfTestSizes() string {
@@ -166,6 +166,36 @@ if [[ ! ,${J2GO_NOLIBGEN:-}, =~ ,(rtm|fns2|seqstr|all), && ${J2GO_NOFNTYPES:-} !
   n1=$(cnt Resid_rtm "$twin"); n2=$(cnt Resid_fns2 "$twin"); n3=$(cnt Resid_seqstr "$twin"); n4=$(cnt Resid_clinit "$twin"); n5=$(cnt compareTo_t "$twin")
   nx=$(cnt Resid_left "$twin"); ne=$(cnt Resid_left "$erased")
   if [[ $n1 != 20 || $n2 != 11 || $n3 != 5 || $n4 != 2 || $n5 != 2 || $nx != 0 || $ne != 3 ]]; then echo "selftest: FAIL (pieces rtm/fns2/seqstr: $n1 $n2 $n3 $n4 $n5 twins, $nx and $ne erased calls in left())"; exit 1; fi
+fi
+if [[ ! ,${J2GO_NOLIBGEN:-}, =~ ,(rtcls|all), && ${J2GO_NOFNTYPES:-} != 1 ]]; then
+  # Piece `rtcls` (lang/RtCls.java): the program's subclasses of AbstractIterator, CacheLoader and Ordering have the
+  # overriding method at their type arguments (Countdown.computeNext, ByLength.compare, the anonymous Ordering's compare,
+  # the anonymous CacheLoader's load: 4); ThreadLocal (field and maker: 2), TreeRangeSet.create (2), Range.closed (5) and
+  # CacheLoader.from (1) are the typed runtime classes' own.
+  g="$t/go/closure/g_RtCls.go"
+  nm=$(grep -cE '^func \(this \*RtCls_[A-Za-z_0-9]+\) (computeNext\(\) string|compare\([a-z]+ (string|\*RtCls_Pos),|load\(key \*RtCls_Key\))' "$g" || true)
+  nl=$(grep -oE 'ThreadLocalT\[' "$g" | wc -l); nr=$(grep -oE 'TreeRangeSetT_create\[' "$g" | wc -l)
+  nc=$(grep -oE 'RangeT_closed\[' "$g" | wc -l); nf=$(grep -oE 'CacheLoaderT_from\[' "$g" | wc -l)
+  if [[ $nm != 4 || $nl != 2 || $nr != 2 || $nc != 5 || $nf != 1 ]]; then echo "selftest: FAIL (piece rtcls: $nm typed methods, $nl $nr $nc $nf typed runtime calls)"; exit 1; fi
+fi
+if [[ ! ,${J2GO_NOLIBGEN:-}, =~ ,(annqual|ownwild|ownwild2|all), ]]; then
+  # Pieces `annqual` and `ownwild2` (lang/RtCls.java): Lazy (a field `RtCls.@N Lazy<String>`, an equals of the expression
+  # form, listed, one instantiation) is a Go generic type with the test of its instantiation (1); Two (listed, two
+  # instantiations) and Unl (not listed) stay erased (2).
+  g="$t/go/closure/g_RtCls.go"
+  ny=$(grep -cE '^type RtCls_Lazy\[T [a-z]+\] struct' "$g" || true)
+  nx=$(grep -cE '^type RtCls_(Two|Unl) struct' "$g" || true)
+  ni=$(grep -cF 'is_[*RtCls_Lazy[T]](' "$g" || true)
+  if [[ $ny != 1 || $nx != 2 || $ni != 1 ]]; then echo "selftest: FAIL (pieces annqual/ownwild2: $ny typed, $nx erased, $ni typed tests)"; exit 1; fi
+fi
+if [[ ! ,${J2GO_NOLIBGEN:-}, =~ ,(nboxarg|nbox|fns2|all), && ${J2GO_NOFNTYPES:-} != 1 ]]; then
+  # Piece `nboxarg` (lang/RtCls.java): Comparator.comparing with an Integer key is Comparator_comparingN_ (3), with a
+  # Double key the erased-key twin (1); Pool's function field (a constructor parameter given a method reference and a
+  # lambda) is Function[string, Nbox[int32]] (1); Other's (given a variable) stays Function[string, any] (1).
+  g="$t/go/closure/g_RtCls.go"
+  nn=$(grep -oE 'Comparator_comparingN_\[string, int32\]' "$g" | wc -l); ne=$(grep -oE 'Comparator_comparing\[string, any\]' "$g" | wc -l)
+  np=$(grep -cE '^	indexFn +Function\[string, Nbox\[int32\]\]$' "$g" || true); no=$(grep -cE '^	fn +Function\[string, any\]$' "$g" || true)
+  if [[ $nn != 3 || $ne != 1 || $np != 1 || $no != 1 ]]; then echo "selftest: FAIL (piece nboxarg: $nn typed comparing, $ne left, $np typed field, $no left)"; exit 1; fi
 fi
 if [[ ${J2GO_NOFNTYPES:-} != 1 ]]; then
   # Rule "function types": the translator must refuse every use in refused/Refused.java (14) and write nothing.

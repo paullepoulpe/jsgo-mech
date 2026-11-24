@@ -1340,7 +1340,7 @@ abstract class ExprEmitter extends Base {
         String gt = cx.goType(at);
         return new CallResult("func() " + gt + " { f_ := " + args.get(0).as(at) + "; " + name + "(" + argList(e, params, rest) + "); return f_ }()", at);
       }
-      if ((src || cx.isValueLib(owner) || cx.fn.genericStatics(owner)) && !cx.keptOf(e.getTypeParameters()).isEmpty()) {
+      if ((src || cx.isValueLib(owner) || cx.fn.genericStatics(owner) || LibRt.goName(owner) != null) && !cx.keptOf(e.getTypeParameters()).isEmpty()) {
         // A generic function: instantiated with javac's inferred type arguments (kept ones).
         ExecutableType inst = curInst;
         curInst = null;
@@ -1353,7 +1353,7 @@ abstract class ExprEmitter extends Base {
           m.clear();
           unify(e.getReturnType(), retOver, m);
         }
-        if (!src && cx.fn.genericStatics(owner)) {
+        if (!src && (cx.fn.genericStatics(owner) || LibRt.goName(owner) != null)) {
           // a type parameter that javac left to the enclosing inference: its erasure, as the erased code has
           for (TypeParameterElement tp : e.getTypeParameters()) {
             TypeMirror b = m.get(tp);

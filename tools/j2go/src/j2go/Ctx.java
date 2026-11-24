@@ -179,6 +179,16 @@ final class Ctx {
     Map<Element, TypeMirror> m = new HashMap<>();
     List<? extends TypeParameterElement> ps = owner.getTypeParameters();
     for (int i = 0; i < ps.size(); i++) if (keptVars.contains(ps.get(i))) m.put(ps.get(i), v.getTypeArguments().get(i));
+    // (piece `rtcls`: a method's own type variable bounded by a type variable of the class, `<S extends T> Ordering<S>
+    // nullsFirst()`, is that type variable: the runtime's method gives its own instantiation, LibRt)
+    if (LibRt.goName(owner) != null) {
+      for (Element e : owner.getEnclosedElements()) {
+        if (!(e instanceof ExecutableElement me) || me.getModifiers().contains(Modifier.STATIC)) continue;
+        for (TypeParameterElement tp : me.getTypeParameters()) {
+          if (tp.getBounds().size() == 1 && tp.getBounds().get(0) instanceof TypeVariable bv && m.containsKey(bv.asElement())) m.put(tp, m.get(bv.asElement()));
+        }
+      }
+    }
     if (gopt() && owner.getQualifiedName().contentEquals(GOPT)) {
       // (kind `goptional`: a type argument that is `any` in Go, a wildcard or an erased type
       // variable, is Object in the member's type, as the GOptional[any] holds it)
@@ -239,6 +249,8 @@ final class Ctx {
   final LibObj lo = new LibObj(this);
   /** Rule "typed library interfaces", piece `cmp`: classes implementing Comparable<C> with compareTo_t and the bridge. */
   final LibCmp cmp = new LibCmp(this);
+  /** Piece `rtcls`: typed runtime classes. */
+  final LibRt rt = new LibRt(this);
   /** Piece `proto` (rule candidate T5): typed protobuf accessors. */
   final LibProto pb = new LibProto(this);
 
@@ -253,6 +265,29 @@ final class Ctx {
   /** Piece `nbox`: whether t is the stand-in Nbox<X> of a boxed primitive held as a value (LibNbox). */
   boolean isNbox(TypeMirror t) {
     return isValueLibType(t) && typeElement(t).getQualifiedName().contentEquals(LibNbox.STUB);
+  }
+
+  /**
+   * Piece `nboxarg`: library function type t with its boxed type arguments (Integer, ...) at the
+   * stand-in Nbox<X> of piece `nbox`, `Function<String, Nbox<Integer>>`; null when t has none or
+   * piece `nbox` is off (LibNbox.fnOf).
+   */
+  DeclaredType nboxFn(TypeMirror t) {
+    TypeElement nb = LibNbox.on() ? elems.getTypeElement(LibNbox.STUB) : null;
+    if (nb == null || !isValueLib(nb) || !(t instanceof DeclaredType d) || t.getKind() != TypeKind.DECLARED || !fn.isLib(typeElement(d))) return null;
+    List<? extends TypeMirror> as = d.getTypeArguments();
+    TypeMirror[] out = new TypeMirror[as.size()];
+    boolean any = false;
+    for (int i = 0; i < out.length; i++) {
+      TypeMirror a = as.get(i), u = a.getKind() == TypeKind.DECLARED && ((DeclaredType) a).getTypeArguments().isEmpty() ? unboxed(a) : null;
+      if (u != null && !a.getKind().isPrimitive()) {
+        out[i] = types.getDeclaredType(nb, types.erasure(a));
+        any = true;
+      } else {
+        out[i] = a;
+      }
+    }
+    return any ? types.getDeclaredType(typeElement(d), out) : null;
   }
 
   /** The primitive type t unboxes to, also for Nbox<X> (piece `nbox`), else null. */
@@ -1561,6 +1596,8 @@ final class Ctx {
     String pkg = elems.getPackageOf(te).getQualifiedName().toString();
     // (kind `goptional`: the typed Guava Optional, registerValueLibs)
     if (gopt() && te.getQualifiedName().contentEquals(GOPT)) n = "GOptional";
+    // (piece `rtcls`: a typed runtime class, LibRt.NAMES)
+    if (LibRt.goName(te) != null) n = LibRt.goName(te);
     // A library class keeps its simple name unless a translated class or a core JDK class has it;
     // the rule must not depend on which class is met first.
     boolean taken = classByName.containsKey(n);
@@ -1693,6 +1730,8 @@ final class Ctx {
     TypeElement te = typeElement(erase(t));
     K k = kind(erase(t));
     if (args.isEmpty() || te == null || isSource(te) || isValueLib(te) || fn.isLib(te) || isTypedColl(t) || (k != K.CLS && k != K.IFACE)) return g;
+    // (piece `rtcls`: a typed runtime class is spelled with its type arguments)
+    if (LibRt.goName(te) != null) return g;
     String alias = className(te) + "Of";
     StringBuilder ps = new StringBuilder(), as = new StringBuilder();
     for (int i = 0; i < args.size(); i++) {
@@ -1880,6 +1919,10 @@ final class Ctx {
             TypeElement fe = typeElement(from);
             DeclaredType view = typedDecl(to) && fe != null && isSource(fe) && isLeaf(fe) && !isHandle(fe) ? superView(from, typeElement(to)) : null;
             if (view != null && goType(view).equals(gt) && implementsInGo(fe, typeElement(to))) return "func() " + gt + " { if v := " + code + "; v != nil { return v }; return nil }()";
+            // (piece `rtcls`: a typed runtime class as a typed runtime interface it implements, TreeRangeSet as RangeSet; the Go compiler checks it)
+            if (fe != null && LibRt.goName(fe) != null && LibRt.goName(typeElement(to)) != null && superView(from, typeElement(to)) instanceof DeclaredType rv && goType(rv).equals(gt)) {
+              return "func() " + gt + " { if v := " + code + "; v != nil { return v }; return nil }()";
+            }
             return cast + "(" + canon(code, from) + ")";
           }
           case IFACE:
@@ -1896,6 +1939,12 @@ final class Ctx {
         switch (kf) {
           case CLS: {
             TypeElement tf = typeElement(from);
+            // (piece `rtcls`: a typed runtime class between two of its instantiations, Ordering<Comparable> as an
+            // Ordering<String> (the result of Ordering.natural().nullsFirst()): the runtime's view X_as_ of it, or itself)
+            // (the class at Object, an erased runtime method's parameter, CacheBuilder.build(CacheLoader): the object itself,
+            // which the runtime method takes as `any`; Go checks that the place takes it)
+            if (tf.equals(tt) && LibRt.goName(tt) != null && !gf.equals(gt) && (gt.endsWith("[any]") || gt.endsWith("[any, any]"))) return code;
+            if (tf.equals(tt) && LibRt.goName(tt) != null) return gf.equals(gt) ? code : className(tt) + "_as_" + typeArgsOf(to) + "(" + code + ")";
             if (isSubclass(tf, tt)) return code + ".up_" + className(tt) + "()";
             if (conv.sameGoType(gf, gt)) return code;
             src = canon(code, from);

@@ -109,6 +109,9 @@ final class LibNbox {
     /** (fn) the lambdas given for it and their own candidates (the parameters at boxed positions). */
     final List<LambdaExpressionTree> lambdas = new ArrayList<>();
     final List<Cand> lambdaParams = new ArrayList<>();
+    /** (piece `nboxarg`) the method references given for it, and the function candidates it is passed to or assigned from. */
+    final List<MemberReferenceTree> refs = new ArrayList<>();
+    final Set<Cand> links = new LinkedHashSet<>();
 
     Cand(Element e, TypeMirror refined, boolean fn) {
       this.e = e;
@@ -141,11 +144,12 @@ final class LibNbox {
               c.decl = t;
               if (e.getKind() == ElementKind.FIELD) {
                 TypeElement owner = (TypeElement) e.getEnclosingElement();
-                if (f != null) c.left("a field of a function type");
+                if (f != null && !argOn()) c.left("a field of a function type");
+                else if (f != null && t.getInitializer() != null) c.left("a field of a function type with an initializer");
                 else if (owner.getKind() == ElementKind.RECORD || owner.getKind().isInterface() || cx.handles.contains(owner)) c.left("a field of a record, an interface or a handle class");
               } else {
                 ExecutableElement m = (ExecutableElement) e.getEnclosingElement();
-                if (m.getKind() != ElementKind.METHOD) c.left("a parameter of a constructor");
+                if (m.getKind() != ElementKind.METHOD && !(argOn() && f != null && m.getKind() == ElementKind.CONSTRUCTOR)) c.left("a parameter of a constructor");
                 else if (m.getModifiers().contains(Modifier.ABSTRACT) || m.getModifiers().contains(Modifier.NATIVE)) c.left("a parameter of an abstract method");
                 else if (cx.root(m) != m || gs.overridden.contains(m)) c.left("a parameter of a method that overrides or is overridden");
                 byMethod.computeIfAbsent(m, k -> new ArrayList<>()).add(c);
@@ -195,20 +199,36 @@ final class LibNbox {
 
         @Override
         public Void visitMethodInvocation(MethodInvocationTree t, Void v) {
-          if (trees.getElement(new TreePath(getCurrentPath(), t.getMethodSelect())) instanceof ExecutableElement m && byMethod.containsKey(m)) {
-            for (Cand c : byMethod.get(m)) {
-              if (!c.fn) continue;
-              int i = m.getParameters().indexOf((VariableElement) c.e);
-              if (m.isVarArgs() && i == m.getParameters().size() - 1) {
-                c.left("a parameter of a function type given as varargs");
-                continue;
-              }
-              ExpressionTree a = GenScan.stripParens(t.getArguments().get(i));
-              if (a instanceof LambdaExpressionTree l) c.lambdas.add(l);
-              else c.left("a function parameter given something else than a lambda");
-            }
-          }
+          if (trees.getElement(new TreePath(getCurrentPath(), t.getMethodSelect())) instanceof ExecutableElement m && byMethod.containsKey(m)) given(m, t.getArguments());
           return super.visitMethodInvocation(t, v);
+        }
+
+        @Override
+        public Void visitNewClass(NewClassTree t, Void v) {
+          // (piece `nboxarg`: a constructor's function parameter)
+          if (argOn() && trees.getElement(getCurrentPath()) instanceof ExecutableElement m && byMethod.containsKey(m)) given(m, t.getArguments());
+          return super.visitNewClass(t, v);
+        }
+
+        /** What a call of m gives for its function parameter candidates. */
+        void given(ExecutableElement m, List<? extends ExpressionTree> args) {
+          for (Cand c : byMethod.get(m)) {
+            if (!c.fn) continue;
+            int i = m.getParameters().indexOf((VariableElement) c.e);
+            if (m.isVarArgs() && i == m.getParameters().size() - 1) {
+              c.left("a parameter of a function type given as varargs");
+              continue;
+            }
+            ExpressionTree a = GenScan.stripParens(args.get(i));
+            if (a instanceof LambdaExpressionTree l) c.lambdas.add(l);
+            else if (argOn() && a instanceof MemberReferenceTree r) c.refs.add(r);
+            // (piece `nboxarg`: another function candidate of the same type, passed on: decided with it, fnUse)
+            else if (argOn() && cands.get(trees.getElement(new TreePath(getCurrentPath(), a))) instanceof Cand o && o.fn && cx.types.isSameType(o.refined, c.refined)) {
+              c.links.add(o);
+              o.links.add(c);
+            }
+            else c.left(argOn() ? "a function parameter given something else than a lambda, a method reference or a candidate" : "a function parameter given something else than a lambda");
+          }
         }
       }.scan(cu, null);
     }
@@ -252,7 +272,7 @@ final class LibNbox {
     for (Cand c : cands.values()) {
       if (c.why != null) continue;
       for (TreePath u : c.uses) {
-        String w = c.fn ? fnUse(u) : use(u);
+        String w = c.fn ? fnUse(c, u) : use(u);
         if (w != null) {
           c.left(w);
           break;
@@ -262,6 +282,23 @@ final class LibNbox {
     for (Cand c : cands.values()) {
       if (!c.fn) continue;
       for (Cand lc : c.lambdaParams) if (lc.why != null) c.left("a lambda given for it whose parameter is left: " + lc.why);
+    }
+    // (piece `nboxarg`: function candidates passed on to one another are typed together)
+    for (boolean changed = true; changed; ) {
+      changed = false;
+      for (Cand c : cands.values()) {
+        if (c.why != null) continue;
+        for (Cand o : c.links) {
+          if (o.why != null) {
+            c.left("passed on to or from a function candidate that is left: " + o.why);
+            changed = true;
+            break;
+          }
+        }
+      }
+    }
+    for (Cand c : cands.values()) {
+      if (!c.fn) continue;
       if (c.why != null) for (Cand lc : c.lambdaParams) lc.left("the lambda's function parameter is left");
     }
     // 5. refine
@@ -283,6 +320,7 @@ final class LibNbox {
         }
       }
       for (LambdaExpressionTree l : c.lambdas) cx.refinedTrees.put(l, c.refined);
+      for (MemberReferenceTree r : c.refs) cx.refinedTrees.put(r, c.refined);
     }
   }
 
@@ -370,9 +408,55 @@ final class LibNbox {
     return fm != null && fm.getReturnType().getKind() == TypeKind.VOID;
   }
 
-  /** Why the use at u of a function parameter is not a call of its method, or null. */
-  String fnUse(TreePath u) {
+  /** Piece `nboxarg` (needs rule "function types" and piece `fns2`'s switch set): function fields, constructor parameters, method references, candidates passed on. */
+  static boolean argOn() {
+    return LibFns.nboxArgOn();
+  }
+
+  /** Why the use at u of a function candidate c is not a call of its method, or null. */
+  String fnUse(Cand c, TreePath u) {
     TreePath p = u.getParentPath();
+    if (argOn()) {
+      Tree child = u.getLeaf();
+      while (p.getLeaf() instanceof ParenthesizedTree) {
+        child = p.getLeaf();
+        p = p.getParentPath();
+      }
+      // an assignment of the field: from a candidate (linked), a lambda or a method reference
+      if (p.getLeaf() instanceof AssignmentTree a && a.getVariable() == child) {
+        if (!(p.getParentPath().getLeaf() instanceof ExpressionStatementTree)) return "an assignment used as a value";
+        ExpressionTree x = GenScan.stripParens(a.getExpression());
+        if (x instanceof LambdaExpressionTree l) c.lambdas.add(l);
+        else if (x instanceof MemberReferenceTree r) c.refs.add(r);
+        else if (cands.get(trees.getElement(new TreePath(p, x))) instanceof Cand o && o.fn && cx.types.isSameType(o.refined, c.refined)) {
+          c.links.add(o);
+          o.links.add(c);
+        } else return "assigned something else than a lambda, a method reference or a candidate";
+        return null;
+      }
+      // the value of an assignment of a candidate field: linked
+      if (p.getLeaf() instanceof AssignmentTree a && a.getExpression() == child) {
+        if (cands.get(trees.getElement(new TreePath(p, a.getVariable()))) instanceof Cand o && o.fn && cx.types.isSameType(o.refined, c.refined)) {
+          c.links.add(o);
+          o.links.add(c);
+          return null;
+        }
+        return "passed on as a value";
+      }
+      // an argument for a function parameter candidate of the same type: linked
+      Element callee = p.getLeaf() instanceof MethodInvocationTree mi0 ? trees.getElement(new TreePath(p, mi0.getMethodSelect())) : p.getLeaf() instanceof NewClassTree ? trees.getElement(p) : null;
+      if (callee instanceof ExecutableElement m) {
+        List<? extends ExpressionTree> args = p.getLeaf() instanceof MethodInvocationTree mi ? mi.getArguments() : ((NewClassTree) p.getLeaf()).getArguments();
+        int i = args.indexOf(child);
+        if (i >= 0 && i < m.getParameters().size() && !(m.isVarArgs() && i == m.getParameters().size() - 1)
+            && cands.get(m.getParameters().get(i)) instanceof Cand o && o.fn && cx.types.isSameType(o.refined, c.refined)) {
+          c.links.add(o);
+          o.links.add(c);
+          return null;
+        }
+      }
+      p = u.getParentPath();
+    }
     if (p.getLeaf() instanceof MemberSelectTree && p.getParentPath().getLeaf() instanceof MethodInvocationTree mi && mi.getMethodSelect() == p.getLeaf()) {
       // the call's result: a boxed value, used as a scalar candidate's read would be
       TypeMirror r = trees.getTypeMirror(p.getParentPath());

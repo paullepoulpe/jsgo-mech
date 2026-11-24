@@ -38,11 +38,20 @@ func (this *CacheBuilder) maximumSize(n int64) *CacheBuilder {
 	return this
 }
 
-func (this *CacheBuilder) build(loader *CacheLoader) LoadingCache {
-	if loader == nil {
-		panic(new_NullPointerException_0().self())
+// build takes the erased loader or (piece `rtcls`, rt_rtcls.go) a typed CacheLoaderT, which makes
+// the typed view of the same cache.
+func (this *CacheBuilder) build(loader any) LoadingCache {
+	switch l := loader.(type) {
+	case *CacheLoader:
+		if l != nil {
+			return &localCache_{map_: new_LinkedHashMap(), max_: this.maximumSize_, loader_: l}
+		}
+	case interface{ newCache_(int64) LoadingCache }:
+		if !isnull_(l) {
+			return l.newCache_(this.maximumSize_)
+		}
 	}
-	return &localCache_{map_: new_LinkedHashMap(), max_: this.maximumSize_, loader_: loader}
+	panic(new_NullPointerException_0().self())
 }
 
 // localCache_ is a Cache / LoadingCache. Its map is kept in order of use, the

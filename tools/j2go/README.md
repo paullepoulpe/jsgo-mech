@@ -645,11 +645,25 @@ Refused (`typed library interfaces: refused: File.java:line: ...`, nothing is wr
 `tools/j2go/selftest/refused/RefusedLib.java` has one use of each kind (15); the self-test
 fails unless the translator refuses exactly those and writes nothing.
 
-Each kind and piece is a switch: `J2GO_NOLIBGEN=iter,coll,list,set,map,makers,views,place,cov,elems,wide,nncoll,readers,cls,meth,fns,sorted,enumset,cmaps,deque,guava,goptional,seqcoll,objarg,cmp,ownwild,nbox,proto,owniter,hstatic,rtm,fns2,seqstr`
+Each kind and piece is a switch: `J2GO_NOLIBGEN=iter,coll,list,set,map,makers,views,place,cov,elems,wide,nncoll,readers,cls,meth,fns,sorted,enumset,cmaps,deque,guava,goptional,seqcoll,objarg,cmp,ownwild,nbox,proto,owniter,hstatic,rtm,fns2,seqstr,annqual,ownwild2,rtcls,nboxarg`
 (`all`: every one). A translation with any of them off is built with `-tags j2go_nolibgen`
 (`tools/prune/verify.sh` and the self-test do that when `J2GO_NOLIBGEN` is set): the erased
 factories that only such a translation names are in `go/closure/rt_lg_erased.go`, outside the
 default build, as `rt_fn_erased.go` is for rule "function types".
+
+**RESIDUE8 batch c** (COLLECTIONS-PLAN.md section 17): piece `rtcls` (`LibRt`, needs rule "function
+types") makes the library classes of `LibRt.NAMES` (ThreadLocal, Guava's AbstractIterator,
+CacheLoader, Range, RangeSet, TreeRangeSet, Ordering) typed declarations of the runtime's generic
+structs `XT[..]` (`rt_rtcls.go`, written after the erased classes method by method), so a program
+class extending one overrides at its type arguments (`computeNext() Node`, `compare(a, b Node)`,
+`load(key *Key) *TranspileResult`); piece `annqual` (`GenScan.annotatedBase`) reads the base of
+`Outer.@A Inner<X>` as no raw use; piece `ownwild2` (`GenScan.ownWild`) types the expression form of
+a listed equals, `return o instanceof C<?> && .. ((C<?>) o) ..`, where the program writes C at one
+instantiation (`tools/j2go/ownwild-equals.txt`, which now fails the translation when an entry names
+no such equals); piece `nboxarg` (`LibNbox`, `LibFns`; needs `nbox` and `fns2`) holds a boxed
+integral key of `Comparator.comparing` as `Nbox` (`Comparator_comparingN_`) and types function
+fields and constructor parameters with boxed type arguments at `Nbox`, with method references and
+candidates passed on to one another.
 
 **`java.util.Optional` is a value.** The runtime's `Optional[T]` (`rt_base.go`) is a generic
 struct, not a heap object: `Optional<X>` is `Optional[X]`, its content held as an `X`, and

@@ -444,6 +444,10 @@ final class GenScan {
     List<Object[]> locals = new ArrayList<>(); // {local VariableTree, path, C, method, method tree}
     Map<ExecutableElement, List<String>> callWhy = new HashMap<>();
     Set<TypeElement> nonEnumArgs = new HashSet<>();
+    // (piece `ownwild2`) the type argument lists written for a candidate class with no wildcard or type variable, and
+    // the equals methods of the expression form: {method, instanceof, casts, C}
+    Map<TypeElement, Set<String>> concreteArgs = new HashMap<>();
+    List<Object[]> exprEquals = new ArrayList<>();
     for (CompilationUnitTree cu : units) {
       new TreePathScanner<Void, Void>() {
         void note(Tree target) {
@@ -480,11 +484,14 @@ final class GenScan {
             try {
               TypeMirror tm = trees.getTypeMirror(new TreePath(getCurrentPath(), t));
               if (tm instanceof DeclaredType d && tm.getKind() == TypeKind.DECLARED && why.containsKey(Ctx.typeElement(d))) {
+                boolean concrete = !d.getTypeArguments().isEmpty();
                 for (TypeMirror a : d.getTypeArguments()) {
                   boolean ok = a.getKind() == TypeKind.WILDCARD || a.getKind() == TypeKind.TYPEVAR
                       || a.getKind() == TypeKind.DECLARED && Ctx.typeElement(a).getKind() == ElementKind.ENUM;
                   if (!ok) nonEnumArgs.add(Ctx.typeElement(d));
+                  if (a.getKind() == TypeKind.WILDCARD || a.getKind() == TypeKind.TYPEVAR) concrete = false;
                 }
+                if (concrete) concreteArgs.computeIfAbsent(Ctx.typeElement(d), k -> new TreeSet<>()).add(d.getTypeArguments().toString());
               }
             } catch (RuntimeException ex) {
               // no type for this tree
@@ -501,6 +508,7 @@ final class GenScan {
               Element pe = trees.getElement(new TreePath(getCurrentPath(), p));
               if (pe != null && wildOf(pe.asType(), c)) params.computeIfAbsent(m, k -> new ArrayList<>()).add(new Object[] {p, new TreePath(getCurrentPath(), p), c});
             }
+            if (t.getBody() != null && LibGen.on("ownwild2")) exprEquals(t, m, c);
             if (t.getBody() != null) {
               TreePath mp = getCurrentPath();
               new TreePathScanner<Void, Void>() {
@@ -520,7 +528,61 @@ final class GenScan {
           }
           return super.visitMethod(t, v);
         }
+
+        /** Piece `ownwild2`: equals(Object o) of C whose body is `return o instanceof C<?> && E;`, E with casts `(C<?>) o`. */
+        void exprEquals(MethodTree t, ExecutableElement m, TypeElement c) {
+          if (!isEqualsMethod(m) || t.getBody().getStatements().size() != 1 || !(t.getBody().getStatements().get(0) instanceof ReturnTree r)
+              || !(stripParens(r.getExpression()) instanceof BinaryTree b) || b.getKind() != Tree.Kind.CONDITIONAL_AND) return;
+          VariableElement o = m.getParameters().get(0);
+          TreePath rp = new TreePath(new TreePath(new TreePath(getCurrentPath(), t.getBody()), r), r.getExpression());
+          if (!(stripParens(b.getLeftOperand()) instanceof InstanceOfTree io) || io.getPattern() != null
+              || !(stripParens(io.getExpression()) instanceof IdentifierTree ie) || !ie.getName().contentEquals(o.getSimpleName())) return;
+          TypeMirror tt = trees.getTypeMirror(TreePath.getPath(rp, io.getType()));
+          if (tt == null || tt.getKind() != TypeKind.DECLARED || !c.equals(Ctx.typeElement(tt))) return;
+          List<TypeCastTree> casts = new ArrayList<>();
+          new TreePathScanner<Void, Void>() {
+            @Override
+            public Void visitTypeCast(TypeCastTree ct, Void v2) {
+              TypeMirror ctt = trees.getTypeMirror(new TreePath(getCurrentPath(), ct.getType()));
+              if (stripParens(ct.getExpression()) instanceof IdentifierTree ci && ci.getName().contentEquals(o.getSimpleName()) && wildOf(ctt, c)) casts.add(ct);
+              return super.visitTypeCast(ct, v2);
+            }
+          }.scan(TreePath.getPath(rp, b.getRightOperand()), null);
+          if (!casts.isEmpty()) exprEquals.add(new Object[] {m, io, casts, c});
+        }
       }.scan(cu, null);
+    }
+    for (Object[] ee : exprEquals) {
+      ExecutableElement m = (ExecutableElement) ee[0];
+      TypeElement c = (TypeElement) ee[3];
+      String site = methodKey(m) + "(" + m.getParameters().get(0).getSimpleName() + ")";
+      String w = null;
+      if (assigned.contains(m.getParameters().get(0))) w = "an assigned parameter";
+      else if (!equalsOk.contains(methodKey(m))) w = "an equals not listed in tools/j2go/ownwild-equals.txt";
+      else if (nonEnumArgs.contains(c) && concreteArgs.getOrDefault(c, Set.of()).size() > 1) w = "type arguments of the class that are not enums, at more than one instantiation";
+      if (w != null) {
+        cx.lg.note("ownwild2: left: " + w, site);
+        continue;
+      }
+      TypeMirror own = c.asType();
+      for (TypeCastTree cast : (List<TypeCastTree>) ee[2]) {
+        cx.refinedTrees.put(cast, own);
+        cx.refinedTypeTrees.add(cast.getType());
+      }
+      cx.ownTests.put((InstanceOfTree) ee[1], own);
+      cx.lg.note("ownwild2: typed equals expression", site + " at " + concreteArgs.getOrDefault(c, Set.of()));
+    }
+    // the list's stale check (both forms on): an entry that names no equals(Object) with a cast to C<?> of either form
+    if (LibGen.on("ownwild2")) {
+      Set<String> met = new HashSet<>();
+      for (Object[] ee : exprEquals) met.add(methodKey((ExecutableElement) ee[0]));
+      for (Object[] ld : locals) if (isEqualsMethod((ExecutableElement) ld[3])) met.add(methodKey((ExecutableElement) ld[3]));
+      Set<String> stale = new TreeSet<>(equalsOk);
+      stale.removeAll(met);
+      if (!stale.isEmpty()) {
+        System.err.println("ownwild: the equals list is stale: on the list with no equals(Object) casting to C<?> " + stale);
+        System.exit(1);
+      }
     }
     if (params.isEmpty() && locals.isEmpty()) return;
     // the calls of the candidate methods
@@ -637,6 +699,11 @@ final class GenScan {
       cx.lg.note("ownwild: typed equals cast", site);
       refineFieldReads(path.getParentPath(), le, own);
     }
+  }
+
+  static boolean isEqualsMethod(ExecutableElement m) {
+    return m.getSimpleName().contentEquals("equals") && !m.getModifiers().contains(Modifier.STATIC) && m.getParameters().size() == 1
+        && m.getParameters().get(0).asType().toString().equals("java.lang.Object");
   }
 
   /** The reads `v.f` of a field f of the class, under path: of f's type at the refined type of v. */
@@ -795,12 +862,26 @@ final class GenScan {
           }
           // a name of a type (Foo in Foo.m() or new Foo<>()) is not a use of a value of it
           boolean typeName = (t instanceof IdentifierTree || t instanceof MemberSelectTree || t instanceof ParameterizedTypeTree)
-              && trees.getElement(p) instanceof TypeElement;
+              && trees.getElement(p) instanceof TypeElement || annotatedBase(p);
           if (tm != null && !(t instanceof ClassTree) && !typeName) {
             check(tm, 0);
           }
         }
         return super.scan(t, v);
+      }
+
+      /**
+       * Piece `annqual` of rule "typed generics" (J2GO_NOLIBGEN=annqual is the translation without
+       * it): a type annotation on a qualified type with type arguments, `Source.@Nullable
+       * Lazy<String>`, is the tree ParameterizedType(AnnotatedType(Source.Lazy), String), and javac
+       * gives the annotated base the raw type Source.Lazy. Like the name `Lazy` of `Lazy<String>`
+       * (an IdentifierTree, not checked above), the base of a parameterized type is no use of a
+       * value: the parameterized type itself is checked. Without the piece the base read as a raw
+       * use and erased the class's type parameters.
+       */
+      boolean annotatedBase(TreePath p) {
+        return p.getLeaf() instanceof AnnotatedTypeTree at && p.getParentPath() != null
+            && p.getParentPath().getLeaf() instanceof ParameterizedTypeTree pt && pt.getType() == at && LibGen.on("annqual");
       }
 
       @Override

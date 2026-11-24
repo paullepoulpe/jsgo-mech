@@ -295,6 +295,7 @@ public final class Main {
     cx.registerValueLibs();
     cx.fn.register();
     cx.lg.register();
+    cx.rt.register();
     // piece `nbox` (after the function types and library interfaces are known)
     if (LibNbox.on()) new LibNbox(cx, trees, gs).run(units);
     // (J2GO_UNCHECKED_CASTS: the lists of methods whose unchecked casts were read, separated by ':')

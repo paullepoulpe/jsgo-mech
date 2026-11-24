@@ -192,7 +192,8 @@ final class FnTypes {
   /** Whether class or interface c gets the functional interface fi through a library type that is not itself one of LIBS (its method is the runtime's, erased). */
   boolean viaLibrary(TypeElement c, TypeElement fi) {
     if (c == null || isLib(c)) return false;
-    if (!cx.isSource(c)) return true;
+    // (piece `rtcls`: a typed runtime class, Ordering<T>, has the method at its type arguments)
+    if (!cx.isSource(c)) return LibRt.goName(c) == null;
     TypeMirror fe = cx.types.erasure(fi.asType());
     for (TypeMirror st : cx.types.directSupertypes(c.asType())) {
       TypeElement s = Ctx.typeElement(st);
