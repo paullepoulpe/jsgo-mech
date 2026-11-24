@@ -221,7 +221,7 @@ const BranchCoverageInstrumentationCallback_BRANCH_ARRAY_NAME_PREFIX string = "J
 
 // visit: an object that is exactly a BranchCoverageInstrumentationCallback calls its visit_impl directly (post-flip); others dispatch.
 func (this *BranchCoverageInstrumentationCallback) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*BranchCoverageInstrumentationCallback); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}

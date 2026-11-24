@@ -203,7 +203,7 @@ func (this *ClosureCodeRemoval_FindAssertionCalls) visit_impl(t *NodeTraversal, 
 
 // visit: an object that is exactly a ClosureCodeRemoval_FindAbstractMethods calls its visit_impl directly (post-flip); others dispatch.
 func (this *ClosureCodeRemoval_FindAbstractMethods) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ClosureCodeRemoval_FindAbstractMethods); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
@@ -212,7 +212,7 @@ func (this *ClosureCodeRemoval_FindAbstractMethods) visit(p0 *NodeTraversal, p1 
 
 // visit: an object that is exactly a ClosureCodeRemoval_FindAssertionCalls calls its visit_impl directly (post-flip); others dispatch.
 func (this *ClosureCodeRemoval_FindAssertionCalls) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ClosureCodeRemoval_FindAssertionCalls); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}

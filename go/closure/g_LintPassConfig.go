@@ -68,7 +68,7 @@ func (this *LintPassConfig) getFinalizations_impl() *PassListBuilder {
 
 // getChecks: an object that is exactly a LintPassConfig calls its getChecks_impl directly (post-flip); others dispatch.
 func (this *LintPassConfig) getChecks() *PassListBuilder {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*LintPassConfig); p == this {
 		return this.getChecks_impl()
 	}
 	return this.self_.getChecks_impl()
@@ -76,7 +76,7 @@ func (this *LintPassConfig) getChecks() *PassListBuilder {
 
 // getOptimizations: an object that is exactly a LintPassConfig calls its getOptimizations_impl directly (post-flip); others dispatch.
 func (this *LintPassConfig) getOptimizations() *PassListBuilder {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*LintPassConfig); p == this {
 		return this.getOptimizations_impl()
 	}
 	return this.self_.getOptimizations_impl()
@@ -84,7 +84,7 @@ func (this *LintPassConfig) getOptimizations() *PassListBuilder {
 
 // getFinalizations: an object that is exactly a LintPassConfig calls its getFinalizations_impl directly (post-flip); others dispatch.
 func (this *LintPassConfig) getFinalizations() *PassListBuilder {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*LintPassConfig); p == this {
 		return this.getFinalizations_impl()
 	}
 	return this.self_.getFinalizations_impl()

@@ -192,7 +192,7 @@ func EnumElementType_clinit() {
 
 // getTypeClass: an object that is exactly a EnumElementType calls its getTypeClass_impl directly (post-flip); others dispatch.
 func (this *EnumElementType) getTypeClass() JSTypeClass {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*EnumElementType); p == this {
 		return this.getTypeClass_impl()
 	}
 	return this.self_.getTypeClass_impl()
@@ -200,7 +200,7 @@ func (this *EnumElementType) getTypeClass() JSTypeClass {
 
 // getPropertyKind_2: an object that is exactly a EnumElementType calls its getPropertyKind_2_impl directly (post-flip); others dispatch.
 func (this *EnumElementType) getPropertyKind_2(p0 Property_Key, p1 bool) JSType_HasPropertyKind {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*EnumElementType); p == this {
 		return this.getPropertyKind_2_impl(p0, p1)
 	}
 	return this.self_.getPropertyKind_2_impl(p0, p1)
@@ -208,7 +208,7 @@ func (this *EnumElementType) getPropertyKind_2(p0 Property_Key, p1 bool) JSType_
 
 // getPropertyMap: an object that is exactly a EnumElementType calls its getPropertyMap_impl directly (post-flip); others dispatch.
 func (this *EnumElementType) getPropertyMap() *PropertyMap {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*EnumElementType); p == this {
 		return this.getPropertyMap_impl()
 	}
 	return this.self_.getPropertyMap_impl()
@@ -216,7 +216,7 @@ func (this *EnumElementType) getPropertyMap() *PropertyMap {
 
 // toMaybeEnumElementType: an object that is exactly a EnumElementType calls its toMaybeEnumElementType_impl directly (post-flip); others dispatch.
 func (this *EnumElementType) toMaybeEnumElementType() *EnumElementType {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*EnumElementType); p == this {
 		return this.toMaybeEnumElementType_impl()
 	}
 	return this.self_.toMaybeEnumElementType_impl()
@@ -224,7 +224,7 @@ func (this *EnumElementType) toMaybeEnumElementType() *EnumElementType {
 
 // matchesNumberContext: an object that is exactly a EnumElementType calls its matchesNumberContext_impl directly (post-flip); others dispatch.
 func (this *EnumElementType) matchesNumberContext() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*EnumElementType); p == this {
 		return this.matchesNumberContext_impl()
 	}
 	return this.self_.matchesNumberContext_impl()
@@ -232,7 +232,7 @@ func (this *EnumElementType) matchesNumberContext() bool {
 
 // matchesStringContext: an object that is exactly a EnumElementType calls its matchesStringContext_impl directly (post-flip); others dispatch.
 func (this *EnumElementType) matchesStringContext() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*EnumElementType); p == this {
 		return this.matchesStringContext_impl()
 	}
 	return this.self_.matchesStringContext_impl()
@@ -240,7 +240,7 @@ func (this *EnumElementType) matchesStringContext() bool {
 
 // matchesObjectContext: an object that is exactly a EnumElementType calls its matchesObjectContext_impl directly (post-flip); others dispatch.
 func (this *EnumElementType) matchesObjectContext() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*EnumElementType); p == this {
 		return this.matchesObjectContext_impl()
 	}
 	return this.self_.matchesObjectContext_impl()
@@ -248,7 +248,7 @@ func (this *EnumElementType) matchesObjectContext() bool {
 
 // matchesSymbolContext: an object that is exactly a EnumElementType calls its matchesSymbolContext_impl directly (post-flip); others dispatch.
 func (this *EnumElementType) matchesSymbolContext() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*EnumElementType); p == this {
 		return this.matchesSymbolContext_impl()
 	}
 	return this.self_.matchesSymbolContext_impl()
@@ -256,7 +256,7 @@ func (this *EnumElementType) matchesSymbolContext() bool {
 
 // canBeCalled: an object that is exactly a EnumElementType calls its canBeCalled_impl directly (post-flip); others dispatch.
 func (this *EnumElementType) canBeCalled() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*EnumElementType); p == this {
 		return this.canBeCalled_impl()
 	}
 	return this.self_.canBeCalled_impl()
@@ -264,7 +264,7 @@ func (this *EnumElementType) canBeCalled() bool {
 
 // isObject: an object that is exactly a EnumElementType calls its isObject_impl directly (post-flip); others dispatch.
 func (this *EnumElementType) isObject() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*EnumElementType); p == this {
 		return this.isObject_impl()
 	}
 	return this.self_.isObject_impl()
@@ -272,7 +272,7 @@ func (this *EnumElementType) isObject() bool {
 
 // testForEquality: an object that is exactly a EnumElementType calls its testForEquality_impl directly (post-flip); others dispatch.
 func (this *EnumElementType) testForEquality(p0 *JSType) Tri {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*EnumElementType); p == this {
 		return this.testForEquality_impl(p0)
 	}
 	return this.self_.testForEquality_impl(p0)
@@ -280,7 +280,7 @@ func (this *EnumElementType) testForEquality(p0 *JSType) Tri {
 
 // isNullable: an object that is exactly a EnumElementType calls its isNullable_impl directly (post-flip); others dispatch.
 func (this *EnumElementType) isNullable() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*EnumElementType); p == this {
 		return this.isNullable_impl()
 	}
 	return this.self_.isNullable_impl()
@@ -288,7 +288,7 @@ func (this *EnumElementType) isNullable() bool {
 
 // isVoidable: an object that is exactly a EnumElementType calls its isVoidable_impl directly (post-flip); others dispatch.
 func (this *EnumElementType) isVoidable() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*EnumElementType); p == this {
 		return this.isVoidable_impl()
 	}
 	return this.self_.isVoidable_impl()
@@ -296,7 +296,7 @@ func (this *EnumElementType) isVoidable() bool {
 
 // isNominalType: an object that is exactly a EnumElementType calls its isNominalType_impl directly (post-flip); others dispatch.
 func (this *EnumElementType) isNominalType() bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*EnumElementType); p == this {
 		return this.isNominalType_impl()
 	}
 	return this.self_.isNominalType_impl()
@@ -304,7 +304,7 @@ func (this *EnumElementType) isNominalType() bool {
 
 // recursionUnsafeHashCode: an object that is exactly a EnumElementType calls its recursionUnsafeHashCode_impl directly (post-flip); others dispatch.
 func (this *EnumElementType) recursionUnsafeHashCode() int32 {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*EnumElementType); p == this {
 		return this.recursionUnsafeHashCode_impl()
 	}
 	return this.self_.recursionUnsafeHashCode_impl()
@@ -312,7 +312,7 @@ func (this *EnumElementType) recursionUnsafeHashCode() int32 {
 
 // appendTo: an object that is exactly a EnumElementType calls its appendTo_impl directly (post-flip); others dispatch.
 func (this *EnumElementType) appendTo(p0 *TypeStringBuilder) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*EnumElementType); p == this {
 		this.appendTo_impl(p0)
 		return
 	}
@@ -321,7 +321,7 @@ func (this *EnumElementType) appendTo(p0 *TypeStringBuilder) {
 
 // getReferenceName: an object that is exactly a EnumElementType calls its getReferenceName_impl directly (post-flip); others dispatch.
 func (this *EnumElementType) getReferenceName() Optional[string] {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*EnumElementType); p == this {
 		return this.getReferenceName_impl()
 	}
 	return this.self_.getReferenceName_impl()
@@ -329,7 +329,7 @@ func (this *EnumElementType) getReferenceName() Optional[string] {
 
 // visitUntyped: an object that is exactly a EnumElementType calls its visitUntyped_impl directly (post-flip); others dispatch.
 func (this *EnumElementType) visitUntyped(p0 Visitor) any {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*EnumElementType); p == this {
 		return this.visitUntyped_impl(p0)
 	}
 	return this.self_.visitUntyped_impl(p0)
@@ -337,7 +337,7 @@ func (this *EnumElementType) visitUntyped(p0 Visitor) any {
 
 // visitUntyped_2: an object that is exactly a EnumElementType calls its visitUntyped_2_impl directly (post-flip); others dispatch.
 func (this *EnumElementType) visitUntyped_2(p0 RelationshipVisitor, p1 *JSType) any {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*EnumElementType); p == this {
 		return this.visitUntyped_2_impl(p0, p1)
 	}
 	return this.self_.visitUntyped_2_impl(p0, p1)
@@ -345,7 +345,7 @@ func (this *EnumElementType) visitUntyped_2(p0 RelationshipVisitor, p1 *JSType) 
 
 // defineProperty: an object that is exactly a EnumElementType calls its defineProperty_impl directly (post-flip); others dispatch.
 func (this *EnumElementType) defineProperty(p0 Property_Key, p1 *JSType, p2 bool, p3 Node) bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*EnumElementType); p == this {
 		return this.defineProperty_impl(p0, p1, p2, p3)
 	}
 	return this.self_.defineProperty_impl(p0, p1, p2, p3)
@@ -353,7 +353,7 @@ func (this *EnumElementType) defineProperty(p0 Property_Key, p1 *JSType, p2 bool
 
 // getImplicitPrototype: an object that is exactly a EnumElementType calls its getImplicitPrototype_impl directly (post-flip); others dispatch.
 func (this *EnumElementType) getImplicitPrototype() *ObjectType {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*EnumElementType); p == this {
 		return this.getImplicitPrototype_impl()
 	}
 	return this.self_.getImplicitPrototype_impl()
@@ -361,7 +361,7 @@ func (this *EnumElementType) getImplicitPrototype() *ObjectType {
 
 // findPropertyTypeWithoutConsideringTemplateTypes: an object that is exactly a EnumElementType calls its findPropertyTypeWithoutConsideringTemplateTypes_impl directly (post-flip); others dispatch.
 func (this *EnumElementType) findPropertyTypeWithoutConsideringTemplateTypes(p0 Property_Key) *JSType {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*EnumElementType); p == this {
 		return this.findPropertyTypeWithoutConsideringTemplateTypes_impl(p0)
 	}
 	return this.self_.findPropertyTypeWithoutConsideringTemplateTypes_impl(p0)
@@ -369,7 +369,7 @@ func (this *EnumElementType) findPropertyTypeWithoutConsideringTemplateTypes(p0 
 
 // getConstructor: an object that is exactly a EnumElementType calls its getConstructor_impl directly (post-flip); others dispatch.
 func (this *EnumElementType) getConstructor() *FunctionType {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*EnumElementType); p == this {
 		return this.getConstructor_impl()
 	}
 	return this.self_.getConstructor_impl()
@@ -377,7 +377,7 @@ func (this *EnumElementType) getConstructor() *FunctionType {
 
 // autoboxesTo: an object that is exactly a EnumElementType calls its autoboxesTo_impl directly (post-flip); others dispatch.
 func (this *EnumElementType) autoboxesTo() *JSType {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*EnumElementType); p == this {
 		return this.autoboxesTo_impl()
 	}
 	return this.self_.autoboxesTo_impl()
@@ -385,7 +385,7 @@ func (this *EnumElementType) autoboxesTo() *JSType {
 
 // resolveInternal: an object that is exactly a EnumElementType calls its resolveInternal_impl directly (post-flip); others dispatch.
 func (this *EnumElementType) resolveInternal(p0 ErrorReporter_rhino) *JSType {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*EnumElementType); p == this {
 		return this.resolveInternal_impl(p0)
 	}
 	return this.self_.resolveInternal_impl(p0)

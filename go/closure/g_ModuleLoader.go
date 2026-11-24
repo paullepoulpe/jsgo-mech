@@ -805,7 +805,7 @@ func ModuleLoader_PathResolver_2_clinit() {
 
 // escape: an object that is exactly a ModuleLoader_PathEscaper_1 calls its escape_impl directly (post-flip); others dispatch.
 func (this *ModuleLoader_PathEscaper_1) escape(p0 string) string {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ModuleLoader_PathEscaper_1); p == this {
 		return this.escape_impl(p0)
 	}
 	return this.selfI_(p0)
@@ -813,7 +813,7 @@ func (this *ModuleLoader_PathEscaper_1) escape(p0 string) string {
 
 // escape: an object that is exactly a ModuleLoader_PathEscaper_2 calls its escape_impl directly (post-flip); others dispatch.
 func (this *ModuleLoader_PathEscaper_2) escape(p0 string) string {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ModuleLoader_PathEscaper_2); p == this {
 		return this.escape_impl(p0)
 	}
 	return this.selfI_(p0)
@@ -821,7 +821,7 @@ func (this *ModuleLoader_PathEscaper_2) escape(p0 string) string {
 
 // apply: an object that is exactly a ModuleLoader_PathResolver_1 calls its apply_impl directly (post-flip); others dispatch.
 func (this *ModuleLoader_PathResolver_1) apply(p0 string) string {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ModuleLoader_PathResolver_1); p == this {
 		return this.apply_impl(p0)
 	}
 	return this.selfI_(p0)
@@ -829,7 +829,7 @@ func (this *ModuleLoader_PathResolver_1) apply(p0 string) string {
 
 // apply: an object that is exactly a ModuleLoader_PathResolver_2 calls its apply_impl directly (post-flip); others dispatch.
 func (this *ModuleLoader_PathResolver_2) apply(p0 string) string {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ModuleLoader_PathResolver_2); p == this {
 		return this.apply_impl(p0)
 	}
 	return this.selfI_(p0)

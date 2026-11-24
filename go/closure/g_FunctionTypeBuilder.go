@@ -1045,7 +1045,7 @@ func (this *FunctionTypeBuilder_AstFunctionContents) mayHaveSingleThrow() bool {
 
 // apply: an object that is exactly a FunctionTypeBuilder_ExtendedTypeValidator calls its apply_impl directly (post-flip); others dispatch.
 func (this *FunctionTypeBuilder_ExtendedTypeValidator) apply(p0 *JSType) bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*FunctionTypeBuilder_ExtendedTypeValidator); p == this {
 		return this.apply_impl(p0)
 	}
 	return this.self_.apply_impl(p0)
@@ -1053,7 +1053,7 @@ func (this *FunctionTypeBuilder_ExtendedTypeValidator) apply(p0 *JSType) bool {
 
 // apply: an object that is exactly a FunctionTypeBuilder_ImplementedTypeValidator calls its apply_impl directly (post-flip); others dispatch.
 func (this *FunctionTypeBuilder_ImplementedTypeValidator) apply(p0 *JSType) bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*FunctionTypeBuilder_ImplementedTypeValidator); p == this {
 		return this.apply_impl(p0)
 	}
 	return this.self_.apply_impl(p0)

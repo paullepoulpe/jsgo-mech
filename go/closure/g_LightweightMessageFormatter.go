@@ -336,7 +336,7 @@ func (this *LightweightMessageFormatter_LineNumberingFormatter) formatRegion(reg
 
 // formatError: an object that is exactly a LightweightMessageFormatter calls its formatError_impl directly (post-flip); others dispatch.
 func (this *LightweightMessageFormatter) formatError(p0 *JSError) string {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*LightweightMessageFormatter); p == this {
 		return this.formatError_impl(p0)
 	}
 	return this.self_.formatError_impl(p0)
@@ -344,7 +344,7 @@ func (this *LightweightMessageFormatter) formatError(p0 *JSError) string {
 
 // formatWarning: an object that is exactly a LightweightMessageFormatter calls its formatWarning_impl directly (post-flip); others dispatch.
 func (this *LightweightMessageFormatter) formatWarning(p0 *JSError) string {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*LightweightMessageFormatter); p == this {
 		return this.formatWarning_impl(p0)
 	}
 	return this.self_.formatWarning_impl(p0)

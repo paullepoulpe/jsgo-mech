@@ -655,7 +655,7 @@ func (this *ReplaceIdGenerators_ReplaceGenerators) getObfuscatedName(id Node, ca
 
 // visit: an object that is exactly a ReplaceIdGenerators_GatherGenerators calls its visit_impl directly (post-flip); others dispatch.
 func (this *ReplaceIdGenerators_GatherGenerators) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ReplaceIdGenerators_GatherGenerators); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
@@ -664,7 +664,7 @@ func (this *ReplaceIdGenerators_GatherGenerators) visit(p0 *NodeTraversal, p1 No
 
 // visit: an object that is exactly a ReplaceIdGenerators_ReplaceGenerators calls its visit_impl directly (post-flip); others dispatch.
 func (this *ReplaceIdGenerators_ReplaceGenerators) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ReplaceIdGenerators_ReplaceGenerators); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}

@@ -1549,7 +1549,7 @@ func new_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_1SwitchCase(oute
 
 // shouldTraverse: an object that is exactly a Es6RewriteGenerators_YieldExposer calls its shouldTraverse_impl directly (post-flip); others dispatch.
 func (this *Es6RewriteGenerators_YieldExposer) shouldTraverse(p0 *NodeTraversal, p1 Node, p2 Node) bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Es6RewriteGenerators_YieldExposer); p == this {
 		return this.shouldTraverse_impl(p0, p1, p2)
 	}
 	return this.self_.shouldTraverse_impl(p0, p1, p2)
@@ -1557,7 +1557,7 @@ func (this *Es6RewriteGenerators_YieldExposer) shouldTraverse(p0 *NodeTraversal,
 
 // visit: an object that is exactly a Es6RewriteGenerators_GeneratorFunctionsTranspiler calls its visit_impl directly (post-flip); others dispatch.
 func (this *Es6RewriteGenerators_GeneratorFunctionsTranspiler) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Es6RewriteGenerators_GeneratorFunctionsTranspiler); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
@@ -1566,7 +1566,7 @@ func (this *Es6RewriteGenerators_GeneratorFunctionsTranspiler) visit(p0 *NodeTra
 
 // shouldTraverse: an object that is exactly a Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_YieldFinder calls its shouldTraverse_impl directly (post-flip); others dispatch.
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_YieldFinder) shouldTraverse(p0 *NodeTraversal, p1 Node, p2 Node) bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_YieldFinder); p == this {
 		return this.shouldTraverse_impl(p0, p1, p2)
 	}
 	return this.self_.shouldTraverse_impl(p0, p1, p2)
