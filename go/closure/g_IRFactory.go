@@ -2972,7 +2972,7 @@ func (this *IRFactory_TransformDispatcher) validatePrivatePropertyUsage(privateP
 		}
 		if node.isClassMembers() {
 			var innerClassPrivatePropNames *TSet[string] = this.getPrivatePropsAndValidateUniqueness(node)
-			innerClassPrivatePropNames.asSetT().addAll(Collection(privatePropNames.asSetT()))
+			tsetAddSetT_(innerClassPrivatePropNames, privatePropNames)
 			this.validatePrivatePropertyUsage(innerClassPrivatePropNames, node)
 		} else {
 			if node.getNext() != 0 {

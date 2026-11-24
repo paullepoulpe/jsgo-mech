@@ -50,5 +50,5 @@ func JSTypeIterations_mapTypesImmutableList(mapper Function[*JSType, *JSType], t
 }
 
 func JSTypeIterations_mapTypes(mapper Function[*JSType, *JSType], union *UnionType) *JSType {
-	return UnionType_builder(union.registry).addAlternates(tlistImm_(tc_p_JSType, sliceView_(tc_any, JSTypeIterations_mapTypesImmutableList(mapper, sliceImm_(tc_p_JSType, union.getAlternates().asImm()))))).build()
+	return UnionType_builder(union.registry).addAlternates(tlistImm_(tc_p_JSType, sliceView_(tc_any, JSTypeIterations_mapTypesImmutableList(mapper, tlistSlice_(tc_p_JSType, union.getAlternates()))))).build()
 }

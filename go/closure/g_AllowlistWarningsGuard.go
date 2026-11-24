@@ -86,7 +86,7 @@ func AllowlistWarningsGuard_loadAllowlistedJsWarningsFile(file string) *TSet[str
 
 func AllowlistWarningsGuard_loadAllowlistedJsWarningsText(text string) *TSet[string] {
 	var result *TSet[string] = newTSet_(tc_string)
-	result.asSetT().addAll(Collection(sliceViewP_(tc_string, TextFiles_splitLines(text))))
+	tsetAddAllOfT_(result, Collection(sliceViewP_(tc_string, TextFiles_splitLines(text))))
 	return result
 }
 

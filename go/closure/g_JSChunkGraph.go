@@ -435,7 +435,7 @@ func (this *JSChunkGraph) getDepthFirstDependenciesOf(rootInput *CompilerInput, 
 		if has_(inputsByProvide, importedNamespace) {
 			for input := range elemsT_(inputsByProvide[importedNamespace]) {
 				if has_(unreachedInputs, input) {
-					sliceAddAll_(tc_p_CompilerInput, &orderedInputs, Collection(sliceView_(tc_p_CompilerInput, this.getDepthFirstDependenciesOf(input, unreachedInputs, inputsByProvide))))
+					sliceAddSlice_(&orderedInputs, this.getDepthFirstDependenciesOf(input, unreachedInputs, inputsByProvide))
 				}
 			}
 		}
