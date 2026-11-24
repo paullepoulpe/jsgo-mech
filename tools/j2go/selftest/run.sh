@@ -93,6 +93,7 @@ if [[ -z ${J2GO_NOLIBGEN:-} ]]; then
   nx=$(fns 'wide|erased|wild|obj' | { grep -oE "$twin" || true; } | wc -l)
   ne=$(fns 'wide|erased|wild|obj' | { grep -oE "$erased" || true; } | wc -l)
   if [[ $nt != 25 || $ny != 28 || $nx != 0 || $ne != 13 ]]; then echo "selftest: FAIL (Object-parameter methods: $nt twins and $ny erased calls in typed(), $nx and $ne in erased())"; exit 1; fi
+fi
 if [[ ! ,${J2GO_NOLIBGEN:-}, =~ ,(cmp|all), ]]; then
   # Rule "typed library interfaces", piece `cmp` (lang/Cmp.java): exactly the two classes that implement Comparable
   # of their own type (Ver, Box) have compareTo_t and the bridge; the six others keep the erased compareTo alone
