@@ -211,6 +211,28 @@ only): GATE OK, four MATCH. Subset CPU against main's binary: goptional alone +1
 slower; not profiled), seqcoll on top -0.8%, the two together +0.1% (neutral). The goptional-only
 slowdown is not explained; it does not show in the final binary.
 
+Pieces objarg and cmp on main (branch main-libgen-t45, COLLECTIONS-PLAN.md sections 10 and 11):
+- objarg: Map.get/containsKey/remove and Set.contains/remove with an argument of the key or element
+  type call typed twins that use the typed map's or set's own lookup: 51 calls. Only for the 18
+  key/value pairs on the checked-in list tools/j2go/objarg-pairs.txt (the types the translation
+  has a typed map or set of); the translation fails when the list is stale in either direction.
+  80 calls keep the erased call, by counted reason (29 String keys the String helpers serve, 23
+  List/Collection receivers, 12 erased receivers, 5 pairs with no typed map or set, 11 others).
+  Boxing -35. A first form (typed lookups for every pair) cost +3.9 MB of fast paths that could
+  never run and was replaced; a form that only moved the box into the runtime was rejected
+  because it would lower the census without removing a box.
+- cmp: 10 classes implementing Comparable of their own type get compareTo_t, jsgo's form (typed
+  CompareTo(*T)), plus javac's bridge; 1 refused (Comparable of another type). No census row
+  moves and deadbridge would remove 0 bridges: the bridges stay because 9 callers are erased (6
+  Guava sorted-set builder/copyOf calls, which T2 did not type; 2 Arrays.sort(Object[]); 1
+  TreeRangeSet). Counted reason, not equivalence.
+Each switch off is byte-identical to main before; both off = main's default (627f4289), all off
+= main's all-off (973b5b6d). Gate on the committed merge: GATE OK (t45b). The first gate of the
+merge failed because my conflict resolution left two `if` blocks with one `fi` in the self-test
+script (fixed in 1f1f109d); the self-test log that verify.sh now keeps named the cause at once.
+Subset CPU against main's binary, three rounds: 161.93 to 161.67 s (-0.2%, neutral); binary
++1.0 MB.
+
 ## Open
 
 - Translator bug (pre-existing, found by piece objarg's self-test, main-libgen-t4): in the
