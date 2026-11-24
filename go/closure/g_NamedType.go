@@ -540,7 +540,7 @@ func (this *NamedType) getTemplateTypes() *JTList[*JSType] {
 	if this.self_ == any(this) {
 		return this.getTemplateTypes_impl()
 	}
-	return this.self_.(interface{ getTemplateTypes_impl() *JTList[*JSType] }).getTemplateTypes_impl()
+	return this.self_.getTemplateTypes_impl()
 }
 
 // defineProperty: an object that is exactly a NamedType calls its defineProperty_impl directly (post-flip); others dispatch.
@@ -548,9 +548,7 @@ func (this *NamedType) defineProperty(p0 Property_Key, p1 *JSType, p2 bool, p3 N
 	if this.self_ == any(this) {
 		return this.defineProperty_impl(p0, p1, p2, p3)
 	}
-	return this.self_.(interface {
-		defineProperty_impl(Property_Key, *JSType, bool, Node) bool
-	}).defineProperty_impl(p0, p1, p2, p3)
+	return this.self_.defineProperty_impl(p0, p1, p2, p3)
 }
 
 // getReferenceName: an object that is exactly a NamedType calls its getReferenceName_impl directly (post-flip); others dispatch.
@@ -558,7 +556,7 @@ func (this *NamedType) getReferenceName() Optional[string] {
 	if this.self_ == any(this) {
 		return this.getReferenceName_impl()
 	}
-	return this.self_.(interface{ getReferenceName_impl() Optional[string] }).getReferenceName_impl()
+	return this.self_.getReferenceName_impl()
 }
 
 // appendTo: an object that is exactly a NamedType calls its appendTo_impl directly (post-flip); others dispatch.

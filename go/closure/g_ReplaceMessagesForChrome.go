@@ -109,7 +109,7 @@ func (this *ReplaceMessagesForChrome) processIcuTemplateDefinition(p0 IcuTemplat
 		this.processIcuTemplateDefinition_impl(p0)
 		return
 	}
-	this.self_.(interface{ processIcuTemplateDefinition_impl(IcuTemplateDefinition) }).processIcuTemplateDefinition_impl(p0)
+	this.self_.processIcuTemplateDefinition_impl(p0)
 }
 
 // processJsMessageDefinition: an object that is exactly a ReplaceMessagesForChrome calls its processJsMessageDefinition_impl directly (post-flip); others dispatch.
@@ -118,5 +118,5 @@ func (this *ReplaceMessagesForChrome) processJsMessageDefinition(p0 JsMessageDef
 		this.processJsMessageDefinition_impl(p0)
 		return
 	}
-	this.self_.(interface{ processJsMessageDefinition_impl(JsMessageDefinition) }).processJsMessageDefinition_impl(p0)
+	this.self_.processJsMessageDefinition_impl(p0)
 }
