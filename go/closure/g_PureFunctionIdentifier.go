@@ -419,7 +419,7 @@ func PureFunctionIdentifier_clinit() {
 	PureFunctionIdentifier_clinit_done = true
 	PureFunctionIdentifier_IMPLICIT_PURE_FN = IR_function(IR_name(""), IR_paramList([]Node{}), IR_block_0())
 	PureFunctionIdentifier_UNUSED_ARTIFICIAL_PURE_ANNOTATION = DiagnosticType_disabled("JSC_UNUSED_ARTIFICIAL_PURE_ANNOTATION", "Artificial @nosideeffects annotation cannot be enforced: found ambiguous definitions of {0}.\n\nSide-effectful definitions:\n  {1}")
-	PureFunctionIdentifier_SOURCE_LOCATION_COMPARATOR = Comparator_comparing[Node, string](Function[Node, string](func(p0 Node) string { return p0.getSourceFileName() })).thenComparingInt(ToIntFunction[Node](func(p0 Node) int32 { return p0.getLineno() })).thenComparingInt(ToIntFunction[Node](func(p0 Node) int32 { return p0.getCharno() }))
+	PureFunctionIdentifier_SOURCE_LOCATION_COMPARATOR = Comparator_comparing[Node, string](Function[Node, string]((Node).getSourceFileName)).thenComparingInt(ToIntFunction[Node]((Node).getLineno)).thenComparingInt(ToIntFunction[Node]((Node).getCharno))
 	PureFunctionIdentifier_RHS_IS_ALWAYS_LOCAL = Predicate[Node](func(lhs Node) bool {
 		return true
 	})

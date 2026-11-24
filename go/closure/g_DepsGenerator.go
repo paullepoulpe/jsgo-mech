@@ -321,7 +321,7 @@ func DepsGenerator_createSourceFilesFromPaths(paths CollectionT[string]) []*Sour
 }
 
 func DepsGenerator_createSourceFilesFromPathsStringVarargs(paths []string) []*SourceFile_jscomp {
-	return DepsGenerator_createSourceFilesFromPaths(collectionAs_(tc_string, Collection(Arrays_asList(arrmap_(paths, func(v_ string) any { return strobj_(v_) })))))
+	return DepsGenerator_createSourceFilesFromPaths(collectionAs_(tc_string, Collection(Arrays_asList(arrmap_(paths, strobj_)))))
 }
 
 func DepsGenerator_createSourceFilesFromZipPaths(paths CollectionT[string]) *Outcome_base[ListT[*SourceFile_jscomp]] {

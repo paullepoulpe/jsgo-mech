@@ -60,7 +60,7 @@ func (this *DeadPropertyAssignmentElimination_FunctionVisitor) enterChangedScope
 		return
 	}
 	var body Node = NodeUtil_getFunctionBody(root)
-	if !body.hasChildren() || NodeUtil_has(body, Predicate_base[Node](func(p0 Node) bool { return NodeUtil_isFunctionOrNonStaticClassFieldInitializer(p0) }), Predicates_alwaysTrue[Node]()) {
+	if !body.hasChildren() || NodeUtil_has(body, Predicate_base[Node](NodeUtil_isFunctionOrNonStaticClassFieldInitializer), Predicates_alwaysTrue[Node]()) {
 		return
 	}
 	var traversal *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal = new_DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal(this.skiplistedPropNames)
@@ -219,9 +219,7 @@ func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) 
 			return s != ""
 		})
 	}()
-	var property *DeadPropertyAssignmentElimination_Property = this.propertyMap.ComputeIfAbsent(propName.orElse(nullstr_), Function[string, *DeadPropertyAssignmentElimination_Property](func(p0 string) *DeadPropertyAssignmentElimination_Property {
-		return new_DeadPropertyAssignmentElimination_Property(p0)
-	}))
+	var property *DeadPropertyAssignmentElimination_Property = this.propertyMap.ComputeIfAbsent(propName.orElse(nullstr_), Function[string, *DeadPropertyAssignmentElimination_Property](new_DeadPropertyAssignmentElimination_Property))
 	if propNode.isGetProp() {
 		var parentProperty *DeadPropertyAssignmentElimination_Property = this.getOrCreateProperty(propNode.getFirstChild())
 		if parentProperty != nil {

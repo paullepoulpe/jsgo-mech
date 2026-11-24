@@ -964,7 +964,7 @@ func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, print
 		if precedenceOfFirst == precedence {
 			precedence = (precedence + 1)
 		}
-		if NodeUtil_has(first, Predicate_base[Node](func(p0 Node) bool { return p0.isCall() }), NodeUtil_MATCH_NOT_FUNCTION) || NodeUtil_isOptChainNode(first) {
+		if NodeUtil_has(first, Predicate_base[Node]((Node).isCall), NodeUtil_MATCH_NOT_FUNCTION) || NodeUtil_isOptChainNode(first) {
 			precedence = (NodeUtil_precedence(first.getToken()) + 1)
 		}
 		this.addExpr(first, precedence, CodeGenerator_Context_OTHER)

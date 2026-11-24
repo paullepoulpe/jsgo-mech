@@ -460,7 +460,7 @@ func (this *AstFactory) createQNameIterable(scope StaticScope, names IterableT[s
 }
 
 func (this *AstFactory) createQNameStringVarargs(scope StaticScope, baseName string, propertyNames []string) Node {
-	return this.createQName_3(scope, baseName, iterableAs_(tc_string, Iterable(Arrays_asList(arrmap_(propertyNames, func(v_ string) any { return strobj_(v_) })))))
+	return this.createQName_3(scope, baseName, iterableAs_(tc_string, Iterable(Arrays_asList(arrmap_(propertyNames, strobj_)))))
 }
 
 func (this *AstFactory) createQName_3(scope StaticScope, baseName string, propertyNames IterableT[string]) Node {
@@ -1033,7 +1033,7 @@ func (this *AstFactory) createOptionalChainShortCircuit(receiver Node, resultExp
 }
 
 func (this *AstFactory) createArraylit(elements []Node) Node {
-	return this.createArraylitIterable(iterableAs_(tc_Node, Iterable(Arrays_asList(arrmap_(elements, func(v_ Node) any { return v_.box_() })))))
+	return this.createArraylitIterable(iterableAs_(tc_Node, Iterable(Arrays_asList(arrmap_(elements, (Node).box_)))))
 }
 
 func (this *AstFactory) createArraylitIterable(elements IterableT[Node]) Node {

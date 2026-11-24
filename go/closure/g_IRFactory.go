@@ -1480,7 +1480,7 @@ func IRFactory_LineAndColumn_fromSourcePosition(pos *SourcePosition_util) *IRFac
 func (this *IRFactory_LineAndColumn) compareTo(o_ any) int32 {
 	var o *IRFactory_LineAndColumn = cast_[*IRFactory_LineAndColumn](o_)
 	_ = o
-	return Comparator_comparingInt[*IRFactory_LineAndColumn](ToIntFunction[*IRFactory_LineAndColumn](func(p0 *IRFactory_LineAndColumn) int32 { return p0.lineNo() })).thenComparingInt(ToIntFunction[*IRFactory_LineAndColumn](func(p0 *IRFactory_LineAndColumn) int32 { return p0.column() })).compare(this, o)
+	return Comparator_comparingInt[*IRFactory_LineAndColumn](ToIntFunction[*IRFactory_LineAndColumn]((*IRFactory_LineAndColumn).lineNo)).thenComparingInt(ToIntFunction[*IRFactory_LineAndColumn]((*IRFactory_LineAndColumn).column)).compare(this, o)
 }
 
 func (this *IRFactory_LineAndColumn) lineNo() int32 {
