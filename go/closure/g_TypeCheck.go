@@ -1410,16 +1410,14 @@ func (this *TypeCheck) checkInterface(n Node, functionType *FunctionType) {
 			properties.asMapT().putAll(currentProperties.asMapT())
 		}
 	}
-	var loopPath *TList[*FunctionType] = functionType.checkExtendsLoop()
+	var loopPath *[]*FunctionType = functionType.checkExtendsLoop()
 	if loopPath != nil {
 		var displayNames *TList[string] = newTList_(tc_string)
-		it_5 := loopPath.each()
-		for it_5.next() {
-			var loopType *FunctionType = it_5.v
+		for _, loopType := range *loopPath {
 			displayNames.add(loopType.getDisplayName().orElse(nullstr_))
 		}
 		var strPath string = JString_join_s(" -> ", Iterable(displayNames.asList()))
-		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_INTERFACE_EXTENDS_LOOP, []string{loopPath.get(0).getDisplayName().orElse("null"), strPath}))
+		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_INTERFACE_EXTENDS_LOOP, []string{sliceAt_(*loopPath, 0).getDisplayName().orElse("null"), strPath}))
 	}
 	this.validator.expectAllInterfaceProperties(n, functionType)
 }

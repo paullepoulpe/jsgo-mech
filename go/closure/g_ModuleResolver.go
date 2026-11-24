@@ -7,7 +7,7 @@ import "strings"
 type ModuleResolver struct {
 	self_           ModuleResolver_I
 	modulePaths     *TSet[string]
-	moduleRootPaths *TList[string]
+	moduleRootPaths *[]string
 	errorHandler    ErrorHandler
 	pathEscaper     ModuleLoader_PathEscaper
 }
@@ -30,7 +30,7 @@ func (this *ModuleResolver) self() any {
 	return this.self_
 }
 
-func (this *ModuleResolver) init_ModuleResolver(modulePaths *TSet[string], moduleRootPaths *TList[string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) {
+func (this *ModuleResolver) init_ModuleResolver(modulePaths *TSet[string], moduleRootPaths *[]string, errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) {
 	this.modulePaths = modulePaths
 	this.moduleRootPaths = moduleRootPaths
 	this.errorHandler = errorHandler
@@ -51,7 +51,7 @@ func (this *ModuleResolver) resolveModuleAsPath_impl(scriptAddress string, modul
 		var lastIndex int32 = int32(strings.LastIndex(ourPath, ModuleLoader_MODULE_SLASH))
 		path = ModuleNames_canonicalizePath((sstr_(ourPath[:(lastIndex+int32(len(ModuleLoader_MODULE_SLASH)))]) + sstr_(path)))
 	}
-	return ModuleLoader_normalize(path, this.moduleRootPaths.asIterable())
+	return ModuleLoader_normalize(path, slicePtrViewT_(tc_string, this.moduleRootPaths))
 }
 
 func (this *ModuleResolver) locate(scriptAddress string, name string) Optional[string] {
@@ -63,9 +63,7 @@ func (this *ModuleResolver) locate(scriptAddress string, name string) Optional[s
 	if this.modulePaths.Has(normalizedPath) {
 		return Optional_of[string](canonicalizedPath)
 	}
-	it_1 := this.moduleRootPaths.each()
-	for it_1.next() {
-		var rootPath string = it_1.v
+	for _, rootPath := range *this.moduleRootPaths {
 		var modulePath string = (sstr_(rootPath) + sstr_(normalizedPath))
 		if this.modulePaths.Has(modulePath) {
 			return Optional_of[string](canonicalizedPath)

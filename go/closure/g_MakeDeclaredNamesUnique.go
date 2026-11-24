@@ -299,7 +299,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter) createUndeclaredVa
 
 type MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo struct {
 	outer_                   *MakeDeclaredNamesUnique_ContextualRenameInverter
-	referenceNodes           *TList[Node]
+	referenceNodes           *[]Node
 	potentialShadowVariables *TSet[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo]
 	currentName              string
 	preferredName            string
@@ -311,7 +311,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo) zero_
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo) finit_MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo() {
-	this.referenceNodes = newTList_(tc_Node)
+	this.referenceNodes = &[]Node{}
 	this.potentialShadowVariables = newTSet_(tch_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo)
 }
 
@@ -334,19 +334,19 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo) addPo
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo) attemptRename() string {
-	var disallowedNames *TSet[string] = newTSet_(tc_string)
-	disallowedNames.Add(MakeDeclaredNamesUnique_ARGUMENTS)
+	var disallowedNames map[string]struct{} = map[string]struct{}{}
+	disallowedNames[MakeDeclaredNamesUnique_ARGUMENTS] = struct{}{}
 	it_1 := this.potentialShadowVariables.each()
 	for it_1.next() {
 		var potentialShadowVariable MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo = it_1.v
 		var potentialShadowName string = potentialShadowVariable.getName()
-		disallowedNames.Add(potentialShadowName)
+		disallowedNames[potentialShadowName] = struct{}{}
 	}
 	var newName string = this.preferredName
-	if disallowedNames.Has(this.preferredName) {
+	if has_(disallowedNames, this.preferredName) {
 		var baseName string = (sstr_(this.preferredName) + sstr_(MakeDeclaredNamesUnique_ContextualRenamer_UNIQUE_ID_SEPARATOR))
 		var i int32 = 0
-		for do_4 := true; do_4; do_4 = disallowedNames.Has(newName) {
+		for do_4 := true; do_4; do_4 = has_(disallowedNames, newName) {
 			newName = (sstr_(baseName) + istr_(int64(i)))
 			i++
 		}
@@ -354,9 +354,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo) attem
 	if newName == this.currentName {
 		return this.currentName
 	}
-	it_5 := this.referenceNodes.each()
-	for it_5.next() {
-		var referenceNode Node = it_5.v
+	for referenceNode := range sliceAll_(this.referenceNodes) {
 		referenceNode.setString(newName)
 		this.outer_.compiler_.reportChangeToEnclosingScope(referenceNode)
 		var parent Node = referenceNode.getParent()
@@ -406,7 +404,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInf
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo) addReferenceNode(nameNode Node) {
 	if this.renamingInfo != nil {
-		this.renamingInfo.referenceNodes.add(nameNode)
+		*this.renamingInfo.referenceNodes = append(*this.renamingInfo.referenceNodes, nameNode)
 	}
 }
 
@@ -463,11 +461,11 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext) recor
 
 type MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap struct {
 	outer_      *MakeDeclaredNamesUnique_ContextualRenameInverter
-	mapOfStacks *TMap[string, DequeT[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo]]
+	mapOfStacks map[string]DequeT[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo]
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap) finit_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap() {
-	this.mapOfStacks = newTMap_(tc_string, tc_DequeT_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo_)
+	this.mapOfStacks = map[string]DequeT[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo]{}
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap) init_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap() {
@@ -488,9 +486,9 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMa
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap) getVariableInfoStack(name string) DequeT[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo] {
-	return this.mapOfStacks.ComputeIfAbsent(name, Function[string, DequeT[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo]](func(ignoredKey string) DequeT[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo] {
+	return mapComputeIfAbsentT_(tc_DequeT_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo_, this.mapOfStacks, name, func(ignoredKey string) DequeT[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo] {
 		return newTDeque_(tc_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo).asDequeT()
-	}))
+	})
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap) getOrCreateCurrentVariableInfo(name string) MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo {
@@ -506,19 +504,19 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMa
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap) popVariableInfo(name string) MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo {
-	var variableInfos DequeT[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo] = this.mapOfStacks.Get(name)
+	var variableInfos DequeT[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo] = this.mapOfStacks[name]
 	if variableInfos == nil {
 		panic(new_NullPointerException_String(Strings_lenientFormat("Nonexistent variable info requested: '%s'", []any{name})))
 	}
 	var info MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo = variableInfos.pop_t()
 	if variableInfos.isEmpty() {
-		this.mapOfStacks.Delete(name)
+		delete(this.mapOfStacks, name)
 	}
 	return info
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap) clear() {
-	this.mapOfStacks.Clear()
+	clear(this.mapOfStacks)
 }
 
 type MakeDeclaredNamesUnique_ContextualRenameInverter_UndeclaredVariableInfo struct {
@@ -717,7 +715,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenamer) createForChildScope(p0 No
 const MakeDeclaredNamesUnique_ContextualRenamer_UNIQUE_ID_SEPARATOR string = "$jscomp$"
 
 type MakeDeclaredNamesUnique_InlineRenamer struct {
-	declarations     *TMap[string, string]
+	declarations     map[string]string
 	uniqueIdSupplier Supplier[string]
 	idPrefix         string
 	convention       CodingConvention
@@ -730,7 +728,7 @@ func (this *MakeDeclaredNamesUnique_InlineRenamer) zero_MakeDeclaredNamesUnique_
 }
 
 func (this *MakeDeclaredNamesUnique_InlineRenamer) finit_MakeDeclaredNamesUnique_InlineRenamer() {
-	this.declarations = newTMap_(tc_string, tc_string)
+	this.declarations = map[string]string{}
 }
 
 func (this *MakeDeclaredNamesUnique_InlineRenamer) init_MakeDeclaredNamesUnique_InlineRenamer(convention CodingConvention, uniqueIdSupplier Supplier[string], idPrefix string, removeConstness bool, hoistingTargetScope bool, parent MakeDeclaredNamesUnique_Renamer) {
@@ -763,7 +761,7 @@ func (this *MakeDeclaredNamesUnique_InlineRenamer) addDeclaredName(name string, 
 	if hoisted && (this.hoistRenamer != any(this)) {
 		this.hoistRenamer.addDeclaredName(name, hoisted)
 	} else {
-		this.declarations.ComputeIfAbsent(name, Function[string, string](func(p0 string) string { return this.getUniqueName(p0) }))
+		mapComputeIfAbsentT_(tc_string, this.declarations, name, func(p0 string) string { return this.getUniqueName(p0) })
 	}
 }
 
@@ -781,7 +779,7 @@ func (this *MakeDeclaredNamesUnique_InlineRenamer) getUniqueName(name string) st
 }
 
 func (this *MakeDeclaredNamesUnique_InlineRenamer) getReplacementName(oldName string) Optional[string] {
-	return Optional_ofNullable[string](this.declarations.Get(oldName))
+	return Optional_ofNullable[string](mapStr_(this.declarations, oldName))
 }
 
 func (this *MakeDeclaredNamesUnique_InlineRenamer) createForChildScope(scopeRoot Node, hoistingTargetScope bool) MakeDeclaredNamesUnique_Renamer {

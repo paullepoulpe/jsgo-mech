@@ -3,12 +3,12 @@
 package closure
 
 type MemoizedScopeCreator struct {
-	scopesByScopeRoot *TMap[Node, *AbstractScope]
+	scopesByScopeRoot map[Node]*AbstractScope
 	delegate          func(Node, *AbstractScope) *AbstractScope
 }
 
 func (this *MemoizedScopeCreator) finit_MemoizedScopeCreator() {
-	this.scopesByScopeRoot = newTMap_(tc_Node, tc_p_AbstractScope)
+	this.scopesByScopeRoot = map[Node]*AbstractScope{}
 }
 
 func (this *MemoizedScopeCreator) init_MemoizedScopeCreator(delegate func(Node, *AbstractScope) *AbstractScope) {
@@ -23,10 +23,10 @@ func new_MemoizedScopeCreator(delegate func(Node, *AbstractScope) *AbstractScope
 }
 
 func (this *MemoizedScopeCreator) createScopeAbstractScope_Node_AbstractScope(n Node, parent *AbstractScope) *AbstractScope {
-	var scope *AbstractScope = this.scopesByScopeRoot.Get(n)
+	var scope *AbstractScope = this.scopesByScopeRoot[n]
 	if scope == nil {
 		scope = this.delegate(n, parent)
-		this.scopesByScopeRoot.Put(n, scope)
+		this.scopesByScopeRoot[n] = scope
 	} else {
 		if parent != scope.getParent() {
 			panic(new_IllegalStateException_0())
