@@ -75,7 +75,7 @@ public class GSorted {
     ts.add("bb");
     ts.add("d");
     keys = ImmutableSortedSet.copyOfSorted(ts);
-    p(keys + " " + keys.contains("zz") + keys.contains("e"));
+    p(keys + " " + keys.contains("bb") + keys.contains("zzzz"));
     ImmutableSortedSet<String> again = ImmutableSortedSet.copyOfSorted(keys);
     p(again + " " + again.size());
     ImmutableSortedSet<Ver> none = ImmutableSortedSet.of();

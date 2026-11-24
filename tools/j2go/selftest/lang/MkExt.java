@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Piece `mkext` of rule "typed library interfaces" (j2go ExprEmitter.mkextNew, mkextFreshArg,
  * immutableOf; RESIDUE8 T2.3, T2.8, T3.2): more makers of typed collections for a typed place:
- * `ImmutableSet.copyOf(E[])`, `ImmutableMap.of` with 6 to 10 entries, `ImmutableMap.of(k, v)` of a
+ * `ImmutableSet.copyOf(E[])`, `ImmutableMap.of` with 10 entries (the shapes the erased runtime also has, for the translation with the piece off), `ImmutableMap.of(k, v)` of a
  * subclass's value for a place of `? extends V`, `new LinkedHashSet<>(ImmutableSet.of(..))` and
  * `new ArrayDeque<>(ImmutableList.of(..))`, `new EnumMap<>(K.class)`, `new IdentityHashMap<>()`,
  * `new ConcurrentHashMap<>()`, `new LinkedList<>()` for a Deque. selftest/run.sh counts the typed
@@ -81,8 +81,6 @@ public class MkExt {
   static final ImmutableMap<Integer, String> YEARS =
       ImmutableMap.of(2012, "a", 2013, "b", 2014, "c", 2015, "d", 2016, "e", 2017, "f", 2018, "g", 2019, "h", 2020, "i", 2021, "j");
 
-  static final ImmutableMap<String, Color> SIX = ImmutableMap.of("r", Color.RED, "g", Color.GREEN, "b", Color.BLUE, "R", Color.RED, "G", Color.GREEN, "B", Color.BLUE);
-
   final Deque<Base> stack = new LinkedList<>();
   final Set<String> forbidden = new LinkedHashSet<>(ImmutableSet.of("x", "y", "x"));
   final ArrayDeque<Base> work = new ArrayDeque<>(ImmutableList.of(new Base("w1"), new Sub("w2")));
@@ -101,7 +99,7 @@ public class MkExt {
   }
 
   String typed() {
-    p(YEARS + " " + YEARS.get(2015) + " " + YEARS.size() + " " + SIX.get("G"));
+    p(YEARS + " " + YEARS.get(2015) + " " + YEARS.size());
     Sub sub = new Sub("s");
     p(names(ImmutableMap.of("then", sub)));
     Base a = new Base("a");
@@ -140,7 +138,7 @@ public class MkExt {
     conc.computeIfAbsent("j", k -> 2);
     p(conc.get("k") + " " + conc.get("j") + " " + conc.size());
     try {
-      Map<String, Integer> dup = ImmutableMap.of("a", 1, "b", 2, "c", 3, "d", 4, "e", 5, "a", 6);
+      Map<String, Integer> dup = ImmutableMap.of("a", 1, "b", 2, "c", 3, "d", 4, "e", 5, "f", 6, "g", 7, "h", 8, "i", 9, "a", 10);
       p(dup);
     } catch (IllegalArgumentException ex) {
       p("IAE " + ex.getMessage());

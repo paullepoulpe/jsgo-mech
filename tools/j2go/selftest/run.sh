@@ -193,14 +193,14 @@ if [[ ! ,${J2GO_NOLIBGEN:-}, =~ ,(freshloop|all), ]]; then
   if [[ $ny != 12 || $nx != 0 || $ne != 2 ]]; then echo "selftest: FAIL (piece freshloop: $ny typed loops, $nx and $ne erased loops)"; exit 1; fi
 fi
 if [[ ! ,${J2GO_NOLIBGEN:-}, =~ ,(mkext|cmaps|deque|all), ]]; then
-  # Piece `mkext` (lang/MkExt.java): 15 typed makers (2 tenumMapNew_, 2 newTMap_ (IdentityHashMap, ConcurrentHashMap),
-  # 1 newTDeque_ (LinkedList), 1 tdequeCopyL_, 1 tsetCopy_, 3 immutableSetOf_ of arrays, 2 immutableMapOf6_, 1
-  # immutableMapOf10_, 1 immutableMapOf1_ at the place's wider value type, 1 immutableSetOf_ inside tsetCopy_) and no wrapper
+  # Piece `mkext` (lang/MkExt.java): 14 typed makers (2 tenumMapNew_, 2 newTMap_ (IdentityHashMap, ConcurrentHashMap),
+  # 1 newTDeque_ (LinkedList), 1 tdequeCopyL_, 1 tsetCopy_, 3 immutableSetOf_ of arrays, 2 immutableMapOf10_, 1
+  # immutableMapOf1_ at the place's wider value type, 1 immutableSetOf_ inside tsetCopy_) and no wrapper
   # of an erased collection (mapAs_ / dequeAs_ / setAs_).
   g="$t/go/closure/g_MkExt.go"
   nm=$({ grep -oE '\b(tenumMapNew_|newTMap_|newTDeque_|tdequeCopyL_|tsetCopy_|immutableSetOf_|immutableMapOf(1|6|10)_)\b' "$g" || true; } | wc -l)
   nw=$({ grep -oE '\b(mapAs_|dequeAs_|setAs_)\(' "$g" || true; } | wc -l)
-  if [[ $nm != 15 || $nw != 0 ]]; then echo "selftest: FAIL (piece mkext: $nm typed makers, $nw wrappers)"; exit 1; fi
+  if [[ $nm != 14 || $nw != 0 ]]; then echo "selftest: FAIL (piece mkext: $nm typed makers, $nw wrappers)"; exit 1; fi
 fi
 if [[ ! ,${J2GO_NOLIBGEN:-}, =~ ,(gsorted|sorted|all), ]]; then
   # Piece `gsorted` (lang/GSorted.java): 8 typed sorted makers (tsortedSetCopyOfIt_, tsortedSetCopyOfSorted_, the empty

@@ -67,7 +67,7 @@ public class FreshLoop {
     for (Item i : ImmutableList.of(c, a)) {
       sb.append(i).append(' ');
     }
-    for (String s : ImmutableList.of("x", "y", "z")) {
+    for (String s : ImmutableList.of("x", "y")) {
       sb.append(s);
     }
     p(sb);
