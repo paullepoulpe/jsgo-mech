@@ -1,0 +1,137 @@
+diff --git a/go/closure/rt_enumset_test.go b/go/closure/rt_enumset_test.go
+index f533e9cce..c7161465a 100644
+--- a/go/closure/rt_enumset_test.go
++++ b/go/closure/rt_enumset_test.go
+@@ -35,7 +35,7 @@ func TestEnumSetAgainstTreeSet(t *testing.T) {
+ 	vs, other := tenums_()
+ 	r := rand.New(rand.NewSource(3))
+ 	for round := 0; round < 200; round++ {
+-		s, m := EnumSet_noneOf(classOf_("test.TEnum")), new_TreeSet_Comparator(ordinalCmp_())
++		s, m := EnumSet_noneOf(classOf_("test.TEnum")), &TreeSet{cmp: ordinalCmp_()}
+ 		for op := 0; op < 60; op++ {
+ 			v := any(vs[r.Intn(len(vs))])
+ 			switch r.Intn(4) {
+diff --git a/go/closure/rt_idmap_test.go b/go/closure/rt_idmap_test.go
+deleted file mode 100644
+index 720918d9f..000000000
+--- a/go/closure/rt_idmap_test.go
++++ /dev/null
+@@ -1,78 +0,0 @@
+-package closure
+-
+-import (
+-	"math/rand"
+-	"testing"
+-)
+-
+-// TestLihmAgainstLinkedIdentityHashMap checks LinkedIdentityHashMap's methods on a typed map
+-// (rt_idmap.go) against the translated class, with null results and values.
+-func TestLihmAgainstLinkedIdentityHashMap(t *testing.T) {
+-	type key struct{ n int }
+-	keys := make([]*key, 8)
+-	for i := range keys {
+-		keys[i] = &key{i % 3} // equal fields, distinct identities
+-	}
+-	kc := &tconv_[*key]{box: func(v *key) any { return obj_(v) }, unbox: func(v any) *key { return cast_[*key](v) }}
+-	vc := &tconv_[any]{box: func(v any) any { return v }, unbox: func(v any) any { return v }}
+-	r := rand.New(rand.NewSource(11))
+-	for round := 0; round < 200; round++ {
+-		m, tm := new_LinkedIdentityHashMap(), newTMap_(kc, vc)
+-		for op := 0; op < 30; op++ {
+-			k := keys[r.Intn(len(keys))]
+-			var v any
+-			if x := r.Intn(4); x > 0 {
+-				v = any(int32(x))
+-			}
+-			fn := func(any) any { return v }
+-			mf := func(a, b any) any {
+-				if a == nil {
+-					return b
+-				}
+-				return any(a.(int32) + 10)
+-			}
+-			var a, b any
+-			switch r.Intn(4) {
+-			case 0:
+-				a, b = m.get(obj_(k)), tm.get(k)
+-			case 1:
+-				a, b = m.put(obj_(k), v), tm.put(k, v)
+-			case 2:
+-				a, b = m.computeIfAbsent(obj_(k), fn), lihmComputeIfAbsent_(tm, k, fn)
+-			case 3:
+-				if v != nil {
+-					a, b = m.merge(obj_(k), v, mf), lihmMerge_(tm, k, v, mf)
+-				}
+-			}
+-			if a != b {
+-				t.Fatalf("round %d op %d: %v != %v", round, op, a, b)
+-			}
+-		}
+-		var want, got []any
+-		m.forEach(func(k, v any) { want = append(want, k, v) })
+-		lihmForEach_(tm, func(k, v any) { got = append(got, k, v) })
+-		if len(want) != len(got) {
+-			t.Fatalf("round %d: forEach %v != %v", round, want, got)
+-		}
+-		for i := range want {
+-			if want[i] != got[i] {
+-				t.Fatalf("round %d: forEach %v != %v", round, want, got)
+-			}
+-		}
+-	}
+-}
+-
+-// TestTlistFromRev checks a deque's copy as a list whose end is its head.
+-func TestTlistFromRev(t *testing.T) {
+-	src := listOf_([]any{"a", "b", "c"})
+-	d := new_ArrayDeque_Collection(src)
+-	l := tlistFromRev_(tcTreeStr_, src)
+-	for !d.isEmpty() {
+-		if str_(d.pop()) != l.pop_() {
+-			t.Fatal("pop order differs")
+-		}
+-	}
+-	if len(l.items) != 0 {
+-		t.Fatal("lengths differ")
+-	}
+-}
+diff --git a/go/closure/rt_io_test.go b/go/closure/rt_io_test.go
+index 587fe642f..02a3a2ee3 100644
+--- a/go/closure/rt_io_test.go
++++ b/go/closure/rt_io_test.go
+@@ -334,7 +334,7 @@ func TestIoMisc(t *testing.T) {
+ 			if !data.isPresent() {
+ 				return nil
+ 			}
+-			return ioSummary_(Outcome_base_ok_Object(any(data.get())))
++			return ioSummary_(Outcome_base_ok_Object(data.get()))
+ 		},
+ 	})
+ }
+diff --git a/go/closure/rt_tconv.go b/go/closure/rt_tconv.go
+new file mode 100644
+index 000000000..4eb1d7fb1
+--- /dev/null
++++ b/go/closure/rt_tconv.go
+@@ -0,0 +1,8 @@
++package closure
++
++// tc_string is the element conversion of the typed collections of strings (post-flip step 3
++// wrote it into g_zconv_lists.go with the first typed list of strings; on a translator whose
++// own typed family holds every such list until step 402 unifies the two families, no step
++// before that declares it, and the tests of the post-flip family name it). The text is the
++// one tools/postflip/colls writes; the collection steps use a conversion that is declared.
++var tc_string = &tconv_[string]{box: func(v string) any { return strobj_(v) }, unbox: func(v any) string { return str_(v) }, null: nullstr_}
+diff --git a/go/closure/rt_ttree_test.go b/go/closure/rt_ttree_test.go
+index 8a87a197e..a0c3b77e7 100644
+--- a/go/closure/rt_ttree_test.go
++++ b/go/closure/rt_ttree_test.go
+@@ -33,7 +33,7 @@ func TestTTreeSetAgainstTreeSet(t *testing.T) {
+ 	}
+ 	for round := 0; round < 200; round++ {
+ 		s, ts := new_TreeSet(), newTTreeSet_(tcTreeStr_)
+-		c, tc := new_TreeSet_Comparator(cmp), newTTreeSetC_(tcTreeItem_, cmp)
++		c, tc := &TreeSet{cmp: cmp}, newTTreeSetC_(tcTreeItem_, cmp)
+ 		for op := 0; op < 40; op++ {
+ 			k := string(rune('a' + r.Intn(10)))
+ 			it := items[r.Intn(len(items))]

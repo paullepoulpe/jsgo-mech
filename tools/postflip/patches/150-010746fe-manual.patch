@@ -1,0 +1,78 @@
+diff --git a/go/closure/g_DataFlowAnalysis.go b/go/closure/g_DataFlowAnalysis.go
+index c06023ac..3df0f5d7 100644
+--- a/go/closure/g_DataFlowAnalysis.go
++++ b/go/closure/g_DataFlowAnalysis.go
+@@ -327,14 +327,15 @@ func (this *DataFlowAnalysis_LinearFlowState) toString() string {
+ }
+ 
+ type DataFlowAnalysis_UniqueQueue struct {
+-	// membership only, never iterated: a Go map (graph nodes compare by identity), keyed by the
+-	// node's LinkedDiGraphNode, the only DiGraphNode class (post-flip manual step).
++	// membership only, never iterated (graph nodes compare by identity). A node that is in
++	// this queue names it in its queuedIn_ field, so a lookup reads that field (post-flip
++	// manual steps). A node added while another queue holds it is kept in seenSet, a Go map,
++	// instead; seenSet and the marked nodes are disjoint, and together are the queue's nodes.
+ 	seenSet map[*LinkedDirectedGraph_LinkedDiGraphNode]struct{}
+ 	queue   QueueOf[any]
+ }
+ 
+ func (this *DataFlowAnalysis_UniqueQueue) finit_DataFlowAnalysis_UniqueQueue() {
+-	this.seenSet = map[*LinkedDirectedGraph_LinkedDiGraphNode]struct{}{}
+ }
+ 
+ func (this *DataFlowAnalysis_UniqueQueue) init_DataFlowAnalysis_UniqueQueue(priority ComparatorOf[any]) {
+@@ -359,19 +360,37 @@ func (this *DataFlowAnalysis_UniqueQueue) isEmpty() bool {
+ 
+ func (this *DataFlowAnalysis_UniqueQueue) removeFirst() any {
+ 	var t any = this.queue.poll()
+-	delete(this.seenSet, to_LinkedDirectedGraph_LinkedDiGraphNode(t))
++	if k := to_LinkedDirectedGraph_LinkedDiGraphNode(t); k != nil && k.queuedIn_ == this {
++		k.queuedIn_ = nil
++	} else {
++		delete(this.seenSet, k)
++	}
+ 	return t
+ }
+ 
+ func (this *DataFlowAnalysis_UniqueQueue) add(t any) {
+ 	k := to_LinkedDirectedGraph_LinkedDiGraphNode(t)
+-	if _, seen := this.seenSet[k]; !seen {
++	if k.queuedIn_ == this {
++		return
++	}
++	if _, seen := this.seenSet[k]; seen {
++		return
++	}
++	if k.queuedIn_ == nil {
++		k.queuedIn_ = this
++	} else {
++		if this.seenSet == nil {
++			this.seenSet = map[*LinkedDirectedGraph_LinkedDiGraphNode]struct{}{}
++		}
+ 		this.seenSet[k] = struct{}{}
+-		this.queue.add(t)
+ 	}
++	this.queue.add(t)
+ }
+ 
+ func (this *DataFlowAnalysis_UniqueQueue) clear() {
++	for !this.queue.isEmpty() {
++		this.removeFirst()
++	}
+ 	clear(this.seenSet)
+ 	this.queue.clear()
+ }
+diff --git a/go/closure/g_LinkedDirectedGraph.go b/go/closure/g_LinkedDirectedGraph.go
+index 7dfe7239..50b873cc 100644
+--- a/go/closure/g_LinkedDirectedGraph.go
++++ b/go/closure/g_LinkedDirectedGraph.go
+@@ -384,6 +384,9 @@ type LinkedDirectedGraph_LinkedDiGraphNode struct {
+ 	// a control-flow graph have one of each, and their lists then need no array of their own;
+ 	// a second edge moves the list to an array, as appending past capacity does).
+ 	inEdge1_, outEdge1_ [1]DiGraph_DiGraphEdge
++	// The data-flow work queue that holds the node, if any (post-flip manual step: membership
++	// in DataFlowAnalysis.UniqueQueue is this field, not a hash set).
++	queuedIn_ *DataFlowAnalysis_UniqueQueue
+ }
+ 
+ // LinkedDirectedGraph_LinkedDiGraphNode_I holds the methods the dispatchers of LinkedDirectedGraph_LinkedDiGraphNode's hierarchy call on the most derived

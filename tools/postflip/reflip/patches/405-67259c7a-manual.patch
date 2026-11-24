@@ -1,0 +1,34 @@
+diff --git a/go/closure/g_FunctionArgumentInjector.go b/go/closure/g_FunctionArgumentInjector.go
+index ce5b173d..a04e16e5 100644
+--- a/go/closure/g_FunctionArgumentInjector.go
++++ b/go/closure/g_FunctionArgumentInjector.go
+@@ -140,6 +140,13 @@ func (this *FunctionArgumentInjector) findModifiedParameters(fnNode Node) *TSet[
+ 
+ func FunctionArgumentInjector_findModifiedParameters(n Node, names *TSet[string], inInnerClosure bool) *TSet[string] {
+ 	var unsafe *TSet[string] = newTSet_(tc_string)
++	FunctionArgumentInjector_findModifiedParametersInto_(n, names, inInnerClosure, unsafe)
++	return unsafe
++}
++
++// FunctionArgumentInjector_findModifiedParametersInto_ adds the names to one set, in the
++// pre-order in which the Java version merged one new set per node into its parent's.
++func FunctionArgumentInjector_findModifiedParametersInto_(n Node, names *ImmutableSet[string], inInnerClosure bool, unsafe *TSet[string]) {
+ 	if NodeUtil_isFunctionOrNonStaticClassFieldInitializer(n) {
+ 		inInnerClosure = true
+ 	}
+@@ -148,13 +155,9 @@ func FunctionArgumentInjector_findModifiedParameters(n Node, names *TSet[string]
+ 			unsafe.Add(n.getString())
+ 		}
+ 	}
+-	{
+-		var c Node = n.getFirstChild()
+-		for ; c != 0; c = c.getNext() {
+-			unsafe.asSet().addAll(Collection(FunctionArgumentInjector_findModifiedParameters(c, names, inInnerClosure).asSet()))
+-		}
++	for c := n.getFirstChild(); c != 0; c = c.getNext() {
++		FunctionArgumentInjector_findModifiedParametersInto_(c, names, inInnerClosure, unsafe)
+ 	}
+-	return unsafe
+ }
+ 
+ func FunctionArgumentInjector_canNameValueChange(n Node) bool {

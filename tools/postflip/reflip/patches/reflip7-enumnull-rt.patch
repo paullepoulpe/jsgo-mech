@@ -1,0 +1,51 @@
+diff --git a/go/closure/rt_enumnull_test.go b/go/closure/rt_enumnull_test.go
+new file mode 100644
+index 0000000..aa323f3
+--- /dev/null
++++ b/go/closure/rt_enumnull_test.go
+@@ -0,0 +1,19 @@
++package closure
++
++import "testing"
++
++// TestGenericNullOfIntegerEnum: jisnull_ of an integer enum (post-flip step enums) is its zero, so the
++// generic library twins (rt_lgfn.go) see a null enum as the erased code saw a null enum object.
++func TestGenericNullOfIntegerEnum(t *testing.T) {
++	var null AccessorSummary_PropertyAccessKind
++	k := AccessorSummary_PropertyAccessKind(1)
++	if !jisnull_(null) || jisnull_(k) {
++		t.Fatalf("jisnull_ of an integer enum: zero %v, constant %v", jisnull_(null), jisnull_(k))
++	}
++	if MoreObjects_firstNonNullT_(null, k) != k || MoreObjects_firstNonNullT_(k, null) != k {
++		t.Fatalf("firstNonNull of an integer enum")
++	}
++	if jisnull_(int32(0)) || jisnull_(uint8(0)) {
++		t.Fatalf("jisnull_ of a plain integer")
++	}
++}
+diff --git a/go/closure/rt_generic.go b/go/closure/rt_generic.go
+index 7d2beda..a402d2a 100644
+--- a/go/closure/rt_generic.go
++++ b/go/closure/rt_generic.go
+@@ -23,7 +23,7 @@ func jnull_[T any]() T {
+ }
+ 
+ // jisnull_ is `v == null` for a value of a type parameter: the null string, a nil pointer, interface
+-// or slice, the zero handle.
++// or slice, the zero handle, the zero of an integer enum.
+ func jisnull_[T any](v T) bool {
+ 	switch p := any(&v).(type) {
+ 	case *string:
+@@ -42,6 +42,12 @@ func jisnull_[T any](v T) bool {
+ 	switch r := reflect.ValueOf(x); r.Kind() {
+ 	case reflect.Pointer, reflect.Slice, reflect.Map, reflect.Func:
+ 		return r.IsNil()
++	case reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Int8, reflect.Int16, reflect.Int32:
++		// an integer enum (post-flip step enums): its zero is null, which its self() gives as nil,
++		// as the box of a null enum object was
++		if s, ok := x.(interface{ self() any }); ok {
++			return s.self() == nil
++		}
+ 	}
+ 	return false
+ }

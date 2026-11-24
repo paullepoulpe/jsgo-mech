@@ -1,0 +1,53 @@
+diff --git a/go/closure/g_ControlFlowAnalysis.go b/go/closure/g_ControlFlowAnalysis.go
+index 18a99643..50b94e4e 100644
+--- a/go/closure/g_ControlFlowAnalysis.go
++++ b/go/closure/g_ControlFlowAnalysis.go
+@@ -92,8 +92,11 @@ func (this *ControlFlowAnalysis) prioritizeFromEntryNode(entry DiGraph_DiGraphNo
+ 		}
+ 		this.priorityCounter++
+ 		current.setPriority(this.priorityCounter)
+-		var successors ListOf[DiGraph_DiGraphNode[Node, ControlFlowGraph_Branch]] = this.cfg.getDirectedSuccNodesDiGraphNode(current)
+-		worklist.addAll(Collection(successors))
++		// worklist.addAll(successors of current), from its out-edges in order, without the list
++		// made of them (post-flip manual step).
++		for _, e := range toSlice_(current.getOutEdges()) {
++			worklist.add(cast_[DiGraph_DiGraphEdge[Node, ControlFlowGraph_Branch]](e).getDestination())
++		}
+ 	}
+ }
+ 
+diff --git a/go/closure/g_DataFlowAnalysis.go b/go/closure/g_DataFlowAnalysis.go
+index 3c86b19f..f7efe1f1 100644
+--- a/go/closure/g_DataFlowAnalysis.go
++++ b/go/closure/g_DataFlowAnalysis.go
+@@ -89,15 +89,22 @@ func (this *DataFlowAnalysis[N, L]) analyze() {
+ 		}
+ 		this.joinInputs(curNode)
+ 		if this.flow(curNode) {
+-			var nextNodes ListOf[DiGraph_DiGraphNode[N, ControlFlowGraph_Branch]] = func() List {
+-				if this.isForward() {
+-					return this.cfg.getDirectedSuccNodesDiGraphNode(curNode)
++			// The successors (forward) or predecessors of curNode, in edge order, from its edges
++			// instead of a list made of them (post-flip manual step: a list per flow step; the
++			// control-flow graph overrides neither method).
++			if this.isForward() {
++				for _, e := range toSlice_(curNode.getOutEdges()) {
++					var nextNode DiGraph_DiGraphNode[N, ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphEdge[N, ControlFlowGraph_Branch]](e).getDestination()
++					if nextNode != this.cfg.getImplicitReturn() {
++						this.workQueue.add(nextNode)
++					}
+ 				}
+-				return this.cfg.getDirectedPredNodesDiGraphNode(curNode)
+-			}()
+-			for nextNode := range elemsAs_[DiGraph_DiGraphNode[N, ControlFlowGraph_Branch]](nextNodes) {
+-				if nextNode != this.cfg.getImplicitReturn() {
+-					this.workQueue.add(nextNode)
++			} else {
++				for _, e := range toSlice_(curNode.getInEdges()) {
++					var nextNode DiGraph_DiGraphNode[N, ControlFlowGraph_Branch] = cast_[DiGraph_DiGraphEdge[N, ControlFlowGraph_Branch]](e).getSource()
++					if nextNode != this.cfg.getImplicitReturn() {
++						this.workQueue.add(nextNode)
++					}
+ 				}
+ 			}
+ 		}

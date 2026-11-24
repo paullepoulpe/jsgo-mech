@@ -1,0 +1,234 @@
+diff --git a/go/closure/rt_timm.go b/go/closure/rt_timm.go
+index 270eb6c2..f6d95aa6 100644
+--- a/go/closure/rt_timm.go
++++ b/go/closure/rt_timm.go
+@@ -501,3 +501,202 @@ func (b *ImmutableMap_Builder[K, V]) buildOrThrow() *ImmutableMap[K, V] {
+ func (b *ImmutableMap_Builder[K, V]) buildKeepingLast() *ImmutableMap[K, V] {
+ 	return tmapMake_(b.kc, b.vc, b.keys, b.vals, true)
+ }
++
++// ---- typed copies of typed immutable collections (step colls -kind imm*: a value entering a
++// typed class of an earlier step without going through its twin)
++
++// immItems_ is sliceImm_(c, l) of a typed immutable list: its items (nil for a nil list).
++func immItems_[T any](l *ImmutableList[T]) []T {
++	if l == nil {
++		return nil
++	}
++	return l.items
++}
++
++// tlistCopyT_ is new ArrayList<>(l) of a typed list l (a nil l throws NullPointerException).
++func tlistCopyT_[T any](c *tconv_[T], l *TList[T]) *TList[T] {
++	return &TList[T]{c: c, items: append(make([]T, 0, len(l.items)), l.items...)}
++}
++
++// tsetCopyT_ is new LinkedHashSet<>(s) of a typed set s.
++func tsetCopyT_[K comparable](kc *tconv_[K], s *TSet[K]) *TSet[K] {
++	out := newTSet_(kc)
++	for i := s.first(); i < len(s.keys); i++ {
++		if !s.isDead(i) {
++			out.add(s.keys[i])
++		}
++	}
++	return out
++}
++
++// tmapCopyT_ is new LinkedHashMap<>(m) of a typed map m.
++func tmapCopyT_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], m *TMap[K, V]) *TMap[K, V] {
++	out := newTMap_(kc, vc)
++	for i := m.first(); i < len(m.keys); i++ {
++		if !m.isDead(i) {
++			out.put(m.keys[i], m.vals[i])
++		}
++	}
++	return out
++}
++
++// ---- equals and hashCode of typed immutable collections, as the erased ones compute them
++// (rt_guava.go, rt_guava_map.go): obj is Objects.equals / Objects.hashCode (null is equal to
++// null, hashes to 0), else a.equals(b) / a.hashCode() (a null a throws NullPointerException).
++
++// elemEq_ is Java's x.equals(y) of two non-null elements.
++func elemEq_[T any](c *tconv_[T], x, y T) bool {
++	if p, ok := any(&x).(*string); ok {
++		return *p == *any(&y).(*string)
++	}
++	if c.eq != nil {
++		return c.eq(x, y)
++	}
++	return objequals_(c.box(x), c.box(y))
++}
++
++// elemHash_ is Java's x.hashCode() of a non-null element.
++func elemHash_[T any](c *tconv_[T], x T) int32 {
++	if p, ok := any(&x).(*string); ok {
++		return String_hashCode(*p)
++	}
++	if c.hash != nil {
++		return c.hash(x)
++	}
++	return objhash_(c.box(x))
++}
++
++func immNulls_(aNil, bNil, obj bool) (r, done bool) {
++	if aNil && !obj {
++		panic(new_NullPointerException_0().self())
++	}
++	if aNil || bNil {
++		return aNil && bNil, true
++	}
++	return false, false
++}
++
++func tlistEq_[T any](a, b *TList[T], obj bool) bool {
++	if r, done := immNulls_(a == nil, b == nil, obj); done {
++		return r
++	}
++	if a == b {
++		return true
++	}
++	if len(a.items) != len(b.items) {
++		return false
++	}
++	for i, x := range a.items {
++		if !elemEq_(a.c, x, b.items[i]) {
++			return false
++		}
++	}
++	return true
++}
++
++func tlistHash_[T any](a *TList[T], obj bool) int32 {
++	if a == nil {
++		if obj {
++			return 0
++		}
++		panic(new_NullPointerException_0().self())
++	}
++	var h int32 = 1
++	for _, x := range a.items {
++		h = 31*h + elemHash_(a.c, x)
++	}
++	return h
++}
++
++func tsetEq_[K comparable](a, b *TSet[K], obj bool) bool {
++	if r, done := immNulls_(a == nil, b == nil, obj); done {
++		return r
++	}
++	if a == b {
++		return true
++	}
++	if a.live != b.live {
++		return false
++	}
++	for i := b.first(); i < len(b.keys); i++ {
++		if !b.isDead(i) && a.find(b.keys[i]) < 0 {
++			return false
++		}
++	}
++	return true
++}
++
++func tsetHash_[K comparable](a *TSet[K], obj bool) int32 {
++	if a == nil {
++		if obj {
++			return 0
++		}
++		panic(new_NullPointerException_0().self())
++	}
++	var h int32
++	for i := a.first(); i < len(a.keys); i++ {
++		if !a.isDead(i) {
++			h += elemHash_(a.kc, a.keys[i])
++		}
++	}
++	return h
++}
++
++func tmapEq_[K comparable, V any](a, b *TMap[K, V], obj bool) bool {
++	if r, done := immNulls_(a == nil, b == nil, obj); done {
++		return r
++	}
++	if a == b {
++		return true
++	}
++	if a.live != b.live {
++		return false
++	}
++	for i := a.first(); i < len(a.keys); i++ {
++		if a.isDead(i) {
++			continue
++		}
++		j := b.find(a.keys[i])
++		if j < 0 || !elemEq_(a.vc, a.vals[i], b.vals[j]) {
++			return false
++		}
++	}
++	return true
++}
++
++func tmapHash_[K comparable, V any](a *TMap[K, V], obj bool) int32 {
++	if a == nil {
++		if obj {
++			return 0
++		}
++		panic(new_NullPointerException_0().self())
++	}
++	var h int32
++	for i := a.first(); i < len(a.keys); i++ {
++		if !a.isDead(i) {
++			h += elemHash_(a.kc, a.keys[i]) ^ elemHash_(a.vc, a.vals[i])
++		}
++	}
++	return h
++}
++
++// ---- builds for erased code: a builder whose collection goes to erased code builds the
++// erased collection itself (the elements boxed once), as the erased builder built it.
++
++func (b *ImmutableList_Builder[T]) buildErased() *ErasedImmutableList {
++	return immList_(boxAll_(b.c, b.items))
++}
++
++func (b *ImmutableSet_Builder[K]) buildErased() *ErasedImmutableSet {
++	return immSet_(boxAll_(b.c, b.items))
++}
++
++func (b *ImmutableMap_Builder[K, V]) buildErased() *ErasedImmutableMap {
++	return immMap_(imMap_, boxAll_(b.kc, b.keys), boxAll_(b.vc, b.vals), nil, false)
++}
++
++func (b *ImmutableMap_Builder[K, V]) buildOrThrowErased() *ErasedImmutableMap { return b.buildErased() }
++
++func (b *ImmutableMap_Builder[K, V]) buildKeepingLastErased() *ErasedImmutableMap {
++	return immMap_(imMap_, boxAll_(b.kc, b.keys), boxAll_(b.vc, b.vals), nil, true)
++}
+diff --git a/go/closure/rt_timm_test.go b/go/closure/rt_timm_test.go
+index 06ac2daf..56f11777 100644
+--- a/go/closure/rt_timm_test.go
++++ b/go/closure/rt_timm_test.go
+@@ -79,3 +79,22 @@ func TestTypedImmutables(t *testing.T) {
+ 		t.Error("ImmutableMap.copyOf of the twin")
+ 	}
+ }
++
++func TestTypedImmutableEqHash(t *testing.T) {
++	a := immutableListOf_(timmStr_, "x", "y")
++	b := immutableListOf_(timmStr_, "x", "y")
++	if !tlistEq_(a, b, true) || tlistHash_(a, true) != a.asImm().hashCode() || tlistEq_(a, nil, true) || !tlistEq_[string](nil, nil, true) {
++		t.Error("list equals/hashCode")
++	}
++	guavaThrew_(t, "NullPointerException", func() { tlistEq_(nil, b, false) })
++	s := immutableSetOf_(timmStr_, "p", "q")
++	s2 := immutableSetOf_(timmStr_, "q", "p")
++	if !tsetEq_(s, s2, false) || tsetHash_(s, false) != s.asImm().hashCode() {
++		t.Error("set equals/hashCode")
++	}
++	m := immutableMapOf_(timmStr_, timmStr_, []string{"k"}, []string{"v"})
++	m2 := immutableMapOf_(timmStr_, timmStr_, []string{"k"}, []string{"w"})
++	if tmapEq_(m, m2, true) || tmapHash_(m, true) != m.asImm().hashCode() {
++		t.Error("map equals/hashCode")
++	}
++}
