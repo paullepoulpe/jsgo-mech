@@ -478,6 +478,15 @@ abstract class StmtEmitter extends ExprEmitter {
       cursor = it + " := " + atomOrParen(expr(ex)) + ".each()\n";
       head = "for " + it + ".next() ";
       bind = "var " + name + " " + cx.goType(vt) + " = " + cx.coerce(it + ".v", comp, vt) + "\n";
+    } else if ((ll = ownLoop(ex, et)) != null) {
+      // Piece `owniter` (rule candidate T6): a class of the program that has the typed Iterable
+      // methods itself (iterator_t), or a set that EnumSet's typed maker makes for the loop: the
+      // typed cursor, no box of the value and no cast of each element.
+      String it = fresh("it");
+      lab = enter("loop");
+      cursor = it + " := " + (ll[2] != null ? atomOrParen((String) ll[0]) + ".each()" : "eachOf_[" + cx.goType((TypeMirror) ll[1]) + "](" + ll[0] + ")") + "\n";
+      head = "for " + it + ".next() ";
+      bind = "var " + name + " " + cx.goType(vt) + " = " + cx.coerce(it + ".v", (TypeMirror) ll[1], vt) + "\n";
     } else if ((ll = lgLoop(ex, et)) != null) {
       // Rule "typed library interfaces": a typed Iterable is read by a typed cursor (eachOf_).
       String it = fresh("it");
@@ -559,6 +568,67 @@ abstract class StmtEmitter extends ExprEmitter {
     DeclaredType v = cx.superView(ty, iterable);
     if (v == null || !cx.lg.is(cx.erase(v))) throw new IllegalStateException("typed library interfaces: no Iterable in " + ty);
     return new Object[] {code, ((DeclaredType) cx.erase(v)).getTypeArguments().get(0)};
+  }
+
+  /**
+   * Piece `owniter` (LibGen; rule candidate T6 of docs/javaisms6/JAVAISMS6.md): for a for-each
+   * loop over ex, of (erased) type et, {its code, its element type, null} where et is a class of
+   * the program that has the typed methods of Iterable itself (LibGen.nativeClass: it names
+   * Iterable among its interfaces, has no subclass, is no handle), so that the value is an
+   * IterableT of its element type as it is; {the typed set, its element type, "set"} where ex
+   * is a call of a typed maker of EnumSet (LibGen.MAKERS_T2: the typed set of the same order
+   * that kind `enumset` makes for a typed place). Else null, and the erased loop below boxes the
+   * value (foreach_(obj_(x))) and casts each element; such a loop over a class of the program
+   * that implements Iterable, or over an EnumSet, is counted by reason.
+   */
+  Object[] ownLoop(ExpressionTree ex, TypeMirror et) {
+    if (!LibGen.on("owniter") || loopCall != null || et.getKind() != TypeKind.DECLARED) return null;
+    TypeElement iterable = cx.elems.getTypeElement("java.lang.Iterable");
+    if (!cx.lg.isLib(iterable)) return null;
+    TypeElement c = Ctx.typeElement(et);
+    String at = cu.getSourceFile().getName().replaceAll(".*/", "") + ":" + cu.getLineMap().getLineNumber(cx.trees.getSourcePositions().getStartPosition(cu, ex));
+    TypeMirror jt = typeOf(ex);
+    ExecutableElement em = strip(ex) instanceof MethodInvocationTree mi && elemOf(mi.getMethodSelect()) instanceof ExecutableElement me ? me : null;
+    if (em != null && cx.ownerOf(em).getQualifiedName().contentEquals("java.util.EnumSet") && jt != null && jt.getKind() == TypeKind.DECLARED) {
+      // a call of one of EnumSet's own functions (a variable or another method's result is read as any typed place is, below)
+      et = jt;
+      String why = null;
+      Ctx.CollKind k = cx.lg.t2Kind(et);
+      List<TypeMirror> args = k == null ? null : cx.typedArgs(k, et);
+      if (k == null) why = "kind enumset off";
+      else if (args == null) why = "an element type a typed set does not hold";
+      else if (LibGen.t2Maker(em) == null) why = "an EnumSet function without a typed maker (another overload)";
+      else if (em.isVarArgs() && ((MethodInvocationTree) strip(ex)).getArguments().size() != em.getParameters().size())
+        why = "a variable-arity call (EnumSet.of(e, rest...) with its rest as separate arguments)";
+      String made = why == null ? newTyped(strip(ex), cx.typedOf(k, args)) : null;
+      if (why == null && made == null) why = "the maker is not typed for this call";
+      if (why != null) {
+        cx.lg.note("owniter: loops left erased: " + why, at);
+        return null;
+      }
+      cx.lg.note("owniter: typed loops over the typed set of an EnumSet maker", at);
+      return new Object[] {made, args.get(0), "set"};
+    }
+    if (!cx.isSource(c) || !cx.types.isSubtype(cx.types.erasure(et), cx.types.erasure(iterable.asType()))) return null;
+    String why = null;
+    if (c.getKind().isInterface()) why = "an interface of the program";
+    else if (cx.isHandle(c)) why = "a handle class";
+    else if (!cx.isLeaf(c)) why = "the class has a subclass";
+    else if (!cx.lg.nativeClass(c, iterable)) {
+      boolean lib = false;
+      for (TypeMirror sc = c.getSuperclass(); sc.getKind() == TypeKind.DECLARED; sc = Ctx.typeElement(sc).getSuperclass()) {
+        if (!cx.isSource(Ctx.typeElement(sc))) lib |= cx.types.isSubtype(cx.types.erasure(sc), cx.types.erasure(iterable.asType()));
+      }
+      why = lib ? "Iterable through a library superclass (its iterator is the runtime's erased one)" : "Iterable through a superclass or an interface of the program";
+    }
+    DeclaredType v = why == null ? cx.lg.typedView(et, iterable) : null;
+    if (why == null && v == null) why = "no typed view of Iterable (a raw or wide use)";
+    if (why != null) {
+      cx.lg.note("owniter: loops left erased: " + why, at + " " + c.getSimpleName());
+      return null;
+    }
+    cx.lg.note("owniter: typed loops over a class with iterator_t", at + " " + c.getSimpleName());
+    return new Object[] {expr(ex), v.getTypeArguments().get(0), null};
   }
 
   /** The call that lgLoop translated and left to the erased loop. */

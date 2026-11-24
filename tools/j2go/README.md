@@ -535,6 +535,22 @@ type Map_EntryT[K any, V any] interface { Map_Entry; getKey_t() K; getValue_t() 
     parameter of a constructor or of a method that overrides, is overridden or is referenced
     (`::`), a function parameter passed on as a value or given anything but a lambda, a field
     of a record, an interface or a handle class. `selftest/lang/TriBox.java` counts them.
+  - Piece `owniter` (`StmtEmitter.ownLoop`; rule candidate T6 of `docs/javaisms6/JAVAISMS6.md`):
+    a for-each loop over a value whose static type is a class of the program that has the typed
+    `Iterable` methods itself (`LibGen.nativeClass`: it names `Iterable<X>` among its
+    interfaces, has no subclass and is no handle: `Node.AncestorIterable`, `ReferenceCollection`,
+    `SimpleMultiset<E>`) runs on the typed cursor, `it := eachOf_[Node](n.getAncestors())`: the
+    class's `iterator_t()`, whose iterator gives each element at its type (was
+    `foreach_(obj_(x))`, the erased `iterator()` bridge, a box per element and a cast of it). A
+    loop over a call of one of EnumSet's typed makers of kind `enumset` (`EnumSet.allOf(X.class)`
+    ...) runs on the typed set that the maker makes for a typed place (`tenumSetAllOf_(tc_X,
+    ..).each()`: the same constants in ordinal order; was the erased `EnumSet` boxed for the
+    erased loop). Left erased, counted in the `J2GO_LIBGEN` report (`owniter: loops left erased:
+    ...`): a class whose `Iterable` comes through a library superclass (`Graph.GraphAnnotationState
+    extends ArrayList<AnnotationState>`: its iterator is the runtime's erased one), through a
+    superclass or an interface of the program, a class with a subclass, a handle class, a loop
+    over an interface of the program, an EnumSet function without a typed maker.
+    `selftest/lang/OwnIter.java` counts the cursors.
   - Piece `hstatic` (`Colls`; rule candidate T7 of `docs/javaisms6/JAVAISMS6.md`): a static field
     of a handle class is a Go variable as every other static field (only the instance fields of a
     handle live in its chunks), so rule "typed collections" decides it as it decides those; it
@@ -598,7 +614,7 @@ Refused (`typed library interfaces: refused: File.java:line: ...`, nothing is wr
 `tools/j2go/selftest/refused/RefusedLib.java` has one use of each kind (15); the self-test
 fails unless the translator refuses exactly those and writes nothing.
 
-Each kind and piece is a switch: `J2GO_NOLIBGEN=iter,coll,list,set,map,makers,views,place,cov,elems,wide,nncoll,readers,cls,meth,fns,sorted,enumset,cmaps,deque,guava,goptional,seqcoll,objarg,cmp,ownwild,nbox,proto,hstatic`
+Each kind and piece is a switch: `J2GO_NOLIBGEN=iter,coll,list,set,map,makers,views,place,cov,elems,wide,nncoll,readers,cls,meth,fns,sorted,enumset,cmaps,deque,guava,goptional,seqcoll,objarg,cmp,ownwild,nbox,proto,owniter,hstatic`
 (`all`: every one). A translation with any of them off is built with `-tags j2go_nolibgen`
 (`tools/prune/verify.sh` and the self-test do that when `J2GO_NOLIBGEN` is set): the erased
 factories that only such a translation names are in `go/closure/rt_lg_erased.go`, outside the

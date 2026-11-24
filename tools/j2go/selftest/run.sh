@@ -14,7 +14,7 @@ t=.cache/j2go-selftest
 rm -rf "$t" && mkdir -p "$t/java" "$t/go/closure" "$t/go/cmd/t"
 # lang/Imm.java uses Guava (typed immutable collections).
 javac -nowarn -cp .cache/build/stock-libs.jar -d "$t/java" tools/j2go/selftest/lang/*.java
-for c in Lang Lang2 Handles Generics Generics2 Generics3 Colls Imm Unboxed Covariant CovariantIface Layout FnTypes LibGen LibFns GOpt LibObj Cmp OwnWild TriBox HStatic; do env -u JAVA_TOOL_OPTIONS java -Dstdout.encoding=UTF-8 -cp "$t/java:.cache/build/stock-libs.jar" lang.$c; done >"$t/expected.txt"
+for c in Lang Lang2 Handles Generics Generics2 Generics3 Colls Imm Unboxed Covariant CovariantIface Layout FnTypes LibGen LibFns GOpt LibObj Cmp OwnWild TriBox OwnIter HStatic; do env -u JAVA_TOOL_OPTIONS java -Dstdout.encoding=UTF-8 -cp "$t/java:.cache/build/stock-libs.jar" lang.$c; done >"$t/expected.txt"
 # The test class is translated together with the whole tree, so that the runtime it needs is all there.
 cp go/go.mod "$t/go/" && cp go/closure/rt_*.go tools/j2go/selftest/rt_*.go "$t/go/closure/" && rm -f "$t"/go/closure/*_test.go
 [[ -d go/closure/resources ]] && cp -r go/closure/resources "$t/go/closure/"
@@ -48,7 +48,7 @@ import (
 	"unsafe"
 )
 
-func SelfTest() string { return Lang_run() + Lang2_run() + Handles_run() + Generics_run() + Generics2_run() + Generics3_run() + Colls_run() + Imm_run() + Unboxed_run() + Covariant_run() + CovariantIface_run() + Layout_run() + FnTypes_run() + LibGen_run() + LibFns_run() + GOpt_run() + LibObj_run() + Cmp_run() + OwnWild_run() + TriBox_run() + HStatic_run() }
+func SelfTest() string { return Lang_run() + Lang2_run() + Handles_run() + Generics_run() + Generics2_run() + Generics3_run() + Colls_run() + Imm_run() + Unboxed_run() + Covariant_run() + CovariantIface_run() + Layout_run() + FnTypes_run() + LibGen_run() + LibFns_run() + GOpt_run() + LibObj_run() + Cmp_run() + OwnWild_run() + TriBox_run() + OwnIter_run() + HStatic_run() }
 
 // SelfTestSizes: the sizes of the structs of lang/Layout.java.
 func SelfTestSizes() string {
@@ -142,6 +142,16 @@ if [[ ! ,${J2GO_NOLIBGEN:-}, =~ ,(hstatic|all), && ${J2GO_NOFNTYPES:-} != 1 ]]; 
   nb=$(grep -cF 'newTMapBuilder_(tc_p_HStatic_P, tc_Function_HStatic_H__any_)' "$g" || true)
   nc=$(grep -cF 'func() Function[any, any] {' "$g" || true)
   if [[ $nt != 2 || $ne != 0 || $nb != 1 || $nc != 0 ]]; then echo "selftest: FAIL (piece hstatic: $nt typed, $ne names typed, $nb typed builders, $nc converting closures)"; exit 1; fi
+fi
+if [[ ! ,${J2GO_NOLIBGEN:-}, =~ ,(owniter|iter|enumset|all), ]]; then
+  # Piece `owniter` (lang/OwnIter.java): six loops over Words, Countdown, Bag (classes with iterator_t) run on eachOf_, five
+  # over EnumSet makers on the typed set's cursor; the loops over Row (a library superclass), Base (a subclass), SeqImpl and
+  # Seq (an interface of the program) and a variable-arity EnumSet.of stay erased (5 foreach_).
+  g="$t/go/closure/g_OwnIter.go"
+  ny=$(grep -cE ':= eachOf_\[(string|any|\*OwnIter_Color)\]\(' "$g" || true)
+  ns=$(grep -cE ':= tenumSet(AllOf|NoneOf|Of|OfArr|CopyOf)_\(tc_p_OwnIter_Color, .*\)\.each\(\)$' "$g" || true)
+  nx=$(grep -cE ':= foreach_\(' "$g" || true)
+  if [[ $ny != 6 || $ns != 5 || $nx != 5 ]]; then echo "selftest: FAIL (piece owniter: $ny typed cursors, $ns EnumSet cursors, $nx erased loops)"; exit 1; fi
 fi
 if [[ ${J2GO_NOFNTYPES:-} != 1 ]]; then
   # Rule "function types": the translator must refuse every use in refused/Refused.java (14) and write nothing.
