@@ -231,7 +231,7 @@ func (this *TypedScopeCreator) createInitialScope(root Node) *TypedScope {
 	if !root.isRoot() {
 		Preconditions_checkArgument_boolean_Object_H(false, root)
 	}
-	var scopeCreator *MemoizedScopeCreator = new_MemoizedScopeCreator(ScopeCreator(new_SyntacticScopeCreator_AbstractCompiler(this.compiler_)))
+	var scopeCreator *MemoizedScopeCreator = new_MemoizedScopeCreator(new_SyntacticScopeCreator_AbstractCompiler(this.compiler_).createScopeAbstractScope_Node_AbstractScope)
 	NodeTraversal_builder().setCompiler(this.compiler_).setCallback(NodeTraversal_Callback(new_TypedScopeCreator_FirstOrderFunctionAnalyzer(this))).setScopeCreator(MemoizedScopeCreator_as_ScopeCreator(scopeCreator)).traverseRoots(root.getFirstChild(), root.getLastChild())
 	NodeTraversal_builder().setCompiler(this.compiler_).setCallback(NodeTraversal_Callback(new_TypedScopeCreator_IdentifyEnumsAndTypedefsAsNonNullable(this.typeRegistry))).setScopeCreator(MemoizedScopeCreator_as_ScopeCreator(scopeCreator)).traverse(root)
 	var s *TypedScope = TypedScope_createGlobalScope(root)

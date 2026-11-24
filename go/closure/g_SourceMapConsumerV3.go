@@ -271,7 +271,7 @@ func (this *SourceMapConsumerV3) createReverseMapping() {
 	}
 }
 
-func (this *SourceMapConsumerV3) visitMappings(visitor SourceMapConsumerV3_EntryVisitor) {
+func (this *SourceMapConsumerV3) visitMappings(visitor func(string, string, *FilePosition, *FilePosition, *FilePosition)) {
 	var pending bool = false
 	var sourceName Optional[string] = Optional_empty[string]()
 	var symbolName Optional[string] = Optional_empty[string]()
@@ -284,7 +284,7 @@ func (this *SourceMapConsumerV3) visitMappings(visitor SourceMapConsumerV3_Entry
 			for j := int32(start); j < end; j += this.mappings.getEntrySize() {
 				if pending {
 					var endPosition *FilePosition = new_FilePosition(i, this.mappings.getGeneratedColumn(j))
-					visitor.visit(sourceName.orElse(""), symbolName.orElse(""), sourceStartPosition, startPosition, endPosition)
+					visitor(sourceName.orElse(""), symbolName.orElse(""), sourceStartPosition, startPosition, endPosition)
 					pending = false
 				}
 				var sourceFileId int32 = this.mappings.getSourceFileId(j)
@@ -306,7 +306,7 @@ func (this *SourceMapConsumerV3) visitMappings(visitor SourceMapConsumerV3_Entry
 	}
 	if pending {
 		var endPosition *FilePosition = new_FilePosition(startPosition.getLine(), (startPosition.getColumn() + 1))
-		visitor.visit(sourceName.orElse(""), symbolName.orElse(""), sourceStartPosition, startPosition, endPosition)
+		visitor(sourceName.orElse(""), symbolName.orElse(""), sourceStartPosition, startPosition, endPosition)
 	}
 }
 

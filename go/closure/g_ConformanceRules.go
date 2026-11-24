@@ -1232,7 +1232,7 @@ func (this *ConformanceRules_BannedProperty) extractName(n Node) Optional[string
 
 type ConformanceRules_BannedProperty_RequirementPrecondition struct {
 	Enum
-	selfI_ ConformanceRules_BannedProperty_RequirementPrecondition_I
+	selfI_ func(Node) bool
 }
 
 // ConformanceRules_BannedProperty_RequirementPrecondition_I holds the methods the dispatchers of enum ConformanceRules_BannedProperty_RequirementPrecondition call on its
@@ -1280,7 +1280,7 @@ func (this *ConformanceRules_BannedProperty_RequirementPrecondition) init_Confor
 }
 
 func (this *ConformanceRules_BannedProperty_RequirementPrecondition) shouldCheck(p0 Node) bool {
-	return this.selfI_.shouldCheck_impl(p0)
+	return this.selfI_(p0)
 }
 
 func ConformanceRules_BannedProperty_RequirementPrecondition_values() []*ConformanceRules_BannedProperty_RequirementPrecondition {
@@ -4072,7 +4072,7 @@ func (this *ConformanceRules_BannedProperty_RequirementPrecondition_1) init_Conf
 func new_ConformanceRules_BannedProperty_RequirementPrecondition_1(name_ string, ordinal_ int32) *ConformanceRules_BannedProperty_RequirementPrecondition_1 {
 	this := &ConformanceRules_BannedProperty_RequirementPrecondition_1{}
 	this.self_ = this
-	this.selfI_ = this
+	this.selfI_ = this.shouldCheck_impl
 	this.init_ConformanceRules_BannedProperty_RequirementPrecondition_1(name_, ordinal_)
 	return this
 }
@@ -4141,7 +4141,7 @@ func (this *ConformanceRules_BannedProperty_RequirementPrecondition_2) init_Conf
 func new_ConformanceRules_BannedProperty_RequirementPrecondition_2(name_ string, ordinal_ int32) *ConformanceRules_BannedProperty_RequirementPrecondition_2 {
 	this := &ConformanceRules_BannedProperty_RequirementPrecondition_2{}
 	this.self_ = this
-	this.selfI_ = this
+	this.selfI_ = this.shouldCheck_impl
 	this.init_ConformanceRules_BannedProperty_RequirementPrecondition_2(name_, ordinal_)
 	return this
 }
@@ -4202,7 +4202,7 @@ func (this *ConformanceRules_BannedProperty_RequirementPrecondition_3) init_Conf
 func new_ConformanceRules_BannedProperty_RequirementPrecondition_3(name_ string, ordinal_ int32) *ConformanceRules_BannedProperty_RequirementPrecondition_3 {
 	this := &ConformanceRules_BannedProperty_RequirementPrecondition_3{}
 	this.self_ = this
-	this.selfI_ = this
+	this.selfI_ = this.shouldCheck_impl
 	this.init_ConformanceRules_BannedProperty_RequirementPrecondition_3(name_, ordinal_)
 	return this
 }
@@ -4269,7 +4269,7 @@ func (this *ConformanceRules_BannedProperty_RequirementPrecondition_4) init_Conf
 func new_ConformanceRules_BannedProperty_RequirementPrecondition_4(name_ string, ordinal_ int32) *ConformanceRules_BannedProperty_RequirementPrecondition_4 {
 	this := &ConformanceRules_BannedProperty_RequirementPrecondition_4{}
 	this.self_ = this
-	this.selfI_ = this
+	this.selfI_ = this.shouldCheck_impl
 	this.init_ConformanceRules_BannedProperty_RequirementPrecondition_4(name_, ordinal_)
 	return this
 }
@@ -4330,7 +4330,7 @@ func (this *ConformanceRules_BannedProperty_RequirementPrecondition_5) init_Conf
 func new_ConformanceRules_BannedProperty_RequirementPrecondition_5(name_ string, ordinal_ int32) *ConformanceRules_BannedProperty_RequirementPrecondition_5 {
 	this := &ConformanceRules_BannedProperty_RequirementPrecondition_5{}
 	this.self_ = this
-	this.selfI_ = this
+	this.selfI_ = this.shouldCheck_impl
 	this.init_ConformanceRules_BannedProperty_RequirementPrecondition_5(name_, ordinal_)
 	return this
 }
@@ -4651,7 +4651,7 @@ func (this *ConformanceRules_BannedProperty_RequirementPrecondition_1) shouldChe
 	if this.self_ == any(this) {
 		return this.shouldCheck_impl(p0)
 	}
-	return this.selfI_.shouldCheck_impl(p0)
+	return this.selfI_(p0)
 }
 
 // shouldCheck: an object that is exactly a ConformanceRules_BannedProperty_RequirementPrecondition_2 calls its shouldCheck_impl directly (post-flip); others dispatch.
@@ -4659,7 +4659,7 @@ func (this *ConformanceRules_BannedProperty_RequirementPrecondition_2) shouldChe
 	if this.self_ == any(this) {
 		return this.shouldCheck_impl(p0)
 	}
-	return this.selfI_.shouldCheck_impl(p0)
+	return this.selfI_(p0)
 }
 
 // shouldCheck: an object that is exactly a ConformanceRules_BannedProperty_RequirementPrecondition_3 calls its shouldCheck_impl directly (post-flip); others dispatch.
@@ -4667,7 +4667,7 @@ func (this *ConformanceRules_BannedProperty_RequirementPrecondition_3) shouldChe
 	if this.self_ == any(this) {
 		return this.shouldCheck_impl(p0)
 	}
-	return this.selfI_.shouldCheck_impl(p0)
+	return this.selfI_(p0)
 }
 
 // shouldCheck: an object that is exactly a ConformanceRules_BannedProperty_RequirementPrecondition_4 calls its shouldCheck_impl directly (post-flip); others dispatch.
@@ -4675,7 +4675,7 @@ func (this *ConformanceRules_BannedProperty_RequirementPrecondition_4) shouldChe
 	if this.self_ == any(this) {
 		return this.shouldCheck_impl(p0)
 	}
-	return this.selfI_.shouldCheck_impl(p0)
+	return this.selfI_(p0)
 }
 
 // shouldCheck: an object that is exactly a ConformanceRules_BannedProperty_RequirementPrecondition_5 calls its shouldCheck_impl directly (post-flip); others dispatch.
@@ -4683,5 +4683,5 @@ func (this *ConformanceRules_BannedProperty_RequirementPrecondition_5) shouldChe
 	if this.self_ == any(this) {
 		return this.shouldCheck_impl(p0)
 	}
-	return this.selfI_.shouldCheck_impl(p0)
+	return this.selfI_(p0)
 }

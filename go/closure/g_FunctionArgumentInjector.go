@@ -272,7 +272,7 @@ func (this *FunctionArgumentInjector) findParametersReferencedAfterSideEffect(pa
 	var locals *JTSet[string] = tsetCopy_(jtc_string, parameters)
 	FunctionArgumentInjector_gatherLocalNames(root, locals)
 	var collector *FunctionArgumentInjector_ReferencedAfterSideEffect = new_FunctionArgumentInjector_ReferencedAfterSideEffect(this, parameters, immutableSetCopyOfT_(jtc_string, locals))
-	NodeUtil_visitPostOrder_Node_Visitor_Predicate(root, FunctionArgumentInjector_ReferencedAfterSideEffect_as_NodeUtil_Visitor(collector), func() Predicate_base[Node] {
+	NodeUtil_visitPostOrder_Node_Visitor_Predicate(root, collector.visit, func() Predicate_base[Node] {
 		v_ := collector
 		if v_ == nil {
 			return nil
