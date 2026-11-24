@@ -381,6 +381,9 @@ final class GenScan {
 
   // ---------------------------------------------------------------- piece `ownwild`
 
+  /** Piece `ownwild2`: the entries of the equals list that name no equals of either form (Main fails the translation at its end). */
+  static final Set<String> STALE_EQUALS = new TreeSet<>();
+
   /** Piece `ownwild`: the equals methods ("Outer.Inner.equals") whose cast to C<?> was read (tools/j2go/ownwild-equals.txt). */
   final Set<String> equalsOk = new HashSet<>();
 
@@ -579,10 +582,7 @@ final class GenScan {
       for (Object[] ld : locals) if (isEqualsMethod((ExecutableElement) ld[3])) met.add(methodKey((ExecutableElement) ld[3]));
       Set<String> stale = new TreeSet<>(equalsOk);
       stale.removeAll(met);
-      if (!stale.isEmpty()) {
-        System.err.println("ownwild: the equals list is stale: on the list with no equals(Object) casting to C<?> " + stale);
-        System.exit(1);
-      }
+      STALE_EQUALS.addAll(stale);
     }
     if (params.isEmpty() && locals.isEmpty()) return;
     // the calls of the candidate methods

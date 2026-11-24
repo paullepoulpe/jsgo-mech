@@ -431,6 +431,11 @@ public final class Main {
     cx.lf.reportUnused();
     // piece `objarg`: a stale pair list fails the translation (LibObj.finish)
     if (cx.lo.finish()) System.exit(3);
+    // piece `ownwild2`: an entry of the equals list that names no equals(Object) casting to C<?> (GenScan.ownWild)
+    if (!GenScan.STALE_EQUALS.isEmpty()) {
+      System.err.println("ownwild: the equals list is stale: on the list with no equals(Object) casting to C<?> " + GenScan.STALE_EQUALS);
+      System.exit(3);
+    }
     System.err.println("units=" + units.size() + " classes=" + cx.source.size() + " externals=" + cx.externals.size() + " unsupported=" + errors.size());
   }
 }

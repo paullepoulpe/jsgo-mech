@@ -22,6 +22,7 @@ cp go/go.mod "$t/go/" && cp go/closure/rt_*.go tools/j2go/selftest/rt_*.go "$t/g
 # Instrumented output, so that static initialization happens on first use as in Java.
 J2GO_HANDLES=tools/j2go/handles.txt:tools/j2go/selftest/handles.txt J2GO_INIT_GUARDS=1 java -Xss64m -Xmx8g --add-modules jdk.compiler -cp "${J2GO_CLASSES:-.cache/j2go}" j2go.Main ".cache/build/stock-libs.jar:.cache/build/main:$(ls .cache/deps/auto-value-annotations-*.jar)" "$t/go/closure" - @"$t/files.txt" 2>&1 | grep -v '^Picked up' | tee "$t/j2go.log" || true
 if grep -q '^objarg: the pair list is stale:' "$t/j2go.log"; then echo "selftest: FAIL (objarg: the pair lists are stale)"; exit 1; fi
+if grep -q '^ownwild: the equals list is stale:' "$t/j2go.log"; then echo "selftest: FAIL (ownwild: the equals lists are stale)"; exit 1; fi
 cat >"$t/go/cmd/t/main.go" <<'EOF'
 package main
 
@@ -168,7 +169,9 @@ if [[ ! ,${J2GO_NOLIBGEN:-}, =~ ,(rtm|fns2|seqstr|all), && ${J2GO_NOFNTYPES:-} !
   cnt() { awk -v re="$1" '$0 ~ "^func (\\(this \\*[A-Za-z_]+\\) )?(" re ")\\(" {f=1} f {print} f && /^}/ {f=0}' "$g" | { grep -oE "$2" || true; } | wc -l; }
   n1=$(cnt Resid_rtm "$twin"); n2=$(cnt Resid_fns2 "$twin"); n3=$(cnt Resid_seqstr "$twin"); n4=$(cnt Resid_clinit "$twin"); n5=$(cnt compareTo_t "$twin")
   nx=$(cnt Resid_left "$twin"); ne=$(cnt Resid_left "$erased")
-  if [[ $n1 != 20 || $n2 != 11 || $n3 != 5 || $n4 != 2 || $n5 != 2 || $nx != 0 || $ne != 3 ]]; then echo "selftest: FAIL (pieces rtm/fns2/seqstr: $n1 $n2 $n3 $n4 $n5 twins, $nx and $ne erased calls in left())"; exit 1; fi
+  # (piece `nboxarg` on: the comparing whose key is an int, boxed, is Comparator_comparingN_: 2 erased calls left)
+  we=3; [[ ! ,${J2GO_NOLIBGEN:-}, =~ ,(nboxarg|nbox), ]] && we=2
+  if [[ $n1 != 20 || $n2 != 11 || $n3 != 5 || $n4 != 2 || $n5 != 2 || $nx != 0 || $ne != $we ]]; then echo "selftest: FAIL (pieces rtm/fns2/seqstr: $n1 $n2 $n3 $n4 $n5 twins, $nx and $ne erased calls in left())"; exit 1; fi
 fi
 if [[ ! ,${J2GO_NOLIBGEN:-}, =~ ,(rtcls|all), && ${J2GO_NOFNTYPES:-} != 1 ]]; then
   # Piece `rtcls` (lang/RtCls.java): the program's subclasses of AbstractIterator, CacheLoader and Ordering have the
