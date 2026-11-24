@@ -347,9 +347,9 @@ func (this *ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration) init_
 	this.memberName = NodeUtil_getPrototypePropertyName(lhs)
 	this.node_ = node
 	var classNode Node = ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration_getPrototypeClassName(lhs)
-	this.qualifiedClassName = Optional_of[string](classNode.getQualifiedName()).filter(Predicate[string](func(s string) bool {
+	this.qualifiedClassName = Optional_of[string](classNode.getQualifiedName()).filterFn_(func(s string) bool {
 		return s != ""
-	}))
+	})
 	this.constant = classNode.getBooleanProp(Node_IS_CONSTANT_NAME)
 }
 
