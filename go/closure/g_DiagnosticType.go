@@ -51,10 +51,11 @@ func (this *DiagnosticType) equals(type_ any) bool {
 	_ = diagnosticType
 	return (func() bool {
 		v_ := type_
-		if !is_[*DiagnosticType](v_) {
+		p, ok := v_.(*DiagnosticType)
+		if !ok {
 			return false
 		}
-		diagnosticType = cast_[*DiagnosticType](v_)
+		diagnosticType = p
 		return true
 	}() && (diagnosticType.key_ == this.key_))
 }

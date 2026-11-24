@@ -21,8 +21,8 @@ func ConformanceRules_createTsAllowlist() *ConformanceRules_AllowList {
 		defer func() {
 			if r_ := recover(); r_ != nil {
 				ex_ := catch_(r_)
-				if is_Throwable(ex_) {
-					var t *Throwable = to_Throwable(ex_)
+				if p, ok := ex_.(Throwable_as); ok {
+					var t *Throwable = p.as_Throwable()
 					panic(new_AssertionError_Object(t.self()).self())
 					return
 				}
@@ -51,8 +51,7 @@ func ConformanceRules_buildPattern(reqPatterns ListT[string]) *Outcome_base[*Pat
 			defer func() {
 				if r_ := recover(); r_ != nil {
 					ex_ := catch_(r_)
-					if is_PatternSyntaxException(ex_) {
-						var e *PatternSyntaxException = to_PatternSyntaxException(ex_)
+					if e, ok := ex_.(*PatternSyntaxException); ok {
 						ret_3 = Outcome_base_err[*Pattern](new_CheckConformance_InvalidRequirementSpec_String_Throwable("invalid regex pattern", e.up_Throwable()).up_Throwable())
 						code_ = 1
 						return
@@ -73,8 +72,7 @@ func ConformanceRules_buildPattern(reqPatterns ListT[string]) *Outcome_base[*Pat
 		defer func() {
 			if r_ := recover(); r_ != nil {
 				ex_ := catch_(r_)
-				if is_PatternSyntaxException(ex_) {
-					var e *PatternSyntaxException = to_PatternSyntaxException(ex_)
+				if e, ok2 := ex_.(*PatternSyntaxException); ok2 {
 					panic(new_RuntimeException_String_Throwable("bad joined regexp", e.up_Throwable()).self())
 					return
 				}

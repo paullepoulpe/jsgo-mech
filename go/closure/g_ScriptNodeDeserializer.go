@@ -406,8 +406,8 @@ func (this *ScriptNodeDeserializer_Runner) run() Node {
 		defer func() {
 			if r_ := recover(); r_ != nil {
 				ex_ := catch_(r_)
-				if is_IOException(ex_) {
-					var ex *IOException = to_IOException(ex_)
+				if p, ok := ex_.(IOException_as); ok {
+					var ex *IOException = p.as_IOException()
 					panic(obj_(new_MalformedTypedAstException_Object_Throwable(obj_(this.owner().sourceFile), ex.up_Throwable())))
 					return
 				}

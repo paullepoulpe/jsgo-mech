@@ -114,8 +114,8 @@ func (this *CompilerBasedTransformer_CompilerSupplier) compile(path string, code
 			defer func() {
 				if r_ := recover(); r_ != nil {
 					ex_ := catch_(r_)
-					if is_IOException(ex_) {
-						var e *IOException = to_IOException(ex_)
+					if p, ok := ex_.(IOException_as); ok {
+						var e *IOException = p.as_IOException()
 						_ = e
 						return
 					}

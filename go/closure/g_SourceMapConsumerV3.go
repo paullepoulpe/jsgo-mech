@@ -83,8 +83,8 @@ func (this *SourceMapConsumerV3) parseMetaMap(sourceMapObject *SourceMapObject, 
 		defer func() {
 			if r_ := recover(); r_ != nil {
 				ex_ := catch_(r_)
-				if is_IOException(ex_) {
-					var ex *IOException = to_IOException(ex_)
+				if p, ok := ex_.(IOException_as); ok {
+					var ex *IOException = p.as_IOException()
 					ret_1 = Outcome_base_err[any](new_SourceMapParseException(("IO exception: " + objstr_(ex.self()))).up_Throwable())
 					code_ = 1
 					return
