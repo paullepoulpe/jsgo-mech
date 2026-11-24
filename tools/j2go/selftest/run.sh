@@ -130,7 +130,10 @@ if [[ ! ,${J2GO_NOLIBGEN:-}, =~ ,(nbox|all), && ${J2GO_NOFNTYPES:-} != 1 ]]; the
   nv=$(grep -cF 'func(v Nbox[' "$g" || true)
   np=$(grep -cE '^func .*\((y|b|get|set) (Nbox|Supplier\[Nbox|Consumer\[Nbox)' "$g" || true)
   nx=$(grep -cE '^func TriBox_(each|pass|opt2)\(c Consumer\[any\]\)' "$g" || true)
-  if [[ $nf != 3 || $ns != 1 || $nl != 5 || $nv != 5 || $np != 4 || $nx != 3 ]]; then echo "selftest: FAIL (piece nbox: $nf $ns fields typed, $nl left, $nv lambdas, $np signatures, $nx left)"; exit 1; fi
+  # (piece `nboxarg` on: a method reference, a candidate passed on to a candidate are typed too: each, pass, opt2 take
+  # Consumer[Nbox[..]], and pass's lambda is the sixth)
+  wv=5 wx=3; [[ ! ,${J2GO_NOLIBGEN:-}, =~ ,(nboxarg|fns2), ]] && wv=6 wx=0
+  if [[ $nf != 3 || $ns != 1 || $nl != 5 || $nv != $wv || $np != 4 || $nx != $wx ]]; then echo "selftest: FAIL (piece nbox: $nf $ns fields typed, $nl left, $nv lambdas, $np signatures, $nx left)"; exit 1; fi
 fi
 if [[ ! ,${J2GO_NOLIBGEN:-}, =~ ,(hstatic|all), && ${J2GO_NOFNTYPES:-} != 1 ]]; then
   # Piece `hstatic` (lang/HStatic.java): the static fields GETTERS (a builder chain of functions) and MAKERS of the handle
