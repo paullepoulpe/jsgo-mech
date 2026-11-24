@@ -372,7 +372,7 @@ func (this *DisambiguateProperties_TypeNodeJson) init_DisambiguateProperties_Typ
 	this.colorId = t.getColor().getId().toString()
 	this.invalidating = t.getColor().isInvalidating()
 	var edgesBuilder ImmutableSortedSet_BuilderOf[*DisambiguateProperties_TypeEdgeJson] = ImmutableSortedSet_naturalOrder()
-	for e := range elemsAs_[DiGraph_DiGraphEdge[*ColorGraphNode, any]](n.getOutEdges()) {
+	for e := range elemsBy_(n.getOutEdges(), icast_DiGraph_DiGraphEdge_ColorGraphNode_any) {
 		edgesBuilder.add(new_DisambiguateProperties_TypeEdgeJson(e))
 	}
 	this.edges = setAs_(tc_p_DisambiguateProperties_TypeEdgeJson, ImmutableCollection_as_Set(edgesBuilder.build()))
