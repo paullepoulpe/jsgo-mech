@@ -183,7 +183,7 @@ func (this *PureFunctionIdentifier) getGoogCacheCallableExpression(cacheCall *Co
 
 func (this *PureFunctionIdentifier) getSummariesForCallee(invocation Node) *JTList[*PureFunctionIdentifier_AmbiguatedFunctionSummary] {
 	if !NodeUtil_isInvocation(invocation) {
-		panic(new_IllegalArgumentException_String(objstr_(invocation.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(invocation)).self())
 	}
 	var cacheCall *CodingConvention_Cache = this.compiler_.getCodingConvention().describeCachingCall(invocation)
 	var callees *JTList[Node]
@@ -206,7 +206,7 @@ func (this *PureFunctionIdentifier) getSummariesForCallee(invocation Node) *JTLi
 		var callee Node = it_1.v
 		if callee.isFunction() {
 			if !callee.isFunction() {
-				panic(new_IllegalStateException_String(objstr_(callee.box_())).self())
+				panic(new_IllegalStateException_String(tostr_(callee)).self())
 			}
 			var summariesForFunction CollectionT[*PureFunctionIdentifier_AmbiguatedFunctionSummary] = this.summariesForAllNamesOfFunctionByNode.get(callee)
 			if summariesForFunction.isEmpty() {
@@ -376,7 +376,7 @@ func PureFunctionIdentifier_getParamIndex(param *Var) int32 {
 		return param.getNameNode()
 	}()
 	if !node.getParent().isParamList() {
-		panic(new_IllegalStateException_String(objstr_(node.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(node)).self())
 	}
 	return node.getParent().getIndexOfChild(node)
 }
@@ -651,7 +651,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) enterScope(t *NodeTrave
 	}
 	var function Node = t.getScopeRoot()
 	if !function.isFunction() {
-		panic(new_IllegalStateException_String(objstr_(function.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(function)).self())
 	}
 	var jsdoc *JSDocInfo = NodeUtil_getBestJSDocInfo(function)
 	var isArtificiallyPure bool = ((jsdoc != nil) && jsdoc.isNoSideEffects())
@@ -669,7 +669,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) exitScope(t *NodeTraver
 	}
 	var functionEntry *PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry = SequencedCollection_getLastT_[*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry](this.functionScopeStack.asCollT())
 	if ok_, a1_ := equalsId_(functionScope.getRootNode(), functionEntry.root), functionScope.getRootNode(); !ok_ {
-		panic(new_IllegalStateException_String(objstr_(a1_.box_())).self())
+		panic(new_IllegalStateException_String(tostr_(a1_)).self())
 	}
 	if equalsId_(t.getScopeRoot(), functionEntry.root) {
 		SequencedCollection_removeLastT_[*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry](this.functionScopeStack.asCollT())
@@ -724,7 +724,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) visitLhsNode(encloserSu
 		}
 	} else {
 		if !lhs.isName() {
-			panic(new_IllegalStateException_String(objstr_(lhs.box_())).self())
+			panic(new_IllegalStateException_String(tostr_(lhs)).self())
 		}
 		var var_ *Var = scope.getVar_String_rVar(lhs.getString())
 		if PureFunctionIdentifier_FunctionBodyAnalyzer_isVarDeclaredInSameContainerScope(var_, scope) {
@@ -817,7 +817,7 @@ type PureFunctionIdentifier_SideEffectPropagation struct {
 
 func (this *PureFunctionIdentifier_SideEffectPropagation) init_PureFunctionIdentifier_SideEffectPropagation(callerIsAlias bool, calleeThisEqualsCallerThis bool, propagateThrows bool, invocation Node, callScope *Scope, callerEntry *PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry, argumentsMatchParameters bool) {
 	if invocation != 0 && !NodeUtil_isInvocation(invocation) {
-		panic(new_IllegalArgumentException_String(objstr_(invocation.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(invocation)).self())
 	}
 	this.callerIsAlias = callerIsAlias
 	this.calleeThisEqualsCallerThis = calleeThisEqualsCallerThis
@@ -840,7 +840,7 @@ func PureFunctionIdentifier_SideEffectPropagation_forAlias() *PureFunctionIdenti
 
 func PureFunctionIdentifier_SideEffectPropagation_forInvocation(invocation Node, callScope *Scope, callerEntry *PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry, argumentsMatchParameters bool, propagateThrows bool) *PureFunctionIdentifier_SideEffectPropagation {
 	if !NodeUtil_isInvocation(invocation) {
-		panic(new_IllegalArgumentException_String(objstr_(invocation.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(invocation)).self())
 	}
 	return new_PureFunctionIdentifier_SideEffectPropagation(false, (PureFunctionIdentifier_SideEffectPropagation_calleeAndCallerShareThis(invocation) && !callerEntry.root.isArrowFunction()), propagateThrows, invocation, callScope, callerEntry, argumentsMatchParameters)
 }

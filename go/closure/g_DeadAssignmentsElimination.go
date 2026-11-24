@@ -278,7 +278,7 @@ func (this *DeadAssignmentsElimination) isVariableReadBeforeKill(n Node, variabl
 	if n.isName() && (variable == n.getString()) {
 		if NodeUtil_isNameDeclOrSimpleAssignLhs(n, n.getParent()) {
 			if ok_, a1_ := n.getParent().isAssign(), n.getParent(); !ok_ {
-				panic(new_IllegalStateException_String(objstr_(a1_.box_())).self())
+				panic(new_IllegalStateException_String(tostr_(a1_)).self())
 			}
 			var rhs Node = n.getNext()
 			var state DeadAssignmentsElimination_VariableLiveness = this.isVariableReadBeforeKill(rhs, variable)

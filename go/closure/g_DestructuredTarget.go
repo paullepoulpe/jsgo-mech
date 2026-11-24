@@ -74,7 +74,7 @@ func DestructuredTarget_createTargetJSType(registry *JSTypeRegistry, destructuri
 
 func DestructuredTarget_createTarget(registry *JSTypeRegistry, destructuringPatternType Supplier_base[*JSType], destructuringChild Node) *DestructuredTarget {
 	if !destructuringChild.getParent().isDestructuringPattern() {
-		panic(new_IllegalArgumentException_String(objstr_(destructuringChild.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(destructuringChild)).self())
 	}
 	var builder *DestructuredTarget_Builder = new_DestructuredTarget_Builder(registry, destructuringChild.getParent(), destructuringPatternType)
 	var value Node
@@ -119,7 +119,7 @@ func DestructuredTarget_createAllNonEmptyTargetsInPattern(registry *JSTypeRegist
 
 func DestructuredTarget_createAllNonEmptyTargetsInPatternSupplier(registry *JSTypeRegistry, patternType Supplier_base[*JSType], pattern Node) *JTList[*DestructuredTarget] {
 	if !pattern.isDestructuringPattern() {
-		panic(new_IllegalArgumentException_String(objstr_(pattern.box_())).self())
+		panic(new_IllegalArgumentException_String(tostr_(pattern)).self())
 	}
 	var builder *TListBuilder[*DestructuredTarget] = newTListBuilder_(jtc_p_DestructuredTarget)
 	{
