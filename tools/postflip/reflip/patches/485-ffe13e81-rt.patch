@@ -1,0 +1,116 @@
+diff --git a/go/closure/rt_tfnapi.go b/go/closure/rt_tfnapi.go
+new file mode 100644
+index 00000000..6270c152
+--- /dev/null
++++ b/go/closure/rt_tfnapi.go
+@@ -0,0 +1,110 @@
++package closure
++
++// Typed variants of the runtime's functional APIs (post-flip steps tfnapi and tcmp): the same
++// calls of the function, in the same order, with the same values, where the erased API boxed
++// the arguments for a lambda adapter (&X_tfn_T{f}) that unboxed them again and boxed f's result
++// for the API to unbox. A box of null is nil and its unboxing the conversion's null in both.
++
++// mapComputeIfAbsentT_ is mapComputeIfAbsent_ of a typed function: the value of k if the map has
++// one that is not null; else f(k), stored unless it is null.
++func mapComputeIfAbsentT_[K comparable, V any](vc *tconv_[V], m map[K]V, k K, f func(K) V) V {
++	mapNN_(m)
++	if v, ok := m[k]; ok && !vc.isNull(v) {
++		return v
++	}
++	v := f(k)
++	if vc.isNull(v) {
++		return vc.null
++	}
++	m[k] = v
++	return v
++}
++
++// forEachT_ is Iterable.forEach of the list (of its erased view or immutable twin, whose
++// iterators read the items in place): f of each item, the k-th step reading item k as it is
++// then.
++func (l *TList[T]) forEachT_(f func(T)) {
++	for i := 0; i < len(l.items); i++ {
++		f(l.items[i])
++	}
++}
++
++// forEachT_ is Map.forEach of the map (of its erased view or immutable twin): f of each live
++// entry's key and value, walking the table from its first live entry as the entry iterator does.
++func (m *TMap[K, V]) forEachT_(f func(K, V)) {
++	for i := m.first(); i < len(m.keys); i++ {
++		if !m.isDead(i) {
++			f(m.keys[i], m.vals[i])
++		}
++	}
++}
++
++// mergeT_ is Map.merge of the map's view (Map_merge): f(old, v) when k has a value that is not
++// null, else v; a null result removes k.
++func (m *TMap[K, V]) mergeT_(k K, v V, f func(V, V) V) V {
++	old := m.Get(k)
++	nv := v
++	if !m.vc.isNull(old) {
++		nv = f(old, v)
++	}
++	if m.vc.isNull(nv) {
++		m.Delete(k)
++	} else {
++		m.Put(k, nv)
++	}
++	return nv
++}
++
++// computeT_ is Map.compute of the map's view (Map_compute): f(k, old); a null result removes a
++// mapping k has.
++func (m *TMap[K, V]) computeT_(k K, f func(K, V) V) V {
++	old := m.Get(k)
++	v := f(k, old)
++	if m.vc.isNull(v) {
++		if !m.vc.isNull(old) || m.Has(k) {
++			m.Delete(k)
++		}
++		return m.vc.null
++	}
++	m.Put(k, v)
++	return v
++}
++
++// The Comparator combinators as typed comparators of a typed sort (tcmp): each calls its key
++// functions and comparators in the order the runtime's combinator (rt_coll.go) calls them.
++
++// comparingT_ is Comparator.comparing(key): the natural order of the keys, compared boxed as
++// keyCmp_ compares them (compareNatural_).
++func comparingT_[T, K any](kc *tconv_[K], key func(T) K) func(a, b T) int32 {
++	return func(a, b T) int32 { return compareNatural_(kc.box(key(a)), kc.box(key(b))) }
++}
++
++// comparingCmpT_ is Comparator.comparing(key, c).
++func comparingCmpT_[T, K any](key func(T) K, c func(a, b K) int32) func(a, b T) int32 {
++	return func(a, b T) int32 { return c(key(a), key(b)) }
++}
++
++// comparingIntT_ is Comparator.comparingInt(key).
++func comparingIntT_[T any](key func(T) int32) func(a, b T) int32 {
++	return func(a, b T) int32 { return Integer_compare(key(a), key(b)) }
++}
++
++// comparingLongT_ is Comparator.comparingLong(key).
++func comparingLongT_[T any](key func(T) int64) func(a, b T) int32 {
++	return func(a, b T) int32 { return Long_compare(key(a), key(b)) }
++}
++
++// reversedT_ is c.reversed(): c(b, a).
++func reversedT_[T any](c func(a, b T) int32) func(a, b T) int32 {
++	return func(a, b T) int32 { return c(b, a) }
++}
++
++// thenComparingT_ is c.thenComparing(d): d(a, b) where c(a, b) is 0.
++func thenComparingT_[T any](c, d func(a, b T) int32) func(a, b T) int32 {
++	return func(a, b T) int32 {
++		if r := c(a, b); r != 0 {
++			return r
++		}
++		return d(a, b)
++	}
++}
