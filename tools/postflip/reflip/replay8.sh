@@ -8,7 +8,7 @@
 N=${1:-replay8}
 R=${REFLIP_OVERLAY:-$B/wt/flip8}; W=$B/wt/$N; O=$R/tools/postflip/reflip/patches; cd $R
 for i in $(seq 1 200); do
-  tools/postflip/replay-all.sh -base f8d67cef -noverify -steps tools/postflip/reflip/steps.txt -overlay $O -toolfix tools/postflip/reflip/toolfix.sh -check "$B/bin/tc go/closure" -w $W > $B/logs/$N.log 2>&1 && { echo "REPLAY DONE"; exit 0; }
+  tools/postflip/replay-all.sh -base 29432ef6 -noverify -steps tools/postflip/reflip/steps.txt -overlay $O -toolfix tools/postflip/reflip/toolfix.sh -check "$B/bin/tc go/closure" -w $W > $B/logs/$N.log 2>&1 && { echo "REPLAY DONE"; exit 0; }
   line=$(grep "^FAILED at .*: patch " $B/logs/$N.log | tail -1)
   if [ -z "$line" ]; then
     echo "STOPPED (not a patch failure):"; tail -12 $B/logs/$N.log | cut -c1-240; exit 1
