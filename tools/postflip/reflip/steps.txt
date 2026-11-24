@@ -641,6 +641,7 @@ a5732999 patch 402-a5732999-rt.patch
 8c9c3988 patch reflip5-ciat-rt.patch
 #=6 8c9c3988 adapted (sixth flip): toolfix 41 (native: asListT / asCollT / asIterable are views as asList is; the set kind reads asSetT().addAll) and toolfix 44 (native: tlistOfT_ is an ImmutableList made a slice by sliceOfT_; a parameter of a typed library interface that the group only reads gets the typed live view slicePtrViewT_) with the runtime patch reflip6-nativet-rt.patch (rt_nativet.go: sliceOfT_, slicePtrOfT_, slicePtrViewT_; its test). native -kind list at the step: 423 declarations become slices (233 classes, 269 pointers in 130 classes), as the fifth flip (423, 233; 269, 130); without 44: 375 (210), without 41 and 44: 259 (157)
 #=7 8c9c3988 adapted (seventh flip): toolfix 45 (native: the typed twins of piece fns of the runtime's readers and sorters, Iterables_getFirstT_ / getLastT_ / getOnlyElementT_ / List_sortT_ / Collections_sortT_, get the typed live view slicePtrViewT_ as their erased functions got the view made for the call). native -kind list at the step: 423 declarations become slices (233 classes; 269 pointers in 130 classes), as the sixth flip; without 45: 388 (211; 247, 120)
+#=8 8c9c3988 adapted (eighth flip): toolfix 49 (native: the typed twins of piece seqcoll on a list's typed view: SequencedCollection_addLastT_ as a statement is an append of the element, getFirstT_ / getLastT_ readers and removeLastT_ a changer of fix 45's slicePtrViewT_): native -kind list 423 declarations become slices (233 classes), as the seventh flip; without 49: 415 (232; 8 declarations "a view passed to SequencedCollection_addLastT_", FeatureCollector's context stack)
 8c9c3988 patch reflip6-nativet-rt.patch
 8c9c3988 run bash tools/postflip/colls/run.sh
 # 404. postflip step (re-flip): ranges and iters on the unified typed collections
@@ -803,6 +804,7 @@ c44d5926 run t visit && f
 036a41a1 run t valcls && f
 # 451. postflip step (re-flip): typed deques used at one end are stacks or queues of typed lists, then slices (tool aceba30d)
 #=7 235bd03d adapted (seventh flip): toolfix 46 (tdeque: Deque_un_(d.asDequeT()) / Queue_un_(d.asQueueT()) of kind deque are d.asDeque()): 66 deque classes become typed lists (27 queues, 39 stacks), native -kind list 73 slices (61 classes), as the sixth flip; without 46: 52 (18, 34), 58 (47), 19 classes left "used through asDequeT"
+#=8 235bd03d adapted (eighth flip): toolfix 50 (tdeque: SequencedCollection_getFirstT_ / getLastT_ / removeLastT_[T](d.asCollT()) of piece seqcoll on a typed deque are the uses getFirst / getLast / removeLast through asDeque)
 235bd03d run t tdeque && t native -kind list && f
 # 452. postflip (runtime, re-flip): tconvT_, tconvIdT_, the typed containers' conversion of a type parameter's values, once per instantiation
 594a08ff patch 452-594a08ff-rt.patch
@@ -910,6 +912,7 @@ dcb42e76 run t tviews && f
 efd82f06 patch 480-efd82f06-rt.patch
 # 481. postflip step (re-flip): tcmp, 13 natural-order sorts of typed lists and arrays are typed sorts; deadbridge, 1 dead bridge (tool 4bc85f06, runtime efd82f06)
 #=5 af12fcda adapted (fifth flip, second part): toolfix 33. tcmp: 8 natural-order sorts of typed lists, 5 typed array sorts, 5 sorts of typed lists with a typed comparator (the converting closures of comparator chains; fourth flip at this step: 8 + 5 + 0, the chains at 486)
+#=8 af12fcda adapted (eighth flip): toolfix 51 (tcmp: piece cmp's compareTo_t is a class's typed natural order where it has no compareToT_; deadbridge: compareTo returning this.compareTo_t(..) is a bridge of it)
 af12fcda run t tcmp && t deadbridge && f
 #: tcmp: 8 natural-order sorts of typed lists (6 strings compareStrNat_, 2 compareToT_), 5 Arrays.sort of typed arrays -> sortArrF_; left 9 combinators, 3 package variables, 1 other comparator, 2 natural sorts of Objects, 2 not slice views; deadbridge: 1 bridge (+1 forwarder) deleted; left 22 (6 generic functions, 4 assigned to interfaces, 3 interface arguments, 3 element conversions used, 3 bridges named, 2 interface-returning methods, 1 conversion)
 # 482. postflip step (re-flip): fntypes, 11 func-typed parameters in 8 groups take the type their 33 functions cast the erased argument to; deadbridge, 2 more dead bridges (tool e1d08abd)

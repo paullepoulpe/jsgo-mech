@@ -3486,3 +3486,147 @@ func reflip48Ctor(call *ast.CallExpr) string {
 	return ""
 }
 E48
+# 49. (eighth flip) native: piece `seqcoll` of rule "typed library interfaces" (T3) calls the typed twins of SequencedCollection's
+#    default methods with the typed view of a list, SequencedCollection_addLastT_[T](L.asCollT(), x), _getFirstT_ / _getLastT_ /
+#    _removeLastT_[T](L.asCollT()), where the seventh flip's translator called the erased helper on the erased view,
+#    SequencedCollection_addLast(SequencedCollection(List_un_(L.asListT())), obj_(x)) and so on. The tool knows the erased ones
+#    (addLast as a statement is an append; getFirst / getLast are readers; removeLast is a changer) and not the twins, so every
+#    class with such a call kept its lists: at step 403 FeatureCollector's context stack (8 declarations, "a view passed to
+#    SequencedCollection_addLastT_"; native -kind list 415 slices in 232 classes, seventh flip 423 in 233). The rule: the twin of
+#    each is what the erased one is: addLastT_ as a statement appends x (already a T: no unboxing), getFirstT_ / getLastT_ are
+#    readers and removeLastT_ a changer of fix 45's typed live view slicePtrViewT_(c, &L). Proof obligation (rt_lgfn.go, the
+#    twins "as the runtime's helpers of rt_coll.go do them, step by step"): addLastT_(c, v) is c.add_t(v), the typed list's
+#    add of v at its end; getFirstT_ reads the first element through iterator_t (NoSuchElementException when empty) and getLastT_
+#    of a ListT reads get_t(size-1), keeping nothing; removeLastT_ reads the last element so and removes it with remove(size-1)
+#    when the view has remove(int32) (tlistView_ has, and slicePtrListT_ through slicePtrList_, which stores the shorter slice
+#    back through the pointer), as SequencedCollection_removeLast does with the erased view. Only where fix 45 applies (its typed
+#    view slicePtrViewT_ in the runtime, the view of the call a ListT / CollectionT / IterableT, an addressable slot); any other
+#    form keeps the class, as before.
+if grep -q 'reflip45' tools/postflip/native/main.go 2>/dev/null; then
+reflip_edit tools/postflip/native/main.go reflip49 <<'E49'
+			if tw == "sorter" {
+				if n.mutated == "" {
+					n.mutated = nm
+				}
+				mutSites[p] = n
+			}
+=====
+			if tw == "sorter" || tw == "changer" { // reflip49: changer
+				if n.mutated == "" {
+					n.mutated = nm
+				}
+				mutSites[p] = n
+				if tw == "changer" {
+					share(n, "changed through a view by the runtime")
+				}
+			}
+-----
+		if nm == "SequencedCollection_addLast" && len(p.Args) == 2 && rw.Unparen(p.Args[0]) == top && isStmt(p) {
+=====
+		if reflip45base(nm) == "SequencedCollection_addLastT_" && len(p.Args) == 2 && rw.Unparen(p.Args[0]) == top && top == call && reflip44typed(call) && isStmt(p) { // reflip49
+			// addLast of piece seqcoll through the typed view: an add of the element, already a T.
+			if n.mutated == "" {
+				n.mutated = "addLast"
+			}
+			mutSites[p] = n
+			_, isVar := varOf(recv)
+			if isVar == nil || !rw.Pure(recv) {
+				share(n, "changed through an expression that is not a variable")
+			}
+			pure := rw.Pure(recv)
+			edit(n, p, func() string {
+				x := rw.Render(p.Args[1])
+				if ptr() && !pure {
+					return "sliceAppend_(" + R() + ", " + x + ")"
+				}
+				S := R()
+				if ptr() {
+					S = "*" + R()
+				}
+				return S + " = append(" + S + ", " + x + ")"
+			})
+			return
+		}
+		if nm == "SequencedCollection_addLast" && len(p.Args) == 2 && rw.Unparen(p.Args[0]) == top && isStmt(p) {
++++++
+
+// reflip49: the typed twins (piece seqcoll) of the readers and changers SequencedCollection_getFirst / getLast / removeLast.
+func init() {
+	reflip45twins["SequencedCollection_getFirstT_"] = "reader"
+	reflip45twins["SequencedCollection_getLastT_"] = "reader"
+	reflip45twins["SequencedCollection_removeLastT_"] = "changer"
+}
+E49
+fi
+# 50. (eighth flip) tdeque: piece `seqcoll` (T3) calls the typed twins of SequencedCollection's getFirst / getLast / removeLast on
+#    a typed deque d as SequencedCollection_getFirstT_[T](d.asCollT()), where the seventh flip's translator wrote
+#    SequencedCollection_getFirst(SequencedCollection(Deque_un_(d.asDequeT()))) (read by fix 46 as d.asDeque()). The tool took the
+#    first as a use through an unknown method: at step 235bd03d 16 deque classes stayed "used through asCollT" (seventh flip: 1),
+#    52 deque classes became typed lists (seventh: 66), its native -kind list 58 slices in 47 classes (seventh: 73 in 61). The
+#    rule: SequencedCollection_XT_[T](d.asCollT()) for X in removeLast, getFirst, getLast is the use X through asDeque, with the
+#    element already at its type (no assertion or unboxing to strip; the replacement d.<op>() is a T). Proof obligation (rt_lgfn.go,
+#    rt_coll.go, rt_lg_t2.go after step 402): asCollT() of a deque is its typed view, whose iterator_t walks the elements from the
+#    head as the iterator of asDeque() does; neither view is a list, so getFirstT_ is the first element of iterator_t and getLastT_
+#    the last of the walk, as SequencedCollection_getFirst / getLast give the same elements boxed (NoSuchElementException for an
+#    empty deque in both); removeLastT_ removes that last element with remove_Object of its box, as SequencedCollection_removeLast
+#    does, so the twins and the erased helpers are the same operations and the tool's existing rewrite of the erased form (getTop_,
+#    getFirst_, pop_, popFirst_ by the class's mode) stands for both. Every other use of asCollT() keeps the class, as before.
+reflip_edit tools/postflip/tdeque/main.go reflip50 <<'E50'
+	if un := map[string]string{"asDequeT": "Deque_un_", "asQueueT": "Queue_un_"}[sel.Sel.Name]; un != "" { // reflip46
+=====
+	if sel.Sel.Name == "asCollT" { // reflip50: a typed twin of piece seqcoll on the deque's typed view
+		outer, ok := rw.Up(call).(*ast.CallExpr)
+		if !ok || len(outer.Args) != 1 || rw.Unparen(outer.Args[0]) != ast.Expr(call) {
+			return "", nil
+		}
+		name, _ := rw.CallName(outer)
+		if i := strings.IndexByte(name, '['); i >= 0 {
+			name = name[:i]
+		}
+		kind := map[string]string{"SequencedCollection_removeLastT_": "removeLast", "SequencedCollection_getFirstT_": "getFirst", "SequencedCollection_getLastT_": "getLast"}[name]
+		if kind == "" {
+			return "", nil
+		}
+		return kind, outer
+	}
+	if un := map[string]string{"asDequeT": "Deque_un_", "asQueueT": "Queue_un_"}[sel.Sel.Name]; un != "" { // reflip46
+-----
+				if u.Sel.Name == "asDeque" || u.Sel.Name == "asDequeT" || u.Sel.Name == "asQueueT" { // reflip46
+=====
+				if u.Sel.Name == "asDeque" || u.Sel.Name == "asDequeT" || u.Sel.Name == "asQueueT" || u.Sel.Name == "asCollT" { // reflip46, reflip50
+E50
+# 51. (eighth flip) tcmp, deadbridge: piece `cmp` of rule "typed library interfaces" gives each class implementing Comparable of
+#    its own type the typed method compareTo_t(C) int32 and javac's bridge compareTo(p0 any) int32 { return
+#    this.compareTo_t(cast_[C](p0)) }, the form implsplit makes with the name compareToT_ (step 467 splits 4 methods here, 14 on
+#    the seventh flip: the 10 compareTo are the translator's, and implsplit leaves their bridges as "the method does not start
+#    with its parameters' casts"). tcmp knows a class's typed natural order by implsplit's name only: at step af12fcda 2 sorts
+#    of a typed array stayed "an array sort without a typed comparison of its elements" (seventh flip: 5 typed array sorts, here
+#    3); deadbridge found none of the 10 bridges (seventh flip: all 10 found and left, 1 "a value given to a generic function",
+#    9 "its element conversion tc_p_ boxes its values for erased code"). The rule: compareTo_t is the typed compareTo where a
+#    class has no compareToT_ (tcmp), and a bridge compareTo whose one statement returns this.compareTo_t(..) is a bridge of it
+#    (deadbridge). Proof obligation (tools/j2go LibCmp.java, COLLECTIONS-PLAN.md section 11; rt_lgcmp.go): compareTo_t has the
+#    class's Java body at its Java types, and compareTo(p0) is `return this.compareTo_t(cast_[C](p0))`, javac's bridge: the
+#    natural order the runtime calls (compareNatural_ asserts compareTo(any) int32) is compareTo_t of the cast argument, which is
+#    the argument itself for a value of C, as for implsplit's split. tcmp's other conditions (the signature (C) int32, no type of
+#    the package embedding the class) and deadbridge's (no escape of a value of the class) are unchanged.
+reflip_edit tools/postflip/tcmp/main.go reflip51 <<'E51'
+	o, _, _ := types.LookupFieldOrMethod(pt, true, rw.Pkg, "compareToT_")
+	m, ok := o.(*types.Func)
+=====
+	cmpName := "compareToT_"
+	o, _, _ := types.LookupFieldOrMethod(pt, true, rw.Pkg, cmpName)
+	if _, ok := o.(*types.Func); !ok { // reflip51: piece cmp's typed compareTo
+		cmpName = "compareTo_t"
+		o, _, _ = types.LookupFieldOrMethod(pt, true, rw.Pkg, cmpName)
+	}
+	m, ok := o.(*types.Func)
+-----
+	return "(*" + nt.Obj().Name() + ").compareToT_"
+=====
+	return "(*" + nt.Obj().Name() + ")." + cmpName
+E51
+reflip_edit tools/postflip/deadbridge/main.go reflip51 <<'E51'
+	if !ok || s.Sel.Name != fd.Name.Name+"T_" {
+=====
+	if !ok || s.Sel.Name != fd.Name.Name+"T_" && !(fd.Name.Name == "compareTo" && s.Sel.Name == "compareTo_t") { // reflip51: piece cmp's bridge
+E51
