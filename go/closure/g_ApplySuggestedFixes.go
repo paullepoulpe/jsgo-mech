@@ -18,7 +18,7 @@ func new_ApplySuggestedFixes() *ApplySuggestedFixes {
 func ApplySuggestedFixes_applySuggestedFixesToFiles(fixes IterableT[*SuggestedFix]) *Outcome_base[any] {
 	var filenames *TSet[string] = newTSet_(tc_string)
 	for fix := range elemsT_(fixes) {
-		filenames.asSetT().addAll(Collection(Set_un_(fix.getReplacements().keySet())))
+		tsetAddAllOfT_(filenames, Collection(Set_un_(fix.getReplacements().keySet())))
 	}
 	var filenameToCodeMap map[string]string = map[string]string{}
 	for i_3 := filenames.first(); i_3 < len(filenames.keys); i_3++ {

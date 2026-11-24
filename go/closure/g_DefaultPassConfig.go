@@ -1312,8 +1312,8 @@ func (this *DefaultPassConfig) runVariableRenaming(compiler *AbstractCompiler, p
 	if this.options_.getRenamePrefixNamespace().isPresent() {
 		reservedNames.Add(this.options_.getRenamePrefixNamespace().get())
 	}
-	reservedNames.asSetT().addAll(Collection(compiler.getExportedNames().asSet()))
-	reservedNames.asSetT().addAll(Collection(ParserRunner_getReservedVars().asSet()))
+	tsetAddSetT_(reservedNames, compiler.getExportedNames())
+	tsetAddSetT_(reservedNames, ParserRunner_getReservedVars())
 	var rn *RenameVars = new_RenameVars(compiler, this.options_.getRenamePrefix(), (this.options_.getVariableRenaming() == VariableRenamingPolicy_LOCAL), this.options_.shouldGeneratePseudoNames(), this.options_.shouldPreferStableNames(), prevVariableMap, reservedChars, reservedNames, this.options_.getNameGenerator())
 	rn.process_2(externs, root)
 	return rn.getVariableMap()
