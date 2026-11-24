@@ -65,15 +65,15 @@ echo "$sizes" >>"$t/expected.txt" && "$t/t" sizes >>"$t/actual.txt"
 if ! diff "$t/expected.txt" "$t/actual.txt"; then echo "selftest: FAIL"; exit 1; fi
 if [[ -z ${J2GO_NOLIBGEN:-} && ${J2GO_NOFNTYPES:-} != 1 ]]; then
   # Rule "typed library interfaces", piece `fns` (lang/LibFns.java): typed() calls the typed twins
-  # (33 of them), erased() none (variance, an erased argument, keys that are not Strings, a
+  # (39 of them, 6 of piece `seqcoll`), erased() none (variance, an erased argument, keys that are not Strings, a
   # function without a twin: 4 calls of the erased functions).
-  twin='\b(Iterables_[a-zA-Z]+T_|MoreObjects_firstNonNullT_|List_sortT_|Collections_sortT_|Iterable_forEachT_|Map_[a-zA-Z_]+T_)\[|\b(newTSortedSetCT_|newTSortedMapCT_|splitToListST_)\('
+  twin='\b(Iterables_[a-zA-Z]+T_|MoreObjects_firstNonNullT_|List_sortT_|Collections_sortT_|Iterable_forEachT_|Map_[a-zA-Z_]+T_|SequencedCollection_[a-zA-Z]+T_)\[|\b(newTSortedSetCT_|newTSortedMapCT_|splitToListST_)\('
   erased='\b(Iterables_getFirst|Map_get_s|Lists_reverse)\('
   g="$t/go/closure/g_LibFns.go"
   nt=$(awk '/^func LibFns_typed\(/,/^}/' "$g" | { grep -oE "$twin" || true; } | wc -l)
   nx=$(awk '/^func LibFns_erased\(/,/^}/' "$g" | { grep -oE "$twin" || true; } | wc -l)
   ne=$(awk '/^func LibFns_erased\(/,/^}/' "$g" | { grep -oE "$erased" || true; } | wc -l)
-  if [[ $nt != 33 || $nx != 0 || $ne != 4 ]]; then echo "selftest: FAIL (typed library functions: $nt twins in typed(), $nx and $ne erased calls in erased())"; exit 1; fi
+  if [[ $nt != 39 || $nx != 0 || $ne != 4 ]]; then echo "selftest: FAIL (typed library functions: $nt twins in typed(), $nx and $ne erased calls in erased())"; exit 1; fi
 fi
 if [[ ${J2GO_NOFNTYPES:-} != 1 ]]; then
   # Rule "function types": the translator must refuse every use in refused/Refused.java (14) and write nothing.

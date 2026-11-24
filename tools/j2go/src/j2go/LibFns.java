@@ -34,6 +34,17 @@ final class LibFns {
 
   /** The methods with a typed twin, by key (owner.name(erased parameter types)). */
   static final Map<String, Fn> TYPED = new LinkedHashMap<>();
+  /**
+   * Piece `seqcoll` (J2GO_NOLIBGEN=seqcoll is the translation without it): the default methods of
+   * java.util.SequencedCollection, an interface with no typed interface of its own, with typed
+   * twins on the typed interface of the interface it extends (RECV_AT): a receiver enters at its
+   * typed Collection (a typed deque or list of rule "typed collections" as its view, a DequeT or
+   * ListT as it is). Without the piece they are among REFUSED.
+   */
+  static final Map<String, Fn> TYPED_SEQ = new LinkedHashMap<>();
+  /** The typed interface whose view of the receiver a twin of TYPED_SEQ takes, by the owner of the method. */
+  static final Map<String, String> RECV_AT = Map.of("java.util.SequencedCollection", "java.util.Collection");
+
   /** The methods of the same kind that keep the erased function, and why (reported, J2GO_LIBGEN). */
   static final Map<String, String> REFUSED = new LinkedHashMap<>();
 
@@ -63,6 +74,12 @@ final class LibFns {
     // a String key on a map of String keys (what Map_get_s / Map_getOrDefault_s are for erased code: ExprEmitter.stringKeyHelper)
     typed("java.util.Map.get(java.lang.Object)#s", "Map_get_sT_", "MapT[string, $1]", "$1", "string");
     typed("java.util.Map.getOrDefault(java.lang.Object,java.lang.Object)#s", "Map_getOrDefault_sT_", "MapT[string, $1]", "$1", "string", "$1");
+
+    String sq = "java.util.SequencedCollection.";
+    TYPED_SEQ.put(sq + "getFirst()", new Fn("SequencedCollection_getFirstT_", "CollectionT[$0]", List.of(), "$0"));
+    TYPED_SEQ.put(sq + "getLast()", new Fn("SequencedCollection_getLastT_", "CollectionT[$0]", List.of(), "$0"));
+    TYPED_SEQ.put(sq + "removeLast()", new Fn("SequencedCollection_removeLastT_", "CollectionT[$0]", List.of(), "$0"));
+    TYPED_SEQ.put(sq + "addLast(java.lang.Object)", new Fn("SequencedCollection_addLastT_", "CollectionT[$0]", List.of("$0"), ""));
 
     String ls = "com.google.common.collect.Lists.";
     String view = "its result is a live view of the list (a List class of the runtime at the element type would be needed: not a minimal runtime)";
@@ -135,6 +152,7 @@ final class LibFns {
     // a String key: the twin of the String-key helper (ExprEmitter.stringKeyHelper)
     if (!st && !as.isEmpty() && TYPED.containsKey(key + "#s") && cx.kind(as.get(0).type) == Ctx.K.STR) key += "#s";
     Fn f = TYPED.get(key);
+    if (f == null && LibGen.on("seqcoll")) f = TYPED_SEQ.get(key);
     if (f == null) {
       String why = REFUSED.get(key);
       return why == null ? null : left(key, "no typed twin: " + why);
@@ -164,8 +182,11 @@ final class LibFns {
       for (VariableElement pe : r.getParameters()) params.add(cx.erase(cx.subst(pe.asType(), m, 0)));
       ret = cx.erase(cx.subst(r.getReturnType(), m, 0));
     } else {
-      // the receiver at the typed interface of the method's owner
-      TypeElement lib = cx.ownerOf(r);
+      // the receiver at the typed interface of the method's owner (piece `seqcoll`: of the
+      // interface the owner extends, RECV_AT)
+      TypeElement own = cx.ownerOf(r), lib = own;
+      String up = TYPED_SEQ.containsKey(key) ? RECV_AT.get(own.getQualifiedName().toString()) : null;
+      if (up != null) lib = cx.elems.getTypeElement(up);
       if (!lg.isLib(lib) || recv.type == null) return left(key, "the owner has no typed interface");
       TypeMirror at = cx.erase(recv.type);
       DeclaredType view;
@@ -187,7 +208,9 @@ final class LibFns {
         rc = cx.coerce(recv.code, recv.type, view);
       }
       if (!cx.goType(view).equals(fill(f.recv(), ta = goArgs(view)))) return left(key, "the receiver's type arguments");
-      ExecutableType mt = (ExecutableType) cx.types.asMemberOf(view, r);
+      // (the owner itself at the view's type arguments, where the view is of the interface it extends)
+      DeclaredType at0 = own.equals(lib) ? view : cx.types.getDeclaredType(own, view.getTypeArguments().toArray(new TypeMirror[0]));
+      ExecutableType mt = (ExecutableType) cx.types.asMemberOf(at0, r);
       for (TypeMirror p : mt.getParameterTypes()) params.add(cx.erase(p));
       ret = cx.erase(mt.getReturnType());
       // (the String key at its type)

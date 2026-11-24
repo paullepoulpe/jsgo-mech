@@ -6,7 +6,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
+import java.util.ArrayDeque;
 import java.util.Arrays;
+import java.util.Deque;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -132,7 +134,24 @@ public class LibFns {
     String csv = "x,y,,z";
     List<String> parts = COMMA.splitToList(csv);
     p(parts + " " + parts.size() + " " + COMMA.splitToList("") + COMMA.splitToList(csv.substring(2)));
+    // piece `seqcoll`: SequencedCollection's methods on a typed deque, a typed list, a Deque and a List place, a set
+    ArrayDeque<String> dq = new ArrayDeque<>(Arrays.asList("d1", "d2", "d3"));
+    dq.addLast("d4");
+    p(dq.getFirst() + dq.getLast() + dq.removeLast() + dq + seq(dq, new ArrayList<>(Arrays.asList("l1", "l2"))));
+    LinkedHashSet<String> hs = new LinkedHashSet<>(Arrays.asList("s1", "s2", "s3"));
+    p(hs.getFirst() + hs.getLast() + hs.removeLast() + hs);
+    try {
+      new ArrayDeque<String>().getLast();
+    } catch (java.util.NoSuchElementException e) {
+      p("NoSuchElementException");
+    }
     return "typed done";
+  }
+
+  static String seq(Deque<String> d, List<String> l) {
+    l.addLast("l3");
+    String r = d.getFirst() + d.getLast() + l.getFirst() + l.getLast() + l.removeLast() + d.removeLast();
+    return r + d + l;
   }
 
   static String erased() {

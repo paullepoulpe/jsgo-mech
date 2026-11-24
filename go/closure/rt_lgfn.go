@@ -318,3 +318,50 @@ func Map_mergeT_[K, V any](m MapT[K, V], k K, v V, f BiFunction[V, V, V]) V {
 	}
 	return nv
 }
+
+// ---- SequencedCollection (piece `seqcoll`, J2GO_NOLIBGEN=seqcoll): its default methods, on any
+// receiver at the typed Collection of its elements (LibFns.RECV_AT), as the runtime's helpers
+// of rt_coll.go do them (SequencedCollection_getFirst ...), step by step.
+
+// SequencedCollection_getFirstT_ is SequencedCollection.getFirst (SequencedCollection_getFirst).
+func SequencedCollection_getFirstT_[T any](c CollectionT[T]) T {
+	it := c.iterator_t()
+	if !it.hasNext() {
+		panic(new_NoSuchElementException_0().self())
+	}
+	return it.next_t()
+}
+
+// SequencedCollection_getLastT_ is SequencedCollection.getLast (SequencedCollection_getLast).
+func SequencedCollection_getLastT_[T any](c CollectionT[T]) T {
+	if l, ok := c.(ListT[T]); ok {
+		n := l.size()
+		if n == 0 {
+			panic(new_NoSuchElementException_0().self())
+		}
+		return l.get_t(n - 1)
+	}
+	it := c.iterator_t()
+	if !it.hasNext() {
+		panic(new_NoSuchElementException_0().self())
+	}
+	var v T
+	for it.hasNext() {
+		v = it.next_t()
+	}
+	return v
+}
+
+// SequencedCollection_removeLastT_ is SequencedCollection.removeLast (SequencedCollection_removeLast).
+func SequencedCollection_removeLastT_[T any](c CollectionT[T]) T {
+	v := SequencedCollection_getLastT_(c)
+	if l, ok := c.(interface{ remove(int32) any }); ok {
+		l.remove(c.size() - 1)
+	} else {
+		c.remove_Object(boxT_(v))
+	}
+	return v
+}
+
+// SequencedCollection_addLastT_ is SequencedCollection.addLast (SequencedCollection_addLast).
+func SequencedCollection_addLastT_[T any](c CollectionT[T], v T) { c.add_t(v) }
