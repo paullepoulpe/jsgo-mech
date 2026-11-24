@@ -16,8 +16,8 @@ type ModuleResolver struct {
 // object (self_); every class of the hierarchy implements them (post-flip).
 type ModuleResolver_I interface {
 	getPackageJsonMainEntries_impl() *TMap[string, string]
-	resolveJsModuleSilently_impl(string, string) Optional[string]
-	resolveJsModule_impl(string, string, Optional[string], int32, int32) Optional[string]
+	resolveJsModuleSilently_impl(string, string) string
+	resolveJsModule_impl(string, string, string, int32, int32) string
 	resolveModuleAsPath_impl(string, string) string
 }
 
@@ -54,22 +54,22 @@ func (this *ModuleResolver) resolveModuleAsPath_impl(scriptAddress string, modul
 	return ModuleLoader_normalize(path, slicePtrViewT_(tc_string, this.moduleRootPaths))
 }
 
-func (this *ModuleResolver) locate(scriptAddress string, name string) Optional[string] {
+func (this *ModuleResolver) locate(scriptAddress string, name string) string {
 	var canonicalizedPath string = this.canonicalizePath(scriptAddress, name)
 	var normalizedPath string = canonicalizedPath
 	if ModuleLoader_isAmbiguousIdentifier(canonicalizedPath) {
 		normalizedPath = (sstr_(ModuleLoader_MODULE_SLASH) + sstr_(canonicalizedPath))
 	}
 	if this.modulePaths.Has(normalizedPath) {
-		return Optional_of[string](canonicalizedPath)
+		return optstrOf_(canonicalizedPath)
 	}
 	for _, rootPath := range *this.moduleRootPaths {
 		var modulePath string = (sstr_(rootPath) + sstr_(normalizedPath))
 		if this.modulePaths.Has(modulePath) {
-			return Optional_of[string](canonicalizedPath)
+			return optstrOf_(canonicalizedPath)
 		}
 	}
-	return Optional_empty[string]()
+	return nullstr_
 }
 
 func (this *ModuleResolver) canonicalizePath(scriptAddress string, moduleAddress string) string {
@@ -86,11 +86,11 @@ func (this *ModuleResolver) setErrorHandler(errorHandler ErrorHandler) {
 	this.errorHandler = errorHandler
 }
 
-func (this *ModuleResolver) resolveJsModule(p0 string, p1 string, p2 Optional[string], p3 int32, p4 int32) Optional[string] {
+func (this *ModuleResolver) resolveJsModule(p0 string, p1 string, p2 string, p3 int32, p4 int32) string {
 	return this.self_.resolveJsModule_impl(p0, p1, p2, p3, p4)
 }
 
-func (this *ModuleResolver) resolveJsModuleSilently(p0 string, p1 string) Optional[string] {
+func (this *ModuleResolver) resolveJsModuleSilently(p0 string, p1 string) string {
 	return this.self_.resolveJsModuleSilently_impl(p0, p1)
 }
 

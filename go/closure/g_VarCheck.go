@@ -27,7 +27,7 @@ func new_VarCheck_AbstractCompiler(compiler *AbstractCompiler) *VarCheck {
 func (this *VarCheck) init_VarCheck_AbstractCompiler_boolean(compiler *AbstractCompiler, validityCheck bool) {
 	this.finit_VarCheck()
 	this.compiler_ = compiler
-	this.strictExternCheck = (compiler.getErrorLevel(JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_of[string](""), 0, 0, VarCheck_UNDEFINED_EXTERN_VAR_ERROR, []string{})) == CheckLevel_ERROR)
+	this.strictExternCheck = (compiler.getErrorLevel(JSError_make_Optional_int_int_DiagnosticType_StringArr("", 0, 0, VarCheck_UNDEFINED_EXTERN_VAR_ERROR, []string{})) == CheckLevel_ERROR)
 	this.validityCheck = validityCheck
 }
 

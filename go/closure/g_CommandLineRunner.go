@@ -241,25 +241,25 @@ func (this *CommandLineRunner) initConfigFromFlags(args []string, out *Output, e
 	if (unbox_[int32](this.flags.browserFeaturesetYear) != 0) && (this.flags.languageOut != "ECMASCRIPT_NEXT") {
 		panic(new_FlagUsageException("ERROR - both flags `--browser_featureset_year` and `--language_out` specified."))
 	}
-	if this.flags.outputWrapper.isEmpty() {
-		this.flags.outputWrapper = Optional_of[string]("")
+	if this.flags.outputWrapper == nullstr_ {
+		this.flags.outputWrapper = ""
 	}
-	if this.flags.outputWrapperFile.isPresent() && this.flags.outputWrapperFile.get() != "" {
-		var outputWrapper *Outcome_base[string] = TextFiles_read(FilePaths_clean(this.flags.outputWrapperFile.get()), Charsets_UTF_8)
+	if this.flags.outputWrapperFile != nullstr_ && optstrGet_(this.flags.outputWrapperFile) != "" {
+		var outputWrapper *Outcome_base[string] = TextFiles_read(FilePaths_clean(optstrGet_(this.flags.outputWrapperFile)), Charsets_UTF_8)
 		if outputWrapper.isErr() {
 			this.reportError("ERROR - invalid output_wrapper_file specified.")
 		} else {
-			this.flags.outputWrapper = Optional_ofNullable[string](outputWrapper.get())
+			this.flags.outputWrapper = outputWrapper.get()
 		}
 	}
-	if this.flags.outputWrapper.get() != "" && !JString_contains_s(this.flags.outputWrapper.get(), CommandLineRunner_OUTPUT_MARKER_FIELD) {
+	if optstrGet_(this.flags.outputWrapper) != "" && !JString_contains_s(optstrGet_(this.flags.outputWrapper), CommandLineRunner_OUTPUT_MARKER_FIELD) {
 		this.reportError(("ERROR - invalid output_wrapper specified. Missing '" + sstr_(CommandLineRunner_OUTPUT_MARKER_FIELD) + "'."))
 	}
-	if this.flags.outputWrapper.get() != "" && (this.flags.isolationMode != CompilerOptions_IsolationMode_NONE) {
+	if optstrGet_(this.flags.outputWrapper) != "" && (this.flags.isolationMode != CompilerOptions_IsolationMode_NONE) {
 		this.reportError("--output_wrapper and --isolation_mode may not be used together.")
 	}
 	if this.flags.isolationMode == CompilerOptions_IsolationMode_IIFE {
-		this.flags.outputWrapper = Optional_of[string]("(function(){%output%}).call(this);")
+		this.flags.outputWrapper = "(function(){%output%}).call(this);"
 	}
 	var bundleFiles *TList[string] = tlistEmptyImm_(tc_string)
 	var skipNormalOutputs bool = false
@@ -284,9 +284,9 @@ func (this *CommandLineRunner) initConfigFromFlags(args []string, out *Output, e
 		this.reportError("ERROR - renaming cannot be disabled when ADVANCED_OPTIMIZATIONS is used.")
 	}
 	var dependencyOptions *DependencyOptions = nil
-	var dependencyOptionsRes *Outcome_base[*DependencyOptions] = DependencyOptions_fromFlags(this.flags.dependencyMode, this.flags.entryPoint, tlistEmptyImm_(tc_string), Optional_empty[string](), false, false)
+	var dependencyOptionsRes *Outcome_base[*DependencyOptions] = DependencyOptions_fromFlags(this.flags.dependencyMode, this.flags.entryPoint, tlistEmptyImm_(tc_string), nullstr_, false, false)
 	if dependencyOptionsRes.isErr() {
-		this.reportError(dependencyOptionsRes.errorMessage().orElseThrow())
+		this.reportError(optstrGet_(dependencyOptionsRes.errorMessage()))
 	} else {
 		dependencyOptions = dependencyOptionsRes.get()
 	}
@@ -297,11 +297,11 @@ func (this *CommandLineRunner) initConfigFromFlags(args []string, out *Output, e
 	} else {
 		this.runCompiler = true
 		var config *AbstractCommandLineRunner_CommandLineConfig = this.getCommandLineConfig()
-		config.setPrintVersion(this.flags.version_).setPrintTree(this.flags.printTree).setPrintTreeJson(this.flags.printTreeJson).setPrintAst(this.flags.printAst).setJscompDevMode(this.flags.jscompDevMode).setLoggingLevel(this.flags.loggingLevel).setExterns(this.flags.externs).setMixedJsSources(mixedSources).setDefaultToStdin().setJsOutputFile(this.flags.jsOutputFile).setChunk(this.flags.chunk_).setVariableMapOutputFile(this.flags.variableMapOutputFile).setCreateNameMapFiles(this.flags.createNameMapFiles).setPropertyMapOutputFile(this.flags.propertyMapOutputFile).setExpectedDiagnostics(this.flags.expectedDiagnostics).setPropertyMapInputFile(this.flags.propertyMapInputFile).setVariableMapInputFile(this.flags.variableMapInputFile).setInstrumentationMappingFile(this.flags.instrumentationMappingOutputFile).setCodingConvention(conv).setSummaryDetailLevel(this.flags.summaryDetailLevel).setOutputWrapper(this.flags.outputWrapper.orElse(nullstr_)).setChunkWrapper(this.flags.chunkWrapper).setChunkOutputPathPrefix(this.flags.chunkOutputPathPrefix).setCreateSourceMap(this.flags.createSourceMap).setSourceMapFormat(this.flags.sourceMapFormat).setSourceMapLocationMappings(mappings).setSourceMapInputFiles(sourceMapInputs).setParseInlineSourceMaps(parseInlineSourceMaps).setApplyInputSourceMaps(applyInputSourceMaps).setWarningGuards(this.flags.guardLevels).setDefine(this.flags.define).setBrowserFeaturesetYear(this.flags.browserFeaturesetYear).setCharset(this.flags.charset).setDependencyOptions(dependencyOptions).setOutputManifest(immutableListOf_[string](tc_string, this.flags.outputManifest_)).setOutputBundle(bundleFiles).setSkipNormalOutputs(skipNormalOutputs).setOutputChunkDependencies(this.flags.outputChunkDependencies).setProcessCommonJSModules(this.flags.processCommonJsModules).setModuleRoots(this.flags.moduleRoot).setWarningsAllowlistFile(this.flags.warningsAllowlistFile).setHideWarningsFor(this.flags.hideWarningsFor).setAngularPass(this.flags.angularPass).setJsonStreamMode(this.flags.jsonStreamMode).setErrorFormat(this.flags.errorFormat)
+		config.setPrintVersion(this.flags.version_).setPrintTree(this.flags.printTree).setPrintTreeJson(this.flags.printTreeJson).setPrintAst(this.flags.printAst).setJscompDevMode(this.flags.jscompDevMode).setLoggingLevel(this.flags.loggingLevel).setExterns(this.flags.externs).setMixedJsSources(mixedSources).setDefaultToStdin().setJsOutputFile(this.flags.jsOutputFile).setChunk(this.flags.chunk_).setVariableMapOutputFile(this.flags.variableMapOutputFile).setCreateNameMapFiles(this.flags.createNameMapFiles).setPropertyMapOutputFile(this.flags.propertyMapOutputFile).setExpectedDiagnostics(this.flags.expectedDiagnostics).setPropertyMapInputFile(this.flags.propertyMapInputFile).setVariableMapInputFile(this.flags.variableMapInputFile).setInstrumentationMappingFile(this.flags.instrumentationMappingOutputFile).setCodingConvention(conv).setSummaryDetailLevel(this.flags.summaryDetailLevel).setOutputWrapper(this.flags.outputWrapper).setChunkWrapper(this.flags.chunkWrapper).setChunkOutputPathPrefix(this.flags.chunkOutputPathPrefix).setCreateSourceMap(this.flags.createSourceMap).setSourceMapFormat(this.flags.sourceMapFormat).setSourceMapLocationMappings(mappings).setSourceMapInputFiles(sourceMapInputs).setParseInlineSourceMaps(parseInlineSourceMaps).setApplyInputSourceMaps(applyInputSourceMaps).setWarningGuards(this.flags.guardLevels).setDefine(this.flags.define).setBrowserFeaturesetYear(this.flags.browserFeaturesetYear).setCharset(this.flags.charset).setDependencyOptions(dependencyOptions).setOutputManifest(immutableListOf_[string](tc_string, this.flags.outputManifest_)).setOutputBundle(bundleFiles).setSkipNormalOutputs(skipNormalOutputs).setOutputChunkDependencies(this.flags.outputChunkDependencies).setProcessCommonJSModules(this.flags.processCommonJsModules).setModuleRoots(this.flags.moduleRoot).setWarningsAllowlistFile(this.flags.warningsAllowlistFile).setHideWarningsFor(this.flags.hideWarningsFor).setAngularPass(this.flags.angularPass).setJsonStreamMode(this.flags.jsonStreamMode).setErrorFormat(this.flags.errorFormat)
 		var segmentOfCompilationToRun CompilerOptions_SegmentOfCompilationToRun = this.flags.segmentOfCompilationToRun
 		switch segmentOfCompilationToRun {
 		case CompilerOptions_SegmentOfCompilationToRun_CHECKS:
-			if !this.flags.filenameToRestoreFrom.isEmpty() {
+			if this.flags.filenameToRestoreFrom != nullstr_ {
 				panic(new_IllegalStateException_String(objstr_("Cannot restore and run CHECKS segment of compilation")))
 			}
 			config.setSaveCompilationStateToFilename(this.flags.filenameToSaveTo, 1)
@@ -309,7 +309,7 @@ func (this *CommandLineRunner) initConfigFromFlags(args []string, out *Output, e
 			config.setContinueSavedCompilationFileName(this.flags.filenameToRestoreFrom, 1)
 			config.setSaveCompilationStateToFilename(this.flags.filenameToSaveTo, 2)
 		case CompilerOptions_SegmentOfCompilationToRun_FINALIZATIONS:
-			if !this.flags.filenameToSaveTo.isEmpty() {
+			if this.flags.filenameToSaveTo != nullstr_ {
 				panic(new_IllegalStateException_String(objstr_("Cannot run FINALIZATIONS segment of compilation and then save the result")))
 			}
 			config.setContinueSavedCompilationFileName(this.flags.filenameToRestoreFrom, 2)
@@ -335,7 +335,7 @@ func (this *CommandLineRunner) checkChunkName_impl(name string) *Outcome_base[an
 func (this *CommandLineRunner) createOptions_impl() *Outcome_base[*CompilerOptions] {
 	var options *CompilerOptions = new_CompilerOptions()
 	if this.flags.languageIn != "" {
-		var languageMode CompilerOptions_LanguageMode = CompilerOptions_LanguageMode_fromString(Optional_of[string](this.flags.languageIn))
+		var languageMode CompilerOptions_LanguageMode = CompilerOptions_LanguageMode_fromString(optstrOf_(this.flags.languageIn))
 		if languageMode == CompilerOptions_LanguageMode_UNSUPPORTED {
 			return Outcome_base_err[*CompilerOptions](new_FlagUsageException("Cannot specify the unsupported set of features for language_in.").up_Throwable())
 		}
@@ -345,7 +345,7 @@ func (this *CommandLineRunner) createOptions_impl() *Outcome_base[*CompilerOptio
 			return Outcome_base_err[*CompilerOptions](new_FlagUsageException(("Unknown language `" + sstr_(this.flags.languageIn) + "' specified. Expected one of: " + objstr_(sliceView_(tc_string, CompilerOptions_LanguageMode_validCommandLineNames())))).up_Throwable())
 		}
 	}
-	var languageMode CompilerOptions_LanguageMode = CompilerOptions_LanguageMode_fromString(Optional_of[string](this.flags.languageOut))
+	var languageMode CompilerOptions_LanguageMode = CompilerOptions_LanguageMode_fromString(optstrOf_(this.flags.languageOut))
 	if languageMode == CompilerOptions_LanguageMode_UNSUPPORTED {
 		return Outcome_base_err[*CompilerOptions](new_FlagUsageException("Cannot specify the unsupported set of features for language_out.").up_Throwable())
 	}
@@ -376,8 +376,8 @@ func (this *CommandLineRunner) createOptions_impl() *Outcome_base[*CompilerOptio
 		level.setWrappedOutputOptimizations(options)
 		options.setAssumeGlobalScopeIsIsolated(true)
 	}
-	if this.flags.typedAstOutputFile.isPresent() {
-		options.setTypedAstOutputFile(Optional_of[string](FilePaths_clean(this.flags.typedAstOutputFile.get())))
+	if this.flags.typedAstOutputFile != nullstr_ {
+		options.setTypedAstOutputFile(optstrOf_(FilePaths_clean(optstrGet_(this.flags.typedAstOutputFile))))
 	}
 	options.setGenerateExports(this.flags.generateExports)
 	options.setExportLocalPropertyDefinitions(this.flags.exportLocalPropertyDefinitions)
@@ -432,7 +432,7 @@ func (this *CommandLineRunner) createOptions_impl() *Outcome_base[*CompilerOptio
 	options.setSourceMapIncludeSourcesContent(this.flags.sourceMapIncludeSourcesContent)
 	options.setModuleResolutionMode(this.flags.moduleResolutionMode)
 	options.setBrowserResolverPrefixReplacements(immutableMapCopyOf_(tc_string, tc_string, Map_un_(this.flags.browserResolverPrefixReplacements)))
-	if this.flags.packageJsonEntryNames.isPresent() {
+	if this.flags.packageJsonEntryNames != nullstr_ {
 		var packageJsonEntryNames *TList[string] = this.flags.getPackageJsonEntryNames()
 		options.setPackageJsonEntryNames(packageJsonEntryNames)
 	}
@@ -456,7 +456,7 @@ func (this *CommandLineRunner) createOptions_impl() *Outcome_base[*CompilerOptio
 	options.setAssumeStaticInheritanceIsNotUsed(this.flags.assumeStaticInheritanceIsNotUsed)
 	options.setCrossChunkCodeMotionNoStubMethods(this.flags.assumeNoPrototypeMethodEnumeration)
 	if this.flags.chunkOutputType == CompilerOptions_ChunkOutputType_ES_MODULES {
-		if this.flags.renamePrefixNamespace.isPresent() {
+		if this.flags.renamePrefixNamespace != nullstr_ {
 			return Outcome_base_err[*CompilerOptions](new_FlagUsageException("Expected --rename_prefix_namespace not to be specified when --chunk_output_type is set to ES_MODULES.").up_Throwable())
 		}
 		if this.flags.emitUseStrict {
@@ -760,16 +760,16 @@ type CommandLineRunner_Flags struct {
 	expectedDiagnostics                ListT[string]
 	arguments                          ListT[string]
 	parser                             *CmdLineParser
-	filenameToSaveTo                   Optional[string]
-	filenameToRestoreFrom              Optional[string]
-	outputWrapper                      Optional[string]
-	outputWrapperFile                  Optional[string]
-	typedAstOutputFile                 Optional[string]
-	translationsProject                Optional[string]
-	renamePrefix                       Optional[string]
-	renamePrefixNamespace              Optional[string]
-	packageJsonEntryNames              Optional[string]
-	dynamicImportAlias                 Optional[string]
+	filenameToSaveTo                   string
+	filenameToRestoreFrom              string
+	outputWrapper                      string
+	outputWrapperFile                  string
+	typedAstOutputFile                 string
+	translationsProject                string
+	renamePrefix                       string
+	renamePrefixNamespace              string
+	packageJsonEntryNames              string
+	dynamicImportAlias                 string
 	summaryDetailLevel                 int32
 	numParallelThreads                 int32
 	maxLineLength                      int32
@@ -848,8 +848,8 @@ func (this *CommandLineRunner_Flags) finit_CommandLineRunner_Flags() {
 	this.unusedJsZip = nil
 	this.jsOutputFile = ""
 	this.chunk_ = newTList_(tc_string).asListT()
-	this.filenameToSaveTo = Optional_empty[string]()
-	this.filenameToRestoreFrom = Optional_empty[string]()
+	this.filenameToSaveTo = nullstr_
+	this.filenameToRestoreFrom = nullstr_
 	this.segmentOfCompilationToRun = CompilerOptions_SegmentOfCompilationToRun_ENTIRE_COMPILATION
 	this.variableMapOutputFile = ""
 	this.instrumentationMappingOutputFile = ""
@@ -859,8 +859,8 @@ func (this *CommandLineRunner_Flags) finit_CommandLineRunner_Flags() {
 	this.thirdParty = false
 	this.summaryDetailLevel = 1
 	this.isolationMode = CompilerOptions_IsolationMode_NONE
-	this.outputWrapper = Optional_of[string]("")
-	this.outputWrapperFile = Optional_of[string]("")
+	this.outputWrapper = ""
+	this.outputWrapperFile = ""
 	this.chunkWrapper = newTList_(tc_string).asListT()
 	this.chunkOutputPathPrefix = "./"
 	this.createSourceMap = ""
@@ -884,7 +884,7 @@ func (this *CommandLineRunner_Flags) finit_CommandLineRunner_Flags() {
 	this.assumeFunctionWrapper = false
 	this.warningLevel = WarningLevel_DEFAULT
 	this.debug = false
-	this.typedAstOutputFile = Optional_empty[string]()
+	this.typedAstOutputFile = nullstr_
 	this.generateExports = true
 	this.exportLocalPropertyDefinitions = true
 	this.formatting = newTList_(tc_p_CommandLineRunner_FormattingOption).asListT()
@@ -902,14 +902,14 @@ func (this *CommandLineRunner_Flags) finit_CommandLineRunner_Flags() {
 	this.languageOut = "ECMASCRIPT_NEXT"
 	this.version_ = false
 	this.translationsFile = ""
-	this.translationsProject = Optional_empty[string]()
+	this.translationsProject = nullstr_
 	this.flagFiles = newTList_(tc_string).asListT()
 	this.warningsAllowlistFile = ""
 	this.hideWarningsFor = newTList_(tc_string).asListT()
 	this.extraAnnotationName = newTList_(tc_string).asListT()
 	this.tracerMode = CompilerOptions_TracerMode_OFF
-	this.renamePrefix = Optional_empty[string]()
-	this.renamePrefixNamespace = Optional_empty[string]()
+	this.renamePrefix = nullstr_
+	this.renamePrefixNamespace = nullstr_
 	this.conformanceConfigs = newTList_(tc_string).asListT()
 	this.environment = CompilerOptions_Environment_BROWSER
 	this.jsonStreamMode = CompilerOptions_JsonStreamMode_NONE
@@ -923,7 +923,7 @@ func (this *CommandLineRunner_Flags) finit_CommandLineRunner_Flags() {
 	this.printSourceAfterEachPass = false
 	this.moduleResolutionMode = ModuleLoader_ResolutionMode_BROWSER
 	this.browserResolverPrefixReplacements = newTMap_(tc_string, tc_string).asMapT()
-	this.packageJsonEntryNames = Optional_empty[string]()
+	this.packageJsonEntryNames = nullstr_
 	this.errorFormat = AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption_STANDARD
 	this.renaming = true
 	this.helpMarkdown = false
@@ -932,7 +932,7 @@ func (this *CommandLineRunner_Flags) finit_CommandLineRunner_Flags() {
 	this.chunkOutputType = CompilerOptions_ChunkOutputType_GLOBAL_NAMESPACE
 	this.instrumentCodeParsed = CompilerOptions_InstrumentOption_NONE
 	this.allowDynamicImport = true
-	this.dynamicImportAlias = Optional_empty[string]()
+	this.dynamicImportAlias = nullstr_
 	this.assumeStaticInheritanceIsNotUsed = true
 	this.assumeNoPrototypeMethodEnumeration = false
 	this.variableMapInputFile = ""
@@ -996,10 +996,10 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 		this.externs = v
 	}))
 	this.parser.option("--js").usage("The JavaScript filename. You may specify multiple. The flag name is optional, because args are interpreted as files by default. You may also use minimatch-style glob patterns. For example, use --js='**.js' --js='!**_test.js' to recursively include all js files that do not end in _test.js").stringEach(Consumer[string](func(v string) {
-		this.js = CommandLineRunner_Flags_addMultiFlagValue(this.js, Optional_of[string](v), obj_(AbstractCommandLineRunner_JsSourceType_JS), this.mixedJsSources.asListT())
+		this.js = CommandLineRunner_Flags_addMultiFlagValue(this.js, optstrOf_(v), obj_(AbstractCommandLineRunner_JsSourceType_JS), this.mixedJsSources.asListT())
 	}))
 	this.parser.option("--jszip").hidden_1(true).usage("The JavaScript zip filename. You may specify multiple.").stringEach(Consumer[string](func(v string) {
-		this.unusedJsZip = CommandLineRunner_Flags_addMultiFlagValue(this.unusedJsZip, Optional_of[string](v), obj_(AbstractCommandLineRunner_JsSourceType_JS_ZIP), this.mixedJsSources.asListT())
+		this.unusedJsZip = CommandLineRunner_Flags_addMultiFlagValue(this.unusedJsZip, optstrOf_(v), obj_(AbstractCommandLineRunner_JsSourceType_JS_ZIP), this.mixedJsSources.asListT())
 	}))
 	this.parser.option("--js_output_file").usage("Primary output filename. If not specified, output is written to stdout").string(Supplier[string](func() string {
 		return this.jsOutputFile
@@ -1012,14 +1012,14 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 		this.chunk_ = v
 	}))
 	this.parser.option("--filename_to_save_to").hidden_1(true).usage("Filename to save state so that the compilation can be resumed later.").string(Supplier[string](func() string {
-		return this.filenameToSaveTo.orElse(nullstr_)
+		return this.filenameToSaveTo
 	}), Consumer[string](func(v string) {
-		this.filenameToSaveTo = Optional_of[string](v)
+		this.filenameToSaveTo = optstrOf_(v)
 	}))
 	this.parser.option("--filename_to_restore_from").hidden_1(true).usage("Filename where a compilation state was previously saved.").string(Supplier[string](func() string {
-		return this.filenameToRestoreFrom.orElse(nullstr_)
+		return this.filenameToRestoreFrom
 	}), Consumer[string](func(v string) {
-		this.filenameToRestoreFrom = Optional_of[string](v)
+		this.filenameToRestoreFrom = optstrOf_(v)
 	}))
 	CmdLineParser_Option_enumValue[CompilerOptions_SegmentOfCompilationToRun](this.parser.option("--segment_of_compilation_to_run").hidden_1(true).usage("Which segment of the compilation to run."), CompilerOptions_SegmentOfCompilationToRun_values(), Supplier[CompilerOptions_SegmentOfCompilationToRun](func() CompilerOptions_SegmentOfCompilationToRun {
 		return this.segmentOfCompilationToRun
@@ -1067,14 +1067,14 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 		this.isolationMode = v
 	}))
 	this.parser.option("--output_wrapper").usage("Interpolate output into this string at the place denoted by the marker token %output%. Use marker token %output|jsstring% to do js string escaping on the output. Consider using the --isolation_mode flag instead.").string(Supplier[string](func() string {
-		return this.outputWrapper.orElse(nullstr_)
+		return this.outputWrapper
 	}), Consumer[string](func(v string) {
-		this.outputWrapper = Optional_of[string](v)
+		this.outputWrapper = optstrOf_(v)
 	}))
 	this.parser.option("--output_wrapper_file").usage("Loads the specified file and passes the file contents to the --output_wrapper flag, replacing the value if it exists. This is useful if you want special characters like newline in the wrapper.").string(Supplier[string](func() string {
-		return this.outputWrapperFile.orElse(nullstr_)
+		return this.outputWrapperFile
 	}), Consumer[string](func(v string) {
-		this.outputWrapperFile = Optional_of[string](v)
+		this.outputWrapperFile = optstrOf_(v)
 	}))
 	this.parser.option("--chunk_wrapper").usage("An output wrapper for a JavaScript chunk (optional). The format is <name>:<wrapper>. The chunk name must correspond with a chunk specified using --chunk. The wrapper must contain %s as the code placeholder. Alternately, %output% can be used in place of %s. %n% can be used to represent a newline. The %basename% placeholder can also be used to substitute the base name of the chunk output file.").stringList(Supplier[ListT[string]](func() ListT[string] {
 		return this.chunkWrapper
@@ -1117,13 +1117,13 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 		this.applyInputSourceMaps = unbox_[bool](v)
 	}))
 	this.parser.option("--jscomp_error").usage("Make the named class of warnings an error. Must be one of the error group items. '*' adds all supported.").stringEach(Consumer[string](func(v string) {
-		this.jscompError = CommandLineRunner_Flags_addMultiFlagValue(this.jscompError, Optional_of[string](v), obj_(CheckLevel_ERROR), this.guardLevels.asListT())
+		this.jscompError = CommandLineRunner_Flags_addMultiFlagValue(this.jscompError, optstrOf_(v), obj_(CheckLevel_ERROR), this.guardLevels.asListT())
 	}))
 	this.parser.option("--jscomp_warning").usage("Make the named class of warnings a normal warning. Must be one of the error group items. '*' adds all supported.").stringEach(Consumer[string](func(v string) {
-		this.jscompWarning = CommandLineRunner_Flags_addMultiFlagValue(this.jscompWarning, Optional_of[string](v), obj_(CheckLevel_WARNING), this.guardLevels.asListT())
+		this.jscompWarning = CommandLineRunner_Flags_addMultiFlagValue(this.jscompWarning, optstrOf_(v), obj_(CheckLevel_WARNING), this.guardLevels.asListT())
 	}))
 	this.parser.option("--jscomp_off").usage("Turn off the named class of warnings. Must be one of the error group items. '*' adds all supported.").stringEach(Consumer[string](func(v string) {
-		this.jscompOff = CommandLineRunner_Flags_addMultiFlagValue(this.jscompOff, Optional_of[string](v), obj_(CheckLevel_OFF), this.guardLevels.asListT())
+		this.jscompOff = CommandLineRunner_Flags_addMultiFlagValue(this.jscompOff, optstrOf_(v), obj_(CheckLevel_OFF), this.guardLevels.asListT())
 	}))
 	this.parser.option("--define").aliases([]string{"--D", "-D"}).usage("Override the value of a variable annotated @define. The format is <name>[=<val>], where <name> is the name of a @define variable and <val> is a boolean, number, or a single-quoted string that contains no single quotes. If [=<val>] is omitted, the variable is marked true").stringList(Supplier[ListT[string]](func() ListT[string] {
 		return this.define
@@ -1181,9 +1181,9 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 		this.debug = unbox_[bool](v)
 	}))
 	this.parser.option("--typed_ast_output_file").hidden_1(true).usage("Sets file to output in-progress typedAST format. DO NOT USE!").string(Supplier[string](func() string {
-		return this.typedAstOutputFile.orElse(nullstr_)
+		return this.typedAstOutputFile
 	}), Consumer[string](func(v string) {
-		this.typedAstOutputFile = Optional_of[string](v)
+		this.typedAstOutputFile = optstrOf_(v)
 	}))
 	this.parser.option("--generate_exports").usage("Generates export code for those marked with @export").bool(Supplier[any](func() any {
 		return bool(this.generateExports)
@@ -1271,9 +1271,9 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 		this.translationsFile = v
 	}))
 	this.parser.option("--translations_project").hidden_1(true).usage("Scopes all translations to the specified project.When specified, we will use different message ids so that messages in different projects can have different translations.").string(Supplier[string](func() string {
-		return this.translationsProject.orElse(nullstr_)
+		return this.translationsProject
 	}), Consumer[string](func(v string) {
-		this.translationsProject = Optional_of[string](v)
+		this.translationsProject = optstrOf_(v)
 	}))
 	this.parser.option("--flagfile").hidden_1(true).usage("A file (or files) containing additional command-line options.").stringList(Supplier[ListT[string]](func() ListT[string] {
 		return this.flagFiles
@@ -1301,14 +1301,14 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 		this.tracerMode = v
 	}))
 	this.parser.option("--rename_variable_prefix").usage("Specifies a prefix that will be prepended to all variables.").string(Supplier[string](func() string {
-		return this.renamePrefix.orElse(nullstr_)
+		return this.renamePrefix
 	}), Consumer[string](func(v string) {
-		this.renamePrefix = Optional_of[string](v)
+		this.renamePrefix = optstrOf_(v)
 	}))
 	this.parser.option("--rename_prefix_namespace").usage("Specifies the name of an object that will be used to store all non-extern globals").string(Supplier[string](func() string {
-		return this.renamePrefixNamespace.orElse(nullstr_)
+		return this.renamePrefixNamespace
 	}), Consumer[string](func(v string) {
-		this.renamePrefixNamespace = Optional_of[string](v)
+		this.renamePrefixNamespace = optstrOf_(v)
 	}))
 	this.parser.option("--conformance_configs").usage("A list of JS Conformance configurations in text protocol buffer format.").stringList(Supplier[ListT[string]](func() ListT[string] {
 		return this.conformanceConfigs
@@ -1376,9 +1376,9 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 		this.browserResolverPrefixReplacements = v
 	}))
 	this.parser.option("--package_json_entry_names").usage("Ordered list of entries to look for in package.json files when processing modules with the NODE module resolution strategy (i.e. esnext:main,browser,main). Defaults to a list with the following entries: \"browser\", \"module\", \"main\".").string(Supplier[string](func() string {
-		return this.packageJsonEntryNames.orElse(nullstr_)
+		return this.packageJsonEntryNames
 	}), Consumer[string](func(v string) {
-		this.packageJsonEntryNames = Optional_of[string](v)
+		this.packageJsonEntryNames = optstrOf_(v)
 	}))
 	CmdLineParser_Option_enumValue[AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption](this.parser.option("--error_format").usage("Specifies format for error messages."), AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption_values(), Supplier[AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption](func() AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption {
 		return this.errorFormat
@@ -1416,9 +1416,9 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 		this.allowDynamicImport = unbox_[bool](v)
 	}))
 	this.parser.option("--dynamic_import_alias").usage("Instructs the compiler to replace dynamic imports expressions with a function call using the specified name. Allows dynamic import expressions to be externally polyfilled when the output language level does not natively support them. An alias of 'import' is allowed.").string(Supplier[string](func() string {
-		return this.dynamicImportAlias.orElse(nullstr_)
+		return this.dynamicImportAlias
 	}), Consumer[string](func(v string) {
-		this.dynamicImportAlias = Optional_of[string](v)
+		this.dynamicImportAlias = optstrOf_(v)
 	}))
 	this.parser.option("--assume_static_inheritance_is_not_used").usage("Assume that static (class-side) inheritance is not being used and that static methods will not be referenced via `this` or through subclasses. This enables optimizations that could break code that did those things.").bool(Supplier[any](func() any {
 		return bool(this.assumeStaticInheritanceIsNotUsed)
@@ -1464,11 +1464,11 @@ func (this *CommandLineRunner_Flags) parse(args *[]string) *Outcome_base[any] {
 	if parsed.isErr() {
 		return Outcome_base_err[any](parsed.error())
 	}
-	this.compilationLevelParsed = CompilationLevel_fromString(Optional_of[string](Ascii_toUpperCase(this.compilationLevel)))
+	this.compilationLevelParsed = CompilationLevel_fromString(optstrOf_(Ascii_toUpperCase(this.compilationLevel)))
 	if this.compilationLevelParsed == 0 {
 		return Outcome_base_err[any](new_CmdLineException_CmdLineParser_String(this.parser, ("Bad value for --compilation_level: " + sstr_(this.compilationLevel))).up_Throwable())
 	}
-	this.instrumentCodeParsed = CompilerOptions_InstrumentOption_fromString(Optional_of[string](Ascii_toUpperCase(this.instrumentForCoverageOption)))
+	this.instrumentCodeParsed = CompilerOptions_InstrumentOption_fromString(optstrOf_(Ascii_toUpperCase(this.instrumentForCoverageOption)))
 	if this.instrumentCodeParsed == 0 {
 		return Outcome_base_err[any](new_CmdLineException_CmdLineParser_String(this.parser, ("Bad value for --instrument_for_coverage_option: " + sstr_(this.instrumentForCoverageOption))).up_Throwable())
 	}
@@ -1496,7 +1496,7 @@ func (this *CommandLineRunner_Flags) printUsage(ps *Output) {
 			this.maxLineLength = 5000
 			this.parser.setUsageWidth(this.maxLineLength)
 		}
-		this.printCategoryUsage(entry.getKey_t(), entry.getValue_t(), &outputStream, Optional_of[string](prefix), Optional_of[string](suffix))
+		this.printCategoryUsage(entry.getKey_t(), entry.getValue_t(), &outputStream, optstrOf_(prefix), optstrOf_(suffix))
 	}
 	var encoded *Output = ps.encodedAs(Charsets_UTF_8)
 	encoded.print(outputStream.toString())
@@ -1504,9 +1504,9 @@ func (this *CommandLineRunner_Flags) printUsage(ps *Output) {
 	ps.flush()
 }
 
-func (this *CommandLineRunner_Flags) printCategoryUsage(categoryName string, options CollectionT[string], outputStream *strBuilder_, prefix Optional[string], suffix Optional[string]) {
-	if prefix.isPresent() {
-		this.printStringLineWrapped(prefix.get(), outputStream)
+func (this *CommandLineRunner_Flags) printCategoryUsage(categoryName string, options CollectionT[string], outputStream *strBuilder_, prefix string, suffix string) {
+	if prefix != nullstr_ {
+		this.printStringLineWrapped(optstrGet_(prefix), outputStream)
 	}
 	if this.helpMarkdown {
 		outputStream.append(("# " + sstr_(categoryName) + "\n"))
@@ -1531,8 +1531,8 @@ func (this *CommandLineRunner_Flags) printCategoryUsage(categoryName string, opt
 			return (!option.hidden() && Collection_contains_s(Collection_un_(options), CommandLineRunner_LEADING_DASHES_PATTERN.matcher_s(option.name()).replaceFirst("")))
 		}))
 	}
-	if suffix.isPresent() {
-		this.printStringLineWrapped(suffix.get(), outputStream)
+	if suffix != nullstr_ {
+		this.printStringLineWrapped(optstrGet_(suffix), outputStream)
 	}
 }
 
@@ -1644,20 +1644,20 @@ func (this *CommandLineRunner_Flags) splitPipeParts(input IterableT[string], fla
 }
 
 func (this *CommandLineRunner_Flags) getPackageJsonEntryNames() *TList[string] {
-	return splitToListST_(tc_string, Splitter_on(','), this.packageJsonEntryNames.get())
+	return splitToListST_(tc_string, Splitter_on(','), optstrGet_(this.packageJsonEntryNames))
 }
 
-func CommandLineRunner_Flags_addMultiFlagValue(values ListT[string], value Optional[string], flag any, entries ListT[*AbstractCommandLineRunner_FlagEntry[any]]) ListT[string] {
-	var normalizedValue Optional[string] = value
+func CommandLineRunner_Flags_addMultiFlagValue(values ListT[string], value string, flag any, entries ListT[*AbstractCommandLineRunner_FlagEntry[any]]) ListT[string] {
+	var normalizedValue string = value
 	var valueU16 utf16_
-	if ((value.isPresent() && (len(value.get()) != 0)) && ((valueU16.of(value.get()).substring(0, 1) == "'") || (valueU16.of(value.get()).substring(0, 1) == "\""))) && (valueU16.of(value.get()).substring_int((valueU16.of(value.get()).length() - 1)) == valueU16.of(value.get()).substring(0, 1)) {
-		normalizedValue = Optional_of[string](valueU16.of(value.get()).substring(1, (valueU16.of(value.get()).length() - 1)))
+	if ((value != nullstr_ && (len(optstrGet_(value)) != 0)) && ((valueU16.of(optstrGet_(value)).substring(0, 1) == "'") || (valueU16.of(optstrGet_(value)).substring(0, 1) == "\""))) && (valueU16.of(optstrGet_(value)).substring_int((valueU16.of(optstrGet_(value)).length() - 1)) == valueU16.of(optstrGet_(value)).substring(0, 1)) {
+		normalizedValue = optstrOf_(valueU16.of(optstrGet_(value)).substring(1, (valueU16.of(optstrGet_(value)).length() - 1)))
 	}
 	if values == nil {
 		values = newTList_(tc_string).asListT()
 	}
-	values.add_t(normalizedValue.orElse(nullstr_))
-	entries.add_t(new_AbstractCommandLineRunner_FlagEntry(flag, normalizedValue.orElse(nullstr_)))
+	values.add_t(normalizedValue)
+	entries.add_t(new_AbstractCommandLineRunner_FlagEntry(flag, normalizedValue))
 	return values
 }
 

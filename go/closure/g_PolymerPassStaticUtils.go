@@ -95,8 +95,8 @@ func PolymerPassStaticUtils_protectObserverAndPropertyFunctionKeys(behaviorObjLi
 			if !NodeUtil_isObjectLitKey(keyNode) {
 				continue
 			}
-			var keyName Optional[string] = NodeUtil_getObjectOrClassLitKeyName(keyNode)
-			if !(keyName.isPresent() && has_(methodsToProtect, keyName.get())) {
+			var keyName string = NodeUtil_getObjectOrClassLitKeyName(keyNode)
+			if !(keyName != nullstr_ && has_(methodsToProtect, optstrGet_(keyName))) {
 				continue
 			}
 			PolymerPassStaticUtils_addExportAndNoCollapseToKey(keyNode)
@@ -114,9 +114,9 @@ func PolymerPassStaticUtils_addObserverMethodsToProtect(behaviorObjLit Node) *TS
 				if !child.isStringLit() {
 					continue
 				}
-				var name Optional[string] = PolymerPassStaticUtils_extractMethodName(child.getString())
-				if name.isPresent() {
-					methodsToProtect.Add(name.get())
+				var name string = PolymerPassStaticUtils_extractMethodName(child.getString())
+				if name != nullstr_ {
+					methodsToProtect.Add(optstrGet_(name))
 				}
 			}
 		}
@@ -140,9 +140,9 @@ func PolymerPassStaticUtils_addPropertyMethodsToProtect(behaviorObjLit Node) *TS
 				}
 				var computed Node = NodeUtil_getFirstPropMatchingKey(prop.getLastChild(), "computed")
 				if (computed != 0) && computed.isStringLit() {
-					var name Optional[string] = PolymerPassStaticUtils_extractMethodName(computed.getString())
-					if name.isPresent() {
-						methodsToProtect.Add(name.get())
+					var name string = PolymerPassStaticUtils_extractMethodName(computed.getString())
+					if name != nullstr_ {
+						methodsToProtect.Add(optstrGet_(name))
 					}
 				}
 			}
@@ -151,13 +151,13 @@ func PolymerPassStaticUtils_addPropertyMethodsToProtect(behaviorObjLit Node) *TS
 	return methodsToProtect
 }
 
-func PolymerPassStaticUtils_extractMethodName(signature string) Optional[string] {
+func PolymerPassStaticUtils_extractMethodName(signature string) string {
 	var openParenIndex int32 = int32(strings.IndexByte(signature, '('))
-	return func() Optional[string] {
+	return func() string {
 		if openParenIndex > 0 {
-			return Optional_of[string](strings.Trim(signature[:openParenIndex], javaSpace_))
+			return optstrOf_(strings.Trim(signature[:openParenIndex], javaSpace_))
 		}
-		return Optional_empty[string]()
+		return nullstr_
 	}()
 }
 
@@ -255,10 +255,10 @@ func PolymerPassStaticUtils_getTypeFromProperty(property *PolymerPass_MemberDefi
 
 func PolymerPassStaticUtils_getPolymerElementType(cls *PolymerClassDefinition) string {
 	var nativeElementName string = func() string {
-		if cls.nativeBaseElement.isEmpty() {
+		if cls.nativeBaseElement == nullstr_ {
 			return ""
 		}
-		return CaseFormat_LOWER_HYPHEN.to(CaseFormat_UPPER_CAMEL, cls.nativeBaseElement.get())
+		return CaseFormat_LOWER_HYPHEN.to(CaseFormat_UPPER_CAMEL, optstrGet_(cls.nativeBaseElement))
 	}()
 	return ("Polymer" + sstr_(nativeElementName) + "Element")
 }

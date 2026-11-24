@@ -24,22 +24,22 @@ func new_BrowserModuleResolver(modulePaths SetT[string], moduleRootPaths ListT[s
 	return this
 }
 
-func (this *BrowserModuleResolver) resolveJsModule_impl(scriptAddress string, moduleAddress string, sourcename Optional[string], lineno int32, colno int32) Optional[string] {
+func (this *BrowserModuleResolver) resolveJsModule_impl(scriptAddress string, moduleAddress string, sourcename string, lineno int32, colno int32) string {
 	if ModuleLoader_isAmbiguousIdentifier(moduleAddress) {
 		this.errorHandler.report_2(CheckLevel_WARNING, JSError_make_Optional_int_int_DiagnosticType_StringArr(sourcename, lineno, colno, ModuleLoader_INVALID_MODULE_PATH, []string{moduleAddress, tostrR_(ModuleLoader_ResolutionMode_BROWSER)}))
-		return Optional_empty[string]()
+		return nullstr_
 	}
-	var loadAddress Optional[string] = this.locate(scriptAddress, moduleAddress)
-	if loadAddress.isEmpty() {
+	var loadAddress string = this.locate(scriptAddress, moduleAddress)
+	if loadAddress == nullstr_ {
 		this.errorHandler.report_2(CheckLevel_WARNING, JSError_make_Optional_int_int_DiagnosticType_StringArr(sourcename, lineno, colno, ModuleLoader_LOAD_WARNING, []string{moduleAddress}))
 	}
 	return loadAddress
 }
 
-func (this *BrowserModuleResolver) resolveJsModuleSilently_impl(scriptAddress string, moduleAddress string) Optional[string] {
-	return func() Optional[string] {
+func (this *BrowserModuleResolver) resolveJsModuleSilently_impl(scriptAddress string, moduleAddress string) string {
+	return func() string {
 		if ModuleLoader_isAmbiguousIdentifier(moduleAddress) {
-			return Optional_empty[string]()
+			return nullstr_
 		}
 		return this.locate(scriptAddress, moduleAddress)
 	}()
@@ -64,7 +64,7 @@ var lambda_BrowserModuleResolver_clinit_1_ = &ModuleLoader_ModuleResolverFactory
 }}
 
 // resolveJsModule: an object that is exactly a BrowserModuleResolver calls its resolveJsModule_impl directly (post-flip); others dispatch.
-func (this *BrowserModuleResolver) resolveJsModule(p0 string, p1 string, p2 Optional[string], p3 int32, p4 int32) Optional[string] {
+func (this *BrowserModuleResolver) resolveJsModule(p0 string, p1 string, p2 string, p3 int32, p4 int32) string {
 	if p, _ := this.self_.(*BrowserModuleResolver); p == this {
 		return this.resolveJsModule_impl(p0, p1, p2, p3, p4)
 	}
@@ -72,7 +72,7 @@ func (this *BrowserModuleResolver) resolveJsModule(p0 string, p1 string, p2 Opti
 }
 
 // resolveJsModuleSilently: an object that is exactly a BrowserModuleResolver calls its resolveJsModuleSilently_impl directly (post-flip); others dispatch.
-func (this *BrowserModuleResolver) resolveJsModuleSilently(p0 string, p1 string) Optional[string] {
+func (this *BrowserModuleResolver) resolveJsModuleSilently(p0 string, p1 string) string {
 	if p, _ := this.self_.(*BrowserModuleResolver); p == this {
 		return this.resolveJsModuleSilently_impl(p0, p1)
 	}

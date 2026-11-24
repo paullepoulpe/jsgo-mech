@@ -47,19 +47,19 @@ func new_NonEsModuleProcessor_NonEsModule(metadata *ModuleMetadataMap_ModuleMeta
 	return this
 }
 
-func (this *NonEsModuleProcessor_NonEsModule) resolveExport_impl(moduleRequestResolver ModuleRequestResolver, exportName Optional[string]) *ResolveExportResult {
+func (this *NonEsModuleProcessor_NonEsModule) resolveExport_impl(moduleRequestResolver ModuleRequestResolver, exportName string) *ResolveExportResult {
 	panic(new_UnsupportedOperationException_0())
 }
 
-func (this *NonEsModuleProcessor_NonEsModule) resolveExport_5_impl(moduleRequestResolver ModuleRequestResolver, moduleSpecifier Optional[string], exportName Optional[string], resolveSet map[exportTraceKey_]struct{}, exportStarSet map[*UnresolvedModule]struct{}) *ResolveExportResult {
-	var namespace Optional[string] = Optional_empty[string]()
-	if moduleSpecifier.isPresent() && GoogEsImports_isGoogImportSpecifier(moduleSpecifier.get()) {
-		namespace = Optional_of[string](GoogEsImports_getClosureIdFromGoogImportSpecifier(moduleSpecifier.get()))
+func (this *NonEsModuleProcessor_NonEsModule) resolveExport_5_impl(moduleRequestResolver ModuleRequestResolver, moduleSpecifier string, exportName string, resolveSet map[exportTraceKey_]struct{}, exportStarSet map[*UnresolvedModule]struct{}) *ResolveExportResult {
+	var namespace string = nullstr_
+	if moduleSpecifier != nullstr_ && GoogEsImports_isGoogImportSpecifier(optstrGet_(moduleSpecifier)) {
+		namespace = optstrOf_(GoogEsImports_getClosureIdFromGoogImportSpecifier(optstrGet_(moduleSpecifier)))
 	} else if this.metadataField.isGoogProvide() {
 		namespace = moduleSpecifier
 	}
 	if this.metadataField.isCommonJs() {
-		if !(exportName.get() == "default") {
+		if !(optstrGet_(exportName) == "default") {
 			return ResolveExportResult_NOT_FOUND
 		}
 	}
@@ -70,10 +70,10 @@ func (this *NonEsModuleProcessor_NonEsModule) reset_impl() {
 
 }
 
-func (this *NonEsModuleProcessor_NonEsModule) resolve_2_impl(moduleRequestResolver ModuleRequestResolver, moduleSpecifier Optional[string]) *Module {
-	var namespace Optional[string] = Optional_empty[string]()
-	if moduleSpecifier.isPresent() && GoogEsImports_isGoogImportSpecifier(moduleSpecifier.get()) {
-		namespace = Optional_of[string](GoogEsImports_getClosureIdFromGoogImportSpecifier(moduleSpecifier.get()))
+func (this *NonEsModuleProcessor_NonEsModule) resolve_2_impl(moduleRequestResolver ModuleRequestResolver, moduleSpecifier string) *Module {
+	var namespace string = nullstr_
+	if moduleSpecifier != nullstr_ && GoogEsImports_isGoogImportSpecifier(optstrGet_(moduleSpecifier)) {
+		namespace = optstrOf_(GoogEsImports_getClosureIdFromGoogImportSpecifier(optstrGet_(moduleSpecifier)))
 	}
 	return Module_builder().path(this.path_).metadata(this.metadataField).namespace(tmapEmptyImm_(tc_string, tc_p_Binding)).boundNames(tmapEmptyImm_(tc_string, tc_p_Binding)).localNameToLocalExport(tmapEmptyImm_(tc_string, tc_p_Export)).closureNamespace(namespace).build()
 }
@@ -91,7 +91,7 @@ func (this *NonEsModuleProcessor_NonEsModule) getExportedNames_2_impl(moduleRequ
 }
 
 // resolveExport: an object that is exactly a NonEsModuleProcessor_NonEsModule calls its resolveExport_impl directly (post-flip); others dispatch.
-func (this *NonEsModuleProcessor_NonEsModule) resolveExport(p0 ModuleRequestResolver, p1 Optional[string]) *ResolveExportResult {
+func (this *NonEsModuleProcessor_NonEsModule) resolveExport(p0 ModuleRequestResolver, p1 string) *ResolveExportResult {
 	if p, _ := this.self_.(*NonEsModuleProcessor_NonEsModule); p == this {
 		return this.resolveExport_impl(p0, p1)
 	}
@@ -99,7 +99,7 @@ func (this *NonEsModuleProcessor_NonEsModule) resolveExport(p0 ModuleRequestReso
 }
 
 // resolveExport_5: an object that is exactly a NonEsModuleProcessor_NonEsModule calls its resolveExport_5_impl directly (post-flip); others dispatch.
-func (this *NonEsModuleProcessor_NonEsModule) resolveExport_5(p0 ModuleRequestResolver, p1 Optional[string], p2 Optional[string], p3 map[exportTraceKey_]struct{}, p4 map[*UnresolvedModule]struct{}) *ResolveExportResult {
+func (this *NonEsModuleProcessor_NonEsModule) resolveExport_5(p0 ModuleRequestResolver, p1 string, p2 string, p3 map[exportTraceKey_]struct{}, p4 map[*UnresolvedModule]struct{}) *ResolveExportResult {
 	if p, _ := this.self_.(*NonEsModuleProcessor_NonEsModule); p == this {
 		return this.resolveExport_5_impl(p0, p1, p2, p3, p4)
 	}
@@ -116,7 +116,7 @@ func (this *NonEsModuleProcessor_NonEsModule) reset() {
 }
 
 // resolve_2: an object that is exactly a NonEsModuleProcessor_NonEsModule calls its resolve_2_impl directly (post-flip); others dispatch.
-func (this *NonEsModuleProcessor_NonEsModule) resolve_2(p0 ModuleRequestResolver, p1 Optional[string]) *Module {
+func (this *NonEsModuleProcessor_NonEsModule) resolve_2(p0 ModuleRequestResolver, p1 string) *Module {
 	if p, _ := this.self_.(*NonEsModuleProcessor_NonEsModule); p == this {
 		return this.resolve_2_impl(p0, p1)
 	}

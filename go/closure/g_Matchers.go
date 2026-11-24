@@ -32,10 +32,10 @@ func Matchers_not(matcher func(Node, *NodeMetadata) bool) Matcher {
 }
 
 func Matchers_constructor_0() Matcher {
-	return Matchers_constructor_Optional(Optional_empty[string]())
+	return Matchers_constructor_Optional(nullstr_)
 }
 
-func Matchers_constructor_Optional(name Optional[string]) Matcher {
+func Matchers_constructor_Optional(name string) Matcher {
 	return Matcher(new_Matchers_5(name))
 }
 
@@ -48,10 +48,10 @@ func Matchers_newClass_String(className string) Matcher {
 }
 
 func Matchers_functionCall_0() Matcher {
-	return Matchers_functionCall_Optional(Optional_empty[string]())
+	return Matchers_functionCall_Optional(nullstr_)
 }
 
-func Matchers_functionCall_Optional(name Optional[string]) Matcher {
+func Matchers_functionCall_Optional(name string) Matcher {
 	return Matcher(new_Matchers_8(name))
 }
 
@@ -60,7 +60,7 @@ func Matchers_functionCallWithNumArgs_int(numArgs int32) Matcher {
 }
 
 func Matchers_functionCallWithNumArgs_String_int(name string, numArgs int32) Matcher {
-	return Matchers_allOf([]Matcher{Matchers_functionCallWithNumArgs_int(numArgs), Matchers_functionCall_Optional(Optional_of[string](name))})
+	return Matchers_allOf([]Matcher{Matchers_functionCallWithNumArgs_int(numArgs), Matchers_functionCall_Optional(optstrOf_(name))})
 }
 
 func Matchers_googRequirelike_String(namespace string) Matcher {
@@ -74,30 +74,30 @@ func Matchers_googRequirelike_0() Matcher {
 }
 
 func Matchers_googRequire() Matcher {
-	return Matchers_functionCall_Optional(Optional_of[string]("goog.require"))
+	return Matchers_functionCall_Optional("goog.require")
 }
 
 func Matchers_googRequireType() Matcher {
-	return Matchers_functionCall_Optional(Optional_of[string]("goog.requireType"))
+	return Matchers_functionCall_Optional("goog.requireType")
 }
 
 func Matchers_googForwardDeclare() Matcher {
-	return Matchers_functionCall_Optional(Optional_of[string]("goog.forwardDeclare"))
+	return Matchers_functionCall_Optional("goog.forwardDeclare")
 }
 
 func Matchers_googModule() Matcher {
-	return Matchers_functionCall_Optional(Optional_of[string]("goog.module"))
+	return Matchers_functionCall_Optional("goog.module")
 }
 
 func Matchers_googModuleOrProvide() Matcher {
-	return Matchers_anyOf([]Matcher{Matchers_googModule(), Matchers_functionCall_Optional(Optional_of[string]("goog.provide"))})
+	return Matchers_anyOf([]Matcher{Matchers_googModule(), Matchers_functionCall_Optional("goog.provide")})
 }
 
 func Matchers_propertyAccess_0() Matcher {
-	return Matchers_propertyAccess_Optional(Optional_empty[string]())
+	return Matchers_propertyAccess_Optional(nullstr_)
 }
 
-func Matchers_propertyAccess_Optional(name Optional[string]) Matcher {
+func Matchers_propertyAccess_Optional(name string) Matcher {
 	return Matcher(new_Matchers_10(name))
 }
 
@@ -280,14 +280,14 @@ func (this *Matchers_4) matches(node Node, metadata *NodeMetadata) bool {
 }
 
 type Matchers_5 struct {
-	cap_name Optional[string]
+	cap_name string
 }
 
 func (this *Matchers_5) init_Matchers_5() {
 
 }
 
-func new_Matchers_5(cap_name Optional[string]) *Matchers_5 {
+func new_Matchers_5(cap_name string) *Matchers_5 {
 	this := &Matchers_5{}
 	this.cap_name = cap_name
 	this.init_Matchers_5()
@@ -298,10 +298,10 @@ func (this *Matchers_5) matches(node Node, metadata *NodeMetadata) bool {
 	var info *JSDocInfo = node.getJSDocInfo()
 	if (info != nil) && info.isConstructor() {
 		var firstChild Node = node.getFirstChild()
-		if this.cap_name.isEmpty() {
+		if this.cap_name == nullstr_ {
 			return true
 		}
-		if (firstChild.isGetProp() || firstChild.isName()) && firstChild.matchesQualifiedName(this.cap_name.get()) {
+		if (firstChild.isGetProp() || firstChild.isName()) && firstChild.matchesQualifiedName(optstrGet_(this.cap_name)) {
 			return true
 		}
 	}
@@ -357,14 +357,14 @@ func (this *Matchers_7) matches(node Node, metadata *NodeMetadata) bool {
 }
 
 type Matchers_8 struct {
-	cap_name Optional[string]
+	cap_name string
 }
 
 func (this *Matchers_8) init_Matchers_8() {
 
 }
 
-func new_Matchers_8(cap_name Optional[string]) *Matchers_8 {
+func new_Matchers_8(cap_name string) *Matchers_8 {
 	this := &Matchers_8{}
 	this.cap_name = cap_name
 	this.init_Matchers_8()
@@ -395,14 +395,14 @@ func (this *Matchers_9) matches(node Node, metadata *NodeMetadata) bool {
 }
 
 type Matchers_10 struct {
-	cap_name Optional[string]
+	cap_name string
 }
 
 func (this *Matchers_10) init_Matchers_10() {
 
 }
 
-func new_Matchers_10(cap_name Optional[string]) *Matchers_10 {
+func new_Matchers_10(cap_name string) *Matchers_10 {
 	this := &Matchers_10{}
 	this.cap_name = cap_name
 	this.init_Matchers_10()
@@ -411,13 +411,13 @@ func new_Matchers_10(cap_name Optional[string]) *Matchers_10 {
 
 func (this *Matchers_10) matches(node Node, metadata *NodeMetadata) bool {
 	if node.isGetProp() {
-		if this.cap_name.isEmpty() {
+		if this.cap_name == nullstr_ {
 			return true
 		}
-		if node.matchesQualifiedName(this.cap_name.get()) {
+		if node.matchesQualifiedName(optstrGet_(this.cap_name)) {
 			return true
-		} else if JString_contains_s(this.cap_name.get(), ".prototype.") {
-			return Matchers_matchesPrototypeInstanceVar(node, metadata, this.cap_name.get())
+		} else if JString_contains_s(optstrGet_(this.cap_name), ".prototype.") {
+			return Matchers_matchesPrototypeInstanceVar(node, metadata, optstrGet_(this.cap_name))
 		}
 	}
 	return false

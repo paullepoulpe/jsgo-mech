@@ -22,7 +22,7 @@ type JSType_I interface {
 	canBeCalled_impl() bool
 	collapseUnion_impl() *JSType
 	findPropertyTypeWithoutConsideringTemplateTypes_impl(Property_Key) *JSType
-	getDisplayName_impl() Optional[string]
+	getDisplayName_impl() string
 	getGreatestSubtype_impl(*JSType) *JSType
 	getJSDocInfo_impl() *JSDocInfo
 	getLeastSupertype_impl(*JSType) *JSType
@@ -111,7 +111,7 @@ type JSType_I interface {
 	getPropertyMap_impl() *PropertyMap
 	getPropertyTypeKey_impl(Property_Key) *JSType
 	getPropertyTypeMap_impl() *TMap[string, *JSType]
-	getReferenceName_impl() Optional[string]
+	getReferenceName_impl() string
 	getSlot_impl(Property_Key) *Property
 	getSuperClassConstructor_impl() *FunctionType
 	getTemplateTypes_impl() *TList[*JSType]
@@ -163,7 +163,7 @@ func (this *JSType) getPropertyTypeKey_impl(Property_Key) *JSType {
 func (this *JSType) getPropertyTypeMap_impl() *TMap[string, *JSType] {
 	panic("getPropertyTypeMap_impl called on a " + goTypeName_(this.self_))
 }
-func (this *JSType) getReferenceName_impl() Optional[string] {
+func (this *JSType) getReferenceName_impl() string {
 	panic("getReferenceName_impl called on a " + goTypeName_(this.self_))
 }
 func (this *JSType) getSlot_impl(Property_Key) *Property {
@@ -252,13 +252,13 @@ func (this *JSType) getJSDocInfo_impl() *JSDocInfo {
 	return nil
 }
 
-func (this *JSType) getDisplayName_impl() Optional[string] {
-	return Optional_empty[string]()
+func (this *JSType) getDisplayName_impl() string {
+	return nullstr_
 }
 
 func (this *JSType) hasDisplayName_impl() bool {
-	var displayName Optional[string] = this.getDisplayName()
-	return (displayName.isPresent() && displayName.get() != "")
+	var displayName string = this.getDisplayName()
+	return (displayName != nullstr_ && optstrGet_(displayName) != "")
 }
 
 func (this *JSType) getPropertyKindKey(pname Property_Key) JSType_HasPropertyKind {
@@ -1267,7 +1267,7 @@ func (this *JSType) appendTo(p0 *TypeStringBuilder) {
 	this.self_.appendTo_impl(p0)
 }
 
-func (this *JSType) getDisplayName() Optional[string] {
+func (this *JSType) getDisplayName() string {
 	return this.self_.getDisplayName_impl()
 }
 

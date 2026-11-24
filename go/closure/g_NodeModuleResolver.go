@@ -89,16 +89,16 @@ func (this *NodeModuleResolver) getPackageJsonMainEntries_impl() *TMap[string, s
 	return this.packageJsonMainEntries
 }
 
-func (this *NodeModuleResolver) resolveJsModule_impl(scriptAddress string, moduleAddress string, sourcename Optional[string], lineno int32, colno int32) Optional[string] {
-	var loadAddress Optional[string] = this.internalResolveJsModule(scriptAddress, moduleAddress)
-	if loadAddress.isEmpty() {
+func (this *NodeModuleResolver) resolveJsModule_impl(scriptAddress string, moduleAddress string, sourcename string, lineno int32, colno int32) string {
+	var loadAddress string = this.internalResolveJsModule(scriptAddress, moduleAddress)
+	if loadAddress == nullstr_ {
 		this.errorHandler.report_2(CheckLevel_WARNING, JSError_make_Optional_int_int_DiagnosticType_StringArr(sourcename, lineno, colno, ModuleLoader_LOAD_WARNING, []string{moduleAddress}))
 	}
 	return loadAddress
 }
 
-func (this *NodeModuleResolver) internalResolveJsModule(scriptAddress string, moduleAddress string) Optional[string] {
-	var loadAddress Optional[string]
+func (this *NodeModuleResolver) internalResolveJsModule(scriptAddress string, moduleAddress string) string {
+	var loadAddress string
 	if ModuleLoader_isAbsoluteIdentifier(moduleAddress) || ModuleLoader_isRelativeIdentifier(moduleAddress) {
 		loadAddress = this.resolveJsModuleNodeFileOrDirectory(scriptAddress, moduleAddress)
 	} else {
@@ -107,57 +107,57 @@ func (this *NodeModuleResolver) internalResolveJsModule(scriptAddress string, mo
 	return loadAddress
 }
 
-func (this *NodeModuleResolver) resolveJsModuleSilently_impl(scriptAddress string, moduleAddress string) Optional[string] {
+func (this *NodeModuleResolver) resolveJsModuleSilently_impl(scriptAddress string, moduleAddress string) string {
 	return this.internalResolveJsModule(scriptAddress, moduleAddress)
 }
 
-func (this *NodeModuleResolver) resolveJsModuleFile(scriptAddress string, moduleAddress string) Optional[string] {
+func (this *NodeModuleResolver) resolveJsModuleFile(scriptAddress string, moduleAddress string) string {
 	for _, extension := range NodeModuleResolver_FILE_EXTENSIONS_TO_SEARCH {
 		var moduleAddressCandidate string = (sstr_(moduleAddress) + sstr_(extension))
 		var canonicalizedCandidatePath string = this.canonicalizePath(scriptAddress, moduleAddressCandidate)
 		if this.packageJsonMainEntries.Has(canonicalizedCandidatePath) {
 			moduleAddressCandidate = this.packageJsonMainEntries.Get(canonicalizedCandidatePath)
 			if ModuleLoader_JSC_BROWSER_SKIPLISTED_MARKER == moduleAddressCandidate {
-				return Optional_empty[string]()
+				return nullstr_
 			}
 		}
-		var loadAddress Optional[string] = this.locate(scriptAddress, moduleAddressCandidate)
-		if loadAddress.isPresent() {
+		var loadAddress string = this.locate(scriptAddress, moduleAddressCandidate)
+		if loadAddress != nullstr_ {
 			return loadAddress
 		}
 	}
-	return Optional_empty[string]()
+	return nullstr_
 }
 
-func (this *NodeModuleResolver) resolveJsModuleNodeFileOrDirectory(scriptAddress string, moduleAddress string) Optional[string] {
-	var loadAddress Optional[string]
+func (this *NodeModuleResolver) resolveJsModuleNodeFileOrDirectory(scriptAddress string, moduleAddress string) string {
+	var loadAddress string
 	loadAddress = this.resolveJsModuleFile(scriptAddress, moduleAddress)
-	if loadAddress.isEmpty() {
+	if loadAddress == nullstr_ {
 		loadAddress = this.resolveJsModuleNodeDirectory(scriptAddress, moduleAddress)
 	}
 	return loadAddress
 }
 
-func (this *NodeModuleResolver) resolveJsModuleNodeDirectory(scriptAddress string, moduleAddress string) Optional[string] {
+func (this *NodeModuleResolver) resolveJsModuleNodeDirectory(scriptAddress string, moduleAddress string) string {
 	if strings.HasSuffix(moduleAddress, ModuleLoader_MODULE_SLASH) {
 		moduleAddress = moduleAddress[:len(moduleAddress)-1]
 	}
 	for i := int32(0); i < int32(len(NodeModuleResolver_FILES_TO_SEARCH)); i++ {
-		var loadAddress Optional[string] = this.locate(scriptAddress, (sstr_(moduleAddress) + sstr_(NodeModuleResolver_FILES_TO_SEARCH[i])))
-		if loadAddress.isPresent() {
+		var loadAddress string = this.locate(scriptAddress, (sstr_(moduleAddress) + sstr_(NodeModuleResolver_FILES_TO_SEARCH[i])))
+		if loadAddress != nullstr_ {
 			if NodeModuleResolver_FILES_TO_SEARCH[i] == (sstr_(ModuleLoader_MODULE_SLASH) + "package.json") {
-				if this.packageJsonMainEntries.Has(loadAddress.get()) {
-					return this.resolveJsModuleFile(scriptAddress, this.packageJsonMainEntries.Get(loadAddress.get()))
+				if this.packageJsonMainEntries.Has(optstrGet_(loadAddress)) {
+					return this.resolveJsModuleFile(scriptAddress, this.packageJsonMainEntries.Get(optstrGet_(loadAddress)))
 				}
 			} else {
 				return loadAddress
 			}
 		}
 	}
-	return Optional_empty[string]()
+	return nullstr_
 }
 
-func (this *NodeModuleResolver) resolveJsModuleFromRegistry(scriptAddress string, moduleAddress string) Optional[string] {
+func (this *NodeModuleResolver) resolveJsModuleFromRegistry(scriptAddress string, moduleAddress string) string {
 	var normalizedScriptAddress string = (sstr_(func() string {
 		if ModuleLoader_isAmbiguousIdentifier(scriptAddress) {
 			return ModuleLoader_MODULE_SLASH
@@ -171,15 +171,15 @@ func (this *NodeModuleResolver) resolveJsModuleFromRegistry(scriptAddress string
 			continue
 		}
 		var fullModulePath string = (sstr_(nodeModulesFolder) + "node_modules/" + sstr_(moduleAddress))
-		var loadAddress Optional[string] = this.resolveJsModuleFile(scriptAddress, fullModulePath)
-		if loadAddress.isEmpty() {
+		var loadAddress string = this.resolveJsModuleFile(scriptAddress, fullModulePath)
+		if loadAddress == nullstr_ {
 			loadAddress = this.resolveJsModuleNodeDirectory(scriptAddress, fullModulePath)
 		}
-		if loadAddress.isPresent() {
+		if loadAddress != nullstr_ {
 			return loadAddress
 		}
 	}
-	return Optional_empty[string]()
+	return nullstr_
 }
 
 var NodeModuleResolver_NODE_MODULES_PATTERN *Pattern
@@ -236,7 +236,7 @@ func (this *NodeModuleResolver) getPackageJsonMainEntries() *TMap[string, string
 }
 
 // resolveJsModule: an object that is exactly a NodeModuleResolver calls its resolveJsModule_impl directly (post-flip); others dispatch.
-func (this *NodeModuleResolver) resolveJsModule(p0 string, p1 string, p2 Optional[string], p3 int32, p4 int32) Optional[string] {
+func (this *NodeModuleResolver) resolveJsModule(p0 string, p1 string, p2 string, p3 int32, p4 int32) string {
 	if p, _ := this.self_.(*NodeModuleResolver); p == this {
 		return this.resolveJsModule_impl(p0, p1, p2, p3, p4)
 	}
@@ -244,7 +244,7 @@ func (this *NodeModuleResolver) resolveJsModule(p0 string, p1 string, p2 Optiona
 }
 
 // resolveJsModuleSilently: an object that is exactly a NodeModuleResolver calls its resolveJsModuleSilently_impl directly (post-flip); others dispatch.
-func (this *NodeModuleResolver) resolveJsModuleSilently(p0 string, p1 string) Optional[string] {
+func (this *NodeModuleResolver) resolveJsModuleSilently(p0 string, p1 string) string {
 	if p, _ := this.self_.(*NodeModuleResolver); p == this {
 		return this.resolveJsModuleSilently_impl(p0, p1)
 	}

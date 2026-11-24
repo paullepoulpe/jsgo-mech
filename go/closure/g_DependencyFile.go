@@ -64,7 +64,7 @@ func (this *DependencyFile) loadGraph() {
 	}
 	var provides *TList[string] = newTList_(tc_string)
 	provides.add(DefaultDependencyResolver_CLOSURE_BASE_PROVIDE)
-	this.dependencies[DefaultDependencyResolver_CLOSURE_BASE_PROVIDE] = SimpleDependencyInfo_as_DependencyInfo_(SimpleDependencyInfo_builder(DefaultDependencyResolver_CLOSURE_BASE, Optional_of[string](DefaultDependencyResolver_CLOSURE_BASE)).setProvides(provides.asCollT()).build())
+	this.dependencies[DefaultDependencyResolver_CLOSURE_BASE_PROVIDE] = SimpleDependencyInfo_as_DependencyInfo_(SimpleDependencyInfo_builder(DefaultDependencyResolver_CLOSURE_BASE, optstrOf_(DefaultDependencyResolver_CLOSURE_BASE)).setProvides(provides.asCollT()).build())
 	errorManager.generateReport()
 	DependencyFile_logger.info("Dependencies loaded")
 }
