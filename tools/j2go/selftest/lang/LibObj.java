@@ -236,7 +236,7 @@ public class LibObj {
     Map<Dog, String> h = new TreeMap<>(BY_NAME);
     h.putAll(m);
     List<Dog> l = new ArrayList<>(Arrays.asList(d));
-    String r = wide(m, l, l, d, d, d) + " " + wide(h, new LinkedHashSet<>(l), new ArrayList<>(l), CAT, CAT, CAT);
+    String r = wide(m, l, l, d, d, d) + " " + wide(new LinkedHashMap<>(m), new LinkedHashSet<>(l), new ArrayList<>(l), CAT, CAT, CAT);
     // keys that are Objects in Go, a wildcard
     Map<Object, String> byObj = new LinkedHashMap<>();
     byObj.put(d, "o");

@@ -459,9 +459,10 @@ type Map_EntryT[K any, V any] interface { Map_Entry; getKey_t() K; getValue_t() 
     on a typed receiver, with an argument whose static Java type is the key or element type (or
     a subtype) and whose Go form is a value of that type (no field or result of a type
     variable's type, which Go has as `any`), are typed twins (`Map_getK_[K, V](m, k)`,
-    `rt_lgobj.go`) that take the argument unboxed: the typed lookup where the object is the view
-    of a typed collection (`get_k` ...), else the erased method with `boxT_(k)`; a null argument
-    always takes the erased method. An argument of a wider type (Object, a supertype, another
+    `rt_lgobj.go`) that take the argument unboxed: the typed map's or set's own lookup where the
+    object is its view (`*tmapView_[K, V]`, `*tsetView_[T]`), else the erased method with
+    `boxT_(k)`; a null argument always takes the erased method. The Map and Collection twins need
+    a key type Go can compare (refused otherwise). An argument of a wider type (Object, a supertype, another
     interface), a key type that is `any` in Go or a wildcard, a String that the String-key
     helpers serve, a result that enters an Object keep the erased call (`J2GO_LIBGEN=2`:
     "Object-parameter methods", by reason).
