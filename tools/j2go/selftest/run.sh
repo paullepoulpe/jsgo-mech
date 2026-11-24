@@ -14,7 +14,7 @@ t=.cache/j2go-selftest
 rm -rf "$t" && mkdir -p "$t/java" "$t/go/closure" "$t/go/cmd/t"
 # lang/Imm.java uses Guava (typed immutable collections).
 javac -nowarn -cp .cache/build/stock-libs.jar -d "$t/java" tools/j2go/selftest/lang/*.java
-for c in Lang Lang2 Handles Generics Generics2 Generics3 Colls Imm Unboxed Covariant CovariantIface Layout FnTypes LibGen LibFns GOpt LibObj Cmp OwnWild TriBox; do env -u JAVA_TOOL_OPTIONS java -Dstdout.encoding=UTF-8 -cp "$t/java:.cache/build/stock-libs.jar" lang.$c; done >"$t/expected.txt"
+for c in Lang Lang2 Handles Generics Generics2 Generics3 Colls Imm Unboxed Covariant CovariantIface Layout FnTypes LibGen LibFns GOpt LibObj Cmp OwnWild TriBox HStatic; do env -u JAVA_TOOL_OPTIONS java -Dstdout.encoding=UTF-8 -cp "$t/java:.cache/build/stock-libs.jar" lang.$c; done >"$t/expected.txt"
 # The test class is translated together with the whole tree, so that the runtime it needs is all there.
 cp go/go.mod "$t/go/" && cp go/closure/rt_*.go tools/j2go/selftest/rt_*.go "$t/go/closure/" && rm -f "$t"/go/closure/*_test.go
 [[ -d go/closure/resources ]] && cp -r go/closure/resources "$t/go/closure/"
@@ -48,7 +48,7 @@ import (
 	"unsafe"
 )
 
-func SelfTest() string { return Lang_run() + Lang2_run() + Handles_run() + Generics_run() + Generics2_run() + Generics3_run() + Colls_run() + Imm_run() + Unboxed_run() + Covariant_run() + CovariantIface_run() + Layout_run() + FnTypes_run() + LibGen_run() + LibFns_run() + GOpt_run() + LibObj_run() + Cmp_run() + OwnWild_run() + TriBox_run() }
+func SelfTest() string { return Lang_run() + Lang2_run() + Handles_run() + Generics_run() + Generics2_run() + Generics3_run() + Colls_run() + Imm_run() + Unboxed_run() + Covariant_run() + CovariantIface_run() + Layout_run() + FnTypes_run() + LibGen_run() + LibFns_run() + GOpt_run() + LibObj_run() + Cmp_run() + OwnWild_run() + TriBox_run() + HStatic_run() }
 
 // SelfTestSizes: the sizes of the structs of lang/Layout.java.
 func SelfTestSizes() string {
@@ -131,6 +131,17 @@ if [[ ! ,${J2GO_NOLIBGEN:-}, =~ ,(nbox|all), && ${J2GO_NOFNTYPES:-} != 1 ]]; the
   np=$(grep -cE '^func .*\((y|b|get|set) (Nbox|Supplier\[Nbox|Consumer\[Nbox)' "$g" || true)
   nx=$(grep -cE '^func TriBox_(each|pass|opt2)\(c Consumer\[any\]\)' "$g" || true)
   if [[ $nf != 3 || $ns != 1 || $nl != 5 || $nv != 5 || $np != 4 || $nx != 3 ]]; then echo "selftest: FAIL (piece nbox: $nf $ns fields typed, $nl left, $nv lambdas, $np signatures, $nx left)"; exit 1; fi
+fi
+if [[ ! ,${J2GO_NOLIBGEN:-}, =~ ,(hstatic|all), && ${J2GO_NOFNTYPES:-} != 1 ]]; then
+  # Piece `hstatic` (lang/HStatic.java): the static fields GETTERS (a builder chain of functions) and MAKERS of the handle
+  # class H are typed collections (2); names stays erased (a value that is no new collection enters it); GETTERS' chain is the
+  # typed builder (1), with no converting closure to Function[any, any] (0).
+  g="$t/go/closure/g_HStatic.go"
+  nt=$(grep -cE '^var HStatic_H_(GETTERS \*TMap\[\*HStatic_P, Function\[HStatic_H, any\]\]|MAKERS \*TList\[Supplier\[HStatic_H\]\])$' "$g" || true)
+  ne=$(grep -cE '^var HStatic_H_names \*T' "$g" || true)
+  nb=$(grep -cF 'newTMapBuilder_(tc_p_HStatic_P, tc_Function_HStatic_H__any_)' "$g" || true)
+  nc=$(grep -cF 'func() Function[any, any] {' "$g" || true)
+  if [[ $nt != 2 || $ne != 0 || $nb != 1 || $nc != 0 ]]; then echo "selftest: FAIL (piece hstatic: $nt typed, $ne names typed, $nb typed builders, $nc converting closures)"; exit 1; fi
 fi
 if [[ ${J2GO_NOFNTYPES:-} != 1 ]]; then
   # Rule "function types": the translator must refuse every use in refused/Refused.java (14) and write nothing.

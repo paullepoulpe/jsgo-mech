@@ -404,7 +404,9 @@ final class Colls {
             if (e.getKind() == ElementKind.FIELD) {
               TypeElement owner = (TypeElement) e.getEnclosingElement();
               if (owner.getKind() == ElementKind.RECORD && !e.getModifiers().contains(Modifier.STATIC)) recordComponent(owner, ve, s);
-              else if (cx.isHandle(owner)) poison(s, "a field of a handle class");
+              // (piece `hstatic`, rule candidate T7: a static field of a handle class is a Go variable as any other static field;
+              // only the instance fields of a handle live in its chunks)
+              else if (cx.isHandle(owner) && !(e.getModifiers().contains(Modifier.STATIC) && LibGen.on("hstatic"))) poison(s, "a field of a handle class");
               else if (!e.getAnnotationMirrors().isEmpty()) poison(s, "an annotated field (read by a library)");
               else if ("locals".equals(System.getenv("J2GO_COLLS_ONLY"))) poison(s, "a field");
             }
@@ -975,6 +977,10 @@ final class Colls {
     for (Slot s : slots.values()) {
       int[] n = counts.computeIfAbsent(s.kind.name, k -> new int[6]);
       n[0]++;
+      if (s.v != null && s.v.getKind() == ElementKind.FIELD && s.v.getModifiers().contains(Modifier.STATIC) && cx.isHandle((TypeElement) s.v.getEnclosingElement()) && LibGen.on("hstatic")) {
+        cx.lg.note("hstatic: static fields of a handle class " + (s.why == null ? "typed" : "left erased: " + s.why.replaceAll("exchanges values with .*", "exchanges values with an erased declaration")),
+            s.v.getEnclosingElement() + "." + s.v);
+      }
       if (s.why != null) {
         whys.merge(s.kind.name + ": " + s.why.replaceAll("exchanges values with .*", "exchanges values with an erased declaration"), 1, Integer::sum);
         if ("2".equals(System.getenv("J2GO_COLLS"))) System.err.println("colls: erased " + s.kind.name + " " + s.v.getEnclosingElement() + "." + s.v + ": " + s.why);

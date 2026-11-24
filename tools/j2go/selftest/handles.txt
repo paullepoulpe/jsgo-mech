@@ -15,3 +15,5 @@ lang.Handles.Cell::extra runtime Handles_Cell_extra_
 lang.Handles.Cell::getExtra runtime
 # A column (see tools/j2go/handles.txt).
 lang.Handles.Cell::note column
+# Piece `hstatic` (lang/HStatic.java): a handle class with static collection fields.
+lang.HStatic.H

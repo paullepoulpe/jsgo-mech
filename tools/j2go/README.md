@@ -535,6 +535,17 @@ type Map_EntryT[K any, V any] interface { Map_Entry; getKey_t() K; getValue_t() 
     parameter of a constructor or of a method that overrides, is overridden or is referenced
     (`::`), a function parameter passed on as a value or given anything but a lambda, a field
     of a record, an interface or a handle class. `selftest/lang/TriBox.java` counts them.
+  - Piece `hstatic` (`Colls`; rule candidate T7 of `docs/javaisms6/JAVAISMS6.md`): a static field
+    of a handle class is a Go variable as every other static field (only the instance fields of a
+    handle live in its chunks), so rule "typed collections" decides it as it decides those; it
+    was erased as "a field of a handle class". In the tree this is `Node.PROP_MAP_FOR_EQUALITY`
+    (`ImmutableMap<Prop, Function<Node, Object>>`): its builder chain is the typed builder of
+    `Function[Node, any]` values (`newTMapBuilder_(tc_p_Node_Prop, tc_Function_Node__any_)`),
+    where each of the 15 functions went through a converting closure to `Function[any, any]` and
+    a box, and each `get` in `Node.isEquivalentTo` through the element conversion's closure back.
+    `J2GO_LIBGEN`'s report counts the static fields of handle classes (`hstatic: ...`); the pair
+    of that map on `objarg-pairs.txt` is marked `@off hstatic` (asked for only with the piece off,
+    `LibObj.COND`). `selftest/lang/HStatic.java` counts the declarations.
 
   - Piece `proto` (`LibProto`; rule candidate T5 of `docs/javaisms6/JAVAISMS6.md`; needs kinds
     `list` and `iter`): a call of a protobuf message's list accessor whose element is a message
@@ -587,7 +598,7 @@ Refused (`typed library interfaces: refused: File.java:line: ...`, nothing is wr
 `tools/j2go/selftest/refused/RefusedLib.java` has one use of each kind (15); the self-test
 fails unless the translator refuses exactly those and writes nothing.
 
-Each kind and piece is a switch: `J2GO_NOLIBGEN=iter,coll,list,set,map,makers,views,place,cov,elems,wide,nncoll,readers,cls,meth,fns,sorted,enumset,cmaps,deque,guava,goptional,seqcoll,objarg,cmp,ownwild,nbox,proto`
+Each kind and piece is a switch: `J2GO_NOLIBGEN=iter,coll,list,set,map,makers,views,place,cov,elems,wide,nncoll,readers,cls,meth,fns,sorted,enumset,cmaps,deque,guava,goptional,seqcoll,objarg,cmp,ownwild,nbox,proto,hstatic`
 (`all`: every one). A translation with any of them off is built with `-tags j2go_nolibgen`
 (`tools/prune/verify.sh` and the self-test do that when `J2GO_NOLIBGEN` is set): the erased
 factories that only such a translation names are in `go/closure/rt_lg_erased.go`, outside the

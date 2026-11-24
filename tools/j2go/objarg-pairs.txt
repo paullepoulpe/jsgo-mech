@@ -1,7 +1,7 @@
 # piece objarg (LibObj.PAIRS): the key / element types of Map.get / containsKey / remove and Set.contains /
 # remove calls for which the translation has a typed map or set. Generated: J2GO_OBJARG_PAIRS_OUT=<file> tools/j2go/run.sh
 map *InputId, *CompilerInput
-map *Node_Prop, Function[Node, any]
+map *Node_Prop, Function[Node, any] @off hstatic
 map C, V
 map E, any
 map K, SetT[V]

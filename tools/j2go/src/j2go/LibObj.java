@@ -64,13 +64,22 @@ final class LibObj {
    */
   static final Set<String> PAIRS = new TreeSet<>();
 
+  /** The lines "PAIR @off PIECE" of the list, written again as they are by J2GO_OBJARG_PAIRS_OUT. */
+  static final Set<String> COND = new TreeSet<>();
+
   static {
     String v = System.getenv("J2GO_OBJARG_PAIRS");
     for (String f : (v != null ? v : "tools/j2go/objarg-pairs.txt").split(":")) {
       try {
         for (String l : java.nio.file.Files.readAllLines(java.nio.file.Path.of(f))) {
           l = l.replaceAll("#.*", "").trim();
-          if (!l.isEmpty()) PAIRS.add(l);
+          // "PAIR @off PIECE": a pair that the translation asks for only while piece PIECE is off (with
+          // the piece on, the typed collection's own method serves the calls: piece `hstatic`)
+          String[] c = l.split("\\s*@off\\s+");
+          if (c.length == 2) {
+            COND.add(l);
+            if (!LibGen.on(c[1].trim())) PAIRS.add(c[0]);
+          } else if (!l.isEmpty()) PAIRS.add(l);
         }
       } catch (java.io.IOException ex) {
         // (no list: no twin is called; finish() reports what the list should be)
@@ -103,7 +112,10 @@ final class LibObj {
     if (out != null) {
       StringBuilder sb = new StringBuilder("# piece objarg (LibObj.PAIRS): the key / element types of Map.get / containsKey / remove and Set.contains /\n"
           + "# remove calls for which the translation has a typed map or set. Generated: J2GO_OBJARG_PAIRS_OUT=<file> tools/j2go/run.sh\n");
-      for (String p : want) sb.append(p).append("\n");
+      Set<String> condPairs = new TreeSet<>();
+      for (String c : COND) condPairs.add(c.split("\\s*@off\\s+")[0]);
+      for (String p : want) if (!condPairs.contains(p)) sb.append(p).append("\n");
+      for (String c : COND) sb.append(c).append("\n");
       java.nio.file.Files.writeString(java.nio.file.Path.of(out), sb.toString());
     }
     Set<String> extra = new TreeSet<>(PAIRS), missing = new TreeSet<>(want), stray = new TreeSet<>(emitted);
