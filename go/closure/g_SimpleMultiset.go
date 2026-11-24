@@ -173,7 +173,8 @@ func (this *SimpleMultiset[E]) iterator() Iterator {
 }
 
 func (this *SimpleMultiset[E]) equals(o any) bool {
-	return (is_SimpleMultiset(o) && equalsDyn_(lgBox_(this.counts), o.(SimpleCollection).untypedMap()))
+	_, ok := o.(interface{ isa_SimpleMultiset_() })
+	return (ok && equalsDyn_(lgBox_(this.counts), o.(SimpleCollection).untypedMap()))
 }
 
 func (this *SimpleMultiset[E]) hashCode() int32 {
