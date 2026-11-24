@@ -76,9 +76,14 @@ final class LibObj {
           // "PAIR @off PIECE": a pair that the translation asks for only while piece PIECE is off (with
           // the piece on, the typed collection's own method serves the calls: piece `hstatic`)
           String[] c = l.split("\\s*@off\\s+");
+          // "PAIR @on PIECE": a pair that only piece PIECE asks for (piece `objlist`: a list's element type)
+          String[] o = l.split("\\s*@on\\s+");
           if (c.length == 2) {
             COND.add(l);
             if (!LibGen.on(c[1].trim())) PAIRS.add(c[0]);
+          } else if (o.length == 2) {
+            COND.add(l);
+            if (LibGen.on(o[1].trim())) PAIRS.add(o[0]);
           } else if (!l.isEmpty()) PAIRS.add(l);
         }
       } catch (java.io.IOException ex) {
@@ -94,6 +99,7 @@ final class LibObj {
   void made(String g) {
     if (g.startsWith("*TMap[") && g.endsWith("]")) typedColls.add("map " + g.substring(6, g.length() - 1));
     if (g.startsWith("*TSet[") && g.endsWith("]")) typedColls.add("set " + g.substring(6, g.length() - 1));
+    if (g.startsWith("*TList[") && g.endsWith("]")) typedColls.add("list " + g.substring(7, g.length() - 1));
   }
 
   /**
@@ -111,9 +117,10 @@ final class LibObj {
     String out = System.getenv("J2GO_OBJARG_PAIRS_OUT");
     if (out != null) {
       StringBuilder sb = new StringBuilder("# piece objarg (LibObj.PAIRS): the key / element types of Map.get / containsKey / remove and Set.contains /\n"
-          + "# remove calls for which the translation has a typed map or set. Generated: J2GO_OBJARG_PAIRS_OUT=<file> tools/j2go/run.sh\n");
+          + "# remove calls for which the translation has a typed map or set. Generated: J2GO_OBJARG_PAIRS_OUT=<file> tools/j2go/run.sh\n"
+          + "# (\"@off P\" / \"@on P\": asked for only with piece P off / on; \"list T\": piece objlist's List / Collection receivers)\n");
       Set<String> condPairs = new TreeSet<>();
-      for (String c : COND) condPairs.add(c.split("\\s*@off\\s+")[0]);
+      for (String c : COND) condPairs.add(c.split("\\s*@(off|on)\\s+")[0]);
       for (String p : want) if (!condPairs.contains(p)) sb.append(p).append("\n");
       for (String c : COND) sb.append(c).append("\n");
       java.nio.file.Files.writeString(java.nio.file.Path.of(out), sb.toString());
@@ -187,6 +194,118 @@ final class LibObj {
       }
       default: return false;
     }
+  }
+
+  /**
+   * Whether Java's x.equals(e) is Go's == for elements of type te (piece `objlist`): a String, an
+   * enum, or a class of the program that neither it, a superclass of it nor a subclass of it
+   * declares equals in (Object.equals: identity). Unlike Ctx.goEquals, hashCode does not count: a
+   * list compares by equals alone.
+   */
+  boolean idEquals(TypeElement te) {
+    if (te.getQualifiedName().contentEquals("java.lang.String")) return true;
+    if (!cx.isSource(te)) return false;
+    if (te.getKind() == ElementKind.ENUM) return true;
+    if (te.getKind() != ElementKind.CLASS) return false;
+    for (TypeElement c = te; c != null && !c.getQualifiedName().contentEquals("java.lang.Object"); c = cx.superclass(c)) {
+      if (!cx.isSource(c) || c.getKind() != ElementKind.CLASS || declaresEquals(c)) return false;
+    }
+    Deque<TypeElement> todo = new ArrayDeque<>(cx.subclasses.getOrDefault(te, List.of()));
+    while (!todo.isEmpty()) {
+      TypeElement c = todo.pop();
+      if (declaresEquals(c)) return false;
+      todo.addAll(cx.subclasses.getOrDefault(c, List.of()));
+    }
+    return true;
+  }
+
+  /** Why idEquals(te) is false. */
+  String idEqualsWhy(TypeElement te) {
+    if (!cx.isSource(te)) return "a library class or interface";
+    if (te.getKind() == ElementKind.RECORD) return "a record (its equals compares the components)";
+    if (te.getKind() != ElementKind.CLASS) return "an interface";
+    for (TypeElement c = te; c != null && !c.getQualifiedName().contentEquals("java.lang.Object"); c = cx.superclass(c)) {
+      if (!cx.isSource(c) || c.getKind() != ElementKind.CLASS) return "a library superclass";
+      if (declaresEquals(c)) return "an equals of its own or of a superclass";
+    }
+    return "a subclass declares equals";
+  }
+
+  static boolean declaresEquals(TypeElement c) {
+    for (Element e : c.getEnclosedElements()) {
+      if (e instanceof ExecutableElement m && !m.getModifiers().contains(Modifier.STATIC) && m.getSimpleName().contentEquals("equals") && m.getParameters().size() == 1) return true;
+    }
+    return false;
+  }
+
+  /** The twins of piece `objlist` by the root method's name. */
+  static final Set<String> LIST_METHODS = Set.of("contains", "remove", "indexOf", "lastIndexOf");
+
+  /**
+   * Piece `objlist` (J2GO_NOLIBGEN=objlist is the translation without it; recorded in
+   * docs/libgen/COLLECTIONS-PLAN.md section 16): `contains / remove(Object)` and `indexOf /
+   * lastIndexOf` on a List or Collection receiver, with an argument of the element type, where Go's
+   * == is Java's equals for that type (Ctx.goEquals: a String, an enum, a class of the program
+   * without equals or hashCode of its own, up or down): the twin of go/closure/rt_objlist.go scans
+   * the typed list with ==, where the erased call boxed the argument and the view's indexOf boxed
+   * every element to call objequals_ (Object.equals of such a class is ==, of a String its
+   * contents, as Go's == of a string). The receiver is a typed list of rule "typed collections"
+   * (TList_*E_, the list itself), a ListT (List_*E_: the scan where its object is a typed list's
+   * view, `*tlistView_[T]`, else the erased method with boxT_), or a CollectionT (Collection_*E_:
+   * also a typed set's own lookup, as Set_containsE_). The ListT and CollectionT twins name the
+   * view at T, so they are called only for element types on the pair list ("list T", "set T" with
+   * `@on objlist`: a typed list or set of T exists, so the twin compiles no new one); a TList
+   * receiver needs none (it is one). A null argument takes the erased method in every twin. Left
+   * erased, by reason: an element type whose equals is not == (its own equals, an interface, a
+   * library class, a type variable: the scan would box in the runtime what the call boxed), a
+   * receiver that is a typed collection but no typed list (a deque), a pair not on the list.
+   */
+  ExprEmitter.CallResult listTwin(ExprEmitter x, ExecutableElement e, ExecutableElement r, String key, TypeElement lib, Ctx.CollKind k, TypeMirror at,
+      ExprEmitter.Recv recv, List<ExprEmitter.Arg> as, TypeMirror elem, List<String> ta, TypeMirror ret) {
+    String m = r.getSimpleName().toString(), where = x.at(as.get(0).tree);
+    if (!LIST_METHODS.contains(m)) return left(key, "no typed lookup: a List or Collection receiver (the erased call keeps its box)");
+    TypeMirror ee = cx.erase(elem);
+    String eqWhy = ee.getKind() != TypeKind.DECLARED ? "a type variable" : !idEquals(Ctx.typeElement(ee)) ? idEqualsWhy(Ctx.typeElement(ee)) : !comparable(elem) ? "not comparable in Go" : null;
+    if (eqWhy != null) {
+      cx.lg.note("objlist: calls left erased (the element type's equals is not Go's ==: " + eqWhy + ")", key + " " + where + " " + ee);
+      return null;
+    }
+    TypeElement listE = cx.elems.getTypeElement("java.util.List");
+    String fn, rc;
+    List<String> pairs = new ArrayList<>();
+    if (k != null) {
+      if (!k.name.equals("list") || !cx.goType(at).equals("*TList[" + ta.get(0) + "]")) {
+        cx.lg.note("objlist: calls left erased (a typed collection that is no typed list: a deque)", key + " " + where);
+        return null;
+      }
+      fn = "TList_" + m + "E_";
+      rc = recv.code;
+    } else {
+      boolean list = cx.types.isSubtype(cx.types.erasure(recv.type), cx.types.erasure(listE.asType()));
+      DeclaredType v = list ? cx.lg.typedView(recv.type, listE) : cx.lg.typedView(recv.type, cx.elems.getTypeElement("java.util.Collection"));
+      if (v == null || !cx.lf.goArgs(v).get(0).equals(ta.get(0))) {
+        cx.lg.note("objlist: calls left erased (no typed view of the receiver at the element type)", key + " " + where);
+        return null;
+      }
+      fn = (list ? "List_" : "Collection_") + m + "E_";
+      rc = cx.coerce(recv.code, recv.type, v);
+      pairs.add("list " + ta.get(0));
+      if (!list) pairs.add("set " + ta.get(0));
+    }
+    for (String p : pairs) {
+      requested.add(p);
+      if (!PAIRS.contains(p)) {
+        cx.lg.note("objlist: calls left erased (no typed list or set of the element type in the translation, objarg-pairs.txt)", key + " " + where);
+        return null;
+      }
+    }
+    emitted.addAll(pairs);
+    if (!cx.conv.rtGenerics.contains(fn)) return left(key, "the runtime has no " + fn);
+    List<TypeMirror> ep = new ArrayList<>(cx.groupParams(e));
+    ep.replaceAll(cx.lg::rt);
+    x.noteMethod("method " + cx.className(lib) + "." + cx.methodName(e), r, ep, cx.lg.rt(cx.groupReturn(e)), "method");
+    cx.lg.note("objlist: calls of the typed twin (" + fn + ")", key + " " + where);
+    return new ExprEmitter.CallResult(fn + "[" + ta.get(0) + "](" + rc + ", " + as.get(0).as(ee) + ")", ret);
   }
 
   /**
@@ -286,7 +405,10 @@ final class LibObj {
     // only a Map or Set receiver has a typed lookup, and only where the translation has a typed
     // map or set of these types (PAIRS); elsewhere the erased call keeps its box
     boolean mapOrSet = vlib.getQualifiedName().contentEquals("java.util.Map") || vlib.equals(set);
-    if (!mapOrSet) return left(key, "no typed lookup: a List or Collection receiver (the erased call keeps its box)");
+    if (!mapOrSet) {
+      if (!LibGen.on("objlist")) return left(key, "no typed lookup: a List or Collection receiver (the erased call keeps its box)");
+      return listTwin(x, e, r, key, lib, k, at, recv, as, elem, ta, ret);
+    }
     String pair = (vlib.equals(set) ? "set " : "map ") + String.join(", ", ta);
     requested.add(pair);
     if (!PAIRS.contains(pair)) return left(key, "no typed map or set of these types in the translation (objarg-pairs.txt)");

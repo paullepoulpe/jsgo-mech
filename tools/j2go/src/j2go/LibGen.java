@@ -168,11 +168,13 @@ final class LibGen {
       Map.entry("com.google.common.base.Optional.toString()", "toString"));
 
   /** The class whose places the makers of a kind of MAKERS_T2 serve: a collection made for such a place is no object of the class. */
-  static final Map<String, String> MADE_T2 = Map.of("enumset", "java.util.EnumSet");
+  static final Map<String, Set<String>> MADE_T2 = Map.of("enumset", Set.of("java.util.EnumSet"),
+      // piece `mkext` (ExprEmitter.mkextNew): `new EnumMap / IdentityHashMap / ConcurrentHashMap / LinkedList<>()` for a typed place
+      "mkext", Set.of("java.util.EnumMap", "java.util.IdentityHashMap", "java.util.concurrent.ConcurrentHashMap", "java.util.LinkedList"));
 
   /** Whether the places of class qn (its kind on) may hold a collection that MAKERS_T2 made. */
   static boolean madeT2(String qn) {
-    for (var e : MADE_T2.entrySet()) if (on(e.getKey()) && qn.equals(e.getValue())) return true;
+    for (var e : MADE_T2.entrySet()) if (on(e.getKey()) && e.getValue().contains(qn)) return true;
     return false;
   }
 
@@ -202,6 +204,16 @@ final class LibGen {
   /** The collection kind (Ctx) of the typed collection that a maker's call of type t makes for a typed place (ExprEmitter.lgMade), or null. */
   Ctx.CollKind t2Kind(TypeMirror t) {
     if (!t2(t) || !madeT2(Ctx.typeElement(t).getQualifiedName().toString())) return null;
+    DeclaredType v = cx.superView(t, cx.elems.getTypeElement(CLASSES_T2.get(Ctx.typeElement(t).getQualifiedName().toString())[0]));
+    return v == null ? null : cx.collKindOf(v);
+  }
+
+  /** Piece `gsorted` (ExprEmitter.gsortedOf): Guava's sorted immutable classes whose makers it types. */
+  static final Set<String> GSORTED = Set.of("com.google.common.collect.ImmutableSortedSet", "com.google.common.collect.ImmutableSortedMap");
+
+  /** The collection kind (Ctx) of the typed interface that a place of class t of CLASSES_T2 holds (its kind on), or null. */
+  Ctx.CollKind t2KindOf(TypeMirror t) {
+    if (!t2(t)) return null;
     DeclaredType v = cx.superView(t, cx.elems.getTypeElement(CLASSES_T2.get(Ctx.typeElement(t).getQualifiedName().toString())[0]));
     return v == null ? null : cx.collKindOf(v);
   }

@@ -185,6 +185,12 @@ abstract class Base {
     return sb.toString();
   }
 
+  /** The source position of tree t, "File.java:line" (for the J2GO_LIBGEN report). */
+  String at(Tree t) {
+    long pos = t == null ? -1 : cx.trees.getSourcePositions().getStartPosition(cu, t);
+    return cu.getSourceFile().getName().replaceAll(".*/", "") + ":" + (pos < 0 ? -1 : cu.getLineMap().getLineNumber(pos));
+  }
+
   RuntimeException unsupported(Tree t, String what) {
     long pos = cx.trees.getSourcePositions().getStartPosition(cu, t);
     long line = pos < 0 ? -1 : cu.getLineMap().getLineNumber(pos);

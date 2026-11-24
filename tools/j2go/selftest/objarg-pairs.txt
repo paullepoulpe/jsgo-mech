@@ -8,3 +8,16 @@ set *LibGen_Hue
 set *LibGen_Key
 set *LibObj_Key
 set T
+list *LibGen_Dog @on objlist
+list *LibObj_Animal @on objlist
+list *ObjList_Thing @on objlist
+list Handles_Item @on objlist
+list string @on objlist
+map *LibGen_Eq, string @on mkext
+map *LibGen_Hue, string @on mkext
+map *MkExt_Color, string @on mkext
+map *MkExt_Eq, any @on mkext
+map Handles_Item, any @on mkext
+set *GSorted_Ver @on gsorted
+set *LibObj_Animal @on objlist
+set *ObjList_Thing @on objlist

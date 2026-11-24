@@ -14,7 +14,7 @@ t=.cache/j2go-selftest
 rm -rf "$t" && mkdir -p "$t/java" "$t/go/closure" "$t/go/cmd/t"
 # lang/Imm.java uses Guava (typed immutable collections).
 javac -nowarn -cp .cache/build/stock-libs.jar -d "$t/java" tools/j2go/selftest/lang/*.java
-for c in Lang Lang2 Handles Generics Generics2 Generics3 Colls Imm Unboxed Covariant CovariantIface Layout FnTypes LibGen LibFns GOpt LibObj Cmp OwnWild TriBox OwnIter HStatic Resid; do env -u JAVA_TOOL_OPTIONS java -Dstdout.encoding=UTF-8 -cp "$t/java:.cache/build/stock-libs.jar" lang.$c; done >"$t/expected.txt"
+for c in Lang Lang2 Handles Generics Generics2 Generics3 Colls Imm Unboxed Covariant CovariantIface Layout FnTypes LibGen LibFns GOpt LibObj Cmp OwnWild TriBox OwnIter HStatic Resid ObjList FreshLoop MkExt GSorted; do env -u JAVA_TOOL_OPTIONS java -Dstdout.encoding=UTF-8 -cp "$t/java:.cache/build/stock-libs.jar" lang.$c; done >"$t/expected.txt"
 # The test class is translated together with the whole tree, so that the runtime it needs is all there.
 cp go/go.mod "$t/go/" && cp go/closure/rt_*.go tools/j2go/selftest/rt_*.go "$t/go/closure/" && rm -f "$t"/go/closure/*_test.go
 [[ -d go/closure/resources ]] && cp -r go/closure/resources "$t/go/closure/"
@@ -48,7 +48,7 @@ import (
 	"unsafe"
 )
 
-func SelfTest() string { return Lang_run() + Lang2_run() + Handles_run() + Generics_run() + Generics2_run() + Generics3_run() + Colls_run() + Imm_run() + Unboxed_run() + Covariant_run() + CovariantIface_run() + Layout_run() + FnTypes_run() + LibGen_run() + LibFns_run() + GOpt_run() + LibObj_run() + Cmp_run() + OwnWild_run() + TriBox_run() + OwnIter_run() + HStatic_run() + Resid_run() }
+func SelfTest() string { return Lang_run() + Lang2_run() + Handles_run() + Generics_run() + Generics2_run() + Generics3_run() + Colls_run() + Imm_run() + Unboxed_run() + Covariant_run() + CovariantIface_run() + Layout_run() + FnTypes_run() + LibGen_run() + LibFns_run() + GOpt_run() + LibObj_run() + Cmp_run() + OwnWild_run() + TriBox_run() + OwnIter_run() + HStatic_run() + Resid_run() + ObjList_run() + FreshLoop_run() + MkExt_run() + GSorted_run() }
 
 // SelfTestSizes: the sizes of the structs of lang/Layout.java.
 func SelfTestSizes() string {
@@ -94,7 +94,8 @@ if [[ -z ${J2GO_NOLIBGEN:-} ]]; then
   ny=$(fns 'maps|change|keys|colls|lists|sets|strs|Reg.T.. look|typed' | { grep -oE "$erased" || true; } | wc -l)
   nx=$(fns 'wide|erased|wild|obj' | { grep -oE "$twin" || true; } | wc -l)
   ne=$(fns 'wide|erased|wild|obj' | { grep -oE "$erased" || true; } | wc -l)
-  if [[ $nt != 25 || $ny != 28 || $nx != 0 || $ne != 13 ]]; then echo "selftest: FAIL (Object-parameter methods: $nt twins and $ny erased calls in typed(), $nx and $ne in erased())"; exit 1; fi
+  # (piece `objlist`: 21 of the 28 erased calls of List / Collection receivers are its twins, 7 stay)
+  if [[ $nt != 25 || $ny != 7 || $nx != 0 || $ne != 13 ]]; then echo "selftest: FAIL (Object-parameter methods: $nt twins and $ny erased calls in typed(), $nx and $ne in erased())"; exit 1; fi
 fi
 if [[ ! ,${J2GO_NOLIBGEN:-}, =~ ,(cmp|all), ]]; then
   # Rule "typed library interfaces", piece `cmp` (lang/Cmp.java): exactly the two classes that implement Comparable
@@ -166,6 +167,49 @@ if [[ ! ,${J2GO_NOLIBGEN:-}, =~ ,(rtm|fns2|seqstr|all), && ${J2GO_NOFNTYPES:-} !
   n1=$(cnt Resid_rtm "$twin"); n2=$(cnt Resid_fns2 "$twin"); n3=$(cnt Resid_seqstr "$twin"); n4=$(cnt Resid_clinit "$twin"); n5=$(cnt compareTo_t "$twin")
   nx=$(cnt Resid_left "$twin"); ne=$(cnt Resid_left "$erased")
   if [[ $n1 != 20 || $n2 != 11 || $n3 != 5 || $n4 != 2 || $n5 != 2 || $nx != 0 || $ne != 3 ]]; then echo "selftest: FAIL (pieces rtm/fns2/seqstr: $n1 $n2 $n3 $n4 $n5 twins, $nx and $ne erased calls in left())"; exit 1; fi
+fi
+if [[ ! ,${J2GO_NOLIBGEN:-}, =~ ,(objlist|objarg|all), ]]; then
+  # Piece `objlist` (lang/ObjList.java): typed() and the methods it calls have 36 calls of the twins (TList_*E_ on typed
+  # lists, List_*E_ / Collection_*E_ on typed interfaces) and 3 erased calls (String literals, an erased Arrays.asList list);
+  # erased() / eqs() no twin and 10 erased calls (a class with its own equals, an interface element type, an Object argument).
+  twin='\b(TList|List|Collection)_(contains|remove|indexOf|lastIndexOf)E_\['
+  erased='\.(contains|remove_Object|indexOf|lastIndexOf)\('
+  g="$t/go/closure/g_ObjList.go"
+  fns() { awk -v re="$1" '$0 ~ "^func ObjList_(" re ")[[(]" {f=1} f {print} f && /^}/ {f=0}' "$g"; }
+  nt=$(fns 'typed|lists|colls|strs' | { grep -oE "$twin" || true; } | wc -l)
+  ny=$(fns 'typed|lists|colls|strs' | { grep -oE "$erased" || true; } | wc -l)
+  nx=$(fns 'erased|eqs' | { grep -oE "$twin" || true; } | wc -l)
+  ne=$(fns 'erased|eqs' | { grep -oE "$erased" || true; } | wc -l)
+  if [[ $nt != 36 || $ny != 3 || $nx != 0 || $ne != 10 ]]; then echo "selftest: FAIL (piece objlist: $nt twins and $ny erased calls in typed(), $nx and $ne in erased())"; exit 1; fi
+fi
+if [[ ! ,${J2GO_NOLIBGEN:-}, =~ ,(freshloop|all), ]]; then
+  # Piece `freshloop` (lang/FreshLoop.java): typed() has 12 loops over a fresh ImmutableList.of / copyOf / sortedCopyOf or
+  # Lists.reverse of an ImmutableList, each on a typed cursor (each() / tlistRevEach_), and no erased loop; erased() 2
+  # (Lists.reverse of a list that can change, sortedCopyOf with a comparator).
+  g="$t/go/closure/g_FreshLoop.go"
+  ny=$(awk '/^func FreshLoop_typed\(/,/^}/' "$g" | grep -cE ':= (.*\.each\(\)|tlistRevEach_\(.*\))$' || true)
+  nx=$(awk '/^func FreshLoop_typed\(/,/^}/' "$g" | grep -c ':= foreach_(' || true)
+  ne=$(awk '/^func FreshLoop_erased\(/,/^}/' "$g" | grep -c ':= foreach_(' || true)
+  if [[ $ny != 12 || $nx != 0 || $ne != 2 ]]; then echo "selftest: FAIL (piece freshloop: $ny typed loops, $nx and $ne erased loops)"; exit 1; fi
+fi
+if [[ ! ,${J2GO_NOLIBGEN:-}, =~ ,(mkext|cmaps|deque|all), ]]; then
+  # Piece `mkext` (lang/MkExt.java): 15 typed makers (2 tenumMapNew_, 2 newTMap_ (IdentityHashMap, ConcurrentHashMap),
+  # 1 newTDeque_ (LinkedList), 1 tdequeCopyL_, 1 tsetCopy_, 3 immutableSetOf_ of arrays, 2 immutableMapOf6_, 1
+  # immutableMapOf10_, 1 immutableMapOf1_ at the place's wider value type, 1 immutableSetOf_ inside tsetCopy_) and no wrapper
+  # of an erased collection (mapAs_ / dequeAs_ / setAs_).
+  g="$t/go/closure/g_MkExt.go"
+  nm=$({ grep -oE '\b(tenumMapNew_|newTMap_|newTDeque_|tdequeCopyL_|tsetCopy_|immutableSetOf_|immutableMapOf(1|6|10)_)\b' "$g" || true; } | wc -l)
+  nw=$({ grep -oE '\b(mapAs_|dequeAs_|setAs_)\(' "$g" || true; } | wc -l)
+  if [[ $nm != 15 || $nw != 0 ]]; then echo "selftest: FAIL (piece mkext: $nm typed makers, $nw wrappers)"; exit 1; fi
+fi
+if [[ ! ,${J2GO_NOLIBGEN:-}, =~ ,(gsorted|sorted|all), ]]; then
+  # Piece `gsorted` (lang/GSorted.java): 8 typed sorted makers (tsortedSetCopyOfIt_, tsortedSetCopyOfSorted_, the empty
+  # sorted set, 2 tsortedMapCopyOf_ (one read by a loop), immutableListSortedCopyOfIt_, 2 immutableListSortedCopyOfCTIt_ ...);
+  # 1 erased maker stays (copyOfSorted of a place that is no typed set).
+  g="$t/go/closure/g_GSorted.go"
+  nm=$({ grep -oE '\b(tsortedSetCopyOfIt_|tsortedSetCopyOf_|tsortedSetCopyOfSorted_|tsortedMapCopyOf_|immutableListSortedCopyOf[A-Za-z]*_)\(|tsetImm_\([a-zA-Z_]+, emptyImmSorted_\)' "$g" || true; } | wc -l)
+  ne=$({ grep -oE '\b(ImmutableSortedSet|ImmutableSortedMap)_copyOf[A-Za-z_]*\(|ImmutableList_sortedCopyOf' "$g" || true; } | wc -l)
+  if [[ $nm != 8 || $ne != 1 ]]; then echo "selftest: FAIL (piece gsorted: $nm typed makers, $ne erased)"; exit 1; fi
 fi
 if [[ ${J2GO_NOFNTYPES:-} != 1 ]]; then
   # Rule "function types": the translator must refuse every use in refused/Refused.java (14) and write nothing.

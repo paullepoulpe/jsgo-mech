@@ -289,11 +289,33 @@ abstract class ExprEmitter extends Base {
     if (from == null || from.getKind() != TypeKind.DECLARED) return null;
     Ctx.CollKind k = cx.collKindOf(from);
     if (k == null) k = cx.lg.t2Kind(from);
+    if (k == null && LibGen.on("gsorted") && t instanceof MethodInvocationTree && LibGen.GSORTED.contains(Ctx.typeElement(from).getQualifiedName().toString())) {
+      // piece `gsorted`: a maker of ImmutableSortedSet / ImmutableSortedMap (gsortedOf) for a place of the typed interface
+      k = cx.lg.t2KindOf(from);
+    }
+    if (k == null && LibGen.on("mkext") && t instanceof NewClassTree && Ctx.typeElement(from).getQualifiedName().contentEquals("java.util.LinkedList")) {
+      // piece `mkext`: `new LinkedList<>()` for a Deque or Queue place is the typed deque
+      Ctx.CollKind tk = cx.collKindOf(target);
+      if (tk != null && tk.name.equals("deque")) k = tk;
+    }
     if (k == null || k.builds != null || k == cx.entryKind) return null;
     List<TypeMirror> args = cx.typedArgs(k, from);
     if (args == null) return null;
     TypeMirror stub = cx.typedOf(k, args);
     String probe = cx.lg.fromTypedColl("x", stub, target);
+    if (probe == null && LibGen.on("mkext") && t instanceof MethodInvocationTree mi && elemOf(mi.getMethodSelect()) instanceof ExecutableElement m && m.getSimpleName().contentEquals("of")
+        && m.getModifiers().contains(Modifier.STATIC) && !m.isVarArgs()) {
+      // piece `mkext`: `ImmutableMap.of(k, v)` of a subclass's value for a place of `? extends V`:
+      // the typed immutable at the place's type arguments (immutableOf converts each element to them)
+      List<TypeMirror> targs = cx.typedArgs(k, target);
+      boolean sub = targs != null && targs.size() == args.size();
+      for (int i = 0; sub && i < args.size(); i++) sub = cx.types.isSubtype(cx.types.erasure(args.get(i)), cx.types.erasure(targs.get(i)));
+      if (sub) {
+        stub = cx.typedOf(k, targs);
+        probe = cx.lg.fromTypedColl("x", stub, target);
+        if (probe != null) cx.lg.note("mkext: of(..) made at the place's wider type arguments", at(t));
+      }
+    }
     if (probe == null) return null;
     String made = newTyped(t, stub);
     return made == null ? null : cx.lg.fromTypedColl(made, stub, target);
@@ -310,9 +332,13 @@ abstract class ExprEmitter extends Base {
     // the class of the constructor: the expression's own type is the typed builder's for the new builder of a chain
     TypeElement made = elemOf(n) instanceof ExecutableElement ce ? cx.ownerOf(ce) : Ctx.typeElement(cx.erase(typeOf(t)));
     String fn = made == null ? null : cx.typedColl(target).made.get(made.getQualifiedName().toString());
-    if (fn == null) return null;
+    if (fn == null) return made != null && LibGen.on("mkext") ? mkextNew(n, made, target) : null;
     String tc = cx.tconvsOf(target);
     List<? extends ExpressionTree> as = n.getArguments();
+    if (as.size() == 1 && LibGen.on("mkext")) {
+      String fresh = mkextFreshArg(as.get(0), target, fn);
+      if (fresh != null) return fresh;
+    }
     if (as.isEmpty()) return "newT" + fn + "_(" + tc + ")";
     ExpressionTree a = as.get(0);
     TypeMirror at = typeOf(a);
@@ -327,6 +353,131 @@ abstract class ExprEmitter extends Base {
     }
     if (cx.isTypedColl(at) && cx.goType(at).equals(cx.goType(target))) return lower + "Copy_(" + tc + ", " + expr(a) + ")";
     return lower + "From_(" + tc + ", " + exprAs(a, cx.elems.getTypeElement(cx.typedColl(target).fromType).asType()) + ")";
+  }
+
+  /**
+   * Pieces `freshloop` and `gsorted`: the code of argument a as the typed Iterable of element
+   * type elem (IterableT[elem]: a typed collection or a typed use of a library interface whose
+   * element's Go type is elem's), or null where it is erased.
+   */
+  String typedIterable(ExpressionTree a, TypeMirror elem) {
+    TypeMirror at = typeOf(a);
+    TypeElement it = cx.elems.getTypeElement("java.lang.Iterable");
+    if (at == null || at.getKind() != TypeKind.DECLARED || !cx.lg.isLib(it)) return null;
+    TypeMirror eat = cx.erase(at);
+    if (cx.isTypedColl(eat)) {
+      TypeMirror to = cx.erase(cx.types.getDeclaredType(it, elem));
+      return cx.lg.fromTypedColl(expr(a), eat, to);
+    }
+    DeclaredType v = cx.lg.typedView(at, it);
+    if (v == null || !cx.goTypeArg(v.getTypeArguments().get(0)).equals(cx.goTypeArg(elem))) return null;
+    return cx.coerce(expr(a), eat, v);
+  }
+
+  /**
+   * Piece `gsorted` of rule "typed library interfaces" (J2GO_NOLIBGEN=gsorted is the translation
+   * without it; RESIDUE8 T2.2, T1.14, T2.19; docs/libgen/COLLECTIONS-PLAN.md section 16): Guava's
+   * sorted makers for a typed place of their own element type (target: TList<X>, TSet<X>,
+   * TMap<K, V>), made typed by go/closure/rt_gsorted.go as the runtime's erased makers make them:
+   * `ImmutableList.sortedCopyOf(c)` and `sortedCopyOf(cmp, c)` (the comparator at the element
+   * type, rule "function types"), `ImmutableSortedSet.copyOf(c)` (natural ordering),
+   * `copyOfSorted(s)` of a typed sorted set, `of()`, `ImmutableSortedMap.copyOf(m)` (natural
+   * ordering). A typed Iterable of the element type is read through its typed cursor. Null for
+   * any other call (the comparator-taking set makers, the builders: counted where they are
+   * left, J2GO_LIBGEN=2).
+   */
+  String gsortedOf(MethodInvocationTree mi, ExecutableElement m, Ctx.CollKind ck, String tc, TypeMirror target) {
+    String owner = cx.ownerOf(m).getQualifiedName().toString(), n = m.getSimpleName().toString(), where = at(mi);
+    List<? extends ExpressionTree> as = mi.getArguments();
+    List<? extends TypeMirror> tas = ((DeclaredType) target).getTypeArguments();
+    String code = null;
+    if (owner.equals("com.google.common.collect.ImmutableList") && n.equals("sortedCopyOf") && ck.name.equals("list")) {
+      ExpressionTree src = as.get(as.size() - 1);
+      String ti = typedIterable(src, tas.get(0));
+      String it = ti != null ? ti : exprAs(src, cx.lg.rt(m.getParameters().get(as.size() - 1).asType()));
+      if (as.size() == 1) {
+        code = (ti != null ? "immutableListSortedCopyOfIt_(" : "immutableListSortedCopyOf_(") + tc + ", " + it + ")";
+      } else {
+        TypeMirror ct = cx.erase(cx.types.getDeclaredType(cx.elems.getTypeElement("java.util.Comparator"), tas.get(0)));
+        if (cx.fn.is(ct) && cx.goType(ct).equals("Comparator[" + cx.goType(tas.get(0)) + "]")) {
+          code = (ti != null ? "immutableListSortedCopyOfCTIt_(" : "immutableListSortedCopyOfCT_(") + tc + ", " + exprAs(as.get(0), ct) + ", " + it + ")";
+        }
+      }
+    } else if (owner.equals("com.google.common.collect.ImmutableSortedSet") && ck.name.equals("set")) {
+      String p0 = m.getParameters().isEmpty() ? "" : LibGen.sigKey(m).replaceAll(".*\\(|\\).*", "");
+      if (n.equals("of") && as.isEmpty()) {
+        code = "tsetImm_(" + tc + ", emptyImmSorted_)";
+      } else if (n.equals("copyOf") && (p0.equals("java.util.Collection") || p0.equals("java.lang.Iterable"))) {
+        String ti = typedIterable(as.get(0), tas.get(0));
+        if (ti != null) code = "tsortedSetCopyOfIt_(" + tc + ", " + ti + ")";
+        else if (p0.equals("java.util.Collection")) code = "tsortedSetCopyOf_(" + tc + ", " + exprAs(as.get(0), cx.lg.rt(m.getParameters().get(0).asType())) + ")";
+      } else if (n.equals("copyOfSorted")) {
+        TypeMirror at = typeOf(as.get(0));
+        if (at != null && cx.isTypedColl(cx.erase(at)) && cx.goType(cx.erase(at)).equals(cx.goType(target))) code = "tsortedSetCopyOfSorted_(" + tc + ", " + expr(as.get(0)) + ")";
+      }
+    } else if (owner.equals("com.google.common.collect.ImmutableSortedMap") && ck.name.equals("map") && n.equals("copyOf") && as.size() == 1
+        && LibGen.sigKey(m).endsWith("(java.util.Map)")) {
+      code = "tsortedMapCopyOf_(" + tc + ", " + exprAs(as.get(0), cx.lg.rt(m.getParameters().get(0).asType())) + ")";
+    } else {
+      return null;
+    }
+    cx.lg.note(code != null ? "gsorted: typed sorted makers (" + owner.replaceAll(".*\\.", "") + "." + n + ")" : "gsorted: left erased (" + owner.replaceAll(".*\\.", "") + "." + n + " with these arguments)", where);
+    return code;
+  }
+
+  /**
+   * Piece `mkext` of rule "typed library interfaces" (J2GO_NOLIBGEN=mkext is the translation
+   * without it; RESIDUE8 T2.8, T3.2; docs/libgen/COLLECTIONS-PLAN.md section 16): `new C<>()` of
+   * a class whose places kind `cmaps` / `deque` makes typed interfaces, for such a place, is the
+   * typed collection of the same behaviour as the runtime's erased C: `new EnumMap<>(K.class)` the
+   * typed sorted map with the ordinal comparator (the runtime's EnumMap is a TreeMap with
+   * ordinalCmp_), `new IdentityHashMap<>()` the typed map whose keys are compared by Go's == (the
+   * key's conversion without byEquals: identity, as the runtime's htable with identity),
+   * `new ConcurrentHashMap<>()` the typed map (the runtime's is a LinkedHashMap), `new
+   * LinkedList<>()` for a Deque the typed deque (the runtime's LinkedList is a slice with its head
+   * first, as its ArrayDeque and the typed deque). The classes are in LibGen.MADE_T2, so a test for,
+   * a cast to, an own method of or a library parameter of one is refused. Null for any other
+   * constructor.
+   */
+  String mkextNew(NewClassTree n, TypeElement made, TypeMirror target) {
+    String qn = made.getQualifiedName().toString(), where = at(n);
+    Ctx.CollKind ck = cx.typedColl(target);
+    List<? extends ExpressionTree> as = n.getArguments();
+    List<? extends TypeMirror> ta = ((DeclaredType) target).getTypeArguments();
+    String code = null;
+    if (ck.name.equals("map") && qn.equals("java.util.EnumMap") && as.size() == 1 && strip(as.get(0)) instanceof MemberSelectTree cl && cl.getIdentifier().contentEquals("class")) {
+      code = "tenumMapNew_(" + cx.tconvsOf(target) + ")";
+    } else if (ck.name.equals("map") && qn.equals("java.util.IdentityHashMap") && as.isEmpty()) {
+      cx.lo.made(cx.goType(target));
+      code = "newTMap_(" + cx.tconv(ta.get(0), false) + ", " + cx.tconv(ta.get(1)) + ")";
+    } else if (ck.name.equals("map") && qn.equals("java.util.concurrent.ConcurrentHashMap") && as.isEmpty()) {
+      code = "newTMap_(" + cx.tconvsOf(target) + ")";
+    } else if (ck.name.equals("deque") && qn.equals("java.util.LinkedList") && as.isEmpty()) {
+      code = "newTDeque_(" + cx.tconvsOf(target) + ")";
+    }
+    cx.lg.note(code != null ? "mkext: typed collections made for a typed place (new " + made.getSimpleName() + ")" : "mkext: left erased (new " + made.getSimpleName() + " with these arguments)", where);
+    return code;
+  }
+
+  /**
+   * Piece `mkext`: the argument of `new C<>(a)` (a typed collection of kind fn) where a is
+   * `ImmutableList.of(..)` or `ImmutableSet.of(..)`, made typed at the element type (the
+   * immutable's null checks and distinct elements as before) and copied (t<x>Copy_,
+   * tdequeCopyL_ for a deque of a list's elements); null for any other argument.
+   */
+  String mkextFreshArg(ExpressionTree a, TypeMirror target, String fn) {
+    if (!(strip(a) instanceof MethodInvocationTree mi) || !(elemOf(mi.getMethodSelect()) instanceof ExecutableElement m) || !m.getModifiers().contains(Modifier.STATIC)
+        || !m.getSimpleName().contentEquals("of")) return null;
+    TypeMirror at = typeOf(a);
+    Ctx.CollKind ak = at == null || at.getKind() != TypeKind.DECLARED ? null : cx.collKindOf(cx.erase(at));
+    if (ak == null || ak.immClass == null || !cx.ownerOf(m).getQualifiedName().contentEquals(ak.immClass) || ak.pair()) return null;
+    Ctx.CollKind ck = cx.typedColl(target);
+    String copy = ak == ck ? "t" + Character.toLowerCase(fn.charAt(0)) + fn.substring(1) + "Copy_" : ck.name.equals("deque") && ak.name.equals("list") ? "tdequeCopyL_" : null;
+    if (copy == null) return null;
+    String inner = newTyped(strip(a), cx.typedOf(ak, new ArrayList<>(((DeclaredType) target).getTypeArguments())));
+    if (inner == null) return null;
+    cx.lg.note("mkext: typed collections made for a typed place (new C<>(Immutable.of(..)))", at(a));
+    return copy + "(" + cx.tconvsOf(target) + ", " + inner + ")";
   }
 
   /**
@@ -382,6 +533,10 @@ abstract class ExprEmitter extends Base {
         return atomOrParen(expr(ms.getExpression())) + ".keySetImm()";
       }
     }
+    if (LibGen.on("gsorted") && m.getModifiers().contains(Modifier.STATIC)) {
+      String gs = gsortedOf(mi, m, ck, tc, target);
+      if (gs != null) return gs;
+    }
     if (ck.immClass == null || !m.getModifiers().contains(Modifier.STATIC)) return null;
     // a call that passes an array for the variable arguments goes through the erased factory
     if (m.isVarArgs() && as.size() == m.getParameters().size() && cx.erase(typeOf(as.get(as.size() - 1))).getKind() != TypeKind.DECLARED) return null;
@@ -396,6 +551,10 @@ abstract class ExprEmitter extends Base {
       if (cx.isTypedColl(at) && cx.goType(at).equals(cx.goType(target))) return "immutable" + cap + "CopyOfT_(" + tc + ", " + expr(as.get(0)) + ")";
       if (pt.getKind() == TypeKind.ARRAY) {
         TypeMirror et = cx.erase(at);
+        if (ck.name.equals("set") && LibGen.on("mkext") && et.getKind() == TypeKind.ARRAY && cx.goType(((ArrayType) et).getComponentType()).equals(cx.goType(tas.get(0)))) {
+          // piece `mkext`: ImmutableSet.copyOf(E[]) (the distinct elements, a null throws NullPointerException as immSet_)
+          return "immutableSetOf_(" + tc + ", " + exprAs(as.get(0), et) + "...)";
+        }
         if (!ck.name.equals("list") || et.getKind() != TypeKind.ARRAY || !cx.goType(((ArrayType) et).getComponentType()).equals(cx.goType(tas.get(0)))) return null;
         return "immutableListCopyOfArr_(" + tc + ", " + exprAs(as.get(0), et) + ")";
       }
@@ -406,9 +565,14 @@ abstract class ExprEmitter extends Base {
     if (!m.getSimpleName().contentEquals("of")) return null;
     if (as.isEmpty()) return "t" + ck.name + "EmptyImm_(" + tc + ")";
     boolean map = ck.name.equals("map");
-    if (map && as.size() > 10) return null;
+    if (map && as.size() > (LibGen.on("mkext") ? 20 : 10)) return null;
     StringBuilder sb = new StringBuilder("immutable" + cap + "Of" + (map ? as.size() / 2 : "") + "_[" + cx.goType(tas.get(0)) + (map ? ", " + cx.goType(tas.get(1)) : "") + "](" + tc);
-    for (int i = 0; i < as.size(); i++) sb.append(", ").append(exprAs(as.get(i), tas.get(map ? i % 2 : 0)));
+    for (int i = 0; i < as.size(); i++) {
+      String a = exprAs(as.get(i), tas.get(map ? i % 2 : 0));
+      // (piece `mkext`, 6 to 10 entries: the explicit type arguments make a value given for `any` need no conversion)
+      if (map && as.size() > 10 && cx.goType(tas.get(i % 2)).equals("any")) a = Conv.implicit(a);
+      sb.append(", ").append(a);
+    }
     return sb.append(")").toString();
   }
 

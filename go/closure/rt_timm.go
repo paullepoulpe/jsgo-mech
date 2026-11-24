@@ -298,6 +298,10 @@ func (s *TSet[K]) asImm() *ImmutableCollection {
 	if s.twin == immPending_ {
 		// the twin's index is built on its first lookup (ImmutableCollection.find_)
 		t := &ImmutableCollection{kind: icSet_, items: boxAll_(s.c, s.keys)}
+		if s.eq != nil && s.eq.sorted {
+			// an immutable sorted set (piece gsorted, rt_gsorted.go): an ImmutableSortedSet
+			t.kind, t.cmp = icSorted_, s.eq.cmp
+		}
 		t.typed_ = s
 		s.twin = t
 	} else if s.twin == nil || s.twin == sortedMark_ {
@@ -448,6 +452,10 @@ func (m *TMap[K, V]) asImm() *ImmutableMap {
 	if x.twin == nil {
 		// the twin's index is built on its first lookup (ImmutableMap.index_)
 		t := &ImmutableMap{kind: imMap_, keys: boxAll_(m.kc, m.keys), vals: boxAll_(m.vc, m.vals)}
+		if m.eq != nil && m.eq.sorted {
+			// an immutable sorted map (piece gsorted, rt_gsorted.go): an ImmutableSortedMap
+			t.kind, t.cmp = imSorted_, m.eq.cmp
+		}
 		t.typed_ = m
 		if s, ok := x.keys.(*TSet[K]); ok {
 			// its key set is the one that typed code has
@@ -477,6 +485,10 @@ func (m *TMap[K, V]) keySetImm() *TSet[K] {
 		return s
 	}
 	var s *TSet[K]
+	if x.twin == nil && m.eq != nil && m.eq.sorted {
+		// (an immutable sorted map, piece gsorted: its key set is the ImmutableSortedSet of its twin)
+		m.asImm()
+	}
 	if x.twin != nil {
 		// the key set of the twin, as a typed set
 		s = tsetImm_(m.kc, x.twin.keySet().(*ImmutableCollection))

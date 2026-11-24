@@ -562,6 +562,30 @@ type Map_EntryT[K any, V any] interface { Map_Entry; getKey_t() K; getValue_t() 
     `J2GO_LIBGEN`'s report counts the static fields of handle classes (`hstatic: ...`); the pair
     of that map on `objarg-pairs.txt` is marked `@off hstatic` (asked for only with the piece off,
     `LibObj.COND`). `selftest/lang/HStatic.java` counts the declarations.
+  - Pieces of the eighth flip's residue (`docs/javaisms6/RESIDUE8.md`; recorded in
+    `docs/libgen/COLLECTIONS-PLAN.md` section 16), each its own switch:
+    - `objlist` (`LibObj.listTwin`, `rt_objlist.go`): `contains` / `remove(Object)` / `indexOf` /
+      `lastIndexOf` on a List or Collection receiver with an argument of the element type, where
+      Java's `x.equals(e)` is Go's `==` (a String, an enum, a class of the program in whose
+      hierarchy no class declares `equals`): `TList_indexOfE_[T](l, x)` scans the typed list
+      with `==` (a `ListT` / `CollectionT` receiver: `List_*E_` / `Collection_*E_`, the scan
+      where the object is a typed list's view, only for element types on `objarg-pairs.txt`,
+      lines `@on objlist`); a null argument takes the erased method.
+    - `freshloop` (`StmtEmitter.freshLoop`, `rt_freshloop.go`): a for-each over
+      `ImmutableList.of(..)` / `copyOf(..)` / `sortedCopyOf(c)` makes the typed list at its element
+      type and runs on its cursor; over `Lists.reverse(l)` of an ImmutableList a typed cursor
+      backwards.
+    - `mkext` (`ExprEmitter.mkextNew`, `mkextFreshArg`, `immutableOf`; `rt_mkext.go`): for a typed
+      place, `new EnumMap<>(K.class)` (the typed sorted map with the ordinal comparator), `new
+      IdentityHashMap<>()` (keys compared by `==`), `new ConcurrentHashMap<>()`, `new
+      LinkedList<>()` for a Deque, `new C<>(ImmutableX.of(..))`, `ImmutableSet.copyOf(E[])`,
+      `ImmutableMap.of` with 6 to 10 entries, `of(..)` of a subclass's values for a `? extends`
+      place. The four classes are in `LibGen.MADE_T2` (their tests, casts, own methods refused).
+    - `gsorted` (`ExprEmitter.gsortedOf`, `rt_gsorted.go`): `ImmutableSortedSet.copyOf(c)` /
+      `copyOfSorted(s)` / `of()`, `ImmutableSortedMap.copyOf(m)`, `ImmutableList.sortedCopyOf(c)`
+      and `sortedCopyOf(cmp, c)` for a typed place (and the values of a fresh
+      `ImmutableSortedMap.copyOf(m)` in a for-each) are typed sorted immutables, whose twin
+      (`asImm`) is the runtime's ImmutableSortedSet / ImmutableSortedMap.
 
   - Piece `proto` (`LibProto`; rule candidate T5 of `docs/javaisms6/JAVAISMS6.md`; needs kinds
     `list` and `iter`): a call of a protobuf message's list accessor whose element is a message
@@ -645,7 +669,7 @@ Refused (`typed library interfaces: refused: File.java:line: ...`, nothing is wr
 `tools/j2go/selftest/refused/RefusedLib.java` has one use of each kind (15); the self-test
 fails unless the translator refuses exactly those and writes nothing.
 
-Each kind and piece is a switch: `J2GO_NOLIBGEN=iter,coll,list,set,map,makers,views,place,cov,elems,wide,nncoll,readers,cls,meth,fns,sorted,enumset,cmaps,deque,guava,goptional,seqcoll,objarg,cmp,ownwild,nbox,proto,owniter,hstatic,rtm,fns2,seqstr`
+Each kind and piece is a switch: `J2GO_NOLIBGEN=iter,coll,list,set,map,makers,views,place,cov,elems,wide,nncoll,readers,cls,meth,fns,sorted,enumset,cmaps,deque,guava,goptional,seqcoll,objarg,cmp,ownwild,nbox,proto,owniter,hstatic,rtm,fns2,seqstr,objlist,freshloop,mkext,gsorted`
 (`all`: every one). A translation with any of them off is built with `-tags j2go_nolibgen`
 (`tools/prune/verify.sh` and the self-test do that when `J2GO_NOLIBGEN` is set): the erased
 factories that only such a translation names are in `go/closure/rt_lg_erased.go`, outside the

@@ -478,6 +478,14 @@ abstract class StmtEmitter extends ExprEmitter {
       cursor = it + " := " + atomOrParen(expr(ex)) + ".each()\n";
       head = "for " + it + ".next() ";
       bind = "var " + name + " " + cx.goType(vt) + " = " + cx.coerce(it + ".v", comp, vt) + "\n";
+    } else if ((ll = freshLoop(ex)) != null) {
+      // Piece `freshloop` (RESIDUE8 T2.1, T1.8): a fresh immutable copy that only the loop reads
+      // is made typed at its element type, and the loop runs on its cursor (or backwards).
+      String it = fresh("it");
+      lab = enter("loop");
+      cursor = it + " := " + ll[0] + "\n";
+      head = "for " + it + ".next() ";
+      bind = "var " + name + " " + cx.goType(vt) + " = " + cx.coerce(it + ".v", (TypeMirror) ll[1], vt) + "\n";
     } else if ((ll = ownLoop(ex, et)) != null) {
       // Piece `owniter` (rule candidate T6): a class of the program that has the typed Iterable
       // methods itself (iterator_t), or a set that EnumSet's typed maker makes for the loop: the
@@ -629,6 +637,85 @@ abstract class StmtEmitter extends ExprEmitter {
     }
     cx.lg.note("owniter: typed loops over a class with iterator_t", at + " " + c.getSimpleName());
     return new Object[] {expr(ex), v.getTypeArguments().get(0), null};
+  }
+
+  /**
+   * Piece `freshloop` of rule "typed library interfaces" (J2GO_NOLIBGEN=freshloop is the
+   * translation without it; RESIDUE8 T2.1 and T1.8, docs/libgen/COLLECTIONS-PLAN.md section 16):
+   * for a for-each loop over ex, {the cursor's code, its element type} where ex is
+   * - `ImmutableList.of(..)`, `copyOf(..)` or `sortedCopyOf(c)` (natural ordering): a fresh
+   *   immutable list that nothing but the loop reads. It is made typed at its own element type,
+   *   as for a typed place of that type (ExprEmitter.newTyped: immutableListOf_,
+   *   immutableListCopyOf_ ...; a copy or sorted copy of a typed Iterable of the element type
+   *   reads it through its typed cursor, immutableListCopyOfIt_), and the loop runs on the typed
+   *   list's cursor (each()): the same elements in the same order, no box of each element (and of
+   *   each argument of `of`) and no cast back;
+   * - `Lists.reverse(l)` of an ImmutableList l that is a typed list of the element type: its
+   *   elements from the last (tlistRevEach_), where the erased loop read the reversed twin.
+   * Else null; a loop over such a call that stays erased is counted by reason (J2GO_LIBGEN=2).
+   */
+  Object[] freshLoop(ExpressionTree ex) {
+    if (LibGen.on("gsorted") && loopCall == null && strip(ex) instanceof MethodInvocationTree vi && vi.getArguments().isEmpty() && vi.getMethodSelect() instanceof MemberSelectTree vs
+        && (vs.getIdentifier().contentEquals("values") || vs.getIdentifier().contentEquals("keySet")) && strip(vs.getExpression()) instanceof MethodInvocationTree ci
+        && elemOf(ci.getMethodSelect()) instanceof ExecutableElement cm && cm.getModifiers().contains(Modifier.STATIC)
+        && cx.ownerOf(cm).getQualifiedName().contentEquals("com.google.common.collect.ImmutableSortedMap")) {
+      // piece `gsorted`: the values or keys of a fresh ImmutableSortedMap.copyOf(m), read by the
+      // loop alone: the typed sorted map (gsortedOf) and its cursor
+      TypeMirror rt = typeOf(ci);
+      Ctx.CollKind k = rt == null || rt.getKind() != TypeKind.DECLARED ? null : cx.lg.t2KindOf(rt);
+      List<TypeMirror> args = k == null || !k.name.equals("map") ? null : cx.typedArgs(k, rt);
+      String made = args == null ? null : newTyped(strip(ci), cx.typedOf(k, args));
+      if (made == null) return freshLeft("ImmutableSortedMap." + cm.getSimpleName() + " not typed", at(ex));
+      boolean vals = vs.getIdentifier().contentEquals("values");
+      cx.lg.note("gsorted: typed loops (ImmutableSortedMap." + cm.getSimpleName() + "(..)." + vs.getIdentifier() + "())", at(ex));
+      return new Object[] {atomOrParen(made) + (vals ? ".eachValue()" : ".eachKey()"), args.get(vals ? 1 : 0)};
+    }
+    if (!LibGen.on("freshloop") || loopCall != null || !(strip(ex) instanceof MethodInvocationTree mi) || !(elemOf(mi.getMethodSelect()) instanceof ExecutableElement m)
+        || !m.getModifiers().contains(Modifier.STATIC)) return null;
+    String owner = cx.ownerOf(m).getQualifiedName().toString(), n = m.getSimpleName().toString(), where = at(ex);
+    boolean imm = owner.equals("com.google.common.collect.ImmutableList") && (n.equals("of") || n.equals("copyOf") || n.equals("sortedCopyOf"));
+    boolean rev = owner.equals("com.google.common.collect.Lists") && n.equals("reverse");
+    if (!imm && !rev) return null;
+    TypeMirror jt = typeOf(ex);
+    Ctx.CollKind k = jt == null || jt.getKind() != TypeKind.DECLARED ? null : cx.collKindOf(cx.erase(jt));
+    List<TypeMirror> args = k == null || !k.name.equals("list") ? null : cx.typedArgs(k, cx.erase(jt));
+    if (args == null) return freshLeft("an element type a typed list does not hold", where);
+    TypeMirror x = args.get(0), stub = cx.typedOf(k, args);
+    List<? extends ExpressionTree> as = mi.getArguments();
+    String code;
+    if (rev) {
+      // the list's Java type as declared (the result of a method, a variable; typeOf may be the typed collection the translator refined it to)
+      TypeMirror g = typeOf(as.get(0)), a = g;
+      ExpressionTree a0 = strip(as.get(0));
+      Element ae = elemOf(a0 instanceof MethodInvocationTree ai ? ai.getMethodSelect() : a0);
+      if (ae instanceof ExecutableElement am) a = am.getReturnType();
+      else if (ae instanceof VariableElement av) a = av.asType();
+      TypeElement il = cx.elems.getTypeElement("com.google.common.collect.ImmutableList");
+      if (a == null || a.getKind() != TypeKind.DECLARED || il == null || !cx.types.isSubtype(cx.types.erasure(a), cx.types.erasure(il.asType())))
+        return freshLeft("Lists.reverse of a list that can change (its live view, which Java's loop reads with a check for changes)", where);
+      if (g == null || !cx.isTypedColl(cx.erase(g)) || !cx.goType(cx.erase(g)).equals(cx.goType(stub))) return freshLeft("Lists.reverse of an ImmutableList that is no typed list of the element type", where);
+      cx.lg.note("freshloop: typed loops (Lists.reverse of an ImmutableList)", where);
+      return new Object[] {"tlistRevEach_(" + expr(as.get(0)) + ")", x};
+    }
+    String tc = cx.tconvsOf(stub);
+    if (n.equals("sortedCopyOf")) {
+      if (as.size() != 1) return freshLeft("sortedCopyOf with a comparator", where);
+      String ti = typedIterable(as.get(0), x);
+      code = ti != null ? "immutableListSortedCopyOfIt_(" + tc + ", " + ti + ")" : "immutableListSortedCopyOf_(" + tc + ", " + exprAs(as.get(0), cx.lg.rt(m.getParameters().get(0).asType())) + ")";
+    } else {
+      String ti = n.equals("copyOf") && as.size() == 1 ? typedIterable(as.get(0), x) : null;
+      TypeMirror a0 = as.isEmpty() ? null : typeOf(as.get(0));
+      boolean sameList = a0 != null && cx.isTypedColl(cx.erase(a0)) && cx.goType(cx.erase(a0)).equals(cx.goType(stub));
+      code = ti != null && !sameList ? "immutableListCopyOfIt_(" + tc + ", " + ti + ")" : newTyped(strip(ex), stub);
+    }
+    if (code == null) return freshLeft("the maker is not typed for this call (" + n + ")", where);
+    cx.lg.note("freshloop: typed loops (ImmutableList." + n + ")", where);
+    return new Object[] {atomOrParen(code) + ".each()", x};
+  }
+
+  Object[] freshLeft(String why, String where) {
+    cx.lg.note("freshloop: loops left erased (" + why + ")", where);
+    return null;
   }
 
   /** The call that lgLoop translated and left to the erased loop. */
