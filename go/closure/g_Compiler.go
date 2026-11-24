@@ -3405,11 +3405,17 @@ func new_Compiler_ResolvedSourceMap() *Compiler_ResolvedSourceMap {
 }
 
 type Compiler_SeenSetLicenseTracker struct {
-	self_                  any
+	self_                  Compiler_SeenSetLicenseTracker_I
 	compiler_              *AbstractCompiler
 	globallyUniqueLicenses *JTSet[string]
 	currentlySeenLicenses  *JTSet[string]
 	lastSeenFile           string
+}
+
+// Compiler_SeenSetLicenseTracker_I holds the methods the dispatchers of Compiler_SeenSetLicenseTracker's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type Compiler_SeenSetLicenseTracker_I interface {
+	shouldUseLicenseInfo_impl(Node) bool
 }
 
 func (this *Compiler_SeenSetLicenseTracker) as_Compiler_SeenSetLicenseTracker() *Compiler_SeenSetLicenseTracker {
@@ -3489,7 +3495,7 @@ func (this *Compiler_SeenSetLicenseTracker) emitLicenses() *JTSet[string] {
 }
 
 func (this *Compiler_SeenSetLicenseTracker) shouldUseLicenseInfo(p0 Node) bool {
-	return this.self_.(interface{ shouldUseLicenseInfo_impl(Node) bool }).shouldUseLicenseInfo_impl(p0)
+	return this.self_.shouldUseLicenseInfo_impl(p0)
 }
 
 type Compiler_ScriptNodeLicensesOnlyTracker struct {
@@ -3819,9 +3825,7 @@ func (this *Compiler) initRuntimeLibraryTypedAsts(p0 GOptional[*ColorPool_Builde
 		this.initRuntimeLibraryTypedAsts_impl(p0)
 		return
 	}
-	this.self_.(interface {
-		initRuntimeLibraryTypedAsts_impl(GOptional[*ColorPool_Builder])
-	}).initRuntimeLibraryTypedAsts_impl(p0)
+	this.self_.initRuntimeLibraryTypedAsts_impl(p0)
 }
 
 // getRuntimeJsLibManager: an object that is exactly a Compiler calls its getRuntimeJsLibManager_impl directly (post-flip); others dispatch.
@@ -4791,7 +4795,7 @@ func (this *Compiler_ScriptNodeLicensesOnlyTracker) shouldUseLicenseInfo(p0 Node
 	if this.self_ == any(this) {
 		return this.shouldUseLicenseInfo_impl(p0)
 	}
-	return this.self_.(interface{ shouldUseLicenseInfo_impl(Node) bool }).shouldUseLicenseInfo_impl(p0)
+	return this.self_.shouldUseLicenseInfo_impl(p0)
 }
 
 // shouldUseLicenseInfo: an object that is exactly a Compiler_SingleBinaryLicenseTracker calls its shouldUseLicenseInfo_impl directly (post-flip); others dispatch.
@@ -4799,7 +4803,7 @@ func (this *Compiler_SingleBinaryLicenseTracker) shouldUseLicenseInfo(p0 Node) b
 	if this.self_ == any(this) {
 		return this.shouldUseLicenseInfo_impl(p0)
 	}
-	return this.self_.(interface{ shouldUseLicenseInfo_impl(Node) bool }).shouldUseLicenseInfo_impl(p0)
+	return this.self_.shouldUseLicenseInfo_impl(p0)
 }
 
 // shouldTraverse: an object that is exactly a Compiler_2 calls its shouldTraverse_impl directly (post-flip); others dispatch.
@@ -4807,7 +4811,5 @@ func (this *Compiler_2) shouldTraverse(p0 *NodeTraversal, p1 Node, p2 Node) bool
 	if this.self_ == any(this) {
 		return this.shouldTraverse_impl(p0, p1, p2)
 	}
-	return this.self_.(interface {
-		shouldTraverse_impl(*NodeTraversal, Node, Node) bool
-	}).shouldTraverse_impl(p0, p1, p2)
+	return this.self_.shouldTraverse_impl(p0, p1, p2)
 }

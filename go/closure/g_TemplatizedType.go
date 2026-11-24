@@ -196,7 +196,7 @@ func (this *TemplatizedType) getTypeClass() *JSTypeClass {
 	if this.self_ == any(this) {
 		return this.getTypeClass_impl()
 	}
-	return this.self_.(interface{ getTypeClass_impl() *JSTypeClass }).getTypeClass_impl()
+	return this.self_.getTypeClass_impl()
 }
 
 // getCtorImplementedInterfaces: an object that is exactly a TemplatizedType calls its getCtorImplementedInterfaces_impl directly (post-flip); others dispatch.
@@ -221,7 +221,7 @@ func (this *TemplatizedType) appendTo(p0 *TypeStringBuilder) {
 		this.appendTo_impl(p0)
 		return
 	}
-	this.self_.(interface{ appendTo_impl(*TypeStringBuilder) }).appendTo_impl(p0)
+	this.self_.appendTo_impl(p0)
 }
 
 // recursionUnsafeHashCode: an object that is exactly a TemplatizedType calls its recursionUnsafeHashCode_impl directly (post-flip); others dispatch.
@@ -229,7 +229,7 @@ func (this *TemplatizedType) recursionUnsafeHashCode() int32 {
 	if this.self_ == any(this) {
 		return this.recursionUnsafeHashCode_impl()
 	}
-	return this.self_.(interface{ recursionUnsafeHashCode_impl() int32 }).recursionUnsafeHashCode_impl()
+	return this.self_.recursionUnsafeHashCode_impl()
 }
 
 // visitUntyped: an object that is exactly a TemplatizedType calls its visitUntyped_impl directly (post-flip); others dispatch.
@@ -237,7 +237,7 @@ func (this *TemplatizedType) visitUntyped(p0 Visitor) any {
 	if this.self_ == any(this) {
 		return this.visitUntyped_impl(p0)
 	}
-	return this.self_.(interface{ visitUntyped_impl(Visitor) any }).visitUntyped_impl(p0)
+	return this.self_.visitUntyped_impl(p0)
 }
 
 // visitUntyped_2: an object that is exactly a TemplatizedType calls its visitUntyped_2_impl directly (post-flip); others dispatch.
@@ -245,9 +245,7 @@ func (this *TemplatizedType) visitUntyped_2(p0 RelationshipVisitor, p1 *JSType) 
 	if this.self_ == any(this) {
 		return this.visitUntyped_2_impl(p0, p1)
 	}
-	return this.self_.(interface {
-		visitUntyped_2_impl(RelationshipVisitor, *JSType) any
-	}).visitUntyped_2_impl(p0, p1)
+	return this.self_.visitUntyped_2_impl(p0, p1)
 }
 
 // toMaybeTemplatizedType: an object that is exactly a TemplatizedType calls its toMaybeTemplatizedType_impl directly (post-flip); others dispatch.
@@ -255,7 +253,7 @@ func (this *TemplatizedType) toMaybeTemplatizedType() *TemplatizedType {
 	if this.self_ == any(this) {
 		return this.toMaybeTemplatizedType_impl()
 	}
-	return this.self_.(interface{ toMaybeTemplatizedType_impl() *TemplatizedType }).toMaybeTemplatizedType_impl()
+	return this.self_.toMaybeTemplatizedType_impl()
 }
 
 // getTemplateTypes: an object that is exactly a TemplatizedType calls its getTemplateTypes_impl directly (post-flip); others dispatch.
@@ -279,7 +277,7 @@ func (this *TemplatizedType) getTemplateTypeMap() *TemplateTypeMap {
 	if this.self_ == any(this) {
 		return this.getTemplateTypeMap_impl()
 	}
-	return this.self_.(interface{ getTemplateTypeMap_impl() *TemplateTypeMap }).getTemplateTypeMap_impl()
+	return this.self_.getTemplateTypeMap_impl()
 }
 
 // hasAnyTemplateTypesInternal: an object that is exactly a TemplatizedType calls its hasAnyTemplateTypesInternal_impl directly (post-flip); others dispatch.
@@ -287,7 +285,7 @@ func (this *TemplatizedType) hasAnyTemplateTypesInternal() bool {
 	if this.self_ == any(this) {
 		return this.hasAnyTemplateTypesInternal_impl()
 	}
-	return this.self_.(interface{ hasAnyTemplateTypesInternal_impl() bool }).hasAnyTemplateTypesInternal_impl()
+	return this.self_.hasAnyTemplateTypesInternal_impl()
 }
 
 // resolveInternal: an object that is exactly a TemplatizedType calls its resolveInternal_impl directly (post-flip); others dispatch.
@@ -295,7 +293,5 @@ func (this *TemplatizedType) resolveInternal(p0 ErrorReporter_rhino) *JSType {
 	if this.self_ == any(this) {
 		return this.resolveInternal_impl(p0)
 	}
-	return this.self_.(interface {
-		resolveInternal_impl(ErrorReporter_rhino) *JSType
-	}).resolveInternal_impl(p0)
+	return this.self_.resolveInternal_impl(p0)
 }

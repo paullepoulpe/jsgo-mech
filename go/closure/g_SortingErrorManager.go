@@ -3,13 +3,20 @@
 package closure
 
 type SortingErrorManager struct {
-	self_                 any
+	self_                 SortingErrorManager_I
 	messages              *JTSet[*SortingErrorManager_ErrorWithLevel]
 	typedPercent          float64
 	errorReportGenerators *JTSet[SortingErrorManager_ErrorReportGenerator]
 	originalErrorCount    int32
 	promotedErrorCount    int32
 	warningCount          int32
+}
+
+// SortingErrorManager_I holds the methods the dispatchers of SortingErrorManager's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type SortingErrorManager_I interface {
+	generateReport_impl()
+	report_2_impl(*CheckLevel, *JSError)
 }
 
 func (this *SortingErrorManager) as_SortingErrorManager() *SortingErrorManager { return this }
@@ -127,11 +134,11 @@ func (this *SortingErrorManager) generateReport_impl() {
 }
 
 func (this *SortingErrorManager) generateReport() {
-	this.self_.(interface{ generateReport_impl() }).generateReport_impl()
+	this.self_.generateReport_impl()
 }
 
 func (this *SortingErrorManager) report_2(p0 *CheckLevel, p1 *JSError) {
-	this.self_.(interface{ report_2_impl(*CheckLevel, *JSError) }).report_2_impl(p0, p1)
+	this.self_.report_2_impl(p0, p1)
 }
 
 func (this *SortingErrorManager) shouldReportConformanceViolation(p0 *Requirement, p1 GOptional[*RequirementScopeEntry], p2 *JSError, p3 *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior, p4 bool) bool {

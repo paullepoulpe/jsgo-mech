@@ -585,13 +585,20 @@ func (this *TypedScopeCreator_IdentifyEnumsAndTypedefsAsNonNullable) identifyEnu
 }
 
 type TypedScopeCreator_AbstractScopeBuilder struct {
-	self_             any
+	self_             TypedScopeCreator_AbstractScopeBuilder_I
 	outer_            *TypedScopeCreator
 	currentScope      *TypedScope
 	currentHoistScope *TypedScope
 	inputId           *InputId
 	deferredActions   *SimpleSetMultimap[Node, Runnable]
 	sourceName_       Optional[string]
+}
+
+// TypedScopeCreator_AbstractScopeBuilder_I holds the methods the dispatchers of TypedScopeCreator_AbstractScopeBuilder's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type TypedScopeCreator_AbstractScopeBuilder_I interface {
+	visitPostorder_impl(*NodeTraversal, Node, Node)
+	visitPreorder_impl(*NodeTraversal, Node, Node)
 }
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) as_TypedScopeCreator_AbstractScopeBuilder() *TypedScopeCreator_AbstractScopeBuilder {
@@ -1979,15 +1986,11 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) declarePropertyIfNamespaceTy
 }
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) visitPreorder(p0 *NodeTraversal, p1 Node, p2 Node) {
-	this.self_.(interface {
-		visitPreorder_impl(*NodeTraversal, Node, Node)
-	}).visitPreorder_impl(p0, p1, p2)
+	this.self_.visitPreorder_impl(p0, p1, p2)
 }
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) visitPostorder(p0 *NodeTraversal, p1 Node, p2 Node) {
-	this.self_.(interface {
-		visitPostorder_impl(*NodeTraversal, Node, Node)
-	}).visitPostorder_impl(p0, p1, p2)
+	this.self_.visitPostorder_impl(p0, p1, p2)
 }
 
 type TypedScopeCreator_AbstractScopeBuilder_SlotDefiner struct {
@@ -2614,9 +2617,7 @@ func (this *TypedScopeCreator_IdentifyEnumsAndTypedefsAsNonNullable) visit(p0 *N
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }
 
 // visitPreorder: an object that is exactly a TypedScopeCreator_NormalScopeBuilder calls its visitPreorder_impl directly (post-flip); others dispatch.
@@ -2625,9 +2626,7 @@ func (this *TypedScopeCreator_NormalScopeBuilder) visitPreorder(p0 *NodeTraversa
 		this.visitPreorder_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visitPreorder_impl(*NodeTraversal, Node, Node)
-	}).visitPreorder_impl(p0, p1, p2)
+	this.self_.visitPreorder_impl(p0, p1, p2)
 }
 
 // visitPostorder: an object that is exactly a TypedScopeCreator_NormalScopeBuilder calls its visitPostorder_impl directly (post-flip); others dispatch.
@@ -2636,9 +2635,7 @@ func (this *TypedScopeCreator_NormalScopeBuilder) visitPostorder(p0 *NodeTravers
 		this.visitPostorder_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visitPostorder_impl(*NodeTraversal, Node, Node)
-	}).visitPostorder_impl(p0, p1, p2)
+	this.self_.visitPostorder_impl(p0, p1, p2)
 }
 
 // visitPreorder: an object that is exactly a TypedScopeCreator_FunctionScopeBuilder calls its visitPreorder_impl directly (post-flip); others dispatch.
@@ -2647,9 +2644,7 @@ func (this *TypedScopeCreator_FunctionScopeBuilder) visitPreorder(p0 *NodeTraver
 		this.visitPreorder_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visitPreorder_impl(*NodeTraversal, Node, Node)
-	}).visitPreorder_impl(p0, p1, p2)
+	this.self_.visitPreorder_impl(p0, p1, p2)
 }
 
 // visitPreorder: an object that is exactly a TypedScopeCreator_ClassScopeBuilder calls its visitPreorder_impl directly (post-flip); others dispatch.
@@ -2658,9 +2653,7 @@ func (this *TypedScopeCreator_ClassScopeBuilder) visitPreorder(p0 *NodeTraversal
 		this.visitPreorder_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visitPreorder_impl(*NodeTraversal, Node, Node)
-	}).visitPreorder_impl(p0, p1, p2)
+	this.self_.visitPreorder_impl(p0, p1, p2)
 }
 
 // visitPostorder: an object that is exactly a TypedScopeCreator_ClassScopeBuilder calls its visitPostorder_impl directly (post-flip); others dispatch.
@@ -2669,9 +2662,7 @@ func (this *TypedScopeCreator_ClassScopeBuilder) visitPostorder(p0 *NodeTraversa
 		this.visitPostorder_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visitPostorder_impl(*NodeTraversal, Node, Node)
-	}).visitPostorder_impl(p0, p1, p2)
+	this.self_.visitPostorder_impl(p0, p1, p2)
 }
 
 // enterScope: an object that is exactly a TypedScopeCreator_FirstOrderFunctionAnalyzer calls its enterScope_impl directly (post-flip); others dispatch.
@@ -2680,7 +2671,7 @@ func (this *TypedScopeCreator_FirstOrderFunctionAnalyzer) enterScope(p0 *NodeTra
 		this.enterScope_impl(p0)
 		return
 	}
-	this.self_.(interface{ enterScope_impl(*NodeTraversal) }).enterScope_impl(p0)
+	this.self_.enterScope_impl(p0)
 }
 
 // visit: an object that is exactly a TypedScopeCreator_FirstOrderFunctionAnalyzer calls its visit_impl directly (post-flip); others dispatch.
@@ -2689,7 +2680,5 @@ func (this *TypedScopeCreator_FirstOrderFunctionAnalyzer) visit(p0 *NodeTraversa
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }
