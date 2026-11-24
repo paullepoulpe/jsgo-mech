@@ -3222,3 +3222,177 @@ nodes has (Node.java:2441-2447); how often that happens in the subset was not me
   writes it back as it is, which was read in the code, not run.
 - Combinations of switches other than "one piece off", "both off" and "everything off" were not
   translated. No allocation profile.
+
+## 15. Record of three RESIDUE8 rules: pieces `rtm`, `fns2`, `seqstr` (branch `main-resid-a`, worktree `/mnt/data/ubuntu/jm/wt/resa`, 2026-11-24)
+
+Begun on main 86bd1043, rebased onto main daf5b046 (section 14, pieces `hstatic` and `owniter`)
+before the gates; every md5 below is of the rebased tree. The three rules of
+`docs/javaisms6/RESIDUE8.md` taken here: "typed runtime instance methods, by name list" (T1.1-T1.4,
+T2.13, T2.16a, T3.3a: 40 sites), "more `LibFns` twins" (T1.5-T1.7, T1.9, T1.10, T1.13, T1.15: 26)
+and "`Conv.strSeq` name list" (T1.12, T2.12, T3.4: 6). Sites are those of the eighth flip's
+accounting (`docs/javaisms6/residue8.tsv`); each was found again in main's translation and checked
+in this branch's. Colls.java, LibObj.java and StmtEmitter.java are not touched. Scratch:
+`/mnt/data/tmp/claude-1000/-home-ubuntu-work/9db246f3-01a3-48c8-9bf5-1c94d1ed78d6/scratchpad/resa/`
+(`hv.sh`: one heavy job = `flock $B/heavy.lock systemd-run --user --scope -p MemoryMax=20G -p
+MemorySwapMax=0 env GOENV=$B/goenv-c1`; `runsh.sh <label> [VAR=val]`: `run.sh` with the
+`J2GO_LIBGEN=2` report, md5, copy to `out-<label>`; `off.sh`: each switch, then `verify.sh` with the
+three pieces off and with everything off; `gatea.sh`: `run.sh` + `gate.sh` + binary size; `h4.sh`:
+main's binary from worktree `$B/wt/resam` (daf5b046) + timing).
+
+### 15.1 Commits
+
+| commit | switch (`J2GO_NOLIBGEN=`) | what |
+|---|---|---|
+| fed280c9 | `rtm`, `fns2`, `seqstr` | `LibFns.RT_METHODS` / `TYPED_RT` / `TYPED_F2`, `Conv.STR_SEQ2`; `rt_resid.go` (no build tag), `rt_lgfn2.go` (rule "function types"); `selftest/lang/Resid.java` |
+| (the commit after) | | this section |
+
+ExprEmitter gets two fields for LibFns (the call being translated, `lfTree`; the arguments of calls
+of `LibFns.READS_ONCE`, `readOnce`), Main one line (the report of unused list entries). The erased
+runtime functions whose bodies the twins share were split, not changed (`Ascii_equalsIgnoreCase`,
+`CharMatcher.lastIndexIn` / `collapseFrom`, `TextFormat_Parser.merge`, `listFilesInto_` now take a
+string / an `add` function; the erased functions call them as before).
+
+### 15.2 The form
+
+- **`rtm`** (`LibFns.rtMethod`): a name list of runtime instance methods (key: the method or its
+  root, `LibFns.key`), each with the receiver it needs (its runtime class; a program enum for
+  `Enum.compareTo`; a typed collection of a kind), the Java types its arguments are given at, and
+  its result. `b.compareTo(S)` of two BigIntegers is `b.compareTo_t(S)` (was `compareTo(obj_(S))`);
+  `ComparisonChain.compare(a, b)` of two Strings is `compare_s(a, b)` (was `strobj_` twice);
+  `lo.compareTo(hi)` of a program enum is `lo.compareTo_t(hi.up_Enum())` (the ordinals, as Java's
+  final `Enum.compareTo`); `(BitSet) bs.clone()` is `bs.clone_t()` (was
+  `cast_[*BitSet](Object_clone(obj_(bs)))`); `ImmutableList.subList` / `reverse` of a typed
+  immutable list give the typed immutable list (`subListImm_`, `reverseImm_`; on the `ListT` of a
+  place of the class `ImmutableList_subListT_` / `ImmutableList_reverseT_`), where the translation
+  went `tlistImm_(tc, cast_[*ImmutableList](l.asImm().subList(a, b)))` (boxed twin, erased sublist,
+  typed copy); `TreeSet.tailSet` of a typed sorted set is `tailSetT_` (a new typed sorted set, as
+  the erased view's `tailSet` makes a new TreeSet: the runtime's existing deviation from Java's
+  live view, unchanged), `Map.containsValue` on a typed map with an argument of the value's Go
+  type `containsValueT_`, `List.add(int, E)` on a typed List `List_add_intT_` (a `TYPED_RT` entry,
+  the `LibFns` mechanism). Every twin mirrors the erased method step by step (bounds and
+  ClassCastException of `asImm`, the empty immutable list, the list itself for the whole range).
+- **`fns2`** (`LibFns.TYPED_F2`, needs rule "function types"; a Go name may carry its own type
+  arguments, `Comparator_comparingS_[$0]`): `Arrays.setAll` of an array of a class type is
+  `Arrays_setAllT_[X](a, IntFunction[X](..))` (was a converted copy, a boxing lambda and a cast
+  per element); `Comparator.comparing` / `thenComparing` with a String key `Comparator_comparingS_`
+  / `Comparator_thenComparingS_` (the keys compared as compareNatural_ compares two Strings,
+  unboxed; where javac's recorded inference leaves the key at Object, as in `new
+  TreeSet<>(comparing(Export::getExportedPath))`, an unbound method reference with a String
+  result gives it); `Lists.transform(l, f)` that is the argument of a method of `READS_ONCE`
+  (`ImmutableList.Builder.addAll(Iterable)`, `ImmutableCollection.Builder.addAll`) is
+  `Iterables_transformT_` at type `Iterable` (Lists' live view and Iterables' give the same
+  elements to one reader; the view is no List there); `Splitter.split` of a String is `split_sT`
+  (an `IterableT[string]`, so the for-each runs on `eachOf_`); `Io.listFiles` `Io_listFilesT_`
+  (`ListT[string]`); `Map.putIfAbsent` / `replace` with a String key on a typed map
+  `Map_putIfAbsent_sT_` / `Map_replace_sT_`; `Collections.singletonList` of a typed element
+  `Collections_singletonListT_` (not of Object: the erased list serves erased readers).
+- **`seqstr`** (`Conv.STR_SEQ2`): String variants of `TextFormat.merge`, `Ascii.equalsIgnoreCase`,
+  `Integer.parseInt(CharSequence, int, int, int)`, `CharMatcher.lastIndexIn` / `collapseFrom`.
+- Stale check: `J2GO_LIBGEN` prints `libgen: rtm/fns2: on the list with no call: ...` for an entry
+  no call took; the default translation prints none. The lists are of runtime methods and of
+  library methods that read an argument once (library semantics), not arguments about program
+  values, so no checked-in program list is needed.
+
+Report of the default translation (`J2GO_LIBGEN=2`): `rtm` 35 calls (BigInteger.compareTo 10,
+ComparisonChain.compare 6, ImmutableList.subList 7, reverse 2, Enum.compareTo 2, BitSet.clone 3,
+Map.containsValue 1, TreeSet.tailSet 1, List.add(int, E) 3); `fns2` 39 (Splitter.split 18,
+Comparator.comparing 6, thenComparing 4, Arrays.setAll 3, Lists.transform 2, Io.listFiles 2,
+putIfAbsent 1, replace 1, singletonList 1); `seqstr` 5. Left by the new pieces: `comparing` 2 (a
+key that is no String), `singletonList` 1 (an Object element), `putIfAbsent#s` 1 (the result
+enters an Object).
+
+### 15.3 Sites per RESIDUE8 category (eighth flip's accounting)
+
+| rule | category | sites | taken | left, and why |
+|---|---|---:|---:|---|
+| rtm | T1.1 BigInteger.compareTo | 10 | 10 | |
+| rtm | T1.2 ComparisonChain.compare | 12 | 12 | |
+| rtm | T1.3 Enum.compareTo | 2 | 2 | |
+| rtm | T1.4 BitSet clone | 6 | 6 | |
+| rtm | T2.13 subList / reverse / asList | 6 | 5 | 1: `JsMessage.getGenderedMessageVariants`, `getGenderedMessagesMap().keySet().asList()`: the receiver is `keySet()` of an immutable typed map at type `ImmutableSet`, which the translation gives as the erased key set behind a `setAs_` wrapper (piece `views` types `keySet()` for `Set` places only); a typed `asList` on it would make the same erased call. Typing it needs the typed key set of an immutable map as an `ImmutableSet` (with Guava's cached `asList`), a `views` rule, not a twin. jsgo: `internal/jscomp/js_message.go:295`, `KeySlice()` of its hand ordered map |
+| rtm | T2.16a tailSet / containsValue | 2 | 2 | |
+| rtm | T3.3a List.add(int, E) | 2 | 2 | |
+| fns2 | T1.5 Arrays.setAll | 5 | 5 | |
+| fns2 | T1.6 comparing / thenComparing | 6 | 5 | 1: `ConvertToTypedInterface.SHORT_TO_LONG = comparing(SimplifyDeclarations::countDots)`: the key is an `Integer`, and rule "function types" makes `Function<String, Integer>` `Function[string, any]` (a boxed type argument is `any`, `FnTypes.norm`); typing it is piece `nbox` for type arguments (RESIDUE8 T1.16). jsgo: `internal/jscomp/ijs_convert_to_typed_interface.go:687`, a hand comparator of dot counts |
+| fns2 | T1.7 Lists.transform read once | 6 | 6 | |
+| fns2 | T1.9 Splitter.split | 2 | 2 | |
+| fns2 | T1.10 Io.listFiles | 2 | 2 | |
+| fns2 | T1.13 putIfAbsent / replace / singletonList | 3 | 3 | |
+| fns2 | T1.15 Iterables.concat of a transform | 2 | 0 | 2 (one call, `JSChunkGraph.getAllInputs`, `Iterables.concat(Iterables.transform(Arrays.asList(chunks), JSChunk::getInputs))`): the transform's function gives a `List<CompilerInput>` (`? extends List<..>`, refused today: "a parameter's Go type is not the twin's"), and Go's generics are invariant, so `IterableT[ListT[X]]` is no `IterableT[IterableT[X]]` (concat's parameter): a twin needs a wrapper per inner list or a twin for lists of lists, plus an `Arrays.asList` twin (varargs). jsgo: `internal/jscomp/js_chunk_graph.go:267` replaced the lazy view by an eager copy into a slice, which our bounds forbid |
+| seqstr | T1.12 String to CharSequence | 3 | 3 | |
+| seqstr | T2.12 CharMatcher | 2 | 2 | |
+| seqstr | T3.4 Hasher.putUnencodedChars | 1 | 0 | 1: `RandomNameGenerator.generateSuffix` passes a `StringBuilder`, not a String: rule "String for CharSequence" does not apply, and `obj_` of a `*StringBuilder` is a pointer in an interface (no allocation). jsgo: `internal/jscomp/random_name_generator.go:308`, a hand murmur3 over the characters (an algorithm rewrite) |
+| | **all** | **72** | **67** | **5** |
+
+Per rule: typed runtime methods 39 of 40, LibFns twins 23 of 26, strSeq names 5 of 6. Taken
+beyond the categories: 16 more `Splitter.split` calls, 1 `comparing`, 1 `singletonList`, 1 `List.add`.
+
+### 15.4 Byte identity, census, binary (md5 of `cat go/closure/g_*.go`)
+
+| translation | md5 |
+|---|---|
+| main daf5b046, default (measured in `$B/wt/resam`) | 6a3d23dc534351b290d367f8af3a44db |
+| fed280c9, `J2GO_NOLIBGEN=rtm,fns2,seqstr` | 6a3d23dc534351b290d367f8af3a44db (= main) |
+| fed280c9, `J2GO_NOFNTYPES=1 J2GO_NOLIBGEN=all` | 973b5b6d3e4f71ab1cc82872360f9759 (= main's all-off; measured on 86bd1043 too) |
+| 72fc20f7 (fed280c9 before its last fix), `J2GO_NOLIBGEN=rtm` / `=fns2` / `=seqstr` | be539006 / aa204db2 / 77729e2e |
+| fed280c9, default | d77b21723e4053a2b7b9d4f733f8aa6c |
+
+(72fc20f7 failed its gate: the default build lacked `containsValue` in the generated `Map`
+interface, whose only caller had become the twin; fed280c9 keeps the erased method of an interface
+declared when a twin takes its call. That fix runs only when a piece is on: both off-mode md5s were
+measured again on fed280c9, the single-piece ones were not.)
+
+Census (`census.py` of pf5; main daf5b046 -> fed280c9): Guava immutable collections / builders 48
+-> 46, for-each via iterator objects 720 -> 711, class casts 1,082 -> 1,070, boxing to any 1,441 ->
+1,391, unboxing from any 89 -> 78, fields/params declared any 1,222 -> 1,220; no row higher.
+
+Binary (`go build ./cmd/mech`, GOENV goenv-c1): main (`m_resa_base`) 124,735,555 bytes; fed280c9
+(`m_resa_b`) 124,772,189 (+36,634). Runtime lines of the default build 21,382, off-mode extras 244.
+
+### 15.5 Gate lines
+
+`gatea.sh resa_b` (= `run.sh` + `$B/gate.sh resa resa_b`) on the committed fed280c9, log
+`/mnt/data/ubuntu/jm/logs/gate-resa_b.log`:
+
+```
+GATE OK resa_b
+tree: fed280c90 RESIDUE8 rules: pieces rtm, fns2, seqstr (typed runtime instance methods, more L  dirty: 1
+selftest: PASS
+removed 0 declarations in 0 rounds
+ok  	jsgomech/closure	1.984s
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+runtime lines: 21626  test lines: 4877
+```
+
+(`dirty: 1` is the `.cache` link.) Switches off (`off.sh`, on 72fc20f7: translate with the switch,
+`tools/prune/verify.sh` with it): `J2GO_NOLIBGEN=rtm,fns2,seqstr` and `J2GO_NOFNTYPES=1
+J2GO_NOLIBGEN=all` each selftest PASS, `ok`, the four MATCH lines as above. The self-test counts
+`lang/Resid.java`: 20 twin calls in `rtm()`, 11 in `fns2()`, 5 in `seqstr()`, 2 in the static
+comparators, 2 `compare_s` in `Pair.compareTo`, none in `left()` and its 3 erased calls.
+
+### 15.6 Timing (CPU, googleapis 18% subset, `proto/gast.py gasub/flags3500.txt 3`)
+
+`base` = main daf5b046's translation and runtime (`$B/bin/m_resa_base`), `new` = the gate binary of
+fed280c9 (`$B/bin/m_resa_b`), both with GOENV goenv-c1 under the lock and the 20G scope; the three
+pieces together (the translator is one step). Output sha 72b57cd286c9 in all six runs (`tm.log`).
+
+| binary | runs (CPU s) | mean | min |
+|---|---|---:|---:|
+| base | 166.93, 165.85, 165.20 | 165.99 | 165.20 |
+| new | 166.34, 165.96, 163.99 | 165.43 | 163.99 |
+
+-0.3% of the means, -0.7% of the minima: neutral (within one binary's spread). The sites are cold
+except `Splitter.split` and `ComparisonChain` comparators.
+
+### 15.7 Not done, unverified
+
+- No flip: the census is of the translation, not of a flipped tree.
+- The self-test does not cover `Io.listFiles` (environment-dependent), `TextFormat.merge` (needs a
+  protobuf builder), `List.add(int, E)` on a `ListT` (its typed list is a concrete one there) or the
+  `ImmutableList_subListT_` form; the gate covers the tree's calls only as far as the e2e inputs
+  run them.
+- `verify.sh` with a single piece off was not run (only their md5s, on 72fc20f7).
+- No allocation profile; the binary growth is not broken down.
