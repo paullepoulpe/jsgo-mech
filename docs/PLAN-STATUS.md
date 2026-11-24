@@ -226,6 +226,27 @@ limit inside it; Java's heap is -Xmx20g as always), same output (chunks cae7acad
 201.4 / 39.9). Java/Go 0.76. Both sides ran 7-12 s slower than on the seventh flip's run, the
 ratio is level. Speed is not met.
 
+## Translator after the eighth flip (2026-11-24, not yet flipped)
+
+Each merged by fast-forward after GATE OK (dirty 1, selftest PASS, ok, four MATCH), its switches-off
+translation equal to main's before and the all-off translation 973b5b6d, and CPU on the subset
+against a binary of main at the time (output sha 72b57cd286c9 in every run). Details in
+docs/libgen/COLLECTIONS-PLAN.md, sections named below.
+
+| merge | rule (switch) | sites taken | CPU vs main | binary | section |
+|---|---|---|---|---|---|
+| 73e902a8 | ownwild (R4), nbox (R5) | 2 erased classes generic; 57 boxed slots Nbox[T], 18 refused | -0.3% | +14 KB | 12 |
+| 86bd1043 | T5 proto (PROTOGEN_NOT5, J2GO_NOLIBGEN=proto) | all 26 T5 sites | +0.2% | +515 KB (accessors for every repeated field) | 13 |
+| daf5b046 | hstatic (T7), owniter (T6) | T7 30 of 56, T6 17 of 18 loops | +0.0% | +146 KB | 14 |
+| caf03d23 | rtm, fns2, seqstr (RESIDUE8) | 67 of 72 | -0.3% | +37 KB | 15 |
+
+docs/javaisms6/RESIDUE8.md (86bd1043) gives every one of the 407 sites the eighth flip's accounting
+still marked with an implemented rule a verdict: 95 taken on main, 56 counted reasons (each against
+jsgo), 256 gaps with 11 proposed rules; it is reproducible (docs/javaisms6/rebuild/residue8.sh).
+Census on main's translation, 73e902a8's parent -> caf03d23: boxing to any 1,496 -> 1,391, unboxing
+142 -> 78, class casts 1,114 -> 1,070, fields/params declared any 1,293 -> 1,220. No rule moved CPU
+beyond noise.
+
 ## Translator after the seventh flip (2026-11-24, not yet flipped)
 
 T3 on main (ede15525; COLLECTIONS-PLAN.md section 9): kind goptional (Guava's Optional as the value
