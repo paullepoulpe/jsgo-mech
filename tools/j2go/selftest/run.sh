@@ -185,7 +185,7 @@ if [[ ! ,${J2GO_NOLIBGEN:-}, =~ ,(annqual|ownwild|ownwild2|all), ]]; then
   g="$t/go/closure/g_RtCls.go"
   ny=$(grep -cE '^type RtCls_Lazy\[T [a-z]+\] struct' "$g" || true)
   nx=$(grep -cE '^type RtCls_(Two|Unl) struct' "$g" || true)
-  ni=$(grep -cF 'is_[*RtCls_Lazy[T]](' "$g" || true)
+  ni=$(grep -cF 'is_[interface{ as_RtCls_Lazy() *RtCls_Lazy[T] }](' "$g" || true)
   if [[ $ny != 1 || $nx != 2 || $ni != 1 ]]; then echo "selftest: FAIL (pieces annqual/ownwild2: $ny typed, $nx erased, $ni typed tests)"; exit 1; fi
 fi
 if [[ ! ,${J2GO_NOLIBGEN:-}, =~ ,(nboxarg|nbox|fns2|all), && ${J2GO_NOFNTYPES:-} != 1 ]]; then

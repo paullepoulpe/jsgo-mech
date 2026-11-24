@@ -1076,7 +1076,13 @@ abstract class ExprEmitter extends Base {
 
   String instanceOf(InstanceOfTree t) {
     TypeMirror own = cx.ownTests.get(t);
-    if (own != null) return "is_[" + cx.goType(own) + "](" + asAny(t.getExpression()) + ")";
+    if (own != null) {
+      // (piece `ownwild2`: a class with subclasses, Source.Lazy and its anonymous Lazy_1, Lazy_2: the test of an object
+      // whose class is C at T or a subclass of it, by the method as_C that C[T] declares and its subclasses promote)
+      TypeElement ote = Ctx.typeElement(own);
+      if (!cx.isLeaf(ote)) return "is_[interface{ as_" + cx.className(ote) + "() " + cx.goType(own) + " }](" + asAny(t.getExpression()) + ")";
+      return "is_[" + cx.goType(own) + "](" + asAny(t.getExpression()) + ")";
+    }
     Object[] ht = fieldRead(t.getExpression(), f -> cx.handleTable(f) != null);
     if (ht != null) {
       VariableElement f = (VariableElement) ht[1];
