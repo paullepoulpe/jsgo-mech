@@ -9,7 +9,7 @@ type RewriteAsyncIteration struct {
 	actionEnumYield       RuntimeJsLibManager_JsLibField
 	actionEnumYieldStar   RuntimeJsLibManager_JsLibField
 	compiler_             *AbstractCompiler
-	contextStack          *TDeque[*RewriteAsyncIteration_LexicalContext]
+	contextStack          *[]*RewriteAsyncIteration_LexicalContext
 	astFactory_           *AstFactory
 	namespace_            StaticScope
 	nextForAwaitId        int32
@@ -33,7 +33,7 @@ func (this *RewriteAsyncIteration) init_RewriteAsyncIteration(compiler *Abstract
 		panic(new_NullPointerException_0())
 	}
 	this.namespace_ = namespace
-	this.contextStack = newTDeque_(tc_p_RewriteAsyncIteration_LexicalContext)
+	this.contextStack = &[]*RewriteAsyncIteration_LexicalContext{}
 	var runtimeLibManager *RuntimeJsLibManager = compiler.getRuntimeJsLibManager()
 	this.asyncGeneratorWrapper = runtimeLibManager.getJsLibField("$jscomp.AsyncGeneratorWrapper")
 	this.actionRecordName = runtimeLibManager.getJsLibField("$jscomp.AsyncGeneratorWrapper$ActionRecord")
@@ -55,38 +55,38 @@ func RewriteAsyncIteration_create(compiler *AbstractCompiler) *RewriteAsyncItera
 }
 
 func (this *RewriteAsyncIteration) process_2(externs Node, root Node) {
-	if !this.contextStack.isEmpty() {
+	if len(*this.contextStack) != 0 {
 		panic(new_IllegalStateException_0())
 	}
-	this.contextStack.push(RewriteAsyncIteration_LexicalContext_newGlobalContext(root))
+	*this.contextStack = append(*this.contextStack, RewriteAsyncIteration_LexicalContext_newGlobalContext(root))
 	TranspilationPasses_processTranspile(this.compiler_, root, RewriteAsyncIteration_transpiledFeatures, []NodeTraversal_Callback{NodeTraversal_Callback(this)})
 	TranspilationPasses_maybeMarkFeaturesAsTranspiledAway(this.compiler_, root, RewriteAsyncIteration_transpiledFeatures)
-	if SequencedCollection_getFirstT_[*RewriteAsyncIteration_LexicalContext](this.contextStack.asCollT()).function != 0 {
+	if sliceTop_(tc_p_RewriteAsyncIteration_LexicalContext, *this.contextStack).function != 0 {
 		panic(new_IllegalStateException_0())
 	}
-	this.contextStack.pop()
-	if !this.contextStack.isEmpty() {
+	slicePop_(tc_p_RewriteAsyncIteration_LexicalContext, this.contextStack)
+	if len(*this.contextStack) != 0 {
 		panic(new_IllegalStateException_0())
 	}
 }
 
 func (this *RewriteAsyncIteration) shouldTraverse(nodeTraversal *NodeTraversal, n Node, parent Node) bool {
 	if n.isFunction() {
-		this.contextStack.push(RewriteAsyncIteration_LexicalContext_newContextForFunction(SequencedCollection_getFirstT_[*RewriteAsyncIteration_LexicalContext](this.contextStack.asCollT()), n, this.compiler_))
+		*this.contextStack = append(*this.contextStack, RewriteAsyncIteration_LexicalContext_newContextForFunction(sliceTop_(tc_p_RewriteAsyncIteration_LexicalContext, *this.contextStack), n, this.compiler_))
 	} else if n.isParamList() {
-		this.contextStack.push(RewriteAsyncIteration_LexicalContext_newContextForParamList(SequencedCollection_getFirstT_[*RewriteAsyncIteration_LexicalContext](this.contextStack.asCollT()), n, this.compiler_))
+		*this.contextStack = append(*this.contextStack, RewriteAsyncIteration_LexicalContext_newContextForParamList(sliceTop_(tc_p_RewriteAsyncIteration_LexicalContext, *this.contextStack), n, this.compiler_))
 	}
 	return true
 }
 
 func (this *RewriteAsyncIteration) visit(t *NodeTraversal, n Node, parent Node) {
-	var ctx *RewriteAsyncIteration_LexicalContext = SequencedCollection_getFirstT_[*RewriteAsyncIteration_LexicalContext](this.contextStack.asCollT())
+	var ctx *RewriteAsyncIteration_LexicalContext = sliceTop_(tc_p_RewriteAsyncIteration_LexicalContext, *this.contextStack)
 	switch n.ns_().token {
 	case tokOrd1_PARAM_LIST:
 		if !equalsId_(n, ctx.contextRoot) {
 			panic(new_IllegalStateException_String(tostr_(n)))
 		}
-		this.contextStack.pop()
+		slicePop_(tc_p_RewriteAsyncIteration_LexicalContext, this.contextStack)
 	case tokOrd1_FUNCTION:
 		if !equalsId_(n, ctx.contextRoot) {
 			panic(new_IllegalStateException_0())
@@ -95,7 +95,7 @@ func (this *RewriteAsyncIteration) visit(t *NodeTraversal, n Node, parent Node) 
 			this.convertAsyncGenerator(n)
 			this.prependTempVarDeclarations(ctx, t)
 		}
-		this.contextStack.pop()
+		slicePop_(tc_p_RewriteAsyncIteration_LexicalContext, this.contextStack)
 	case tokOrd1_AWAIT:
 		if ctx.function == 0 {
 			panic(new_NullPointerException_0())

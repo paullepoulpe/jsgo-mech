@@ -4,14 +4,14 @@ package closure
 
 type JSTypeResolver struct {
 	registry        *JSTypeRegistry
-	captureStack    *TDeque[*JSType]
-	resolutionQueue *TDeque[*JSType]
+	captureStack    *[]*JSType
+	resolutionQueue *[]*JSType
 	state           JSTypeResolver_State
 }
 
 func (this *JSTypeResolver) finit_JSTypeResolver() {
-	this.captureStack = newTDeque_(tc_p_JSType)
-	this.resolutionQueue = newTDeque_(tc_p_JSType)
+	this.captureStack = &[]*JSType{}
+	this.resolutionQueue = &[]*JSType{}
 	this.state = JSTypeResolver_State_CLOSED
 }
 
@@ -37,14 +37,14 @@ func (this *JSTypeResolver) addUnresolved(captured *JSType) {
 	if captured.isResolved() {
 		panic(new_IllegalStateException_0())
 	}
-	this.captureStack.add(captured)
+	*this.captureStack = append(*this.captureStack, captured)
 }
 
 func (this *JSTypeResolver) resolveIfClosed(captured *JSType, caller JSTypeClass) {
 	if !caller.isTypeOf(captured) {
 		return
 	}
-	var expected *JSType = SequencedCollection_removeLastT_[*JSType](this.captureStack.asCollT())
+	var expected *JSType = slicePop_(tc_p_JSType, this.captureStack)
 	if captured != expected {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("Captured %s; Expected %s", captured, expected)))
 	}
@@ -52,7 +52,7 @@ func (this *JSTypeResolver) resolveIfClosed(captured *JSType, caller JSTypeClass
 	case JSTypeResolver_State_CLOSED, JSTypeResolver_State_CLOSING:
 		this.doResolve(captured)
 	case JSTypeResolver_State_OPEN:
-		this.resolutionQueue.add(captured)
+		*this.resolutionQueue = append(*this.resolutionQueue, captured)
 	}
 }
 
@@ -60,7 +60,7 @@ func (this *JSTypeResolver) openForDefinition() *JSTypeResolver_Closer {
 	if !eqR_(this.state, JSTypeResolver_State_CLOSED) {
 		panic(new_IllegalStateException_0())
 	}
-	if !this.captureStack.isEmpty() {
+	if len(*this.captureStack) != 0 {
 		panic(new_IllegalStateException_0())
 	}
 	this.state = JSTypeResolver_State_OPEN
@@ -71,14 +71,14 @@ func (this *JSTypeResolver) resolveAll() {
 	if !eqR_(this.state, JSTypeResolver_State_OPEN) {
 		panic(new_IllegalStateException_0())
 	}
-	if !this.captureStack.isEmpty() {
+	if len(*this.captureStack) != 0 {
 		panic(new_IllegalStateException_0())
 	}
 	this.state = JSTypeResolver_State_CLOSING
-	for !this.resolutionQueue.isEmpty() {
-		this.doResolve(this.resolutionQueue.pop())
+	for len(*this.resolutionQueue) != 0 {
+		this.doResolve(slicePopFirst_(tc_p_JSType, this.resolutionQueue))
 	}
-	this.resolutionQueue = newTDeque_(tc_p_JSType)
+	this.resolutionQueue = &[]*JSType{}
 	this.state = JSTypeResolver_State_CLOSED
 	var globalThis *PrototypeObjectType = to_PrototypeObjectType(this.registry.getNativeType(JSTypeNative_GLOBAL_THIS).self())
 	var windowType *JSType = this.registry.getGlobalType("Window")

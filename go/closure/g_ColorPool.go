@@ -151,7 +151,7 @@ type ColorPool_Builder struct {
 	idToColor               *TMap[*ColorId, *Color]
 	registry                *ColorRegistry_Builder
 	idToProto               *SimpleTable[*ColorId, *ColorPool_ShardView, *TypeProto]
-	reconcilationDebugStack *TDeque[*ColorId]
+	reconcilationDebugStack *[]*ColorId
 	forTestingField         bool
 }
 
@@ -161,7 +161,7 @@ func (this *ColorPool_Builder) finit_ColorPool_Builder() {
 	this.registry = ColorRegistry_builder()
 	this.idToProto = SimpleTable_create[*ColorId, *ColorPool_ShardView, *TypeProto]()
 	this.forTestingField = false
-	this.reconcilationDebugStack = newTDeque_(tc_p_ColorId)
+	this.reconcilationDebugStack = &[]*ColorId{}
 }
 
 func (this *ColorPool_Builder) init_ColorPool_Builder() {
@@ -254,18 +254,16 @@ func (this *ColorPool_Builder) forEachShard(fn Consumer[*ColorPool_ShardView]) {
 
 func (this *ColorPool_Builder) reconcilationDebugStackProtos() *TList[MapT[*ColorPool_ShardView, *TypeProto]] {
 	var result *ImmutableList_Builder[MapT[*ColorPool_ShardView, *TypeProto]] = immutableListBuilder_(tc_MapT_p_ColorPool_ShardView__p_TypeProto_)
-	it_1 := this.reconcilationDebugStack.each()
-	for it_1.next() {
-		var stackId *ColorId = it_1.v
+	for stackId := range sliceAll_(this.reconcilationDebugStack) {
 		result.add(immutableMapCopyOf_(tc_p_ColorPool_ShardView, tc_p_TypeProto, Map_un_(this.idToProto.row(stackId))).asMapT())
 	}
 	return result.build()
 }
 
 func (this *ColorPool_Builder) lookupOrReconcileColor(id *ColorId) (ret_1 *Color) {
-	this.reconcilationDebugStack.add(id)
+	*this.reconcilationDebugStack = append(*this.reconcilationDebugStack, id)
 	defer func() {
-		SequencedCollection_removeLastT_[*ColorId](this.reconcilationDebugStack.asCollT())
+		slicePop_(tc_p_ColorId, this.reconcilationDebugStack)
 	}()
 	var existing *Color = this.idToColor.PutIfAbsent(id, ColorPool_PENDING_COLOR)
 	if existing != nil {

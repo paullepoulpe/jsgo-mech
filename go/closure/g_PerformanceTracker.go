@@ -12,7 +12,7 @@ type PerformanceTracker struct {
 	codeChange                     *RecentChange
 	startTime                      int64
 	endTime                        int64
-	currentPass                    *TDeque[*PerformanceTracker_Stats]
+	currentPass                    *[]*PerformanceTracker_Stats
 	passSummary                    *TMap[string, *PerformanceTracker_Stats]
 	astManifest                    *SimpleMultiset[Token_rhino]
 	log_                           *[]*PerformanceTracker_Stats
@@ -79,7 +79,7 @@ func (this *PerformanceTracker) finit_PerformanceTracker() {
 	this.astDiff = 0
 	this.diff = 0
 	this.gzDiff = 0
-	this.currentPass = newTDeque_(tc_p_PerformanceTracker_Stats)
+	this.currentPass = &[]*PerformanceTracker_Stats{}
 	this.log_ = &[]*PerformanceTracker_Stats{}
 	this.pruningAnalysisSummary = "not executed"
 	this.disambiguatePropertiesSummary = "not executed"
@@ -109,7 +109,7 @@ func (this *PerformanceTracker) getCodeChangeHandler() CodeChangeHandler {
 }
 
 func (this *PerformanceTracker) recordPassStart(passName string, isOneTime bool) {
-	this.currentPass.push(new_PerformanceTracker_Stats(passName, isOneTime))
+	*this.currentPass = append(*this.currentPass, new_PerformanceTracker_Stats(passName, isOneTime))
 	if !(passName == "toSource") {
 		this.codeChange.reset()
 	}
@@ -139,7 +139,7 @@ func (this *PerformanceTracker) updateAfterDeserialize(jsRoot Node) {
 
 func (this *PerformanceTracker) recordPassStop(passName string, runtime int64) {
 	var allocMem int32 = this.getAllocatedMegabytes()
-	var logStats *PerformanceTracker_Stats = this.currentPass.pop()
+	var logStats *PerformanceTracker_Stats = slicePop_(tc_p_PerformanceTracker_Stats, this.currentPass)
 	if passName != logStats.pass {
 		panic(new_IllegalStateException_0())
 	}

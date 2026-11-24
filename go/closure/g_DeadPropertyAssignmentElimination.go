@@ -128,14 +128,14 @@ func (this *DeadPropertyAssignmentElimination_Property) markLastWriteRead() {
 
 func (this *DeadPropertyAssignmentElimination_Property) markChildrenRead() {
 	var propertiesSet *TSet[*DeadPropertyAssignmentElimination_Property] = tsetCopy_(tc_p_DeadPropertyAssignmentElimination_Property, this.children_)
-	var propertyQueue *TDeque[*DeadPropertyAssignmentElimination_Property] = tdequeFrom_(tc_p_DeadPropertyAssignmentElimination_Property, Collection(propertiesSet.asSet()))
+	var propertyQueue []*DeadPropertyAssignmentElimination_Property = sliceFrom_(tc_p_DeadPropertyAssignmentElimination_Property, Collection(propertiesSet.asSet()))
 	propertiesSet.Add(this)
-	for !propertyQueue.isEmpty() {
-		var childProperty *DeadPropertyAssignmentElimination_Property = propertyQueue.pop()
+	for len(propertyQueue) != 0 {
+		var childProperty *DeadPropertyAssignmentElimination_Property = slicePopFirst_(tc_p_DeadPropertyAssignmentElimination_Property, &propertyQueue)
 		childProperty.markLastWriteRead()
 		for grandchildProperty := range childProperty.children_.All() {
 			if propertiesSet.Add(grandchildProperty) {
-				propertyQueue.add(grandchildProperty)
+				propertyQueue = append(propertyQueue, grandchildProperty)
 			}
 		}
 	}
