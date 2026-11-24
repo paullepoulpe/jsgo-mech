@@ -209,19 +209,18 @@ func pbText_(d *pbData_, single bool, ascii bool) string {
 
 func (o *pbTextOut_) message_(d *pbData_) {
 	for _, f := range d.d_.sorted {
-		v := d.v_[f.idx]
-		if v == nil {
+		if !d.hasF_(f) {
 			continue
 		}
 		if f.rep {
-			for _, e := range v.(*pbRep_).a {
+			for _, e := range d.elems_(f) {
 				o.field_(f, e)
 			}
 		} else {
-			o.field_(f, v)
+			o.field_(f, d.slot_(f))
 		}
 	}
-	o.unknown_(d.unk_)
+	o.unknown_(d.unkBytes_())
 }
 
 func (o *pbTextOut_) escape_(s string) string {
@@ -788,11 +787,7 @@ func (t *pbTok_) value_(b *AbstractMessageLite_Builder, f *pbField_, unknown *[]
 			v = n
 		}
 	}
-	if f.rep {
-		b.append_(f, v)
-	} else {
-		b.put_(f, v)
-	}
+	b.put_(f, v)
 }
 
 func (t *pbTok_) skipMessage_() {
