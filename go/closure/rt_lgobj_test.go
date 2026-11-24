@@ -3,10 +3,10 @@ package closure
 import "testing"
 
 // Piece `objarg` (rt_lgobj.go): each twin gives what the erased method gives with the boxed
-// argument, on the view of a typed collection (the typed lookup) and on a wrapped erased
-// collection (the erased method), for a key that is there, one that is not and null. The
-// changing methods run on two equal collections, one through the twins and one erased; both
-// must end equal.
+// argument, on the view of a typed map or set (the typed lookup) and on any other collection (a
+// typed map's key set, a typed list, a wrapped erased collection: the erased method), for a key
+// that is there, one that is not and null. The changing methods run on two equal collections,
+// one through the twins and one erased; both must end equal.
 func TestLgObjargMaps(t *testing.T) {
 	keys := []string{"a", "z", nullstr_}
 	mk := func(native bool) MapT[string, string] {
@@ -25,7 +25,7 @@ func TestLgObjargMaps(t *testing.T) {
 	}
 	for _, native := range []bool{true, false} {
 		tm, em := mk(native), mk(native)
-		if _, ok := tm.(interface{ get_k(string) string }); ok != native {
+		if _, ok := tm.(*tmapView_[string, string]); ok != native {
 			t.Fatal("the typed lookup is the view's only", native)
 		}
 		for _, k := range keys {

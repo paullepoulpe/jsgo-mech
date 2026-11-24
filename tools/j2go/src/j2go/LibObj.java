@@ -15,7 +15,7 @@ import javax.lang.model.type.*;
  * the key or element type or a subtype of it, are the call of a typed twin (TYPED,
  * go/closure/rt_lgobj.go) that takes the argument at the key or element type instead of its box.
  * The twin does what the erased call does: the receiver's typed lookup where its object is the view
- * of a typed collection (the same `find` that the erased method reaches after it has taken the key
+ * of a typed map or set (the same `find` that the erased method reaches after it has taken the key
  * out of its box), else the erased method with the argument boxed as erased code boxes a value of
  * that type (boxT_); a null argument always takes the erased method. Java looks the key up by its
  * equals and hashCode: the object is the same in both calls, so the answer is.
@@ -23,9 +23,11 @@ import javax.lang.model.type.*;
  * Any other call keeps the erased method, as before; J2GO_LIBGEN=2 reports each by reason
  * ("Object-parameter methods: ..."): the argument's static type is Object, a supertype of the
  * element type, of another class or interface, or the element's class at other type arguments;
- * the element type is Object in Go or a wildcard; the receiver is erased; a String argument the
+ * the element type is Object in Go or a wildcard; the argument is a field or result of a type
+ * variable's type (Go has it as `any`: the twin would cast it); the receiver is erased; a String argument the
  * String-key helpers of rt_coll.go serve; a result that enters an Object (Java casts nothing
- * there, as LibFns).
+ * there, as LibFns); a key type that Go cannot compare (the twins of Map and Collection test
+ * the view's own type and compare keys).
  */
 final class LibObj {
   /** The methods with a typed twin (key: LibFns.key of the root method) and the twin's Go name. */
@@ -74,6 +76,20 @@ final class LibObj {
     if (cx.types.isSubtype(ea, ee)) return "the argument's static type is the element's class at other type arguments";
     if (cx.types.isSubtype(ee, ea)) return "the argument's static type is a supertype of the element type";
     return "the argument's static type is another class or interface";
+  }
+
+  /**
+   * Whether the Go type of key or element type t is comparable: a kept type parameter whose
+   * constraint is `comparable` (Ctx.constraint), a pointer, an interface, a string, a handle;
+   * not a Go func type (rule "function types"), a slice, a map or a value struct (Optional).
+   */
+  boolean comparable(TypeMirror t) {
+    TypeMirror e = cx.erase(t);
+    if (e.getKind() == TypeKind.TYPEVAR) return cx.typedVar(e) && cx.constraint((TypeParameterElement) ((TypeVariable) e).asElement()).contains("comparable");
+    if (e.getKind() == TypeKind.ARRAY || e.getKind() != TypeKind.DECLARED) return false;
+    if (cx.fn.is(e) || cx.isValueLib(Ctx.typeElement(e))) return false;
+    String g = cx.goType(e);
+    return !g.startsWith("func(") && !g.startsWith("[]") && !g.startsWith("map[");
   }
 
   /** Whether Java type t names a type variable or a wildcard. */
@@ -166,6 +182,8 @@ final class LibObj {
     if (ta.get(0).equals("any")) return left(key, "the element type is Object in Go");
     if (!cx.goType(view).equals(LibFns.fill(RECV.get(lib.getQualifiedName().toString()), ta))) return left(key, "the receiver's type arguments");
     if (!cx.goTypeArg(elem).equals(ta.get(0))) return left(key, "the element type's Go type is not the view's");
+    // (the twins of Map and Collection compare the key with the view's: a type Go can compare)
+    if (!lib.getQualifiedName().contentEquals("java.util.List") && !comparable(elem)) return left(key, "the element type is not comparable in Go");
     if (!fits(a, elem)) return left(key, wider(a, elem));
     // a String: the String-key helpers serve it unboxed (ExprEmitter.stringKeyHelper; Map.get: LibFns' twin of Map_get_s)
     if (cx.kind(a) == Ctx.K.STR && x.stringKeyHelper(r, recv, as) != null) return left(key, "a String: the String-key helper serves it");
