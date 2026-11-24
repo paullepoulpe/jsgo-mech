@@ -30,14 +30,14 @@ func new_JSTypeExpression(root Node, sourceName string) *JSTypeExpression {
 	return this
 }
 
-func (this *JSTypeExpression) replaceNamesWithUnknownType(names *JTSet[string]) *JSTypeExpression {
+func (this *JSTypeExpression) replaceNamesWithUnknownType(names *TSet[string]) *JSTypeExpression {
 	var oldExprRoot Node = this.root.cloneTree()
 	var newExprRoot Node = JSTypeExpression_replaceNames(oldExprRoot, names)
 	var newTypeExpression *JSTypeExpression = new_JSTypeExpression(newExprRoot, this.sourceName_)
 	return newTypeExpression
 }
 
-func JSTypeExpression_replaceNames(n Node, names *JTSet[string]) Node {
+func JSTypeExpression_replaceNames(n Node, names *TSet[string]) Node {
 	if n == 0 {
 		return 0
 	}
@@ -49,7 +49,7 @@ func JSTypeExpression_replaceNames(n Node, names *JTSet[string]) Node {
 			child = next
 		}
 	}
-	if n.isStringLit() && names.contains(JSTypeExpression_baseName(n.getString())) {
+	if n.isStringLit() && names.Has(JSTypeExpression_baseName(n.getString())) {
 		var qMark Node = new_Node_Token(Token_rhino_QMARK)
 		if n.hasChildren() && !n.getFirstChild().isBlock() {
 			qMark.addChildrenToBack(n.removeChildren())
@@ -72,18 +72,18 @@ func JSTypeExpression_baseName(name string) string {
 	}()
 }
 
-func (this *JSTypeExpression) getAllTypeNodes() *JTList[Node] {
+func (this *JSTypeExpression) getAllTypeNodes() *TList[Node] {
 	var builder *ImmutableList_Builder[Node] = immutableListBuilder_(tc_Node)
 	JSTypeExpression_visitAllTypeNodes(this.root, Consumer[Node](func(p0 Node) { builder.add(p0) }))
-	return jtlistImm_(jtc_Node, builder.buildErased())
+	return tlistImm_(tc_Node, builder.buildErased())
 }
 
-func (this *JSTypeExpression) getAllTypeNames() *JTSet[string] {
+func (this *JSTypeExpression) getAllTypeNames() *TSet[string] {
 	var builder *ImmutableSet_Builder[string] = immutableSetBuilder_(tc_string)
 	JSTypeExpression_visitAllTypeNodes(this.root, Consumer[Node](func(n Node) {
 		builder.add(n.getString())
 	}))
-	return tsetImm_(jtc_string, builder.buildErased())
+	return tsetImm_(tc_string, builder.buildErased())
 }
 
 func JSTypeExpression_visitAllTypeNodes(n Node, visitor Consumer[Node]) {
@@ -161,13 +161,13 @@ func (this *JSTypeExpression) isExplicitUnknownTemplateBound() bool {
 	return (((this.root.ns_().token == tokOrd1_QMARK) && !this.root.hasChildren()) && !(this.sourceName_ == JSTypeExpression_IMPLICIT_TEMPLATE_BOUND_SOURCE))
 }
 
-func (this *JSTypeExpression) getRecordPropertyNames() *JTSet[string] {
-	var builder *TSetBuilder[string] = newTSetBuilder_(jtc_string)
+func (this *JSTypeExpression) getRecordPropertyNames() *TSet[string] {
+	var builder *ImmutableSet_Builder[string] = immutableSetBuilder_(tc_string)
 	JSTypeExpression_getRecordPropertyNamesRecursive(this.root, builder)
 	return builder.build()
 }
 
-func JSTypeExpression_getRecordPropertyNamesRecursive(n Node, names *TSetBuilder[string]) {
+func JSTypeExpression_getRecordPropertyNamesRecursive(n Node, names *ImmutableSet_Builder[string]) {
 	if n == 0 {
 		return
 	}

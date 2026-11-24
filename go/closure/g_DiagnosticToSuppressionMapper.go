@@ -3,16 +3,16 @@
 package closure
 
 type DiagnosticToSuppressionMapper struct {
-	validSuppressions *JTSet[string]
-	diagnosticGroups  *JTMap[string, *DiagnosticGroup]
+	validSuppressions *TSet[string]
+	diagnosticGroups  *TMap[string, *DiagnosticGroup]
 }
 
-func (this *DiagnosticToSuppressionMapper) init_DiagnosticToSuppressionMapper(validSuppressions *JTSet[string], diagnosticGroups *JTMap[string, *DiagnosticGroup]) {
+func (this *DiagnosticToSuppressionMapper) init_DiagnosticToSuppressionMapper(validSuppressions *TSet[string], diagnosticGroups *TMap[string, *DiagnosticGroup]) {
 	this.validSuppressions = validSuppressions
 	this.diagnosticGroups = diagnosticGroups
 }
 
-func new_DiagnosticToSuppressionMapper(validSuppressions *JTSet[string], diagnosticGroups *JTMap[string, *DiagnosticGroup]) *DiagnosticToSuppressionMapper {
+func new_DiagnosticToSuppressionMapper(validSuppressions *TSet[string], diagnosticGroups *TMap[string, *DiagnosticGroup]) *DiagnosticToSuppressionMapper {
 	this := &DiagnosticToSuppressionMapper{}
 	this.init_DiagnosticToSuppressionMapper(validSuppressions, diagnosticGroups)
 	return this
@@ -28,15 +28,15 @@ func (this *DiagnosticToSuppressionMapper) printSuppressions(output DiagnosticTo
 }
 
 func (this *DiagnosticToSuppressionMapper) createSuppressionMap() MapT[string, string] {
-	var validSuppressions *JTSet[string] = tsetCopy_(jtc_string, this.validSuppressions)
-	validSuppressions.remove("accessControls")
-	validSuppressions.remove("missingSourcesWarnings")
-	var diagnosticToSuppression *JTMap[*DiagnosticType, string] = jnewTMap_(tce_p_DiagnosticType, jtc_string)
+	var validSuppressions *TSet[string] = tsetCopy_(tc_string, this.validSuppressions)
+	validSuppressions.Delete("accessControls")
+	validSuppressions.Delete("missingSourcesWarnings")
+	var diagnosticToSuppression *TMap[*DiagnosticType, string] = newTMap_(tch_p_DiagnosticType, tc_string)
 	it_1 := this.diagnosticGroups.eachEntry()
 	for it_1.next() {
 		var entry *TEntry[string, *DiagnosticGroup] = it_1.entry()
 		var suppression string = entry.getKey()
-		if !validSuppressions.contains(suppression) {
+		if !validSuppressions.Has(suppression) {
 			continue
 		}
 		var group *DiagnosticGroup = entry.getValue()
@@ -52,14 +52,14 @@ func (this *DiagnosticToSuppressionMapper) createSuppressionMap() MapT[string, s
 		var entrySet *TEntry[*DiagnosticType, string] = it_5.entry()
 		result.put(strobj_(entrySet.getKey().key_), strobj_(entrySet.getValue()))
 	}
-	return mapAs_(jtc_string, jtc_string, ImmutableMap_as_Map(result.buildOrThrow()))
+	return mapAs_(tc_string, tc_string, ImmutableMap_as_Map(result.buildOrThrow()))
 }
 
 func (this *DiagnosticToSuppressionMapper) preferMoreTargetedGroup(next string, current string) string {
-	var nextGroup *DiagnosticGroup = this.diagnosticGroups.get(next)
-	var currentGroup *DiagnosticGroup = this.diagnosticGroups.get(current)
+	var nextGroup *DiagnosticGroup = this.diagnosticGroups.Get(next)
+	var currentGroup *DiagnosticGroup = this.diagnosticGroups.Get(current)
 	return func() string {
-		if nextGroup.getTypes().size() < currentGroup.getTypes().size() {
+		if nextGroup.getTypes().Len() < currentGroup.getTypes().Len() {
 			return next
 		}
 		return current

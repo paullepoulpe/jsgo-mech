@@ -11,7 +11,7 @@ type LinterMain struct {
 func (this *LinterMain) finit_LinterMain() {
 	this.fix_ = false
 	this.resolutionMode = ModuleLoader_ResolutionMode_BROWSER
-	this.files = jnewTList_(jtc_string).asListT()
+	this.files = newTList_(tc_string).asListT()
 }
 
 func (this *LinterMain) init_LinterMain() {

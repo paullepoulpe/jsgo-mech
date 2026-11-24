@@ -5,10 +5,10 @@ package closure
 type SimpleDependencyInfo struct {
 	getName_                      string
 	getPathRelativeToClosureBase_ string
-	getProvides_                  *JTList[string]
-	getRequires_                  *JTList[*DependencyInfo_Require]
-	getTypeRequires_              *JTList[string]
-	getLoadFlags_                 *JTMap[string, string]
+	getProvides_                  *TList[string]
+	getRequires_                  *TList[*DependencyInfo_Require]
+	getTypeRequires_              *TList[string]
+	getLoadFlags_                 *TMap[string, string]
 	getHasExternsAnnotation_      bool
 	getHasNoCompileAnnotation_    bool
 }
@@ -18,7 +18,7 @@ func (this *SimpleDependencyInfo) zero_SimpleDependencyInfo() {
 	this.getPathRelativeToClosureBase_ = nullstr_
 }
 
-func (this *SimpleDependencyInfo) init_SimpleDependencyInfo(getName string, getPathRelativeToClosureBase string, getProvides *JTList[string], getRequires *JTList[*DependencyInfo_Require], getTypeRequires *JTList[string], getLoadFlags *JTMap[string, string], getHasExternsAnnotation bool, getHasNoCompileAnnotation bool) {
+func (this *SimpleDependencyInfo) init_SimpleDependencyInfo(getName string, getPathRelativeToClosureBase string, getProvides *TList[string], getRequires *TList[*DependencyInfo_Require], getTypeRequires *TList[string], getLoadFlags *TMap[string, string], getHasExternsAnnotation bool, getHasNoCompileAnnotation bool) {
 	if getProvides == nil {
 		panic(new_NullPointerException_String("getProvides"))
 	}
@@ -41,7 +41,7 @@ func (this *SimpleDependencyInfo) init_SimpleDependencyInfo(getName string, getP
 	this.getHasNoCompileAnnotation_ = getHasNoCompileAnnotation
 }
 
-func new_SimpleDependencyInfo(getName string, getPathRelativeToClosureBase string, getProvides *JTList[string], getRequires *JTList[*DependencyInfo_Require], getTypeRequires *JTList[string], getLoadFlags *JTMap[string, string], getHasExternsAnnotation bool, getHasNoCompileAnnotation bool) *SimpleDependencyInfo {
+func new_SimpleDependencyInfo(getName string, getPathRelativeToClosureBase string, getProvides *TList[string], getRequires *TList[*DependencyInfo_Require], getTypeRequires *TList[string], getLoadFlags *TMap[string, string], getHasExternsAnnotation bool, getHasNoCompileAnnotation bool) *SimpleDependencyInfo {
 	this := &SimpleDependencyInfo{}
 	this.zero_SimpleDependencyInfo()
 	this.init_SimpleDependencyInfo(getName, getPathRelativeToClosureBase, getProvides, getRequires, getTypeRequires, getLoadFlags, getHasExternsAnnotation, getHasNoCompileAnnotation)
@@ -53,7 +53,7 @@ func (this *SimpleDependencyInfo) toString() string {
 }
 
 func SimpleDependencyInfo_builder(srcPathRelativeToClosure string, pathOfDefiningFile Optional[string]) *SimpleDependencyInfo_Builder {
-	return new_SimpleDependencyInfo_Builder().setName(pathOfDefiningFile).setPathRelativeToClosureBase(srcPathRelativeToClosure).setProvides(jtlistEmptyImm_(jtc_string).asCollT()).setRequires(jtlistEmptyImm_(jtc_p_DependencyInfo_Require).asCollT()).setTypeRequires(jtlistEmptyImm_(jtc_string).asCollT()).setLoadFlags(jtmapEmptyImm_(jtc_string, jtc_string).asMapT()).setHasExternsAnnotation(false).setHasNoCompileAnnotation(false)
+	return new_SimpleDependencyInfo_Builder().setName(pathOfDefiningFile).setPathRelativeToClosureBase(srcPathRelativeToClosure).setProvides(tlistEmptyImm_(tc_string).asCollT()).setRequires(tlistEmptyImm_(tc_p_DependencyInfo_Require).asCollT()).setTypeRequires(tlistEmptyImm_(tc_string).asCollT()).setLoadFlags(tmapEmptyImm_(tc_string, tc_string).asMapT()).setHasExternsAnnotation(false).setHasNoCompileAnnotation(false)
 }
 
 func (this *SimpleDependencyInfo) getRequiredSymbols() ListT[string] {
@@ -135,10 +135,10 @@ func SimpleDependencyInfo_clinit() {
 }
 
 type SimpleDependencyInfo_Builder struct {
-	provides                  *JTList[string]
-	requires                  *JTList[*DependencyInfo_Require]
-	typeRequires              *JTList[string]
-	loadFlags_                *JTMap[string, string]
+	provides                  *TList[string]
+	requires                  *TList[*DependencyInfo_Require]
+	typeRequires              *TList[string]
+	loadFlags_                *TMap[string, string]
 	name_                     Optional[string]
 	pathRelativeToClosureBase Optional[string]
 	hasExternsAnnotation      bool
@@ -179,34 +179,34 @@ func (this *SimpleDependencyInfo_Builder) setPathRelativeToClosureBase(srcPathRe
 }
 
 func (this *SimpleDependencyInfo_Builder) setProvides(provides CollectionT[string]) *SimpleDependencyInfo_Builder {
-	this.provides = jimmutableListCopyOf_(jtc_string, Collection_un_(provides))
+	this.provides = immutableListCopyOf_(tc_string, Collection_un_(provides))
 	return this
 }
 
 func (this *SimpleDependencyInfo_Builder) setProvidesStringVarargs(provides []string) *SimpleDependencyInfo_Builder {
-	return this.setProvides(jimmutableListCopyOfArr_(jtc_string, provides).asCollT())
+	return this.setProvides(immutableListCopyOfArr_(tc_string, provides).asCollT())
 }
 
 func (this *SimpleDependencyInfo_Builder) setRequires(requires CollectionT[*DependencyInfo_Require]) *SimpleDependencyInfo_Builder {
-	this.requires = jimmutableListCopyOf_(jtc_p_DependencyInfo_Require, Collection_un_(requires))
+	this.requires = immutableListCopyOf_(tc_p_DependencyInfo_Require, Collection_un_(requires))
 	return this
 }
 
 func (this *SimpleDependencyInfo_Builder) setRequiresRequireVarargs(requires []*DependencyInfo_Require) *SimpleDependencyInfo_Builder {
-	return this.setRequires(jimmutableListCopyOfArr_(jtc_p_DependencyInfo_Require, requires).asCollT())
+	return this.setRequires(immutableListCopyOfArr_(tc_p_DependencyInfo_Require, requires).asCollT())
 }
 
 func (this *SimpleDependencyInfo_Builder) setTypeRequires(typeRequires CollectionT[string]) *SimpleDependencyInfo_Builder {
-	this.typeRequires = jimmutableListCopyOf_(jtc_string, Collection_un_(typeRequires))
+	this.typeRequires = immutableListCopyOf_(tc_string, Collection_un_(typeRequires))
 	return this
 }
 
 func (this *SimpleDependencyInfo_Builder) setTypeRequiresStringVarargs(typeRequires []string) *SimpleDependencyInfo_Builder {
-	return this.setTypeRequires(jimmutableListCopyOfArr_(jtc_string, typeRequires).asCollT())
+	return this.setTypeRequires(immutableListCopyOfArr_(tc_string, typeRequires).asCollT())
 }
 
 func (this *SimpleDependencyInfo_Builder) setLoadFlags(loadFlags MapT[string, string]) *SimpleDependencyInfo_Builder {
-	this.loadFlags_ = jimmutableMapCopyOf_(jtc_string, jtc_string, Map_un_(loadFlags))
+	this.loadFlags_ = immutableMapCopyOf_(tc_string, tc_string, Map_un_(loadFlags))
 	return this
 }
 
@@ -227,7 +227,7 @@ func (this *SimpleDependencyInfo_Builder) setGoogModule(isModule bool) *SimpleDe
 		if isModule {
 			return SimpleDependencyInfo_Builder_GOOG_MODULE_FLAGS.asMapT()
 		}
-		return jtmapEmptyImm_(jtc_string, jtc_string).asMapT()
+		return tmapEmptyImm_(tc_string, tc_string).asMapT()
 	}())
 }
 
@@ -263,7 +263,7 @@ func (this *SimpleDependencyInfo_Builder) build() *SimpleDependencyInfo {
 	return new_SimpleDependencyInfo(this.name_.get(), this.pathRelativeToClosureBase.get(), this.provides, this.requires, this.typeRequires, this.loadFlags_, this.hasExternsAnnotation, this.hasNoCompileAnnotation)
 }
 
-var SimpleDependencyInfo_Builder_GOOG_MODULE_FLAGS *JTMap[string, string]
+var SimpleDependencyInfo_Builder_GOOG_MODULE_FLAGS *TMap[string, string]
 
 var SimpleDependencyInfo_Builder_clinit_done bool
 
@@ -272,6 +272,6 @@ func SimpleDependencyInfo_Builder_clinit() {
 		return
 	}
 	SimpleDependencyInfo_Builder_clinit_done = true
-	SimpleDependencyInfo_Builder_GOOG_MODULE_FLAGS = immutableMapOf1_[string, string](jtc_string, jtc_string, "module", "goog")
+	SimpleDependencyInfo_Builder_GOOG_MODULE_FLAGS = immutableMapOf1_[string, string](tc_string, tc_string, "module", "goog")
 
 }

@@ -6,12 +6,12 @@ import "strings"
 
 type GatherExternProperties struct {
 	compiler_        *AbstractCompiler
-	externProperties *JTSet[string]
+	externProperties *TSet[string]
 	mode_            GatherExternProperties_Mode
 }
 
 func (this *GatherExternProperties) finit_GatherExternProperties() {
-	this.externProperties = jnewTSet_(jtc_string)
+	this.externProperties = newTSet_(tc_string)
 }
 
 func (this *GatherExternProperties) init_GatherExternProperties(compiler *AbstractCompiler, mode GatherExternProperties_Mode) {
@@ -31,7 +31,7 @@ func new_GatherExternProperties(compiler *AbstractCompiler, mode GatherExternPro
 
 func (this *GatherExternProperties) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, externs, NodeTraversal_Callback(this))
-	this.compiler_.setExternProperties(immutableSetCopyOfT_(jtc_string, this.externProperties))
+	this.compiler_.setExternProperties(immutableSetCopyOfT_(tc_string, this.externProperties))
 }
 
 func (this *GatherExternProperties) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
@@ -42,13 +42,13 @@ func (this *GatherExternProperties) visit(t *NodeTraversal, n Node, parent Node)
 	if GatherExternProperties_Mode_optimize_[this.mode_-1] {
 		switch n.ns_().token {
 		case tokOrd1_GETPROP:
-			this.externProperties.add(n.getString())
+			this.externProperties.Add(n.getString())
 		case tokOrd1_STRING_KEY:
 			if parent.isObjectLit() {
-				this.externProperties.add(n.getString())
+				this.externProperties.Add(n.getString())
 			}
 		case tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_MEMBER_FIELD_DEF, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF:
-			this.externProperties.add(n.getString())
+			this.externProperties.Add(n.getString())
 		default:
 		}
 	}
@@ -103,7 +103,7 @@ func (this *GatherExternProperties) gatherPropertiesFromJsDocRecordType(jsDocRec
 				fieldName = fieldNameU16.substring(1, (fieldNameU16.length() - 1))
 				fieldNameU16 = utf16Of_(fieldName)
 			}
-			this.externProperties.add(fieldName)
+			this.externProperties.Add(fieldName)
 			if fieldTypeNode != 0 {
 				this.gatherPropertiesFromJsTypeExpressionNode(fieldTypeNode)
 			}

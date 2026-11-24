@@ -10,40 +10,40 @@ package closure
 // typed twin is the typed set in its sorted mode with the same comparator (rt_tsorted.go).
 
 // tenumSetNoneOf_ is EnumSet.noneOf(c).
-func tenumSetNoneOf_[K comparable](c *jtconv_[K], cl *Class) *JTSet[K] {
+func tenumSetNoneOf_[K comparable](c *tconv_[K], cl *Class) *TSet[K] {
 	return newTSortedSetC_(c, ordinalCmp_())
 }
 
 // tenumSetAllOf_ is EnumSet.allOf(c): the constants in their declaration order.
-func tenumSetAllOf_[K comparable](c *jtconv_[K], cl *Class) *JTSet[K] {
+func tenumSetAllOf_[K comparable](c *tconv_[K], cl *Class) *TSet[K] {
 	s := tenumSetNoneOf_(c, cl)
 	for _, x := range enumRegistry_[cl.name_] {
-		s.addSorted(c.unbox(x))
+		s.Add(c.unbox(x))
 	}
 	return s
 }
 
 // tenumSetOf_ is EnumSet.of(e).
-func tenumSetOf_[K comparable](c *jtconv_[K], e *Enum) *JTSet[K] {
+func tenumSetOf_[K comparable](c *tconv_[K], e *Enum) *TSet[K] {
 	s := tenumSetNoneOf_(c, nil)
-	s.addSorted(c.unbox(e.self()))
+	s.Add(c.unbox(e.self()))
 	return s
 }
 
 // tenumSetOfArr_ is EnumSet.of(e, rest...).
-func tenumSetOfArr_[K comparable](c *jtconv_[K], e *Enum, rest []*Enum) *JTSet[K] {
+func tenumSetOfArr_[K comparable](c *tconv_[K], e *Enum, rest []*Enum) *TSet[K] {
 	s := tenumSetOf_(c, e)
 	for _, x := range rest {
-		s.addSorted(c.unbox(x.self()))
+		s.Add(c.unbox(x.self()))
 	}
 	return s
 }
 
 // tenumSetCopyOf_ is EnumSet.copyOf(collection).
-func tenumSetCopyOf_[K comparable](c *jtconv_[K], from Collection) *JTSet[K] {
+func tenumSetCopyOf_[K comparable](c *tconv_[K], from Collection) *TSet[K] {
 	s := tenumSetNoneOf_(c, nil)
 	for _, x := range toSlice_(from) {
-		s.addSorted(c.unbox(x))
+		s.Add(c.unbox(x))
 	}
 	return s
 }
@@ -94,7 +94,7 @@ func Deque_un_(x Deque) Deque {
 
 type queueAs[T any] struct {
 	Queue
-	c *jtconv_[T]
+	c *tconv_[T]
 }
 
 func (w *queueAs[T]) iterator_t() IteratorT[T] { return iteratorAs_(w.c, w.Queue.iterator()) }
@@ -112,7 +112,7 @@ func (w *queueAs[T]) unwrap_() any { return w.Queue }
 
 // queueAs_ is erased v as a Queue of T: itself if its object is one (the view of a typed
 // deque), else a wrapper.
-func queueAs_[T any](c *jtconv_[T], v Queue) QueueT[T] {
+func queueAs_[T any](c *tconv_[T], v Queue) QueueT[T] {
 	if v == nil {
 		return nil
 	}
@@ -124,7 +124,7 @@ func queueAs_[T any](c *jtconv_[T], v Queue) QueueT[T] {
 
 type dequeAs[T any] struct {
 	Deque
-	c *jtconv_[T]
+	c *tconv_[T]
 }
 
 func (w *dequeAs[T]) iterator_t() IteratorT[T] { return iteratorAs_(w.c, w.Deque.iterator()) }
@@ -143,7 +143,7 @@ func (w *dequeAs[T]) push_t(x T)   { w.Deque.(interface{ push(any) }).push(w.c.b
 func (w *dequeAs[T]) unwrap_() any { return w.Deque }
 
 // dequeAs_ is erased v as a Deque of T: itself if its object is one, else a wrapper.
-func dequeAs_[T any](c *jtconv_[T], v Deque) DequeT[T] {
+func dequeAs_[T any](c *tconv_[T], v Deque) DequeT[T] {
 	if v == nil {
 		return nil
 	}
@@ -159,21 +159,23 @@ func (d *TDeque[T]) asDequeT() DequeT[T] {
 	if d == nil {
 		return nil
 	}
-	return &d.dview
+	d.asDeque()
+	return d.dview
 }
 
 func (d *TDeque[T]) asQueueT() QueueT[T] {
 	if d == nil {
 		return nil
 	}
-	return &d.dview
+	d.asDeque()
+	return d.dview
 }
 
-func (v *jtdequeView_[T]) peek_t() T     { return v.d.peek() }
-func (v *jtdequeView_[T]) poll_t() T     { return v.d.poll() }
-func (v *jtdequeView_[T]) remove_0_t() T { return v.d.pop() }
-func (v *jtdequeView_[T]) pop_t() T      { return v.d.pop() }
-func (v *jtdequeView_[T]) push_t(x T)    { v.d.push(x) }
+func (v *tdequeFace_[T]) peek_t() T     { return v.d.peek() }
+func (v *tdequeFace_[T]) poll_t() T     { return v.d.poll() }
+func (v *tdequeFace_[T]) remove_0_t() T { return v.d.pop() }
+func (v *tdequeFace_[T]) pop_t() T      { return v.d.pop() }
+func (v *tdequeFace_[T]) push_t(x T)    { v.d.push(x) }
 
 // ---- kind `guava`: PeekingIterator and LoadingCache as typed interfaces. The runtime makes
 // both erased (Iterators.peekingIterator, CacheBuilder.build), so every value is a wrapper.
@@ -195,7 +197,7 @@ func PeekingIterator_un_(x PeekingIterator) PeekingIterator {
 
 type peekingIteratorAs[T any] struct {
 	PeekingIterator
-	c *jtconv_[T]
+	c *tconv_[T]
 }
 
 func (w *peekingIteratorAs[T]) next_t() T { return w.c.unbox(w.PeekingIterator.next()) }
@@ -205,7 +207,7 @@ func (w *peekingIteratorAs[T]) peek_t() T {
 func (w *peekingIteratorAs[T]) unwrap_() any { return w.PeekingIterator }
 
 // peekingIteratorAs_ is erased v as a PeekingIterator of T: itself if it is one, else a wrapper.
-func peekingIteratorAs_[T any](c *jtconv_[T], v PeekingIterator) PeekingIteratorT[T] {
+func peekingIteratorAs_[T any](c *tconv_[T], v PeekingIterator) PeekingIteratorT[T] {
 	if v == nil {
 		return nil
 	}
@@ -232,8 +234,8 @@ func LoadingCache_un_(x LoadingCache) LoadingCache {
 
 type loadingCacheAs[K any, V any] struct {
 	LoadingCache
-	kc *jtconv_[K]
-	vc *jtconv_[V]
+	kc *tconv_[K]
+	vc *tconv_[V]
 }
 
 func (w *loadingCacheAs[K, V]) getUnchecked_t(k K) V {
@@ -245,7 +247,7 @@ func (w *loadingCacheAs[K, V]) get_t(k K) V {
 func (w *loadingCacheAs[K, V]) unwrap_() any { return w.LoadingCache }
 
 // loadingCacheAs_ is erased v as a LoadingCache of K and V: itself if it is one, else a wrapper.
-func loadingCacheAs_[K any, V any](kc *jtconv_[K], vc *jtconv_[V], v LoadingCache) LoadingCacheT[K, V] {
+func loadingCacheAs_[K any, V any](kc *tconv_[K], vc *tconv_[V], v LoadingCache) LoadingCacheT[K, V] {
 	if v == nil {
 		return nil
 	}

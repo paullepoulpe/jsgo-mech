@@ -7,21 +7,21 @@ import "strings"
 type ProcessClosureProvidesAndRequires struct {
 	compiler_                       *AbstractCompiler
 	chunkGraph                      *JSChunkGraph
-	providedNames                   *JTMap[string, *ProcessClosureProvidesAndRequires_ProvidedName]
-	exportedVariables               *JTSet[string]
-	requiresToBeRemoved             *JTList[Node]
-	forwardDeclaresToRemove         *JTSet[Node]
+	providedNames                   *TMap[string, *ProcessClosureProvidesAndRequires_ProvidedName]
+	exportedVariables               *TSet[string]
+	requiresToBeRemoved             *TList[Node]
+	forwardDeclaresToRemove         *TSet[Node]
 	astFactory_                     *AstFactory
 	preserveGoogProvidesAndRequires bool
 	hasRewritingOccurred            bool
 }
 
 func (this *ProcessClosureProvidesAndRequires) finit_ProcessClosureProvidesAndRequires() {
-	this.providedNames = jnewTMap_(jtc_string, jtc_p_ProcessClosureProvidesAndRequires_ProvidedName)
-	this.exportedVariables = jnewTSet_(jtc_string)
-	this.requiresToBeRemoved = jnewTList_(jtc_Node)
+	this.providedNames = newTMap_(tc_string, tc_p_ProcessClosureProvidesAndRequires_ProvidedName)
+	this.exportedVariables = newTSet_(tc_string)
+	this.requiresToBeRemoved = newTList_(tc_Node)
 	this.hasRewritingOccurred = false
-	this.forwardDeclaresToRemove = jnewTSet_(jtc_Node)
+	this.forwardDeclaresToRemove = newTSet_(tc_Node)
 }
 
 func (this *ProcessClosureProvidesAndRequires) init_ProcessClosureProvidesAndRequires(compiler *AbstractCompiler, preserveGoogProvidesAndRequires bool) {
@@ -42,13 +42,13 @@ func (this *ProcessClosureProvidesAndRequires) process_2(externs Node, root Node
 	this.rewriteProvidesAndRequires(externs, root)
 }
 
-func (this *ProcessClosureProvidesAndRequires) getExportedVariableNames() *JTSet[string] {
+func (this *ProcessClosureProvidesAndRequires) getExportedVariableNames() *TSet[string] {
 	return this.exportedVariables
 }
 
-func (this *ProcessClosureProvidesAndRequires) collectProvidedNames(externs Node, root Node) *JTMap[string, *ProcessClosureProvidesAndRequires_ProvidedName] {
-	if this.providedNames.isEmpty() {
-		this.providedNames.put(ProcessClosureProvidesAndRequires_GOOG, new_ProcessClosureProvidesAndRequires_ProvidedNameBuilder(this).setNamespace(ProcessClosureProvidesAndRequires_GOOG).setNode(0).setChunk(nil).build())
+func (this *ProcessClosureProvidesAndRequires) collectProvidedNames(externs Node, root Node) *TMap[string, *ProcessClosureProvidesAndRequires_ProvidedName] {
+	if this.providedNames.IsEmpty() {
+		this.providedNames.Put(ProcessClosureProvidesAndRequires_GOOG, new_ProcessClosureProvidesAndRequires_ProvidedNameBuilder(this).setNamespace(ProcessClosureProvidesAndRequires_GOOG).setNode(0).setChunk(nil).build())
 		NodeTraversal_traverseRoots(this.compiler_, NodeTraversal_Callback(new_ProcessClosureProvidesAndRequires_CollectDefinitions(this)), externs, root)
 	}
 	return this.providedNames
@@ -60,7 +60,7 @@ func (this *ProcessClosureProvidesAndRequires) rewriteProvidesAndRequires(extern
 	}
 	this.hasRewritingOccurred = true
 	this.collectProvidedNames(externs, root)
-	it_1 := this.providedNames.eachValue()
+	it_1 := this.providedNames.each()
 	for it_1.next() {
 		var pn *ProcessClosureProvidesAndRequires_ProvidedName = it_1.v
 		pn.replace(this.preserveGoogProvidesAndRequires, this.providedNames)
@@ -86,9 +86,9 @@ func (this *ProcessClosureProvidesAndRequires) visitGoogMethodCall(t *NodeTraver
 			var argString string = arg.getString()
 			var dot int32 = int32(strings.IndexByte(argString, '.'))
 			if dot == -1 {
-				this.exportedVariables.add(argString)
+				this.exportedVariables.Add(argString)
 			} else {
-				this.exportedVariables.add(argString[:dot])
+				this.exportedVariables.Add(argString[:dot])
 			}
 		}
 	case "require", "requireType":
@@ -125,7 +125,7 @@ func (this *ProcessClosureProvidesAndRequires) processRequireCall(call Node, par
 
 func (this *ProcessClosureProvidesAndRequires) processLegacyModuleCall(namespace string, googModuleCall Node, chunk *JSChunk) {
 	this.registerAnyProvidedPrefixes(namespace, googModuleCall, chunk)
-	this.providedNames.put(namespace, new_ProcessClosureProvidesAndRequires_ProvidedNameBuilder(this).setNamespace(namespace).setNode(googModuleCall).setChunk(chunk).setExplicit(true).setFromLegacyModule(true).build())
+	this.providedNames.Put(namespace, new_ProcessClosureProvidesAndRequires_ProvidedNameBuilder(this).setNamespace(namespace).setNode(googModuleCall).setChunk(chunk).setExplicit(true).setFromLegacyModule(true).build())
 }
 
 func (this *ProcessClosureProvidesAndRequires) processProvideCall(t *NodeTraversal, call Node, parent Node) {
@@ -140,14 +140,14 @@ func (this *ProcessClosureProvidesAndRequires) processProvideCall(t *NodeTravers
 	var ns string = arg.getString()
 	var info *JSDocInfo = NodeUtil_getBestJSDocInfo(call)
 	var isImplicitlyInitialized bool = ((info != nil) && info.isProvideAlreadyProvided())
-	if this.providedNames.containsKey(ns) {
-		var previouslyProvided *ProcessClosureProvidesAndRequires_ProvidedName = this.providedNames.get(ns)
+	if this.providedNames.Has(ns) {
+		var previouslyProvided *ProcessClosureProvidesAndRequires_ProvidedName = this.providedNames.Get(ns)
 		if !previouslyProvided.isExplicitlyProvided() {
 			previouslyProvided.addProvide(parent, t.getChunk(), true, this.chunkGraph)
 		}
 	} else {
 		this.registerAnyProvidedPrefixes(ns, parent, t.getChunk())
-		this.providedNames.put(ns, new_ProcessClosureProvidesAndRequires_ProvidedNameBuilder(this).setNamespace(ns).setNode(parent).setChunk(t.getChunk()).setExplicit(true).setHasImplicitInitialization(isImplicitlyInitialized).build())
+		this.providedNames.Put(ns, new_ProcessClosureProvidesAndRequires_ProvidedNameBuilder(this).setNamespace(ns).setNode(parent).setChunk(t.getChunk()).setExplicit(true).setHasImplicitInitialization(isImplicitlyInitialized).build())
 	}
 }
 
@@ -161,7 +161,7 @@ func (this *ProcessClosureProvidesAndRequires) handleStubDefinition(t *NodeTrave
 	if isValidTypedefStubDefinition || isExternStub {
 		if exprResult.getFirstChild().isQualifiedName() {
 			var name string = exprResult.getFirstChild().getQualifiedName()
-			var pn *ProcessClosureProvidesAndRequires_ProvidedName = this.providedNames.get(name)
+			var pn *ProcessClosureProvidesAndRequires_ProvidedName = this.providedNames.Get(name)
 			if pn != nil {
 				pn.addDefinition(exprResult, t.getChunk(), this.chunkGraph)
 			}
@@ -177,11 +177,11 @@ func (this *ProcessClosureProvidesAndRequires) checkNestedTypedefProvide(exprRes
 	if name == "" || !JString_contains_s(name, ".") {
 		return
 	}
-	if !this.providedNames.containsKey(name) {
+	if !this.providedNames.Has(name) {
 		return
 	}
 	var parentName string = cutBytes_(name, 0, int32(strings.LastIndex(name, ".")))
-	var parent *ProcessClosureProvidesAndRequires_ProvidedName = this.providedNames.get(parentName)
+	var parent *ProcessClosureProvidesAndRequires_ProvidedName = this.providedNames.Get(parentName)
 	var parentDefinition Node = parent.getCandidateDefinition()
 	if ((parentDefinition == 0) || !equalsId_(parentDefinition.getStaticSourceFile(), exprResult.getStaticSourceFile())) || this.isTypedefStubDeclaration(parentDefinition) {
 		return
@@ -230,7 +230,7 @@ func (this *ProcessClosureProvidesAndRequires) handleCandidateProvideDefinition(
 	if name.isEmpty() {
 		return
 	}
-	var pn *ProcessClosureProvidesAndRequires_ProvidedName = this.providedNames.get(name.get())
+	var pn *ProcessClosureProvidesAndRequires_ProvidedName = this.providedNames.Get(name.get())
 	if pn != nil {
 		pn.addDefinition(parent, t.getChunk(), this.chunkGraph)
 	}
@@ -238,7 +238,7 @@ func (this *ProcessClosureProvidesAndRequires) handleCandidateProvideDefinition(
 
 func (this *ProcessClosureProvidesAndRequires) processForwardDeclare(n Node, parent Node) {
 	var convention CodingConvention = this.compiler_.getCodingConvention()
-	var typeDeclarations *JTList[string] = convention.identifyTypeDeclarationCall(n)
+	var typeDeclarations *TList[string] = convention.identifyTypeDeclarationCall(n)
 	if (!this.preserveGoogProvidesAndRequires && (typeDeclarations != nil)) && (typeDeclarations.size() == 1) {
 		var toRemove Node = func() Node {
 			if parent.isExprResult() {
@@ -246,7 +246,7 @@ func (this *ProcessClosureProvidesAndRequires) processForwardDeclare(n Node, par
 			}
 			return parent.getParent()
 		}()
-		this.forwardDeclaresToRemove.add(toRemove)
+		this.forwardDeclaresToRemove.Add(toRemove)
 	}
 }
 
@@ -260,10 +260,10 @@ func (this *ProcessClosureProvidesAndRequires) registerAnyProvidedPrefixes(ns st
 	for pos != -1 {
 		var prefixNs string = ns[:pos]
 		pos = indexByteFrom_(ns, '.', (pos + 1))
-		if this.providedNames.containsKey(prefixNs) {
-			this.providedNames.get(prefixNs).addProvide(node, chunk, false, this.chunkGraph)
+		if this.providedNames.Has(prefixNs) {
+			this.providedNames.Get(prefixNs).addProvide(node, chunk, false, this.chunkGraph)
 		} else {
-			this.providedNames.put(prefixNs, new_ProcessClosureProvidesAndRequires_ProvidedNameBuilder(this).setNamespace(prefixNs).setNode(node).setChunk(chunk).setExplicit(false).build())
+			this.providedNames.Put(prefixNs, new_ProcessClosureProvidesAndRequires_ProvidedNameBuilder(this).setNamespace(prefixNs).setNode(node).setChunk(chunk).setExplicit(false).build())
 		}
 	}
 }
@@ -524,7 +524,7 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) updateMinimumChunk(n
 	}
 }
 
-func (this *ProcessClosureProvidesAndRequires_ProvidedName) replace(preserveGoogProvidesAndRequires bool, providedNames *JTMap[string, *ProcessClosureProvidesAndRequires_ProvidedName]) {
+func (this *ProcessClosureProvidesAndRequires_ProvidedName) replace(preserveGoogProvidesAndRequires bool, providedNames *TMap[string, *ProcessClosureProvidesAndRequires_ProvidedName]) {
 	if this.isFromLegacyModule() {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("Cannot rewrite provides without having rewritten goog.modules, found %s", []any{this.firstNode.box_()})))
 	}
@@ -577,7 +577,7 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) convertProvideAssign
 	this.compiler_.reportChangeToEnclosingScope(varNode)
 }
 
-func (this *ProcessClosureProvidesAndRequires_ProvidedName) createNamespaceInitialization(replacement Node, providedNames *JTMap[string, *ProcessClosureProvidesAndRequires_ProvidedName]) {
+func (this *ProcessClosureProvidesAndRequires_ProvidedName) createNamespaceInitialization(replacement Node, providedNames *TMap[string, *ProcessClosureProvidesAndRequires_ProvidedName]) {
 	this.replacementNode = replacement
 	if this.firstChunk == this.minimumChunk {
 		this.replacementNode.insertBefore(this.firstNode)
@@ -587,7 +587,7 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) createNamespaceIniti
 		if indexOfDot == -1 {
 			this.compiler_.getNodeForCodeInsertion(this.minimumChunk).addChildToBack(this.replacementNode)
 		} else {
-			var parentName *ProcessClosureProvidesAndRequires_ProvidedName = providedNames.get(namespace_U16.substring(0, indexOfDot))
+			var parentName *ProcessClosureProvidesAndRequires_ProvidedName = providedNames.Get(namespace_U16.substring(0, indexOfDot))
 			if parentName == nil {
 				panic(new_NullPointerException_0())
 			}

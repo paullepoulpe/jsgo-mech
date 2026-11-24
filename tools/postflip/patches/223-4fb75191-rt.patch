@@ -1,0 +1,73 @@
+diff --git a/go/closure/rt_guava_map.go b/go/closure/rt_guava_map.go
+index a9b971e6..3c88fa90 100644
+--- a/go/closure/rt_guava_map.go
++++ b/go/closure/rt_guava_map.go
+@@ -256,6 +256,9 @@ func mapKV_(m Map) (keys, vals []any) {
+ 	if im, ok := m.(*ImmutableMap); ok {
+ 		return append([]any(nil), im.keys...), append([]any(nil), im.vals...)
+ 	}
++	if tv, ok := m.(interface{ boxedKV_() ([]any, []any) }); ok {
++		return tv.boxedKV_()
++	}
+ 	for it := m.entrySet().iterator(); it.hasNext(); {
+ 		e := it.next().(Map_Entry)
+ 		keys = append(keys, e.getKey())
+diff --git a/go/closure/rt_iter_test.go b/go/closure/rt_iter_test.go
+index ae06dc42..a0d68d55 100644
+--- a/go/closure/rt_iter_test.go
++++ b/go/closure/rt_iter_test.go
+@@ -268,3 +268,29 @@ func TestImmCursorMatchesIterator(t *testing.T) {
+ 		t.Fatal("a null immutable collection does not throw")
+ 	}
+ }
++
++// TestBoxedKVMatchesEntrySet: mapKV_ of a typed map's view (ImmutableMap.copyOf) gives the keys
++// and values that walking the view's entry set gives, after removals and re-additions.
++func TestBoxedKVMatchesEntrySet(t *testing.T) {
++	kc := &tconv_[int32]{box: func(v int32) any { return v }, unbox: func(v any) int32 { return v.(int32) }}
++	for seed := int64(1); seed <= 20; seed++ {
++		rnd := rand.New(rand.NewSource(seed))
++		m := newTMap_(kc, kc)
++		for i := 0; i < 60; i++ {
++			if rnd.Intn(3) == 0 {
++				m.remove(int32(rnd.Intn(40)))
++			} else {
++				m.put(int32(rnd.Intn(40)), int32(i))
++			}
++		}
++		var ks, vs []any
++		for it := m.asMap().entrySet().iterator(); it.hasNext(); {
++			e := it.next().(Map_Entry)
++			ks, vs = append(ks, e.getKey()), append(vs, e.getValue())
++		}
++		gk, gv := mapKV_(m.asMap())
++		if !sameSlice_(gk, ks) || !sameSlice_(gv, vs) || (gk == nil) != (ks == nil) {
++			t.Fatalf("seed %d: mapKV_ %v=%v, entry set %v=%v", seed, gk, gv, ks, vs)
++		}
++	}
++}
+diff --git a/go/closure/rt_tmap.go b/go/closure/rt_tmap.go
+index 2bbda90e..98fd9aad 100644
+--- a/go/closure/rt_tmap.go
++++ b/go/closure/rt_tmap.go
+@@ -542,6 +542,20 @@ func (s *TSet[K]) asSet() Set {
+ 
+ type tmapView_[K comparable, V any] struct{ m *TMap[K, V] }
+ 
++// boxedKV_ is the keys and values of the map, boxed, in the order its entry set's iterator
++// gives them (from the first live position, skipping removed ones), without the iterator and
++// an entry object per element (mapKV_: ImmutableMap.copyOf of a typed map's view).
++func (v *tmapView_[K, V]) boxedKV_() (keys, vals []any) {
++	m := v.m
++	for i := m.first(); i < len(m.keys); i++ {
++		if !m.isDead(i) {
++			keys = append(keys, m.kc.box(m.keys[i]))
++			vals = append(vals, m.vc.box(m.vals[i]))
++		}
++	}
++	return keys, vals
++}
++
+ func (v *tmapView_[K, V]) self() any     { return v }
+ func (v *tmapView_[K, V]) size() int32   { return v.m.live }
+ func (v *tmapView_[K, V]) isEmpty() bool { return v.m.live == 0 }

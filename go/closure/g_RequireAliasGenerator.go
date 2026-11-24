@@ -3,12 +3,12 @@
 package closure
 
 type RequireAliasGenerator struct {
-	parts      *JTList[string]
+	parts      *TList[string]
 	capitalize bool
 }
 
 func (this *RequireAliasGenerator) init_RequireAliasGenerator(namespace string) {
-	this.parts = jtlistImm_(jtc_string, lgBox_(listAs_(jtc_string, ImmutableList_as_List(ImmutableList_copyOf_Iterable(RequireAliasGenerator_DOT_SPLITTER.split_s(namespace))))).(*ErasedImmutableList).reverse())
+	this.parts = tlistImm_(tc_string, lgBox_(listAs_(tc_string, ImmutableList_as_List(ImmutableList_copyOf_Iterable(RequireAliasGenerator_DOT_SPLITTER.split_s(namespace))))).(*ErasedImmutableList).reverse())
 	this.capitalize = Ascii_isUpperCase(String_charAt(this.parts.get(0), 0))
 }
 
@@ -18,9 +18,9 @@ func new_RequireAliasGenerator(namespace string) *RequireAliasGenerator {
 	return this
 }
 
-func RequireAliasGenerator_createSkiplistedAliases() *JTSet[string] {
-	var seeds *JTSet[string] = jimmutableSetOf_[string](jtc_string, "", "array", "event", "map", "math", "object", "promise", "set", "string", "thenable")
-	var builder *TSetBuilder[string] = newTSetBuilder_(jtc_string)
+func RequireAliasGenerator_createSkiplistedAliases() *TSet[string] {
+	var seeds *TSet[string] = immutableSetOf_[string](tc_string, "", "array", "event", "map", "math", "object", "promise", "set", "string", "thenable")
+	var builder *ImmutableSet_Builder[string] = immutableSetBuilder_(tc_string)
 	it_1 := seeds.each()
 	for it_1.next() {
 		var seed string = it_1.v
@@ -40,7 +40,7 @@ func RequireAliasGenerator_over(namespace string) IterableT[string] {
 }
 
 func (this *RequireAliasGenerator) iterator_t() IteratorT[string] {
-	return iteratorAs_(jtc_string, Iterator(new_RequireAliasGenerator_NameIterator(this)))
+	return iteratorAs_(tc_string, Iterator(new_RequireAliasGenerator_NameIterator(this)))
 }
 
 func (this *RequireAliasGenerator) iterator() Iterator {
@@ -55,7 +55,7 @@ func RequireAliasGenerator_captializeFirstChar(w string) string {
 	return (chrstr_(Ascii_toUpperCase_char(wU16.charAt(0))) + sstr_(wU16.substring_int(1)))
 }
 
-var RequireAliasGenerator_SKIPLISTED_ALIASES *JTSet[string]
+var RequireAliasGenerator_SKIPLISTED_ALIASES *TSet[string]
 var RequireAliasGenerator_DOT_SPLITTER *Splitter
 
 var RequireAliasGenerator_clinit_done bool
@@ -111,7 +111,7 @@ func new_RequireAliasGenerator_NameIterator(outer_ *RequireAliasGenerator) *Requ
 
 func (this *RequireAliasGenerator_NameIterator) computeNext() any {
 	var next string
-	for do_2 := true; do_2; do_2 = RequireAliasGenerator_SKIPLISTED_ALIASES.contains(next) {
+	for do_2 := true; do_2; do_2 = RequireAliasGenerator_SKIPLISTED_ALIASES.Has(next) {
 		next = this.computeNextWithoutFiltering()
 	}
 	return strobj_(next)

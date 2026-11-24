@@ -6,11 +6,11 @@ import "strings"
 
 type ErrorToFixMapper struct {
 	compiler_             *AbstractCompiler
-	metadataForEachScript *JTMap[Node, *ScriptMetadata]
+	metadataForEachScript *TMap[Node, *ScriptMetadata]
 }
 
 func (this *ErrorToFixMapper) finit_ErrorToFixMapper() {
-	this.metadataForEachScript = jnewTMap_(jtc_Node, jtc_p_ScriptMetadata)
+	this.metadataForEachScript = newTMap_(tc_Node, tc_p_ScriptMetadata)
 }
 
 func (this *ErrorToFixMapper) init_ErrorToFixMapper(compiler *AbstractCompiler) {
@@ -24,17 +24,17 @@ func new_ErrorToFixMapper(compiler *AbstractCompiler) *ErrorToFixMapper {
 	return this
 }
 
-func (this *ErrorToFixMapper) getFixesForJsError(error_ *JSError) *JTList[*SuggestedFix] {
+func (this *ErrorToFixMapper) getFixesForJsError(error_ *JSError) *TList[*SuggestedFix] {
 	var fix *SuggestedFix = this.getFixForJsError(error_)
 	if fix != nil {
-		return jimmutableListOf_[*SuggestedFix](jtc_p_SuggestedFix, fix)
+		return immutableListOf_[*SuggestedFix](tc_p_SuggestedFix, fix)
 	}
-	return tlistOfT_(jtc_p_SuggestedFix, func() ListT[*SuggestedFix] {
+	return tlistOfT_(tc_p_SuggestedFix, func() ListT[*SuggestedFix] {
 		switch error_.type_().key_ {
 		case "JSC_IMPLICITLY_NONNULL_JSDOC", "JSC_IMPLICITLY_NULLABLE_JSDOC", "JSC_MISSING_NULLABILITY_MODIFIER_JSDOC", "JSC_NULL_MISSING_NULLABILITY_MODIFIER_JSDOC":
 			return this.getFixesForImplicitNullabilityErrors(error_)
 		default:
-			return jtlistEmptyImm_(jtc_p_SuggestedFix).asListT()
+			return tlistEmptyImm_(tc_p_SuggestedFix).asListT()
 		}
 	}())
 }
@@ -104,7 +104,7 @@ func (this *ErrorToFixMapper) getFixForRedeclaration(error_ *JSError) *Suggested
 	if parent.hasOneChild() {
 		return fix.replace(parent, assign, this.compiler_).build()
 	}
-	var childrenOfAddedVarStatement *JTList[Node] = jnewTList_(jtc_Node)
+	var childrenOfAddedVarStatement *TList[Node] = newTList_(tc_Node)
 	{
 		var n Node = parent.getFirstChild()
 		for ; n != 0; n = n.getNext() {
@@ -179,20 +179,20 @@ func (this *ErrorToFixMapper) getFixForReferenceToShortImportByLongName(error_ *
 
 func (this *ErrorToFixMapper) getFixesForImplicitNullabilityErrors(error_ *JSError) ListT[*SuggestedFix] {
 	if error_.node().getSourceFileName() == "" {
-		return jtlistEmptyImm_(jtc_p_SuggestedFix).asListT()
+		return tlistEmptyImm_(tc_p_SuggestedFix).asListT()
 	}
 	var qmark *SuggestedFix = new_SuggestedFix_Builder().attachMatchedNodeInfo(error_.node(), this.compiler_).insertBefore(error_.node(), "?").setDescription("Make nullability explicit").build()
 	var bang *SuggestedFix = new_SuggestedFix_Builder().attachMatchedNodeInfo(error_.node(), this.compiler_).insertBefore(error_.node(), "!").setDescription("Make type non-nullable").build()
 	return func() ListT[*SuggestedFix] {
 		switch error_.type_().key_ {
 		case "JSC_NULL_MISSING_NULLABILITY_MODIFIER_JSDOC":
-			return jimmutableListOf_[*SuggestedFix](jtc_p_SuggestedFix, qmark).asListT()
+			return immutableListOf_[*SuggestedFix](tc_p_SuggestedFix, qmark).asListT()
 		case "JSC_MISSING_NULLABILITY_MODIFIER_JSDOC":
-			return jimmutableListOf_[*SuggestedFix](jtc_p_SuggestedFix, bang, qmark).asListT()
+			return immutableListOf_[*SuggestedFix](tc_p_SuggestedFix, bang, qmark).asListT()
 		case "JSC_IMPLICITLY_NULLABLE_JSDOC":
-			return jimmutableListOf_[*SuggestedFix](jtc_p_SuggestedFix, qmark, bang).asListT()
+			return immutableListOf_[*SuggestedFix](tc_p_SuggestedFix, qmark, bang).asListT()
 		case "JSC_IMPLICITLY_NONNULL_JSDOC":
-			return jimmutableListOf_[*SuggestedFix](jtc_p_SuggestedFix, bang).asListT()
+			return immutableListOf_[*SuggestedFix](tc_p_SuggestedFix, bang).asListT()
 		default:
 			panic(new_IllegalArgumentException_String(("Unexpected JSError Type: " + sstr_(error_.type_().key_))))
 		}
@@ -328,7 +328,7 @@ func (this *ErrorToFixMapper) getMetadataForScript(script Node) *ScriptMetadata 
 	if !script.isScript() {
 		panic(new_IllegalArgumentException_0())
 	}
-	return this.metadataForEachScript.computeIfAbsent(script, Function[Node, *ScriptMetadata](func(s Node) *ScriptMetadata {
+	return this.metadataForEachScript.ComputeIfAbsent(script, Function[Node, *ScriptMetadata](func(s Node) *ScriptMetadata {
 		return ScriptMetadata_create(s, this.compiler_)
 	}))
 }

@@ -861,7 +861,7 @@ func (this Node) setNodePropertySideEffectFlags(propSet int64, sideEffectFlags i
 
 func (this Node) getPropListDebugString() string {
 	var propListItem *Node_PropListItem = this.propListHead_get_()
-	var propListStrRepr *JTList[string] = jnewTList_(jtc_string)
+	var propListStrRepr *TList[string] = newTList_(tc_string)
 	for propListItem != nil {
 		propListStrRepr.add(Node_Prop_values()[propListItem.propType].name())
 		propListItem = propListItem.next_
@@ -1490,7 +1490,7 @@ func (this Node) setLinenoCharno(lineno int32, charno int32) Node {
 
 func (this Node) children() IterableT[Node] {
 	if this.ns_().first == 0 {
-		return jtsetEmptyImm_(jtc_Node).asIterable()
+		return tsetEmptyImm_(tc_Node).asIterable()
 	} else {
 		return func() IterableT[Node] {
 			if v := new_Node_SiblingNodeIterable(this.ns_().first); v != nil {
@@ -1744,7 +1744,7 @@ func (this Node) isEquivalentTo_5(node Node, recursion Node_RecursionMode, typeC
 	} else if !thisDte.isEquivalentTo_5(thatDte, recursion, typeConfig, jsDocConfig, sideEffectConfig) {
 		return false
 	}
-	var propSet SetT[*Node_Prop] = tenumSetNoneOf_(jtc_p_Node_Prop, classOf_("com.google.javascript.rhino.Node.Prop")).asSetT()
+	var propSet SetT[*Node_Prop] = tenumSetNoneOf_(tc_p_Node_Prop, classOf_("com.google.javascript.rhino.Node.Prop")).asSetT()
 	{
 		var propListItem *Node_PropListItem = this.propListHead_get_()
 		for ; propListItem != nil; propListItem = propListItem.next_ {
@@ -3068,7 +3068,7 @@ func Node_clinit() {
 	Node_ES6_MODULE = Node_Prop_ES6_MODULE
 	Node_NUMBER_PAYLOAD_UNSET = any(float64(0.0))
 	Node_BIGINT_PAYLOAD_UNSET = BigInteger_ZERO
-	Node_PROP_MAP_FOR_EQUALITY = mapAs_(jtc_p_Node_Prop, tc_Function_Node__any_, ImmutableMap_as_Map(immutableMapBuilder_(tc_p_Node_Prop, tc_Function_any__any_).put(Node_Prop_ARROW_FN, func() Function[any, any] {
+	Node_PROP_MAP_FOR_EQUALITY = mapAs_(tc_p_Node_Prop, tc_Function_Node__any_, ImmutableMap_as_Map(immutableMapBuilder_(tc_p_Node_Prop, tc_Function_any__any_).put(Node_Prop_ARROW_FN, func() Function[any, any] {
 		f_ := Function[Node, any](func(p0 Node) any { return any(bool(p0.isArrowFunction())) })
 		if f_ == nil {
 			return nil
@@ -3177,7 +3177,7 @@ func Node_clinit() {
 		}
 		return func(p0 any) any { return f_(Node_of_(p0)) }
 	}()).buildOrThrowErased()))
-	Node_propMapForEqualityKeys = tenumSetCopyOf_(jtc_p_Node_Prop, Collection(Set_un_(Node_PROP_MAP_FOR_EQUALITY.keySet_t()))).asSetT()
+	Node_propMapForEqualityKeys = tenumSetCopyOf_(tc_p_Node_Prop, Collection(Set_un_(Node_PROP_MAP_FOR_EQUALITY.keySet_t()))).asSetT()
 
 }
 

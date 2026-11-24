@@ -7,14 +7,14 @@ import "strings"
 type CheckClosureImports struct {
 	compiler_      *AbstractCompiler
 	checker        *CheckClosureImports_Checker
-	namespacesSeen *JTSet[string]
+	namespacesSeen *TSet[string]
 	chunkGraph     *JSChunkGraph
 }
 
 func (this *CheckClosureImports) init_CheckClosureImports(compiler *AbstractCompiler, moduleMetadataMap *ModuleMetadataMap) {
 	this.compiler_ = compiler
 	this.checker = new_CheckClosureImports_Checker(this, compiler, moduleMetadataMap)
-	this.namespacesSeen = jnewTSet_(jtc_string)
+	this.namespacesSeen = newTSet_(tc_string)
 	this.chunkGraph = compiler.getChunkGraph()
 }
 
@@ -30,7 +30,7 @@ func (this *CheckClosureImports) process_2(externs Node, root Node) {
 }
 
 func (this *CheckClosureImports) verifyRequireOrder(namespace string, call Node, t *NodeTraversal, requiredModule *ModuleMetadataMap_ModuleMetadata) {
-	if !this.namespacesSeen.contains(namespace) {
+	if !this.namespacesSeen.Has(namespace) {
 		t.report(call, CheckClosureImports_LATE_PROVIDE_ERROR, []string{namespace})
 		return
 	}
@@ -327,7 +327,7 @@ func (this *CheckClosureImports_Checker) checkGoogModuleGet(t *NodeTraversal, ca
 		return
 	}
 	var namespace string = call.getSecondChild().getString()
-	var requiredModule *ModuleMetadataMap_ModuleMetadata = this.moduleMetadataMapField.getModulesByGoogNamespace().get(namespace)
+	var requiredModule *ModuleMetadataMap_ModuleMetadata = this.moduleMetadataMapField.getModulesByGoogNamespace().Get(namespace)
 	if requiredModule == nil {
 		t.report(call, ClosurePrimitiveErrors_MISSING_MODULE_OR_PROVIDE, []string{namespace})
 		return
@@ -435,7 +435,7 @@ func (this *CheckClosureImports_Checker) checkImport(t *NodeTraversal, call Node
 		}
 	}
 	var namespace string = call.getSecondChild().getString()
-	var requiredModule *ModuleMetadataMap_ModuleMetadata = this.moduleMetadataMapField.getModulesByGoogNamespace().get(namespace)
+	var requiredModule *ModuleMetadataMap_ModuleMetadata = this.moduleMetadataMapField.getModulesByGoogNamespace().Get(namespace)
 	if requiredModule == nil {
 		if importType == CheckClosureImports_ClosureImport_FORWARD_DECLARE {
 			if isAliased && isModule {

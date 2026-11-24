@@ -38,7 +38,7 @@ func (this *OptimizeParameters) process_3(externs Node, root Node, refMap *Optim
 	defer closeResource_(decisionsLog.self())
 	this.decisionsLog = decisionsLog
 	this.globalScope = refMap.getGlobalScope()
-	var toOptimize *JTList[ListT[Node]] = jnewTList_(tc_ListT_Node_)
+	var toOptimize *TList[ListT[Node]] = newTList_(tc_ListT_Node_)
 	for entry := range elemsT_(refMap.getNameReferences()) {
 		var key string = entry.getKey_t()
 		var refs ListT[Node] = entry.getValue_t()
@@ -103,7 +103,7 @@ func (this *OptimizeParameters) analyzeCandidate(refKind string, key string, ref
 		this.decisionsLog.log_2("%s\t%s\tnot an optimizable name", []any{strobj_(refKind), strobj_(key)})
 		return analysisBuilder.setIsSafeToOptimize(false).build()
 	}
-	var definitions *JTList[Node] = jnewTList_(jtc_Node)
+	var definitions *TList[Node] = newTList_(tc_Node)
 	var seenCandidateUse bool = false
 	it_1 := jeachOf_(refs)
 	for it_1.next() {
@@ -300,7 +300,7 @@ func (this *OptimizeParameters) tryEliminateOptionalArgs(refs ListT[Node]) {
 }
 
 func (this *OptimizeParameters) tryEliminateConstantArgs(refs ListT[Node]) {
-	var parameters *JTList[*OptimizeParameters_Parameter] = this.findFixedArguments(refs)
+	var parameters *TList[*OptimizeParameters_Parameter] = this.findFixedArguments(refs)
 	if parameters == nil {
 		return
 	}
@@ -321,8 +321,8 @@ func (this *OptimizeParameters) tryEliminateConstantArgs(refs ListT[Node]) {
 	this.optimizeFunctionDefinition(parameters, fn)
 }
 
-func (this *OptimizeParameters) findFixedArguments(refs ListT[Node]) *JTList[*OptimizeParameters_Parameter] {
-	var parameters *JTList[*OptimizeParameters_Parameter] = jnewTList_(jtc_p_OptimizeParameters_Parameter)
+func (this *OptimizeParameters) findFixedArguments(refs ListT[Node]) *TList[*OptimizeParameters_Parameter] {
+	var parameters *TList[*OptimizeParameters_Parameter] = newTList_(tc_p_OptimizeParameters_Parameter)
 	var firstCall bool = true
 	var continueLooking bool = false
 	for n := range elemsT_(refs) {
@@ -343,7 +343,7 @@ func (this *OptimizeParameters) findFixedArguments(refs ListT[Node]) *JTList[*Op
 			}
 		}
 	}
-	return func() *JTList[*OptimizeParameters_Parameter] {
+	return func() *TList[*OptimizeParameters_Parameter] {
 		if continueLooking {
 			return parameters
 		}
@@ -360,7 +360,7 @@ func OptimizeParameters_hasSpreadInFirstCallParam(n Node) bool {
 	return false
 }
 
-func OptimizeParameters_adjustForConstraints(fn Node, parameters *JTList[*OptimizeParameters_Parameter]) bool {
+func OptimizeParameters_adjustForConstraints(fn Node, parameters *TList[*OptimizeParameters_Parameter]) bool {
 	var info *JSDocInfo = NodeUtil_getBestJSDocInfo(fn)
 	if (info != nil) && info.isNoInline() {
 		return false
@@ -424,7 +424,7 @@ func OptimizeParameters_adjustForConstraints(fn Node, parameters *JTList[*Optimi
 	return anyMovable
 }
 
-func (this *OptimizeParameters) findFixedParameters(parameters *JTList[*OptimizeParameters_Parameter], cur Node) bool {
+func (this *OptimizeParameters) findFixedParameters(parameters *TList[*OptimizeParameters_Parameter], cur Node) bool {
 	var anyMovable bool = false
 	var index int32 = 0
 	for cur != 0 {
@@ -458,7 +458,7 @@ func (this *OptimizeParameters) findFixedParameters(parameters *JTList[*Optimize
 	return anyMovable
 }
 
-func (this *OptimizeParameters) buildInitialParameterList(parameters *JTList[*OptimizeParameters_Parameter], cur Node) bool {
+func (this *OptimizeParameters) buildInitialParameterList(parameters *TList[*OptimizeParameters_Parameter], cur Node) bool {
 	var anyMovable bool = false
 	for cur != 0 {
 		var movable bool = OptimizeParameters_isMovableValue(cur, this.globalScope)
@@ -512,7 +512,7 @@ func OptimizeParameters_isMovableValue(n Node, globalScope *Scope) bool {
 	return true
 }
 
-func (this *OptimizeParameters) optimizeFunctionDefinition(parameters *JTList[*OptimizeParameters_Parameter], fn Node) {
+func (this *OptimizeParameters) optimizeFunctionDefinition(parameters *TList[*OptimizeParameters_Parameter], fn Node) {
 	var paramList Node = NodeUtil_getFunctionParameters(fn)
 	var maybeRest Node = paramList.getLastChild()
 	var lastParameter int32 = (parameters.size() - 1)
@@ -556,7 +556,7 @@ func (this *OptimizeParameters) optimizeFunctionDefinition(parameters *JTList[*O
 	}
 }
 
-func (this *OptimizeParameters) optimizeCallSite(parameters *JTList[*OptimizeParameters_Parameter], target Node) {
+func (this *OptimizeParameters) optimizeCallSite(parameters *TList[*OptimizeParameters_Parameter], target Node) {
 	var call Node = OptimizeCalls_ReferenceMap_getCallOrNewNodeForTarget(target)
 	var callMayMutateArgs bool = call.mayMutateArguments()
 	var callMayMutateGlobalsOrThrow bool = call.mayMutateGlobalStateOrThrow()
@@ -589,7 +589,7 @@ func (this *OptimizeParameters) addVariableDeclarationToFunction(function Node, 
 	if lhs.getParent() != 0 {
 		panic(new_IllegalStateException_String(objstr_("formal parameter being declared must be detached")))
 	}
-	var stmts *JTList[Node] = jnewTList_(jtc_Node)
+	var stmts *TList[Node] = newTList_(tc_Node)
 	if lhs.isDestructuringPattern() {
 		this.rewriteDestructuringPattern(lhs, value, stmts)
 	} else {
@@ -599,12 +599,12 @@ func (this *OptimizeParameters) addVariableDeclarationToFunction(function Node, 
 }
 
 func (this *OptimizeParameters) addExpressionToFunction(function Node, value Node) {
-	var stmts *JTList[Node] = jnewTList_(jtc_Node)
+	var stmts *TList[Node] = newTList_(tc_Node)
 	stmts.add(IR_exprResult(value).srcref(value))
 	this.insertStatements(function, stmts)
 }
 
-func (this *OptimizeParameters) insertStatements(function Node, stmts *JTList[Node]) {
+func (this *OptimizeParameters) insertStatements(function Node, stmts *TList[Node]) {
 	if stmts.isEmpty() {
 		return
 	}
@@ -618,7 +618,7 @@ func (this *OptimizeParameters) insertStatements(function Node, stmts *JTList[No
 	this.compiler_.reportChangeToEnclosingScope(stmts.get(0))
 }
 
-func (this *OptimizeParameters) addStatementsToBack(block Node, stmts *JTList[Node]) {
+func (this *OptimizeParameters) addStatementsToBack(block Node, stmts *TList[Node]) {
 	it_1 := stmts.each()
 	for it_1.next() {
 		var stmt Node = it_1.v
@@ -626,7 +626,7 @@ func (this *OptimizeParameters) addStatementsToBack(block Node, stmts *JTList[No
 	}
 }
 
-func (this *OptimizeParameters) addStatementsBefore(insertionPoint Node, stmts *JTList[Node]) {
+func (this *OptimizeParameters) addStatementsBefore(insertionPoint Node, stmts *TList[Node]) {
 	for item := range elemsBy_(Lists_reverse(stmts.asList()), Node_of_) {
 		item.insertBefore(insertionPoint)
 	}
@@ -644,7 +644,7 @@ func (this *OptimizeParameters) eliminateParamsAfterInt(fnNode Node, argIndex in
 func (this *OptimizeParameters) eliminateParamsAfter(fnNode Node, formal Node) {
 	if formal != 0 {
 		this.eliminateParamsAfter(fnNode, formal.getNext())
-		var stmts *JTList[Node] = jnewTList_(jtc_Node)
+		var stmts *TList[Node] = newTList_(tc_Node)
 		formal.detach()
 		if formal.isRest() {
 			if formal.getNext() != 0 {
@@ -668,7 +668,7 @@ func (this *OptimizeParameters) eliminateParamsAfter(fnNode Node, formal Node) {
 	}
 }
 
-func (this *OptimizeParameters) rewriteDestructuringPattern(destructuringPattern Node, value Node, stmts *JTList[Node]) {
+func (this *OptimizeParameters) rewriteDestructuringPattern(destructuringPattern Node, value Node, stmts *TList[Node]) {
 	if !destructuringPattern.isDestructuringPattern() {
 		panic(new_IllegalStateException_0())
 	}
@@ -696,13 +696,13 @@ func (this *OptimizeParameters) eliminateCallTargetArgAt(ref Node, argIndex int3
 
 type OptimizeParameters_UnusedParameterOptimizer struct {
 	outer_            *OptimizeParameters
-	toRemove          *JTList[Node]
-	toReplaceWithZero *JTList[Node]
+	toRemove          *TList[Node]
+	toReplaceWithZero *TList[Node]
 }
 
 func (this *OptimizeParameters_UnusedParameterOptimizer) finit_OptimizeParameters_UnusedParameterOptimizer() {
-	this.toRemove = jnewTList_(jtc_Node)
-	this.toReplaceWithZero = jnewTList_(jtc_Node)
+	this.toRemove = newTList_(tc_Node)
+	this.toReplaceWithZero = newTList_(tc_Node)
 }
 
 func (this *OptimizeParameters_UnusedParameterOptimizer) init_OptimizeParameters_UnusedParameterOptimizer() {
@@ -905,7 +905,7 @@ func (this *OptimizeParameters_UnusedParameterOptimizer) applyChanges() {
 
 type OptimizeParameters_CandidateAnalysis struct {
 	outer_                 *OptimizeParameters
-	taggedTemplateLiterals *JTList[Node]
+	taggedTemplateLiterals *TList[Node]
 	isSafeToOptimizeField  bool
 }
 
@@ -940,12 +940,12 @@ func (this *OptimizeParameters_CandidateAnalysis) isSafeToOptimize() bool {
 
 type OptimizeParameters_CandidateAnalysisBuilder struct {
 	outer_                 *OptimizeParameters
-	taggedTemplateLiterals *JTList[Node]
+	taggedTemplateLiterals *TList[Node]
 	isSafeToOptimize_      bool
 }
 
 func (this *OptimizeParameters_CandidateAnalysisBuilder) finit_OptimizeParameters_CandidateAnalysisBuilder() {
-	this.taggedTemplateLiterals = jnewTList_(jtc_Node)
+	this.taggedTemplateLiterals = newTList_(tc_Node)
 	this.isSafeToOptimize_ = false
 }
 

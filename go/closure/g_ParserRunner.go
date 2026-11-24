@@ -15,28 +15,28 @@ func new_ParserRunner() *ParserRunner {
 	return this
 }
 
-func ParserRunner_createConfig_LanguageMode_Set_StrictMode(languageMode Config_LanguageMode, extraAnnotationNames *JTSet[string], strictMode Config_StrictMode) *Config {
+func ParserRunner_createConfig_LanguageMode_Set_StrictMode(languageMode Config_LanguageMode, extraAnnotationNames *TSet[string], strictMode Config_StrictMode) *Config {
 	return ParserRunner_createConfig_LanguageMode_JsDocParsing_RunMode_Set_boolean_StrictMode(languageMode, Config_JsDocParsing_TYPES_ONLY, Config_RunMode_STOP_AFTER_ERROR, extraAnnotationNames, true, strictMode)
 }
 
-func ParserRunner_createConfig_LanguageMode_JsDocParsing_RunMode_Set_boolean_StrictMode(languageMode Config_LanguageMode, jsdocParsingMode Config_JsDocParsing, runMode Config_RunMode, extraAnnotationNames *JTSet[string], parseInlineSourceMaps bool, strictMode Config_StrictMode) *Config {
+func ParserRunner_createConfig_LanguageMode_JsDocParsing_RunMode_Set_boolean_StrictMode(languageMode Config_LanguageMode, jsdocParsingMode Config_JsDocParsing, runMode Config_RunMode, extraAnnotationNames *TSet[string], parseInlineSourceMaps bool, strictMode Config_StrictMode) *Config {
 	ParserRunner_initResourceConfig()
-	var effectiveAnnotationNames *JTSet[string]
+	var effectiveAnnotationNames *TSet[string]
 	if extraAnnotationNames == nil {
 		effectiveAnnotationNames = ParserRunner_annotationNames
 	} else {
-		effectiveAnnotationNames = tsetCopy_(jtc_string, ParserRunner_annotationNames)
+		effectiveAnnotationNames = tsetCopy_(tc_string, ParserRunner_annotationNames)
 		effectiveAnnotationNames.asSetT().addAll(Collection(extraAnnotationNames.asSetT()))
 	}
 	return Config_builder().setExtraAnnotationNames(effectiveAnnotationNames.asIterable()).setJsDocParsingMode(jsdocParsingMode).setRunMode(runMode).setSuppressionNames(ParserRunner_suppressionNames.asIterable()).setClosurePrimitiveNames(ParserRunner_closurePrimitiveNames.asIterable()).setLanguageMode(languageMode).setParseInlineSourceMaps(parseInlineSourceMaps).setStrictMode(strictMode).build()
 }
 
-func ParserRunner_getReservedVars() *JTSet[string] {
+func ParserRunner_getReservedVars() *TSet[string] {
 	ParserRunner_initResourceConfig()
 	return ParserRunner_reservedVars
 }
 
-func ParserRunner_getSuppressionNames() *JTSet[string] {
+func ParserRunner_getSuppressionNames() *TSet[string] {
 	ParserRunner_initResourceConfig()
 	return ParserRunner_suppressionNames
 }
@@ -51,8 +51,8 @@ func ParserRunner_initResourceConfig() {
 	ParserRunner_reservedVars = ParserRunner_extractList(ParserConfiguration_getString("compiler.reserved.vars"))
 }
 
-func ParserRunner_extractList(configProp string) *JTSet[string] {
-	return jimmutableSetCopyOf_(jtc_string, Splitter_on(',').trimResults().split_s(configProp))
+func ParserRunner_extractList(configProp string) *TSet[string] {
+	return immutableSetCopyOf_(tc_string, Splitter_on(',').trimResults().split_s(configProp))
 }
 
 func ParserRunner_parse(sourceFile StaticSourceFile, sourceString string, config *Config, errorReporter ErrorReporter_rhino) (ret_1 *ParserRunner_ParseResult) {
@@ -74,8 +74,8 @@ func ParserRunner_parse(sourceFile StaticSourceFile, sourceString string, config
 	var p *Parser = new_Parser(es6config, es6ErrorReporter.up_ErrorReporter_util(), file)
 	var tree *ProgramTree = p.parseProgram()
 	var root Node = 0
-	var comments *JTList[*Comment] = jtlistEmptyImm_(jtc_p_Comment)
-	var topLevelStatementRanges *JTList[*SourceRange] = jtlistEmptyImm_(jtc_p_SourceRange)
+	var comments *TList[*Comment] = tlistEmptyImm_(tc_p_Comment)
+	var topLevelStatementRanges *TList[*SourceRange] = tlistEmptyImm_(tc_p_SourceRange)
 	var features *FeatureSet = p.getFeatures()
 	if (tree != nil) && (!es6ErrorReporter.hadError() || keepGoing) {
 		var factory *IRFactory = IRFactory_transformTree(tree, sourceFile, config, errorReporter, file)
@@ -84,7 +84,7 @@ func ParserRunner_parse(sourceFile StaticSourceFile, sourceString string, config
 		root.setFeatureSet(features)
 		if config.jsDocParsingMode().shouldParseDescriptions() {
 			comments = p.getComments()
-			var builder *TListBuilder[*SourceRange] = newTListBuilderN_(jtc_p_SourceRange, tree.sourceElements.size())
+			var builder *ImmutableList_Builder[*SourceRange] = immutableListBuilderN_(tc_p_SourceRange, tree.sourceElements.size())
 			it_2 := tree.sourceElements.each()
 			for it_2.next() {
 				var element *ParseTree = it_2.v
@@ -118,10 +118,10 @@ func ParserRunner_newParserConfig(config *Config) *Parser_Config {
 	return new_Parser_Config_Mode_boolean(parserConfigLanguageMode, isStrictMode)
 }
 
-var ParserRunner_annotationNames *JTSet[string]
-var ParserRunner_suppressionNames *JTSet[string]
-var ParserRunner_reservedVars *JTSet[string]
-var ParserRunner_closurePrimitiveNames *JTSet[string]
+var ParserRunner_annotationNames *TSet[string]
+var ParserRunner_suppressionNames *TSet[string]
+var ParserRunner_reservedVars *TSet[string]
+var ParserRunner_closurePrimitiveNames *TSet[string]
 
 var ParserRunner_clinit_done bool
 
@@ -181,24 +181,24 @@ func (this *ParserRunner_Es6ErrorReporter) reportWarning_impl(location *SourcePo
 }
 
 type ParserRunner_ParseResult struct {
-	comments                *JTList[*Comment]
-	topLevelStatementRanges *JTList[*SourceRange]
+	comments                *TList[*Comment]
+	topLevelStatementRanges *TList[*SourceRange]
 	features_               *FeatureSet
 	sourceMapURL            Optional[string]
 	ast                     Node
 }
 
-func (this *ParserRunner_ParseResult) init_ParserRunner_ParseResult_Node_List_FeatureSet_String(ast Node, comments *JTList[*Comment], features *FeatureSet, sourceMapURL string) {
-	this.init_ParserRunner_ParseResult_Node_List_ImmutableList_FeatureSet_Optional(ast, comments, jtlistEmptyImm_(jtc_p_SourceRange), features, Optional_of[string](sourceMapURL))
+func (this *ParserRunner_ParseResult) init_ParserRunner_ParseResult_Node_List_FeatureSet_String(ast Node, comments *TList[*Comment], features *FeatureSet, sourceMapURL string) {
+	this.init_ParserRunner_ParseResult_Node_List_ImmutableList_FeatureSet_Optional(ast, comments, tlistEmptyImm_(tc_p_SourceRange), features, Optional_of[string](sourceMapURL))
 }
 
-func new_ParserRunner_ParseResult_Node_List_FeatureSet_String(ast Node, comments *JTList[*Comment], features *FeatureSet, sourceMapURL string) *ParserRunner_ParseResult {
+func new_ParserRunner_ParseResult_Node_List_FeatureSet_String(ast Node, comments *TList[*Comment], features *FeatureSet, sourceMapURL string) *ParserRunner_ParseResult {
 	this := &ParserRunner_ParseResult{}
 	this.init_ParserRunner_ParseResult_Node_List_FeatureSet_String(ast, comments, features, sourceMapURL)
 	return this
 }
 
-func (this *ParserRunner_ParseResult) init_ParserRunner_ParseResult_Node_List_ImmutableList_FeatureSet_Optional(ast Node, comments *JTList[*Comment], topLevelStatementRanges *JTList[*SourceRange], features *FeatureSet, sourceMapURL Optional[string]) {
+func (this *ParserRunner_ParseResult) init_ParserRunner_ParseResult_Node_List_ImmutableList_FeatureSet_Optional(ast Node, comments *TList[*Comment], topLevelStatementRanges *TList[*SourceRange], features *FeatureSet, sourceMapURL Optional[string]) {
 	this.ast = ast
 	this.comments = comments
 	this.topLevelStatementRanges = topLevelStatementRanges
@@ -206,7 +206,7 @@ func (this *ParserRunner_ParseResult) init_ParserRunner_ParseResult_Node_List_Im
 	this.sourceMapURL = sourceMapURL
 }
 
-func new_ParserRunner_ParseResult_Node_List_ImmutableList_FeatureSet_Optional(ast Node, comments *JTList[*Comment], topLevelStatementRanges *JTList[*SourceRange], features *FeatureSet, sourceMapURL Optional[string]) *ParserRunner_ParseResult {
+func new_ParserRunner_ParseResult_Node_List_ImmutableList_FeatureSet_Optional(ast Node, comments *TList[*Comment], topLevelStatementRanges *TList[*SourceRange], features *FeatureSet, sourceMapURL Optional[string]) *ParserRunner_ParseResult {
 	this := &ParserRunner_ParseResult{}
 	this.init_ParserRunner_ParseResult_Node_List_ImmutableList_FeatureSet_Optional(ast, comments, topLevelStatementRanges, features, sourceMapURL)
 	return this

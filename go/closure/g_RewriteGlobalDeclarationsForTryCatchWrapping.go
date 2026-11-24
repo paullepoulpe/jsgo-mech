@@ -5,12 +5,12 @@ package closure
 type RewriteGlobalDeclarationsForTryCatchWrapping struct {
 	compiler_ *AbstractCompiler
 	functions *SimpleListMultimap[*JSChunk, Node]
-	classes   *JTList[Node]
+	classes   *TList[Node]
 }
 
 func (this *RewriteGlobalDeclarationsForTryCatchWrapping) finit_RewriteGlobalDeclarationsForTryCatchWrapping() {
 	this.functions = SimpleListMultimap_create[*JSChunk, Node]()
-	this.classes = jnewTList_(jtc_Node)
+	this.classes = newTList_(tc_Node)
 }
 
 func (this *RewriteGlobalDeclarationsForTryCatchWrapping) init_RewriteGlobalDeclarationsForTryCatchWrapping(compiler *AbstractCompiler) {
@@ -28,7 +28,7 @@ func (this *RewriteGlobalDeclarationsForTryCatchWrapping) process_2(externs Node
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(this))
 	for entry := range elemsT_(this.functions.asMap().entrySet_t()) {
 		var addingRoot Node = this.compiler_.getNodeForCodeInsertion(entry.getKey_t())
-		var fnNodes ListT[Node] = listAs_(jtc_Node, Lists_reverse(List_un_(entry.getValue_t())))
+		var fnNodes ListT[Node] = listAs_(tc_Node, Lists_reverse(List_un_(entry.getValue_t())))
 		if !fnNodes.isEmpty() {
 			for n := range elemsT_(fnNodes) {
 				var parent Node = n.getParent()

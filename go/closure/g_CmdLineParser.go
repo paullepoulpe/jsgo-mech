@@ -5,7 +5,7 @@ package closure
 import "strings"
 
 type CmdLineParser struct {
-	options_      *JTList[*CmdLineParser_Option]
+	options_      *TList[*CmdLineParser_Option]
 	argumentField *CmdLineParser_Option
 	currentOption *CmdLineParser_Option
 	usageWidth    int32
@@ -13,7 +13,7 @@ type CmdLineParser struct {
 }
 
 func (this *CmdLineParser) finit_CmdLineParser() {
-	this.options_ = jnewTList_(jtc_p_CmdLineParser_Option)
+	this.options_ = newTList_(tc_p_CmdLineParser_Option)
 	this.optionsSorted = true
 	this.argumentField = nil
 	this.usageWidth = 80
@@ -52,7 +52,7 @@ func (this *CmdLineParser) checkOptionNotDefined(name string) {
 	}
 }
 
-func (this *CmdLineParser) sortedOptions() *JTList[*CmdLineParser_Option] {
+func (this *CmdLineParser) sortedOptions() *TList[*CmdLineParser_Option] {
 	if !this.optionsSorted {
 		List_sortT_[*CmdLineParser_Option](this.options_.asListT(), Comparator[*CmdLineParser_Option](func(o1 *CmdLineParser_Option, o2 *CmdLineParser_Option) int32 {
 			return utf16Compare_(o1.toString(), o2.toString())
@@ -97,8 +97,8 @@ func (this *CmdLineParser) printOption(out *strBuilder_, option *CmdLineParser_O
 	var widthMetadata int32 = Math_min(len_, ((this.usageWidth - 4) / 2))
 	var widthUsage int32 = ((this.usageWidth - 4) - widthMetadata)
 	var defaultValuePart string = CmdLineParser_createDefaultValuePart(option)
-	var namesAndMetas *JTList[string] = CmdLineParser_wrapLines(option.getNameAndMeta(), widthMetadata)
-	var usages *JTList[string] = CmdLineParser_wrapLines((sstr_(option.usageField) + sstr_(defaultValuePart)), widthUsage)
+	var namesAndMetas *TList[string] = CmdLineParser_wrapLines(option.getNameAndMeta(), widthMetadata)
+	var usages *TList[string] = CmdLineParser_wrapLines((sstr_(option.usageField) + sstr_(defaultValuePart)), widthUsage)
 	for i := int32(0); i < Math_max(namesAndMetas.size(), usages.size()); i++ {
 		var nameAndMeta string = func() string {
 			if i >= namesAndMetas.size() {
@@ -132,8 +132,8 @@ func CmdLineParser_createDefaultValuePart(option *CmdLineParser_Option) string {
 	return ""
 }
 
-func CmdLineParser_wrapLines(line string, maxLength int32) *JTList[string] {
-	var rv *JTList[string] = jnewTList_(jtc_string)
+func CmdLineParser_wrapLines(line string, maxLength int32) *TList[string] {
+	var rv *TList[string] = newTList_(tc_string)
 	var restOfLineU16 utf16_
 	for _, restOfLine := range CmdLineParser_NEWLINE_PATTERN.split(line) {
 		for restOfLineU16.of(restOfLine).length() > maxLength {
@@ -163,7 +163,7 @@ func (this *CmdLineParser) parseArgument(args []string) *Outcome_base[any] {
 		return Outcome_base_err[any](expandedArgs.error())
 	}
 	var cmdLine *CmdLineParser_CmdLineImpl = new_CmdLineParser_CmdLineImpl(this, expandedArgs.get())
-	var present *JTSet[*CmdLineParser_Option] = jnewTSet_(jtc_p_CmdLineParser_Option)
+	var present *TSet[*CmdLineParser_Option] = newTSet_(tc_p_CmdLineParser_Option)
 	for cmdLine.hasMore() {
 		var arg string = cmdLine.getCurrentToken()
 		if strings.HasPrefix(arg, "-") {
@@ -193,12 +193,12 @@ func (this *CmdLineParser) parseArgument(args []string) *Outcome_base[any] {
 			return Outcome_base_err[any](diff.error())
 		}
 		cmdLine.proceed(unbox_[int32](diff.get()))
-		present.add(this.currentOption)
+		present.Add(this.currentOption)
 	}
 	it_2 := this.sortedOptions().each()
 	for it_2.next() {
 		var option *CmdLineParser_Option = it_2.v
-		if option.requiredField && !present.contains(option) {
+		if option.requiredField && !present.Has(option) {
 			return Outcome_base_err[any](new_CmdLineException_CmdLineParser_String(this, ("Option \"" + jtostr_(option) + "\" is required")).up_Throwable())
 		}
 	}
@@ -206,7 +206,7 @@ func (this *CmdLineParser) parseArgument(args []string) *Outcome_base[any] {
 }
 
 func (this *CmdLineParser) expandAtFiles(args []string) *Outcome_base[[]string] {
-	var result *JTList[string] = jnewTList_(jtc_string)
+	var result *TList[string] = newTList_(tc_string)
 	for _, arg := range args {
 		if strings.HasPrefix(arg, "@") {
 			var file string = FilePaths_clean(arg[1:])
@@ -255,8 +255,8 @@ func (this *CmdLineParser) findOptionByName(name string) *CmdLineParser_Option {
 }
 
 var CmdLineParser_NEWLINE_PATTERN *Pattern
-var CmdLineParser_TRUES *JTSet[string]
-var CmdLineParser_FALSES *JTSet[string]
+var CmdLineParser_TRUES *TSet[string]
+var CmdLineParser_FALSES *TSet[string]
 
 var CmdLineParser_clinit_done bool
 
@@ -266,8 +266,8 @@ func CmdLineParser_clinit() {
 	}
 	CmdLineParser_clinit_done = true
 	CmdLineParser_NEWLINE_PATTERN = Pattern_compile("\\n")
-	CmdLineParser_TRUES = jimmutableSetOf_[string](jtc_string, "true", "on", "yes", "1")
-	CmdLineParser_FALSES = jimmutableSetOf_[string](jtc_string, "false", "off", "no", "0")
+	CmdLineParser_TRUES = immutableSetOf_[string](tc_string, "true", "on", "yes", "1")
+	CmdLineParser_FALSES = immutableSetOf_[string](tc_string, "false", "off", "no", "0")
 
 }
 
@@ -281,7 +281,7 @@ type CmdLineParser_Handler = *funcObj_[func(CmdLineParser_Parameters) *Outcome_b
 type CmdLineParser_Option struct {
 	owner_        *CmdLineParser
 	nameField     string
-	aliasesField  *JTList[string]
+	aliasesField  *TList[string]
 	usageField    string
 	defaultValues Supplier[List]
 	handler       func(CmdLineParser_Parameters) *Outcome_base[any]
@@ -297,7 +297,7 @@ func (this *CmdLineParser_Option) zero_CmdLineParser_Option() {
 }
 
 func (this *CmdLineParser_Option) finit_CmdLineParser_Option() {
-	this.aliasesField = jtlistEmptyImm_(jtc_string)
+	this.aliasesField = tlistEmptyImm_(tc_string)
 	this.usageField = ""
 	this.hiddenField = false
 	this.requiredField = false
@@ -332,7 +332,7 @@ func (this *CmdLineParser_Option) aliases(aliases []string) *CmdLineParser_Optio
 	for _, alias := range aliases {
 		this.owner_.checkOptionNotDefined(alias)
 	}
-	this.aliasesField = jimmutableListCopyOfArr_(jtc_string, aliases)
+	this.aliasesField = immutableListCopyOfArr_(tc_string, aliases)
 	this.owner_.optionsSorted = false
 	return this
 }
@@ -388,7 +388,7 @@ func (this *CmdLineParser_Option) stringList(get Supplier[ListT[string]], set Co
 			if f_ == nil {
 				return nil
 			}
-			return func(p0 List) { f_(listAs_(jtc_string, p0)) }
+			return func(p0 List) { f_(listAs_(tc_string, p0)) }
 		}(), strobj_(value.get()))
 		return Outcome_base_ok_Object[any](int32(1))
 	}
@@ -454,9 +454,9 @@ func (this *CmdLineParser_Option) bool(get Supplier[any], set Consumer[any]) {
 			return Outcome_base_ok_Object[any](int32(0))
 		} else {
 			var lowerParam string = Ascii_toLowerCase(param.get())
-			if CmdLineParser_TRUES.contains(lowerParam) {
+			if CmdLineParser_TRUES.Has(lowerParam) {
 				set.accept(bool(true))
-			} else if CmdLineParser_FALSES.contains(lowerParam) {
+			} else if CmdLineParser_FALSES.Has(lowerParam) {
 				set.accept(bool(false))
 			} else {
 				set.accept(bool(true))
@@ -517,7 +517,7 @@ func (this *CmdLineParser_Option) map_(get Supplier[MapT[string, string]], set C
 	this.handler = func(params CmdLineParser_Parameters) *Outcome_base[any] {
 		var map_ MapT[string, string] = get.get()
 		if map_ == nil {
-			map_ = jnewTMap_(jtc_string, jtc_string).asMapT()
+			map_ = newTMap_(tc_string, tc_string).asMapT()
 			set.accept(map_)
 		}
 		var argumentOutcome *Outcome_base[string] = params.getParameter(0)

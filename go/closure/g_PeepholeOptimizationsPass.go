@@ -28,7 +28,7 @@ func new_PeepholeOptimizationsPass(compiler *AbstractCompiler, passName string, 
 }
 
 func PeepholeOptimizationsPass_createFromOptimizations(compiler *AbstractCompiler, passName string, optimizations []*AbstractPeepholeOptimization) *PeepholeOptimizationsPass {
-	return new_PeepholeOptimizationsPass(compiler, passName, listAs_(jtc_p_AbstractPeepholeOptimization, Arrays_asList(arrmap_(optimizations, func(v_ *AbstractPeepholeOptimization) any { return v_.self() }))))
+	return new_PeepholeOptimizationsPass(compiler, passName, listAs_(tc_p_AbstractPeepholeOptimization, Arrays_asList(arrmap_(optimizations, func(v_ *AbstractPeepholeOptimization) any { return v_.self() }))))
 }
 
 func (this *PeepholeOptimizationsPass) setRetraverseOnChange(retraverse bool) {
@@ -109,8 +109,8 @@ func (this *PeepholeOptimizationsPass_PeepCallback) exitScope_impl(t *NodeTraver
 
 func (this *PeepholeOptimizationsPass_PeepCallback) updateFeatures(t *NodeTraversal) {
 	for _, optim := range this.outer_.peepholeOptimizations {
-		var newFeatures *JTSet[FeatureSet_Feature] = optim.getNewFeatures()
-		if !newFeatures.isEmpty() {
+		var newFeatures *TSet[FeatureSet_Feature] = optim.getNewFeatures()
+		if !newFeatures.IsEmpty() {
 			NodeUtil_addFeaturesToScript(t.getCurrentScript(), FeatureSet_BARE_MINIMUM.withSet(newFeatures.asSetT()), this.outer_.compiler_)
 		}
 		optim.clearNewFeatures()

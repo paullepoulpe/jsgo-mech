@@ -29,10 +29,10 @@ func new_J2clChecksPass(compiler *AbstractCompiler) *J2clChecksPass {
 }
 
 func (this *J2clChecksPass) visit_impl(unused *NodeTraversal, n Node, parent Node) {
-	it_1 := J2clChecksPass_REFERENCE_EQUALITY_TYPE_PATTERNS.eachKey()
+	it_1 := J2clChecksPass_REFERENCE_EQUALITY_TYPE_PATTERNS.each()
 	for it_1.next() {
-		var typeName string = it_1.v
-		this.checkReferenceEquality(n, typeName, J2clChecksPass_REFERENCE_EQUALITY_TYPE_PATTERNS.get(typeName))
+		var typeName string = it_1.k
+		this.checkReferenceEquality(n, typeName, J2clChecksPass_REFERENCE_EQUALITY_TYPE_PATTERNS.Get(typeName))
 	}
 }
 
@@ -82,7 +82,7 @@ func (this *J2clChecksPass) process_2(externs Node, root Node) {
 }
 
 var J2clChecksPass_J2CL_REFERENCE_EQUALITY *DiagnosticType
-var J2clChecksPass_REFERENCE_EQUALITY_TYPE_PATTERNS *JTMap[string, string]
+var J2clChecksPass_REFERENCE_EQUALITY_TYPE_PATTERNS *TMap[string, string]
 
 var J2clChecksPass_clinit_done bool
 
@@ -92,7 +92,7 @@ func J2clChecksPass_clinit() {
 	}
 	J2clChecksPass_clinit_done = true
 	J2clChecksPass_J2CL_REFERENCE_EQUALITY = DiagnosticType_warning("JSC_J2CL_REFERENCE_EQUALITY", "Reference equality may not be used with the specified type: {0}")
-	J2clChecksPass_REFERENCE_EQUALITY_TYPE_PATTERNS = immutableMapOf3_[string, string](jtc_string, jtc_string, "java.lang.Integer", "java/lang/Integer.impl.java.js", "java.lang.Float", "java/lang/Float.impl.java.js", "goog.math.Long", "javascript/closure/math/long.js")
+	J2clChecksPass_REFERENCE_EQUALITY_TYPE_PATTERNS = immutableMapOf3_[string, string](tc_string, tc_string, "java.lang.Integer", "java/lang/Integer.impl.java.js", "java.lang.Float", "java/lang/Float.impl.java.js", "goog.math.Long", "javascript/closure/math/long.js")
 
 }
 

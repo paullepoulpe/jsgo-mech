@@ -1,0 +1,218 @@
+diff --git a/go/closure/g_0aliases.go b/go/closure/g_0aliases.go
+index 7ac1e800..2ddd1582 100644
+--- a/go/closure/g_0aliases.go
++++ b/go/closure/g_0aliases.go
+@@ -10,7 +10,6 @@ type BiFunctionOf[T0, T1, T2 any] = BiFunction
+ type BiPredicateOf[T0, T1 any] = BiPredicate
+ type BoxedOf[T0 any] = any
+ type CacheBuilderOf[T0, T1 any] = *CacheBuilder
+-type CallableOf[T0 any] = Callable
+ type ClassOf[T0 any] = *Class
+ type CollectionOf[T0 any] = Collection
+ type ComparatorOf[T0 any] = Comparator
+@@ -22,7 +21,6 @@ type EnumMapOf[T0, T1 any] = *EnumMap
+ type EnumSetOf[T0 any] = *EnumSet
+ type FunctionOf[T0, T1 any] = Function
+ type Function_baseOf[T0, T1 any] = Function_base
+-type FutureOf[T0 any] = Future
+ type IdentityHashMapOf[T0, T1 any] = *IdentityHashMap
+ type ImmutableCollectionOf[T0 any] = *ImmutableCollection
+ type ImmutableListOf[T0 any] = *ImmutableList
+@@ -40,7 +38,6 @@ type IteratorOf[T0 any] = Iterator
+ type LinkedHashMapOf[T0, T1 any] = *LinkedHashMap
+ type LinkedHashSetOf[T0 any] = *LinkedHashSet
+ type ListOf[T0 any] = List
+-type ListenableFutureOf[T0 any] = ListenableFuture
+ type LoadingCacheOf[T0, T1 any] = LoadingCache
+ type MapOf[T0, T1 any] = Map
+ type Map_EntryOf[T0, T1 any] = Map_Entry
+diff --git a/go/closure/g_0names.go b/go/closure/g_0names.go
+index a726257c..3870931f 100644
+--- a/go/closure/g_0names.go
++++ b/go/closure/g_0names.go
+@@ -15,7 +15,6 @@ var javaNames_ = map[string]string{
+ 	"AbstractCompiler":                                              "com.google.javascript.jscomp.AbstractCompiler",
+ 	"AbstractCompiler_ConfigContext":                                "com.google.javascript.jscomp.AbstractCompiler$ConfigContext",
+ 	"AbstractCompiler_LifeCycleStage":                               "com.google.javascript.jscomp.AbstractCompiler$LifeCycleStage",
+-	"AbstractExecutorService":                                       "java.util.concurrent.AbstractExecutorService",
+ 	"AbstractIterator":                                              "com.google.common.collect.AbstractIterator",
+ 	"AbstractList":                                                  "java.util.AbstractList",
+ 	"AbstractMap":                                                   "java.util.AbstractMap",
+@@ -155,7 +154,6 @@ var javaNames_ = map[string]string{
+ 	"CachingTranspiler_1":                   "com.google.javascript.jscomp.transpile.CachingTranspiler$1",
+ 	"CachingTranspiler_Key":                 "com.google.javascript.jscomp.transpile.CachingTranspiler$Key",
+ 	"CallExpressionTree":                    "com.google.javascript.jscomp.parsing.parser.trees.CallExpressionTree",
+-	"Callable":                              "java.util.concurrent.Callable",
+ 	"CanCastToVisitor":                      "com.google.javascript.rhino.jstype.CanCastToVisitor",
+ 	"CaseCanonicalize":                      "com.google.javascript.jscomp.regex.CaseCanonicalize",
+ 	"CaseCanonicalize_DeltaSet":             "com.google.javascript.jscomp.regex.CaseCanonicalize$DeltaSet",
+@@ -406,7 +404,6 @@ var javaNames_ = map[string]string{
+ 	"CompilerBasedTransformer_CompileResult":                   "com.google.javascript.jscomp.bundle.CompilerBasedTransformer$CompileResult",
+ 	"CompilerBasedTransformer_CompilerSupplier":                "com.google.javascript.jscomp.bundle.CompilerBasedTransformer$CompilerSupplier",
+ 	"CompilerExecutor":                                         "com.google.javascript.jscomp.CompilerExecutor",
+-	"CompilerExecutor_1":                                       "com.google.javascript.jscomp.CompilerExecutor$1",
+ 	"CompilerInput":                                            "com.google.javascript.jscomp.CompilerInput",
+ 	"CompilerInputProvider":                                    "com.google.javascript.jscomp.CompilerInputProvider",
+ 	"CompilerInput_DepsFinder":                                 "com.google.javascript.jscomp.CompilerInput$DepsFinder",
+@@ -758,8 +755,6 @@ var javaNames_ = map[string]string{
+ 	"Exception":             "java.lang.Exception",
+ 	"ExecutionException":    "java.util.concurrent.ExecutionException",
+ 	"Executor":              "java.util.concurrent.Executor",
+-	"ExecutorService":       "java.util.concurrent.ExecutorService",
+-	"Executors":             "java.util.concurrent.Executors",
+ 	"ExploitAssigns":        "com.google.javascript.jscomp.ExploitAssigns",
+ 	"Export":                "com.google.javascript.jscomp.modules.Export",
+ 	"ExportDeclarationTree": "com.google.javascript.jscomp.parsing.parser.trees.ExportDeclarationTree",
+@@ -884,8 +879,6 @@ var javaNames_ = map[string]string{
+ 	"FunctionType_PropAccess":                                       "com.google.javascript.rhino.jstype.FunctionType$PropAccess",
+ 	"Function_base":                                                 "com.google.common.base.Function",
+ 	"Functions":                                                     "com.google.common.base.Functions",
+-	"Future":                                                        "java.util.concurrent.Future",
+-	"Futures":                                                       "com.google.common.util.concurrent.Futures",
+ 	"GarbageCollectorMXBean":                                        "java.lang.management.GarbageCollectorMXBean",
+ 	"GatherExternProperties":                                        "com.google.javascript.jscomp.GatherExternProperties",
+ 	"GatherExternProperties_Mode":                                   "com.google.javascript.jscomp.GatherExternProperties$Mode",
+@@ -939,7 +932,6 @@ var javaNames_ = map[string]string{
+ 	"GraphvizGraph_GraphvizNode":                                    "com.google.javascript.jscomp.graph.GraphvizGraph$GraphvizNode",
+ 	"GuardedCallback":                                               "com.google.javascript.jscomp.GuardedCallback",
+ 	"GuardedCallback_Context":                                       "com.google.javascript.jscomp.GuardedCallback$Context",
+-	"GwtFuturesCatchingSpecialization":                              "com.google.common.util.concurrent.GwtFuturesCatchingSpecialization",
+ 	"HamtPMap":                                                      "com.google.javascript.rhino.HamtPMap",
+ 	"HamtPMap_Iter":                                                 "com.google.javascript.rhino.HamtPMap$Iter",
+ 	"HashCode":                                                      "com.google.common.hash.HashCode",
+@@ -1291,18 +1283,16 @@ var javaNames_ = map[string]string{
+ 	"LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphNode": "com.google.javascript.jscomp.graph.LinkedUndirectedGraph$AnnotatedLinkedUndirectedGraphNode",
+ 	"LinkedUndirectedGraph_LinkedUndirectedGraphEdge":          "com.google.javascript.jscomp.graph.LinkedUndirectedGraph$LinkedUndirectedGraphEdge",
+ 	"LinkedUndirectedGraph_LinkedUndirectedGraphNode":          "com.google.javascript.jscomp.graph.LinkedUndirectedGraph$LinkedUndirectedGraphNode",
+-	"LintPassConfig":           "com.google.javascript.jscomp.LintPassConfig",
+-	"Linter":                   "com.google.javascript.jscomp.Linter",
+-	"LinterMain":               "com.google.javascript.jscomp.LinterMain",
+-	"Linter_Builder":           "com.google.javascript.jscomp.Linter$Builder",
+-	"List":                     "java.util.List",
+-	"ListIterator":             "java.util.ListIterator",
+-	"ListenableFuture":         "com.google.common.util.concurrent.ListenableFuture",
+-	"ListeningExecutorService": "com.google.common.util.concurrent.ListeningExecutorService",
+-	"Lists":                    "com.google.common.collect.Lists",
+-	"LiteralExpressionTree":    "com.google.javascript.jscomp.parsing.parser.trees.LiteralExpressionTree",
+-	"LiteralToken":             "com.google.javascript.jscomp.parsing.parser.LiteralToken",
+-	"LiveVariablesAnalysis":    "com.google.javascript.jscomp.LiveVariablesAnalysis",
++	"LintPassConfig":        "com.google.javascript.jscomp.LintPassConfig",
++	"Linter":                "com.google.javascript.jscomp.Linter",
++	"LinterMain":            "com.google.javascript.jscomp.LinterMain",
++	"Linter_Builder":        "com.google.javascript.jscomp.Linter$Builder",
++	"List":                  "java.util.List",
++	"ListIterator":          "java.util.ListIterator",
++	"Lists":                 "com.google.common.collect.Lists",
++	"LiteralExpressionTree": "com.google.javascript.jscomp.parsing.parser.trees.LiteralExpressionTree",
++	"LiteralToken":          "com.google.javascript.jscomp.parsing.parser.LiteralToken",
++	"LiveVariablesAnalysis": "com.google.javascript.jscomp.LiveVariablesAnalysis",
+ 	"LiveVariablesAnalysis_LiveVariableJoinOp":  "com.google.javascript.jscomp.LiveVariablesAnalysis$LiveVariableJoinOp",
+ 	"LiveVariablesAnalysis_LiveVariableLattice": "com.google.javascript.jscomp.LiveVariablesAnalysis$LiveVariableLattice",
+ 	"LoadingCache":                          "com.google.common.cache.LoadingCache",
+@@ -1426,7 +1416,6 @@ var javaNames_ = map[string]string{
+ 	"ModuleRequestResolver":                              "com.google.javascript.jscomp.modules.ModuleRequestResolver",
+ 	"ModuleResolver":                                     "com.google.javascript.jscomp.deps.ModuleResolver",
+ 	"Module_Builder":                                     "com.google.javascript.jscomp.modules.Module$Builder",
+-	"MoreExecutors":                                      "com.google.common.util.concurrent.MoreExecutors",
+ 	"MoreObjects":                                        "com.google.common.base.MoreObjects",
+ 	"MoreObjects_ToStringHelper":                         "com.google.common.base.MoreObjects$ToStringHelper",
+ 	"Msg":                                                "com.google.javascript.rhino.Msg",
+@@ -2219,12 +2208,9 @@ var javaNames_ = map[string]string{
+ 	"ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext": "com.google.javascript.jscomp.ThisAndArgumentsReferenceUpdater$ThisAndArgumentsContext",
+ 	"ThisExpressionTree":                 "com.google.javascript.jscomp.parsing.parser.trees.ThisExpressionTree",
+ 	"Thread":                             "java.lang.Thread",
+-	"ThreadFactory":                      "java.util.concurrent.ThreadFactory",
+ 	"ThreadGroup":                        "java.lang.ThreadGroup",
+ 	"ThreadLocal":                        "java.lang.ThreadLocal",
+-	"ThreadPoolExecutor":                 "java.util.concurrent.ThreadPoolExecutor",
+ 	"ThreadSafeDelegatingErrorManager":   "com.google.javascript.jscomp.ThreadSafeDelegatingErrorManager",
+-	"Thread_UncaughtExceptionHandler":    "java.lang.Thread$UncaughtExceptionHandler",
+ 	"ThrowStatementTree":                 "com.google.javascript.jscomp.parsing.parser.trees.ThrowStatementTree",
+ 	"Throwable":                          "java.lang.Throwable",
+ 	"Throwables":                         "com.google.common.base.Throwables",
+diff --git a/go/closure/g_zstubs.go b/go/closure/g_zstubs.go
+index 532e7ad0..ed173155 100644
+--- a/go/closure/g_zstubs.go
++++ b/go/closure/g_zstubs.go
+@@ -410,10 +410,6 @@ func (this *CacheLoader) self() any {
+ 	return this.self_
+ }
+ 
+-type Callable interface {
+-	call() any
+-}
+-
+ type ChunkProtoOrBuilder interface {
+ 	MessageOrBuilder
+ 	getDependenciesList() List
+@@ -866,13 +862,6 @@ func new_ExecutionException_String_Throwable(p0 string, p1 *Throwable) *Executio
+ type Executor interface {
+ }
+ 
+-type ExecutorService interface {
+-	Executor
+-	AutoCloseable
+-	shutdown()
+-	submit(Callable) Future
+-}
+-
+ type ExternsSummaryOrBuilder interface {
+ 	MessageOrBuilder
+ 	getPropNamePtrList() List
+@@ -940,11 +929,6 @@ type Function_base interface {
+ 	Function
+ }
+ 
+-type Future interface {
+-	get() any
+-	get_long_TimeUnit(int64, TimeUnit) any
+-}
+-
+ type GarbageCollectorMXBean interface {
+ 	MemoryManagerMXBean
+ 	getCollectionCount() int64
+@@ -1444,14 +1428,6 @@ type ListIterator interface {
+ 	Iterator
+ }
+ 
+-type ListenableFuture interface {
+-	Future
+-}
+-
+-type ListeningExecutorService interface {
+-	ExecutorService
+-}
+-
+ type LoadingCache interface {
+ 	Cache
+ 	Function_base
+@@ -2727,14 +2703,6 @@ func (this *IntFunction_fn) apply(p0 int32) any {
+ 	return this.f(p0)
+ }
+ 
+-type Callable_fn struct {
+-	f func() any
+-}
+-
+-func (this *Callable_fn) call() any {
+-	return this.f()
+-}
+-
+ type BiFunction_fn struct {
+ 	f func(any, any) any
+ }
+@@ -2791,14 +2759,6 @@ func (this *ToLongFunction_fn) applyAsLong(p0 any) int64 {
+ 	return this.f(p0)
+ }
+ 
+-type ThreadFactory_fn struct {
+-	f func(Runnable) *Thread
+-}
+-
+-func (this *ThreadFactory_fn) newThread(p0 Runnable) *Thread {
+-	return this.f(p0)
+-}
+-
+ type IntUnaryOperator_fn struct {
+ 	f func(int32) int32
+ }

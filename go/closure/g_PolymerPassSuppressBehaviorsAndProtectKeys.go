@@ -80,7 +80,7 @@ func PolymerPassSuppressBehaviorsAndProtectKeys_isBehavior(value Node) bool {
 }
 
 func (this *PolymerPassSuppressBehaviorsAndProtectKeys) stripPropertyTypes(behaviorValue Node) {
-	var properties *JTList[*PolymerPass_MemberDefinition] = PolymerPassStaticUtils_extractProperties(behaviorValue, PolymerClassDefinition_DefinitionType_ObjectLiteral, this.compiler_, 0)
+	var properties *TList[*PolymerPass_MemberDefinition] = PolymerPassStaticUtils_extractProperties(behaviorValue, PolymerClassDefinition_DefinitionType_ObjectLiteral, this.compiler_, 0)
 	it_1 := properties.each()
 	for it_1.next() {
 		var property *PolymerPass_MemberDefinition = it_1.v
@@ -118,7 +118,7 @@ func (this *PolymerPassSuppressBehaviorsAndProtectKeys) addBehaviorSuppressions(
 
 func (this *PolymerPassSuppressBehaviorsAndProtectKeys) addSuppressionJsDocAnnotations(node Node) {
 	var suppressDoc *JSDocInfo_Builder = JSDocInfo_Builder_maybeCopyFrom(node.getJSDocInfo())
-	suppressDoc.recordSuppressions(jimmutableSetOf_[string](jtc_string, "checkTypes", "globalThis", "visibility"))
+	suppressDoc.recordSuppressions(immutableSetOf_[string](tc_string, "checkTypes", "globalThis", "visibility"))
 	node.setJSDocInfo(suppressDoc.build())
 }
 

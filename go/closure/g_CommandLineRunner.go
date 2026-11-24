@@ -72,10 +72,10 @@ func new_CommandLineRunner_StringArr_Input_Output_Output(args []string, in *Io_I
 	return this
 }
 
-func CommandLineRunner_processArgs(args []string) *JTList[string] {
+func CommandLineRunner_processArgs(args []string) *TList[string] {
 	var argPattern *Pattern = Pattern_compile_String_int("(--?[a-zA-Z_]+)=(.*)", int32(2))
 	var quotesPattern *Pattern = Pattern_compile(("^['\"](" + sstr_(JavaRegex_DOT) + "*)['\"]$"))
-	var processedArgs *JTList[string] = jnewTList_(jtc_string)
+	var processedArgs *TList[string] = newTList_(tc_string)
 	for _, arg := range args {
 		var matcher *Matcher_re2j = argPattern.matcher_s(arg)
 		if matcher.matches() {
@@ -123,7 +123,7 @@ func (this *CommandLineRunner) processFlagFile(flagFileString string) *Outcome_b
 	var flagFileText string = buffer.get()
 	var flagFileIndex int32 = 0
 	var builder strBuilder_
-	var tokens *JTList[string] = jnewTList_(jtc_string)
+	var tokens *TList[string] = newTList_(tc_string)
 	var quoted bool = false
 	var escaped bool = false
 	var isFirstCharacter bool = true
@@ -166,10 +166,10 @@ func (this *CommandLineRunner) processFlagFile(flagFileString string) *Outcome_b
 	if builder.length() != 0 {
 		tokens.add(builder.toString())
 	}
-	this.flags.flagFiles = jnewTList_(jtc_string).asListT()
+	this.flags.flagFiles = newTList_(tc_string).asListT()
 	tokens = CommandLineRunner_processArgs(arrmap_(tokens.asListT().toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) }))
-	var previousGuardLevels *JTList[*AbstractCommandLineRunner_FlagEntry[any]] = tlistCopy_(jtc_p_AbstractCommandLineRunner_FlagEntry, this.flags.guardLevels)
-	var previousMixedJsSources *JTList[*AbstractCommandLineRunner_FlagEntry[any]] = tlistCopy_(jtc_p_AbstractCommandLineRunner_FlagEntry, this.flags.mixedJsSources)
+	var previousGuardLevels *TList[*AbstractCommandLineRunner_FlagEntry[any]] = tlistCopy_(tc_p_AbstractCommandLineRunner_FlagEntry, this.flags.guardLevels)
+	var previousMixedJsSources *TList[*AbstractCommandLineRunner_FlagEntry[any]] = tlistCopy_(tc_p_AbstractCommandLineRunner_FlagEntry, this.flags.mixedJsSources)
 	this.flags.guardLevels.clear()
 	this.flags.mixedJsSources.clear()
 	var parsed *Outcome_base[any] = this.flags.parse(tokens)
@@ -188,7 +188,7 @@ func (this *CommandLineRunner) getVersionText_impl() string {
 	return String_join_CharSequence_CharSequenceArr("\n", []any{"Closure Compiler (http://github.com/google/closure-compiler)", strobj_(("Version: " + sstr_("v20261104")))})
 }
 
-func (this *CommandLineRunner) readFlagInputs(processedArgs *JTList[string], flagInputs *CommandLineRunner_FlagInputs) *Outcome_base[any] {
+func (this *CommandLineRunner) readFlagInputs(processedArgs *TList[string], flagInputs *CommandLineRunner_FlagInputs) *Outcome_base[any] {
 	var parsed *Outcome_base[any] = this.flags.parse(processedArgs)
 	if parsed.isErr() {
 		return Outcome_base_err[any](parsed.error())
@@ -211,7 +211,7 @@ func (this *CommandLineRunner) readFlagInputs(processedArgs *JTList[string], fla
 	if sourceMapInputs.isErr() {
 		return Outcome_base_err[any](sourceMapInputs.error())
 	}
-	flagInputs.sourceMapInputs = tmapOfT_(jtc_string, jtc_string, sourceMapInputs.get())
+	flagInputs.sourceMapInputs = tmapOfT_(tc_string, tc_string, sourceMapInputs.get())
 	flagInputs.parseInlineSourceMaps_ = unbox_[bool](this.flags.parseInlineSourceMaps_)
 	flagInputs.applyInputSourceMaps = this.flags.applyInputSourceMaps
 	return Outcome_base_ok_0()
@@ -219,7 +219,7 @@ func (this *CommandLineRunner) readFlagInputs(processedArgs *JTList[string], fla
 
 func (this *CommandLineRunner) initConfigFromFlags(args []string, out *Output, err *Output) {
 	this.errorStream = err
-	var processedArgs *JTList[string] = CommandLineRunner_processArgs(args)
+	var processedArgs *TList[string] = CommandLineRunner_processArgs(args)
 	this.flags.guardLevels.clear()
 	this.flags.mixedJsSources.clear()
 	var flagInputs *CommandLineRunner_FlagInputs = new_CommandLineRunner_FlagInputs()
@@ -232,7 +232,7 @@ func (this *CommandLineRunner) initConfigFromFlags(args []string, out *Output, e
 	}
 	var mixedSources ListT[*AbstractCommandLineRunner_FlagEntry[any]] = flagInputs.mixedSources
 	var mappings ListT[SourceMap_LocationMapping] = flagInputs.mappings
-	var sourceMapInputs *JTMap[string, string] = flagInputs.sourceMapInputs
+	var sourceMapInputs *TMap[string, string] = flagInputs.sourceMapInputs
 	var parseInlineSourceMaps bool = flagInputs.parseInlineSourceMaps_
 	var applyInputSourceMaps bool = flagInputs.applyInputSourceMaps
 	if this.flags.processCommonJsModules {
@@ -261,13 +261,13 @@ func (this *CommandLineRunner) initConfigFromFlags(args []string, out *Output, e
 	if this.flags.isolationMode == CompilerOptions_IsolationMode_IIFE {
 		this.flags.outputWrapper = Optional_of[string]("(function(){%output%}).call(this);")
 	}
-	var bundleFiles *JTList[string] = jtlistEmptyImm_(jtc_string)
+	var bundleFiles *TList[string] = tlistEmptyImm_(tc_string)
 	var skipNormalOutputs bool = false
 	if this.flags.compilationLevelParsed == CompilationLevel_BUNDLE {
 		if this.flags.jsOutputFile == "" {
 			this.reportError("--compilation_level=BUNDLE cannot be used without a --js_output_file.")
 		} else {
-			bundleFiles = jimmutableListOf_[string](jtc_string, this.flags.jsOutputFile)
+			bundleFiles = immutableListOf_[string](tc_string, this.flags.jsOutputFile)
 			this.flags.jsOutputFile = ""
 			skipNormalOutputs = true
 		}
@@ -284,7 +284,7 @@ func (this *CommandLineRunner) initConfigFromFlags(args []string, out *Output, e
 		this.reportError("ERROR - renaming cannot be disabled when ADVANCED_OPTIMIZATIONS is used.")
 	}
 	var dependencyOptions *DependencyOptions = nil
-	var dependencyOptionsRes *Outcome_base[*DependencyOptions] = DependencyOptions_fromFlags(this.flags.dependencyMode, this.flags.entryPoint, jtlistEmptyImm_(jtc_string), Optional_empty[string](), false, false)
+	var dependencyOptionsRes *Outcome_base[*DependencyOptions] = DependencyOptions_fromFlags(this.flags.dependencyMode, this.flags.entryPoint, tlistEmptyImm_(tc_string), Optional_empty[string](), false, false)
 	if dependencyOptionsRes.isErr() {
 		this.reportError(dependencyOptionsRes.errorMessage().orElseThrow())
 	} else {
@@ -297,7 +297,7 @@ func (this *CommandLineRunner) initConfigFromFlags(args []string, out *Output, e
 	} else {
 		this.runCompiler = true
 		var config *AbstractCommandLineRunner_CommandLineConfig = this.getCommandLineConfig()
-		config.setPrintVersion(this.flags.version_).setPrintTree(this.flags.printTree).setPrintTreeJson(this.flags.printTreeJson).setPrintAst(this.flags.printAst).setJscompDevMode(this.flags.jscompDevMode).setLoggingLevel(this.flags.loggingLevel).setExterns(this.flags.externs).setMixedJsSources(mixedSources).setDefaultToStdin().setJsOutputFile(this.flags.jsOutputFile).setChunk(this.flags.chunk_).setVariableMapOutputFile(this.flags.variableMapOutputFile).setCreateNameMapFiles(this.flags.createNameMapFiles).setPropertyMapOutputFile(this.flags.propertyMapOutputFile).setExpectedDiagnostics(this.flags.expectedDiagnostics).setPropertyMapInputFile(this.flags.propertyMapInputFile).setVariableMapInputFile(this.flags.variableMapInputFile).setInstrumentationMappingFile(this.flags.instrumentationMappingOutputFile).setCodingConvention(conv).setSummaryDetailLevel(this.flags.summaryDetailLevel).setOutputWrapper(this.flags.outputWrapper.orElse(nullstr_)).setChunkWrapper(this.flags.chunkWrapper).setChunkOutputPathPrefix(this.flags.chunkOutputPathPrefix).setCreateSourceMap(this.flags.createSourceMap).setSourceMapFormat(this.flags.sourceMapFormat).setSourceMapLocationMappings(mappings).setSourceMapInputFiles(sourceMapInputs).setParseInlineSourceMaps(parseInlineSourceMaps).setApplyInputSourceMaps(applyInputSourceMaps).setWarningGuards(this.flags.guardLevels).setDefine(this.flags.define).setBrowserFeaturesetYear(this.flags.browserFeaturesetYear).setCharset(this.flags.charset).setDependencyOptions(dependencyOptions).setOutputManifest(jimmutableListOf_[string](jtc_string, this.flags.outputManifest_)).setOutputBundle(bundleFiles).setSkipNormalOutputs(skipNormalOutputs).setOutputChunkDependencies(this.flags.outputChunkDependencies).setProcessCommonJSModules(this.flags.processCommonJsModules).setModuleRoots(this.flags.moduleRoot).setWarningsAllowlistFile(this.flags.warningsAllowlistFile).setHideWarningsFor(this.flags.hideWarningsFor).setAngularPass(this.flags.angularPass).setJsonStreamMode(this.flags.jsonStreamMode).setErrorFormat(this.flags.errorFormat)
+		config.setPrintVersion(this.flags.version_).setPrintTree(this.flags.printTree).setPrintTreeJson(this.flags.printTreeJson).setPrintAst(this.flags.printAst).setJscompDevMode(this.flags.jscompDevMode).setLoggingLevel(this.flags.loggingLevel).setExterns(this.flags.externs).setMixedJsSources(mixedSources).setDefaultToStdin().setJsOutputFile(this.flags.jsOutputFile).setChunk(this.flags.chunk_).setVariableMapOutputFile(this.flags.variableMapOutputFile).setCreateNameMapFiles(this.flags.createNameMapFiles).setPropertyMapOutputFile(this.flags.propertyMapOutputFile).setExpectedDiagnostics(this.flags.expectedDiagnostics).setPropertyMapInputFile(this.flags.propertyMapInputFile).setVariableMapInputFile(this.flags.variableMapInputFile).setInstrumentationMappingFile(this.flags.instrumentationMappingOutputFile).setCodingConvention(conv).setSummaryDetailLevel(this.flags.summaryDetailLevel).setOutputWrapper(this.flags.outputWrapper.orElse(nullstr_)).setChunkWrapper(this.flags.chunkWrapper).setChunkOutputPathPrefix(this.flags.chunkOutputPathPrefix).setCreateSourceMap(this.flags.createSourceMap).setSourceMapFormat(this.flags.sourceMapFormat).setSourceMapLocationMappings(mappings).setSourceMapInputFiles(sourceMapInputs).setParseInlineSourceMaps(parseInlineSourceMaps).setApplyInputSourceMaps(applyInputSourceMaps).setWarningGuards(this.flags.guardLevels).setDefine(this.flags.define).setBrowserFeaturesetYear(this.flags.browserFeaturesetYear).setCharset(this.flags.charset).setDependencyOptions(dependencyOptions).setOutputManifest(immutableListOf_[string](tc_string, this.flags.outputManifest_)).setOutputBundle(bundleFiles).setSkipNormalOutputs(skipNormalOutputs).setOutputChunkDependencies(this.flags.outputChunkDependencies).setProcessCommonJSModules(this.flags.processCommonJsModules).setModuleRoots(this.flags.moduleRoot).setWarningsAllowlistFile(this.flags.warningsAllowlistFile).setHideWarningsFor(this.flags.hideWarningsFor).setAngularPass(this.flags.angularPass).setJsonStreamMode(this.flags.jsonStreamMode).setErrorFormat(this.flags.errorFormat)
 		var segmentOfCompilationToRun CompilerOptions_SegmentOfCompilationToRun = this.flags.segmentOfCompilationToRun
 		switch segmentOfCompilationToRun {
 		case CompilerOptions_SegmentOfCompilationToRun_CHECKS:
@@ -431,9 +431,9 @@ func (this *CommandLineRunner) createOptions_impl() *Outcome_base[*CompilerOptio
 	options.setEmitUseStrict(this.flags.emitUseStrict)
 	options.setSourceMapIncludeSourcesContent(this.flags.sourceMapIncludeSourcesContent)
 	options.setModuleResolutionMode(this.flags.moduleResolutionMode)
-	options.setBrowserResolverPrefixReplacements(jimmutableMapCopyOf_(jtc_string, jtc_string, Map_un_(this.flags.browserResolverPrefixReplacements)))
+	options.setBrowserResolverPrefixReplacements(immutableMapCopyOf_(tc_string, tc_string, Map_un_(this.flags.browserResolverPrefixReplacements)))
 	if this.flags.packageJsonEntryNames.isPresent() {
-		var packageJsonEntryNames *JTList[string] = this.flags.getPackageJsonEntryNames()
+		var packageJsonEntryNames *TList[string] = this.flags.getPackageJsonEntryNames()
 		options.setPackageJsonEntryNames(packageJsonEntryNames)
 	}
 	if !this.flags.renaming {
@@ -479,11 +479,11 @@ func (this *CommandLineRunner) getBundler() *Outcome_base[*ClosureBundler] {
 	if this.bundler != nil {
 		return Outcome_base_ok_Object[*ClosureBundler](this.bundler)
 	}
-	var moduleRoots *JTList[string]
+	var moduleRoots *TList[string]
 	if !this.flags.moduleRoot.isEmpty() {
-		moduleRoots = jimmutableListCopyOf_(jtc_string, Collection(List_un_(this.flags.moduleRoot)))
+		moduleRoots = immutableListCopyOf_(tc_string, Collection(List_un_(this.flags.moduleRoot)))
 	} else {
-		moduleRoots = jimmutableListOf_[string](jtc_string, ModuleLoader_DEFAULT_FILENAME_PREFIX)
+		moduleRoots = immutableListOf_[string](tc_string, ModuleLoader_DEFAULT_FILENAME_PREFIX)
 	}
 	var optionsOutcome *Outcome_base[*CompilerOptions] = this.createOptions()
 	if optionsOutcome.isErr() {
@@ -532,8 +532,8 @@ func (this *CommandLineRunner) createExterns_impl(options *CompilerOptions) *Out
 	}
 }
 
-func CommandLineRunner_loadConformanceConfigs(configPaths ListT[string]) *JTList[*ConformanceConfig] {
-	var configs *TListBuilder[*ConformanceConfig] = newTListBuilder_(jtc_p_ConformanceConfig)
+func CommandLineRunner_loadConformanceConfigs(configPaths ListT[string]) *TList[*ConformanceConfig] {
+	var configs *ImmutableList_Builder[*ConformanceConfig] = immutableListBuilder_(tc_p_ConformanceConfig)
 	for configPath := range elemsT_(configPaths) {
 		var config *Outcome_base[*ConformanceConfig] = CommandLineRunner_loadConformanceConfig(configPath)
 		if config.isErr() {
@@ -580,13 +580,13 @@ func CommandLineRunner_findJsFiles_Collection(patterns CollectionT[string]) *Out
 }
 
 func CommandLineRunner_findJsFiles_Collection_boolean(patterns CollectionT[string], sortAlphabetically bool) *Outcome_base[ListT[string]] {
-	var allJsInputs *JTMap[string, string] = func() *JTMap[string, string] {
+	var allJsInputs *TMap[string, string] = func() *TMap[string, string] {
 		if sortAlphabetically {
-			return newTSortedMap_(jtc_string, jtc_string)
+			return newTSortedMap_(tc_string, tc_string)
 		}
-		return jnewTMap_(jtc_string, jtc_string)
+		return newTMap_(tc_string, tc_string)
 	}()
-	var excludes *JTSet[string] = jnewTSet_(jtc_string)
+	var excludes *TSet[string] = newTSet_(tc_string)
 	it_1 := jeachOf_(patterns)
 	for it_1.next() {
 		var pattern string = it_1.v
@@ -605,8 +605,8 @@ func CommandLineRunner_findJsFiles_Collection_boolean(patterns CollectionT[strin
 			} else {
 				var original string = FilePaths_clean(pattern)
 				var pathStringAbsolute string = FilePaths_toAbsolute(FilePaths_normalize(original))
-				if !excludes.contains(pathStringAbsolute) {
-					allJsInputs.put(pathStringAbsolute, original)
+				if !excludes.Has(pathStringAbsolute) {
+					allJsInputs.Put(pathStringAbsolute, original)
 				}
 			}
 		} else {
@@ -616,16 +616,16 @@ func CommandLineRunner_findJsFiles_Collection_boolean(patterns CollectionT[strin
 			}
 		}
 	}
-	return Outcome_base_ok_Object[ListT[string]](jtlistFrom_(jtc_string, Collection_un_(allJsInputs.valuesT())).asListT())
+	return Outcome_base_ok_Object[ListT[string]](tlistFrom_(tc_string, Collection_un_(allJsInputs.valuesT())).asListT())
 }
 
-func CommandLineRunner_matchPaths(pattern string, allJsInputs *JTMap[string, string], excludes *JTSet[string]) *Outcome_base[any] {
+func CommandLineRunner_matchPaths(pattern string, allJsInputs *TMap[string, string], excludes *TSet[string]) *Outcome_base[any] {
 	var remove bool = (int32(strings.IndexByte(pattern, '!')) == 0)
 	if remove {
 		pattern = String_substring_int(pattern, 1)
 	}
 	var separator string = FilePaths_SEPARATOR
-	var patternParts ListT[string] = splitToListST_(jtc_string, Splitter_on_String(FilePaths_SEPARATOR), pattern).asListT()
+	var patternParts ListT[string] = splitToListST_(tc_string, Splitter_on_String(FilePaths_SEPARATOR), pattern).asListT()
 	var prefix string = "."
 	for i := int32(0); i < patternParts.size(); i++ {
 		if JString_contains_s(patternParts.get_t(i), "*") {
@@ -645,10 +645,10 @@ func CommandLineRunner_matchPaths(pattern string, allJsInputs *JTMap[string, str
 		}
 		var pathStringAbsolute string = FilePaths_toAbsolute(FilePaths_normalize(p))
 		if remove {
-			excludes.add(pathStringAbsolute)
-			allJsInputs.remove(pathStringAbsolute)
-		} else if !excludes.contains(pathStringAbsolute) {
-			allJsInputs.put(pathStringAbsolute, p)
+			excludes.Add(pathStringAbsolute)
+			allJsInputs.Delete(pathStringAbsolute)
+		} else if !excludes.Has(pathStringAbsolute) {
+			allJsInputs.Put(pathStringAbsolute, p)
 		}
 	}
 	return Outcome_base_ok_0()
@@ -697,8 +697,8 @@ func CommandLineRunner_clinit() {
 }
 
 type CommandLineRunner_Flags struct {
-	guardLevels                        *JTList[*AbstractCommandLineRunner_FlagEntry[any]]
-	mixedJsSources                     *JTList[*AbstractCommandLineRunner_FlagEntry[any]]
+	guardLevels                        *TList[*AbstractCommandLineRunner_FlagEntry[any]]
+	mixedJsSources                     *TList[*AbstractCommandLineRunner_FlagEntry[any]]
 	browserFeaturesetYear              any
 	jscompDevMode                      CompilerOptions_DevMode
 	loggingLevel                       string
@@ -832,8 +832,8 @@ func (this *CommandLineRunner_Flags) zero_CommandLineRunner_Flags() {
 }
 
 func (this *CommandLineRunner_Flags) finit_CommandLineRunner_Flags() {
-	this.guardLevels = jnewTList_(jtc_p_AbstractCommandLineRunner_FlagEntry)
-	this.mixedJsSources = jnewTList_(jtc_p_AbstractCommandLineRunner_FlagEntry)
+	this.guardLevels = newTList_(tc_p_AbstractCommandLineRunner_FlagEntry)
+	this.mixedJsSources = newTList_(tc_p_AbstractCommandLineRunner_FlagEntry)
 	this.browserFeaturesetYear = any(int32(0))
 	this.displayHelp = false
 	this.printTree = false
@@ -843,11 +843,11 @@ func (this *CommandLineRunner_Flags) finit_CommandLineRunner_Flags() {
 	this.strictModeInput = true
 	this.jscompDevMode = CompilerOptions_DevMode_OFF
 	this.loggingLevel = Level_WARNING.getName()
-	this.externs = jnewTList_(jtc_string).asListT()
-	this.js = jnewTList_(jtc_string).asListT()
+	this.externs = newTList_(tc_string).asListT()
+	this.js = newTList_(tc_string).asListT()
 	this.unusedJsZip = nil
 	this.jsOutputFile = ""
-	this.chunk_ = jnewTList_(jtc_string).asListT()
+	this.chunk_ = newTList_(tc_string).asListT()
 	this.filenameToSaveTo = Optional_empty[string]()
 	this.filenameToRestoreFrom = Optional_empty[string]()
 	this.segmentOfCompilationToRun = CompilerOptions_SegmentOfCompilationToRun_ENTIRE_COMPILATION
@@ -861,18 +861,18 @@ func (this *CommandLineRunner_Flags) finit_CommandLineRunner_Flags() {
 	this.isolationMode = CompilerOptions_IsolationMode_NONE
 	this.outputWrapper = Optional_of[string]("")
 	this.outputWrapperFile = Optional_of[string]("")
-	this.chunkWrapper = jnewTList_(jtc_string).asListT()
+	this.chunkWrapper = newTList_(tc_string).asListT()
 	this.chunkOutputPathPrefix = "./"
 	this.createSourceMap = ""
 	this.sourceMapFormat = SourceMap_Format_DEFAULT
-	this.sourceMapLocationMapping = jnewTList_(jtc_string).asListT()
-	this.sourceMapInputs = jnewTList_(jtc_string).asListT()
+	this.sourceMapLocationMapping = newTList_(tc_string).asListT()
+	this.sourceMapInputs = newTList_(tc_string).asListT()
 	this.parseInlineSourceMaps_ = any(bool(true))
 	this.applyInputSourceMaps = true
-	this.jscompError = jnewTList_(jtc_string).asListT()
-	this.jscompWarning = jnewTList_(jtc_string).asListT()
-	this.jscompOff = jnewTList_(jtc_string).asListT()
-	this.define = jnewTList_(jtc_string).asListT()
+	this.jscompError = newTList_(tc_string).asListT()
+	this.jscompWarning = newTList_(tc_string).asListT()
+	this.jscompOff = newTList_(tc_string).asListT()
+	this.define = newTList_(tc_string).asListT()
 	this.charset = ""
 	this.compilationLevel = "SIMPLE"
 	this.compilationLevelParsed = 0
@@ -887,9 +887,9 @@ func (this *CommandLineRunner_Flags) finit_CommandLineRunner_Flags() {
 	this.typedAstOutputFile = Optional_empty[string]()
 	this.generateExports = true
 	this.exportLocalPropertyDefinitions = true
-	this.formatting = jnewTList_(tc_p_CommandLineRunner_FormattingOption).asListT()
+	this.formatting = newTList_(tc_p_CommandLineRunner_FormattingOption).asListT()
 	this.processCommonJsModules = false
-	this.moduleRoot = jnewTList_(jtc_string).asListT()
+	this.moduleRoot = newTList_(tc_string).asListT()
 	this.processClosurePrimitives = true
 	this.angularPass = false
 	this.polymerVersion = nil
@@ -903,26 +903,26 @@ func (this *CommandLineRunner_Flags) finit_CommandLineRunner_Flags() {
 	this.version_ = false
 	this.translationsFile = ""
 	this.translationsProject = Optional_empty[string]()
-	this.flagFiles = jnewTList_(jtc_string).asListT()
+	this.flagFiles = newTList_(tc_string).asListT()
 	this.warningsAllowlistFile = ""
-	this.hideWarningsFor = jnewTList_(jtc_string).asListT()
-	this.extraAnnotationName = jnewTList_(jtc_string).asListT()
+	this.hideWarningsFor = newTList_(tc_string).asListT()
+	this.extraAnnotationName = newTList_(tc_string).asListT()
 	this.tracerMode = CompilerOptions_TracerMode_OFF
 	this.renamePrefix = Optional_empty[string]()
 	this.renamePrefixNamespace = Optional_empty[string]()
-	this.conformanceConfigs = jnewTList_(jtc_string).asListT()
+	this.conformanceConfigs = newTList_(tc_string).asListT()
 	this.environment = CompilerOptions_Environment_BROWSER
 	this.jsonStreamMode = CompilerOptions_JsonStreamMode_NONE
 	this.preserveTypeAnnotations = false
 	this.injectLibraries_ = true
-	this.forceInjectLibraries = jnewTList_(jtc_string).asListT()
+	this.forceInjectLibraries = newTList_(tc_string).asListT()
 	this.dependencyMode = 0
-	this.entryPoint = jnewTList_(jtc_string).asListT()
+	this.entryPoint = newTList_(tc_string).asListT()
 	this.rewritePolyfills = true
 	this.isolatePolyfills = false
 	this.printSourceAfterEachPass = false
 	this.moduleResolutionMode = ModuleLoader_ResolutionMode_BROWSER
-	this.browserResolverPrefixReplacements = jnewTMap_(jtc_string, jtc_string).asMapT()
+	this.browserResolverPrefixReplacements = newTMap_(tc_string, tc_string).asMapT()
 	this.packageJsonEntryNames = Optional_empty[string]()
 	this.errorFormat = AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption_STANDARD
 	this.renaming = true
@@ -937,8 +937,8 @@ func (this *CommandLineRunner_Flags) finit_CommandLineRunner_Flags() {
 	this.assumeNoPrototypeMethodEnumeration = false
 	this.variableMapInputFile = ""
 	this.propertyMapInputFile = ""
-	this.expectedDiagnostics = jnewTList_(jtc_string).asListT()
-	this.arguments = jnewTList_(jtc_string).asListT()
+	this.expectedDiagnostics = newTList_(tc_string).asListT()
+	this.arguments = newTList_(tc_string).asListT()
 	this.maxLineLength = 80
 }
 
@@ -1459,7 +1459,7 @@ func new_CommandLineRunner_Flags() *CommandLineRunner_Flags {
 	return this
 }
 
-func (this *CommandLineRunner_Flags) parse(args *JTList[string]) *Outcome_base[any] {
+func (this *CommandLineRunner_Flags) parse(args *TList[string]) *Outcome_base[any] {
 	var parsed *Outcome_base[any] = this.parser.parseArgumentCollection(args.asCollT())
 	if parsed.isErr() {
 		return Outcome_base_err[any](parsed.error())
@@ -1567,8 +1567,8 @@ func CommandLineRunner_Flags_printShortUsageAfterErrors(ps *Output) {
 }
 
 func (this *CommandLineRunner_Flags) getMixedJsSources() *Outcome_base[ListT[*AbstractCommandLineRunner_FlagEntry[any]]] {
-	var mixedSources *JTList[*AbstractCommandLineRunner_FlagEntry[any]] = jnewTList_(jtc_p_AbstractCommandLineRunner_FlagEntry)
-	var excludes *JTSet[string] = jnewTSet_(jtc_string)
+	var mixedSources *TList[*AbstractCommandLineRunner_FlagEntry[any]] = newTList_(tc_p_AbstractCommandLineRunner_FlagEntry)
+	var excludes *TSet[string] = newTSet_(tc_string)
 	it_1 := this.mixedJsSources.each()
 	var getValueU16 utf16_
 	for it_1.next() {
@@ -1576,21 +1576,21 @@ func (this *CommandLineRunner_Flags) getMixedJsSources() *Outcome_base[ListT[*Ab
 		if strings.HasSuffix(source.getValue(), ".zip") {
 			mixedSources.add(source)
 		} else if strings.HasPrefix(source.getValue(), "!") {
-			var found *Outcome_base[ListT[string]] = CommandLineRunner_findJsFiles_Collection(jimmutableListOf_[string](jtc_string, getValueU16.of(source.getValue()).substring_int(1)).asCollT())
+			var found *Outcome_base[ListT[string]] = CommandLineRunner_findJsFiles_Collection(immutableListOf_[string](tc_string, getValueU16.of(source.getValue()).substring_int(1)).asCollT())
 			if found.isErr() {
 				return Outcome_base_err[ListT[*AbstractCommandLineRunner_FlagEntry[any]]](found.error())
 			}
 			for filename := range elemsT_(found.get()) {
-				excludes.add(filename)
+				excludes.Add(filename)
 				mixedSources.asListT().remove_Object(new_AbstractCommandLineRunner_FlagEntry(obj_(AbstractCommandLineRunner_JsSourceType_JS), filename))
 			}
 		} else {
-			var found *Outcome_base[ListT[string]] = CommandLineRunner_findJsFiles_Collection_boolean(collectionAs_(jtc_string, Collection(Collections_singletonList(strobj_(source.getValue())))), true)
+			var found *Outcome_base[ListT[string]] = CommandLineRunner_findJsFiles_Collection_boolean(collectionAs_(tc_string, Collection(Collections_singletonList(strobj_(source.getValue())))), true)
 			if found.isErr() {
 				return Outcome_base_err[ListT[*AbstractCommandLineRunner_FlagEntry[any]]](found.error())
 			}
 			for filename := range elemsT_(found.get()) {
-				if !excludes.contains(filename) {
+				if !excludes.Has(filename) {
 					mixedSources.add(new_AbstractCommandLineRunner_FlagEntry(obj_(AbstractCommandLineRunner_JsSourceType_JS), filename))
 				}
 			}
@@ -1610,12 +1610,12 @@ func (this *CommandLineRunner_Flags) getMixedJsSources() *Outcome_base[ListT[*Ab
 }
 
 func (this *CommandLineRunner_Flags) getSourceMapLocationMappings() *Outcome_base[ListT[SourceMap_LocationMapping]] {
-	var locationMappings *TListBuilder[SourceMap_LocationMapping] = newTListBuilder_(jtc_SourceMap_LocationMapping)
+	var locationMappings *ImmutableList_Builder[SourceMap_LocationMapping] = immutableListBuilder_(tc_SourceMap_LocationMapping)
 	var splitOutcome *Outcome_base[MapT[string, string]] = this.splitPipeParts(this.sourceMapLocationMapping, "--source_map_location_mapping")
 	if splitOutcome.isErr() {
 		return Outcome_base_err[ListT[SourceMap_LocationMapping]](splitOutcome.error())
 	}
-	var split *JTMap[string, string] = tmapOfT_(jtc_string, jtc_string, splitOutcome.get())
+	var split *TMap[string, string] = tmapOfT_(tc_string, tc_string, splitOutcome.get())
 	it_1 := split.eachEntry()
 	for it_1.next() {
 		var mapping *TEntry[string, string] = it_1.entry()
@@ -1629,12 +1629,12 @@ func (this *CommandLineRunner_Flags) getSourceMapInputs() *Outcome_base[MapT[str
 }
 
 func (this *CommandLineRunner_Flags) splitPipeParts(input IterableT[string], flagName string) *Outcome_base[MapT[string, string]] {
-	var result *TMapBuilder[string, string] = newTMapBuilder_(jtc_string, jtc_string)
+	var result *ImmutableMap_Builder[string, string] = immutableMapBuilder_(tc_string, tc_string)
 	var splitter *Splitter = Splitter_on('|').limit(2)
 	it_1 := jeachOf_(input)
 	for it_1.next() {
 		var inputSourceMap string = it_1.v
-		var parts *JTList[string] = splitToListST_(jtc_string, splitter, inputSourceMap)
+		var parts *TList[string] = splitToListST_(tc_string, splitter, inputSourceMap)
 		if parts.size() != 2 {
 			return Outcome_base_err[MapT[string, string]](new_CmdLineException_CmdLineParser_String(this.parser, ("Bad value for " + sstr_(flagName) + " (duplicate key): " + objstr_(lgBox_(input)))).up_Throwable())
 		}
@@ -1643,8 +1643,8 @@ func (this *CommandLineRunner_Flags) splitPipeParts(input IterableT[string], fla
 	return Outcome_base_ok_Object[MapT[string, string]](result.buildOrThrow().asMapT())
 }
 
-func (this *CommandLineRunner_Flags) getPackageJsonEntryNames() *JTList[string] {
-	return splitToListST_(jtc_string, Splitter_on(','), this.packageJsonEntryNames.get())
+func (this *CommandLineRunner_Flags) getPackageJsonEntryNames() *TList[string] {
+	return splitToListST_(tc_string, Splitter_on(','), this.packageJsonEntryNames.get())
 }
 
 func CommandLineRunner_Flags_addMultiFlagValue(values ListT[string], value Optional[string], flag any, entries ListT[*AbstractCommandLineRunner_FlagEntry[any]]) ListT[string] {
@@ -1654,7 +1654,7 @@ func CommandLineRunner_Flags_addMultiFlagValue(values ListT[string], value Optio
 		normalizedValue = Optional_of[string](valueU16.of(value.get()).substring(1, (valueU16.of(value.get()).length() - 1)))
 	}
 	if values == nil {
-		values = jnewTList_(jtc_string).asListT()
+		values = newTList_(tc_string).asListT()
 	}
 	values.add_t(normalizedValue.orElse(nullstr_))
 	entries.add_t(new_AbstractCommandLineRunner_FlagEntry(flag, normalizedValue.orElse(nullstr_)))
@@ -1676,7 +1676,7 @@ func CommandLineRunner_Flags_clinit() {
 		return
 	}
 	CommandLineRunner_Flags_clinit_done = true
-	CommandLineRunner_Flags_categories = SimpleListMultimap_create[string, string]().putAll("Basic Usage", jimmutableListOf_[string](jtc_string, "compilation_level", "env", "externs", "js", "js_output_file", "language_in", "language_out", "warning_level").asIterable()).putAll("Warning and Error Management", jimmutableListOf_[string](jtc_string, "conformance_configs", "error_format", "extra_annotation_name", "hide_warnings_for", "jscomp_error", "jscomp_off", "jscomp_warning", "strict_mode_input", "warnings_allowlist_file").asIterable()).putAll("Output", jimmutableListOf_[string](jtc_string, "assume_function_wrapper", "debug", "emit_use_strict", "export_local_property_definitions", "formatting", "generate_exports", "isolation_mode", "output_wrapper", "output_wrapper_file", "rename_variable_prefix").asIterable()).putAll("Dependency Management", jimmutableListOf_[string](jtc_string, "dependency_mode", "entry_point").asIterable()).putAll("JS Modules", jimmutableListOf_[string](jtc_string, "dynamic_import_alias", "js_module_root", "module_resolution", "process_common_js_modules", "package_json_entry_names").asIterable()).putAll("Library and Framework Specific", jimmutableListOf_[string](jtc_string, "angular_pass", "force_inject_library", "inject_libraries", "polymer_version", "process_closure_primitives", "rewrite_polyfills", "isolate_polyfills").asIterable()).putAll("Code Splitting", jimmutableListOf_[string](jtc_string, "chunk", "chunk_output_path_prefix", "chunk_output_type", "chunk_wrapper", "rename_prefix_namespace").asIterable()).putAll("Reports", jimmutableListOf_[string](jtc_string, "create_source_map", "output_manifest", "output_chunk_dependencies", "property_renaming_report", "source_map_input", "source_map_include_content", "source_map_location_mapping", "variable_renaming_report").asIterable()).putAll("Miscellaneous", jimmutableListOf_[string](jtc_string, "assume_static_inheritance_is_not_used", "browser_featureset_year", "charset", "checks_only", "define", "flagfile", "help", "json_streams", "third_party", "use_types_for_optimization", "version").asIterable()).immutableCopy()
+	CommandLineRunner_Flags_categories = SimpleListMultimap_create[string, string]().putAll("Basic Usage", immutableListOf_[string](tc_string, "compilation_level", "env", "externs", "js", "js_output_file", "language_in", "language_out", "warning_level").asIterable()).putAll("Warning and Error Management", immutableListOf_[string](tc_string, "conformance_configs", "error_format", "extra_annotation_name", "hide_warnings_for", "jscomp_error", "jscomp_off", "jscomp_warning", "strict_mode_input", "warnings_allowlist_file").asIterable()).putAll("Output", immutableListOf_[string](tc_string, "assume_function_wrapper", "debug", "emit_use_strict", "export_local_property_definitions", "formatting", "generate_exports", "isolation_mode", "output_wrapper", "output_wrapper_file", "rename_variable_prefix").asIterable()).putAll("Dependency Management", immutableListOf_[string](tc_string, "dependency_mode", "entry_point").asIterable()).putAll("JS Modules", immutableListOf_[string](tc_string, "dynamic_import_alias", "js_module_root", "module_resolution", "process_common_js_modules", "package_json_entry_names").asIterable()).putAll("Library and Framework Specific", immutableListOf_[string](tc_string, "angular_pass", "force_inject_library", "inject_libraries", "polymer_version", "process_closure_primitives", "rewrite_polyfills", "isolate_polyfills").asIterable()).putAll("Code Splitting", immutableListOf_[string](tc_string, "chunk", "chunk_output_path_prefix", "chunk_output_type", "chunk_wrapper", "rename_prefix_namespace").asIterable()).putAll("Reports", immutableListOf_[string](tc_string, "create_source_map", "output_manifest", "output_chunk_dependencies", "property_renaming_report", "source_map_input", "source_map_include_content", "source_map_location_mapping", "variable_renaming_report").asIterable()).putAll("Miscellaneous", immutableListOf_[string](tc_string, "assume_static_inheritance_is_not_used", "browser_featureset_year", "charset", "checks_only", "define", "flagfile", "help", "json_streams", "third_party", "use_types_for_optimization", "version").asIterable()).immutableCopy()
 	CommandLineRunner_Flags_MARKDOWN_CHARS_TO_ESCAPE = Pattern_compile("[-*\\`\\[\\]{}\\(\\)#+\\.!<>]")
 	CommandLineRunner_Flags_WHITESPACE_PATTERN = Pattern_compile(JavaRegex_SPACE)
 
@@ -1769,7 +1769,7 @@ func CommandLineRunner_FormattingOption_clinit() {
 type CommandLineRunner_FlagInputs struct {
 	mixedSources           ListT[*AbstractCommandLineRunner_FlagEntry[any]]
 	mappings               ListT[SourceMap_LocationMapping]
-	sourceMapInputs        *JTMap[string, string]
+	sourceMapInputs        *TMap[string, string]
 	parseInlineSourceMaps_ bool
 	applyInputSourceMaps   bool
 }

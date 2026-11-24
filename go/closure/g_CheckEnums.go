@@ -95,7 +95,7 @@ func (this *CheckEnums) checkName(t *NodeTraversal, prop Node) {
 }
 
 func CheckEnums_checkDuplicateEnumValues(t *NodeTraversal, enumNode Node) {
-	var values *JTSet[string] = jnewTSet_(jtc_string)
+	var values *TSet[string] = newTSet_(tc_string)
 	{
 		var prop Node = enumNode.getFirstChild()
 		for ; prop != 0; prop = prop.getNext() {
@@ -110,7 +110,7 @@ func CheckEnums_checkDuplicateEnumValues(t *NodeTraversal, enumNode Node) {
 			} else {
 				return
 			}
-			if !values.add(value) {
+			if !values.Add(value) {
 				t.report(valueNode, CheckEnums_DUPLICATE_ENUM_VALUE, []string{value})
 			}
 		}
