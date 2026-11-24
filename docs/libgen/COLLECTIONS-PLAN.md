@@ -12,6 +12,8 @@ the records of the stages before, kept as written).
 `main-libgen-t2`, worktree `/mnt/data/ubuntu/jm/wt/libt2`: kinds `sorted`, `enumset`, `cmaps`,
 `deque`, `guava`; 7.6 adds to 5.7 what is left of the library types; written as section 6 on its
 branch, renumbered 7 by the merge of both into main-libgen-t12).
+**Section 9 records candidate T3** (branch `main-libgen-t3`: kind `goptional`, Guava's `Optional`
+as a value library class, and piece `seqcoll`, the `SequencedCollection` twins).
 Scratch files of this stage: `/mnt/data/tmp/claude-1000/-home-ubuntu-work/9db246f3-01a3-48c8-9bf5-1c94d1ed78d6/scratchpad/b3/`
 (`tr.sh` translate + build, `trto.sh <dir>` translate into a scratch directory that has the
 runtime copied in -- the translator reads `rt_*.go` of its output directory, so a directory
@@ -1816,3 +1818,241 @@ runtime lines of the default build: 20697  off-mode extras (build-tagged files):
 self-test line was `... 2 more`, the tail of a Java stack trace, not `selftest: PASS`; the self-test run
 alone right after printed `selftest: PASS`, and so did the gate run again. The cause of the first
 output was not found.) The switches-off translations were compared by md5 only, not gated again.
+
+## 9. Record of rule candidate T3: kind `goptional` and piece `seqcoll` (branch `main-libgen-t3`, worktree `/mnt/data/ubuntu/jm/wt/libt3`, 2026-11-24)
+
+On top of main c52c9073 (T1 and T2 merged, section 8). Two pieces, each its own switch value of
+`J2GO_NOLIBGEN` and its own commit: Guava's `Optional` typed (what 7.6 says is left of it), and
+the `SequencedCollection` methods that T1 left in `LibFns.REFUSED` (6.1). Scratch files:
+`/mnt/data/tmp/claude-1000/-home-ubuntu-work/9db246f3-01a3-48c8-9bf5-1c94d1ed78d6/scratchpad/t3/`
+(`kind.sh <label> <this kind> <md5 before> <new kinds>`: under one hold of the lock, rebuild the
+translator, translate with this kind off, with both new kinds off and with everything off, then
+the default (`J2GO_LIBGEN=2`), go build, go test, self-test, gate; `cdiff.sh A B`: census rows
+and the spellings of this stage; `tm.sh`: gast.py; `offall.sh`: verify.sh with the switches off;
+`base/`, `out-t3_gopt/`, `out-t3_seq/`: the translations; `main-classes/`: main's translator,
+compiled from `git show HEAD:`; `mainbuild/`: main's go tree with main's translation, built as
+`$B/bin/m_t3_base`). Every heavy command ran under `flock /mnt/data/ubuntu/jm/heavy.lock`.
+
+### 9.1 Commits
+
+| commit | switch (`J2GO_NOLIBGEN=`) | what |
+|---|---|---|
+| 1ab3d9a3 | `goptional` | Guava `Optional<T>` is a value library class, `GOptional[T]` (`rt_lg_gopt.go`) |
+| 3b2be4dd | `seqcoll` | typed twins of `SequencedCollection.getFirst / getLast / removeLast / addLast` (`LibFns.TYPED_SEQ`, `rt_lgfn.go`) |
+| (the commit after) | | this section |
+
+### 9.2 Kind `goptional`
+
+**The form.** 7.6 proposed the form of the kinds (a typed interface = the erased one plus `_t`
+methods, wrappers, makers). It is not that: Guava's `Optional` is a class whose runtime form is a
+struct, and the translator already has a rule for exactly such a library class, "Optional is a
+value" (`Ctx.valueLibs`, `java.util.Optional` as the generic struct `Optional[T]`). The kind adds
+Guava's class to that rule (`Ctx.registerValueLibs`, `Ctx.gopt()`: the kind on and rule "function
+types" on), so its places, bridges, statics, `== null`, `instanceof`, boxing and conversions
+take the paths `java.util.Optional` takes, with no new mechanism:
+
+- The struct: `GOptional[T]` (`rt_lg_gopt.go`, 195 lines, tag `!j2go_nofntypes`): `{value T;
+  present, set bool}`, zero value = null, `GOptional_of / absent / fromNullable[T]` generic
+  functions that allocate nothing, `optGOptionalAs_` / `optGOptionalOf_` / `isGOptional_` /
+  `box_()` as `optAs_` ... are for `java.util.Optional`. Its Go name is `GOptional`
+  (`Ctx.className`, kind on), so the erased class `Optional_base` of `rt_base.go` keeps its
+  name and is what the translation with the kind off names: both are in the default build. Each
+  method does what `Optional_base`'s does, with the same messages (`orNull` gives `null_[T]()`,
+  the null String for a `GOptional[string]`). The two classes' objects are never equal (its
+  marker interface `goptional_` is not `optional_`).
+- The `or` overloads: `LibGen.GOPT_METHODS` (a name list, by `LibGen.sigKey`: owner, name,
+  erasures of the parameters) lists the methods the runtime has and gives each its Go name;
+  `Ctx.externalMethodName` takes the name from it for Guava's Optional (kind on). So `or(T)` is
+  `or` and `or(Optional)` is `or_Optional` by the parameter's erasure, not by how often the
+  program uses each overload (the rule of `Ctx.assignExternalNames` for other library overloads,
+  which gives the same two names in this tree). `or(Optional<? extends T>)`: the wildcard is
+  `any`, so the method is `or_Optional(o GOptional[any]) GOptional[T]` and the caller converts.
+  The third overload, `or(Supplier)`, is refused (the runtime has it in neither form).
+- A member of a site whose type argument is `any` in Go (a wildcard, an erased type variable):
+  `Ctx.atSite` substitutes `Object` for it (kind on, Guava's Optional only), so `get()` on an
+  `Optional<? extends Animal>` is `any` and is cast where it is used (found by the self-test: the
+  value rule's own substitution gave the bound, `Animal`, to a Go `any`). `transform`'s own type
+  parameter is not kept: `transform(f Function_base[T, any]) GOptional[any]`, converted by the
+  caller (`optGOptionalAs_`, the one conversion in the tree, `TypedAstDeserializer`).
+
+**Refusals** (`LibGen.check`, kind on; the translation stops; the tree has none of any reason,
+every translation exited 0): an unchecked cast to a Guava `Optional<X>` (11: the cast converts the
+content, where Java's checks the class only); `==` / `!=` between a Guava Optional and anything
+but `null` (12); a call of a method that `GOPT_METHODS` does not list (13: `or(Supplier)`; 14:
+`asSet()`); a reference to one of its statics (15: `Optional::fromNullable`, a Go generic
+function, which the translator has no type arguments for at a reference; the reference to a
+generic static of `java.util.Optional` crashes the translator the same way, untouched).
+`selftest/refused/RefusedLib.java` 11 to 15; the self-test fails unless exactly the 15 marked uses
+are refused. Counted by reason: 5 reasons, 1 use each in the refused file, 0 in the tree.
+
+**Sites** (`cdiff.sh base out-t3_gopt`, the translator's output `g_*.go`; census.py of `pf5`):
+
+| | main | goptional |
+|---|---:|---:|
+| `Optional_baseOf[` alias uses | 39 | 0 |
+| `*Optional_base` (bridges, interface methods, a getter) | 10 | 0 |
+| `Optional_base_*(` calls | 34 | 0 |
+| `GOptional[` uses / `GOptional_*[` calls / `optGOptional*` conversions | 0 / 0 / 0 | 47 / 34 / 1 |
+| `cast_[` (results of `get` / `orNull` / `or`) | 852 | 844 |
+| `obj_(` / `strobj_(` (arguments of `of`, `or`) | 710 / 352 | 699 / 350 |
+| `str_(` | 86 | 84 |
+| `.box_()` / `any(` | 313 / 158 | 322 / 162 |
+
+`.box_()` +9: a GOptional entering an `Object` (`MoreObjects.toStringHelper(..).add`, 4 in
+`CompilerOptions.toString`; the AutoValue `equals` / `hashCode` / `toString` / `requireNonNull` of
+`DeserializedAst`, 5) boxes the struct, where `obj_` of the pointer did not allocate (cold code;
+see 9.5). `any(` +4: `Optional<Boolean>` holds `any` (a Boolean is `any`), and `GOptional_of[any]`
+spells the conversion `any(bool(x))` that `Optional_base_of(bool(x))` left implicit.
+
+Census rows (`census.py`), main -> goptional: interface casts 294 -> 292 (-2), class casts 1,153
+-> 1,145 (-8), boxing 1,533 -> 1,533 (0: the four spellings above), unboxing 146 -> 144 (-2),
+Optional 1,402 -> 1,368 (-34: the row counts `Optional_\w+(` and the word `Optional`; `GOptional_of[X](`
+matches neither, as `Optional_of[X](` of `java.util.Optional` does not either), Java equals/hashCode
+protocol 441 -> 443 (+2: `Objects_equals` / `Objects_hashCode` of the box where `equals_` / `hash_`
+took the pointer), fields/params declared any 1,295 -> 1,294 (-1).
+
+Runtime test: `rt_lg_gopt_test.go` (`TestLgGOptional`, tag `!j2go_nofntypes`): each method
+against `Optional_base`'s (toString, hashCode), equals across instantiations and not with
+`java.util.Optional`, the throws. Self-test program `selftest/lang/GOpt.java` (added to
+`run.sh`): every listed method, the statics, both overloads of `or`, null and a call on null, the
+throws and their messages, `Optional<Boolean>` / `<Integer>`, `Object` and back (`instanceof`,
+`Optional<?>` cast, equals, a List of Objects), `Optional<Dog>` for `Optional<? extends Animal>`,
+an interface method through its bridge, Optionals as elements of a List and a Map. It prints what
+Java prints with the kind on, off, and everything off.
+
+### 9.3 Piece `seqcoll`
+
+`SequencedCollection.getFirst / getLast / removeLast / addLast` join `LibFns` (piece `fns`'s
+mechanism; off with it) in a table of their own, `LibFns.TYPED_SEQ` (`J2GO_NOLIBGEN=seqcoll`:
+not read, and the calls are reported under `LibFns.REFUSED`'s reason as before). The owner,
+`SequencedCollection`, has no typed interface, so the receiver template is the typed interface of
+the interface it extends (`LibFns.RECV_AT`: `CollectionT[$0]`): a typed deque or list of rule
+"typed collections" enters as its view (`this.blockStack.asCollT()`, no allocation, was
+`SequencedCollection(Deque_un_(this.blockStack.asDequeT()))`), a `DequeT` / `ListT` / typed set as
+it is; the member's type is taken at the owner with the view's type arguments. The twins
+(`rt_lgfn.go`, +47 lines) mirror `rt_coll.go`'s helpers: `getLastT_` reads a `ListT` by index
+(the typed deque's view is one, as the erased helper's `List` test finds), else iterates as
+`Iterables_getLastT_` does; `removeLastT_` removes by index where the erased one does, else by
+`remove_Object` of the boxed element. This is "LibFns.TYPED with receiver templates", the form
+T1's 6.5 named; the typed interfaces (T2's form) do not serve, since these methods' root is
+`SequencedCollection`, no interface of a kind.
+
+The 72 calls of 6.1 were J2GO_LIBGEN notes, not calls left erased: 30 of the 32 `addLast` notes
+were calls on a typed deque that `Ctx.typedMethod` serves (`add`), noted before that test. Calls
+of the erased helpers in main's translation: getFirst 13, getLast 15, removeLast 12, addLast 2 =
+**42; all 42 are twin calls now, none left erased** (J2GO_LIBGEN=2: 13 / 15 / 12 / 2 "calls of
+the typed twin"). Receivers: 34 fields and 7 locals that are typed deques or lists (`asCollT()`;
+the 5 Lists of 6.1 are `contextStack` of `FeatureCollector` / `ScriptNodeDeserializer`), 1
+`workSet` of `FixedPointGraphTraversal` (a typed set, as it is). No refusal reason is added
+(a call that does not fit stays erased with `LibFns.left`'s reasons; the tree has none).
+
+Census rows, goptional -> seqcoll: interface casts 292 -> 290 (-2), class casts 1,145 -> 1,114
+(-31), boxing 1,533 -> 1,531 (-2), unboxing 144 -> 142 (-2), fields/params declared any 1,294 ->
+1,293 (-1). Spellings: `SequencedCollection(` / `icast_SequencedCollection(` 43 -> 0, `Deque_un_(`
+36 -> 0, `List_un_(` 80 -> 75, `cast_[` 844 -> 814, `Node_of_(` 60 -> 58, `obj_(` 699 -> 697.
+
+Self-test: `lang/LibFns.java` `typed()` has 6 more twin calls (a typed deque, a `LinkedHashSet`:
+the iterating branch of the twins and `remove_Object`), `seq()` 7 more on `Deque` / `List`
+parameters, and an empty deque's `getLast`; `run.sh` counts 39 twins in `typed()` (was 33) with
+the twins' names in its pattern.
+
+### 9.4 Byte identity (md5 of `cat go/closure/g_*.go`, the branch's translator, the runtime of the commit)
+
+| translation | must equal | goptional (1ab3d9a3) | seqcoll (3b2be4dd) |
+|---|---|---|---|
+| this switch off | the commit before's default | 4440048a = main | a3d9a474 = goptional's default |
+| both new switches off | main's default 4440048ae31591b5be2bc353c8655e43 | equal | equal |
+| everything off (`J2GO_NOFNTYPES=1 J2GO_NOLIBGEN=all`) | main's all-off 973b5b6d3e4f71ab1cc82872360f9759 | equal | equal |
+| default | | a3d9a47487f38a32f373d245e8b5bdf9 | 627f428904cd1ab870a348b377934bfb |
+
+(main's default was made by main's translator, `main-classes/`, in this worktree: 4440048a, as
+section 8 has it.)
+
+### 9.5 Timing (CPU, googleapis 18% subset, `proto/gast.py gasub/flags3500.txt 3`)
+
+Three stages, alternating order, `--num_parallel_threads=1`; output sha `72b57cd286c9` in every
+run. Binaries: `m_t3_base` (main's translation with main's runtime, `mainbuild/`), `m_t3_gopt`
+(gate binary of 1ab3d9a3), `m_t3_seq` (gate binary of 3b2be4dd). Logs `tm-gopt.log`,
+`tm-seq.log`, `tm-all3.log`.
+
+| run | before: mean (min) CPU s | after: mean (min) CPU s | change of the means |
+|---|---:|---:|---:|
+| goptional: base -> gopt | 159.00 (157.95) | 160.83 (160.22) | +1.2% |
+| seqcoll: gopt -> seq | 160.91 (160.05) | 159.65 (159.40) | -0.8% |
+| three binaries in one session: base / gopt / seq | 158.89 (158.56) | gopt 160.88 (160.16), seq 159.01 (158.65) | gopt +1.3%, seq +0.1% |
+
+Reading it: the two pieces together (main's translation against the final one, which is what the
+translator is measured by) are **neutral** (+0.1% of the means, +0.06% of the minima). The binary
+of kind `goptional` alone is slower in all six of its runs (160.16 to 161.73 s against 157.95 to
+160.04 for main's), while the final binary, which has all of its changes and the twins on top,
+is not: the kind's sites are in cold code (options, conformance, the TypedAST deserializer; the
+one per-node site, `ScriptNodeDeserializer` `colorPoolShard.get()`, lost a cast), so the
+difference of that one binary is taken for a layout effect of the build, not of the code; it was
+not bisected further (no allocation or CPU profile was taken). Piece `seqcoll`'s sites are in hot
+code (ReferenceCollector's block stack, PureFunctionIdentifier's function stack, NodeIterators,
+IRFactory's visit stack, JSTypeResolver): a twin call on the view replaces the conversion to the
+erased interface and a cast of the result; -0.8% against the gopt binary, within about one spread.
+
+### 9.6 Gate lines
+
+Default translation of each commit, `$B/gate.sh libt3 <label>` under the lock (logs
+`/mnt/data/ubuntu/jm/logs/gate-t3_gopt.log`, `gate-t3_seq.log`, copies in the scratch directory);
+both printed `GATE OK` and these lines (the tree line is the commit before, the work uncommitted):
+
+```
+GATE OK t3_gopt
+selftest: PASS
+removed 0 declarations in 0 rounds
+ok  	jsgomech/closure	(cached)
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+runtime lines: 21136  test lines: 4671
+runtime lines of the default build: 20892  off-mode extras (build-tagged files): 244
+```
+
+`GATE OK t3_seq`: the same lines, with `runtime lines: 21183  test lines: 4671` and `runtime lines
+of the default build: 20939`. ("cached": `kind.sh` ran `go test ./closure` just before, `ok ... 1.942s`
+and `1.949s`.) Runtime of the default build: main 20,697 (section 8) -> 20,892 (+195,
+`rt_lg_gopt.go`) -> 20,939 (+47, the twins in `rt_lgfn.go`); test lines 4,626 -> 4,671
+(`rt_lg_gopt_test.go`).
+
+Switches off, on the final code (`offall.sh`: translate with the switch, `tools/prune/verify.sh`
+with it; logs `verify-*.log`; the default translation made again afterwards was identical,
+627f4289):
+
+```
+switches: J2GO_NOLIBGEN=goptional  translation: exit 0 03b59d27bbb4a6a81764934eebbe7682
+switches: J2GO_NOLIBGEN=seqcoll  translation: exit 0 a3d9a47487f38a32f373d245e8b5bdf9
+switches: J2GO_NOFNTYPES=1 J2GO_NOLIBGEN=all  translation: exit 0 973b5b6d3e4f71ab1cc82872360f9759
+(each)
+selftest: PASS
+removed 0 declarations in 0 rounds
+ok  	jsgomech/closure	1.959s / 1.932s / 1.909s
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+runtime lines: 21183  test lines: 4671
+runtime lines of the default build: 20939  off-mode extras (build-tagged files): 244
+```
+
+(`goptional` off on the final code is a new combination, seqcoll on: 03b59d27, compared with
+nothing.)
+
+### 9.7 Not done, unverified
+
+- No flip: the census rows above are of the translator's output, not of a flipped tree
+  (JAVAISMS6's 34 `Optional_base_*` sites and T1's SequencedCollection sites were counted after
+  the post-flip steps); post-flip tools that look for `Optional_base`, `Deque_un_(` or the
+  `SequencedCollection_*` helpers meet `GOptional` and the twins.
+- No allocation profile: kind `goptional` removes the heap objects of `Optional.of` (the struct is
+  a value) and adds a box where a GOptional enters an `Object` (9.2); neither was counted at run
+  time.
+- Combinations other than "this switch off", "both off" and "everything off" were not
+  translated; the switches of the earlier stages were not gated off again.
+- `java.util.Optional` has the two gaps found here (a member at a wildcard site gets the bound's
+  type; a reference to a generic static crashes the translator); kind `goptional` fixes the first
+  for Guava's class only and refuses the second; neither occurs in the tree for `java.util.Optional`
+  (it compiles).
