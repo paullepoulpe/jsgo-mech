@@ -808,9 +808,7 @@ func JSDocInfo_packPropertyValues(values []any) any {
 
 func JSDocInfo_internSet(strings *TSet[string]) *TSet[string] {
 	var interned *ImmutableSet_Builder[string] = immutableSetBuilderN_(tc_string, strings.Len())
-	it_1 := strings.each()
-	for it_1.next() {
-		var s string = it_1.v
+	for s := range strings.All() {
 		interned.add(RhinoStringPool_addOrGet(s))
 	}
 	return interned.build()

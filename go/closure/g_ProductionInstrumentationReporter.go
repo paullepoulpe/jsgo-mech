@@ -81,9 +81,9 @@ func ProductionInstrumentationReporter_parseJsonStringToLongMap(json string) *Ou
 	} else if document.kind() != SimpleJsonValue_Kind_ARRAY {
 		return Outcome_base_err[MapT[string, any]](new_SimpleJsonException("Malformed report: expected a JSON object").up_Throwable())
 	}
-	it_3 := document.elements().each()
-	for it_3.next() {
-		var pair *SimpleJsonValue = it_3.v
+	l_3 := document.elements()
+	for i_3 := 0; i_3 < len(l_3.items); i_3++ {
+		var pair *SimpleJsonValue = l_3.items[i_3]
 		if (pair.kind() != SimpleJsonValue_Kind_ARRAY) || (pair.elements().size() != 2) {
 			return Outcome_base_err[MapT[string, any]](new_SimpleJsonException("Malformed report: expected a [name, value]").up_Throwable())
 		}

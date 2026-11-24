@@ -269,9 +269,7 @@ func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) visit_impl(
 
 func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) shouldExtractGlobal() bool {
 	var allModulesDelta int32 = 0
-	it_1 := this.instancesByChunk.each()
-	for it_1.next() {
-		var instanceInfo *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo = it_1.v
+	for instanceInfo := range this.instancesByChunk.Values() {
 		allModulesDelta += instanceInfo.totalDelta
 	}
 	return ((allModulesDelta + ExtractPrototypeMemberDeclarations_Pattern_globalOverhead_[this.outer_.pattern-1]) < 0)

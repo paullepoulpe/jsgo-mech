@@ -274,9 +274,7 @@ func (this *FunctionType) getParameters() *TList[*FunctionType_Parameter] {
 func (this *FunctionType) getMinArity() int32 {
 	var i int32 = 0
 	var min_ int32 = 0
-	it_1 := this.getParameters().each()
-	for it_1.next() {
-		var parameter *FunctionType_Parameter = it_1.v
+	for parameter := range this.getParameters().All() {
 		i++
 		if !parameter.isOptional() && !parameter.isVariadic() {
 			min_ = i
@@ -405,9 +403,7 @@ func (this *FunctionType) setPrototypeNoCheck(prototype *ObjectType, propertyNod
 
 func (this *FunctionType) getAllImplementedInterfaces() IterableT[*ObjectType] {
 	var interfaces *TSet[*ObjectType] = newTSet_(tch_p_ObjectType)
-	it_1 := this.getImplementedInterfaces().each()
-	for it_1.next() {
-		var type_ *ObjectType = it_1.v
+	for type_ := range this.getImplementedInterfaces().All() {
 		this.addRelatedInterfaces(type_, interfaces)
 	}
 	return interfaces.asIterable()
@@ -466,9 +462,7 @@ func (this *FunctionType) setImplementedInterfaces(implementedInterfaces *TList[
 		panic(new_IllegalStateException_0())
 	}
 	this.implementedInterfaces = immutableListCopyOfT_(tc_p_ObjectType, implementedInterfaces)
-	it_1 := implementedInterfaces.each()
-	for it_1.next() {
-		var type_ *ObjectType = it_1.v
+	for type_ := range implementedInterfaces.All() {
 		this.typeOfThis.mergeSupertypeTemplateTypes(type_)
 	}
 }
@@ -486,9 +480,7 @@ func (this *FunctionType) setExtendedInterfaces(extendedInterfaces *TList[*Objec
 		panic(new_IllegalStateException_0())
 	}
 	this.extendedInterfaces = immutableListCopyOfT_(tc_p_ObjectType, extendedInterfaces)
-	it_1 := extendedInterfaces.each()
-	for it_1.next() {
-		var extendedInterface *ObjectType = it_1.v
+	for extendedInterface := range extendedInterfaces.All() {
 		this.typeOfThis.mergeSupertypeTemplateTypes(extendedInterface)
 	}
 }
@@ -847,9 +839,7 @@ func (this *FunctionType) resolveInternal_impl(reporter ErrorReporter_rhino) *JS
 func (this *FunctionType) resolveTypeListHelper(list *TList[*ObjectType], reporter ErrorReporter_rhino) *TList[*ObjectType] {
 	var changed bool = false
 	var resolvedList *ImmutableList_Builder[*ObjectType] = immutableListBuilder_(tc_p_ObjectType)
-	it_1 := list.each()
-	for it_1.next() {
-		var type_ *ObjectType = it_1.v
+	for type_ := range list.All() {
 		var rt *JSType = type_.resolve(reporter)
 		if !rt.isObjectType() {
 			reporter.warning(("not an object type: " + objstr_(rt.self()) + " (at " + sstr_(this.toString()) + ")"), Optional_of[string](this.source.getSourceFileName()).filter(Predicate[string](func(s string) bool {
@@ -914,9 +904,7 @@ func FunctionType_updatePropertyTypeMap(type_ *FunctionType, propTypeMap *TMap[s
 	}
 	var iterable *TList[*ObjectType] = type_.getExtendedInterfaces()
 	if iterable != nil {
-		it_3 := iterable.each()
-		for it_3.next() {
-			var interfaceType *ObjectType = it_3.v
+		for interfaceType := range iterable.All() {
 			var superConstructor *FunctionType = interfaceType.getConstructor()
 			if (superConstructor == nil) || cache.Has(superConstructor) {
 				continue
@@ -935,9 +923,8 @@ func (this *FunctionType) checkExtendsLoop() *[]*FunctionType {
 func (this *FunctionType) checkExtendsLoop_2(cache *TSet[*FunctionType], path *[]*FunctionType) *[]*FunctionType {
 	var iterable *TList[*ObjectType] = this.getExtendedInterfaces()
 	if iterable != nil {
-		it_1 := iterable.each()
-		for it_1.next() {
-			var interfaceType *ObjectType = it_1.v
+		for i_1 := 0; i_1 < len(iterable.items); i_1++ {
+			var interfaceType *ObjectType = iterable.items[i_1]
 			var superConstructor *FunctionType = interfaceType.getConstructor()
 			if superConstructor == nil {
 				continue

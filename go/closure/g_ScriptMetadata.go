@@ -158,9 +158,7 @@ func (this *ScriptMetadata_FillerCallback) maybeCollectNames(n Node) {
 	var jsdoc *JSDocInfo = n.getJSDocInfo()
 	if jsdoc != nil {
 		for expr := range elemsT_(jsdoc.getTypeExpressions()) {
-			it_3 := expr.getAllTypeNames().each()
-			for it_3.next() {
-				var type_ string = it_3.v
+			for type_ := range expr.getAllTypeNames().All() {
 				this.toFill.namesInUse[iterableAs_(tc_string, ScriptMetadata_DOT_SPLITTER.split_s(type_)).iterator_t().next_t()] = struct{}{}
 			}
 		}

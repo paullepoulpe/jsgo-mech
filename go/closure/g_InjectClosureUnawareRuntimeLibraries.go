@@ -28,24 +28,18 @@ func (this *InjectClosureUnawareRuntimeLibraries) process_2(externs Node, root N
 func (this *InjectClosureUnawareRuntimeLibraries) injectLibrariesIntoMainAst() {
 	var mainManager *RuntimeJsLibManager = this.mainCompiler.getRuntimeJsLibManager()
 	var shadowManager *RuntimeJsLibManager = this.shadowCompiler.getRuntimeJsLibManager()
-	it_1 := shadowManager.getInjectedLibraries().each()
-	for it_1.next() {
-		var runtimeLib string = it_1.v
+	for runtimeLib := range shadowManager.getInjectedLibraries().All() {
 		mainManager.ensureLibraryInjected(runtimeLib, false)
 	}
 }
 
 func (this *InjectClosureUnawareRuntimeLibraries) injectFieldsIntoCallSites() {
 	var fieldsByNameBuilder *ImmutableMap_Builder[string, RuntimeJsLibManager_ExternedField] = immutableMapBuilder_(tc_string, tc_RuntimeJsLibManager_ExternedField)
-	it_1 := this.shadowCompiler.getRuntimeJsLibManager().getExternedFields().each()
-	for it_1.next() {
-		var field RuntimeJsLibManager_ExternedField = it_1.v
+	for field := range this.shadowCompiler.getRuntimeJsLibManager().getExternedFields().All() {
 		fieldsByNameBuilder.put(field.qualifiedName(), field)
 	}
 	var fieldsByName *TMap[string, RuntimeJsLibManager_ExternedField] = fieldsByNameBuilder.buildOrThrow()
-	it_3 := this.closureUnawareCalls.each()
-	for it_3.next() {
-		var callSite *InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite = it_3.v
+	for callSite := range this.closureUnawareCalls.All() {
 		var toInject *TSet[RuntimeJsLibManager_ExternedField] = InjectClosureUnawareRuntimeLibraries_gatherRuntimeFields(callSite.closureUnawareFunction(), fieldsByName)
 		this.injectAll(callSite, toInject)
 	}
@@ -60,9 +54,7 @@ func (this *InjectClosureUnawareRuntimeLibraries) injectAll(callSite *InjectClos
 	if parameterParent.hasChildren() && parameterParent.getLastChild().isRest() {
 		panic(new_IllegalStateException_String(("rest parameters not allowed in closureUnaware function parameters, found " + tostrH_(parameterParent.getLastChild()))))
 	}
-	it_1 := toInject.each()
-	for it_1.next() {
-		var field RuntimeJsLibManager_ExternedField = it_1.v
+	for field := range toInject.All() {
 		var parameter Node = IR_name(field.qualifiedName()).srcref(parameterParent)
 		var argument Node = NodeUtil_newQName_AbstractCompiler_String(this.mainCompiler, field.uncompiledName()).srcrefTree(argumentParent)
 		parameterParent.addChildToBack(parameter)

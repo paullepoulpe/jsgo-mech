@@ -40,9 +40,7 @@ func (this *DiagnosticToSuppressionMapper) createSuppressionMap() MapT[string, s
 			continue
 		}
 		var group *DiagnosticGroup = entry.getValue()
-		it_3 := group.getTypes().each()
-		for it_3.next() {
-			var diagnosticType *DiagnosticType = it_3.v
+		for diagnosticType := range group.getTypes().All() {
 			Map_mergeT_[*DiagnosticType, string](diagnosticToSuppression.asMapT(), diagnosticType, suppression, BiFunction[string, string, string](func(p0 string, p1 string) string { return this.preferMoreTargetedGroup(p0, p1) }))
 		}
 	}

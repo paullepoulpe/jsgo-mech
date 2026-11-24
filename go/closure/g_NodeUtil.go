@@ -2873,9 +2873,8 @@ func NodeUtil_isValidQualifiedName(mode *FeatureSet, name string) bool {
 		return false
 	}
 	var parts *TList[string] = splitToListST_(tc_string, Splitter_on('.'), name)
-	it_1 := parts.each()
-	for it_1.next() {
-		var part string = it_1.v
+	for i_1 := 0; i_1 < len(parts.items); i_1++ {
+		var part string = parts.items[i_1]
 		if !NodeUtil_isValidPropertyName(mode, part) {
 			return false
 		}
@@ -4376,9 +4375,7 @@ func NodeUtil_addFeaturesToScript(scriptNode Node, features *FeatureSet, compile
 	if !scriptNode.isScript() {
 		panic(new_IllegalStateException_String(tostr_(scriptNode)))
 	}
-	it_1 := features.getFeatures().each()
-	for it_1.next() {
-		var feature FeatureSet_Feature = it_1.v
+	for feature := range features.getFeatures().All() {
 		NodeUtil_addFeatureToScript(scriptNode, feature, compiler)
 	}
 }

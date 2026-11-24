@@ -373,9 +373,7 @@ func ProcessClosurePrimitives_processSetCssNameMapping(compiler *AbstractCompile
 	var style CssRenamingMap_Style = styleOrNull
 	if style == CssRenamingMap_Style_BY_PART {
 		var errors *TList[string] = newTList_(tc_string)
-		it_3 := cssNames.each()
-		for it_3.next() {
-			var key string = it_3.k
+		for key := range cssNames.Keys() {
 			if JString_contains_s(key, "-") && !strings.HasPrefix(key, "--") {
 				errors.add(key)
 			}
